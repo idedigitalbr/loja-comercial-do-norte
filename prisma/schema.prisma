@@ -318,6 +318,7 @@ model Product {
 
   @@index([status, createdAt])
   @@index([brandId, status])
+  @@index([name, status])
 }
 
 model ProductCategory {

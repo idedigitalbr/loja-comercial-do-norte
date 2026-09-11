@@ -1,7 +1,5 @@
-import { LoginPage } from './features/account/login-page';
+import { StorefrontRoutes } from './routes/router';
 
 export function App() {
-  return (
-    <LoginPage />
-  );
+  return <StorefrontRoutes />;
 }

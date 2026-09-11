@@ -104,7 +104,7 @@ export class CatalogService {
       ...(input.brandId ? { brandId: input.brandId } : {}),
       ...(input.categoryId ? { categories: { some: { categoryId: input.categoryId } } } : {}),
       ...(input.search
-        ? { OR: [{ name: { contains: input.search } }, { slug: { contains: input.search } }] }
+        ? { OR: [{ name: { startsWith: input.search } }, { slug: { startsWith: input.search } }] }
         : {}),
     };
     return this.prisma.product.findMany({
