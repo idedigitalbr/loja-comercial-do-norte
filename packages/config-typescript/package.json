@@ -1,0 +1,6 @@
+{
+  "name": "@commerce/config-typescript",
+  "private": true,
+  "type": "module",
+  "exports": "./tsconfig.base.json"
+}
