@@ -6,9 +6,10 @@ import { CatalogModule } from './modules/catalog/catalog.module';
 import { CartsModule } from './modules/carts/carts.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { ShippingModule } from './modules/shipping/shipping.module';
+import { OrdersModule } from './modules/orders/orders.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, CatalogModule, CartsModule, InventoryModule, ShippingModule],
+  imports: [DatabaseModule, AuthModule, CatalogModule, CartsModule, InventoryModule, ShippingModule, OrdersModule],
   controllers: [HealthController],
 })
 export class AppModule {}

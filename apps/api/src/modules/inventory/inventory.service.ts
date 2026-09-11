@@ -23,37 +23,39 @@ export class InventoryService {
   constructor(private readonly prisma: PrismaService) {}
 
   async reserve(input: ReservationInput) {
+    return this.prisma.$transaction((transaction) => this.reserveInTransaction(transaction, input));
+  }
+
+  async reserveInTransaction(transaction: Transaction, input: ReservationInput) {
     const sortedItems = [...input.items].sort((left, right) => left.variantId.localeCompare(right.variantId));
     const expiresAt = input.expiresAt ?? new Date(Date.now() + 15 * 60 * 1000);
-    return this.prisma.$transaction(async (transaction) => {
-      const reservations = [];
-      for (const item of sortedItems) {
-        if (!Number.isInteger(item.quantity) || item.quantity < 1) throw new InventoryUnavailableError();
-        const balance = await this.lockBalance(transaction, item.variantId);
-        const available = balance.physicalQuantity - balance.reservedQuantity;
-        if (available < item.quantity) throw new InventoryUnavailableError();
+    const reservations = [];
+    for (const item of sortedItems) {
+      if (!Number.isInteger(item.quantity) || item.quantity < 1) throw new InventoryUnavailableError();
+      const balance = await this.lockBalance(transaction, item.variantId);
+      const available = balance.physicalQuantity - balance.reservedQuantity;
+      if (available < item.quantity) throw new InventoryUnavailableError();
 
-        await transaction.inventoryBalance.update({
-          where: { variantId: item.variantId },
-          data: { reservedQuantity: { increment: item.quantity } },
-        });
-        const reservation = await transaction.inventoryReservation.create({
-          data: { orderId: input.orderId, variantId: item.variantId, quantity: item.quantity, expiresAt },
-        });
-        await transaction.stockMovement.create({
-          data: {
-            variantId: item.variantId,
-            orderId: input.orderId,
-            type: StockMovementType.SALE_RESERVATION,
-            quantity: item.quantity,
-            beforeQuantity: available,
-            afterQuantity: available - item.quantity,
-          },
-        });
-        reservations.push(reservation);
-      }
-      return reservations;
-    });
+      await transaction.inventoryBalance.update({
+        where: { variantId: item.variantId },
+        data: { reservedQuantity: { increment: item.quantity } },
+      });
+      const reservation = await transaction.inventoryReservation.create({
+        data: { orderId: input.orderId, variantId: item.variantId, quantity: item.quantity, expiresAt },
+      });
+      await transaction.stockMovement.create({
+        data: {
+          variantId: item.variantId,
+          orderId: input.orderId,
+          type: StockMovementType.SALE_RESERVATION,
+          quantity: item.quantity,
+          beforeQuantity: available,
+          afterQuantity: available - item.quantity,
+        },
+      });
+      reservations.push(reservation);
+    }
+    return reservations;
   }
 
   async releaseExpiredReservations(now = new Date(), limit = 100): Promise<number> {
