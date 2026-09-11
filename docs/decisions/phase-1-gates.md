@@ -7,21 +7,21 @@ Este documento registra as decisões necessárias antes da criação do monorepo
 
 ## Gate A — Compatibilidade da hospedagem
 
-Resultado atual: pendente de evidência da conta Hostinger.
+Resultado atual: compatível por declaração do responsável; falta apenas anexar/registrar a evidência do hPanel quando disponível.
 
 | Verificação | Evidência esperada | Status |
 |---|---|---|
-| Node.js compatível com a versão escolhida | Versão disponível e comando de inicialização | Pendente |
+| Node.js compatível com a versão escolhida | Versão disponível e comando de inicialização | Compatível — plano Business |
 | Processo Node persistente | Aplicação permanece ativa após o start | Pendente |
 | `PORT` fornecida pela plataforma | Variável documentada ou observada | Pendente |
-| Variáveis de ambiente secretas | Configuração fora do repositório | Pendente |
-| MySQL compatível com Prisma/InnoDB | Versão, acesso e limites de conexão | Pendente |
+| Variáveis de ambiente secretas | Configuração fora do repositório | Compatível — confirmar no hPanel |
+| MySQL compatível com Prisma/InnoDB | Versão, acesso e limites de conexão | Compatível — confirmar limites |
 | Cron Job | Intervalo mínimo e comando/URL disponíveis | Pendente |
 | HTTPS | Domínio e certificado ativos | Pendente |
 | Upload persistente | Diretório gravável que sobrevive ao deploy | Pendente |
 | Limites operacionais | CPU, RAM, processos, timeout e conexões | Pendente |
 
-Decisão: `NO-GO` até que os itens acima sejam comprovados. Se qualquer requisito essencial não existir, avaliar VPS ou outra hospedagem antes da Task 1.
+Decisão atual: `GO condicionado` para iniciar a fundação no plano Business. O deploy de produção continua condicionado à confirmação dos limites, do comando de inicialização, das variáveis de ambiente e da persistência de uploads no hPanel.
 
 ### Evidência pública consultada em 2026-09-11
 

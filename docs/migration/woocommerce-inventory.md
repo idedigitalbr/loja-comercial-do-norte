@@ -1,6 +1,6 @@
 # Inventário de migração WooCommerce
 
-Status: aguardando export oficial.
+Status: aguardando export oficial; a importação será executada posteriormente e não bloqueia a fundação do MVP.
 
 ## Fontes necessárias
 
