@@ -23,6 +23,14 @@ Resultado atual: pendente de evidência da conta Hostinger.
 
 Decisão: `NO-GO` até que os itens acima sejam comprovados. Se qualquer requisito essencial não existir, avaliar VPS ou outra hospedagem antes da Task 1.
 
+### Evidência pública consultada em 2026-09-11
+
+- A [documentação de opções Node.js da Hostinger](https://www.hostinger.com/support/node-js-hosting-options-at-hostinger/) informa que planos Web Business ou qualquer plano Cloud permitem publicar uma aplicação Node.js; planos Agency são descritos como front-end estático e não atendem ao processo Node persistente deste plano.
+- A [documentação de Cron Jobs](https://support.hostinger.com/en/articles/1583465-how-to-set-up-a-cron-job-at-hostinger) informa que os agendamentos usam UTC+0. O runbook deve converter explicitamente os horários comerciais para UTC.
+- A [documentação sobre `event_scheduler`](https://support.hostinger.com/en/articles/1583548-is-event_scheduler-enabled-for-mysql) informa que Web e Cloud não o suportam. O executor HTTP protegido por Cron continua sendo a opção compatível.
+
+Essa evidência pública não substitui a verificação da conta. O plano da conta, os limites de recursos, o comando de inicialização e a disponibilidade real de variáveis de ambiente ainda precisam ser confirmados no hPanel.
+
 ## Gate B — Regras comerciais
 
 | Tema | Decisão necessária | Status |
