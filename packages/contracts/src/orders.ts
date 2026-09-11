@@ -6,6 +6,7 @@ export const PriceAdjustmentSchema = z.object({
   label: z.string(),
   amount: MoneySchema,
 });
+export type PriceAdjustment = z.infer<typeof PriceAdjustmentSchema>;
 
 export const PriceQuoteSchema = z.object({
   cartId: z.string(),

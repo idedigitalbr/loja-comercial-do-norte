@@ -6,7 +6,7 @@ Implementação faseada da plataforma de e-commerce e treinamentos presenciais d
 
 ## Estado atual
 
-O repositório concluiu a Fase 1 condicionada e as Tasks 1–8 da fundação. O monorepo, os três aplicativos, o schema Prisma, as migrations, o seed local, os contratos compartilhados, a fundação HTTP, a autenticação com sessão persistida, o pacote UI compartilhado, o catálogo inicial e a loja pública estão funcionais.
+O repositório concluiu a Fase 1 condicionada e as Tasks 1–9 da fundação. O monorepo, os três aplicativos, o schema Prisma, as migrations, o seed local, os contratos compartilhados, a fundação HTTP, a autenticação com sessão persistida, o pacote UI compartilhado, o catálogo inicial, a loja pública e o motor de preço/promoções estão funcionais.
 
 Antes da Task 1, devem ser concluídos os gates documentados em `docs/decisions/phase-1-gates.md`.
 
