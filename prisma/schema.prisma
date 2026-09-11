@@ -279,6 +279,8 @@ model Address {
 model Brand {
   id              String           @id @default(cuid())
   publicId        String           @unique @default(cuid())
+  legacySource    String?          @db.VarChar(80)
+  legacyId        String?          @db.VarChar(191)
   name            String           @unique @db.VarChar(160)
   slug            String           @unique @db.VarChar(191)
   status          RecordStatus     @default(DRAFT)
@@ -286,11 +288,15 @@ model Brand {
   updatedAt       DateTime         @updatedAt
   products        Product[]
   promotionScopes PromotionScope[]
+
+  @@unique([legacySource, legacyId])
 }
 
 model Category {
   id              String            @id @default(cuid())
   publicId        String            @unique @default(cuid())
+  legacySource    String?           @db.VarChar(80)
+  legacyId        String?           @db.VarChar(191)
   name            String            @unique @db.VarChar(160)
   slug            String            @unique @db.VarChar(191)
   status          RecordStatus      @default(DRAFT)
@@ -298,10 +304,14 @@ model Category {
   updatedAt       DateTime          @updatedAt
   products        ProductCategory[]
   promotionScopes PromotionScope[]
+
+  @@unique([legacySource, legacyId])
 }
 
 model Product {
   id              String            @id @default(cuid())
+  legacySource    String?           @db.VarChar(80)
+  legacyId        String?           @db.VarChar(191)
   publicId        String            @unique @default(cuid())
   name            String            @db.VarChar(220)
   slug            String            @unique @db.VarChar(191)
@@ -316,6 +326,7 @@ model Product {
   categories      ProductCategory[]
   promotionScopes PromotionScope[]
 
+  @@unique([legacySource, legacyId])
   @@index([status, createdAt])
   @@index([brandId, status])
   @@index([name, status])
