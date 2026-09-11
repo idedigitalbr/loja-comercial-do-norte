@@ -15,9 +15,10 @@ import { AuditModule } from './modules/audit/audit.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { PublicShellModule } from './public-shell/public-shell.module';
+import { SecurityModule } from './common/security/security.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, CatalogModule, CartsModule, InventoryModule, ShippingModule, OrdersModule, PaymentsModule, JobsModule, CheckoutModule, TrainingsModule, AuditModule, CustomersModule, ReportsModule, PublicShellModule],
+  imports: [DatabaseModule, AuthModule, CatalogModule, CartsModule, InventoryModule, ShippingModule, OrdersModule, PaymentsModule, JobsModule, CheckoutModule, TrainingsModule, AuditModule, CustomersModule, ReportsModule, PublicShellModule, SecurityModule],
   controllers: [HealthController],
 })
 export class AppModule {}

@@ -14,6 +14,7 @@ import { AppModule } from './app.module';
 import { ApiExceptionFilter } from './common/filters/api-exception.filter';
 import { RequestIdInterceptor } from './common/interceptors/request-id.interceptor';
 import { loadEnvironment as loadEnvironmentFromSchema } from './config/env.schema';
+import { assertProductionConfiguration } from './config/production.config';
 
 export function configureApp(app: INestApplication): INestApplication {
   const httpServer = app.getHttpAdapter().getInstance();
@@ -51,6 +52,7 @@ export function loadEnvironment() {
 
 async function bootstrap() {
   const environment = loadEnvironment();
+  if (process.env.NODE_ENV === 'production') assertProductionConfiguration(process.env);
   const app = await NestFactory.create(AppModule);
   configureApp(app);
   await app.listen(environment.PORT, '0.0.0.0');
