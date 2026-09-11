@@ -14,6 +14,7 @@ composer.phar
 # Builds, caches and coverage
 dist/
 build/
+apps/api/public/
 .turbo/
 .cache/
 .vite/

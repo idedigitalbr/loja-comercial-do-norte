@@ -8,12 +8,17 @@ import {
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import { join } from 'node:path';
+import { static as serveStatic } from 'express';
 import { AppModule } from './app.module';
 import { ApiExceptionFilter } from './common/filters/api-exception.filter';
 import { RequestIdInterceptor } from './common/interceptors/request-id.interceptor';
 import { loadEnvironment as loadEnvironmentFromSchema } from './config/env.schema';
 
 export function configureApp(app: INestApplication): INestApplication {
+  const httpServer = app.getHttpAdapter().getInstance();
+  httpServer.use('/assets', serveStatic(join(process.cwd(), 'apps/api/public/storefront/assets')));
+  httpServer.use('/admin/assets', serveStatic(join(process.cwd(), 'apps/api/public/admin/assets')));
   app.setGlobalPrefix('api/v1', {
     exclude: ['webhooks/mercado-pago', 'internal/cron/process'],
   });
