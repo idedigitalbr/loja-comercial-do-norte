@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+vendor/
+composer.phar
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# Builds, caches and coverage
+dist/
+build/
+.turbo/
+.cache/
+.vite/
+coverage/
+playwright-report/
+test-results/
+
+# Local runtime data and uploads
+storage/uploads/
+storage/generated/
+storage/logs/
+storage/app/
+storage/docs/
+storage/framework/testing/
+public/uploads/
+*.log
+
+# Database and backups
+*.sql
+*.sqlite
+*.sqlite3
+*.dump
+*.bak
+*.backup
+backups/
+
+# Tooling and OS files
+.codegraph/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,56 @@
+# Fase 1 — Gates de arquitetura e negócio
+
+Status: em andamento
+Última atualização: 2026-09-11
+
+Este documento registra as decisões necessárias antes da criação do monorepo. A arquitetura do plano só avança para a Task 1 quando os gates obrigatórios estiverem comprovados.
+
+## Gate A — Compatibilidade da hospedagem
+
+Resultado atual: pendente de evidência da conta Hostinger.
+
+| Verificação | Evidência esperada | Status |
+|---|---|---|
+| Node.js compatível com a versão escolhida | Versão disponível e comando de inicialização | Pendente |
+| Processo Node persistente | Aplicação permanece ativa após o start | Pendente |
+| `PORT` fornecida pela plataforma | Variável documentada ou observada | Pendente |
+| Variáveis de ambiente secretas | Configuração fora do repositório | Pendente |
+| MySQL compatível com Prisma/InnoDB | Versão, acesso e limites de conexão | Pendente |
+| Cron Job | Intervalo mínimo e comando/URL disponíveis | Pendente |
+| HTTPS | Domínio e certificado ativos | Pendente |
+| Upload persistente | Diretório gravável que sobrevive ao deploy | Pendente |
+| Limites operacionais | CPU, RAM, processos, timeout e conexões | Pendente |
+
+Decisão: `NO-GO` até que os itens acima sejam comprovados. Se qualquer requisito essencial não existir, avaliar VPS ou outra hospedagem antes da Task 1.
+
+## Gate B — Regras comerciais
+
+| Tema | Decisão necessária | Status |
+|---|---|---|
+| Frete | Provedor, regiões, prazo, valor declarado e fallback | Pendente |
+| Retirada | Endereço, horários, prazo de preparação e comprovante | Pendente |
+| Pagamento | Pix, cartão, parcelas, expiração e conciliação | Pendente |
+| Cancelamento/reembolso | Produto, treinamento, parcial, total e chargeback | Pendente |
+| Fiscal | Emissão de documento fiscal e responsável operacional | Pendente |
+| VIP | Elegibilidade, vigência, acúmulo e aprovação | Pendente |
+| Treinamentos | Transferência de participante, falta e cancelamento | Pendente |
+| Comunicação | E-mail transacional, remetente e templates | Pendente |
+| Fuso horário | Confirmar `America/Belem` como fuso comercial | Pendente |
+
+## Gate C — Escopo do MVP
+
+O MVP está definido preliminarmente em `docs/acceptance/mvp.md`. O escopo deve ser aprovado antes de congelar o schema Prisma.
+
+## Gate D — Testes e operação
+
+- [x] Repositório Git inicializado na pasta correta.
+- [x] `.gitignore` criado antes do primeiro stage.
+- [x] Estratégia inicial registrada em `docs/testing/strategy.md`.
+- [ ] MySQL real disponível no CI.
+- [ ] Seed e migrations reproduzíveis.
+- [ ] Playwright executável no CI.
+- [ ] Política de cobertura configurada por pacote e módulo crítico.
+
+## Decisão de passagem
+
+O responsável deve registrar uma decisão `GO` com data e evidências anexas após concluir os Gates A–D. Até lá, alterações ficam limitadas à documentação e preparação segura do repositório.
