@@ -1,4 +1,4 @@
-import { ActorType, OrderItemType, OrderStatus } from '@prisma/client';
+import { ActorType, OrderItemType, OrderStatus, Prisma } from '@prisma/client';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { InventoryService } from '../inventory/inventory.service';
@@ -8,18 +8,41 @@ import { canTransition } from './order-status-machine';
 export class OrdersService {
   constructor(private readonly prisma: PrismaService, private readonly inventoryService: InventoryService) {}
 
-  async createFromCart(input: { cartId: string; contactEmail: string; userId?: string }) {
+  async createFromCart(input: {
+    cartId: string;
+    contactEmail: string;
+    userId?: string;
+    idempotencyKey?: string;
+    shippingCents?: number;
+    shippingMethodCode?: string;
+    shippingDays?: number;
+    shippingAddress?: Prisma.InputJsonValue;
+    billingAddress?: Prisma.InputJsonValue;
+  }) {
     return this.prisma.$transaction(async (transaction) => {
+      if (input.idempotencyKey) {
+        const existing = await transaction.idempotencyKey.findUnique({ where: { key: input.idempotencyKey } });
+        if (existing?.responseJson && typeof existing.responseJson === 'object' && 'orderPublicId' in existing.responseJson) {
+          return transaction.order.findUnique({ where: { publicId: String(existing.responseJson.orderPublicId) }, include: { items: true, statusHistory: true, inventoryReservations: true } });
+        }
+      }
       const cart = await transaction.cart.findUnique({ where: { id: input.cartId }, include: { items: { include: { variant: { include: { product: true } } } } } });
       if (!cart || !cart.items.length) throw new BadRequestException('CART_EMPTY');
       const subtotalCents = cart.items.reduce((sum, item) => sum + (item.unitPriceCents ?? item.variant.priceCents) * item.quantity, 0);
+      const shippingCents = input.shippingCents ?? 0;
+      if (!Number.isInteger(shippingCents) || shippingCents < 0) throw new BadRequestException('INVALID_SHIPPING_AMOUNT');
       const order = await transaction.order.create({
         data: {
           userId: input.userId,
           status: OrderStatus.DRAFT,
           subtotalCents,
-          totalCents: subtotalCents,
+          shippingCents,
+          totalCents: subtotalCents + shippingCents,
           contactEmail: input.contactEmail,
+          shippingMethodCode: input.shippingMethodCode,
+          shippingDays: input.shippingDays,
+          shippingAddressJson: input.shippingAddress,
+          billingAddressJson: input.billingAddress,
           items: {
             create: cart.items.map((item) => ({
               itemType: OrderItemType.PRODUCT_VARIANT,
@@ -41,7 +64,22 @@ export class OrdersService {
       await transaction.order.update({ where: { id: order.id }, data: { status: OrderStatus.AWAITING_PAYMENT } });
       await transaction.orderStatusHistory.create({ data: { orderId: order.id, fromStatus: OrderStatus.DRAFT, toStatus: OrderStatus.AWAITING_PAYMENT, actorType: ActorType.USER, actorId: input.userId, source: 'CHECKOUT' } });
       await transaction.cart.update({ where: { id: input.cartId }, data: { status: 'CONVERTED' } });
-      return transaction.order.findUnique({ where: { id: order.id }, include: { items: true, statusHistory: true } });
+      const result = await transaction.order.findUnique({ where: { id: order.id }, include: { items: true, statusHistory: true, inventoryReservations: true } });
+      if (input.idempotencyKey && result) {
+        await transaction.idempotencyKey.create({
+          data: {
+            key: input.idempotencyKey,
+            scope: `checkout:${input.cartId}`,
+            responseJson: {
+              orderPublicId: result.publicId,
+              amountCents: result.totalCents,
+              expiresAt: result.inventoryReservations[0]?.expiresAt.toISOString(),
+            },
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          },
+        });
+      }
+      return result;
     });
   }
 
@@ -58,5 +96,13 @@ export class OrdersService {
 
   getByPublicId(publicId: string) {
     return this.prisma.order.findUnique({ where: { publicId }, include: { items: true, statusHistory: { orderBy: { createdAt: 'asc' } }, payments: true } });
+  }
+
+  listForUser(userId: string) {
+    return this.prisma.order.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, include: { items: true, payments: true, statusHistory: { orderBy: { createdAt: 'asc' } } } });
+  }
+
+  listForOperations() {
+    return this.prisma.order.findMany({ take: 100, orderBy: { createdAt: 'desc' }, include: { items: true, payments: true } });
   }
 }

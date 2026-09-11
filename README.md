@@ -6,7 +6,7 @@ Implementação faseada da plataforma de e-commerce e treinamentos presenciais d
 
 ## Estado atual
 
-O repositório concluiu a Fase 1 condicionada e as Tasks 1–15 da fundação do MVP. O monorepo, os três aplicativos, o schema Prisma, as migrations, o seed local, os contratos compartilhados, a fundação HTTP, a autenticação com sessão persistida, o pacote UI compartilhado, o catálogo inicial, a loja pública, o motor de preço/promoções, o carrinho persistido, o estoque transacional, os adaptadores de frete, a máquina de pedidos, a base de pagamentos idempotentes e os jobs MySQL acionados por Cron estão funcionais. A integração real de credenciais Mercado Pago, o checkout completo, a migração do inventário WooCommerce e o deploy na Hostinger continuam como etapas posteriores.
+O repositório concluiu a Fase 1 condicionada e as Tasks 1–15 da fundação do MVP. As Tasks 16–18 estão em execução, com preparação idempotente de checkout, reserva concorrente de vagas, auditoria e visão operacional iniciais já implementadas. O monorepo, os três aplicativos, o schema Prisma, as migrations, o seed local, os contratos compartilhados, a fundação HTTP, a autenticação com sessão persistida, o pacote UI compartilhado, o catálogo inicial, a loja pública, o motor de preço/promoções, o carrinho persistido, o estoque transacional, os adaptadores de frete, a máquina de pedidos, a base de pagamentos idempotentes e os jobs MySQL acionados por Cron estão funcionais. A integração real de credenciais Mercado Pago, a conclusão do checkout e operações, a migração do inventário WooCommerce e o deploy na Hostinger continuam como etapas posteriores.
 
 Antes da Task 1, devem ser concluídos os gates documentados em `docs/decisions/phase-1-gates.md`.
 

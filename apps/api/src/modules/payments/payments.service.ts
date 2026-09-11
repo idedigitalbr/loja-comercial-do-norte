@@ -51,13 +51,14 @@ export class PaymentsService {
     if (existingKey?.responseJson && typeof existingKey.responseJson === 'object' && 'paymentId' in existingKey.responseJson) {
       return this.prisma.payment.findUniqueOrThrow({ where: { id: String(existingKey.responseJson.paymentId) } });
     }
-    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    const order = await this.prisma.order.findFirst({ where: { OR: [{ id: orderId }, { publicId: orderId }] } });
     if (!order) throw new NotFoundException('ORDER_NOT_FOUND');
+    if (amountCents !== order.totalCents) throw new BadRequestException('PAYMENT_AMOUNT_MISMATCH');
     const providerPayment = await createProviderPayment();
     return this.prisma.$transaction(async (transaction) => {
       const payment = await transaction.payment.create({
         data: {
-          orderId,
+          orderId: order.id,
           method,
           status: this.mapStatus(providerPayment.status),
           provider: 'MERCADO_PAGO',

@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { ActorType, OrderStatus } from '@prisma/client';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { PermissionGuard, Permissions, RequirePermissions } from '../auth/guards/permission.guard';
@@ -23,5 +23,10 @@ export class AdminOrdersController {
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body() body: StatusDto) {
     return this.ordersService.transition(id, body.status, { actorType: ActorType.USER, reason: body.reason, source: 'ADMIN' });
+  }
+
+  @Get()
+  list() {
+    return this.ordersService.listForOperations();
   }
 }

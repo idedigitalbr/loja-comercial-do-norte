@@ -28,4 +28,10 @@ export class OrdersController {
   get(@Param('publicId') publicId: string) {
     return this.ordersService.getByPublicId(publicId);
   }
+
+  @UseGuards(SessionGuard)
+  @Get()
+  list(@Req() request: Request & { user: AuthenticatedUser }) {
+    return this.ordersService.listForUser(request.user.id);
+  }
 }

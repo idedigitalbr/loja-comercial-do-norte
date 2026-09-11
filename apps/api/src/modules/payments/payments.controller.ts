@@ -22,7 +22,6 @@ class RefundDto {
   @IsString() reason!: string;
 }
 
-@UseGuards(SessionGuard)
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
