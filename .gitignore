@@ -7,8 +7,9 @@ composer.phar
 # Environment and secrets
 .env
 .env.*
-!.env.example
-!.env.local.example
+# Keep environment templates local until the repository scanner allows them.
+.env.example
+.env.local.example
 
 # Builds, caches and coverage
 dist/
@@ -32,6 +33,7 @@ public/uploads/
 
 # Database and backups
 *.sql
+!prisma/migrations/**/*.sql
 *.sqlite
 *.sqlite3
 *.dump

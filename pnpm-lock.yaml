@@ -11,6 +11,9 @@ importers:
       '@playwright/test':
         specifier: ^1.55.0
         version: 1.63.0
+      '@prisma/client':
+        specifier: 6.19.3
+        version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
       eslint:
         specifier: ^9.35.0
         version: 9.39.5(jiti@2.7.0)

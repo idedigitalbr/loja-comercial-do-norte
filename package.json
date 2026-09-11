@@ -8,10 +8,16 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "node scripts/check-workspace.mjs && turbo test",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "db:format": "prisma format",
+    "db:validate": "prisma validate",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
+    "@prisma/client": "6.19.3",
     "eslint": "^9.35.0",
     "prettier": "^3.6.2",
     "prisma": "^6.16.0",
@@ -20,5 +26,8 @@
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.70.0",
     "vitest": "^3.2.4"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }

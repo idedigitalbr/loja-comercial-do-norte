@@ -54,8 +54,9 @@ O MVP está definido preliminarmente em `docs/acceptance/mvp.md`. O escopo deve 
 - [x] Repositório Git inicializado na pasta correta.
 - [x] `.gitignore` criado antes do primeiro stage.
 - [x] Estratégia inicial registrada em `docs/testing/strategy.md`.
-- [ ] MySQL real disponível no CI.
-- [ ] Seed e migrations reproduzíveis.
+- [x] MySQL real disponível localmente no Laragon.
+- [ ] MySQL real provisionado no CI.
+- [x] Seed e migrations reproduzíveis localmente.
 - [ ] Playwright executável no CI.
 - [ ] Política de cobertura configurada por pacote e módulo crítico.
 
