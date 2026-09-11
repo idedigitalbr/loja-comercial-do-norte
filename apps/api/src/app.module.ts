@@ -13,9 +13,10 @@ import { CheckoutModule } from './modules/checkout/checkout.module';
 import { TrainingsModule } from './modules/trainings/trainings.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { CustomersModule } from './modules/customers/customers.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, CatalogModule, CartsModule, InventoryModule, ShippingModule, OrdersModule, PaymentsModule, JobsModule, CheckoutModule, TrainingsModule, AuditModule, CustomersModule],
+  imports: [DatabaseModule, AuthModule, CatalogModule, CartsModule, InventoryModule, ShippingModule, OrdersModule, PaymentsModule, JobsModule, CheckoutModule, TrainingsModule, AuditModule, CustomersModule, ReportsModule],
   controllers: [HealthController],
 })
 export class AppModule {}
