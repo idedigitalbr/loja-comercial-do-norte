@@ -8,6 +8,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests"
   },
+  "dependencies": {
+    "@commerce/contracts": "workspace:*"
+  },
   "devDependencies": {
     "eslint": "^9.35.0",
     "typescript": "^5.9.2",

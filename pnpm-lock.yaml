@@ -160,6 +160,10 @@ importers:
         version: 3.2.7(@types/node@24.13.4)(jiti@2.7.0)(tsx@4.23.13)
 
   packages/api-client:
+    dependencies:
+      '@commerce/contracts':
+        specifier: workspace:*
+        version: link:../contracts
     devDependencies:
       eslint:
         specifier: ^9.35.0
@@ -176,6 +180,10 @@ importers:
   packages/config-typescript: {}
 
   packages/contracts:
+    dependencies:
+      zod:
+        specifier: ^4.6.2
+        version: 4.6.2
     devDependencies:
       eslint:
         specifier: ^9.35.0
