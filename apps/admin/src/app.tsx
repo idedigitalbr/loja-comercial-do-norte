@@ -1,7 +1,7 @@
+import { LoginPage } from './features/auth/login-page';
+
 export function App() {
   return (
-    <main>
-      <p>Painel administrativo em construção.</p>
-    </main>
+    <LoginPage />
   );
 }
