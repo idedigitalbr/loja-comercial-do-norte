@@ -16,6 +16,7 @@ type ErrorResponse = {
   code?: string;
   message?: string;
   fieldErrors?: Record<string, string[]>;
+  fields?: string[];
 };
 
 @Catch()
@@ -47,6 +48,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
       message: payload?.message ?? (status >= 500 ? 'Ocorreu um erro interno.' : 'Não foi possível concluir a solicitação.'),
       requestId,
       ...(payload?.fieldErrors ? { fieldErrors: payload.fieldErrors } : {}),
+      ...(payload?.fields ? { fields: payload.fields } : {}),
     });
   }
 }
