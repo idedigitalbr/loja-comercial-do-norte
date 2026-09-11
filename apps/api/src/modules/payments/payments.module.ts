@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module';
 import { DatabaseModule } from '../database/database.module';
 import { PrismaService } from '../database/prisma.service';
 import { MercadoPagoProvider } from './mercado-pago.provider';
@@ -8,7 +9,7 @@ import { PaymentProvider } from './payment-provider';
 import { PaymentsService } from './payments.service';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, AuthModule],
   controllers: [PaymentsController, MercadoPagoWebhookController],
   providers: [
     MercadoPagoProvider,
