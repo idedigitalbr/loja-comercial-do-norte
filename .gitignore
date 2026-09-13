@@ -23,6 +23,7 @@ playwright-report/
 test-results/
 
 # Local runtime data and uploads
+apps/api/storage/
 storage/uploads/
 storage/generated/
 storage/logs/
