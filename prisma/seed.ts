@@ -9,6 +9,9 @@ const permissions = [
   ['payments.refund', 'Solicitar reembolso'],
   ['promotions.publish', 'Publicar promoções'],
   ['reports.financial', 'Visualizar relatórios financeiros'],
+  ['settings.manage', 'Gerenciar configurações do site'],
+  ['payments.manage', 'Gerenciar integração de pagamentos'],
+  ['notifications.manage', 'Gerenciar notificações e e-mails'],
 ] as const;
 
 async function main(): Promise<void> {

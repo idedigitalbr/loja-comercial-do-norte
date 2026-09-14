@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  Inject,
   Injectable,
   SetMetadata,
 } from '@nestjs/common';
@@ -17,6 +18,9 @@ export const Permissions = {
   PAYMENTS_REFUND: 'payments.refund',
   PROMOTIONS_PUBLISH: 'promotions.publish',
   REPORTS_FINANCIAL: 'reports.financial',
+  SETTINGS_MANAGE: 'settings.manage',
+  PAYMENTS_MANAGE: 'payments.manage',
+  NOTIFICATIONS_MANAGE: 'notifications.manage',
 } as const;
 
 export const RequirePermissions = (...permissions: string[]) =>
@@ -24,7 +28,7 @@ export const RequirePermissions = (...permissions: string[]) =>
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
-  constructor(private readonly reflector: Reflector) {}
+  constructor(@Inject(Reflector) private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
     const required = this.reflector.getAllAndOverride<string[]>(PERMISSIONS_KEY, [

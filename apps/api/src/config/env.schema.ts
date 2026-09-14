@@ -9,11 +9,16 @@ export const EnvironmentSchema = z.object({
   ADMIN_ORIGIN: z.string().url().default('http://localhost:5174'),
   COOKIE_SECRET: z.string().min(16),
   CRON_SECRET: z.string().min(16),
+  SETTINGS_ENCRYPTION_KEY: z.string().optional(),
 });
 
 export type Environment = z.infer<typeof EnvironmentSchema>;
 
 export function loadEnvironment(): Environment {
   dotenv.config({ path: resolve(__dirname, '../../../../.env') });
-  return EnvironmentSchema.parse(process.env);
+  const environment = EnvironmentSchema.parse(process.env);
+  if (process.env.NODE_ENV === 'production' && !environment.SETTINGS_ENCRYPTION_KEY) {
+    throw new Error('SETTINGS_ENCRYPTION_KEY_REQUIRED');
+  }
+  return environment;
 }
