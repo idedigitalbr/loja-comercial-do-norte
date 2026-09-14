@@ -37,6 +37,12 @@ enum StockMovementType {
   LOSS
 }
 
+enum ProductStockStatus {
+  IN_STOCK
+  OUT_OF_STOCK
+  ON_BACKORDER
+}
+
 enum CartStatus {
   ACTIVE
   CONVERTED
@@ -100,6 +106,35 @@ enum PaymentStatus {
   EXPIRED
   PARTIALLY_REFUNDED
   REFUNDED
+}
+
+enum PaymentEnvironment {
+  TEST
+  PRODUCTION
+}
+
+enum SmtpSecurity {
+  NONE
+  STARTTLS
+  SSL_TLS
+}
+
+enum EmailEventKey {
+  ACCOUNT_CREATED
+  ORDER_CREATED
+  PAYMENT_PENDING
+  PAYMENT_APPROVED
+  PAYMENT_REJECTED
+  ORDER_STATUS_CHANGED
+  PASSWORD_RESET
+}
+
+enum EmailDeliveryStatus {
+  PENDING
+  PROCESSING
+  SENT
+  RETRY
+  FAILED
 }
 
 enum ShippingQuoteStatus {
@@ -283,13 +318,19 @@ model Brand {
   legacyId        String?          @db.VarChar(191)
   name            String           @unique @db.VarChar(160)
   slug            String           @unique @db.VarChar(191)
+  description     String?          @db.Text
+  imagePath       String?          @db.VarChar(500)
   status          RecordStatus     @default(DRAFT)
+  parentId        String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
+  parent          Brand?           @relation("BrandHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children        Brand[]          @relation("BrandHierarchy")
   products        Product[]
   promotionScopes PromotionScope[]
 
   @@unique([legacySource, legacyId])
+  @@index([parentId, status])
 }
 
 model Category {
@@ -353,6 +394,9 @@ model ProductVariant {
   widthMm             Int?
   heightMm            Int?
   lengthMm            Int?
+  manageStock         Boolean                @default(true)
+  stockStatus         ProductStockStatus     @default(IN_STOCK)
+  lowStockThreshold   Int?
   status              RecordStatus           @default(DRAFT)
   createdAt           DateTime               @default(now())
   updatedAt           DateTime               @updatedAt
@@ -797,6 +841,110 @@ model ScheduledJob {
 
   @@index([status, runAt])
   @@index([lockedAt])
+}
+
+model SiteConfiguration {
+  id            String   @id @default("default")
+  siteName      String   @default("Loja Jonas & Elivaldo") @db.VarChar(160)
+  logoPath      String?  @db.VarChar(500)
+  faviconPath   String?  @db.VarChar(500)
+  address       String?  @db.VarChar(255)
+  phone         String?  @db.VarChar(40)
+  whatsapp      String?  @db.VarChar(40)
+  instagramUrl  String?  @db.VarChar(500)
+  title         String?  @db.VarChar(180)
+  description   String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SiteBanner {
+  id            String       @id @default(cuid())
+  desktopPath   String       @db.VarChar(500)
+  mobilePath    String?      @db.VarChar(500)
+  eyebrow       String?      @db.VarChar(120)
+  title         String?      @db.VarChar(220)
+  description   String?      @db.Text
+  ctaLabel      String?      @db.VarChar(120)
+  ctaHref       String?      @db.VarChar(500)
+  sortOrder     Int          @default(0)
+  status        RecordStatus @default(DRAFT)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([status, sortOrder])
+}
+
+model PaymentConfiguration {
+  id                    String             @id @default("default")
+  environment           PaymentEnvironment @default(TEST)
+  accessTokenEncrypted  String?            @db.Text
+  publicKey             String?            @db.VarChar(255)
+  webhookSecretEncrypted String?           @db.Text
+  enabled               Boolean            @default(false)
+  enablePix             Boolean            @default(true)
+  enableCard            Boolean            @default(true)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+}
+
+model SmtpConfiguration {
+  id                  String       @id @default("default")
+  host                String?      @db.VarChar(255)
+  port                Int          @default(587)
+  username            String?      @db.VarChar(255)
+  passwordEncrypted   String?      @db.Text
+  security            SmtpSecurity @default(STARTTLS)
+  fromEmail           String?      @db.VarChar(191)
+  fromName            String?      @db.VarChar(160)
+  replyTo             String?      @db.VarChar(191)
+  enabled             Boolean      @default(false)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+}
+
+model EmailTemplate {
+  id          String        @id @default(cuid())
+  key         EmailEventKey
+  locale      String        @db.VarChar(10)
+  subject     String        @db.VarChar(255)
+  htmlBody    String        @db.Text
+  textBody    String        @db.Text
+  enabled     Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([key, locale])
+  @@index([key, enabled])
+}
+
+model NotificationPreference {
+  id                 String        @id @default(cuid())
+  eventKey           EmailEventKey @unique
+  enabled            Boolean       @default(true)
+  recipientOverride  String?       @db.VarChar(191)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+}
+
+model EmailDelivery {
+  id             String              @id @default(cuid())
+  dedupeKey      String              @unique @db.VarChar(255)
+  eventKey       EmailEventKey
+  locale         String              @default("pt-BR") @db.VarChar(10)
+  recipient      String              @db.VarChar(191)
+  payloadJson    Json
+  status         EmailDeliveryStatus @default(PENDING)
+  attempts       Int                 @default(0)
+  maxAttempts    Int                 @default(5)
+  lastError      String?             @db.Text
+  nextAttemptAt  DateTime?
+  sentAt         DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([status, nextAttemptAt])
+  @@index([eventKey, createdAt])
 }
 
 model AuditLog {
