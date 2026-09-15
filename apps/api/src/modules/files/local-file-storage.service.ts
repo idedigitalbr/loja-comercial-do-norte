@@ -22,6 +22,14 @@ export class LocalFileStorageService {
   private readonly rootDirectory = resolve(process.cwd(), 'storage/uploads');
 
   async storeImage(input: UploadInput): Promise<{ path: string; variants: string[] }> {
+    return this.storeImageVariants(input, false);
+  }
+
+  async storeSquareImage(input: UploadInput): Promise<{ path: string; variants: string[] }> {
+    return this.storeImageVariants(input, true);
+  }
+
+  private async storeImageVariants(input: UploadInput, square: boolean): Promise<{ path: string; variants: string[] }> {
     const extension = MIME_EXTENSIONS[input.mimeType];
     if (!extension) throw new Error('UNSUPPORTED_IMAGE_TYPE');
     if (!input.buffer.byteLength || input.buffer.byteLength > MAX_FILE_SIZE) {
@@ -35,7 +43,7 @@ export class LocalFileStorageService {
     const variants: string[] = [];
     for (const width of [480, 960, 1440]) {
       const filename = `${width}.webp`;
-      await source.clone().resize({ width, withoutEnlargement: true }).webp({ quality: 82 }).toFile(join(folder, filename));
+      await source.clone().resize(square ? { width, height: width, fit: 'cover', position: 'centre' } : { width, withoutEnlargement: true }).webp({ quality: 82 }).toFile(join(folder, filename));
       variants.push(this.relativePath(join(folder, filename)));
     }
 

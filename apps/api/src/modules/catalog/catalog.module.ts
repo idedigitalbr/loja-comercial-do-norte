@@ -3,12 +3,13 @@ import { AuthModule } from '../auth/auth.module';
 import { DatabaseModule } from '../database/database.module';
 import { LocalFileStorageService } from '../files/local-file-storage.service';
 import { AdminCatalogController } from './admin-catalog.controller';
+import { AdminMediaController } from './admin-media.controller';
 import { CatalogController } from './catalog.controller';
 import { CatalogService } from './catalog.service';
 
 @Module({
   imports: [DatabaseModule, AuthModule],
-  controllers: [CatalogController, AdminCatalogController],
+  controllers: [CatalogController, AdminCatalogController, AdminMediaController],
   providers: [CatalogService, LocalFileStorageService],
   exports: [CatalogService, LocalFileStorageService],
 })

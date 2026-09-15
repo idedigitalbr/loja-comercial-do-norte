@@ -14,7 +14,9 @@ describe('AuthService', () => {
     await prisma.user.create({
       data: {
         email,
-        passwordHash: await argon2.hash('SenhaSegura123!', { type: argon2.argon2id }),
+        // Keep the integration fixture lightweight; production hashes use
+        // Argon2 defaults through AuthService.
+        passwordHash: await argon2.hash('SenhaSegura123!', { type: argon2.argon2id, timeCost: 1, memoryCost: 4096, parallelism: 1 }),
         status: UserStatus.ACTIVE,
       },
     });
@@ -43,5 +45,5 @@ describe('AuthService', () => {
     expect(sessions).toHaveLength(2);
     expect(sessions[0].revokedAt).not.toBeNull();
     expect(sessions[1].revokedAt).toBeNull();
-  });
+  }, 15_000);
 });

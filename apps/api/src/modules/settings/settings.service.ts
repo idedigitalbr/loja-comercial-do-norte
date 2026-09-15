@@ -5,9 +5,10 @@ import {
   RecordStatus,
   SmtpSecurity,
 } from '@prisma/client';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { SettingsCryptoService } from '../../common/crypto/settings-crypto.service';
 import { PrismaService } from '../database/prisma.service';
+import { normalizeStoredMediaPath, publicStoragePath } from '../files/storage-path';
 import {
   AdminSettingsSnapshot,
   EmailTemplateInput,
@@ -45,10 +46,19 @@ const DEFAULT_SITE: Required<SiteFields> = {
   description: null,
 };
 
-function publicStoragePath(path: string | null | undefined): string | null {
-  if (!path) return null;
-  if (path.startsWith('/')) return path;
-  return `/storage/${path.replace(/^storage\//, '').replace(/^\/+/, '')}`;
+function safeCtaHref(value: string | null | undefined): string | null {
+  if (!value) return null;
+  return /^(?:\/(?!\/)[^\s]*|https:\/\/[^\s]+|mailto:[^\s]+|tel:[^\s]+)$/i.test(value) ? value : null;
+}
+
+function normalizeBannerInput<T extends SiteBannerInput | Partial<SiteBannerInput>>(input: T): T {
+  if (input.ctaHref !== undefined && input.ctaHref !== null && !safeCtaHref(input.ctaHref)) {
+    throw new BadRequestException('INVALID_CTA_HREF');
+  }
+  const normalized = { ...input } as T & Partial<SiteBannerInput>;
+  if (input.desktopPath !== undefined) normalized.desktopPath = normalizeStoredMediaPath(input.desktopPath) ?? '';
+  if (input.mobilePath !== undefined) normalized.mobilePath = normalizeStoredMediaPath(input.mobilePath);
+  return normalized;
 }
 
 function mapSite(site: SiteFields) {
@@ -74,7 +84,7 @@ function mapBanner(banner: { id: string; desktopPath: string; mobilePath: string
     title: banner.title,
     description: banner.description,
     ctaLabel: banner.ctaLabel,
-    ctaHref: banner.ctaHref,
+    ctaHref: safeCtaHref(banner.ctaHref),
     sortOrder: banner.sortOrder,
     ...(banner.status ? { status: banner.status } : {}),
   };
@@ -151,24 +161,33 @@ export class SettingsService {
   }
 
   async updateSite(input: SiteUpdateInput) {
+    const normalized = {
+      ...input,
+      ...(input.logoPath !== undefined ? { logoPath: normalizeStoredMediaPath(input.logoPath) } : {}),
+      ...(input.faviconPath !== undefined ? { faviconPath: normalizeStoredMediaPath(input.faviconPath) } : {}),
+    };
     return this.prisma.siteConfiguration.upsert({
       where: { id: 'default' },
-      create: { id: 'default', ...input },
-      update: input,
+      create: { id: 'default', ...normalized },
+      update: normalized,
     });
   }
 
-  listBanners() {
-    return this.prisma.siteBanner.findMany({ orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }] });
+  async listBanners() {
+    const banners = await this.prisma.siteBanner.findMany({ orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }] });
+    return banners.map((banner) => mapBanner(banner));
   }
 
-  createBanner(input: SiteBannerInput) {
-    return this.prisma.siteBanner.create({ data: { ...input, status: input.status ?? RecordStatus.DRAFT } });
+  async createBanner(input: SiteBannerInput) {
+    const normalized = normalizeBannerInput(input);
+    const banner = await this.prisma.siteBanner.create({ data: { ...normalized, status: input.status ?? RecordStatus.DRAFT } });
+    return mapBanner(banner);
   }
 
   async updateBanner(id: string, input: Partial<SiteBannerInput>) {
     await this.assertBanner(id);
-    return this.prisma.siteBanner.update({ where: { id }, data: input });
+    const banner = await this.prisma.siteBanner.update({ where: { id }, data: normalizeBannerInput(input) });
+    return mapBanner(banner);
   }
 
   async deleteBanner(id: string) {
@@ -196,6 +215,20 @@ export class SettingsService {
   }
 
   async updatePaymentSettings(input: PaymentSettingsInput) {
+    if (input.accessToken !== undefined && !input.accessToken.trim()) throw new BadRequestException('ACCESS_TOKEN_REQUIRED');
+    if (input.webhookSecret !== undefined && !input.webhookSecret.trim()) throw new BadRequestException('WEBHOOK_SECRET_REQUIRED');
+    const current = await this.prisma.paymentConfiguration.findUnique({
+      where: { id: 'default' },
+      select: { accessTokenEncrypted: true, publicKey: true, enabled: true, enablePix: true, enableCard: true },
+    });
+    const enabled = input.enabled ?? current?.enabled ?? false;
+    const enablePix = input.enablePix ?? current?.enablePix ?? true;
+    const enableCard = input.enableCard ?? current?.enableCard ?? true;
+    const hasAccessToken = Boolean(input.accessToken?.trim() || current?.accessTokenEncrypted);
+    const publicKey = input.publicKey !== undefined ? input.publicKey?.trim() : current?.publicKey?.trim();
+    if (enabled && !hasAccessToken) throw new BadRequestException('ACCESS_TOKEN_REQUIRED');
+    if (enabled && !enablePix && !enableCard) throw new BadRequestException('PAYMENT_METHOD_REQUIRED');
+    if (enabled && enableCard && !publicKey) throw new BadRequestException('PUBLIC_KEY_REQUIRED_FOR_CARD');
     const data: Prisma.PaymentConfigurationUpdateInput = {
       ...(input.environment !== undefined ? { environment: input.environment } : {}),
       ...(input.publicKey !== undefined ? { publicKey: input.publicKey } : {}),
@@ -228,7 +261,26 @@ export class SettingsService {
     };
   }
 
+  async getRuntimeWebhookSecret(): Promise<string | null> {
+    const payment = await this.prisma.paymentConfiguration.findUnique({ where: { id: 'default' }, select: { webhookSecretEncrypted: true } });
+    return payment?.webhookSecretEncrypted ? this.crypto.decrypt(payment.webhookSecretEncrypted) : null;
+  }
+
   async updateSmtpSettings(input: SmtpSettingsInput) {
+    const current = await this.prisma.smtpConfiguration.findUnique({
+      where: { id: 'default' },
+      select: { host: true, username: true, passwordEncrypted: true, security: true, fromEmail: true, enabled: true },
+    });
+    const enabled = input.enabled ?? current?.enabled ?? false;
+    const host = input.host !== undefined ? input.host : current?.host;
+    const username = input.username !== undefined ? input.username : current?.username;
+    const security = input.security ?? current?.security ?? SmtpSecurity.STARTTLS;
+    const fromEmail = input.fromEmail !== undefined ? input.fromEmail : current?.fromEmail;
+    const hasPassword = Boolean(input.password?.trim() || current?.passwordEncrypted);
+    if (enabled && !host?.trim()) throw new BadRequestException('SMTP_HOST_REQUIRED');
+    if (enabled && !fromEmail?.trim()) throw new BadRequestException('SMTP_FROM_EMAIL_REQUIRED');
+    if (enabled && username?.trim() && !hasPassword) throw new BadRequestException('SMTP_PASSWORD_REQUIRED');
+    if (enabled && process.env.NODE_ENV === 'production' && security === SmtpSecurity.NONE) throw new BadRequestException('SMTP_TLS_REQUIRED_IN_PRODUCTION');
     const data: Prisma.SmtpConfigurationUpdateInput = {
       ...(input.host !== undefined ? { host: input.host } : {}),
       ...(input.port !== undefined ? { port: input.port } : {}),

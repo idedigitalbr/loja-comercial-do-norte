@@ -1,11 +1,15 @@
 import argon2 from 'argon2';
-import { Prisma, UserStatus } from '@prisma/client';
+import { EmailEventKey, Prisma, UserStatus } from '@prisma/client';
 import {
+  ConflictException,
+  Inject,
   Injectable,
+  Optional,
   UnauthorizedException,
 } from '@nestjs/common';
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '../database/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const accessUserSelect = {
@@ -48,7 +52,47 @@ export type AuthSessionResult = {
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Optional() @Inject(NotificationsService) private readonly notifications?: NotificationsService,
+  ) {}
+
+  async register(input: { email: string; password: string; firstName: string; lastName: string }) {
+    const email = input.email.trim().toLowerCase();
+    const passwordHash = await argon2.hash(input.password, { type: argon2.argon2id });
+    try {
+      return await this.prisma.$transaction(async (transaction) => {
+        const existing = await transaction.user.findUnique({ where: { email }, select: { id: true } });
+        if (existing) throw new ConflictException('EMAIL_ALREADY_REGISTERED');
+        const user = await transaction.user.create({
+          data: {
+            email,
+            passwordHash,
+            status: UserStatus.ACTIVE,
+            profile: { create: { firstName: input.firstName.trim(), lastName: input.lastName.trim() } },
+          },
+          select: { id: true, publicId: true, email: true },
+        });
+        try {
+          await this.notifications?.enqueue(EmailEventKey.ACCOUNT_CREATED, {
+            entityId: user.id,
+            userId: user.id,
+            recipient: user.email,
+            customerName: `${input.firstName.trim()} ${input.lastName.trim()}`.trim(),
+            email: user.email,
+            loginUrl: '/entrar',
+          }, transaction);
+        } catch {
+          // A notification failure must not invalidate a successful account registration.
+        }
+        return user;
+      });
+    } catch (error) {
+      if (error instanceof ConflictException) throw error;
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') throw new ConflictException('EMAIL_ALREADY_REGISTERED');
+      throw error;
+    }
+  }
 
   async login(email: string, password: string): Promise<AuthSessionResult> {
     const user = await this.prisma.user.findUnique({

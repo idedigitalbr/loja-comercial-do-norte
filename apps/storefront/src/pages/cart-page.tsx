@@ -1,19 +1,38 @@
 import { useEffect, useState } from 'react';
 import { CartDrawer } from '../features/cart/cart-drawer';
+import { getOrCreateCart } from '../features/cart/cart-client';
 
 export function CartPage() {
   const [publicId, setPublicId] = useState<string | null>(null);
 
   useEffect(() => {
-    void fetch('/api/v1/carts', { method: 'POST', credentials: 'include' })
-      .then(async (response) => (response.ok ? response.json() : null))
-      .then((cart: { publicId?: string } | null) => {
-        const nextPublicId = cart?.publicId ?? null;
-        if (nextPublicId) window.localStorage.setItem('je_cart_public_id', nextPublicId);
-        setPublicId(nextPublicId);
-      })
+    void getOrCreateCart()
+      .then(setPublicId)
       .catch(() => setPublicId(null));
   }, []);
 
-  return <main><h1>Carrinho</h1>{publicId ? <><CartDrawer publicId={publicId} /><a href="/checkout">Finalizar compra</a></> : <p role="status">Carregando carrinho…</p>}</main>;
+  return (
+    <main className="page-section">
+      <div className="site-container">
+        <div className="page-heading">
+          <div>
+            <p className="eyebrow">Sua seleção</p>
+            <h1>Carrinho</h1>
+          </div>
+          <p>Revise seus produtos e siga para uma finalização segura com atendimento pelo WhatsApp.</p>
+        </div>
+        {publicId ? (
+          <div className="cart-layout">
+            <CartDrawer publicId={publicId} />
+            <aside className="cart-summary" aria-label="Resumo do pedido">
+              <p className="eyebrow">Próximo passo</p>
+              <h2>Finalize sua compra</h2>
+              <p>Escolha entrega ou retirada no checkout.</p>
+              <a className="button button--primary" href="/checkout">Finalizar compra</a>
+            </aside>
+          </div>
+        ) : <p className="empty-state" role="status">Carregando carrinho…</p>}
+      </div>
+    </main>
+  );
 }

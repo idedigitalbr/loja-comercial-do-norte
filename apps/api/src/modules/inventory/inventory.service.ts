@@ -1,5 +1,5 @@
 import { InventoryReservationStatus, StockMovementType } from '@prisma/client';
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 
 export type ReservationInput = {
@@ -20,7 +20,19 @@ type Transaction = Parameters<Parameters<PrismaService['$transaction']>[0]>[0];
 
 @Injectable()
 export class InventoryService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async list(input: { search?: string } = {}) {
+    const search = input.search?.trim();
+    const rows = await this.prisma.inventoryBalance.findMany({
+      where: search
+        ? { variant: { OR: [{ sku: { contains: search } }, { product: { name: { contains: search } } }] } }
+        : undefined,
+      orderBy: { updatedAt: 'desc' },
+      include: { variant: { include: { product: { select: { id: true, name: true, slug: true } } } } },
+    });
+    return rows.map((row) => ({ ...row, availableQuantity: row.physicalQuantity - row.reservedQuantity }));
+  }
 
   async reserve(input: ReservationInput) {
     return this.prisma.$transaction((transaction) => this.reserveInTransaction(transaction, input));

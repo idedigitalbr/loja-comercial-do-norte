@@ -1,4 +1,5 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { assertIdempotencyScope } from '../../common/idempotency/idempotency';
 import { PrismaService } from '../database/prisma.service';
 import { OrdersService } from '../orders/orders.service';
 
@@ -15,17 +16,18 @@ type CheckoutInput = {
 
 @Injectable()
 export class CheckoutService {
-  constructor(private readonly prisma: PrismaService, private readonly ordersService: OrdersService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService, @Inject(OrdersService) private readonly ordersService: OrdersService) {}
 
   async prepare(input: CheckoutInput, idempotencyKey: string) {
     if (!idempotencyKey) throw new BadRequestException('IDEMPOTENCY_KEY_REQUIRED');
     const existing = await this.prisma.idempotencyKey.findUnique({ where: { key: idempotencyKey } });
-    if (existing?.responseJson && typeof existing.responseJson === 'object' && 'orderPublicId' in existing.responseJson && 'amountCents' in existing.responseJson) {
-      return existing.responseJson;
-    }
 
     const cart = await this.prisma.cart.findFirst({ where: { OR: [{ id: input.cartId }, { publicId: input.cartId }] } });
     if (!cart) throw new NotFoundException('CART_NOT_FOUND');
+    assertIdempotencyScope(existing, `checkout:${cart.id}`);
+    if (existing?.responseJson && typeof existing.responseJson === 'object' && 'orderPublicId' in existing.responseJson && 'amountCents' in existing.responseJson) {
+      return existing.responseJson;
+    }
     const order = await this.ordersService.createFromCart({
       ...input,
       cartId: cart.id,

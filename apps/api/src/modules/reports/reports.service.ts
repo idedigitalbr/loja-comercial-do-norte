@@ -1,12 +1,12 @@
 import { JobType, OrderStatus, Prisma, RefundStatus } from '@prisma/client';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 
 const paidStatuses = [OrderStatus.PAID, OrderStatus.PREPARING, OrderStatus.SHIPPED, OrderStatus.READY_FOR_PICKUP, OrderStatus.COMPLETED, OrderStatus.PARTIALLY_REFUNDED, OrderStatus.REFUNDED];
 
 @Injectable()
 export class ReportsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async salesSummary(input: { from: Date; to: Date }) {
     if (input.to.getTime() - input.from.getTime() > 366 * 24 * 60 * 60 * 1000) throw new BadRequestException('REPORT_PERIOD_TOO_LARGE');

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { IsDateString, IsObject, IsOptional, IsString } from 'class-validator';
 import type { Request } from 'express';
@@ -21,7 +21,7 @@ class ExportDto {
 @RequirePermissions(Permissions.REPORTS_FINANCIAL)
 @Controller('admin/reports')
 export class ReportsController {
-  constructor(private readonly reportsService: ReportsService) {}
+  constructor(@Inject(ReportsService) private readonly reportsService: ReportsService) {}
 
   @Get('sales-summary')
   salesSummary(@Query() query: PeriodQuery) {

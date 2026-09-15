@@ -1,5 +1,10 @@
 import { StorefrontRoutes } from './routes/router';
+import { StorefrontShell } from './components/storefront-shell';
 
 export function App() {
-  return <StorefrontRoutes />;
+  return (
+    <StorefrontShell>
+      <StorefrontRoutes />
+    </StorefrontShell>
+  );
 }

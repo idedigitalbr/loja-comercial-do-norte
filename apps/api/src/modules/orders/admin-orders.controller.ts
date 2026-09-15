@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Patch, UseGuards } from '@nestjs/common';
 import { ActorType, OrderStatus } from '@prisma/client';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { PermissionGuard, Permissions, RequirePermissions } from '../auth/guards/permission.guard';
@@ -18,7 +18,7 @@ class StatusDto {
 @RequirePermissions(Permissions.ORDERS_UPDATE)
 @Controller('admin/orders')
 export class AdminOrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(@Inject(OrdersService) private readonly ordersService: OrdersService) {}
 
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body() body: StatusDto) {

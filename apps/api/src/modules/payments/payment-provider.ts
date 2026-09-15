@@ -2,10 +2,17 @@ export type CardPaymentInput = {
   amountCents: number;
   cardToken: string;
   installments: number;
+  paymentMethodId?: string;
+  payerEmail?: string;
+  externalReference?: string;
+  idempotencyKey?: string;
 };
 
 export type PixPaymentInput = {
   amountCents: number;
+  payerEmail?: string;
+  externalReference?: string;
+  idempotencyKey?: string;
 };
 
 export type ProviderPayment = {
@@ -20,5 +27,6 @@ export type ProviderPayment = {
 export interface PaymentProvider {
   createCardPayment(input: CardPaymentInput): Promise<ProviderPayment>;
   createPixPayment(input: PixPaymentInput): Promise<ProviderPayment>;
-  refundPayment?(input: { externalId: string; amountCents: number }): Promise<{ externalId: string; status: string }>;
+  refundPayment?(input: { externalId: string; amountCents: number; idempotencyKey?: string }): Promise<{ externalId: string; status: string }>;
+  getPayment?(externalId: string): Promise<{ status: ProviderPayment['status']; payload: unknown }>;
 }

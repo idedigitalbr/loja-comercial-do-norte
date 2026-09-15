@@ -1,40 +1,76 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { Icon, type IconName } from '@commerce/ui';
+import { flattenTaxonomy, slugifyProductName, TaxonomyOption } from './product-editor-utils';
 
-export type ProductDraft = {
-  name: string;
-  slug: string;
-  description?: string;
-};
+export type VariantDraft = { id?: string; sku: string; priceCents: number; compareAtPriceCents?: number; weightGrams?: number; widthMm?: number; heightMm?: number; lengthMm?: number; inventoryQuantity?: number; manageStock?: boolean; stockStatus?: 'IN_STOCK' | 'OUT_OF_STOCK' | 'ON_BACKORDER'; lowStockThreshold?: number };
+export type ImageDraft = { path: string; altText?: string; sortOrder?: number; isPrimary?: boolean; variantId?: string };
+export type ProductDraft = { id?: string; name: string; slug?: string; description?: string; brandId?: string; categoryIds?: string[]; variants?: VariantDraft[]; images?: ImageDraft[]; status?: string };
+export type ProductTaxonomyOption = TaxonomyOption;
 
-export function ProductForm({ onSave }: { onSave: (draft: ProductDraft) => Promise<void> }) {
-  const [draft, setDraft] = useState<ProductDraft>({ name: '', slug: '', description: '' });
-  const [saving, setSaving] = useState(false);
+const emptyVariant: VariantDraft = { sku: '', priceCents: 0, inventoryQuantity: 0, manageStock: true, stockStatus: 'IN_STOCK' };
+function toCents(value: string) { const parsed = Number(value.replace(',', '.')); return Number.isFinite(parsed) ? Math.max(0, Math.round(parsed * 100)) : 0; }
+function fromCents(value?: number) { return value ? (value / 100).toFixed(2).replace('.', ',') : ''; }
+function getDefaultDraft(): ProductDraft { return { name: '', slug: '', description: '', categoryIds: [], variants: [{ ...emptyVariant }], images: [] }; }
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSaving(true);
-    try {
-      await onSave(draft);
-    } finally {
-      setSaving(false);
-    }
+function ToolbarButton({ label, command, icon, onCommand }: { label: string; command: string; icon: IconName; onCommand: (command: string) => void }) {
+  return <button className="product-editor__toolbar-button" type="button" aria-label={label} title={label} onMouseDown={(event) => event.preventDefault()} onClick={() => onCommand(command)}><Icon name={icon} size={16} strokeWidth={1.8} /></button>;
+}
+
+function RichTextEditor({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const editorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (editorRef.current && editorRef.current.innerHTML !== value) editorRef.current.innerHTML = value || '<p></p>'; }, [value]);
+  function command(name: string, commandValue?: string) {
+    if (name === 'createLink') { const url = window.prompt('URL do link'); if (!url) return; document.execCommand(name, false, url); } else document.execCommand(name, false, commandValue);
+    onChange(editorRef.current?.innerHTML ?? ''); editorRef.current?.focus();
   }
+  return <div className="product-editor__rich-text">
+    <div className="product-editor__toolbar" role="toolbar" aria-label="Formatação da descrição">
+      <select aria-label="Estilo do texto" defaultValue="p" onChange={(event) => command('formatBlock', event.target.value)}><option value="p">Parágrafo</option><option value="h2">Título 2</option><option value="h3">Título 3</option></select><span className="product-editor__toolbar-divider" />
+      <ToolbarButton label="Negrito" command="bold" icon="bold" onCommand={command} /><ToolbarButton label="Itálico" command="italic" icon="italic" onCommand={command} /><ToolbarButton label="Sublinhado" command="underline" icon="underline" onCommand={command} /><span className="product-editor__toolbar-divider" />
+      <ToolbarButton label="Lista" command="insertUnorderedList" icon="list" onCommand={command} /><ToolbarButton label="Numerada" command="insertOrderedList" icon="list-ordered" onCommand={command} /><ToolbarButton label="Link" command="createLink" icon="link-2" onCommand={command} /><span className="product-editor__toolbar-divider" />
+      <ToolbarButton label="Esquerda" command="justifyLeft" icon="align-left" onCommand={command} /><ToolbarButton label="Centro" command="justifyCenter" icon="align-center" onCommand={command} /><ToolbarButton label="Direita" command="justifyRight" icon="align-right" onCommand={command} /><ToolbarButton label="Justificar" command="justifyFull" icon="align-justify" onCommand={command} />
+    </div>
+    <div ref={editorRef} className="product-editor__contenteditable" contentEditable role="textbox" aria-multiline="true" aria-label="Descrição formatada do produto" suppressContentEditableWarning onInput={(event) => onChange(event.currentTarget.innerHTML)} />
+  </div>;
+}
 
-  return (
-    <form onSubmit={submit}>
-      <label>
-        Nome
-        <input value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} required />
-      </label>
-      <label>
-        Slug
-        <input value={draft.slug} onChange={(event) => setDraft({ ...draft, slug: event.target.value })} required />
-      </label>
-      <label>
-        Descrição
-        <textarea value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} />
-      </label>
-      <button type="submit" disabled={saving}>{saving ? 'Salvando…' : 'Salvar produto'}</button>
-    </form>
-  );
+export function ProductForm({ initialValue, brands, categories, onSave, onPublish, onCancel }: { initialValue?: ProductDraft; brands: ProductTaxonomyOption[]; categories: ProductTaxonomyOption[]; onSave: (draft: ProductDraft) => Promise<void>; onPublish?: () => Promise<void>; onCancel?: () => void }) {
+  const [draft, setDraft] = useState<ProductDraft>(initialValue ?? getDefaultDraft());
+  const [saving, setSaving] = useState(false); const [publishing, setPublishing] = useState(false); const [uploading, setUploading] = useState(false); const [mediaError, setMediaError] = useState(''); const [categorySearch, setCategorySearch] = useState('');
+  useEffect(() => setDraft(initialValue ?? getDefaultDraft()), [initialValue]);
+  const brandOptions = useMemo(() => flattenTaxonomy(brands), [brands]);
+  const visibleCategories = useMemo(() => categories.filter((category) => category.name.toLowerCase().includes(categorySearch.toLowerCase())), [categories, categorySearch]);
+  const variant = draft.variants?.[0] ?? emptyVariant; const images = draft.images ?? []; const slug = slugifyProductName(draft.name);
+  function updateDraft(patch: Partial<ProductDraft>) { setDraft((current) => ({ ...current, ...patch })); }
+  function updateVariant(field: keyof VariantDraft, value: string | boolean) {
+    const moneyField = field === 'priceCents' || field === 'compareAtPriceCents';
+    const numericField = field === 'inventoryQuantity' || field === 'weightGrams' || field === 'widthMm' || field === 'heightMm' || field === 'lengthMm' || field === 'lowStockThreshold';
+    const nextValue = typeof value === 'boolean' ? value : moneyField ? toCents(value) : numericField ? (value === '' ? undefined : Number(value) || 0) : value;
+    updateDraft({ variants: [{ ...variant, [field]: nextValue }] });
+  }
+  function toggleCategory(categoryId: string, checked: boolean) { const selected = draft.categoryIds ?? []; updateDraft({ categoryIds: checked ? [...selected, categoryId] : selected.filter((id) => id !== categoryId) }); }
+  function updateImage(index: number, patch: Partial<ImageDraft>) { updateDraft({ images: images.map((image, imageIndex) => imageIndex === index ? { ...image, ...patch } : image) }); }
+  function setPrimary(index: number) { updateDraft({ images: images.map((image, imageIndex) => ({ ...image, isPrimary: imageIndex === index, sortOrder: imageIndex })) }); }
+  function moveImage(index: number, direction: -1 | 1) { const target = index + direction; if (target < 0 || target >= images.length) return; const next = [...images]; [next[index], next[target]] = [next[target], next[index]]; updateDraft({ images: next.map((image, imageIndex) => ({ ...image, sortOrder: imageIndex })) }); }
+  function removeImage(index: number) { updateDraft({ images: images.filter((_, imageIndex) => imageIndex !== index).map((image, imageIndex) => ({ ...image, sortOrder: imageIndex, isPrimary: imageIndex === 0 })) }); }
+  async function uploadImages(files: FileList | null) {
+    if (!files?.length) return; setUploading(true); setMediaError('');
+    try { const uploaded: ImageDraft[] = []; for (const file of Array.from(files)) { const formData = new FormData(); formData.append('file', file); formData.append('altText', file.name.replace(/\.[^.]+$/, '')); const response = await fetch('/api/v1/admin/media/images', { method: 'POST', credentials: 'include', body: formData }); if (!response.ok) throw new Error('Não foi possível enviar uma das imagens.'); const result = await response.json() as { path: string; altText?: string }; uploaded.push({ path: result.path, altText: result.altText, isPrimary: images.length === 0 && uploaded.length === 0, sortOrder: images.length + uploaded.length }); } updateDraft({ images: [...images, ...uploaded] }); } catch (caught) { setMediaError(caught instanceof Error ? caught.message : 'Não foi possível enviar a imagem.'); } finally { setUploading(false); }
+  }
+  async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); setSaving(true); try { await onSave({ ...draft, slug, variants: draft.variants?.filter((item) => item.sku.trim()), images: images.map((image, index) => ({ ...image, sortOrder: index })) }); } finally { setSaving(false); } }
+  async function publish() { if (!onPublish) return; setPublishing(true); try { await onPublish(); } finally { setPublishing(false); } }
+
+  return <form className="product-editor" onSubmit={submit}>
+    <div className="product-editor__columns"><div className="product-editor__main">
+      <section className="product-editor__card"><div className="product-editor__section-heading"><div><p className="admin-eyebrow">Informações principais</p><h3>Dados do produto</h3></div><span className="product-editor__status">{draft.status === 'ACTIVE' ? 'Ativo' : draft.status === 'ARCHIVED' ? 'Arquivado' : 'Rascunho'}</span></div><label className="product-editor__label">Nome do produto<input value={draft.name} onChange={(event) => updateDraft({ name: event.target.value })} required autoFocus /></label><div className="product-editor__slug"><span>Slug automático</span><code>/{slug || 'nome-do-produto'}</code><small>Gerado a partir do nome e atualizado ao salvar.</small></div></section>
+      <section className="product-editor__card"><div className="product-editor__section-heading"><div><p className="admin-eyebrow">Conteúdo editorial</p><h3>Descrição</h3></div></div><RichTextEditor value={draft.description ?? ''} onChange={(description) => updateDraft({ description })} /><p className="admin-help">A descrição aceita formatação e será exibida na página pública do produto.</p></section>
+      <section className="product-editor__card"><div className="product-editor__section-heading"><div><p className="admin-eyebrow">Catálogo visual</p><h3>Mídia</h3></div><label className="admin-button admin-button--outline product-editor__upload-button"><Icon name="upload" size={16} strokeWidth={1.8} /><span>{uploading ? 'Enviando…' : 'Enviar imagens'}</span><input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={uploading} onChange={(event) => { void uploadImages(event.target.files); event.currentTarget.value = ''; }} /></label></div>{mediaError ? <p className="admin-error" role="alert">{mediaError}</p> : null}{images.length ? <div className="product-editor__media-grid">{images.map((image, index) => <article className={`product-editor__media-item ${image.isPrimary ? 'is-primary' : ''}`} key={`${image.path}-${index}`}><div className="product-editor__media-preview"><img src={image.path} alt={image.altText ?? ''} /><span>{image.isPrimary ? 'Principal' : `Imagem ${index + 1}`}</span></div><input aria-label={`Texto alternativo da imagem ${index + 1}`} value={image.altText ?? ''} onChange={(event) => updateImage(index, { altText: event.target.value })} placeholder="Texto alternativo" /><div className="product-editor__media-actions"><button type="button" onClick={() => setPrimary(index)} disabled={image.isPrimary}>Principal</button><button type="button" onClick={() => moveImage(index, -1)} disabled={index === 0} aria-label={`Mover imagem ${index + 1} para cima`} title="Mover para cima"><Icon name="arrow-up" size={16} strokeWidth={2} /></button><button type="button" onClick={() => moveImage(index, 1)} disabled={index === images.length - 1} aria-label={`Mover imagem ${index + 1} para baixo`} title="Mover para baixo"><Icon name="arrow-down" size={16} strokeWidth={2} /></button><button className="is-danger" type="button" onClick={() => removeImage(index)}>Remover</button></div></article>)}</div> : <label className="product-editor__dropzone"><Icon name="upload" size={22} strokeWidth={1.8} /><span>Arraste imagens ou clique para selecionar</span><small>JPG, PNG ou WebP · até 10 MB por imagem</small><input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => { void uploadImages(event.target.files); event.currentTarget.value = ''; }} /></label>}</section>
+      <section className="product-editor__card"><div className="product-editor__section-heading"><div><p className="admin-eyebrow">Taxonomia do catálogo</p><h3>Marca e categorias</h3></div></div><div className="product-editor__taxonomy-grid"><label className="product-editor__label">Marca e submarca<select value={draft.brandId ?? ''} onChange={(event) => updateDraft({ brandId: event.target.value || undefined })}><option value="">Sem marca</option>{brandOptions.map((brand) => <option key={brand.id} value={brand.id}>{`${'— '.repeat(brand.depth)}${brand.name}`}</option>)}</select></label><fieldset className="product-editor__category-fieldset"><legend>Categorias</legend><input aria-label="Buscar categoria" value={categorySearch} onChange={(event) => setCategorySearch(event.target.value)} placeholder="Buscar categoria" /><div className="product-editor__category-list">{visibleCategories.map((category) => <label key={category.id} style={{ paddingLeft: `${(category.parentId ? 18 : 0)}px` }}><input type="checkbox" checked={draft.categoryIds?.includes(category.id) ?? false} onChange={(event) => toggleCategory(category.id, event.target.checked)} />{category.name}</label>)}</div><div className="product-editor__chips">{categories.filter((category) => draft.categoryIds?.includes(category.id)).map((category) => <span key={category.id}>{category.name}<button type="button" aria-label={`Remover categoria ${category.name}`} onClick={() => toggleCategory(category.id, false)}><Icon name="x" size={14} strokeWidth={2} /></button></span>)}</div></fieldset></div></section>
+    </div><aside className="product-editor__aside">
+      <section className="product-editor__side-card"><div className="product-editor__side-heading"><p className="admin-eyebrow">Fluxo editorial</p><h3>Publicação</h3></div><div className="product-editor__side-content"><div className="product-editor__callout"><span>Status atual</span><strong>{draft.status === 'ACTIVE' ? 'Publicado' : draft.status === 'ARCHIVED' ? 'Arquivado' : 'Rascunho'}</strong></div><button className="admin-button admin-button--quiet" type="submit" disabled={saving}>{saving ? 'Salvando…' : 'Salvar rascunho'}</button>{onPublish ? <button className="admin-button" type="button" onClick={() => void publish()} disabled={publishing}>{publishing ? 'Publicando…' : 'Publicar produto'}</button> : null}</div></section>
+      <section className="product-editor__side-card"><div className="product-editor__side-heading"><p className="admin-eyebrow">Variação padrão</p><h3>Preço e estoque</h3></div><div className="product-editor__side-content"><label className="product-editor__label">SKU<input value={variant.sku} onChange={(event) => updateVariant('sku', event.target.value)} required /></label><div className="product-editor__price-grid"><label className="product-editor__label">Preço regular<input inputMode="decimal" value={fromCents(variant.priceCents)} onChange={(event) => updateVariant('priceCents', event.target.value)} required /></label><label className="product-editor__label">Promocional<input inputMode="decimal" value={fromCents(variant.compareAtPriceCents)} onChange={(event) => updateVariant('compareAtPriceCents', event.target.value)} /></label></div><div className="product-editor__divider" /><label className="product-editor__switch"><span>Gerenciar estoque</span><input type="checkbox" checked={variant.manageStock !== false} onChange={(event) => updateVariant('manageStock', event.target.checked)} /></label><label className="product-editor__label">Quantidade física<input type="number" min="0" value={variant.inventoryQuantity ?? 0} onChange={(event) => updateVariant('inventoryQuantity', event.target.value)} disabled={variant.manageStock === false} /></label><label className="product-editor__label">Disponibilidade<select value={variant.stockStatus ?? 'IN_STOCK'} onChange={(event) => updateVariant('stockStatus', event.target.value)}><option value="IN_STOCK">Em estoque</option><option value="OUT_OF_STOCK">Fora de estoque</option><option value="ON_BACKORDER">Sob encomenda</option></select></label><label className="product-editor__label">Avisar quando restarem<input type="number" min="0" value={variant.lowStockThreshold ?? ''} onChange={(event) => updateVariant('lowStockThreshold', event.target.value)} /></label><div className="product-editor__divider" /><span className="product-editor__field-caption">Envio</span><label className="product-editor__label">Peso (g)<input type="number" min="0" value={variant.weightGrams ?? ''} onChange={(event) => updateVariant('weightGrams', event.target.value)} /></label><div className="product-editor__dimensions"><label className="product-editor__label">Largura<input type="number" min="0" value={variant.widthMm ?? ''} onChange={(event) => updateVariant('widthMm', event.target.value)} /></label><label className="product-editor__label">Altura<input type="number" min="0" value={variant.heightMm ?? ''} onChange={(event) => updateVariant('heightMm', event.target.value)} /></label><label className="product-editor__label">Compr.<input type="number" min="0" value={variant.lengthMm ?? ''} onChange={(event) => updateVariant('lengthMm', event.target.value)} /></label></div><p className="admin-help">Dimensões em milímetros.</p></div></section>
+      <section className="product-editor__side-card"><div className="product-editor__side-heading"><p className="admin-eyebrow">Antes de publicar</p><h3>Validação</h3></div><ul className="product-editor__validation"><li className={draft.name && slug ? 'is-valid' : ''}><Icon name={draft.name && slug ? 'check-circle-2' : 'circle'} size={17} strokeWidth={1.8} /> Nome e slug</li><li className={variant.sku && variant.priceCents > 0 ? 'is-valid' : ''}><Icon name={variant.sku && variant.priceCents > 0 ? 'check-circle-2' : 'circle'} size={17} strokeWidth={1.8} /> Preço e SKU</li><li className={images.some((image) => image.isPrimary) ? 'is-valid' : ''}><Icon name={images.some((image) => image.isPrimary) ? 'check-circle-2' : 'circle'} size={17} strokeWidth={1.8} /> Imagem principal</li></ul></section>
+    </aside></div>
+    <div className="product-editor__footer"><span>Alterações salvas somente após confirmar.</span><div><button className="admin-button admin-button--quiet admin-button--compact" type="button" onClick={onCancel}>Cancelar</button><button className="admin-button admin-button--compact" type="submit" disabled={saving}>{saving ? 'Salvando…' : 'Salvar alterações'}</button></div></div>
+  </form>;
 }

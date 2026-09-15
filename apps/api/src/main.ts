@@ -20,6 +20,7 @@ export function configureApp(app: INestApplication): INestApplication {
   const httpServer = app.getHttpAdapter().getInstance();
   httpServer.use('/assets', serveStatic(join(process.cwd(), 'apps/api/public/storefront/assets')));
   httpServer.use('/admin/assets', serveStatic(join(process.cwd(), 'apps/api/public/admin/assets')));
+  httpServer.use('/storage/uploads', serveStatic(join(process.cwd(), 'storage/uploads')));
   app.setGlobalPrefix('api/v1', {
     exclude: ['webhooks/mercado-pago', 'internal/cron/process'],
   });

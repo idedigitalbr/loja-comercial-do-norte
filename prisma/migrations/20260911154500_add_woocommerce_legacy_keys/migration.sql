@@ -1,14 +1,4 @@
-ALTER TABLE `Brand`
-  ADD COLUMN `legacySource` VARCHAR(80) NULL,
-  ADD COLUMN `legacyId` VARCHAR(191) NULL,
-  ADD UNIQUE INDEX `Brand_legacySource_legacyId_key` (`legacySource`, `legacyId`);
-
-ALTER TABLE `Category`
-  ADD COLUMN `legacySource` VARCHAR(80) NULL,
-  ADD COLUMN `legacyId` VARCHAR(191) NULL,
-  ADD UNIQUE INDEX `Category_legacySource_legacyId_key` (`legacySource`, `legacyId`);
-
-ALTER TABLE `Product`
-  ADD COLUMN `legacySource` VARCHAR(80) NULL,
-  ADD COLUMN `legacyId` VARCHAR(191) NULL,
-  ADD UNIQUE INDEX `Product_legacySource_legacyId_key` (`legacySource`, `legacyId`);
+-- This migration used to run before the initial schema and could fail on a
+-- clean database. The actual legacy columns are applied idempotently by the
+-- follow-up migration after the base tables exist.
+SELECT 1;

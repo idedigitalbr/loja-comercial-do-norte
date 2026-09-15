@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Inject,
   Param,
   Patch,
   Post,
@@ -37,7 +38,7 @@ class QuantityDto {
 
 @Controller('carts')
 export class CartsController {
-  constructor(private readonly cartsService: CartsService) {}
+  constructor(@Inject(CartsService) private readonly cartsService: CartsService) {}
 
   @Post()
   async create(@Res({ passthrough: true }) response: Response) {

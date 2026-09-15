@@ -1,12 +1,18 @@
-import { ActorType, OrderItemType, OrderStatus, Prisma } from '@prisma/client';
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { ActorType, EmailEventKey, OrderItemType, OrderStatus, Prisma } from '@prisma/client';
+import { BadRequestException, Inject, Injectable, NotFoundException, Optional } from '@nestjs/common';
+import { assertIdempotencyScope } from '../../common/idempotency/idempotency';
 import { PrismaService } from '../database/prisma.service';
 import { InventoryService } from '../inventory/inventory.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { canTransition } from './order-status-machine';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly prisma: PrismaService, private readonly inventoryService: InventoryService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(InventoryService) private readonly inventoryService: InventoryService,
+    @Optional() @Inject(NotificationsService) private readonly notifications?: NotificationsService,
+  ) {}
 
   async createFromCart(input: {
     cartId: string;
@@ -22,6 +28,7 @@ export class OrdersService {
     return this.prisma.$transaction(async (transaction) => {
       if (input.idempotencyKey) {
         const existing = await transaction.idempotencyKey.findUnique({ where: { key: input.idempotencyKey } });
+        assertIdempotencyScope(existing, `checkout:${input.cartId}`);
         if (existing?.responseJson && typeof existing.responseJson === 'object' && 'orderPublicId' in existing.responseJson) {
           return transaction.order.findUnique({ where: { publicId: String(existing.responseJson.orderPublicId) }, include: { items: true, statusHistory: true, inventoryReservations: true } });
         }
@@ -65,6 +72,22 @@ export class OrdersService {
       await transaction.orderStatusHistory.create({ data: { orderId: order.id, fromStatus: OrderStatus.DRAFT, toStatus: OrderStatus.AWAITING_PAYMENT, actorType: ActorType.USER, actorId: input.userId, source: 'CHECKOUT' } });
       await transaction.cart.update({ where: { id: input.cartId }, data: { status: 'CONVERTED' } });
       const result = await transaction.order.findUnique({ where: { id: order.id }, include: { items: true, statusHistory: true, inventoryReservations: true } });
+      if (result) {
+        try {
+          await this.notifications?.enqueue(EmailEventKey.ORDER_CREATED, {
+            entityId: result.id,
+            orderId: result.publicId,
+            recipient: result.contactEmail,
+            customerName: result.contactEmail.split('@')[0],
+            totalCents: result.totalCents,
+            total: `R$ ${(result.totalCents / 100).toFixed(2).replace('.', ',')}`,
+            status: OrderStatus.AWAITING_PAYMENT,
+            orderUrl: `/pedido/${result.publicId}`,
+          }, transaction);
+        } catch {
+          // Order creation must remain independent from notification persistence.
+        }
+      }
       if (input.idempotencyKey && result) {
         await transaction.idempotencyKey.create({
           data: {
@@ -90,6 +113,18 @@ export class OrdersService {
       if (!canTransition(order.status, toStatus)) throw new BadRequestException('INVALID_ORDER_TRANSITION');
       const updated = await transaction.order.update({ where: { id: orderId }, data: { status: toStatus } });
       await transaction.orderStatusHistory.create({ data: { orderId, fromStatus: order.status, toStatus, actorType: input.actorType, actorId: input.actorId, reason: input.reason, source: input.source } });
+      try {
+        await this.notifications?.enqueue(EmailEventKey.ORDER_STATUS_CHANGED, {
+          entityId: updated.id,
+          orderId: updated.publicId,
+          recipient: order.contactEmail,
+          customerName: order.contactEmail.split('@')[0],
+          status: toStatus,
+          orderUrl: `/pedido/${updated.publicId}`,
+        }, transaction);
+      } catch {
+        // A notification failure must not roll back an operational status change.
+      }
       return updated;
     });
   }

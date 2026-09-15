@@ -1,5 +1,5 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12;
@@ -15,7 +15,8 @@ function developmentKey(): string {
 export class SettingsCryptoService {
   private readonly key: Buffer;
 
-  constructor(encodedKey = process.env.SETTINGS_ENCRYPTION_KEY ?? developmentKey()) {
+  constructor(@Optional() @Inject('SETTINGS_ENCRYPTION_KEY') encodedKey?: string) {
+    encodedKey ??= process.env.SETTINGS_ENCRYPTION_KEY ?? developmentKey();
     const decoded = Buffer.from(encodedKey, 'base64');
     if (decoded.length !== 32) throw new Error('SETTINGS_ENCRYPTION_KEY_INVALID');
     this.key = decoded;

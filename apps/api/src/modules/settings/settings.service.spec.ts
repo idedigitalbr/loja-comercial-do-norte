@@ -92,4 +92,34 @@ describe('SettingsService', () => {
     expect(result).not.toHaveProperty('payments.accessToken');
     expect(result).not.toHaveProperty('smtp.password');
   });
+
+  it('rejects unsafe banner destinations before persisting them', async () => {
+    const prisma = {
+      siteBanner: { create: vi.fn() },
+    };
+    const service = new SettingsService(prisma as never, {} as never);
+
+    await expect(service.createBanner({ desktopPath: '/storage/banner.webp', ctaHref: 'javascript:alert(1)' })).rejects.toThrow('INVALID_CTA_HREF');
+    expect(prisma.siteBanner.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects enabling card payments without the required credentials', async () => {
+    const prisma = {
+      paymentConfiguration: { findUnique: vi.fn().mockResolvedValue(null), upsert: vi.fn() },
+    };
+    const service = new SettingsService(prisma as never, {} as never);
+
+    await expect(service.updatePaymentSettings({ enabled: true, enableCard: true })).rejects.toThrow('ACCESS_TOKEN_REQUIRED');
+    expect(prisma.paymentConfiguration.upsert).not.toHaveBeenCalled();
+  });
+
+  it('rejects enabling SMTP without a host and sender address', async () => {
+    const prisma = {
+      smtpConfiguration: { findUnique: vi.fn().mockResolvedValue(null), upsert: vi.fn() },
+    };
+    const service = new SettingsService(prisma as never, {} as never);
+
+    await expect(service.updateSmtpSettings({ enabled: true })).rejects.toThrow('SMTP_HOST_REQUIRED');
+    expect(prisma.smtpConfiguration.upsert).not.toHaveBeenCalled();
+  });
 });

@@ -1,14 +1,17 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UseGuards } from '@nestjs/common';
-import { EmailEventKey } from '@prisma/client';
+import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Put, UseGuards } from '@nestjs/common';
 import { PermissionGuard, Permissions, RequirePermissions } from '../auth/guards/permission.guard';
 import { SessionGuard } from '../auth/guards/session.guard';
-import { EmailTemplateDto, NotificationPreferenceDto, PaymentSettingsDto, SiteBannerDto, SiteUpdateDto, SmtpSettingsDto } from './settings.dto';
+import { EmailTemplateDto, NotificationPreferenceDto, NotificationRouteParamsDto, PaymentConnectionTestDto, PaymentSettingsDto, SiteBannerDto, SiteBannerUpdateDto, SiteUpdateDto, SmtpSettingsDto, TemplateRouteParamsDto } from './settings.dto';
+import { PaymentSettingsService } from './payment-settings.service';
 import { SettingsService } from './settings.service';
 
 @UseGuards(SessionGuard, PermissionGuard)
 @Controller('admin/settings')
 export class SettingsController {
-  constructor(private readonly settingsService: SettingsService) {}
+  constructor(
+    @Inject(SettingsService) private readonly settingsService: SettingsService,
+    @Inject(PaymentSettingsService) private readonly paymentSettingsService: PaymentSettingsService,
+  ) {}
 
   @Get()
   @RequirePermissions(Permissions.SETTINGS_MANAGE)
@@ -42,7 +45,7 @@ export class SettingsController {
 
   @Patch('banners/:id')
   @RequirePermissions(Permissions.SETTINGS_MANAGE)
-  updateBanner(@Param('id') id: string, @Body() body: Partial<SiteBannerDto>) {
+  updateBanner(@Param('id') id: string, @Body() body: SiteBannerUpdateDto) {
     return this.settingsService.updateBanner(id, body);
   }
 
@@ -62,6 +65,12 @@ export class SettingsController {
   @RequirePermissions(Permissions.PAYMENTS_MANAGE)
   updatePayments(@Body() body: PaymentSettingsDto) {
     return this.settingsService.updatePaymentSettings(body);
+  }
+
+  @Post('payments/test')
+  @RequirePermissions(Permissions.PAYMENTS_MANAGE)
+  testPayments(@Body() body: PaymentConnectionTestDto) {
+    return this.paymentSettingsService.testConnection(body);
   }
 
   @Get('email')
@@ -84,20 +93,20 @@ export class SettingsController {
 
   @Put('templates/:key/:locale')
   @RequirePermissions(Permissions.NOTIFICATIONS_MANAGE)
-  updateTemplate(@Param('key') key: EmailEventKey, @Param('locale') locale: string, @Body() body: EmailTemplateDto) {
-    return this.settingsService.updateEmailTemplate(key, locale, body);
+  updateTemplate(@Param() params: TemplateRouteParamsDto, @Body() body: EmailTemplateDto) {
+    return this.settingsService.updateEmailTemplate(params.key, params.locale, body);
   }
 
   @Put('notifications/:eventKey')
   @RequirePermissions(Permissions.NOTIFICATIONS_MANAGE)
-  updateNotification(@Param('eventKey') eventKey: EmailEventKey, @Body() body: NotificationPreferenceDto) {
-    return this.settingsService.updateNotificationPreference(eventKey, body);
+  updateNotification(@Param() params: NotificationRouteParamsDto, @Body() body: NotificationPreferenceDto) {
+    return this.settingsService.updateNotificationPreference(params.eventKey, body);
   }
 }
 
 @Controller('site')
 export class PublicSiteConfigController {
-  constructor(private readonly settingsService: SettingsService) {}
+  constructor(@Inject(SettingsService) private readonly settingsService: SettingsService) {}
 
   @Get('config')
   publicConfig() {

@@ -37,23 +37,31 @@ export function LoginPage() {
   }
 
   return (
-    <main>
-      <h1>Entrar na conta</h1>
-      {currentUser ? <p>Sessão ativa: {currentUser}</p> : null}
-      <form onSubmit={submit}>
-        <label>
-          E-mail
-          <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
-        </label>
-        <label>
-          Senha
-          <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
-        </label>
-        {error ? <p role="alert">{error}</p> : null}
-        <button type="submit" disabled={loading}>
-          {loading ? 'Entrando…' : 'Entrar'}
-        </button>
-      </form>
+    <main className="page-section account-page">
+      <div className="site-container">
+        <div className="page-heading">
+          <div>
+            <p className="eyebrow">Área do cliente</p>
+            <h1>Entrar na conta</h1>
+          </div>
+          <p>Acompanhe pedidos, mantenha seus dados atualizados e agilize sua próxima compra.</p>
+        </div>
+        {currentUser ? <p className="form-success">Sessão ativa: {currentUser}</p> : null}
+        <form className="form-panel" aria-label="Entrar na conta" onSubmit={submit}>
+          <label>
+            E-mail
+            <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+          </label>
+          <label>
+            Senha
+            <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
+          </label>
+          {error ? <p className="form-error" role="alert">{error}</p> : null}
+          <button className="button button--primary" type="submit" disabled={loading}>
+            {loading ? 'Entrando…' : 'Entrar'}
+          </button>
+        </form>
+      </div>
     </main>
   );
 }

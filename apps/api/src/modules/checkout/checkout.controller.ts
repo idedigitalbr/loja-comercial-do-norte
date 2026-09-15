@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Param, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Inject, Param, Post, Req, Res } from '@nestjs/common';
 import { IsEmail, IsInt, IsObject, IsOptional, IsString, Min } from 'class-validator';
 import type { Request, Response } from 'express';
 import { AuthenticatedUser } from '../auth/auth.service';
@@ -16,7 +16,7 @@ class PrepareCheckoutDto {
 
 @Controller('checkout')
 export class CheckoutController {
-  constructor(private readonly checkoutService: CheckoutService) {}
+  constructor(@Inject(CheckoutService) private readonly checkoutService: CheckoutService) {}
 
   @Post('prepare')
   async prepare(@Body() body: PrepareCheckoutDto, @Headers('idempotency-key') idempotencyKey: string, @Req() request: Request & { user?: AuthenticatedUser }, @Res({ passthrough: true }) response: Response) {

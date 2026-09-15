@@ -6,3 +6,5 @@ export { formatMoney, Money } from './components/money';
 export type { MoneyProps } from './components/money';
 export { StatusBadge } from './components/status-badge';
 export type { StatusBadgeProps } from './components/status-badge';
+export { Icon } from './components/icon';
+export type { IconName, IconProps } from './components/icon';

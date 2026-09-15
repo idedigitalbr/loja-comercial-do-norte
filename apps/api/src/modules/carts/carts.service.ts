@@ -1,5 +1,5 @@
 import { CartStatus } from '@prisma/client';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { randomBytes } from 'node:crypto';
 import { PrismaService } from '../database/prisma.service';
 
@@ -12,7 +12,7 @@ export type AddCartItemInput = {
 
 @Injectable()
 export class CartsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async createAnonymousCart() {
     return this.prisma.cart.create({

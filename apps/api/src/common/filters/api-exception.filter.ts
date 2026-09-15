@@ -35,8 +35,14 @@ export class ApiExceptionFilter implements ExceptionFilter {
       (incomingId && /^[A-Za-z0-9._-]{1,80}$/.test(incomingId)
         ? incomingId
         : `req_${randomUUID()}`);
+    const isMulterError = exception instanceof Error && exception.name === 'MulterError';
+    const multerCode = isMulterError && (exception as Error & { code?: string }).code === 'LIMIT_FILE_SIZE'
+      ? 'IMAGE_TOO_LARGE'
+      : 'INVALID_UPLOAD';
     const status = exception instanceof HttpException
       ? exception.getStatus()
+      : isMulterError
+        ? HttpStatus.BAD_REQUEST
       : HttpStatus.INTERNAL_SERVER_ERROR;
     const raw = exception instanceof HttpException ? exception.getResponse() : undefined;
     const payload = typeof raw === 'object' && raw !== null ? raw as ErrorResponse : undefined;
@@ -44,8 +50,8 @@ export class ApiExceptionFilter implements ExceptionFilter {
 
     response.setHeader('x-request-id', requestId);
     response.status(status).json({
-      code: payload?.code ?? (isValidation ? 'VALIDATION_ERROR' : status >= 500 ? 'INTERNAL_ERROR' : 'HTTP_ERROR'),
-      message: payload?.message ?? (status >= 500 ? 'Ocorreu um erro interno.' : 'Não foi possível concluir a solicitação.'),
+      code: payload?.code ?? (isValidation ? 'VALIDATION_ERROR' : isMulterError ? multerCode : status >= 500 ? 'INTERNAL_ERROR' : 'HTTP_ERROR'),
+      message: payload?.message ?? (isMulterError ? 'O arquivo enviado é inválido ou excede o limite permitido.' : status >= 500 ? 'Ocorreu um erro interno.' : 'Não foi possível concluir a solicitação.'),
       requestId,
       ...(payload?.fieldErrors ? { fieldErrors: payload.fieldErrors } : {}),
       ...(payload?.fields ? { fields: payload.fields } : {}),

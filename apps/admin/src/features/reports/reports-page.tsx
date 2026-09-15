@@ -1,12 +1,10 @@
 import { useState } from 'react';
 
+type Summary = { grossCents: number; refundedCents: number; netCents: number; ordersCount: number };
+function currency(cents: number) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100); }
+
 export function ReportsPage() {
-  const [summary, setSummary] = useState<{ grossCents: number; refundedCents: number; netCents: number } | null>(null);
-  async function load() {
-    const to = new Date();
-    const from = new Date(to.getTime() - 30 * 24 * 60 * 60 * 1000);
-    const response = await fetch(`/api/v1/admin/reports/sales-summary?from=${from.toISOString()}&to=${to.toISOString()}`, { credentials: 'include' });
-    if (response.ok) setSummary(await response.json());
-  }
-  return <main><h1>Relatórios</h1><button onClick={() => void load()}>Atualizar vendas</button>{summary ? <p>Bruto: R$ {(summary.grossCents / 100).toFixed(2)} — Reembolsos: R$ {(summary.refundedCents / 100).toFixed(2)} — Líquido: R$ {(summary.netCents / 100).toFixed(2)}</p> : null}</main>;
+  const [summary, setSummary] = useState<Summary | null>(null); const [loading, setLoading] = useState(false); const [error, setError] = useState('');
+  async function load() { setLoading(true); const to = new Date(); const from = new Date(to.getTime() - 30 * 24 * 60 * 60 * 1000); const response = await fetch(`/api/v1/admin/reports/sales-summary?from=${from.toISOString()}&to=${to.toISOString()}`, { credentials: 'include' }); if (response.ok) setSummary(await response.json() as Summary); else setError('Não foi possível gerar o resumo.'); setLoading(false); }
+  return <section className="admin-page"><div className="admin-page__heading"><div><p className="admin-eyebrow">WooCommerce / analytics</p><h2>Relatórios</h2></div><p>Visão financeira dos últimos 30 dias, baseada em pedidos pagos e reembolsos aprovados.</p></div>{error ? <p className="admin-error" role="alert">{error}</p> : null}<div className="admin-card admin-toolbar"><div><strong>Resumo de vendas</strong><span>Atualize quando quiser consultar o período corrente.</span></div><button className="admin-button admin-button--compact" type="button" onClick={() => void load()}>{loading ? 'Calculando…' : 'Atualizar relatório'}</button></div>{summary ? <div className="admin-kpi-grid admin-kpi-grid--three"><article className="admin-kpi"><span>Faturamento bruto</span><strong>{currency(summary.grossCents)}</strong><small>Pedidos pagos</small></article><article className="admin-kpi"><span>Reembolsos</span><strong>{currency(summary.refundedCents)}</strong><small>Valores aprovados</small></article><article className="admin-kpi"><span>Líquido</span><strong>{currency(summary.netCents)}</strong><small>{summary.ordersCount} pedidos no período</small></article></div> : <div className="admin-card admin-empty-state"><p className="admin-eyebrow">Sem consulta carregada</p><h3>Gere o primeiro resumo</h3><p>Os dados são calculados no servidor e não usam valores simulados.</p></div>}</section>;
 }

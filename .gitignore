@@ -7,9 +7,8 @@ composer.phar
 # Environment and secrets
 .env
 .env.*
-# Keep environment templates local until the repository scanner allows them.
-.env.example
 .env.local.example
+!.env.example
 
 # Builds, caches and coverage
 dist/

@@ -28,7 +28,7 @@ describe('PaymentsService idempotency', () => {
   afterAll(async () => {
     await prisma.paymentAttempt.deleteMany({ where: { payment: { orderId } } });
     await prisma.payment.deleteMany({ where: { orderId } });
-    await prisma.idempotencyKey.deleteMany({ where: { scope: `payment:${orderId}` } });
+    await prisma.idempotencyKey.deleteMany({ where: { key: 'idem-order-123' } });
     await prisma.order.delete({ where: { id: orderId } });
     await prisma.$disconnect();
   });

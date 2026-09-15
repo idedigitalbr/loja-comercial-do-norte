@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { IsInt, IsString, Min } from 'class-validator';
 import { PermissionGuard, Permissions, RequirePermissions } from '../auth/guards/permission.guard';
 import { SessionGuard } from '../auth/guards/session.guard';
@@ -16,7 +16,12 @@ class AdjustmentDto {
 @RequirePermissions(Permissions.INVENTORY_ADJUST)
 @Controller('admin/inventory')
 export class InventoryController {
-  constructor(private readonly inventoryService: InventoryService) {}
+  constructor(@Inject(InventoryService) private readonly inventoryService: InventoryService) {}
+
+  @Get()
+  list(@Query('search') search?: string) {
+    return this.inventoryService.list({ search });
+  }
 
   @Post(':variantId/adjust')
   adjust(@Param('variantId') variantId: string, @Body() body: AdjustmentDto) {

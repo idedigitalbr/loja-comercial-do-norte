@@ -1,6 +1,7 @@
 import { EmailEventKey, PaymentEnvironment, RecordStatus, SmtpSecurity } from '@prisma/client';
-import { IsBoolean, IsEmail, IsEnum, IsInt, IsOptional, IsString, IsUrl, Length, Max, Min } from 'class-validator';
+import { IsBoolean, IsEmail, IsEnum, IsInt, IsOptional, IsString, IsUrl, Length, Matches, Max, Min } from 'class-validator';
 import type { EmailTemplateInput, NotificationPreferenceInput, PaymentSettingsInput, SiteBannerInput, SiteUpdateInput, SmtpSettingsInput } from './settings.types';
+import type { PaymentConnectionTestInput } from './payment-settings.service';
 
 export class SiteUpdateDto implements SiteUpdateInput {
   @IsOptional() @IsString() @Length(2, 160) siteName?: string;
@@ -21,7 +22,19 @@ export class SiteBannerDto implements SiteBannerInput {
   @IsOptional() @IsString() @Length(1, 220) title?: string | null;
   @IsOptional() @IsString() @Length(1, 4000) description?: string | null;
   @IsOptional() @IsString() @Length(1, 120) ctaLabel?: string | null;
-  @IsOptional() @IsString() @Length(1, 500) ctaHref?: string | null;
+  @IsOptional() @IsString() @Length(1, 500) @Matches(/^(?:\/(?!\/)[^\s]*|https:\/\/[^\s]+|mailto:[^\s]+|tel:[^\s]+)$/i, { message: 'Use um caminho interno ou uma URL https, mailto ou tel.' }) ctaHref?: string | null;
+  @IsOptional() @IsInt() @Min(0) @Max(9999) sortOrder?: number;
+  @IsOptional() @IsEnum(RecordStatus) status?: RecordStatus;
+}
+
+export class SiteBannerUpdateDto implements Partial<SiteBannerInput> {
+  @IsOptional() @IsString() @Length(1, 500) desktopPath?: string;
+  @IsOptional() @IsString() @Length(1, 500) mobilePath?: string | null;
+  @IsOptional() @IsString() @Length(1, 120) eyebrow?: string | null;
+  @IsOptional() @IsString() @Length(1, 220) title?: string | null;
+  @IsOptional() @IsString() @Length(1, 4000) description?: string | null;
+  @IsOptional() @IsString() @Length(1, 120) ctaLabel?: string | null;
+  @IsOptional() @IsString() @Length(1, 500) @Matches(/^(?:\/(?!\/)[^\s]*|https:\/\/[^\s]+|mailto:[^\s]+|tel:[^\s]+)$/i, { message: 'Use um caminho interno ou uma URL https, mailto ou tel.' }) ctaHref?: string | null;
   @IsOptional() @IsInt() @Min(0) @Max(9999) sortOrder?: number;
   @IsOptional() @IsEnum(RecordStatus) status?: RecordStatus;
 }
@@ -34,6 +47,11 @@ export class PaymentSettingsDto implements PaymentSettingsInput {
   @IsOptional() @IsBoolean() enabled?: boolean;
   @IsOptional() @IsBoolean() enablePix?: boolean;
   @IsOptional() @IsBoolean() enableCard?: boolean;
+}
+
+export class PaymentConnectionTestDto implements PaymentConnectionTestInput {
+  @IsOptional() @IsEnum(PaymentEnvironment) environment?: PaymentEnvironment;
+  @IsOptional() @IsString() @Length(1, 500) accessToken?: string;
 }
 
 export class SmtpSettingsDto implements SmtpSettingsInput {
@@ -63,4 +81,8 @@ export class NotificationPreferenceDto implements NotificationPreferenceInput {
 export class TemplateRouteParamsDto {
   @IsEnum(EmailEventKey) key!: EmailEventKey;
   @IsString() @Length(2, 10) locale!: string;
+}
+
+export class NotificationRouteParamsDto {
+  @IsEnum(EmailEventKey) eventKey!: EmailEventKey;
 }

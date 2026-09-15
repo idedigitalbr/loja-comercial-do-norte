@@ -2,12 +2,13 @@ import {
   Body,
   Controller,
   Get,
+  Inject,
   Post,
   Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsString, Length, MinLength } from 'class-validator';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { SessionGuard } from './guards/session.guard';
@@ -21,19 +22,41 @@ class LoginDto {
   password!: string;
 }
 
+class RegisterDto {
+  @IsEmail()
+  email!: string;
+
+  @IsString()
+  @MinLength(8)
+  password!: string;
+
+  @IsString()
+  @Length(2, 100)
+  firstName!: string;
+
+  @IsString()
+  @Length(2, 100)
+  lastName!: string;
+}
+
 type RequestWithCookies = Request & {
   cookies?: Record<string, string | undefined>;
 };
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(@Inject(AuthService) private readonly authService: AuthService) {}
 
   @Post('login')
   async login(@Body() body: LoginDto, @Res({ passthrough: true }) response: Response) {
     const session = await this.authService.login(body.email, body.password);
     this.setSessionCookies(response, session.accessToken, session.refreshToken, session.expiresAt);
     return { user: session.user };
+  }
+
+  @Post('register')
+  register(@Body() body: RegisterDto) {
+    return this.authService.register(body);
   }
 
   @Post('refresh')

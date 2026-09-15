@@ -1,5 +1,6 @@
 import { CouponStatus } from '@prisma/client';
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { assertIdempotencyScope } from '../../common/idempotency/idempotency';
 import { PrismaService } from '../database/prisma.service';
 
 export type RedeemCouponInput = {
@@ -25,14 +26,14 @@ export class CouponService {
   async redeem(input: RedeemCouponInput) {
     const now = new Date();
     return this.prisma.$transaction(async (transaction) => {
-      if (input.idempotencyKey) {
-        const previous = await transaction.idempotencyKey.findUnique({ where: { key: input.idempotencyKey } });
-        if (previous && previous.expiresAt > now && previous.responseJson) return previous.responseJson;
-      }
-
       const coupon = await transaction.coupon.findUnique({ where: { code: input.code.trim().toUpperCase() } });
       if (!coupon || coupon.status !== CouponStatus.ACTIVE || coupon.startsAt > now || (coupon.endsAt && coupon.endsAt <= now)) {
         throw new CouponError('Cupom fora da vigência.');
+      }
+      if (input.idempotencyKey) {
+        const previous = await transaction.idempotencyKey.findUnique({ where: { key: input.idempotencyKey } });
+        assertIdempotencyScope(previous, `coupon:${coupon.id}`);
+        if (previous && previous.expiresAt > now && previous.responseJson) return previous.responseJson;
       }
       if (coupon.minimumSubtotalCents && input.subtotalCents < coupon.minimumSubtotalCents) {
         throw new CouponError('Subtotal mínimo não atingido.');

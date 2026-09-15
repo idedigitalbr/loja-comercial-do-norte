@@ -7,8 +7,8 @@ describe('CheckoutService', () => {
       idempotencyKey: {
         findUnique: vi.fn()
           .mockResolvedValueOnce(null)
-          .mockResolvedValueOnce({ responseJson: { orderPublicId: 'order-public-1', amountCents: 12_500, expiresAt: '2026-09-11T15:30:00.000Z' } })
-          .mockResolvedValueOnce({ responseJson: { orderPublicId: 'order-public-1', amountCents: 12_500, expiresAt: '2026-09-11T15:30:00.000Z' } }),
+          .mockResolvedValueOnce({ scope: 'checkout:cart-1', responseJson: { orderPublicId: 'order-public-1', amountCents: 12_500, expiresAt: '2026-09-11T15:30:00.000Z' } })
+          .mockResolvedValueOnce({ scope: 'checkout:cart-1', responseJson: { orderPublicId: 'order-public-1', amountCents: 12_500, expiresAt: '2026-09-11T15:30:00.000Z' } }),
       },
       cart: { findFirst: vi.fn().mockResolvedValue({ id: 'cart-1', publicId: 'cart-public-1' }) },
       order: { findUnique: vi.fn().mockResolvedValue({ id: 'order-1', publicId: 'order-public-1', totalCents: 12_500 }) },

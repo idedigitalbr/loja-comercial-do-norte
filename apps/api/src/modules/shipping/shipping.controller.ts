@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Inject, Post } from '@nestjs/common';
 import { IsInt, IsPostalCode, Min } from 'class-validator';
 import { ShippingService } from './shipping.service';
 
@@ -13,7 +13,7 @@ class ShippingQuoteDto {
 
 @Controller('shipping')
 export class ShippingController {
-  constructor(private readonly shippingService: ShippingService) {}
+  constructor(@Inject(ShippingService) private readonly shippingService: ShippingService) {}
 
   @Post('quote')
   quote(@Body() body: ShippingQuoteDto) {
