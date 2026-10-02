@@ -12,7 +12,7 @@ export type ServicePageData = {
     title: string;
     paragraphs: string[];
     noteTitle?: string;
-    note?: string;
+    note?: string | string[];
     images: ServiceImage[];
   };
   process?: {
@@ -39,16 +39,16 @@ export type ServicePageData = {
   };
   gallery?: { images: ServiceImage[]; initialCount?: number };
   hideResults?: boolean;
-  beforeAfter?: ServiceImage[];
+  beforeAfter?: Array<ServiceImage & { caption?: string }>;
   whyChooseGallery?: ServiceImage[];
   benefits?: {
     eyebrow: string;
-    title: string;
-    items: string[];
+    items: Array<{ icon: IconName; title: string }>;
   };
   whyChoose?: {
     eyebrow: string;
     title: string;
+    description: string;
     items: string[];
   };
   closingEyebrow?: string;
@@ -102,7 +102,7 @@ export const servicePages: Record<ServicePageSlug, ServicePageData> = {
     intro: {
       title: 'Cabelos bem cuidados, Autoestima lá em cima!',
       paragraphs: [
-        'Tá na hora de dar aquele trato no visual? Corte, hidratação, escova ou aquela mudança que você vem pensando — aqui a gente faz com carinho, técnica e atenção aos detalhes.',
+        'Tá na hora de dar aquele trato no visual? Corte, hidratação, escova ou aquela mudança que você vem pensando aqui a gente faz com carinho, técnica e atenção aos detalhes.',
         'Reserve seu horário e venha viver a experiência de se sentir ainda mais você.',
       ],
       images: [
@@ -158,7 +158,7 @@ export const servicePages: Record<ServicePageSlug, ServicePageData> = {
     intro: {
       title: 'Realce sua beleza com uma maquiagem profissional para cada ocasião',
       paragraphs: [
-        'Quer valorizar ainda mais sua beleza para um evento, sessão de fotos ou até para aquele compromisso especial? Aqui cuidamos da pele com atenção aos detalhes, técnicas profissionais e produtos de qualidade para garantir um resultado elegante, duradouro e que combine com o seu estilo.',
+        'Quer valorizar ainda mais sua beleza para um evento, sessão de fotos ou até para aquele compromisso especial? Aqui cada maquiagem é feita com atenção aos detalhes, técnicas profissionais e produtos de qualidade para garantir um resultado elegante, duradouro e que combine com o seu estilo.',
         'Seja uma make leve para o dia a dia, uma produção social mais elaborada ou até uma maquiagem artística cheia de personalidade, nossa equipe prepara tudo para que você se sinta confiante, linda e pronta para qualquer ocasião.',
         'Reserve seu horário e venha viver a experiência de realçar o que você tem de mais bonito.',
       ],
@@ -204,10 +204,10 @@ export const servicePages: Record<ServicePageSlug, ServicePageData> = {
       { src: `${uploads}/2026/09/makee-1-scaled.jpeg`, alt: 'Maquiagem social finalizada' },
       { src: `${uploads}/2026/09/makee-2-scaled.jpeg`, alt: 'Maquiagem profissional finalizada' },
     ] },
-    closingEyebrow: 'Serviço Maquiagem',
+    closingEyebrow: 'Entre em contato',
     closingImage: `${uploads}/2026/03/Gemini_Generated_Image_okt6lqokt6lqokt6-1.png`,
     closingCtaLabel: 'Chame no WhatsApp',
-    closingDescription: 'Agende seu horário e venha viver uma experiência pensada para realçar a sua beleza.',
+    closingDescription: 'Agende seu horário e venha viver uma experiência pensada para destacar seus traços e deixar você ainda mais confiante para qualquer ocasião.',
     ctaTitle: 'Pronta para realçar ainda mais a sua beleza? Faça sua maquiagem com quem entende.',
   },
   'manicure-pedicure': {
@@ -215,14 +215,14 @@ export const servicePages: Record<ServicePageSlug, ServicePageData> = {
     title: 'Manicure & Pedicure',
     heroImage: `${uploads}/2026/03/Gemini_Generated_Image_wrh8u4wrh8u4wrh8-1.png`,
     intro: {
-      title: 'Unhas bem cuidadas , autoestima lá em cima!',
+      title: 'Unhas bem cuidadas, autoestima lá em cima!',
       paragraphs: [
         'Nossas unhas contam muito sobre quem somos. Por isso, o serviço de Manicure & Pedicure do nosso salão vai além do embelezamento — é um momento de cuidado, relaxamento e atenção personalizada para você.',
         'Com materiais esterilizados, esmaltes de alta durabilidade e profissionais especializados, garantimos resultados que duram mais e fazem você se sentir ainda mais bonita.',
       ],
       images: [
-        { src: `${uploads}/2026/03/image-6-1.jpg`, alt: 'Manicure profissional' },
         { src: `${uploads}/2026/03/image-1-3.jpg`, alt: 'Pedicure profissional' },
+        { src: `${uploads}/2026/03/image-6-1.jpg`, alt: 'Manicure profissional' },
       ],
     },
     process: {
@@ -240,14 +240,14 @@ export const servicePages: Record<ServicePageSlug, ServicePageData> = {
       title: 'Manicure & Pedicure',
       description: '',
       items: [
-        { title: 'Pacote Completo', description: 'O pacote completo para cuidar das mãos e dos pés em um único atendimento.', image: { src: `${uploads}/2026/09/IMG_6718-scaled.jpg`, alt: 'Pacote completo de manicure e pedicure' } },
-        { title: 'Manicure Tradicional', description: 'Limpeza, corte, lixamento e esmaltação para deixar suas mãos sempre bonitas e bem cuidadas.', image: { src: `${uploads}/2026/03/image-4-1.jpg`, alt: 'Manicure tradicional' } },
-        { title: 'Pedicure Tradicional', description: 'Cuidado para os pés, removendo cutículas e deixando as unhas bonitas e saudáveis.', image: { src: `${uploads}/2026/09/IMG_6727-scaled.jpg`, alt: 'Pedicure tradicional' } },
-        { title: 'Manutenção de Unhas', description: 'Cuidados profissionais para manter suas unhas sempre bonitas, saudáveis e com o formato perfeito, garantindo durabilidade e aparência impecável.', image: { src: `${uploads}/2026/03/Gemini_Generated_Image_7a7q2f7a7q2f7a7q-1.png`, alt: 'Manutenção de unhas' } },
-        { title: 'Spa dos Pés', description: 'Tratamento relaxante com hidratação e cuidados especiais para revitalizar seus pés.', image: { src: `${uploads}/2026/03/a111.jpg`, alt: 'Spa dos pés' } },
-        { title: 'Unhas Decoradas', description: 'Designs criativos e personalizados para quem quer unhas ainda mais estilosas.', image: { src: `${uploads}/2026/09/IMG_5562-1-scaled.jpg`, alt: 'Unhas decoradas' } },
-        { title: 'Esmaltação Tradicional', description: 'Aplicação profissional de esmalte, garantindo um acabamento elegante, uniforme e duradouro que valoriza suas unhas e realça sua beleza.', image: { src: `${uploads}/2026/03/gell.webp`, alt: 'Esmaltação tradicional' } },
-        { title: 'Esmaltação em Gel', description: 'Garante unhas com brilho intenso, acabamento impecável e durabilidade prolongada. Perfeita para quem quer unhas bonitas e resistentes por muito mais tempo.', image: { src: `${uploads}/2026/03/image-6-1.jpg`, alt: 'Esmaltação em gel' } },
+        { title: 'Pacote Completo', description: 'O pacote completo para cuidar das mãos e dos pés em um único atendimento.', image: { src: `${uploads}/2026/03/image-6-1.jpg`, alt: 'Pacote completo de manicure e pedicure' } },
+        { title: 'Manicure Tradicional', description: 'Limpeza, corte, lixamento e esmaltação para deixar suas mãos sempre bonitas e bem cuidadas.', image: { src: `${uploads}/2026/09/IMG_6718-scaled.jpg`, alt: 'Manicure tradicional' } },
+        { title: 'Pedicure Tradicional', description: 'Cuidado para os pés, removendo cutículas e deixando as unhas bonitas e saudáveis.', image: { src: `${uploads}/2026/03/image-4-1.jpg`, alt: 'Pedicure tradicional' } },
+        { title: 'Manutenção de Unhas', description: 'Cuidados profissionais para manter suas unhas sempre bonitas, saudáveis e com o formato perfeito, garantindo durabilidade e aparência impecável.', image: { src: `${uploads}/2026/09/IMG_6727-scaled.jpg`, alt: 'Manutenção de unhas' } },
+        { title: 'Spa dos Pés', description: 'Tratamento relaxante com hidratação e cuidados especiais para revitalizar seus pés.', image: { src: `${uploads}/2026/03/Gemini_Generated_Image_7a7q2f7a7q2f7a7q-1.png`, alt: 'Spa dos pés' } },
+        { title: 'Unhas Decoradas', description: 'Designs criativos e personalizados para quem quer unhas ainda mais estilosas.', image: { src: `${uploads}/2026/03/a111.jpg`, alt: 'Unhas decoradas' } },
+        { title: 'Esmaltação Tradicional', description: 'Aplicação profissional de esmalte, garantindo um acabamento elegante, uniforme e duradouro que valoriza suas unhas e realça sua beleza.', image: { src: `${uploads}/2026/09/IMG_5562-1-scaled.jpg`, alt: 'Esmaltação tradicional' } },
+        { title: 'Esmaltação em Gel', description: 'Garante unhas com brilho intenso, acabamento impecável e durabilidade prolongada. Perfeita para quem quer unhas bonitas e resistentes por muito mais tempo.', image: { src: `${uploads}/2026/03/gell.webp`, alt: 'Esmaltação em gel' } },
       ],
     },
     results: {
@@ -276,8 +276,11 @@ export const servicePages: Record<ServicePageSlug, ServicePageData> = {
       paragraphs: [
         'A Terapia Capilar trata a causa da queda, inflamações e desequilíbrios capilares, restaurando a saúde e estimulando o crescimento natural dos fios.',
       ],
-      noteTitle: 'Sobre o Especialista',
-      note: 'Jonas Moreira é Terapeuta Capilar formado pela Academia Brasileira de Tricologia, com especialização em saúde do couro cabeludo. Com atendimento individualizado e protocolos personalizados, Jonas trata queda, inflamações e desequilíbrios capilares com técnicas de alta eficácia e abordagem integrativa.',
+      noteTitle: 'Sobre o Especialista:',
+      note: [
+        'Jonas Moreira é Terapeuta Capilar formado pela Academia Brasileira de Tricologia, com especialização em saúde do couro cabeludo.',
+        'Com atendimento individualizado e protocolos personalizados, Jonas trata queda, inflamações e desequilíbrios capilares com técnicas de alta eficácia e abordagem integrativa.',
+      ],
       images: [
         { src: `${uploads}/2026/03/capilar-3-1028x1536.jpg`, alt: 'Avaliação de terapia capilar' },
         { src: `${uploads}/2026/07/1aa-600x816.webp`, alt: 'Especialista em terapia capilar' },
@@ -285,11 +288,11 @@ export const servicePages: Record<ServicePageSlug, ServicePageData> = {
     },
     hideResults: true,
     beforeAfter: [
-      { src: `${uploads}/2026/03/capilar-7.jpg`, alt: 'Caso capilar antes e depois 1' },
-      { src: `${uploads}/2026/03/capilar-9.jpg`, alt: 'Caso capilar antes e depois 2' },
-      { src: `${uploads}/2026/03/capilar-8.jpg`, alt: 'Caso capilar antes e depois 3' },
-      { src: `${uploads}/2026/03/capilar-6.jpg`, alt: 'Caso capilar antes e depois 4' },
-      { src: `${uploads}/2026/03/capilar-10.jpg`, alt: 'Caso capilar antes e depois 5' },
+      { src: `${uploads}/2026/03/capilar-7.jpg`, alt: 'Resultado de terapia capilar antes do tratamento', caption: 'ANTES' },
+      { src: `${uploads}/2026/03/capilar-9.jpg`, alt: 'Resultado de terapia capilar depois do tratamento', caption: 'DEPOIS' },
+      { src: `${uploads}/2026/03/capilar-5.jpg`, alt: 'Resultado de terapia capilar' },
+      { src: `${uploads}/2026/03/capilar-8.jpg`, alt: 'Resultado de terapia capilar' },
+      { src: `${uploads}/2026/03/Gemini_Generated_Image_1zjcl1zjcl1zjcl1-1.png`, alt: 'Resultado de terapia capilar' },
     ],
     process: {
       eyebrow: 'Conheça o processo de',
@@ -324,23 +327,30 @@ export const servicePages: Record<ServicePageSlug, ServicePageData> = {
       ],
     },
     benefits: {
-      eyebrow: 'Resultados e benefícios',
-      title: 'O que o tratamento pode proporcionar',
-      items: ['Redução da queda capilar', 'Controle da oleosidade', 'Diminuição de inflamações', 'Fortalecimento dos fios', 'Relaxamento e bem-estar', 'Estímulo ao crescimento'],
+      eyebrow: 'Confira os',
+      items: [
+        { icon: 'trending-up', title: 'Redução da queda capilar' },
+        { icon: 'sliders-horizontal', title: 'Controle da oleosidade' },
+        { icon: 'shield-check', title: 'Diminuição de inflamações' },
+        { icon: 'badge-check', title: 'Fortalecimento dos fios' },
+        { icon: 'heart-handshake', title: 'Relaxamento e bem-estar' },
+        { icon: 'sparkles', title: 'Estímulo ao crescimento' },
+      ],
     },
     whyChoose: {
-      eyebrow: 'Por que você deve',
-      title: 'Nos Escolher',
+      eyebrow: 'Saiba',
+      title: 'Por que você deve\nNos Escolher',
+      description: 'Nossa equipe está sempre se atualizando por meio de cursos, certificações e eventos do setor, trazendo novos conhecimentos, técnicas e tendências para oferecer o melhor a você.',
       items: ['Especialistas em constante atualização', 'Compromisso com a Saúde e Integridade dos Fios', 'Atendimento Personalizado', 'Garantia de Excelência'],
     },
     whyChooseGallery: [
-      { src: `${uploads}/2026/03/capilar-3-1028x1536.jpg`, alt: 'Ambiente de terapia capilar' },
-      { src: `${uploads}/2026/07/1aa-600x816.webp`, alt: 'Especialista em terapia capilar' },
+      { src: `${uploads}/2026/07/institucional-jonas-elivaldo-evento-dupla-aromaterapia.webp`, alt: 'Jonas e Elivaldo em evento de aromaterapia' },
+      { src: `${uploads}/2026/07/institucional-jonas-elivaldo-evento-aromaterapia.webp`, alt: 'Atendimento e ambiente de aromaterapia' },
     ],
-    closingEyebrow: 'Terapia Capilar',
+    closingEyebrow: 'Entre em contato',
     closingImage: `${uploads}/2026/03/Gemini_Generated_Image_1zjcl1zjcl1zjcl1-1.png`,
-    closingCtaLabel: 'Chame no WhatsApp',
-    closingDescription: 'Agende uma avaliação personalizada e descubra o protocolo ideal para o seu couro cabeludo.',
+    closingCtaLabel: 'Agende seu atendimento.',
+    closingDescription: 'Agende sua avaliação capilar e descubra a causa da queda ou enfraquecimento dos seus fios.',
     ctaTitle: 'Quer recuperar a saúde do seu cabelo?',
   },
 };

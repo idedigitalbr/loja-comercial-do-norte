@@ -44,7 +44,18 @@ backups/
 
 # Tooling and OS files
 .codegraph/
+.superdesign/
+.superpowers/
+premium-audit.json
+premium-ui.json
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
+
+# Local dependencies and generated/user data.
+/vendor
+/storage/app
+/storage/docs
+/storage/framework/testing
+/public/uploads

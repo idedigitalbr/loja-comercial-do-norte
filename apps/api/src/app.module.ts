@@ -18,9 +18,10 @@ import { PublicShellModule } from './public-shell/public-shell.module';
 import { SecurityModule } from './common/security/security.module';
 import { PromotionsModule } from './modules/promotions/promotions.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { AccountModule } from './modules/account/account.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, CatalogModule, CartsModule, InventoryModule, ShippingModule, OrdersModule, PaymentsModule, JobsModule, CheckoutModule, TrainingsModule, AuditModule, CustomersModule, ReportsModule, PromotionsModule, SettingsModule, PublicShellModule, SecurityModule],
+  imports: [DatabaseModule, AuthModule, CatalogModule, CartsModule, InventoryModule, ShippingModule, OrdersModule, PaymentsModule, JobsModule, CheckoutModule, TrainingsModule, AuditModule, CustomersModule, ReportsModule, PromotionsModule, SettingsModule, AccountModule, PublicShellModule, SecurityModule],
   controllers: [HealthController],
 })
 export class AppModule {}

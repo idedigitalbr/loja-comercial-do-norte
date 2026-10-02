@@ -70,6 +70,12 @@ enum CouponStatus {
   EXPIRED
 }
 
+enum CouponDiscountType {
+  PERCENTAGE
+  FIXED_CART
+  FIXED_PRODUCT
+}
+
 enum VipMembershipStatus {
   ACTIVE
   EXPIRED
@@ -227,6 +233,7 @@ model User {
   couponRedemptions CouponRedemption[]
   vipMemberships    VipMembership[]
   reportExports     ReportExport[]
+  favorites         CustomerFavorite[]
   auditActorId      String?
 }
 
@@ -312,60 +319,64 @@ model Address {
 }
 
 model Brand {
-  id              String           @id @default(cuid())
-  publicId        String           @unique @default(cuid())
-  legacySource    String?          @db.VarChar(80)
-  legacyId        String?          @db.VarChar(191)
-  name            String           @unique @db.VarChar(160)
-  slug            String           @unique @db.VarChar(191)
-  description     String?          @db.Text
-  imagePath       String?          @db.VarChar(500)
-  status          RecordStatus     @default(DRAFT)
-  parentId        String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  parent          Brand?           @relation("BrandHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
-  children        Brand[]          @relation("BrandHierarchy")
-  products        Product[]
-  promotionScopes PromotionScope[]
+  id               String            @id @default(cuid())
+  publicId         String            @unique @default(cuid())
+  legacySource     String?           @db.VarChar(80)
+  legacyId         String?           @db.VarChar(191)
+  name             String            @unique @db.VarChar(160)
+  slug             String            @unique @db.VarChar(191)
+  description      String?           @db.Text
+  imagePath        String?           @db.VarChar(500)
+  status           RecordStatus      @default(DRAFT)
+  parentId         String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  parent           Brand?            @relation("BrandHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children         Brand[]           @relation("BrandHierarchy")
+  products         Product[]
+  promotionScopes  PromotionScope[]
+  couponBrandRules CouponBrandRule[]
 
   @@unique([legacySource, legacyId])
   @@index([parentId, status])
 }
 
 model Category {
-  id              String            @id @default(cuid())
-  publicId        String            @unique @default(cuid())
-  legacySource    String?           @db.VarChar(80)
-  legacyId        String?           @db.VarChar(191)
-  name            String            @unique @db.VarChar(160)
-  slug            String            @unique @db.VarChar(191)
-  status          RecordStatus      @default(DRAFT)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  products        ProductCategory[]
-  promotionScopes PromotionScope[]
+  id                  String               @id @default(cuid())
+  publicId            String               @unique @default(cuid())
+  legacySource        String?              @db.VarChar(80)
+  legacyId            String?              @db.VarChar(191)
+  name                String               @unique @db.VarChar(160)
+  slug                String               @unique @db.VarChar(191)
+  status              RecordStatus         @default(DRAFT)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  products            ProductCategory[]
+  promotionScopes     PromotionScope[]
+  couponCategoryRules CouponCategoryRule[]
 
   @@unique([legacySource, legacyId])
 }
 
 model Product {
-  id              String            @id @default(cuid())
-  legacySource    String?           @db.VarChar(80)
-  legacyId        String?           @db.VarChar(191)
-  publicId        String            @unique @default(cuid())
-  name            String            @db.VarChar(220)
-  slug            String            @unique @db.VarChar(191)
-  description     String?           @db.Text
-  status          RecordStatus      @default(DRAFT)
-  brandId         String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  brand           Brand?            @relation(fields: [brandId], references: [id], onDelete: SetNull)
-  variants        ProductVariant[]
-  images          ProductImage[]
-  categories      ProductCategory[]
-  promotionScopes PromotionScope[]
+  id                 String              @id @default(cuid())
+  legacySource       String?             @db.VarChar(80)
+  legacyId           String?             @db.VarChar(191)
+  publicId           String              @unique @default(cuid())
+  name               String              @db.VarChar(220)
+  slug               String              @unique @db.VarChar(191)
+  description        String?             @db.Text
+  status             RecordStatus        @default(DRAFT)
+  brandId            String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  brand              Brand?              @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  variants           ProductVariant[]
+  images             ProductImage[]
+  favorites          CustomerFavorite[]
+  categories         ProductCategory[]
+  promotionScopes    PromotionScope[]
+  couponProductRules CouponProductRule[]
 
   @@unique([legacySource, legacyId])
   @@index([status, createdAt])
@@ -425,6 +436,18 @@ model ProductImage {
 
   @@index([productId, sortOrder])
   @@index([variantId])
+}
+
+model CustomerFavorite {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId, createdAt])
 }
 
 model InventoryBalance {
@@ -539,33 +562,90 @@ model PromotionScope {
 }
 
 model Coupon {
-  id                   String             @id @default(cuid())
-  code                 String             @unique @db.VarChar(80)
-  status               CouponStatus       @default(ACTIVE)
+  id                   String                   @id @default(cuid())
+  code                 String                   @unique @db.VarChar(80)
+  description          String?                  @db.Text
+  status               CouponStatus             @default(ACTIVE)
+  discountType         CouponDiscountType       @default(FIXED_CART)
+  discountValue        Int                      @default(0)
+  allowFreeShipping    Boolean                  @default(false)
+  individualUse        Boolean                  @default(false)
+  excludeSaleItems     Boolean                  @default(false)
   promotionId          String?
   usageLimit           Int?
-  usageCount           Int                @default(0)
+  usageCount           Int                      @default(0)
   perCustomerLimit     Int?
   minimumSubtotalCents Int?
+  maximumSubtotalCents Int?
+  maxEligibleItems     Int?
   startsAt             DateTime
   endsAt               DateTime?
-  promotion            Promotion?         @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+  promotion            Promotion?               @relation(fields: [promotionId], references: [id], onDelete: SetNull)
   redemptions          CouponRedemption[]
+  productRules         CouponProductRule[]
+  brandRules           CouponBrandRule[]
+  categoryRules        CouponCategoryRule[]
+  emailRestrictions    CouponEmailRestriction[]
 
   @@index([status, startsAt, endsAt])
 }
 
-model CouponRedemption {
-  id         String   @id @default(cuid())
+model CouponProductRule {
+  couponId  String
+  productId String
+  excluded  Boolean @default(false)
+  coupon    Coupon  @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([couponId, productId])
+  @@index([productId])
+}
+
+model CouponBrandRule {
+  couponId String
+  brandId  String
+  excluded Boolean @default(false)
+  coupon   Coupon  @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  brand    Brand   @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@id([couponId, brandId])
+  @@index([brandId])
+}
+
+model CouponCategoryRule {
   couponId   String
-  userId     String?
-  orderId    String?  @unique
-  redeemedAt DateTime @default(now())
-  coupon     Coupon   @relation(fields: [couponId], references: [id], onDelete: Restrict)
-  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  order      Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  categoryId String
+  excluded   Boolean  @default(false)
+  coupon     Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([couponId, categoryId])
+  @@index([categoryId])
+}
+
+model CouponEmailRestriction {
+  id       String @id @default(cuid())
+  couponId String
+  pattern  String @db.VarChar(191)
+  coupon   Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+
+  @@unique([couponId, pattern])
+  @@index([couponId])
+}
+
+model CouponRedemption {
+  id            String   @id @default(cuid())
+  couponId      String
+  userId        String?
+  customerEmail String?  @db.VarChar(191)
+  orderId       String?  @unique
+  redeemedAt    DateTime @default(now())
+  coupon        Coupon   @relation(fields: [couponId], references: [id], onDelete: Restrict)
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  order         Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
 
   @@index([couponId, userId])
+  @@index([couponId, customerEmail])
 }
 
 model VipTier {
@@ -844,104 +924,104 @@ model ScheduledJob {
 }
 
 model SiteConfiguration {
-  id            String   @id @default("default")
-  siteName      String   @default("Loja Jonas & Elivaldo") @db.VarChar(160)
-  logoPath      String?  @db.VarChar(500)
-  faviconPath   String?  @db.VarChar(500)
-  address       String?  @db.VarChar(255)
-  phone         String?  @db.VarChar(40)
-  whatsapp      String?  @db.VarChar(40)
-  instagramUrl  String?  @db.VarChar(500)
-  title         String?  @db.VarChar(180)
-  description   String?  @db.Text
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default("default")
+  siteName     String   @default("Loja Jonas & Elivaldo") @db.VarChar(160)
+  logoPath     String?  @db.VarChar(500)
+  faviconPath  String?  @db.VarChar(500)
+  address      String?  @db.VarChar(255)
+  phone        String?  @db.VarChar(40)
+  whatsapp     String?  @db.VarChar(40)
+  instagramUrl String?  @db.VarChar(500)
+  title        String?  @db.VarChar(180)
+  description  String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model SiteBanner {
-  id            String       @id @default(cuid())
-  desktopPath   String       @db.VarChar(500)
-  mobilePath    String?      @db.VarChar(500)
-  eyebrow       String?      @db.VarChar(120)
-  title         String?      @db.VarChar(220)
-  description   String?      @db.Text
-  ctaLabel      String?      @db.VarChar(120)
-  ctaHref       String?      @db.VarChar(500)
-  sortOrder     Int          @default(0)
-  status        RecordStatus @default(DRAFT)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id          String       @id @default(cuid())
+  desktopPath String       @db.VarChar(500)
+  mobilePath  String?      @db.VarChar(500)
+  eyebrow     String?      @db.VarChar(120)
+  title       String?      @db.VarChar(220)
+  description String?      @db.Text
+  ctaLabel    String?      @db.VarChar(120)
+  ctaHref     String?      @db.VarChar(500)
+  sortOrder   Int          @default(0)
+  status      RecordStatus @default(DRAFT)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   @@index([status, sortOrder])
 }
 
 model PaymentConfiguration {
-  id                    String             @id @default("default")
-  environment           PaymentEnvironment @default(TEST)
-  accessTokenEncrypted  String?            @db.Text
-  publicKey             String?            @db.VarChar(255)
-  webhookSecretEncrypted String?           @db.Text
-  enabled               Boolean            @default(false)
-  enablePix             Boolean            @default(true)
-  enableCard            Boolean            @default(true)
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
+  id                     String             @id @default("default")
+  environment            PaymentEnvironment @default(TEST)
+  accessTokenEncrypted   String?            @db.Text
+  publicKey              String?            @db.VarChar(255)
+  webhookSecretEncrypted String?            @db.Text
+  enabled                Boolean            @default(false)
+  enablePix              Boolean            @default(true)
+  enableCard             Boolean            @default(true)
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
 }
 
 model SmtpConfiguration {
-  id                  String       @id @default("default")
-  host                String?      @db.VarChar(255)
-  port                Int          @default(587)
-  username            String?      @db.VarChar(255)
-  passwordEncrypted   String?      @db.Text
-  security            SmtpSecurity @default(STARTTLS)
-  fromEmail           String?      @db.VarChar(191)
-  fromName            String?      @db.VarChar(160)
-  replyTo             String?      @db.VarChar(191)
-  enabled             Boolean      @default(false)
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
+  id                String       @id @default("default")
+  host              String?      @db.VarChar(255)
+  port              Int          @default(587)
+  username          String?      @db.VarChar(255)
+  passwordEncrypted String?      @db.Text
+  security          SmtpSecurity @default(STARTTLS)
+  fromEmail         String?      @db.VarChar(191)
+  fromName          String?      @db.VarChar(160)
+  replyTo           String?      @db.VarChar(191)
+  enabled           Boolean      @default(false)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 }
 
 model EmailTemplate {
-  id          String        @id @default(cuid())
-  key         EmailEventKey
-  locale      String        @db.VarChar(10)
-  subject     String        @db.VarChar(255)
-  htmlBody    String        @db.Text
-  textBody    String        @db.Text
-  enabled     Boolean       @default(true)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id        String        @id @default(cuid())
+  key       EmailEventKey
+  locale    String        @db.VarChar(10)
+  subject   String        @db.VarChar(255)
+  htmlBody  String        @db.Text
+  textBody  String        @db.Text
+  enabled   Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
   @@unique([key, locale])
   @@index([key, enabled])
 }
 
 model NotificationPreference {
-  id                 String        @id @default(cuid())
-  eventKey           EmailEventKey @unique
-  enabled            Boolean       @default(true)
-  recipientOverride  String?       @db.VarChar(191)
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  id                String        @id @default(cuid())
+  eventKey          EmailEventKey @unique
+  enabled           Boolean       @default(true)
+  recipientOverride String?       @db.VarChar(191)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 }
 
 model EmailDelivery {
-  id             String              @id @default(cuid())
-  dedupeKey      String              @unique @db.VarChar(255)
-  eventKey       EmailEventKey
-  locale         String              @default("pt-BR") @db.VarChar(10)
-  recipient      String              @db.VarChar(191)
-  payloadJson    Json
-  status         EmailDeliveryStatus @default(PENDING)
-  attempts       Int                 @default(0)
-  maxAttempts    Int                 @default(5)
-  lastError      String?             @db.Text
-  nextAttemptAt  DateTime?
-  sentAt         DateTime?
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
+  id            String              @id @default(cuid())
+  dedupeKey     String              @unique @db.VarChar(255)
+  eventKey      EmailEventKey
+  locale        String              @default("pt-BR") @db.VarChar(10)
+  recipient     String              @db.VarChar(191)
+  payloadJson   Json
+  status        EmailDeliveryStatus @default(PENDING)
+  attempts      Int                 @default(0)
+  maxAttempts   Int                 @default(5)
+  lastError     String?             @db.Text
+  nextAttemptAt DateTime?
+  sentAt        DateTime?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
 
   @@index([status, nextAttemptAt])
   @@index([eventKey, createdAt])

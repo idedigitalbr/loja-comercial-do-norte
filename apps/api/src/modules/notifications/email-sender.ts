@@ -15,6 +15,19 @@ export type EmailMessage = {
 export type Transport = { sendMail(message: Record<string, unknown>): Promise<unknown> };
 export type TransportFactory = (options: Record<string, unknown>) => Transport;
 type SmtpSettingsSource = Pick<SettingsService, 'getRuntimeSmtpConfig'>;
+type TransportError = { code?: unknown; responseCode?: unknown };
+
+function smtpFailureCode(error: unknown): string {
+  const typed = (error ?? {}) as TransportError;
+  const code = typeof typed.code === 'string' ? typed.code : '';
+  const responseCode = typeof typed.responseCode === 'number' ? typed.responseCode : 0;
+
+  if (code === 'EAUTH' || responseCode === 534 || responseCode === 535) return 'SMTP_AUTH_FAILED';
+  if (['ECONNECTION', 'ENOTFOUND', 'ETIMEDOUT', 'EHOSTUNREACH', 'ECONNREFUSED'].includes(code)) return 'SMTP_CONNECTION_FAILED';
+  if (code === 'EENVELOPE' || [550, 551, 553].includes(responseCode)) return 'SMTP_RECIPIENT_REJECTED';
+  if (responseCode >= 500) return 'SMTP_SERVER_REJECTED';
+  return 'SMTP_SEND_FAILED';
+}
 
 function transportOptions(config: RuntimeSmtpConfig): Record<string, unknown> {
   return {
@@ -46,8 +59,8 @@ export class EmailSender {
         from: config.fromName ? { name: config.fromName, address: config.fromEmail } : config.fromEmail,
         ...(config.replyTo ? { replyTo: config.replyTo } : {}),
       });
-    } catch {
-      throw new Error('SMTP_SEND_FAILED');
+    } catch (error) {
+      throw new Error(smtpFailureCode(error));
     }
   }
 }

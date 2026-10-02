@@ -1,8 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import {
-  deleteBanner,
   getSettings,
-  saveBanner,
   saveEmailSettings,
   saveNotificationPreference,
   savePaymentSettings,
@@ -13,8 +11,6 @@ import {
   testTemplate,
   uploadMedia,
   type AdminSettingsSnapshot,
-  type BannerInput,
-  type BannerSettings,
   type EmailSettingsInput,
   type EmailTemplateSettings,
   type NotificationSettings,
@@ -23,8 +19,8 @@ import {
   type UploadKind,
 } from './settings-api';
 
-type SettingsTab = 'site' | 'banners' | 'payments' | 'email' | 'templates';
-type BusyAction = SettingsTab | 'upload-logo' | 'upload-favicon' | 'upload-banner';
+type SettingsTab = 'site' | 'payments' | 'email' | 'templates';
+type BusyAction = SettingsTab | 'upload-logo' | 'upload-favicon';
 
 type SiteForm = {
   siteName: string;
@@ -36,18 +32,6 @@ type SiteForm = {
   description: string;
   logoPath: string;
   faviconPath: string;
-};
-
-type BannerForm = {
-  desktopPath: string;
-  mobilePath: string;
-  eyebrow: string;
-  title: string;
-  description: string;
-  ctaLabel: string;
-  ctaHref: string;
-  sortOrder: string;
-  status: BannerSettings['status'];
 };
 
 type PaymentForm = {
@@ -82,23 +66,10 @@ type TemplateForm = {
 
 const tabs: Array<{ id: SettingsTab; label: string }> = [
   { id: 'site', label: 'Identidade do site' },
-  { id: 'banners', label: 'Banners da Home' },
   { id: 'payments', label: 'Mercado Pago' },
   { id: 'email', label: 'SMTP e notificações' },
   { id: 'templates', label: 'Templates de e-mail' },
 ];
-
-const blankBanner: BannerForm = {
-  desktopPath: '',
-  mobilePath: '',
-  eyebrow: '',
-  title: '',
-  description: '',
-  ctaLabel: '',
-  ctaHref: '',
-  sortOrder: '0',
-  status: 'DRAFT',
-};
 
 const blankTemplate: TemplateForm = { subject: '', htmlBody: '', textBody: '', enabled: true };
 
@@ -143,20 +114,6 @@ function emailFormFromSnapshot(snapshot: AdminSettingsSnapshot): EmailForm {
   };
 }
 
-function bannerFormFromSnapshot(banner: BannerSettings): BannerForm {
-  return {
-    desktopPath: banner.desktopPath,
-    mobilePath: banner.mobilePath ?? '',
-    eyebrow: banner.eyebrow ?? '',
-    title: banner.title ?? '',
-    description: banner.description ?? '',
-    ctaLabel: banner.ctaLabel ?? '',
-    ctaHref: banner.ctaHref ?? '',
-    sortOrder: String(banner.sortOrder),
-    status: banner.status,
-  };
-}
-
 function templateFormFromSnapshot(template?: EmailTemplateSettings): TemplateForm {
   return template
     ? { subject: template.subject, htmlBody: template.htmlBody, textBody: template.textBody, enabled: template.enabled }
@@ -167,16 +124,10 @@ function errorText(error: unknown): string {
   return error instanceof Error ? error.message : 'Não foi possível concluir a solicitação.';
 }
 
-function statusLabel(status: BannerSettings['status']): string {
-  return status === 'ACTIVE' ? 'Ativo' : status === 'ARCHIVED' ? 'Arquivado' : 'Rascunho';
-}
-
 export function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('site');
   const [snapshot, setSnapshot] = useState<AdminSettingsSnapshot | null>(null);
   const [site, setSite] = useState<SiteForm | null>(null);
-  const [banner, setBanner] = useState<BannerForm>(blankBanner);
-  const [editingBannerId, setEditingBannerId] = useState<string | null>(null);
   const [payment, setPayment] = useState<PaymentForm | null>(null);
   const [email, setEmail] = useState<EmailForm | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
@@ -254,8 +205,8 @@ export function SettingsPage() {
     }
   }
 
-  async function handleUpload(kind: UploadKind, file: File) {
-    const action: BusyAction = kind === 'logo' ? 'upload-logo' : kind === 'favicon' ? 'upload-favicon' : 'upload-banner';
+  async function handleUpload(kind: Extract<UploadKind, 'logo' | 'favicon'>, file: File) {
+    const action: BusyAction = kind === 'logo' ? 'upload-logo' : 'upload-favicon';
     beginAction(action);
     try {
       const result = await uploadMedia(kind, file);
@@ -265,62 +216,8 @@ export function SettingsPage() {
       } else if (kind === 'favicon') {
         setSite((current) => current ? { ...current, faviconPath: result.path } : current);
         setSnapshot((current) => current ? { ...current, site: { ...current.site, faviconPath: result.path } } : current);
-      } else {
-        setBanner((current) => ({ ...current, desktopPath: result.path }));
       }
-      finishAction(kind === 'banner' ? 'Imagem do banner carregada.' : 'Imagem carregada e vinculada ao site.');
-    } catch (reason) {
-      failAction(reason);
-    }
-  }
-
-  async function handleBannerSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!banner.desktopPath) {
-      setError('Envie a imagem desktop do banner antes de salvar.');
-      return;
-    }
-    beginAction('banners');
-    const input: BannerInput = {
-      desktopPath: banner.desktopPath,
-      mobilePath: banner.mobilePath || null,
-      eyebrow: banner.eyebrow.trim() || null,
-      title: banner.title.trim() || null,
-      description: banner.description.trim() || null,
-      ctaLabel: banner.ctaLabel.trim() || null,
-      ctaHref: banner.ctaHref.trim() || null,
-      sortOrder: Number(banner.sortOrder) || 0,
-      status: banner.status,
-    };
-    try {
-      await saveBanner(input, editingBannerId ?? undefined);
-      await refreshSnapshot();
-      setBanner(blankBanner);
-      setEditingBannerId(null);
-      finishAction('Banner salvo.');
-    } catch (reason) {
-      failAction(reason);
-    }
-  }
-
-  async function handleDeleteBanner(id: string) {
-    if (!window.confirm('Excluir este banner? O arquivo de mídia permanecerá no armazenamento.')) return;
-    beginAction('banners');
-    try {
-      await deleteBanner(id);
-      await refreshSnapshot();
-      finishAction('Banner removido da lista.');
-    } catch (reason) {
-      failAction(reason);
-    }
-  }
-
-  async function activateBanner(item: BannerSettings) {
-    beginAction('banners');
-    try {
-      await saveBanner({ ...bannerFormFromSnapshot(item), mobilePath: item.mobilePath, sortOrder: item.sortOrder, status: 'ACTIVE' }, item.id);
-      await refreshSnapshot();
-      finishAction('Banner ativado.');
+      finishAction('Imagem carregada e vinculada ao site.');
     } catch (reason) {
       failAction(reason);
     }
@@ -510,35 +407,6 @@ export function SettingsPage() {
             <article className="admin-card admin-settings__summary"><span>Mercado Pago</span><strong>{snapshot.payments.hasAccessToken ? 'Token configurado' : 'Token pendente'}</strong><small>{snapshot.payments.enabled ? 'Integração habilitada' : 'Integração desabilitada'}</small></article>
             <article className="admin-card admin-settings__summary"><span>SMTP</span><strong>{snapshot.smtp.hasPassword ? 'SMTP configurado' : 'SMTP pendente'}</strong><small>{snapshot.smtp.enabled ? 'Notificações habilitadas' : 'Notificações desabilitadas'}</small></article>
             <article className="admin-card admin-settings__summary"><span>Banners ativos</span><strong>{snapshot.banners.filter((item) => item.status === 'ACTIVE').length}</strong><small>Imagens publicadas na home</small></article>
-          </div>
-        </div>
-      ) : null}
-
-      {activeTab === 'banners' ? (
-        <div className="admin-settings__stack">
-          <form className="admin-card admin-editor" onSubmit={(event) => void handleBannerSubmit(event)}>
-            <div className="admin-editor__heading"><div><p className="admin-eyebrow">Home institucional</p><h3>{editingBannerId ? 'Editar banner' : 'Novo banner'}</h3></div><span className="admin-help">A imagem desktop é obrigatória. A versão mobile é opcional.</span></div>
-            <div className="admin-settings__upload-grid">
-              <label className="admin-settings__upload admin-settings__upload--large">Enviar imagem desktop<input aria-label="Enviar imagem desktop" type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => { const file = event.target.files?.[0]; if (file) void handleUpload('banner', file); event.currentTarget.value = ''; }} /><small>{banner.desktopPath ? 'Imagem carregada' : 'Selecione uma imagem para o banner'}</small></label>
-              <label className="admin-settings__upload admin-settings__upload--large">Enviar imagem mobile (opcional)<input aria-label="Enviar imagem mobile (opcional)" type="file" accept="image/jpeg,image/png,image/webp" onChange={async (event) => { const file = event.target.files?.[0]; if (!file) return; beginAction('upload-banner'); try { const result = await uploadMedia('banner', file); setBanner((current) => ({ ...current, mobilePath: result.path })); finishAction('Imagem mobile carregada.'); } catch (reason) { failAction(reason); } finally { event.currentTarget.value = ''; } }} /><small>{banner.mobilePath ? 'Imagem carregada' : 'Usará a imagem desktop'}</small></label>
-            </div>
-            <div className="admin-form-grid admin-form-grid--three">
-              <label>Etiqueta<input value={banner.eyebrow} onChange={(event) => setBanner({ ...banner, eyebrow: event.target.value })} placeholder="Ex.: Jonas & Elivaldo" /></label>
-              <label>Título<input value={banner.title} onChange={(event) => setBanner({ ...banner, title: event.target.value })} placeholder="Título do banner" /></label>
-              <label>Ordem<input type="number" min="0" value={banner.sortOrder} onChange={(event) => setBanner({ ...banner, sortOrder: event.target.value })} /></label>
-            </div>
-            <label className="admin-form__full">Descrição<textarea rows={3} value={banner.description} onChange={(event) => setBanner({ ...banner, description: event.target.value })} /></label>
-            <div className="admin-form-grid admin-form-grid--three">
-              <label>Texto do botão<input value={banner.ctaLabel} onChange={(event) => setBanner({ ...banner, ctaLabel: event.target.value })} placeholder="Saiba mais" /></label>
-              <label>Link do botão<input type="text" value={banner.ctaHref} onChange={(event) => setBanner({ ...banner, ctaHref: event.target.value })} placeholder="/loja ou https://…" /></label>
-              <label>Status<select value={banner.status} onChange={(event) => setBanner({ ...banner, status: event.target.value as BannerSettings['status'] })}><option value="DRAFT">Rascunho</option><option value="ACTIVE">Ativo</option><option value="ARCHIVED">Arquivado</option></select></label>
-            </div>
-            <div className="admin-editor__footer"><button className="admin-button admin-button--quiet admin-button--compact" type="button" onClick={() => { setBanner(blankBanner); setEditingBannerId(null); }}>Limpar</button><button className="admin-button admin-button--compact" disabled={busy === 'banners' || busy === 'upload-banner'} type="submit">{busy === 'banners' ? 'Salvando…' : editingBannerId ? 'Atualizar banner' : 'Salvar banner'}</button></div>
-          </form>
-
-          <div className="admin-card admin-settings__banner-list">
-            <div className="admin-section-title"><div><p className="admin-eyebrow">Conteúdo publicado</p><h3>{snapshot.banners.length} banners cadastrados</h3></div></div>
-            {snapshot.banners.length ? <div className="admin-settings__banner-items">{snapshot.banners.map((item) => <article className="admin-settings__banner-item" key={item.id}><div className="admin-settings__banner-thumb">{item.desktopPath ? <img src={item.desktopPath} alt={item.title ?? 'Banner da home'} /> : <span>Sem imagem</span>}<span className="admin-status">{statusLabel(item.status)}</span></div><div className="admin-settings__banner-copy"><strong>{item.title || 'Banner sem título'}</strong><small>{item.eyebrow || 'Sem etiqueta'} · ordem {item.sortOrder}</small><div className="admin-settings__item-actions"><button className="admin-link-button" type="button" onClick={() => { setBanner(bannerFormFromSnapshot(item)); setEditingBannerId(item.id); }}>Editar</button>{item.status !== 'ACTIVE' ? <button className="admin-link-button" type="button" onClick={() => void activateBanner(item)}>Ativar</button> : null}<button className="admin-link-button admin-link-button--danger" type="button" onClick={() => void handleDeleteBanner(item.id)}>Excluir</button></div></div></article>)}</div> : <div className="admin-empty-state"><h3>Nenhum banner cadastrado</h3><p>Envie a primeira imagem para publicar a experiência visual da home.</p></div>}
           </div>
         </div>
       ) : null}

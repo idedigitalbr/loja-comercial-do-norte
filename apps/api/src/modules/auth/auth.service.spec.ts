@@ -45,5 +45,7 @@ describe('AuthService', () => {
     expect(sessions).toHaveLength(2);
     expect(sessions[0].revokedAt).not.toBeNull();
     expect(sessions[1].revokedAt).toBeNull();
-  }, 15_000);
+  // The service intentionally uses production Argon2 parameters for session
+  // hashes; allow slower CI/Windows workers to finish the integration flow.
+  }, 30_000);
 });

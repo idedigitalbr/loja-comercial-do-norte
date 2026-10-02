@@ -29,19 +29,10 @@ describe('SettingsPage', () => {
     render(<SettingsPage />);
 
     expect(await screen.findByRole('tab', { name: 'Identidade do site' })).toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'Banners da Home' })).not.toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Mercado Pago' })).toBeInTheDocument();
     expect(await screen.findByText('Token configurado')).toBeInTheDocument();
     expect(screen.queryByDisplayValue('TEST-token')).not.toBeInTheDocument();
-  });
-
-  it('submits a home banner upload without requiring a URL field', async () => {
-    const user = userEvent.setup();
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => snapshot }));
-    render(<SettingsPage />);
-
-    await user.click(await screen.findByRole('tab', { name: 'Banners da Home' }));
-    expect(screen.getByLabelText('Enviar imagem desktop')).toHaveAttribute('type', 'file');
-    expect(screen.getByLabelText('Enviar imagem mobile (opcional)')).toHaveAttribute('type', 'file');
   });
 
   it('reports a loading failure without crashing the admin shell', async () => {

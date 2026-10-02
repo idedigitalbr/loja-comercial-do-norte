@@ -1,5 +1,11 @@
 import { FormEvent, useEffect, useState } from 'react';
 
+type AuthenticatedUser = { email?: string; roles?: string[] };
+
+function isAdminUser(user: AuthenticatedUser | undefined): user is AuthenticatedUser & { email: string } {
+  return Boolean(user?.email && user.roles?.includes('ADMIN'));
+}
+
 export function LoginPage({ onAuthenticated }: { onAuthenticated: (email: string) => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -10,10 +16,12 @@ export function LoginPage({ onAuthenticated }: { onAuthenticated: (email: string
   useEffect(() => {
     void fetch('/api/v1/auth/me', { credentials: 'include' })
       .then(async (response) => (response.ok ? response.json() : null))
-      .then((payload: { user?: { email?: string } } | null) => {
-        if (payload?.user?.email) {
+      .then((payload: { user?: AuthenticatedUser } | null) => {
+        if (isAdminUser(payload?.user)) {
           setCurrentUser(payload.user.email);
           onAuthenticated(payload.user.email);
+        } else if (payload?.user?.email) {
+          setError('Esta conta não possui acesso ao painel administrativo.');
         }
       });
   }, []);
@@ -30,8 +38,9 @@ export function LoginPage({ onAuthenticated }: { onAuthenticated: (email: string
         body: JSON.stringify({ email, password }),
       });
       if (!response.ok) throw new Error('Não foi possível entrar.');
-      const payload = (await response.json()) as { user?: { email?: string } };
-      const authenticatedEmail = payload.user?.email ?? email;
+      const payload = (await response.json()) as { user?: AuthenticatedUser };
+      if (!isAdminUser(payload.user)) throw new Error('Esta conta não possui acesso ao painel administrativo.');
+      const authenticatedEmail = payload.user.email;
       setCurrentUser(authenticatedEmail);
       onAuthenticated(authenticatedEmail);
     } catch (cause) {
@@ -53,7 +62,7 @@ export function LoginPage({ onAuthenticated }: { onAuthenticated: (email: string
           <p className="admin-eyebrow">Área restrita</p>
           <h2>Acesso administrativo</h2>
           {currentUser ? <p className="admin-success">Sessão ativa: {currentUser}</p> : null}
-          <form className="admin-form" aria-label="Acesso administrativo" onSubmit={submit}>
+          <form className="admin-form" aria-label="Acesso administrativo" noValidate onSubmit={submit}>
             <label>
               E-mail
               <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />

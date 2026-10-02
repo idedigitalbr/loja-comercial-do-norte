@@ -140,6 +140,19 @@ export class AuthService {
     }
   }
 
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { passwordHash: true, status: true } });
+    if (!user || user.status !== UserStatus.ACTIVE || !(await argon2.verify(user.passwordHash, currentPassword))) {
+      throw new UnauthorizedException('INVALID_CURRENT_PASSWORD');
+    }
+    const passwordHash = await argon2.hash(newPassword, { type: argon2.argon2id });
+    await this.prisma.$transaction([
+      this.prisma.user.update({ where: { id: userId }, data: { passwordHash } }),
+      this.prisma.session.updateMany({ where: { userId, revokedAt: null }, data: { revokedAt: new Date() } }),
+    ]);
+    return { ok: true };
+  }
+
   async validateAccessToken(accessToken: string): Promise<AuthenticatedUser> {
     const payload = this.verifyAccessToken(accessToken);
     const session = await this.prisma.session.findFirst({

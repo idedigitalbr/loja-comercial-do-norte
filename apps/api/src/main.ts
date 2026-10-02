@@ -15,12 +15,13 @@ import { ApiExceptionFilter } from './common/filters/api-exception.filter';
 import { RequestIdInterceptor } from './common/interceptors/request-id.interceptor';
 import { loadEnvironment as loadEnvironmentFromSchema } from './config/env.schema';
 import { assertProductionConfiguration } from './config/production.config';
+import { resolveApiProjectRoot, resolveApiStorageRoot } from './modules/files/storage-root';
 
 export function configureApp(app: INestApplication): INestApplication {
   const httpServer = app.getHttpAdapter().getInstance();
-  httpServer.use('/assets', serveStatic(join(process.cwd(), 'apps/api/public/storefront/assets')));
-  httpServer.use('/admin/assets', serveStatic(join(process.cwd(), 'apps/api/public/admin/assets')));
-  httpServer.use('/storage/uploads', serveStatic(join(process.cwd(), 'storage/uploads')));
+  httpServer.use('/assets', serveStatic(join(resolveApiProjectRoot(), 'public/storefront/assets')));
+  httpServer.use('/admin/assets', serveStatic(join(resolveApiProjectRoot(), 'public/admin/assets')));
+  httpServer.use('/storage/uploads', serveStatic(join(resolveApiStorageRoot(), 'uploads')));
   app.setGlobalPrefix('api/v1', {
     exclude: ['webhooks/mercado-pago', 'internal/cron/process'],
   });

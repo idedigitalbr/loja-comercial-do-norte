@@ -1,7 +1,24 @@
-import { CartStatus } from '@prisma/client';
+import { CartStatus, Prisma } from '@prisma/client';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { randomBytes } from 'node:crypto';
 import { PrismaService } from '../database/prisma.service';
+
+const cartItemsInclude = {
+  items: {
+    include: {
+      variant: {
+        include: {
+          images: true,
+          product: {
+            include: {
+              images: { orderBy: { sortOrder: 'asc' as const } },
+            },
+          },
+        },
+      },
+    },
+  },
+} as const;
 
 export type AddCartItemInput = {
   cartId: string;
@@ -26,7 +43,7 @@ export class CartsService {
   async getByPublicId(publicId: string) {
     const cart = await this.prisma.cart.findUnique({
       where: { publicId },
-      include: { items: { include: { variant: { include: { product: true } } } } },
+      include: cartItemsInclude,
     });
     if (!cart) throw new NotFoundException('CART_NOT_FOUND');
     return this.snapshot(cart);
@@ -71,21 +88,18 @@ export class CartsService {
   private async getById(id: string) {
     const cart = await this.prisma.cart.findUnique({
       where: { id },
-      include: { items: { include: { variant: { include: { product: true } } } } },
+      include: cartItemsInclude,
     });
     if (!cart) throw new NotFoundException('CART_NOT_FOUND');
     return this.snapshot(cart);
   }
 
-  private snapshot(cart: {
-    id: string;
-    publicId: string;
-    items: Array<{ quantity: number; unitPriceCents: number | null }>;
-  }) {
+  private snapshot(cart: Prisma.CartGetPayload<{ include: typeof cartItemsInclude }>) {
     const items = cart.items.map((item) => ({ ...item, unitPriceCents: item.unitPriceCents ?? 0 }));
     return {
       id: cart.id,
       publicId: cart.publicId,
+      status: cart.status,
       items,
       subtotalCents: items.reduce((sum, item) => sum + item.quantity * item.unitPriceCents, 0),
     };

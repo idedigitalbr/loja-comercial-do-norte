@@ -32,6 +32,27 @@ describe('ProductFilters', () => {
     expect(screen.queryByLabelText('Alkumia')).not.toBeInTheDocument();
   });
 
+  it('keeps expanded brand options inside a dedicated scroll region', () => {
+    render(
+      <BrowserRouter>
+        <ProductFilters
+          brands={[
+            { id: 'grandha', label: 'Grandha', value: 'grandha', depth: 0 },
+            { id: 'alkumia', label: 'Alkumia', value: 'alkumia', parentId: 'grandha', depth: 1 },
+          ]}
+          categories={[{ label: 'Shampoo', value: 'shampoo' }]}
+        />
+      </BrowserRouter>,
+    );
+
+    const scrollRegion = screen.getByTestId('catalog-filters-scroll');
+    expect(scrollRegion).toHaveClass('catalog-sidebar__filters');
+    const fieldsets = scrollRegion.querySelectorAll('fieldset');
+    expect(fieldsets).toHaveLength(2);
+    expect(fieldsets[0]).toHaveTextContent('Filtro Categoria Produtos');
+    expect(fieldsets[1]).toHaveTextContent('Filtro sub marcas');
+  });
+
   it('keeps sub-brands collapsed when the imported taxonomy arrives after the fallback', () => {
     const { rerender } = render(
       <BrowserRouter>

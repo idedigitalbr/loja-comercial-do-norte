@@ -53,9 +53,10 @@ function digitsOnly(value: string): string {
 
 function phoneHref(value: string | null, fallback: string): string {
   if (!value) return fallback;
-  if (value.startsWith('tel:')) return value;
   const digits = digitsOnly(value);
-  return digits ? `tel:+${digits}` : fallback;
+  if (digits.length === 10 || digits.length === 11) return `tel:+55${digits}`;
+  if (digits.length >= 12 && digits.length <= 15) return `tel:+${digits}`;
+  return fallback;
 }
 
 function whatsappHref(value: string | null, fallback: string): string {

@@ -2,6 +2,8 @@
 
 Data: 2026-09-13
 
+> Atualização de referência: os requisitos de paridade foram revistos em 2026-10-01 no plano [`2026-10-01-auditoria-paridade-site-original.md`](../plans/2026-10-01-auditoria-paridade-site-original.md). Esse plano tem precedência quando a referência atual do site conflitar com uma decisão desta especificação histórica.
+
 ## Objetivo
 
 Reconstruir no storefront React as páginas públicas do WordPress antigo com a mesma ordem de seções, conteúdo, imagens, composição, proporções e efeitos relevantes. O resultado deve preservar a operação comercial do novo sistema sem carregar Elementor, WordPress ou scripts de plugins na aplicação React.
@@ -18,7 +20,7 @@ Rotas que receberão paridade estrutural e visual:
 - `/terapia-capilar`
 - `/certificacao-internacional`
 
-A rota `/servicos` permanece como índice próprio do novo sistema, pois não existe uma página equivalente no WordPress antigo. A rota `/loja` mantém a direção visual aprovada no Superdesign. Carrinho, login, conta, checkout e painel administrativo permanecem funcionais e fora da reprodução institucional.
+O original retorna 404 em `/servicos/`; por isso, `/servicos#eventos` é apenas um caminho de compatibilidade que leva à seção Eventos da Home, sem criar um índice que não existe na referência. A rota `/loja` também segue agora o visual da loja original, substituindo a direção visual aprovada no Superdesign. Carrinho, login, conta, checkout e painel administrativo permanecem funcionais.
 
 ## Direção técnica escolhida
 
@@ -65,7 +67,7 @@ Os elementos repetidos serão componentes compartilhados, enquanto cada página 
 
 - Hero visual equivalente ao WordPress, com fallback estável quando o vídeo remoto não estiver disponível.
 - Seção Nossa História com colagem de três imagens e texto integral.
-- Faixa visual de ambiente, missão, visão e valores com imagens e ícones originais.
+- Faixa visual da página atual composta por cinco painéis fotográficos, conforme a revisão de referência de 2026-10-01; a formulação anterior de missão, visão e valores está obsoleta.
 - Equipe em grade 2 + 3 + 3, com dimensões e rodapés dos cartões equivalentes.
 - Cada profissional abrirá um modal acessível, reproduzindo o efeito de popup do Elementor; o modal terá foco contido, fechamento por Escape e retorno de foco.
 - Remover seções finais que não existam na página antiga.

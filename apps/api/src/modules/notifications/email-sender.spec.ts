@@ -32,4 +32,12 @@ describe('EmailSender', () => {
 
     await expect(sender.send({ to: 'cliente@example.com', subject: 'Pedido', html: '', text: '' })).rejects.toThrow('SMTP_SEND_FAILED');
   });
+
+  it('classifies SMTP authentication failures without exposing transport details', async () => {
+    const sender = new EmailSender({ getRuntimeSmtpConfig: vi.fn().mockResolvedValue({
+      host: 'smtp.example.com', port: 465, username: 'mailer', password: 'smtp-secret', security: SmtpSecurity.SSL_TLS, fromEmail: 'loja@example.com', fromName: 'Loja', replyTo: null, enabled: true,
+    }) } as never, vi.fn().mockReturnValue({ sendMail: vi.fn().mockRejectedValue(Object.assign(new Error('Invalid login: 535 5.7.8'), { code: 'EAUTH', responseCode: 535 })) }));
+
+    await expect(sender.send({ to: 'cliente@example.com', subject: 'Teste', html: '', text: '' })).rejects.toThrow('SMTP_AUTH_FAILED');
+  });
 });

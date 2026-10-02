@@ -4,6 +4,7 @@ import { assertIdempotencyScope } from '../../common/idempotency/idempotency';
 import { PrismaService } from '../database/prisma.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { CouponService } from '../promotions/coupon.service';
 import { canTransition } from './order-status-machine';
 
 @Injectable()
@@ -11,6 +12,7 @@ export class OrdersService {
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(InventoryService) private readonly inventoryService: InventoryService,
+    @Optional() @Inject(CouponService) private readonly couponService?: CouponService,
     @Optional() @Inject(NotificationsService) private readonly notifications?: NotificationsService,
   ) {}
 
@@ -22,6 +24,7 @@ export class OrdersService {
     shippingCents?: number;
     shippingMethodCode?: string;
     shippingDays?: number;
+    couponCode?: string;
     shippingAddress?: Prisma.InputJsonValue;
     billingAddress?: Prisma.InputJsonValue;
   }) {
@@ -33,18 +36,39 @@ export class OrdersService {
           return transaction.order.findUnique({ where: { publicId: String(existing.responseJson.orderPublicId) }, include: { items: true, statusHistory: true, inventoryReservations: true } });
         }
       }
-      const cart = await transaction.cart.findUnique({ where: { id: input.cartId }, include: { items: { include: { variant: { include: { product: true } } } } } });
+      const cart = await transaction.cart.findUnique({ where: { id: input.cartId }, include: { items: { include: { variant: { include: { product: { include: { categories: true } } } } } } } });
       if (!cart || !cart.items.length) throw new BadRequestException('CART_EMPTY');
       const subtotalCents = cart.items.reduce((sum, item) => sum + (item.unitPriceCents ?? item.variant.priceCents) * item.quantity, 0);
       const shippingCents = input.shippingCents ?? 0;
       if (!Number.isInteger(shippingCents) || shippingCents < 0) throw new BadRequestException('INVALID_SHIPPING_AMOUNT');
+      if (input.couponCode?.trim() && !this.couponService) throw new BadRequestException('COUPON_SERVICE_UNAVAILABLE');
+      const couponQuote = input.couponCode?.trim()
+        ? await this.couponService!.quoteInTransaction(transaction, {
+          code: input.couponCode,
+          userId: input.userId,
+          email: input.contactEmail,
+          subtotalCents,
+          shippingCents,
+          items: cart.items.map((item) => ({
+            productId: item.variant.productId,
+            brandId: item.variant.product.brandId,
+            quantity: item.quantity,
+            unitPriceCents: item.unitPriceCents ?? item.variant.priceCents,
+            compareAtPriceCents: item.variant.compareAtPriceCents,
+            categoryIds: item.variant.product.categories.map((category) => category.categoryId),
+          })),
+        })
+        : null;
+      const discountCents = couponQuote?.discountCents ?? 0;
+      const effectiveShippingCents = couponQuote?.shippingCents ?? shippingCents;
       const order = await transaction.order.create({
         data: {
           userId: input.userId,
           status: OrderStatus.DRAFT,
           subtotalCents,
-          shippingCents,
-          totalCents: subtotalCents + shippingCents,
+          discountCents,
+          shippingCents: effectiveShippingCents,
+          totalCents: Math.max(0, subtotalCents - discountCents) + effectiveShippingCents,
           contactEmail: input.contactEmail,
           shippingMethodCode: input.shippingMethodCode,
           shippingDays: input.shippingDays,
@@ -64,6 +88,14 @@ export class OrdersService {
         },
         include: { items: true },
       });
+      if (couponQuote) {
+        await this.couponService!.consumeInTransaction(transaction, {
+          couponId: couponQuote.couponId,
+          userId: input.userId,
+          customerEmail: input.contactEmail,
+          orderId: order.id,
+        });
+      }
       await this.inventoryService.reserveInTransaction(transaction, {
         orderId: order.id,
         items: cart.items.map((item) => ({ variantId: item.variantId, quantity: item.quantity })),
@@ -112,6 +144,9 @@ export class OrdersService {
       if (!order) throw new NotFoundException('ORDER_NOT_FOUND');
       if (!canTransition(order.status, toStatus)) throw new BadRequestException('INVALID_ORDER_TRANSITION');
       const updated = await transaction.order.update({ where: { id: orderId }, data: { status: toStatus } });
+      if (toStatus === OrderStatus.CANCELLED && order.status === OrderStatus.AWAITING_PAYMENT) {
+        await this.couponService?.releaseInTransaction(transaction, order.id);
+      }
       await transaction.orderStatusHistory.create({ data: { orderId, fromStatus: order.status, toStatus, actorType: input.actorType, actorId: input.actorId, reason: input.reason, source: input.source } });
       try {
         await this.notifications?.enqueue(EmailEventKey.ORDER_STATUS_CHANGED, {

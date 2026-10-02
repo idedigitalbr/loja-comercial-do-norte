@@ -46,9 +46,38 @@ const DEFAULT_SITE: Required<SiteFields> = {
   description: null,
 };
 
+const APPROVED_LEGACY_MEDIA_HOST = 'jonaselivaldohair.com.br';
+
 function safeCtaHref(value: string | null | undefined): string | null {
   if (!value) return null;
   return /^(?:\/(?!\/)[^\s]*|https:\/\/[^\s]+|mailto:[^\s]+|tel:[^\s]+)$/i.test(value) ? value : null;
+}
+
+function approvedLegacyMediaPath(value: string): string | null {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== 'https:' || url.hostname !== APPROVED_LEGACY_MEDIA_HOST || !url.pathname.startsWith('/wp-content/uploads/')) return null;
+    return value;
+  } catch {
+    return null;
+  }
+}
+
+function publicBannerMediaPath(value: string | null | undefined): string | null {
+  const localPath = publicStoragePath(value);
+  if (localPath || !value) return localPath;
+  return approvedLegacyMediaPath(value);
+}
+
+function normalizeBannerMediaPath(value: string | null | undefined): string | null | undefined {
+  if (value === undefined || value === null) return value;
+  try {
+    return normalizeStoredMediaPath(value);
+  } catch (error) {
+    const legacyPath = approvedLegacyMediaPath(value);
+    if (legacyPath) return legacyPath;
+    throw error;
+  }
 }
 
 function normalizeBannerInput<T extends SiteBannerInput | Partial<SiteBannerInput>>(input: T): T {
@@ -56,8 +85,8 @@ function normalizeBannerInput<T extends SiteBannerInput | Partial<SiteBannerInpu
     throw new BadRequestException('INVALID_CTA_HREF');
   }
   const normalized = { ...input } as T & Partial<SiteBannerInput>;
-  if (input.desktopPath !== undefined) normalized.desktopPath = normalizeStoredMediaPath(input.desktopPath) ?? '';
-  if (input.mobilePath !== undefined) normalized.mobilePath = normalizeStoredMediaPath(input.mobilePath);
+  if (input.desktopPath !== undefined) normalized.desktopPath = normalizeBannerMediaPath(input.desktopPath) ?? '';
+  if (input.mobilePath !== undefined) normalized.mobilePath = normalizeBannerMediaPath(input.mobilePath);
   return normalized;
 }
 
@@ -78,8 +107,8 @@ function mapSite(site: SiteFields) {
 function mapBanner(banner: { id: string; desktopPath: string; mobilePath: string | null; eyebrow: string | null; title: string | null; description: string | null; ctaLabel: string | null; ctaHref: string | null; sortOrder: number; status?: RecordStatus }) {
   return {
     id: banner.id,
-    desktopPath: publicStoragePath(banner.desktopPath) ?? '',
-    mobilePath: publicStoragePath(banner.mobilePath),
+    desktopPath: publicBannerMediaPath(banner.desktopPath) ?? '',
+    mobilePath: publicBannerMediaPath(banner.mobilePath),
     eyebrow: banner.eyebrow,
     title: banner.title,
     description: banner.description,

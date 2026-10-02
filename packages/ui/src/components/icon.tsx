@@ -24,11 +24,13 @@ import {
   CirclePlus,
   ClipboardCheck,
   ClipboardList,
+  CreditCard,
   Edit3,
   Ellipsis,
   Eye,
   FileText,
   Globe2,
+  Heart,
   HeartHandshake,
   Image,
   Instagram,
@@ -38,6 +40,7 @@ import {
   List,
   ListOrdered,
   LayoutDashboard,
+  LogOut,
   MapPin,
   Menu,
   MessageCircle,
@@ -62,6 +65,7 @@ import {
   TicketPercent,
   Trash2,
   TrendingUp,
+  User,
   Underline,
   Upload,
   Users,
@@ -97,11 +101,13 @@ export type IconName =
   | 'circle-plus'
   | 'clipboard-check'
   | 'clipboard-list'
+  | 'credit-card'
   | 'edit-3'
   | 'ellipsis'
   | 'eye'
   | 'file-text'
   | 'globe-2'
+  | 'heart'
   | 'heart-handshake'
   | 'image'
   | 'instagram'
@@ -111,6 +117,7 @@ export type IconName =
   | 'list'
   | 'list-ordered'
   | 'layout-dashboard'
+  | 'log-out'
   | 'map-pin'
   | 'menu'
   | 'message-circle'
@@ -135,6 +142,7 @@ export type IconName =
   | 'ticket-percent'
   | 'trash-2'
   | 'trending-up'
+  | 'user'
   | 'underline'
   | 'upload'
   | 'users'
@@ -167,11 +175,13 @@ const iconMap: Record<IconName, LucideIcon> = {
   'circle-plus': CirclePlus,
   'clipboard-check': ClipboardCheck,
   'clipboard-list': ClipboardList,
+  'credit-card': CreditCard,
   'edit-3': Edit3,
   ellipsis: Ellipsis,
   eye: Eye,
   'file-text': FileText,
   'globe-2': Globe2,
+  heart: Heart,
   'heart-handshake': HeartHandshake,
   image: Image,
   instagram: Instagram,
@@ -181,6 +191,7 @@ const iconMap: Record<IconName, LucideIcon> = {
   list: List,
   'list-ordered': ListOrdered,
   'layout-dashboard': LayoutDashboard,
+  'log-out': LogOut,
   'map-pin': MapPin,
   menu: Menu,
   'message-circle': MessageCircle,
@@ -205,6 +216,7 @@ const iconMap: Record<IconName, LucideIcon> = {
   'ticket-percent': TicketPercent,
   'trash-2': Trash2,
   'trending-up': TrendingUp,
+  user: User,
   underline: Underline,
   upload: Upload,
   users: Users,

@@ -16,3 +16,7 @@ Antes da Task 1, devem ser concluídos os gates documentados em `docs/decisions/
 - `docs/acceptance/mvp.md`: escopo e critérios do MVP comercial.
 - `docs/migration/woocommerce-inventory.md`: inventário necessário para a migração.
 - `docs/testing/strategy.md`: estratégia de testes e ambiente de CI.
+
+## Senhas das contas de seed
+
+Antes de executar `pnpm db:seed`, defina `DEFAULT_ADMIN_PASSWORD` e `DEFAULT_CUSTOMER_PASSWORD` no arquivo `.env` local. O seed para antes de acessar o banco se qualquer uma estiver ausente ou vazia.

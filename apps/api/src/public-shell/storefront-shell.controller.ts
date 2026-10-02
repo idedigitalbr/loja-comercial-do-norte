@@ -1,14 +1,17 @@
 import { Controller, Get, Param, Req, Res } from '@nestjs/common';
 import { readFile } from 'node:fs/promises';
 import type { Request, Response } from 'express';
+import { join } from 'node:path';
 import { CatalogService } from '../modules/catalog/catalog.service';
+import { resolveApiProjectRoot } from '../modules/files/storage-root';
 import { SeoRendererService } from './seo-renderer.service';
 
 async function readShell() {
+  const apiRoot = resolveApiProjectRoot();
   try {
-    return await readFile('apps/api/public/storefront/index.html', 'utf8');
+    return await readFile(join(apiRoot, 'public/storefront/index.html'), 'utf8');
   } catch {
-    return readFile('apps/storefront/index.html', 'utf8');
+    return readFile(join(apiRoot, '../storefront/index.html'), 'utf8');
   }
 }
 

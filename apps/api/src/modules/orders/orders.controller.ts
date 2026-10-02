@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { IsEmail, IsString } from 'class-validator';
 import type { Request } from 'express';
 import { AuthenticatedUser } from '../auth/auth.service';
@@ -15,7 +15,7 @@ class CreateOrderDto {
 
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(@Inject(OrdersService) private readonly ordersService: OrdersService) {}
 
   @UseGuards(SessionGuard)
   @Post()

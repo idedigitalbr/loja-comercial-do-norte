@@ -1,12 +1,15 @@
 import { Controller, Get, Res } from '@nestjs/common';
 import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import type { Response } from 'express';
+import { resolveApiProjectRoot } from '../modules/files/storage-root';
 
 async function readAdminShell() {
+  const apiRoot = resolveApiProjectRoot();
   try {
-    return await readFile('apps/api/public/admin/index.html', 'utf8');
+    return await readFile(join(apiRoot, 'public/admin/index.html'), 'utf8');
   } catch {
-    return readFile('apps/admin/index.html', 'utf8');
+    return readFile(join(apiRoot, '../admin/index.html'), 'utf8');
   }
 }
 

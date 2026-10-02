@@ -1,10 +1,11 @@
 import '@testing-library/jest-dom/vitest';
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StorefrontShell } from '../components/storefront-shell';
 import { LegacyCarousel } from '../components/legacy-media-components';
+import { SiteConfigContext, type PublicSiteConfig } from '../content/site-config-client';
 import { StorefrontRoutes } from '../routes/router';
 
 describe('institutional public pages', () => {
@@ -24,6 +25,17 @@ describe('institutional public pages', () => {
     expect(screen.getByRole('heading', { name: 'Você linda todos os dias' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Ver Produtos' })).toHaveAttribute('href', '/loja');
     expect(screen.getByRole('heading', { name: 'Depoimentos de Nossos Clientes' })).toBeInTheDocument();
+  });
+
+  it('sends the legacy Events URL to the real Events card on the home page', () => {
+    render(
+      <MemoryRouter initialEntries={['/servicos#eventos']}>
+        <StorefrontRoutes />
+      </MemoryRouter>,
+    );
+
+    expect(document.getElementById('eventos')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Eventos Conheça nossos Pacotes de Eventos/ })).toHaveAttribute('href', '/servicos#eventos');
   });
 
   it('recreates the legacy home sections, copy and service imagery', () => {
@@ -52,15 +64,80 @@ describe('institutional public pages', () => {
     expect(screen.queryByText('01')).not.toBeInTheDocument();
     expect(screen.queryByText('05')).not.toBeInTheDocument();
 
-    const services = document.querySelector('.institutional-home__services') as HTMLElement;
-    const gallery = screen.getByRole('region', { name: 'Galeria do salão' });
+    const homeSections = [...document.querySelectorAll('.institutional-home > section')];
+    expect(homeSections.map((section) => section.classList[0])).toEqual([
+      'institutional-home__hero',
+      'institutional-section',
+      'institutional-section',
+      'institutional-home__shop',
+      'institutional-home__feature',
+      'institutional-home__feature',
+      'institutional-section',
+    ]);
+    expect(document.querySelector('.institutional-home__salon-gallery')).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Galeria do salão' })).not.toBeInTheDocument();
+
     const shop = document.querySelector('.institutional-home__shop') as HTMLElement;
-    expect(services.compareDocumentPosition(gallery) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(gallery.compareDocumentPosition(shop) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const shopSlides = shop.querySelectorAll('.institutional-home__shop-background');
+    expect(shopSlides).toHaveLength(9);
+    expect(shopSlides[0]).toHaveClass('is-active');
+    expect(shop.querySelector('.institutional-home__shop-copy')).toBeInTheDocument();
+  });
+
+  it('rotates the three original hero messages when remote banner settings are present', () => {
+    vi.useFakeTimers();
+    const siteConfig: PublicSiteConfig = {
+      site: { siteName: 'Jonas & Elivaldo', logoPath: null, faviconPath: null, address: null, phone: null, whatsapp: null, instagramUrl: null, title: null, description: null },
+      banners: [{ id: 'banner-home', desktopPath: '/banner.webp', mobilePath: null, eyebrow: null, title: null, description: 'Texto fixo do banner', ctaLabel: null, ctaHref: null, sortOrder: 0 }],
+    };
+
+    render(
+      <SiteConfigContext.Provider value={siteConfig}>
+        <MemoryRouter initialEntries={['/']}>
+          <StorefrontRoutes />
+        </MemoryRouter>
+      </SiteConfigContext.Provider>,
+    );
+
+    expect(document.querySelector('.institutional-home__hero-description')).toHaveTextContent('Especialistas em cabelos e unhas, com atendimento de qualidade');
+    expect(document.querySelector('.institutional-home__hero-description')).toHaveClass('is-active');
+
+    act(() => vi.advanceTimersByTime(2500));
+    expect(document.querySelector('.institutional-home__hero-description')).toHaveTextContent('e aquele cuidado que você merece.');
+
+    act(() => vi.advanceTimersByTime(2500));
+    expect(document.querySelector('.institutional-home__hero-description')).toHaveTextContent('Agende já e venha se sentir ainda mais linda!');
+  });
+
+  it('uses the original compact home presentation instead of repeating the history page', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <StorefrontRoutes />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Nosso objetivo é fazer você se sentir linda, confiante e renovada sempre que nos visitar.')).toBeInTheDocument();
+    expect(screen.getByText(/Mais do que um salão, somos especialistas em cuidar da sua autoestima/)).toBeInTheDocument();
+    expect(screen.getByText('Venha viver essa experiência transformadora.')).toBeInTheDocument();
+    expect(screen.queryByText(/A história do Jonas & Elivaldo Hair Designers começou com um sonho/)).not.toBeInTheDocument();
+  });
+
+  it('matches the five image panels shown in the current history page', () => {
+    render(
+      <MemoryRouter initialEntries={['/sobre-nos']}>
+        <StorefrontRoutes />
+      </MemoryRouter>,
+    );
+
+    const panels = document.querySelector('.institutional-about__values-grid');
+    expect(panels?.querySelectorAll('img')).toHaveLength(5);
+    expect(within(panels as HTMLElement).queryByRole('heading', { name: 'Missão' })).not.toBeInTheDocument();
+    expect(within(panels as HTMLElement).queryByRole('heading', { name: 'Visão' })).not.toBeInTheDocument();
+    expect(within(panels as HTMLElement).queryByRole('heading', { name: 'Valores' })).not.toBeInTheDocument();
   });
 
   it('uses Lucide icons for institutional actions and reassurance cards', () => {
-    const { unmount } = render(
+    render(
       <MemoryRouter initialEntries={['/']}>
         <StorefrontRoutes />
       </MemoryRouter>,
@@ -71,17 +148,39 @@ describe('institutional public pages', () => {
     expect(document.querySelector('.institutional-home__scroll [data-icon="arrow-down"].lucide')).toBeInTheDocument();
     expect(document.querySelectorAll('.institutional-testimonial__rating [data-icon="star"].lucide')).toHaveLength(5);
 
-    unmount();
     render(
       <MemoryRouter initialEntries={['/cabelos-e-penteados']}>
         <StorefrontRoutes />
       </MemoryRouter>,
     );
 
-    expect(document.querySelector('.service-detail__hero [data-icon="arrow-down"].lucide')).toBeInTheDocument();
+    expect(document.querySelector('.service-detail__hero [data-icon="arrow-down"]')).toBeInTheDocument();
     expect(document.querySelectorAll('.service-detail__reassurance-grid [data-icon].lucide')).toHaveLength(3);
     expect(document.querySelectorAll('.service-detail__solution-body li [data-icon="check"].lucide').length).toBeGreaterThan(0);
     expect(document.querySelectorAll('.service-detail__solution-body li').length).toBeGreaterThan(0);
+  });
+
+  it('opens the home banner YouTube CTA in an accessible modal', async () => {
+    const user = userEvent.setup();
+    const siteConfig: PublicSiteConfig = {
+      site: { siteName: 'Jonas & Elivaldo', logoPath: null, faviconPath: null, address: null, phone: null, whatsapp: null, instagramUrl: null, title: null, description: null },
+      banners: [{ id: 'banner-video', desktopPath: '/banner.webp', mobilePath: null, eyebrow: 'Jonas & Elivaldo', title: 'Banner com vídeo', description: 'Assista à experiência.', ctaLabel: 'ASSISTA NOSSO VÍDEO', ctaHref: 'https://www.youtube.com/watch?v=abc123', sortOrder: 0 }],
+    };
+    render(
+      <SiteConfigContext.Provider value={siteConfig}>
+        <MemoryRouter initialEntries={['/']}>
+          <StorefrontRoutes />
+        </MemoryRouter>
+      </SiteConfigContext.Provider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'ASSISTA NOSSO VÍDEO' }));
+
+    expect(screen.getByRole('dialog', { name: 'ASSISTA NOSSO VÍDEO' })).toBeInTheDocument();
+    expect(screen.getByTitle('ASSISTA NOSSO VÍDEO')).toHaveAttribute('src', 'https://www.youtube.com/embed/abc123');
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog', { name: 'ASSISTA NOSSO VÍDEO' })).not.toBeInTheDocument();
   });
 
   it('stops automatic home movement when reduced motion is requested', () => {
@@ -123,7 +222,6 @@ describe('institutional public pages', () => {
 
   it.each([
     ['/sobre-nos', 'Nossa História'],
-    ['/servicos', 'Serviços para realçar sua beleza'],
     ['/certificacao-internacional', 'Padrão internacional'],
   ] as const)('renders %s with its primary heading', (path, heading) => {
     render(
@@ -142,7 +240,7 @@ describe('institutional public pages', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('heading', { name: 'Missão' })).toBeInTheDocument();
+    expect(document.querySelectorAll('.institutional-about__values-photo')).toHaveLength(5);
     expect(screen.getByText('Jonas Moreira')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /WhatsApp/i })).not.toBeInTheDocument();
   });
@@ -157,27 +255,35 @@ describe('institutional public pages', () => {
     expect(screen.getByRole('heading', { name: 'Nossa História' })).toBeInTheDocument();
     expect(screen.getByText(/em 2009 nasceu o primeiro salão, Belos Fios/)).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Jonas & Elivaldo Hair Designers em sua história' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Missão' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Visão' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Valores' })).toBeInTheDocument();
+    expect(document.querySelectorAll('.institutional-about__values-photo')).toHaveLength(5);
+    expect(screen.queryByRole('heading', { name: 'Missão' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Visão' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Valores' })).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Nossa Equipe' })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Jonas Moreira' })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Heloísa Dias' })).toBeInTheDocument();
     expect(screen.getByText('Júnior Bessa')).toBeInTheDocument();
-    expect(document.querySelectorAll('.institutional-about__value-icon[data-icon].lucide')).toHaveLength(3);
+    expect(document.querySelectorAll('.institutional-about__value-icon[data-icon].lucide')).toHaveLength(0);
   });
 
-  it('renders the service and certification calls to action', () => {
-    const { unmount } = render(
+  it('redirects the aggregate /servicos path to the home page', () => {
+    function LocationProbe() {
+      const location = useLocation();
+      return <output data-testid="location-path">{location.pathname}</output>;
+    }
+
+    render(
       <MemoryRouter initialEntries={['/servicos']}>
         <StorefrontRoutes />
+        <LocationProbe />
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('Cabelos & Penteados')).toBeInTheDocument();
-    expect(screen.getAllByRole('link', { name: /WhatsApp/i })[0]).toHaveAttribute('href', 'https://wa.me/5596981001897');
+    expect(screen.getByRole('heading', { name: 'Você linda todos os dias' })).toBeInTheDocument();
+    expect(screen.getByTestId('location-path')).toHaveTextContent('/');
+  });
 
-    unmount();
+  it('renders the certification call to action', () => {
     render(
       <MemoryRouter initialEntries={['/certificacao-internacional']}>
         <StorefrontRoutes />
@@ -189,11 +295,11 @@ describe('institutional public pages', () => {
   });
 
   it.each([
-    ['/cabelos-e-penteados', 'Cabelos & Penteados', 'Corte Feminino', 'Cabelos bem cuidados, Autoestima lá em cima!'],
-    ['/maquiagem', 'Maquiagem', 'Make Express', 'Realce sua beleza com uma maquiagem profissional para cada ocasião'],
-    ['/manicure-pedicure', 'Manicure & Pedicure', 'Pacote Completo', 'Unhas bem cuidadas , autoestima lá em cima!'],
-    ['/terapia-capilar', 'Terapia Capilar', 'Terapia Capilar Avançada', 'Sofrendo com queda de cabelo ou problemas no couro cabeludo?'],
-  ] as const)('recreates the legacy service page structure at %s', (path, title, solution, lead) => {
+    ['/cabelos-e-penteados', 'Cabelos & Penteados', 'Corte Feminino', 'Cabelos bem cuidados, Autoestima lá em cima!', 2, 'Chame no WhatsApp'],
+    ['/maquiagem', 'Maquiagem', 'Make Express', 'Realce sua beleza com uma maquiagem profissional para cada ocasião', 2, 'Chame no WhatsApp'],
+    ['/manicure-pedicure', 'Manicure & Pedicure', 'Pacote Completo', 'Unhas bem cuidadas, autoestima lá em cima!', 2, 'Chame no WhatsApp'],
+    ['/terapia-capilar', 'Terapia Capilar', 'Terapia Capilar Avançada', 'Sofrendo com queda de cabelo ou problemas no couro cabeludo?', 1, 'Agende seu atendimento.'],
+  ] as const)('recreates the legacy service page structure at %s', (path, title, solution, lead, expectedWhatsAppLinks, closingCta) => {
     render(
       <MemoryRouter initialEntries={[path]}>
         <StorefrontRoutes />
@@ -203,11 +309,64 @@ describe('institutional public pages', () => {
     expect(screen.getAllByRole('heading', { name: title })[0]).toBeInTheDocument();
     expect(screen.getByText(lead)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: solution })).toBeInTheDocument();
+    const heroMoreLink = screen.getByRole('link', { name: /saiba mais/i });
+    expect(heroMoreLink.querySelector('svg[data-icon="arrow-down"]')).toBeInTheDocument();
     const whatsappLinks = screen.getAllByRole('link', { name: /chame no whatsapp/i });
-    expect(whatsappLinks).toHaveLength(2);
+    expect(whatsappLinks).toHaveLength(expectedWhatsAppLinks);
     expect(whatsappLinks[0]).toHaveAttribute('href', 'https://wa.me/5596981001897');
+    expect(screen.getAllByRole('link', { name: closingCta }).at(-1)).toHaveAttribute('href', 'https://wa.me/5596981001897');
     expect(screen.getByRole('heading', { name: 'Atendimento Personalizado' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Saiba mais/i })).toHaveAttribute('href', '#service-intro');
+  });
+
+  it('uses the original makeup introduction copy', () => {
+    render(
+      <MemoryRouter initialEntries={['/maquiagem']}>
+        <StorefrontRoutes />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText(/aqui\s+cada maquiagem é feita com atenção aos detalhes/i)).toBeInTheDocument();
+    expect(screen.queryByText(/aqui cuidamos da pele com atenção aos detalhes/i)).not.toBeInTheDocument();
+    expect(screen.getByText('Agende seu horário e venha viver uma experiência pensada para destacar seus traços e deixar você ainda mais confiante para qualquer ocasião.')).toBeInTheDocument();
+  });
+
+  it('uses the original hair introduction copy without added punctuation', () => {
+    render(
+      <MemoryRouter initialEntries={['/cabelos-e-penteados']}>
+        <StorefrontRoutes />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Tá na hora de dar aquele trato no visual? Corte, hidratação, escova ou aquela mudança que você vem pensando aqui a gente faz com carinho, técnica e atenção aos detalhes.')).toBeInTheDocument();
+    expect(screen.queryByText(/pensando — aqui a gente faz/)).not.toBeInTheDocument();
+  });
+
+  it('maps manicure artwork in the same order as the original page', () => {
+    render(
+      <MemoryRouter initialEntries={['/manicure-pedicure']}>
+        <StorefrontRoutes />
+      </MemoryRouter>,
+    );
+
+    const images = [...document.querySelectorAll<HTMLImageElement>('.service-detail__solutions .service-detail__solution-image')];
+    const introImages = [...document.querySelectorAll<HTMLImageElement>('.service-detail__intro-image')];
+
+    expect(introImages.map((image) => image.getAttribute('src')?.split('/').pop())).toEqual([
+      'image-1-3.jpg',
+      'image-6-1.jpg',
+    ]);
+    expect(images).toHaveLength(8);
+    expect(images.map((image) => image.getAttribute('src')?.split('/').pop())).toEqual([
+      'image-6-1.jpg',
+      'IMG_6718-scaled.jpg',
+      'image-4-1.jpg',
+      'IMG_6727-scaled.jpg',
+      'Gemini_Generated_Image_7a7q2f7a7q2f7a7q-1.png',
+      'a111.jpg',
+      'IMG_5562-1-scaled.jpg',
+      'gell.webp',
+    ]);
   });
 
   it('replicates the legacy Cabelos & Penteados closing section visual contract', () => {
@@ -231,7 +390,8 @@ describe('institutional public pages', () => {
     expect(within(closing as HTMLElement).getByRole('heading', { name: 'Mais Beleza e Autoestima' })).toBeInTheDocument();
   });
 
-  it('exposes the four service pages from the desktop navigation', () => {
+  it('exposes the four service pages from the opened desktop navigation', async () => {
+    const user = userEvent.setup();
     render(
       <MemoryRouter initialEntries={['/']}>
         <StorefrontShell><StorefrontRoutes /></StorefrontShell>
@@ -239,6 +399,7 @@ describe('institutional public pages', () => {
     );
 
     const primaryNavigation = within(screen.getByRole('navigation', { name: 'Navegação principal' }));
+    await user.click(primaryNavigation.getByRole('button', { name: 'Serviços' }));
     expect(primaryNavigation.getByRole('link', { name: 'Cabelos e Penteados' })).toHaveAttribute('href', '/cabelos-e-penteados');
     expect(primaryNavigation.getByRole('link', { name: 'Maquiagem' })).toHaveAttribute('href', '/maquiagem');
     expect(primaryNavigation.getByRole('link', { name: 'Manicure & Pedicure' })).toHaveAttribute('href', '/manicure-pedicure');
@@ -275,8 +436,9 @@ describe('institutional public pages', () => {
     await waitFor(() => expect(firstPhoto).toHaveFocus());
   });
 
-  it('matches page-specific service structures instead of rendering generic sections', () => {
-    const { unmount } = render(
+  it('matches page-specific service structures instead of rendering generic sections', async () => {
+    const user = userEvent.setup();
+    const makeupView = render(
       <MemoryRouter initialEntries={['/maquiagem']}>
         <StorefrontRoutes />
       </MemoryRouter>,
@@ -284,23 +446,61 @@ describe('institutional public pages', () => {
     expect(screen.getByRole('region', { name: 'Galeria de Maquiagem' })).toHaveTextContent('3 fotos');
     expect(document.querySelector('.service-detail__closing')).toHaveClass('service-detail__closing--image');
 
-    unmount();
-    render(
+    makeupView.unmount();
+    const manicureView = render(
       <MemoryRouter initialEntries={['/manicure-pedicure']}>
         <StorefrontRoutes />
       </MemoryRouter>,
     );
     expect(screen.queryByRole('heading', { name: 'Unhas feitas para você' })).not.toBeInTheDocument();
 
-    unmount();
+    manicureView.unmount();
     render(
       <MemoryRouter initialEntries={['/terapia-capilar']}>
         <StorefrontRoutes />
       </MemoryRouter>,
     );
-    expect(screen.getByRole('heading', { name: 'O que o tratamento pode proporcionar' })).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: 'Casos antes e depois' })).toHaveTextContent('1 de 5');
-    expect(screen.getByRole('region', { name: 'Ambiente e atendimento de terapia capilar' })).toBeInTheDocument();
+    const results = document.querySelector('.service-detail__results--therapy') as HTMLElement;
+    const whyChoose = document.querySelector('.service-detail__why') as HTMLElement;
+    const therapyIntro = document.querySelector('.service-detail__intro-copy') as HTMLElement;
+    const cases = results.querySelectorAll('figure.service-detail__before-after-case:not(.service-detail__before-after-case--clone)');
+
+    expect(within(therapyIntro).getByText('SOBRE NOSSO SERVIÇO')).toBeInTheDocument();
+    const specialistTitle = within(therapyIntro).getByText('Sobre o Especialista:');
+    expect(specialistTitle).toBeInTheDocument();
+    expect(specialistTitle.tagName).toBe('P');
+    expect(within(therapyIntro).getByText('Jonas Moreira é Terapeuta Capilar formado pela Academia Brasileira de Tricologia, com especialização em saúde do couro cabeludo.')).toBeInTheDocument();
+    expect(within(therapyIntro).getByText('Com atendimento individualizado e protocolos personalizados, Jonas trata queda, inflamações e desequilíbrios capilares com técnicas de alta eficácia e abordagem integrativa.')).toBeInTheDocument();
+    expect(within(results).getByRole('heading', { name: 'Resultados e Benefícios do Tratamento' })).toBeInTheDocument();
+    expect(within(results).getAllByRole('listitem')).toHaveLength(6);
+    expect(cases).toHaveLength(5);
+    expect(cases[0]).toHaveTextContent('ANTES');
+    expect(cases[1]).toHaveTextContent('DEPOIS');
+    expect(cases[2]).not.toHaveTextContent(/ANTES|DEPOIS/);
+    expect(cases[3]).not.toHaveTextContent(/ANTES|DEPOIS/);
+    expect(cases[4]).not.toHaveTextContent(/ANTES|DEPOIS/);
+    expect(cases[0].querySelector('img')).toHaveAttribute('src', expect.stringContaining('/capilar-7.jpg'));
+    expect(cases[1].querySelector('img')).toHaveAttribute('src', expect.stringContaining('/capilar-9.jpg'));
+    expect(cases[2].querySelector('img')).toHaveAttribute('src', expect.stringContaining('/capilar-5.jpg'));
+    expect(cases[3].querySelector('img')).toHaveAttribute('src', expect.stringContaining('/capilar-8.jpg'));
+    expect(cases[4].querySelector('img')).toHaveAttribute('src', expect.stringContaining('/Gemini_Generated_Image_1zjcl1zjcl1zjcl1-1.png'));
+    expect(within(results).getAllByRole('listitem').every((item) => item.querySelector('svg'))).toBe(true);
+    const resultsCarousel = within(results).getByRole('region', { name: 'Resultados da Terapia Capilar' });
+    expect(resultsCarousel).toHaveAttribute('data-active-index', '0');
+    await user.click(within(resultsCarousel).getByRole('button', { name: 'Próximo caso' }));
+    expect(resultsCarousel).toHaveAttribute('data-active-index', '1');
+    expect(within(whyChoose).getByRole('heading', { name: /Por que você deve\s+Nos Escolher/i })).toBeInTheDocument();
+    expect(within(whyChoose).getByText(/nossa equipe está sempre se atualizando por meio de cursos, certificações e eventos/i)).toBeInTheDocument();
+    const whyCarousel = within(whyChoose).getByRole('region', { name: 'Ambiente e atendimento de terapia capilar' });
+    expect(whyCarousel).toHaveAttribute('data-active-index', '0');
+    await user.click(within(whyCarousel).getByRole('button', { name: 'Próximo slide' }));
+    expect(whyCarousel).toHaveAttribute('data-active-index', '1');
+    const whyImages = whyChoose.querySelectorAll('.service-detail__why-image');
+    expect(whyImages).toHaveLength(2);
+    expect(whyImages[0]).toHaveAttribute('src', expect.stringContaining('institucional-jonas-elivaldo-evento-dupla-aromaterapia.webp'));
+    expect(whyImages[1]).toHaveAttribute('src', expect.stringContaining('institucional-jonas-elivaldo-evento-aromaterapia.webp'));
+    const therapyClosing = screen.getByRole('heading', { name: 'Quer recuperar a saúde do seu cabelo?' }).closest('.service-detail__closing') as HTMLElement;
+    expect(within(therapyClosing).getByText('Agende sua avaliação capilar e descubra a causa da queda ou enfraquecimento dos seus fios.')).toBeInTheDocument();
   });
 
   it('recreates the missing certification sections and legacy footer', () => {
@@ -390,5 +590,19 @@ describe('institutional public pages', () => {
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog', { name: 'Jonas Moreira' })).not.toBeInTheDocument();
     await waitFor(() => expect(profileButton).toHaveFocus());
+  });
+
+  it('uses the complete name, role and biography inside the team popup', async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={['/sobre-nos']}>
+        <StorefrontRoutes />
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Conhecer Marisa Brito' }));
+    const dialog = screen.getByRole('dialog', { name: 'Marisa Brito Barbosa' });
+    expect(within(dialog).getByText('Manicure e Pedicure')).toBeInTheDocument();
+    expect(within(dialog).getByText(/Amo a minha profissão e considero muito gratificante/)).toBeInTheDocument();
   });
 });

@@ -3,12 +3,13 @@ import { AuthModule } from '../auth/auth.module';
 import { DatabaseModule } from '../database/database.module';
 import { InventoryModule } from '../inventory/inventory.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { PromotionsModule } from '../promotions/promotions.module';
 import { AdminOrdersController } from './admin-orders.controller';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, InventoryModule, NotificationsModule],
+  imports: [DatabaseModule, AuthModule, InventoryModule, NotificationsModule, PromotionsModule],
   controllers: [OrdersController, AdminOrdersController],
   providers: [OrdersService],
   exports: [OrdersService],

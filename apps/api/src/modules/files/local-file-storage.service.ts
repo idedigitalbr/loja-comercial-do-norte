@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { join, relative, resolve } from 'node:path';
+import { join, relative } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import sharp from 'sharp';
+import { resolveApiStorageRoot } from './storage-root';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MIME_EXTENSIONS: Record<string, string> = {
@@ -19,7 +20,7 @@ export type UploadInput = {
 
 @Injectable()
 export class LocalFileStorageService {
-  private readonly rootDirectory = resolve(process.cwd(), 'storage/uploads');
+  private readonly rootDirectory = join(resolveApiStorageRoot(), 'uploads');
 
   async storeImage(input: UploadInput): Promise<{ path: string; variants: string[] }> {
     return this.storeImageVariants(input, false);
@@ -56,6 +57,6 @@ export class LocalFileStorageService {
   }
 
   private relativePath(filePath: string): string {
-    return relative(resolve(process.cwd(), 'storage'), filePath).replaceAll('\\', '/');
+    return relative(resolveApiStorageRoot(), filePath).replaceAll('\\', '/');
   }
 }

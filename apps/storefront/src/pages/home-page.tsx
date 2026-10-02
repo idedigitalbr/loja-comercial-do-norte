@@ -1,11 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { Icon } from '@commerce/ui';
 import { Link } from 'react-router-dom';
 import { InstitutionalImage, WhatsAppLink } from '../components/institutional-page-components';
-import { LegacyCarousel } from '../components/legacy-media-components';
 import { institutionalContent } from '../content/institutional-content';
 import { isSafeCtaHref, useSiteConfig } from '../content/site-config-client';
+
+function youtubeEmbedUrl(value: string | null | undefined): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    const hostname = url.hostname.toLowerCase();
+    const isYouTubeHost = hostname === 'youtube.com' || hostname === 'www.youtube.com' || hostname === 'm.youtube.com' || hostname === 'youtu.be' || hostname === 'www.youtube-nocookie.com';
+    if (!isYouTubeHost) return null;
+
+    const pathParts = url.pathname.split('/').filter(Boolean);
+    const videoId = hostname === 'youtu.be'
+      ? pathParts[0]
+      : pathParts[0] === 'embed' || pathParts[0] === 'shorts'
+        ? pathParts[1]
+        : url.searchParams.get('v');
+
+    return videoId && /^[a-zA-Z0-9_-]{6,}$/.test(videoId)
+      ? `https://www.youtube.com/embed/${videoId}`
+      : null;
+  } catch {
+    return null;
+  }
+}
 
 export function HomePage() {
   const { about, booking, hero, images, services, shop, testimonials } = institutionalContent;
@@ -15,15 +37,19 @@ export function HomePage() {
   const [heroMessage, setHeroMessage] = useState(0);
   const [shopSlide, setShopSlide] = useState(0);
   const [animationPaused, setAnimationPaused] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const videoTriggerRef = useRef<HTMLButtonElement>(null);
+  const videoCloseRef = useRef<HTMLButtonElement>(null);
   const currentRemoteBanner = remoteBanners.length ? remoteBanners[heroSlide % remoteBanners.length] : null;
   const ctaHref = isSafeCtaHref(currentRemoteBanner?.ctaHref) ? currentRemoteBanner.ctaHref : hero.videoHref;
   const ctaLabel = currentRemoteBanner?.ctaLabel || hero.videoLabel;
+  const videoHref = youtubeEmbedUrl(ctaHref);
 
   useEffect(() => {
     if (animationPaused || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
     const timer = window.setInterval(() => {
       setHeroSlide((current) => (current + 1) % (remoteBanners.length || images.heroSlideshow.length));
-      if (!remoteBanners.length) setHeroMessage((current) => (current + 1) % hero.rotatingText.length);
+      setHeroMessage((current) => (current + 1) % hero.rotatingText.length);
     }, 2500);
 
     return () => window.clearInterval(timer);
@@ -37,6 +63,29 @@ export function HomePage() {
 
     return () => window.clearInterval(timer);
   }, [animationPaused, images.shopGallery.length]);
+
+  useEffect(() => {
+    if (!videoOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setVideoOpen(false);
+        window.requestAnimationFrame(() => videoTriggerRef.current?.focus());
+      }
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', closeOnEscape);
+    window.requestAnimationFrame(() => videoCloseRef.current?.focus());
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [videoOpen]);
+
+  function closeVideo() {
+    setVideoOpen(false);
+    window.requestAnimationFrame(() => videoTriggerRef.current?.focus());
+  }
 
   return (
     <main className="institutional-page institutional-home">
@@ -54,8 +103,11 @@ export function HomePage() {
         <div className="institutional-home__hero-overlay" aria-hidden="true" />
         <div className="site-container institutional-home__hero-content">
           <h1 id="home-title">{currentRemoteBanner?.title || hero.title}</h1>
-          <p className="institutional-home__hero-description">{currentRemoteBanner?.description || hero.rotatingText[heroMessage]}</p>
-          {ctaHref.startsWith('/') ? <Link className="button button--primary" to={ctaHref}>
+          <p key={heroMessage} className="institutional-home__hero-description is-active">{hero.rotatingText[heroMessage]}</p>
+          {videoHref ? <button ref={videoTriggerRef} className="button button--primary institutional-home__video-trigger" type="button" aria-haspopup="dialog" onClick={() => setVideoOpen(true)}>
+            <Icon name="play" size={15} strokeWidth={2.2} fill="currentColor" />
+            {ctaLabel}
+          </button> : ctaHref.startsWith('/') ? <Link className="button button--primary" to={ctaHref}>
             <Icon name="play" size={15} strokeWidth={2.2} fill="currentColor" />
             {ctaLabel}
           </Link> : <a className="button button--primary" href={ctaHref} target="_blank" rel="noreferrer">
@@ -65,6 +117,12 @@ export function HomePage() {
         </div>
         <button className="institutional-home__motion-toggle" type="button" onClick={() => setAnimationPaused((current) => !current)} aria-label={animationPaused ? 'Retomar animações' : 'Pausar animações'}><Icon name={animationPaused ? 'play' : 'pause'} size={15} strokeWidth={2.2} fill={animationPaused ? 'currentColor' : undefined} /></button>
         <a className="institutional-home__scroll" href="#sobre" aria-label="Ir para a apresentação"><Icon name="arrow-down" size={20} strokeWidth={1.8} /></a>
+        {videoOpen && videoHref ? <div className="institutional-video-modal" role="dialog" aria-modal="true" aria-labelledby="home-video-title" onMouseDown={(event) => { if (event.target === event.currentTarget) closeVideo(); }}>
+          <div className="institutional-video-modal__dialog">
+            <div className="institutional-video-modal__header"><h2 id="home-video-title">{ctaLabel}</h2><button ref={videoCloseRef} className="institutional-video-modal__close" type="button" onClick={closeVideo} aria-label="Fechar vídeo"><Icon name="x" size={22} strokeWidth={2} /></button></div>
+            <div className="institutional-video-modal__frame"><iframe title={ctaLabel} src={videoHref} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /></div>
+          </div>
+        </div> : null}
       </section>
 
       <section className="institutional-section institutional-home__about" id="sobre" aria-labelledby="home-about-label">
@@ -76,7 +134,8 @@ export function HomePage() {
               <h2>{about.subtitle}</h2>
             </div>
             <p className="institutional-lead">{about.summary}</p>
-            {about.story.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+            <p>{about.homeDescription}</p>
+            <p>{about.homeClosing}</p>
             <Link className="button button--secondary" to="/sobre-nos">Nossa História</Link>
           </div>
           <InstitutionalImage className="institutional-home__about-image" src={images.salon} alt="Ambiente do salão Jonas & Elivaldo Hair Designers" />
@@ -88,7 +147,7 @@ export function HomePage() {
           <h2 id="home-services-title" className="sr-only">Serviços</h2>
           <div className="institutional-service-grid">
             {services.map((service) => (
-              <Link className="institutional-service-card" key={service.name} to={service.href}>
+              <Link className="institutional-service-card" id={service.name === 'Eventos' ? 'eventos' : undefined} key={service.name} to={service.href}>
                 <InstitutionalImage className="institutional-service-card__image" src={service.image} alt={service.imageAlt} />
                 <div className="institutional-service-card__overlay" />
                 <div className="institutional-service-card__content">
@@ -101,17 +160,11 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="institutional-home__salon-gallery" aria-label="Galeria do salão">
-        <LegacyCarousel
-          label="Ambientes Jonas & Elivaldo"
-          autoPlay={4500}
-          images={images.shopGallery.map((src, index) => ({ src, alt: `Ambiente Jonas & Elivaldo ${index + 1}` }))}
-        />
-      </section>
-
       <section className="institutional-home__shop" aria-labelledby="home-shop-title">
-        <div className="site-container institutional-home__shop-grid">
-          <InstitutionalImage className="institutional-home__shop-image" src={images.shopGallery[shopSlide]} alt="Galeria da loja de produtos profissionais" />
+        <div className="institutional-home__shop-grid">
+          <div className="institutional-home__shop-image-panel" aria-hidden="true">
+            {images.shopGallery.map((src, index) => <div className={`institutional-home__shop-background ${index === shopSlide ? 'is-active' : ''}`} key={src} style={{ backgroundImage: `url("${src}")` }} />)}
+          </div>
           <div className="institutional-home__shop-copy">
             <h2 id="home-shop-title" className="institutional-home__section-label">{shop.eyebrow}</h2>
             <div className="institutional-home__shop-title">

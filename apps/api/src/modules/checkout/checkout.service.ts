@@ -1,7 +1,8 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { assertIdempotencyScope } from '../../common/idempotency/idempotency';
 import { PrismaService } from '../database/prisma.service';
 import { OrdersService } from '../orders/orders.service';
+import { CouponService } from '../promotions/coupon.service';
 
 type CheckoutInput = {
   cartId: string;
@@ -10,13 +11,47 @@ type CheckoutInput = {
   shippingCents?: number;
   shippingMethodCode?: string;
   shippingDays?: number;
+  couponCode?: string;
   shippingAddress?: Record<string, unknown>;
   billingAddress?: Record<string, unknown>;
 };
 
 @Injectable()
 export class CheckoutService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService, @Inject(OrdersService) private readonly ordersService: OrdersService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(OrdersService) private readonly ordersService: OrdersService,
+    @Optional() @Inject(CouponService) private readonly couponService?: CouponService,
+  ) {}
+
+  async quote(input: { cartId: string; userId?: string; contactEmail?: string; shippingCents?: number; couponCode?: string }) {
+    const cart = await this.prisma.cart.findFirst({
+      where: { OR: [{ id: input.cartId }, { publicId: input.cartId }] },
+      include: { items: { include: { variant: { include: { product: { include: { categories: true } } } } } } },
+    });
+    if (!cart || !cart.items.length) throw new NotFoundException('CART_NOT_FOUND');
+    const subtotalCents = cart.items.reduce((sum, item) => sum + (item.unitPriceCents ?? item.variant.priceCents) * item.quantity, 0);
+    const shippingCents = input.shippingCents ?? 0;
+    if (!Number.isInteger(shippingCents) || shippingCents < 0) throw new BadRequestException('INVALID_SHIPPING_AMOUNT');
+    if (!input.couponCode?.trim()) return { subtotalCents, discountCents: 0, shippingCents, totalCents: subtotalCents + shippingCents };
+    if (!this.couponService) throw new BadRequestException('COUPON_SERVICE_UNAVAILABLE');
+    const coupon = await this.couponService.quote({
+      code: input.couponCode,
+      userId: input.userId,
+      email: input.contactEmail,
+      subtotalCents,
+      shippingCents,
+      items: cart.items.map((item) => ({
+        productId: item.variant.productId,
+        brandId: item.variant.product.brandId,
+        quantity: item.quantity,
+        unitPriceCents: item.unitPriceCents ?? item.variant.priceCents,
+        compareAtPriceCents: item.variant.compareAtPriceCents,
+        categoryIds: item.variant.product.categories.map((category) => category.categoryId),
+      })),
+    });
+    return { subtotalCents, couponCode: coupon.code, ...coupon };
+  }
 
   async prepare(input: CheckoutInput, idempotencyKey: string) {
     if (!idempotencyKey) throw new BadRequestException('IDEMPOTENCY_KEY_REQUIRED');

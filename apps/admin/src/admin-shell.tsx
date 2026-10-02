@@ -9,8 +9,9 @@ import { ReportsPage } from './features/reports/reports-page';
 import { CustomersPage } from './features/customers/customers-page';
 import { PromotionsPage } from './features/promotions/promotions-page';
 import { SettingsPage } from './features/settings/settings-page';
+import { HomeBannersPage } from './features/settings/home-banners-page';
 
-export type AdminSection = 'overview' | 'catalog' | 'orders' | 'inventory' | 'customers' | 'promotions' | 'reports' | 'settings';
+export type AdminSection = 'overview' | 'home-banners' | 'catalog' | 'orders' | 'inventory' | 'customers' | 'promotions' | 'reports' | 'settings';
 
 type NavigationItem = { id: AdminSection; label: string; description: string; icon: IconName };
 type DashboardProduct = { id: string };
@@ -18,6 +19,7 @@ type DashboardOrder = { id: string; status: string; totalCents: number; publicId
 
 const navigation: NavigationItem[] = [
   { id: 'overview', label: 'Visão geral', description: 'Resumo da operação', icon: 'layout-dashboard' },
+  { id: 'home-banners', label: 'Banner da Home', description: 'Imagens e textos da Home', icon: 'image' },
   { id: 'catalog', label: 'Catálogo', description: 'Produtos e marcas', icon: 'shopping-bag' },
   { id: 'orders', label: 'Pedidos', description: 'Venda e atendimento', icon: 'clipboard-list' },
   { id: 'inventory', label: 'Estoque', description: 'Saldos e ajustes', icon: 'warehouse' },
@@ -26,6 +28,18 @@ const navigation: NavigationItem[] = [
   { id: 'reports', label: 'Relatórios', description: 'Indicadores comerciais', icon: 'bar-chart-3' },
   { id: 'settings', label: 'Configurações', description: 'Site e integrações', icon: 'sliders-horizontal' },
 ];
+
+const adminSectionRoutes: Record<AdminSection, string> = {
+  overview: '/admin/',
+  'home-banners': '/admin/banners-home',
+  catalog: '/admin/catalogo/produtos',
+  orders: '/admin/orders',
+  inventory: '/admin/inventory',
+  customers: '/admin/customers',
+  promotions: '/admin/promotions',
+  reports: '/admin/reports',
+  settings: '/admin/settings',
+};
 
 export function getAdminView(userEmail: string | null): 'login' | 'dashboard' {
   return userEmail ? 'dashboard' : 'login';
@@ -108,7 +122,28 @@ function readBrandRoute(pathname = window.location.pathname, search = window.loc
   return editBrandMatch ? { mode: 'edit', id: decodeURIComponent(editBrandMatch[1]) } : null;
 }
 
+function isHomeBannersRoute(pathname = window.location.pathname): boolean {
+  return /^\/admin\/banners-home\/?$/.test(pathname);
+}
+
+function isPromotionsRoute(pathname = window.location.pathname): boolean {
+  return /^\/admin\/promotions\/?$/.test(pathname);
+}
+
+export function getInitialAdminSection(pathname = window.location.pathname): AdminSection {
+  if (isHomeBannersRoute(pathname)) return 'home-banners';
+  if (isPromotionsRoute(pathname)) return 'promotions';
+  if (readProductRoute(pathname) || readBrandRoute(pathname)) return 'catalog';
+  const normalizedPath = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+  const section = Object.entries(adminSectionRoutes).find(([, route]) => {
+    const normalizedRoute = route.length > 1 ? route.replace(/\/+$/, '') : route;
+    return normalizedPath === normalizedRoute;
+  })?.[0] as AdminSection | undefined;
+  return section ?? 'overview';
+}
+
 function SectionContent({ section, onCreateProduct, onEditProduct, onCreateBrand, onEditBrand }: { section: AdminSection; onCreateProduct: () => void; onEditProduct: (id: string) => void; onCreateBrand: () => void; onEditBrand: (id: string) => void }) {
+  if (section === 'home-banners') return <HomeBannersPage />;
   if (section === 'catalog') return <ProductListPage onCreate={onCreateProduct} onEdit={onEditProduct} onCreateBrand={onCreateBrand} onEditBrand={onEditBrand} />;
   if (section === 'orders') return <OrdersListPage />;
   if (section === 'inventory') return <InventoryPage />;
@@ -120,12 +155,21 @@ function SectionContent({ section, onCreateProduct, onEditProduct, onCreateBrand
 }
 
 export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onLogout: () => void }) {
-  const [section, setSection] = useState<AdminSection>('overview');
+  const [homeBannersRoute, setHomeBannersRoute] = useState(() => isHomeBannersRoute());
+  const [section, setSection] = useState<AdminSection>(() => getInitialAdminSection());
   const [productRoute, setProductRoute] = useState<ProductRoute>(() => readProductRoute());
   const [brandRoute, setBrandRoute] = useState<BrandRoute>(() => readBrandRoute());
 
   useEffect(() => {
-    const handlePopState = () => { setProductRoute(readProductRoute()); setBrandRoute(readBrandRoute()); setSection('catalog'); };
+    const handlePopState = () => {
+      const nextHomeBannersRoute = isHomeBannersRoute();
+      const nextProductRoute = readProductRoute();
+      const nextBrandRoute = readBrandRoute();
+      setHomeBannersRoute(nextHomeBannersRoute);
+      setProductRoute(nextProductRoute);
+      setBrandRoute(nextBrandRoute);
+      setSection(nextHomeBannersRoute ? 'home-banners' : nextProductRoute || nextBrandRoute ? 'catalog' : getInitialAdminSection());
+    };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
@@ -133,9 +177,13 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
   function navigate(pathname: string) {
     const target = new URL(pathname, window.location.origin);
     window.history.pushState({}, '', `${target.pathname}${target.search}`);
-    setProductRoute(readProductRoute(target.pathname));
-    setBrandRoute(readBrandRoute(target.pathname, target.search));
-    setSection('catalog');
+    const nextHomeBannersRoute = isHomeBannersRoute(target.pathname);
+    const nextProductRoute = readProductRoute(target.pathname);
+    const nextBrandRoute = readBrandRoute(target.pathname, target.search);
+    setHomeBannersRoute(nextHomeBannersRoute);
+    setProductRoute(nextProductRoute);
+    setBrandRoute(nextBrandRoute);
+    setSection(nextHomeBannersRoute ? 'home-banners' : nextProductRoute || nextBrandRoute ? 'catalog' : getInitialAdminSection(target.pathname));
   }
 
   async function logout() {
@@ -147,12 +195,12 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
     <div className="admin-app-shell">
       <aside className="admin-sidebar">
         <div className="admin-sidebar__brand"><span className="admin-eyebrow">Jonas & Elivaldo</span><strong>Gestão<br />profissional</strong></div>
-        <nav className="admin-nav" aria-label="Navegação administrativa">{navigation.map((item) => <button key={item.id} className={section === item.id ? 'is-active' : ''} type="button" onClick={() => { if (productRoute || brandRoute) { window.history.pushState({}, '', '/admin/'); setProductRoute(null); setBrandRoute(null); } setSection(item.id); }}><span className="admin-nav__label"><Icon name={item.icon} size={18} strokeWidth={1.8} /><span>{item.label}</span></span><small>{item.description}</small></button>)}</nav>
+        <nav className="admin-nav" aria-label="Navegação administrativa">{navigation.map((item) => <button key={item.id} className={section === item.id ? 'is-active' : ''} type="button" onClick={() => navigate(adminSectionRoutes[item.id])}><span className="admin-nav__label"><Icon name={item.icon} size={18} strokeWidth={1.8} /><span>{item.label}</span></span><small>{item.description}</small></button>)}</nav>
         <button className="admin-sidebar__logout" type="button" onClick={() => void logout()}>Sair da conta</button>
       </aside>
       <div className="admin-app-main">
         <header className="admin-topbar"><div><span className="admin-topbar__context">Painel administrativo</span><strong>Loja Jonas & Elivaldo</strong></div><div className="admin-topbar__actions"><a className="admin-topbar__storefront-link" href={getStorefrontUrl()} target="_blank" rel="noreferrer">Ver loja <Icon name="arrow-up-right" size={15} strokeWidth={2} /></a><div className="admin-user"><span>{userEmail}</span><span className="admin-user__status">Admin</span></div></div></header>
-        {brandRoute ? <BrandEditorPage brandId={brandRoute.mode === 'edit' ? brandRoute.id : undefined} initialParentId={brandRoute.parentId} onBack={() => navigate('/admin/catalogo/produtos')} onOpenBrand={(id) => navigate(`/admin/catalogo/marcas/${encodeURIComponent(id)}/editar`)} onCreateChild={(parentId) => navigate(`/admin/catalogo/marcas/nova?parentId=${encodeURIComponent(parentId)}`)} /> : productRoute ? <ProductEditorPage productId={productRoute.mode === 'edit' ? productRoute.id : undefined} onBack={() => navigate('/admin/catalogo/produtos')} onOpenProduct={(id) => navigate(`/admin/catalogo/produtos/${encodeURIComponent(id)}/editar`)} /> : <SectionContent section={section} onCreateProduct={() => navigate('/admin/catalogo/produtos/novo')} onEditProduct={(id) => navigate(`/admin/catalogo/produtos/${encodeURIComponent(id)}/editar`)} onCreateBrand={() => navigate('/admin/catalogo/marcas/nova')} onEditBrand={(id) => navigate(`/admin/catalogo/marcas/${encodeURIComponent(id)}/editar`)} />}
+        {brandRoute ? <BrandEditorPage brandId={brandRoute.mode === 'edit' ? brandRoute.id : undefined} initialParentId={brandRoute.parentId} onBack={() => navigate('/admin/catalogo/produtos')} onOpenBrand={(id) => navigate(`/admin/catalogo/marcas/${encodeURIComponent(id)}/editar`)} onCreateChild={(parentId) => navigate(`/admin/catalogo/marcas/nova?parentId=${encodeURIComponent(parentId)}`)} /> : productRoute ? <ProductEditorPage productId={productRoute.mode === 'edit' ? productRoute.id : undefined} onBack={() => navigate('/admin/catalogo/produtos')} onOpenProduct={(id) => navigate(`/admin/catalogo/produtos/${encodeURIComponent(id)}/editar`)} /> : homeBannersRoute ? <HomeBannersPage /> : <SectionContent section={section} onCreateProduct={() => navigate('/admin/catalogo/produtos/novo')} onEditProduct={(id) => navigate(`/admin/catalogo/produtos/${encodeURIComponent(id)}/editar`)} onCreateBrand={() => navigate('/admin/catalogo/marcas/nova')} onEditBrand={(id) => navigate(`/admin/catalogo/marcas/${encodeURIComponent(id)}/editar`)} />}
       </div>
     </div>
   );

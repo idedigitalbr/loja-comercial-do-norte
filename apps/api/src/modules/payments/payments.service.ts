@@ -1,9 +1,10 @@
-import { EmailEventKey, PaymentMethod, PaymentStatus, Prisma, RefundStatus } from '@prisma/client';
+import { ActorType, EmailEventKey, OrderStatus, PaymentMethod, PaymentStatus, Prisma, RefundStatus } from '@prisma/client';
 import { BadRequestException, Inject, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { assertIdempotencyScope } from '../../common/idempotency/idempotency';
 import { CardPaymentInput, PaymentProvider, PixPaymentInput, ProviderPayment } from './payment-provider';
 import { PrismaService } from '../database/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { CouponService } from '../promotions/coupon.service';
 
 @Injectable()
 export class PaymentsService {
@@ -11,6 +12,7 @@ export class PaymentsService {
     private readonly prisma: PrismaService,
     private readonly provider: PaymentProvider,
     @Optional() @Inject(NotificationsService) private readonly notifications?: NotificationsService,
+    @Optional() @Inject(CouponService) private readonly couponService?: CouponService,
   ) {}
 
   async payCard(input: CardPaymentInput & { orderId: string }, idempotencyKey: string) {
@@ -39,6 +41,11 @@ export class PaymentsService {
       if (!payment) throw new NotFoundException('PAYMENT_NOT_FOUND');
       await transaction.paymentEvent.create({ data: { eventId: input.eventId, paymentId: input.paymentId, provider: 'MERCADO_PAGO', payloadJson: input.payload, processedAt: new Date() } });
       await transaction.payment.update({ where: { id: input.paymentId }, data: { status: this.mapStatus(input.status), providerStatus: input.status } });
+      if (input.status === 'rejected' && payment.order.status === OrderStatus.AWAITING_PAYMENT) {
+        await transaction.order.update({ where: { id: payment.order.id }, data: { status: OrderStatus.CANCELLED } });
+        await this.couponService?.releaseInTransaction(transaction, payment.order.id);
+        await transaction.orderStatusHistory.create({ data: { orderId: payment.order.id, fromStatus: OrderStatus.AWAITING_PAYMENT, toStatus: OrderStatus.CANCELLED, actorType: ActorType.PROVIDER, reason: 'Pagamento rejeitado pelo provedor', source: 'PAYMENT_WEBHOOK' } });
+      }
       await this.enqueuePaymentNotification(transaction, payment.order, payment.id, payment.publicId, payment.amountCents, input.status);
       return { duplicate: false };
     });

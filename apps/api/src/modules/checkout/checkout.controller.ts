@@ -10,8 +10,16 @@ class PrepareCheckoutDto {
   @IsOptional() @IsInt() @Min(0) shippingCents?: number;
   @IsOptional() @IsString() shippingMethodCode?: string;
   @IsOptional() @IsInt() @Min(0) shippingDays?: number;
+  @IsOptional() @IsString() couponCode?: string;
   @IsOptional() @IsObject() shippingAddress?: Record<string, unknown>;
   @IsOptional() @IsObject() billingAddress?: Record<string, unknown>;
+}
+
+class QuoteCheckoutDto {
+  @IsString() cartId!: string;
+  @IsOptional() @IsEmail() contactEmail?: string;
+  @IsOptional() @IsString() couponCode?: string;
+  @IsOptional() @IsInt() @Min(0) shippingCents?: number;
 }
 
 @Controller('checkout')
@@ -23,6 +31,11 @@ export class CheckoutController {
     const prepared = await this.checkoutService.prepare({ ...body, userId: request.user?.id }, idempotencyKey);
     response.cookie('je_checkout', prepared.orderPublicId, { signed: true, httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
     return prepared;
+  }
+
+  @Post('quote')
+  quote(@Body() body: QuoteCheckoutDto, @Req() request: Request & { user?: AuthenticatedUser }) {
+    return this.checkoutService.quote({ ...body, userId: request.user?.id });
   }
 
   @Get(':publicId')

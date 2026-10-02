@@ -16,4 +16,13 @@ describe('CheckoutController', () => {
 
     expect(checkoutService.get).toHaveBeenCalledWith('order-1');
   });
+
+  it('propagates the optional authenticated user to coupon quotes', async () => {
+    const checkoutService = { quote: vi.fn().mockResolvedValue({ subtotalCents: 100 }) };
+    const controller = new CheckoutController(checkoutService as never);
+
+    await controller.quote({ cartId: 'cart-1', couponCode: 'VIP20' }, { user: { id: 'user-1' } } as never);
+
+    expect(checkoutService.quote).toHaveBeenCalledWith({ cartId: 'cart-1', couponCode: 'VIP20', userId: 'user-1' });
+  });
 });

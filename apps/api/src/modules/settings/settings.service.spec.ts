@@ -50,6 +50,60 @@ describe('SettingsService', () => {
     expect(JSON.stringify(result)).not.toContain('smtpPassword');
   });
 
+  it('keeps approved legacy banner media visible in the public configuration', async () => {
+    const legacyDesktopPath = 'https://jonaselivaldohair.com.br/wp-content/uploads/2025/11/FOTO-288.jpg';
+    const prisma = {
+      siteConfiguration: { findUnique: vi.fn().mockResolvedValue(null) },
+      siteBanner: {
+        findMany: vi.fn().mockResolvedValue([{
+          id: 'legacy-banner-1',
+          desktopPath: legacyDesktopPath,
+          mobilePath: null,
+          eyebrow: null,
+          title: 'Você linda todos os dias',
+          description: 'Agende já e venha se sentir ainda mais linda!',
+          ctaLabel: 'ASSISTA NOSSO VÍDEO',
+          ctaHref: 'https://www.youtube.com/embed/LHVlCGzfbI?feature=oembed',
+          sortOrder: 0,
+          status: 'ACTIVE',
+        }]),
+      },
+    };
+    const service = new SettingsService(prisma as never, {} as never);
+
+    const result = await service.getPublicConfig();
+
+    expect(result.banners[0]).toEqual(expect.objectContaining({ desktopPath: legacyDesktopPath }));
+  });
+
+  it('allows an administrator to edit a seeded legacy banner without losing its media URL', async () => {
+    const legacyDesktopPath = 'https://jonaselivaldohair.com.br/wp-content/uploads/2025/11/FOTO-288.jpg';
+    const prisma = {
+      siteBanner: {
+        findUnique: vi.fn().mockResolvedValue({ id: 'legacy-banner-1' }),
+        update: vi.fn().mockResolvedValue({
+          id: 'legacy-banner-1',
+          desktopPath: legacyDesktopPath,
+          mobilePath: null,
+          eyebrow: null,
+          title: 'Você linda todos os dias',
+          description: null,
+          ctaLabel: null,
+          ctaHref: null,
+          sortOrder: 0,
+          status: 'ACTIVE',
+        }),
+      },
+    };
+    const service = new SettingsService(prisma as never, {} as never);
+
+    await service.updateBanner('legacy-banner-1', { desktopPath: legacyDesktopPath });
+
+    expect(prisma.siteBanner.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ desktopPath: legacyDesktopPath }),
+    }));
+  });
+
   it('returns mask flags instead of decrypted credentials to administrators', async () => {
     const prisma = {
       siteConfiguration: { findUnique: vi.fn().mockResolvedValue(null) },

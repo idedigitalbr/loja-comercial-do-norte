@@ -18,6 +18,9 @@ importers:
       '@prisma/client':
         specifier: 6.19.3
         version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
+      argon2:
+        specifier: ^0.45.1
+        version: 0.45.1
       eslint:
         specifier: ^9.35.0
         version: 9.39.5(jiti@2.7.0)
