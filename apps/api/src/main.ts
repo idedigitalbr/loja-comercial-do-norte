@@ -26,7 +26,14 @@ export function configureApp(app: INestApplication): INestApplication {
     exclude: ['webhooks/mercado-pago', 'internal/cron/process'],
   });
   app.use(cookieParser(process.env.COOKIE_SECRET));
-  app.use(helmet());
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        imgSrc: ["'self'", 'data:', 'https://jonaselivaldohair.com.br'],
+        frameSrc: ["'self'", 'https://www.youtube.com', 'https://www.youtube-nocookie.com'],
+      },
+    },
+  }));
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

@@ -929,15 +929,16 @@ button, a, summary { transition: color 180ms ease-out, background 180ms ease-out
 .institutional-section-label, .institutional-home__section-label { display: block; max-width: 100%; margin: 0 0 22px; color: #6a6032; font-family: 'Montserrat', sans-serif !important; font-size: 15px !important; font-weight: 500; letter-spacing: .08em !important; line-height: 1.25 !important; text-transform: uppercase; }
 .institutional-home__section-label::before { display: inline-block; width: 42px; height: 2px; margin: 0 14px 4px 0; background: #000; content: ''; }
 .institutional-home__about { padding: 0; background: #fff; }
-.institutional-home__about-grid { grid-template-columns: minmax(0, 1fr) minmax(320px, .9fr); gap: 0; min-height: 800px; }
-.institutional-home__about-copy { display: flex; max-width: none; flex-direction: column; justify-content: center; padding: 68px clamp(32px, 8vw, 100px) 68px 0; }
+.institutional-home__about-grid { width: 100%; max-width: none; padding: 0; grid-template-columns: minmax(0, .7fr) minmax(320px, 1fr); gap: 0; min-height: clamp(680px, 82vh, 800px); }
+.institutional-home__about-copy { display: flex; max-width: none; flex-direction: column; justify-content: center; padding: 68px clamp(32px, 5.25vw, 80px) 68px clamp(32px, 4.8vw, 75px); }
 .institutional-home__brand-heading { margin: 0 0 30px; }
-.institutional-home__brand-heading h2 { margin: 0; color: #6a6032; font-size: clamp(38px, 4vw, 52px); font-weight: 400; letter-spacing: .01em; line-height: 1.12; }
-.institutional-home__brand-heading h2 + h2 { margin-top: 4px; }
-.institutional-home__about-copy p { max-width: 620px; margin: 0 0 20px; color: #6a6032; font-family: 'Montserrat', sans-serif; font-size: 16px; line-height: 1.55; }
-.institutional-home__about-copy .institutional-lead { font-size: 17px; }
-.institutional-home__about-copy .button { align-self: flex-start; margin-top: 14px; }
-.institutional-home__about-image { width: 100%; height: 100%; min-height: 800px; object-fit: cover; }
+.institutional-home__brand-heading h2 { margin: 0; color: #111; font-family: 'Work Sans', Inter, sans-serif; font-size: clamp(32px, 2.35vw, 38px); font-weight: 700; letter-spacing: -.035em; line-height: 1.12; }
+.institutional-home__brand-subtitle { display: block; width: max-content; margin: -3px 0 0 auto; color: #c58628; font-family: 'Montserrat', sans-serif; font-size: clamp(11px, .92vw, 14px); font-weight: 600; letter-spacing: .12em; line-height: 1.25; text-transform: uppercase; }
+.institutional-home__about-copy p { max-width: 620px; margin: 0 0 14px; color: #444; font-family: 'Montserrat', sans-serif; font-size: 13px; line-height: 1.6; }
+.institutional-home__about-copy .institutional-lead { font-size: 13px; }
+.institutional-home__about-copy strong { color: #333; font-weight: 700; }
+.institutional-home__about-copy .button { min-height: 36px; align-self: flex-start; margin-top: 14px; padding-top: 9px; padding-bottom: 9px; box-shadow: 0 10px 24px rgba(17, 17, 17, .12); }
+.institutional-home__about-image { width: 100%; height: 100%; min-height: clamp(680px, 82vh, 800px); object-fit: cover; }
 .institutional-home__services { padding: 0; background: #000; }
 .institutional-home__services > .site-container { width: 100%; max-width: none; }
 .institutional-service-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; border: 0; }
@@ -1004,12 +1005,18 @@ button, a, summary { transition: color 180ms ease-out, background 180ms ease-out
   .institutional-service-card { min-height: 520px; }
 }
 
+@media (min-width: 821px) and (max-width: 1100px) {
+  .institutional-home__about-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .institutional-home__about-copy { padding-right: clamp(24px, 5vw, 55px); padding-left: 32px; }
+}
+
 @media (max-width: 820px) {
   .institutional-home__hero { min-height: 650px; }
   .institutional-home__hero-background[data-mobile-image] { background-image: var(--hero-mobile-image); }
   .institutional-home__hero-content { padding-bottom: 82px; }
   .institutional-home__about-grid, .institutional-home__feature-grid, .institutional-home__feature-grid--reverse { grid-template-columns: 1fr; gap: 0; min-height: auto; }
-  .institutional-home__about-copy { padding: 64px 0; }
+  .institutional-home__about-copy { padding: 64px 24px; }
+  .institutional-home__brand-subtitle { margin-top: 0; margin-right: auto; margin-left: 0; }
   .institutional-home__about-image { min-height: 520px; }
   .institutional-service-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .institutional-service-card { min-height: 460px; }
@@ -1044,38 +1051,43 @@ button, a, summary { transition: color 180ms ease-out, background 180ms ease-out
 }
 
 /* Sobre nós: composição equivalente à página pública legada. */
-.institutional-about__hero { position: relative; display: flex; min-height: min(820px, 100vh); align-items: flex-end; overflow: hidden; background: #161513; color: #fff; }
+.institutional-about__hero { position: relative; display: flex; min-height: 100vh; align-items: flex-end; overflow: hidden; background: #161513; color: #fff; }
 .institutional-about__hero-poster, .institutional-about__hero-video, .institutional-about__hero-overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
-.institutional-about__hero-poster { background-position: center; background-size: cover; filter: brightness(.72); }
-.institutional-about__hero-video { z-index: 1; min-width: 177.78vh; border: 0; pointer-events: none; transform: translateX(calc((100% - 177.78vh) / 2)); }
-.institutional-about__hero-overlay { z-index: 2; background: linear-gradient(180deg, rgba(0, 0, 0, .12), rgba(0, 0, 0, .62)); }
+.institutional-about__hero-poster { z-index: 0; background-position: center; background-size: cover; filter: brightness(.9); }
+.institutional-about__hero-video { top: 50%; left: 50%; z-index: 1; width: max(100vw, 177.78vh); height: max(100vh, 56.25vw); max-width: none; border: 0; pointer-events: none; transform: translate(-50%, -50%) scale(1.14); }
+.institutional-about__hero-overlay { z-index: 2; background: transparent; }
 .institutional-about__hero-content { position: relative; z-index: 3; padding-top: 100px; padding-bottom: 76px; }
 .institutional-about__hero-eyebrow { margin: 0; color: #f7df70; font-size: 12px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
 .institutional-about__hero h1 { margin: 12px 0 0; color: #fff; font-size: clamp(46px, 8vw, 102px); letter-spacing: -.07em; line-height: .9; }
 .institutional-about__story { padding: 88px 0; background: #fff; }
-.institutional-about__story-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; align-items: stretch; }
-.institutional-about__story-gallery { display: flex; min-height: 0; flex-direction: column; gap: 14px; padding: 35px; }
+.institutional-about__story-grid { grid-template-columns: minmax(0, 1.14fr) minmax(0, .86fr); gap: 0; align-items: center; }
+.institutional-about__story-gallery { display: grid; min-height: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto auto; align-content: center; gap: 14px; padding: 0 35px; transform: translateX(60px); }
 .institutional-about__story-gallery img { display: block; width: 100%; height: auto; object-fit: cover; }
-.institutional-about__story-gallery-main { width: min(290px, 100%) !important; aspect-ratio: 607 / 743; margin: 0 auto; }
-.institutional-about__story-gallery-stack { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; min-height: 0; padding: 0; }
-.institutional-about__story-gallery-stack img { aspect-ratio: 1 / 1.22; }
-.institutional-about__story-copy { max-width: none; align-self: stretch; display: flex; flex-direction: column; justify-content: center; padding: 0 0 0 55px; }
+.institutional-about__story-gallery-main { grid-column: 1 / -1; grid-row: 1; width: min(290px, 100%) !important; aspect-ratio: 607 / 743; justify-self: center; margin: 0; }
+.institutional-about__story-gallery-stack { display: grid; grid-column: 1 / -1; grid-row: 2; width: min(490px, 100%); grid-template-columns: minmax(0, 1.3fr) minmax(0, .92fr); justify-self: center; gap: 16px; min-height: 0; padding: 0; }
+.institutional-about__story-gallery-stack img { aspect-ratio: 4 / 5; }
+.institutional-about__story-copy { max-width: 560px; align-self: stretch; display: flex; flex-direction: column; justify-content: center; padding: 0 0 0 55px; }
 .institutional-about__section-eyebrow { margin: 0 0 14px; color: #c28f30; font-size: 13px; font-weight: 500; letter-spacing: .32em; line-height: 1.2; text-transform: uppercase; }
-.institutional-about__story-copy h2, .institutional-about__team-heading h2 { margin: 0; color: #000; font-size: clamp(42px, 5vw, 64px); font-weight: 700; letter-spacing: -.08em; line-height: .98; }
+.institutional-about__story-copy h2, .institutional-about__team-heading h2 { margin: 0; color: #000; font-size: clamp(40px, 4vw, 56px); font-weight: 700; letter-spacing: -.08em; line-height: .98; }
 .institutional-about__divider { width: 60px; margin: 24px 0 30px; border-top: 2px solid #c28f30; }
 .institutional-about__story-copy p:not(.institutional-about__section-eyebrow) { margin: 0 0 18px; color: #393833; font-family: 'Montserrat', sans-serif; font-size: 15px; line-height: 1.75; text-align: justify; }
-.institutional-about__values { overflow: hidden; background: #000; }
+.institutional-about__values { position: relative; overflow: hidden; background: #000; }
 .institutional-about__values-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); min-height: 650px; }
-.institutional-about__values-photo { display: block; width: 100%; height: 100%; min-height: 650px; object-fit: cover; filter: brightness(.62); transition: filter 500ms ease, transform 700ms ease; }
-.institutional-about__values-photo:hover { filter: brightness(.8); transform: scale(1.03); }
-.institutional-about__value-card { position: relative; display: flex; min-height: 650px; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 54px 34px; background-position: center; background-size: cover; color: #fff; text-align: center; }
+.institutional-about__values-photo { display: block; width: 100%; height: 100%; min-height: 650px; object-fit: cover; filter: brightness(.42); transition: filter 500ms ease, transform 700ms ease; }
+.institutional-about__values-photo:hover { filter: brightness(.55); transform: scale(1.03); }
+.institutional-about__values-content { position: absolute; inset: 0; z-index: 1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); pointer-events: none; }
+.institutional-about__value-card { position: relative; display: flex; min-width: 0; min-height: 0; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 42px 26px; background: rgba(15, 14, 11, .16); color: #fff; text-align: center; }
+.institutional-about__value-card--mission { grid-column: 2; }
+.institutional-about__value-card--vision { grid-column: 3; }
+.institutional-about__value-card--values { grid-column: 4; }
 .institutional-about__value-icon { display: block; width: 70px; height: 70px; margin: 0 0 22px; object-fit: contain; }
-.institutional-about__value-card h2 { margin: 0 0 18px; color: #fff; font-size: 28px; font-weight: 700; }
-.institutional-about__value-card p { max-width: 260px; margin: 0; color: rgba(255, 255, 255, .85); font-family: 'Montserrat', sans-serif; font-size: 15px; letter-spacing: .03em; line-height: 1.55; text-align: justify; }
+.institutional-about__value-card h2 { margin: 0 0 18px; color: #f7df70; font-size: clamp(20px, 1.6vw, 26px); font-weight: 700; }
+.institutional-about__value-card p { max-width: 260px; margin: 0; color: rgba(255, 255, 255, .92); font-family: 'Montserrat', sans-serif; font-size: clamp(14px, 1vw, 17px); letter-spacing: .01em; line-height: 1.55; text-align: center; }
 .institutional-about__team { padding: 77px 0 66px; background: #fff; }
 .institutional-about__team-heading { margin-bottom: 46px; text-align: center; }
 .institutional-about__team-heading .institutional-about__section-eyebrow { letter-spacing: .32em; }
 .institutional-about__team-heading .institutional-about__divider { margin: 24px auto 0; }
+.institutional-about__team-heading h2 { font-size: clamp(40px, 3.5vw, 50px); }
 .institutional-team-grid { display: grid; gap: 14px; }
 .institutional-team-grid--featured { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 14px; }
 .institutional-team-grid--supporting { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -1089,25 +1101,30 @@ button, a, summary { transition: color 180ms ease-out, background 180ms ease-out
 
 @media (max-width: 1024px) {
   .institutional-about__hero { min-height: 720px; }
-  .institutional-about__values-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .institutional-about__story-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .institutional-about__story-gallery { transform: none; }
+  .institutional-about__values-grid, .institutional-about__values-content { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .institutional-about__values-photo { min-height: 420px; }
-  .institutional-about__values-photo:first-child { grid-column: span 3; }
-  .institutional-about__values-photo:last-child { grid-column: span 3; }
-  .institutional-about__value-card { min-height: 480px; }
+  .institutional-about__values-content { min-height: 420px; }
+  .institutional-about__value-card { min-height: 420px; padding-inline: 16px; }
 }
 
 @media (max-width: 820px) {
   .institutional-about__hero { min-height: 650px; }
-  .institutional-about__hero-video { display: none; }
+  .institutional-about__hero-video { transform: translate(-50%, -50%) scale(1.08); }
   .institutional-about__hero-content { padding-bottom: 62px; }
   .institutional-about__story { padding: 64px 0; }
   .institutional-about__story-grid { grid-template-columns: 1fr; gap: 52px; }
   .institutional-about__story-gallery { min-height: 0; padding: 0; }
   .institutional-about__story-gallery-main { min-height: 0; }
   .institutional-about__story-copy { padding-left: 0; }
-  .institutional-about__values-grid { grid-template-columns: 1fr; }
-  .institutional-about__values-photo:first-child, .institutional-about__values-photo:last-child { grid-column: auto; min-height: 420px; }
-  .institutional-about__value-card { min-height: 420px; }
+  .institutional-about__values-grid { grid-template-columns: 1fr; grid-template-rows: repeat(5, minmax(300px, 1fr)); min-height: 0; }
+  .institutional-about__values-content { position: absolute; grid-template-columns: 1fr; grid-template-rows: repeat(5, minmax(300px, 1fr)); }
+  .institutional-about__values-photo { min-height: 0; }
+  .institutional-about__value-card { min-height: 0; padding: 34px 28px; }
+  .institutional-about__value-card--mission { grid-column: 1; grid-row: 2; }
+  .institutional-about__value-card--vision { grid-column: 1; grid-row: 3; }
+  .institutional-about__value-card--values { grid-column: 1; grid-row: 4; }
   .institutional-team-grid--featured, .institutional-team-grid--supporting { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .institutional-team-card { grid-template-rows: 420px 100px; }
   .institutional-team-card__image { height: 420px; }
@@ -1118,10 +1135,11 @@ button, a, summary { transition: color 180ms ease-out, background 180ms ease-out
   .institutional-about__hero-content { padding-bottom: 46px; }
   .institutional-about__story-gallery { min-height: auto; }
   .institutional-about__story-gallery-main { width: min(290px, 100%) !important; }
-  .institutional-about__story-gallery-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: 220px; min-height: 220px; padding-top: 0; }
+  .institutional-about__story-gallery-stack { width: 100%; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); min-height: 220px; padding-top: 0; }
   .institutional-about__story-copy h2, .institutional-about__team-heading h2 { font-size: 44px; }
-  .institutional-about__value-card { min-height: 390px; padding: 44px 28px; }
-  .institutional-about__values-photo:first-child, .institutional-about__values-photo:last-child { min-height: 330px; }
+  .institutional-about__values-grid, .institutional-about__values-content { grid-template-rows: 160px repeat(3, 260px) 160px; }
+  .institutional-about__values-photo:first-child, .institutional-about__values-photo:last-child { min-height: 0; }
+  .institutional-about__value-card { min-height: 0; padding: 34px 28px; }
   .institutional-team-grid--featured, .institutional-team-grid--supporting { grid-template-columns: 1fr; }
   .institutional-team-card { grid-template-rows: 340px 100px; }
   .institutional-team-card__image { height: 340px; min-height: 0; }
@@ -1167,6 +1185,22 @@ button, a, summary { transition: color 180ms ease-out, background 180ms ease-out
   .service-detail__intro-collage, .service-detail--cabelos-e-penteados .service-detail__intro-collage, .service-detail--maquiagem .service-detail__intro-collage, .service-detail--manicure-pedicure .service-detail__intro-collage, .service-detail--terapia-capilar .service-detail__intro-collage { display: grid; width: 100%; height: auto; min-height: 390px; margin: 0; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); grid-template-rows: repeat(2, 190px); gap: 12px; }
   .service-detail--cabelos-e-penteados .service-detail__intro-image:first-child, .service-detail--maquiagem .service-detail__intro-image:first-child, .service-detail--manicure-pedicure .service-detail__intro-image:first-child, .service-detail--terapia-capilar .service-detail__intro-image:first-child { position: relative; top: auto; left: auto; width: 100%; height: 100%; grid-row: 1 / span 2; }
   .service-detail--cabelos-e-penteados .service-detail__intro-image:last-child, .service-detail--maquiagem .service-detail__intro-image:last-child, .service-detail--manicure-pedicure .service-detail__intro-image:last-child, .service-detail--terapia-capilar .service-detail__intro-image:last-child { position: relative; top: auto; left: auto; width: 100%; height: calc(100% - 74px); align-self: end; grid-row: 2; }
+}
+@media (min-width: 821px) and (max-width: 1199px) {
+  .service-detail__intro, .service-detail--terapia-capilar .service-detail__intro { min-height: 0; padding: 64px 0; background: #fff; }
+  .service-detail__intro-grid, .service-detail--terapia-capilar .service-detail__intro-grid { width: min(1140px, calc(100% - 48px)); max-width: 1140px; min-height: 0; margin: 0 auto; padding: 0; grid-template-columns: minmax(0, .93fr) minmax(0, 1.07fr); gap: clamp(20px, 2.2vw, 32px); align-items: center; }
+  .service-detail__intro-copy { width: auto; max-width: none; margin: 0; padding: clamp(28px, 3vw, 42px); }
+  .service-detail__intro-collage, .service-detail--cabelos-e-penteados .service-detail__intro-collage, .service-detail--maquiagem .service-detail__intro-collage, .service-detail--manicure-pedicure .service-detail__intro-collage, .service-detail--terapia-capilar .service-detail__intro-collage { display: block; position: relative; width: 100%; height: auto; min-height: 0; aspect-ratio: 681 / 684; margin: 0; }
+  .service-detail--cabelos-e-penteados .service-detail__intro-collage { aspect-ratio: 527 / 684; }
+  .service-detail--terapia-capilar .service-detail__intro-collage { aspect-ratio: 547 / 700; }
+  .service-detail--cabelos-e-penteados .service-detail__intro-image:first-child { position: absolute; top: 15.1%; left: 0; width: 61.9%; height: 63.6%; align-self: auto; grid-row: auto; transform: none; }
+  .service-detail--cabelos-e-penteados .service-detail__intro-image:last-child { position: absolute; top: 6.6%; left: 51.8%; width: 48.2%; height: 66.1%; align-self: auto; grid-row: auto; transform: none; }
+  .service-detail--maquiagem .service-detail__intro-image:first-child { position: absolute; top: 8.5%; left: 0; width: 66.8%; height: 83.2%; align-self: auto; grid-row: auto; transform: none; }
+  .service-detail--maquiagem .service-detail__intro-image:last-child { position: absolute; top: 15.8%; left: 62.7%; width: 37.3%; height: 46.3%; align-self: auto; grid-row: auto; transform: none; }
+  .service-detail--manicure-pedicure .service-detail__intro-image:first-child { position: absolute; top: 5.7%; left: 0; width: 66.8%; height: 88.7%; align-self: auto; grid-row: auto; transform: none; }
+  .service-detail--manicure-pedicure .service-detail__intro-image:last-child { position: absolute; top: 6%; left: 62.7%; width: 37.3%; height: 65.9%; align-self: auto; grid-row: auto; transform: none; }
+  .service-detail--terapia-capilar .service-detail__intro-image:first-child { position: absolute; top: 1.4%; left: 0; width: 83.2%; height: 97.1%; align-self: auto; grid-row: auto; transform: none; }
+  .service-detail--terapia-capilar .service-detail__intro-image:last-child { position: absolute; top: 20.7%; left: 65.1%; width: 34.9%; height: 37.1%; align-self: auto; grid-row: auto; transform: none; }
 }
 .service-detail__process { padding: 78px 0 88px; background: #fff; }
 .service-detail__section-heading { max-width: 760px; margin: 0 auto 42px; text-align: center; }

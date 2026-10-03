@@ -1,10 +1,33 @@
 import { useEffect, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { Icon } from '@commerce/ui';
 import { Link } from 'react-router-dom';
 import { InstitutionalImage, WhatsAppLink } from '../components/institutional-page-components';
 import { institutionalContent } from '../content/institutional-content';
 import { isSafeCtaHref, useSiteConfig } from '../content/site-config-client';
+
+function emphasizePhrases(text: string, phrases: string[]): ReactNode[] {
+  const segments: ReactNode[] = [];
+  let position = 0;
+
+  while (position < text.length) {
+    const nextPhrase = phrases
+      .map((phrase) => ({ phrase, index: text.indexOf(phrase, position) }))
+      .filter((match) => match.index >= 0)
+      .sort((left, right) => left.index - right.index)[0];
+
+    if (!nextPhrase) {
+      segments.push(text.slice(position));
+      break;
+    }
+
+    if (nextPhrase.index > position) segments.push(text.slice(position, nextPhrase.index));
+    segments.push(<strong key={`${nextPhrase.index}-${nextPhrase.phrase}`}>{nextPhrase.phrase}</strong>);
+    position = nextPhrase.index + nextPhrase.phrase.length;
+  }
+
+  return segments;
+}
 
 function youtubeEmbedUrl(value: string | null | undefined): string | null {
   if (!value) return null;
@@ -131,14 +154,14 @@ export function HomePage() {
             <h2 id="home-about-label" className="institutional-home__section-label">{about.eyebrow}</h2>
             <div className="institutional-home__brand-heading">
               <h2>{about.title}</h2>
-              <h2>{about.subtitle}</h2>
+              <span className="institutional-home__brand-subtitle">{about.subtitle}</span>
             </div>
-            <p className="institutional-lead">{about.summary}</p>
-            <p>{about.homeDescription}</p>
+            <p className="institutional-lead">{emphasizePhrases(about.summary, ['linda, confiante e renovada'])}</p>
+            <p>{emphasizePhrases(about.homeDescription, ['autoestima', 'atender com qualidade', 'profissionais experientes e atualizados, produtos seguros e certificados'])}</p>
             <p>{about.homeClosing}</p>
-            <Link className="button button--secondary" to="/sobre-nos">Nossa História</Link>
+            <Link className="button button--primary" to="/sobre-nos">Nossa História</Link>
           </div>
-          <InstitutionalImage className="institutional-home__about-image" src={images.salon} alt="Ambiente do salão Jonas & Elivaldo Hair Designers" />
+          <InstitutionalImage className="institutional-home__about-image" src={images.salon} alt="Jonas e Elivaldo no salão Jonas & Elivaldo Hair Designers" />
         </div>
       </section>
 
@@ -180,8 +203,8 @@ export function HomePage() {
           <InstitutionalImage className="institutional-home__feature-image" src={images.hairBooking} alt={booking.hair.imageAlt} />
           <div className="institutional-home__feature-copy">
             <h2 className="institutional-home__section-label">{booking.hair.eyebrow}</h2>
-            <h3 id="hair-booking-title">{booking.hair.title}</h3>
-            {booking.hair.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+            <h3 id="hair-booking-title">{emphasizePhrases(booking.hair.title, ['bem cuidados'])}</h3>
+            {booking.hair.paragraphs.map((paragraph, index) => <p key={paragraph}>{index === 1 ? emphasizePhrases(paragraph, ['Reserve seu horário']) : paragraph}</p>)}
             <WhatsAppLink>chame no whatsapp</WhatsAppLink>
           </div>
         </div>

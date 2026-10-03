@@ -9,7 +9,7 @@ describe('default home banners', () => {
       title: 'Você linda todos os dias',
       description: 'Agende já e venha se sentir ainda mais linda!',
       ctaLabel: 'ASSISTA NOSSO VÍDEO',
-      ctaHref: 'https://www.youtube.com/embed/LHVlCGzfbI?feature=oembed',
+      ctaHref: 'https://www.youtube.com/embed/LHVlCGzfb4I?feature=oembed',
       status: 'ACTIVE',
       sortOrder: 0,
     }));

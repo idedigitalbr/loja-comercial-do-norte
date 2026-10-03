@@ -35,7 +35,7 @@ export const defaultHomeBanners: readonly DefaultHomeBanner[] = currentHomeHeroI
   title: 'Você linda todos os dias',
   description: 'Agende já e venha se sentir ainda mais linda!',
   ctaLabel: 'ASSISTA NOSSO VÍDEO',
-  ctaHref: 'https://www.youtube.com/embed/LHVlCGzfbI?feature=oembed',
+  ctaHref: 'https://www.youtube.com/embed/LHVlCGzfb4I?feature=oembed',
   sortOrder,
   status: 'ACTIVE' as const,
 }));

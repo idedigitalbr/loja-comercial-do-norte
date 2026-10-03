@@ -66,7 +66,7 @@ export const institutionalContent = {
       'Agende já e venha se sentir ainda mais linda!',
     ],
     videoLabel: 'ASSISTA NOSSO VÍDEO',
-    videoHref: 'https://www.youtube.com/embed/LHVlCGzfbI?feature=oembed',
+    videoHref: 'https://www.youtube.com/embed/LHVlCGzfb4I?feature=oembed',
   },
   about: {
     eyebrow: 'SOBRE NÓS',
@@ -113,7 +113,7 @@ export const institutionalContent = {
       eyebrow: 'Agende agora – Serviço de Cabeleireiro',
       title: 'Cabelos bem cuidados, autoestima lá em cima',
       paragraphs: [
-        'Tá na hora de dar aquele trato no visual? Corte, hidratação, escova ou aquela mudança que você vem pensando — aqui a gente faz com carinho, técnica e atenção aos detalhes.',
+        'Tá na hora de dar aquele trato no visual? Corte, hidratação, escova ou aquela mudança que você vem pensando aqui a gente faz com carinho, técnica e atenção aos detalhes.',
         'Reserve seu horário e venha viver a experiência de se sentir ainda mais você.',
       ],
       imageAlt: 'Profissional de beleza do Jonas & Elivaldo Hair Designers',

@@ -116,24 +116,58 @@ describe('institutional public pages', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('Nosso objetivo é fazer você se sentir linda, confiante e renovada sempre que nos visitar.')).toBeInTheDocument();
-    expect(screen.getByText(/Mais do que um salão, somos especialistas em cuidar da sua autoestima/)).toBeInTheDocument();
+    expect(document.querySelector('.institutional-lead')).toHaveTextContent('Nosso objetivo é fazer você se sentir linda, confiante e renovada sempre que nos visitar.');
+    expect(document.querySelector('.institutional-home__about-copy p:nth-of-type(2)')).toHaveTextContent(/Mais do que um salão, somos especialistas em cuidar da sua autoestima/);
     expect(screen.getByText('Venha viver essa experiência transformadora.')).toBeInTheDocument();
     expect(screen.queryByText(/A história do Jonas & Elivaldo Hair Designers começou com um sonho/)).not.toBeInTheDocument();
   });
 
-  it('matches the five image panels shown in the current history page', () => {
+  it('matches the original home about title, emphasis, photo description and gold action', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <StorefrontRoutes />
+      </MemoryRouter>,
+    );
+
+    const about = document.querySelector('#sobre') as HTMLElement;
+    const brand = about.querySelector('.institutional-home__brand-heading') as HTMLElement;
+    expect(within(brand).getByRole('heading', { name: 'Jonas & Elivaldo' })).toBeInTheDocument();
+    expect(brand.querySelector('.institutional-home__brand-subtitle')).toHaveTextContent('Hair Designers');
+    expect(about.querySelector('.institutional-lead strong')).toHaveTextContent('linda, confiante e renovada');
+    expect(about.querySelector('.institutional-home__about-copy p:nth-of-type(2) strong')).toHaveTextContent('autoestima');
+    expect(screen.getByRole('img', { name: 'Jonas e Elivaldo no salão Jonas & Elivaldo Hair Designers' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Nossa História' })).toHaveClass('button', 'button--primary');
+  });
+
+  it('preserves the original emphasis and punctuation in the hair booking section', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <StorefrontRoutes />
+      </MemoryRouter>,
+    );
+
+    const booking = document.querySelector('.institutional-home__feature--hair') as HTMLElement;
+    expect(booking.querySelector('h3 strong')).toHaveTextContent('bem cuidados');
+    expect(booking.querySelector('.institutional-home__feature-copy p:nth-of-type(2) strong')).toHaveTextContent('Reserve seu horário');
+    expect(booking.querySelector('.institutional-home__feature-copy p:first-of-type')).toHaveTextContent('vem pensando aqui a gente faz');
+    expect(booking.querySelector('.institutional-home__feature-copy p:first-of-type')).not.toHaveTextContent('—');
+  });
+
+  it('shows the original mission, vision and values over the five image panels', () => {
     render(
       <MemoryRouter initialEntries={['/sobre-nos']}>
         <StorefrontRoutes />
       </MemoryRouter>,
     );
 
-    const panels = document.querySelector('.institutional-about__values-grid');
-    expect(panels?.querySelectorAll('img')).toHaveLength(5);
-    expect(within(panels as HTMLElement).queryByRole('heading', { name: 'Missão' })).not.toBeInTheDocument();
-    expect(within(panels as HTMLElement).queryByRole('heading', { name: 'Visão' })).not.toBeInTheDocument();
-    expect(within(panels as HTMLElement).queryByRole('heading', { name: 'Valores' })).not.toBeInTheDocument();
+    const panels = document.querySelector('.institutional-about__values');
+    const gallery = document.querySelector('.institutional-about__values-grid');
+    expect(gallery?.querySelectorAll('img')).toHaveLength(5);
+    const valueCards = document.querySelectorAll('.institutional-about__value-card');
+    expect(valueCards).toHaveLength(3);
+    expect(within(panels as HTMLElement).getByRole('heading', { name: 'Missão' })).toBeInTheDocument();
+    expect(within(panels as HTMLElement).getByRole('heading', { name: 'Visão' })).toBeInTheDocument();
+    expect(within(panels as HTMLElement).getByRole('heading', { name: 'Valores' })).toBeInTheDocument();
   });
 
   it('uses Lucide icons for institutional actions and reassurance cards', () => {
@@ -253,12 +287,15 @@ describe('institutional public pages', () => {
     );
 
     expect(screen.getByRole('heading', { name: 'Nossa História' })).toBeInTheDocument();
-    expect(screen.getByText(/em 2009 nasceu o primeiro salão, Belos Fios/)).toBeInTheDocument();
+    expect(document.querySelector('.institutional-about__story-copy p:nth-of-type(4)')?.textContent).toContain('em 2009 nasceu o primeiro salão, Belos Fios');
+    expect(screen.getAllByText('Jonas & Elivaldo Hair Designers', { selector: 'strong' })).toHaveLength(2);
     expect(screen.getByRole('img', { name: 'Jonas & Elivaldo Hair Designers em sua história' })).toBeInTheDocument();
     expect(document.querySelectorAll('.institutional-about__values-photo')).toHaveLength(5);
-    expect(screen.queryByRole('heading', { name: 'Missão' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Visão' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Valores' })).not.toBeInTheDocument();
+    expect(screen.getByText('Ajudar pessoas a se sentirem mais confiantes e felizes, oferecendo serviços de beleza com qualidade, inovação e muito cuidado.')).toBeInTheDocument();
+    expect(screen.getByText('Ser referência no mercado da beleza, expandindo nossa marca pelo Brasil e pelo mundo por meio de franquias e educação.')).toBeInTheDocument();
+    expect(screen.getByText('Qualidade, inovação, cuidado com o cliente, aprendizado constante e valorização da autoestima.')).toBeInTheDocument();
+    expect(document.querySelector('.institutional-about__hero iframe')).toHaveAttribute('src', expect.stringContaining('LHVlCGzfb4I'));
+    expect(screen.getByText('19 anos', { selector: 'strong' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Nossa Equipe' })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Jonas Moreira' })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Heloísa Dias' })).toBeInTheDocument();

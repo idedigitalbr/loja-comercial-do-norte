@@ -27,9 +27,10 @@ function getAtRuleBlock(query: string): string {
 }
 
 function getRuleDeclarations(block: string, selector: string): string {
-  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const matches = [...block.matchAll(new RegExp(`(?:^|[\\n,])\\s*${escapedSelector}\\s*\\{([^}]*)`, 'g'))];
-  return matches.at(-1)?.[1] ?? '';
+  const rules = [...block.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+  return rules
+    .filter(([, selectors]) => selectors.split(',').some((candidate) => candidate.trim() === selector))
+    .at(-1)?.[2] ?? '';
 }
 
 describe('service detail mobile layout contracts', () => {
@@ -52,6 +53,31 @@ describe('service detail mobile layout contracts', () => {
     expect(getRuleDeclarations(phoneStyles, '.service-detail__intro-collage')).toMatch(/order:\s*0/);
     expect(getRuleDeclarations(phoneStyles, '.service-detail__intro-copy')).toMatch(/order:\s*1/);
     expect(getRuleDeclarations(phoneStyles, '.service-detail__intro-copy')).toMatch(/padding:\s*32px/);
+  });
+
+  it('keeps service introductions side by side at compact desktop and tablet widths', () => {
+    const tabletStyles = getAtRuleBlock('min-width: 821px) and (max-width: 1199px');
+
+    expect(getRuleDeclarations(tabletStyles, '.service-detail__intro-grid')).toMatch(/grid-template-columns:\s*minmax\(0,\s*\.93fr\)\s+minmax\(0,\s*1\.07fr\)/);
+    expect(getRuleDeclarations(tabletStyles, '.service-detail__intro-copy')).toMatch(/width:\s*auto/);
+    expect(getRuleDeclarations(tabletStyles, '.service-detail__intro-collage')).toMatch(/width:\s*100%/);
+  });
+
+  it.each([
+    ['cabelos-e-penteados', '527 / 684', '61.9%', '51.8%'],
+    ['maquiagem', '681 / 684', '66.8%', '62.7%'],
+    ['manicure-pedicure', '681 / 684', '66.8%', '62.7%'],
+    ['terapia-capilar', '547 / 700', '83.2%', '65.1%'],
+  ])('scales the %s collage proportionally at tablet widths', (slug, ratio, mainWidth, secondaryLeft) => {
+    const tabletStyles = getAtRuleBlock('min-width: 821px) and (max-width: 1199px');
+    const pageSelector = `.service-detail--${slug}`;
+    const collageStyles = getRuleDeclarations(tabletStyles, `${pageSelector} .service-detail__intro-collage`);
+    const mainImageStyles = getRuleDeclarations(tabletStyles, `${pageSelector} .service-detail__intro-image:first-child`);
+    const secondaryImageStyles = getRuleDeclarations(tabletStyles, `${pageSelector} .service-detail__intro-image:last-child`);
+
+    expect(collageStyles).toContain(`aspect-ratio: ${ratio}`);
+    expect(mainImageStyles).toContain(`width: ${mainWidth}`);
+    expect(secondaryImageStyles).toContain(`left: ${secondaryLeft}`);
   });
 
   it.each([
