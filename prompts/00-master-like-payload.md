@@ -27,14 +27,15 @@ descartáveis e embalagens), baseado na base "Jonas & Elivaldo Commerce":
 - `apps/storefront`: React 19 + Vite (SPA) — framework em decisão (Parte 1).
 - `packages/`: api-client, contracts, ui (components + styles), configs.
 - **Referência interna reaproveitável (IMPORTANTE)**:
-  `site-comercial-do-norte-html-referencia/` — pasta na raiz da cópia local
-  do projeto (máquina do Willzada: `D:\.GITHUB\sistemas\loja-comercial-do-norte\`).
-  É o site anterior da Comercial do Norte, em HTML, que ele mesmo estava
-  construindo e já estava ficando bom: tem um design system próprio
-  (tokens e componentes) e páginas/seções já montadas. Se a pasta não
-  estiver na sua cópia do repo, PARE e avise que ela é necessária — não
-  invente o conteúdo dela. Ela é fonte primária de reaproveitamento:
-  o que já foi feito e aprovado ali não se joga fora, se adapta.
+  `site-comercial-do-norte-html-referencia/` — pasta commitada na raiz
+  deste repo (commit "feat: adiciona site de referencia
+  comercial-do-norte"). É o site da Comercial do Norte em HTML, feito pelo
+  Willzada, que vira a base visual deste projeto: tem design system próprio
+  documentado em `DESIGN-comercial-do-norte.md` (dentro da pasta), preview
+  em `design-system-preview.html`, `index.html` e `assets/`. Ela é a
+  ÚNICA referência visual do projeto e a fonte primária de
+  reaproveitamento: o que já foi feito e aprovado ali não se joga fora,
+  se adapta. Não existe outra referência visual (nada de Mais B Farma).
 - Leia antes de auditar: `ANALISE-TECNICA-REUSO.md` (fatos verificados no
   código: busca startsWith em catalog.service.ts, categorias planas sem
   parentId, Brand com hierarquia, produto nasce DRAFT,
@@ -127,20 +128,17 @@ escrito pro framework escolhido, e a Parte 2 é escrita pra funcionar com ele.
 
 ## Identidade da Comercial do Norte (a que vale)
 
-- **Fonte primária: o site de referência**
-  (`site-comercial-do-norte-html-referencia/`). O design system que já
-  existe lá (tokens, componentes, seções montadas) é a base do padrão novo:
-  audite ele primeiro, liste o que ele tem, e trate como reaproveitamento
+- **Única fonte visual: o site de referência**
+  (`site-comercial-do-norte-html-referencia/`, com seu
+  `DESIGN-comercial-do-norte.md`). O design system que já existe lá
+  (tokens, componentes, seções montadas) é a base do padrão novo: audite
+  ele primeiro, liste o que ele tem, e trate como reaproveitamento
   obrigatório antes de propor qualquer token ou componente do zero.
+  O DESIGN.md novo do projeto nasce como evolução desse documento, não
+  do zero.
 - Referência de layout: varejo grande (Magalu/Mercado Livre), home em
   seções, mega menu.
 - Cores: **azul e vermelho** (não é o preto/dourado da base).
-- Referência secundária de sistema visual: o design system da Mais B Farma
-  (repo `idedigitalbr/site-maisbfarma`, DESIGN-maisbfarma.md) — estrutura
-  de tokens e componentes, com as cores trocadas pras da Comercial. Em
-  conflito entre o site de referência e a Mais B, o site de referência
-  (que é da própria Comercial) vence no visual; a Mais B vence em
-  estrutura/organização quando o site de referência não cobrir o caso.
 
 ## Etapa D — Engenharia reversa do padrão visual da referência
 
