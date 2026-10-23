@@ -1,0 +1,29 @@
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+._*
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+
+# Dependencies / Builds
+node_modules/
+dist/
+build/
+.cache/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc

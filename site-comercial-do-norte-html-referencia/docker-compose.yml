@@ -1,0 +1,26 @@
+name: site-comercial-do-norte
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: comercial-do-norte-web
+    restart: always
+    ports:
+      - "8086:80"
+    networks:
+      - default
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.comercialdonorte-router.rule=Host(`comercialdonorte.com.br`) || Host(`www.comercialdonorte.com.br`)"
+      - "traefik.http.routers.comercialdonorte-router.entrypoints=websecure"
+      - "traefik.http.routers.comercialdonorte-router.tls=true"
+      - "traefik.http.routers.comercialdonorte-router.tls.certresolver=letsencrypt"
+      - "traefik.http.services.comercialdonorte-service.loadbalancer.server.port=80"
+
+networks:
+  default:
+  proxy:
+    external: true
