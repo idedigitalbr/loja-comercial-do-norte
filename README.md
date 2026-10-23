@@ -1,22 +1,37 @@
-# Jonas & Elivaldo Commerce
+# Comercial do Norte — E-commerce & Catálogo de Distribuidora
 
-Implementação faseada da plataforma de e-commerce e treinamentos presenciais descrita em:
+Plataforma de catálogo virtual e e-commerce para distribuidora de produtos profissionais e cosméticos (**Comercial do Norte**).
 
-`C:/Users/Hesron/Downloads/2026-09-11-ecommerce-react-vite-nest-prisma-hostinger.md`
+## Arquitetura do Projeto
 
-## Estado atual
+Monorepo estruturado com **Turborepo** e **pnpm workspaces**:
 
-O repositório concluiu a Fase 1 condicionada e as Tasks 1–15 da fundação do MVP. As Tasks 20, 22 e a base documental da 23 estão implementadas; as Tasks 16–19, 21, 23 e 24 permanecem em execução, com preparação idempotente de checkout, reserva concorrente de vagas, auditoria, visão operacional, resumo financeiro/export assíncrono, mapeamento WooCommerce, bootstrap Laragon, pacote Hostinger, rollback e anonimização LGPD iniciais já implementados. O monorepo, os três aplicativos, o schema Prisma, as migrations, o seed local, os contratos compartilhados, a fundação HTTP, a autenticação com sessão persistida, o pacote UI compartilhado, o catálogo inicial, a loja pública, o motor de preço/promoções, o carrinho persistido, o estoque transacional, os adaptadores de frete, a máquina de pedidos, a base de pagamentos idempotentes e os jobs MySQL acionados por Cron estão funcionais. A integração real de credenciais Mercado Pago, a conclusão do checkout, relatórios completos, a execução da migração com o export real WooCommerce, o smoke test no domínio e o deploy efetivo na Hostinger continuam pendentes.
+- `apps/storefront`: Loja virtual e catálogo público em React 19 + Vite.
+- `apps/admin`: Painel administrativo em React 19 + Vite para gestão de catálogo, pedidos e banners.
+- `apps/api`: Backend REST em NestJS 11 + Express + Prisma ORM + MySQL 8.
+- `packages/contracts`: Contratos TypeScript e esquemas Zod compartilhados.
+- `packages/ui`: Componentes de interface compartilhados.
+- `packages/api-client`: Cliente HTTP tipado para consumo da API.
 
-Antes da Task 1, devem ser concluídos os gates documentados em `docs/decisions/phase-1-gates.md`.
+## Execução Local
 
-## Documentação inicial
+1. Configure o banco MySQL e o arquivo `.env` a partir de `.env.example`.
+2. Instale as dependências:
+   ```bash
+   pnpm install
+   ```
+3. Execute o bootstrap local (migrations e seed):
+   ```bash
+   pnpm bootstrap:local
+   ```
+4. Inicie os servidores em desenvolvimento:
+   ```bash
+   pnpm dev
+   ```
+   - Storefront: [http://localhost:5173/](http://localhost:5173/)
+   - Admin: [http://localhost:5174/admin/](http://localhost:5174/admin/)
+   - API: [http://localhost:3001/api/v1/health](http://localhost:3001/api/v1/health)
 
-- `docs/decisions/phase-1-gates.md`: decisões que podem aprovar ou bloquear a arquitetura.
-- `docs/acceptance/mvp.md`: escopo e critérios do MVP comercial.
-- `docs/migration/woocommerce-inventory.md`: inventário necessário para a migração.
-- `docs/testing/strategy.md`: estratégia de testes e ambiente de CI.
+## Documentação Técnica
 
-## Senhas das contas de seed
-
-Antes de executar `pnpm db:seed`, defina `DEFAULT_ADMIN_PASSWORD` e `DEFAULT_CUSTOMER_PASSWORD` no arquivo `.env` local. O seed para antes de acessar o banco se qualquer uma estiver ausente ou vazia.
+- `ANALISE-TECNICA-REUSO.md`: Relatório completo de engenharia, arquitetura e viabilidade técnica.
