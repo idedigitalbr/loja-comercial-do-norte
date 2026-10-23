@@ -1,6 +1,6 @@
 export const institutionalContent = {
   site: {
-    name: 'Jonas & Elivaldo Hair Designers',
+    name: 'Comercial do Norte',
     address: 'Av. Gen. Gurjão, 151 - Central, Macapá - AP, 68900-050',
     addressNote: 'Prédio Essência da Natureza',
     phone: '(96) 98100-1897',
@@ -58,7 +58,7 @@ export const institutionalContent = {
     testimonialSideRight: 'https://jonaselivaldohair.com.br/wp-content/uploads/2025/11/503039482_1417612939687856_2196658457725685787_n.jpg',
   },
   hero: {
-    eyebrow: 'Jonas & Elivaldo Hair Designers',
+    eyebrow: 'Comercial do Norte',
     title: 'Você linda todos os dias',
     rotatingText: [
       'Especialistas em cabelos e unhas, com atendimento de qualidade',
@@ -76,10 +76,10 @@ export const institutionalContent = {
     homeDescription: 'Mais do que um salão, somos especialistas em cuidar da sua autoestima. Nosso foco é lhe atender com qualidade, com profissionais experientes e atualizados, produtos seguros e certificados e resultados superiores.',
     homeClosing: 'Venha viver essa experiência transformadora.',
     story: [
-      'A história do Jonas & Elivaldo Hair Designers começou com um sonho. Desde muito jovem, Elivaldo, natural do interior do Pará, sonhava em ter seu próprio salão de beleza.',
+      'A história do Comercial do Norte começou com um sonho. Desde muito jovem, Elivaldo, natural do interior do Pará, sonhava em ter seu próprio salão de beleza.',
       'Em Macapá, iniciou sua trajetória trabalhando como auxiliar no salão de sua tia. Aos 19 anos, recebeu dela sua primeira cadeira e um espelho, além de alguns equipamentos doados por clientes que acreditavam em seu talento.',
       'Com dedicação e muito trabalho, em 2009 nasceu o primeiro salão, Belos Fios, montado no quintal de sua casa no bairro Infraero 2. O crescimento foi constante, levando o salão a se mudar para espaços maiores e ampliar sua equipe.',
-      'Em 2017, durante um curso profissional, Elivaldo conheceu Jonas. A conexão foi imediata e, em 2018, nasceu a sociedade que deu origem ao Jonas & Elivaldo Hair Designers, marcando uma nova fase de expansão e inovação.',
+      'Em 2017, durante um curso profissional, Elivaldo conheceu Jonas. A conexão foi imediata e, em 2018, nasceu a sociedade que deu origem ao Comercial do Norte, marcando uma nova fase de expansão e inovação.',
       'Em 2022, o salão deu mais um grande passo e se mudou para um espaço moderno no centro de Macapá, consolidando-se como referência em beleza, atendimento e transformação.',
     ],
     mission: 'Ajudar pessoas a se sentirem mais confiantes e felizes, oferecendo serviços de beleza com qualidade, inovação e muito cuidado.',
@@ -116,7 +116,7 @@ export const institutionalContent = {
         'Tá na hora de dar aquele trato no visual? Corte, hidratação, escova ou aquela mudança que você vem pensando aqui a gente faz com carinho, técnica e atenção aos detalhes.',
         'Reserve seu horário e venha viver a experiência de se sentir ainda mais você.',
       ],
-      imageAlt: 'Profissional de beleza do Jonas & Elivaldo Hair Designers',
+      imageAlt: 'Profissional de beleza do Comercial do Norte',
     },
     nails: {
       eyebrow: 'Agende agora – Serviço de Unhas',
@@ -125,7 +125,7 @@ export const institutionalContent = {
         'Muito além do básico o serviço de manicure e pedicure. Aqui, cada detalhe importa, da escolha dos produtos até o carinho no atendimento. Nossa equipe é formada por profissionais especialistas em todos os estilos: unhas clássicas, decoradas, encapsuladas, em gel, fibra de vidro, francesinha moderna, unhas artísticas e muito mais.',
         'Tudo para garantir a saúde das suas unhas.',
       ],
-      imageAlt: 'Certificação internacional Jonas & Elivaldo Hair Designers',
+      imageAlt: 'Certificação internacional Comercial do Norte',
     },
   },
   certification: {
@@ -139,7 +139,7 @@ export const institutionalContent = {
       { src: 'https://jonaselivaldohair.com.br/wp-content/uploads/2026/03/ccertf-1.jpg', alt: 'Elivaldo Lima durante sua formação internacional' },
       { src: 'https://jonaselivaldohair.com.br/wp-content/uploads/2026/03/ccertf-2.jpg', alt: 'Elivaldo Lima com certificados internacionais' },
     ],
-    summary: 'O Salão Jonas & Elivaldo Hair Designers transforma conhecimento internacional com certificação em experiências únicas para cada cliente.',
+    summary: 'O Salão Comercial do Norte transforma conhecimento internacional com certificação em experiências únicas para cada cliente.',
     specialist: 'Elivaldo Lima Barreto, diretor e fundador, possui certificação internacional em beleza, comprovando sua expertise, atualização constante e domínio das técnicas mais modernas do mercado.',
     specialistConclusion: 'Isso significa que você está nas mãos de quem segue os mais altos padrões globais de qualidade, cuidado e resultado.',
     validationUrl: 'https://cnbs.com.br/produto/elivaldo-lima-barreto/',

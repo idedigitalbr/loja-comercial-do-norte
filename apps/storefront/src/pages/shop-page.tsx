@@ -76,7 +76,7 @@ export function ShopPage({ scope }: { scope?: CatalogScope } = {}) {
         ? [...products].sort((left, right) => right.price.amount - left.price.amount)
         : products;
   const visibleProducts = sortedProducts.slice(firstProductIndex, firstProductIndex + PRODUCTS_PER_PAGE);
-  const resultSummary = loading ? 'Carregando catálogo…' : products.length ? `Exibindo ${firstProductIndex + 1}–${Math.min(firstProductIndex + PRODUCTS_PER_PAGE, products.length)} de ${products.length} resultados` : activeSearch ? `Nenhum produto para “${activeSearch}”` : 'Catálogo preparado para importação';
+  const resultSummary = loading ? 'Carregando catálogo…' : products.length ? `Exibindo ${firstProductIndex + 1}–${Math.min(firstProductIndex + PRODUCTS_PER_PAGE, products.length)} de ${products.length} resultados` : activeSearch ? `Nenhum produto para “${activeSearch}”` : 'Catálogo Comercial do Norte';
 
   useEffect(() => {
     const query = new URLSearchParams(searchParams);

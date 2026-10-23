@@ -19,20 +19,9 @@ function WhatsAppBrandIcon({ size }: { size: number }) {
 }
 
 const navigation = [
-  { label: 'Home', href: '/' },
-  { label: 'Sobre nós', href: '/sobre-nos' },
-  {
-    label: 'Serviços',
-    href: '/servicos',
-    children: [
-      { label: 'Cabelos e Penteados', href: '/cabelos-e-penteados' },
-      { label: 'Maquiagem', href: '/maquiagem' },
-      { label: 'Manicure & Pedicure', href: '/manicure-pedicure' },
-      { label: 'Terapia Capilar', href: '/terapia-capilar' },
-    ],
-  },
-  { label: 'Loja', href: '/loja' },
-  { label: 'Certificação internacional', href: '/certificacao-internacional' },
+  { label: 'Catálogo de Produtos', href: '/' },
+  { label: 'Meus Pedidos', href: '/conta/pedidos' },
+  { label: 'Favoritos', href: '/conta/favoritos' },
 ];
 
 export function isNavigationItemActive(pathname: string, href: string) {
@@ -40,7 +29,7 @@ export function isNavigationItemActive(pathname: string, href: string) {
 }
 
 function isNavigationEntryActive(pathname: string, item: (typeof navigation)[number]) {
-  return isNavigationItemActive(pathname, item.href) || Boolean(item.children?.some((child) => isNavigationItemActive(pathname, child.href)));
+  return isNavigationItemActive(pathname, item.href);
 }
 
 export function StorefrontShell({ children }: { children: ReactNode }) {
@@ -48,7 +37,6 @@ export function StorefrontShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
   const [siteConfig, setSiteConfig] = useState<PublicSiteConfig | null>(null);
-  const [servicesMenuOpen, setServicesMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [cartOpening, setCartOpening] = useState(false);
   const [cartPublicId, setCartPublicId] = useState<string | null>(() => window.localStorage.getItem('je_cart_public_id'));
@@ -59,8 +47,6 @@ export function StorefrontShell({ children }: { children: ReactNode }) {
   const accountBusyRef = useRef(false);
   const accountRequestRef = useRef(0);
   const accountMountedRef = useRef(false);
-  const servicesMenuRef = useRef<HTMLDivElement>(null);
-  const servicesTriggerRef = useRef<HTMLButtonElement>(null);
   const cartTriggerRef = useRef<HTMLButtonElement>(null);
   const cartOpeningRef = useRef(false);
   const site = resolveSiteContent(institutionalContent.site, siteConfig);
@@ -125,7 +111,6 @@ export function StorefrontShell({ children }: { children: ReactNode }) {
   }, [siteConfig?.site.faviconPath, siteConfig?.site.title]);
 
   useEffect(() => {
-    setServicesMenuOpen(false);
     setCartOpen(false);
   }, [location.pathname]);
 
@@ -183,28 +168,6 @@ export function StorefrontShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener(CART_UPDATED_EVENT, refreshCartCount);
   }, []);
 
-  useEffect(() => {
-    if (!servicesMenuOpen) return;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (event.target instanceof Node && !servicesMenuRef.current?.contains(event.target)) {
-        setServicesMenuOpen(false);
-      }
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      setServicesMenuOpen(false);
-      servicesTriggerRef.current?.focus();
-    };
-
-    document.addEventListener('pointerdown', handlePointerDown);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [servicesMenuOpen]);
-
   const handleLogout = useCallback(async () => {
     if (accountBusyRef.current) return;
     accountBusyRef.current = true;
@@ -251,41 +214,18 @@ export function StorefrontShell({ children }: { children: ReactNode }) {
   const renderDesktopNavigation = (className = 'primary-nav') => (
     <nav className={className} aria-label="Navegação principal">
       {navigation.map((item) => (
-        item.children ? (
-          <div className="primary-nav__dropdown" key={item.href} ref={servicesMenuRef}>
-            <button
-              type="button"
-              ref={servicesTriggerRef}
-              className={isNavigationEntryActive(location.pathname, item) ? 'is-active' : undefined}
-              aria-controls="services-menu"
-              aria-expanded={servicesMenuOpen}
-              aria-haspopup="true"
-              onClick={() => setServicesMenuOpen((open) => !open)}
-            >
-              {item.label} <Icon name="chevron-down" size={14} strokeWidth={2} />
-            </button>
-            <div id="services-menu" className="primary-nav__dropdown-menu" data-state={servicesMenuOpen ? 'open' : 'closed'} aria-hidden={!servicesMenuOpen}>
-              {item.children.map((child) => <Link key={child.href} to={child.href}>{child.label}</Link>)}
-            </div>
-          </div>
-        ) : (
-          <Link className={isNavigationEntryActive(location.pathname, item) ? 'is-active' : undefined} key={item.href} to={item.href}>
-            {item.label}
-          </Link>
-        )
+        <Link className={isNavigationEntryActive(location.pathname, item) ? 'is-active' : undefined} key={item.href} to={item.href}>
+          {item.label}
+        </Link>
       ))}
     </nav>
   );
+
   const renderMobileNavigation = (className = 'mobile-navigation') => (
     <details className={className}>
       <summary aria-label="Abrir menu"><Icon name="menu" size={20} strokeWidth={2} />Menu</summary>
       <nav aria-label="Navegação móvel">
-        {navigation.map((item) => item.children ? (
-          <details key={item.href} className="mobile-navigation__services">
-            <summary>{item.label}</summary>
-            <div>{item.children.map((child) => <Link key={child.href} to={child.href}>{child.label}</Link>)}</div>
-          </details>
-        ) : <Link key={item.href} to={item.href}>{item.label}</Link>)}
+        {navigation.map((item) => <Link key={item.href} to={item.href}>{item.label}</Link>)}
         <button className="mobile-navigation__cart" type="button" aria-label="Abrir carrinho" aria-busy={cartOpening} disabled={cartOpening} onClick={() => void openCart()}><Icon name="shopping-cart" size={18} strokeWidth={1.8} /><span>Carrinho</span>{cartCount ? <span className="cart-badge" aria-hidden="true">{cartCount > 99 ? '99+' : cartCount}</span> : null}</button>
         {renderAccountAction('mobile-navigation__account')}
       </nav>
@@ -298,10 +238,10 @@ export function StorefrontShell({ children }: { children: ReactNode }) {
       <header className="site-header" role="banner">
         <div className="utility-bar">
           <div className="site-container utility-bar__inner">
-            <a className="utility-bar__address" href={site.mapsUrl} target="_blank" rel="noreferrer">
+            <span className="utility-bar__address">
               <span aria-hidden="true"><Icon name="map-pin" size={13} strokeWidth={2} /></span>
               <span>{site.address} ({site.addressNote})</span>
-            </a>
+            </span>
             <div className="utility-bar__links">
               <a href={site.whatsapp} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${site.phone}`}>
                 <span aria-hidden="true"><WhatsAppBrandIcon size={13} /></span>
@@ -316,8 +256,15 @@ export function StorefrontShell({ children }: { children: ReactNode }) {
 
         <div className="navigation-bar">
           <div className="site-container navigation-bar__inner">
-            <Link className="brand-lockup" to="/" aria-label="Jonas & Elivaldo Hair Designers">
-              <img src={site.logoPath} alt="Jonas & Elivaldo Hair Designers" onError={(event) => { if (event.currentTarget.getAttribute('src') !== '/brand-logo.jpg') event.currentTarget.src = '/brand-logo.jpg'; }} />
+            <Link className="brand-lockup" to="/" aria-label="Comercial do Norte">
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '0.04em', color: '#fff', lineHeight: 1.1 }}>
+                  COMERCIAL DO NORTE
+                </span>
+                <span style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', color: '#eab308', textTransform: 'uppercase' }}>
+                  Distribuidora & Catálogo
+                </span>
+              </div>
             </Link>
 
             {renderDesktopNavigation()}
@@ -345,27 +292,34 @@ export function StorefrontShell({ children }: { children: ReactNode }) {
       <footer className="site-footer" role="contentinfo">
         <div className="site-container site-footer__grid">
           <div className="site-footer__brand">
-            <img className="site-footer__logo" src={site.logoPath} alt="Jonas & Elivaldo Hair Designers" onError={(event) => { if (event.currentTarget.getAttribute('src') !== '/brand-logo.jpg') event.currentTarget.src = '/brand-logo.jpg'; }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <span style={{ fontSize: '1.35rem', fontWeight: 800, letterSpacing: '0.04em', color: '#fff' }}>
+                COMERCIAL DO NORTE
+              </span>
+              <span style={{ fontSize: '0.85rem', color: '#d4d4d4' }}>
+                Distribuidora & Catálogo de Produtos Profissionais
+              </span>
+            </div>
           </div>
           <div>
-            <h2>Endereço</h2>
-            <a className="site-footer__address" href={site.mapsUrl} target="_blank" rel="noreferrer" aria-label={`Endereço: ${site.address}`}>
+            <h2>Localização</h2>
+            <div className="site-footer__address">
               <Icon name="map-pin" size={18} strokeWidth={1.8} />
               <span>{site.address}<br />({site.addressNote})</span>
-            </a>
+            </div>
           </div>
           <div>
-            <h2>Contatos</h2>
+            <h2>Atendimento & Cotações</h2>
             <a className="site-footer__phone" href={site.whatsapp} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${site.phone}`}><Icon name="message-circle" size={22} strokeWidth={1.8} />{site.phone}</a>
-            <p className="site-footer__follow">Siga nos</p>
+            <p className="site-footer__follow">Redes Sociais</p>
             <a className="site-footer__instagram" href={site.instagram} target="_blank" rel="noreferrer" aria-label="Instagram"><Icon name="instagram" size={20} strokeWidth={1.8} /></a>
           </div>
         </div>
         <div className="site-footer__bottom">
           <div className="site-container site-footer__bottom-inner">
-            <span className="site-footer__copyright">Copyright © {currentYear} Jonas & Elivaldo Hair Designers. Todos os direitos reservados.</span>
+            <span className="site-footer__copyright">Copyright © {currentYear} Comercial do Norte. Todos os direitos reservados.</span>
             <SiteLanguageSwitcher />
-            <span className="site-footer__developer">Desenvolvido por: <a href={site.developerUrl} target="_blank" rel="noreferrer" aria-label="Desenvolvido por iDedigital">iDedigital</a></span>
+            <span className="site-footer__developer">Desenvolvido por: Comercial do Norte</span>
           </div>
         </div>
       </footer>

@@ -90,7 +90,7 @@ function OverviewPage() {
     <section className="admin-page">
       <div className="admin-page__heading">
         <div><p className="admin-eyebrow">Operação em tempo real</p><h2>Visão geral</h2></div>
-        <p>Acompanhe o catálogo, as vendas e o estoque da loja Jonas & Elivaldo.</p>
+        <p>Acompanhe o catálogo, as vendas e o estoque da Comercial do Norte.</p>
       </div>
       <div className="admin-kpi-grid">
         <article className="admin-kpi"><span>Produtos ativos</span><strong>{products.length}</strong><small>Catálogo disponível</small></article>
@@ -199,7 +199,7 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
         <button className="admin-sidebar__logout" type="button" onClick={() => void logout()}>Sair da conta</button>
       </aside>
       <div className="admin-app-main">
-        <header className="admin-topbar"><div><span className="admin-topbar__context">Painel administrativo</span><strong>Loja Jonas & Elivaldo</strong></div><div className="admin-topbar__actions"><a className="admin-topbar__storefront-link" href={getStorefrontUrl()} target="_blank" rel="noreferrer">Ver loja <Icon name="arrow-up-right" size={15} strokeWidth={2} /></a><div className="admin-user"><span>{userEmail}</span><span className="admin-user__status">Admin</span></div></div></header>
+        <header className="admin-topbar"><div><span className="admin-topbar__context">Painel administrativo</span><strong>Comercial do Norte</strong></div><div className="admin-topbar__actions"><a className="admin-topbar__storefront-link" href={getStorefrontUrl()} target="_blank" rel="noreferrer">Ver loja <Icon name="arrow-up-right" size={15} strokeWidth={2} /></a><div className="admin-user"><span>{userEmail}</span><span className="admin-user__status">Admin</span></div></div></header>
         {brandRoute ? <BrandEditorPage brandId={brandRoute.mode === 'edit' ? brandRoute.id : undefined} initialParentId={brandRoute.parentId} onBack={() => navigate('/admin/catalogo/produtos')} onOpenBrand={(id) => navigate(`/admin/catalogo/marcas/${encodeURIComponent(id)}/editar`)} onCreateChild={(parentId) => navigate(`/admin/catalogo/marcas/nova?parentId=${encodeURIComponent(parentId)}`)} /> : productRoute ? <ProductEditorPage productId={productRoute.mode === 'edit' ? productRoute.id : undefined} onBack={() => navigate('/admin/catalogo/produtos')} onOpenProduct={(id) => navigate(`/admin/catalogo/produtos/${encodeURIComponent(id)}/editar`)} /> : homeBannersRoute ? <HomeBannersPage /> : <SectionContent section={section} onCreateProduct={() => navigate('/admin/catalogo/produtos/novo')} onEditProduct={(id) => navigate(`/admin/catalogo/produtos/${encodeURIComponent(id)}/editar`)} onCreateBrand={() => navigate('/admin/catalogo/marcas/nova')} onEditBrand={(id) => navigate(`/admin/catalogo/marcas/${encodeURIComponent(id)}/editar`)} />}
       </div>
     </div>
