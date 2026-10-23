@@ -26,6 +26,15 @@ descartáveis e embalagens), baseado na base "Jonas & Elivaldo Commerce":
   promoções, banners da home e editor de produtos. Tema escuro grafite.
 - `apps/storefront`: React 19 + Vite (SPA) — framework em decisão (Parte 1).
 - `packages/`: api-client, contracts, ui (components + styles), configs.
+- **Referência interna reaproveitável (IMPORTANTE)**:
+  `site-comercial-do-norte-html-referencia/` — pasta na raiz da cópia local
+  do projeto (máquina do Willzada: `D:\.GITHUB\sistemas\loja-comercial-do-norte\`).
+  É o site anterior da Comercial do Norte, em HTML, que ele mesmo estava
+  construindo e já estava ficando bom: tem um design system próprio
+  (tokens e componentes) e páginas/seções já montadas. Se a pasta não
+  estiver na sua cópia do repo, PARE e avise que ela é necessária — não
+  invente o conteúdo dela. Ela é fonte primária de reaproveitamento:
+  o que já foi feito e aprovado ali não se joga fora, se adapta.
 - Leia antes de auditar: `ANALISE-TECNICA-REUSO.md` (fatos verificados no
   código: busca startsWith em catalog.service.ts, categorias planas sem
   parentId, Brand com hierarquia, produto nasce DRAFT,
@@ -118,12 +127,20 @@ escrito pro framework escolhido, e a Parte 2 é escrita pra funcionar com ele.
 
 ## Identidade da Comercial do Norte (a que vale)
 
+- **Fonte primária: o site de referência**
+  (`site-comercial-do-norte-html-referencia/`). O design system que já
+  existe lá (tokens, componentes, seções montadas) é a base do padrão novo:
+  audite ele primeiro, liste o que ele tem, e trate como reaproveitamento
+  obrigatório antes de propor qualquer token ou componente do zero.
 - Referência de layout: varejo grande (Magalu/Mercado Livre), home em
   seções, mega menu.
 - Cores: **azul e vermelho** (não é o preto/dourado da base).
-- Referência de sistema visual: o design system da Mais B Farma (repo
-  `idedigitalbr/site-maisbfarma`, DESIGN-maisbfarma.md) — estrutura de
-  tokens e componentes, com as cores trocadas pras da Comercial.
+- Referência secundária de sistema visual: o design system da Mais B Farma
+  (repo `idedigitalbr/site-maisbfarma`, DESIGN-maisbfarma.md) — estrutura
+  de tokens e componentes, com as cores trocadas pras da Comercial. Em
+  conflito entre o site de referência e a Mais B, o site de referência
+  (que é da própria Comercial) vence no visual; a Mais B vence em
+  estrutura/organização quando o site de referência não cobrir o caso.
 
 ## Etapa D — Engenharia reversa do padrão visual da referência
 
@@ -136,12 +153,16 @@ No mesmo template `ecommerce` do Payload, levante:
 - Como os blocos do Layout Builder viram componentes visuais padronizados
   (o cliente escolhe o bloco, preenche e o visual já nasce certo).
 
-## Etapa E — Auditoria do nosso CSS
+## Etapa E — Auditoria do nosso CSS e do site de referência
 
 - Mapeie os dois `styles.css`: valores soltos fora dos tokens, regras
   duplicadas entre loja e admin, componentes refeitos com visual diferente
   (botões, cards, formulários).
 - Liste o que do `packages/ui` é reaproveitável e o que falta.
+- Audite o site de referência: inventário do design system dele (tokens,
+  fontes, componentes, seções da home e páginas prontas) e diga, item a
+  item, o que entra no projeto novo como está, o que entra adaptado e o
+  que fica de fora (com o motivo).
 
 ---
 
@@ -165,9 +186,10 @@ Estrutura obrigatória, nesta ordem:
    iconografia (Lucide), e o que muda em relação ao DESIGN.md atual.
 6. **Inventário de componentes padrão**: componente único por função
    (botão, card de produto, banner, bloco de seção, formulário, tabela do
-   admin etc.), onde cada um mora, variantes e estados obrigatórios.
-   Blocos do cliente = esses componentes: bloco novo nasce como componente
-   no sistema, nunca como CSS solto.
+   admin etc.), onde cada um mora, variantes e estados obrigatórios, e a
+   origem de cada um (reaproveitado do site de referência / adaptado dele
+   / novo). Blocos do cliente = esses componentes: bloco novo nasce como
+   componente no sistema, nunca como CSS solto.
 7. **Plano de migração do CSS manual**: ordem de ataque aos ~202 KB, sem
    big bang; o que é fase 1 e o que é fase 2.
 8. **CHECKLIST DO PROJETO (o coração do documento)**: itens marcáveis
