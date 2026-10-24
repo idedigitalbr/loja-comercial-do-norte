@@ -29,7 +29,8 @@
 | ORM | Prisma | Prisma 6 | revisar schema e histórico de migrations |
 | UI | Tailwind CSS + shadcn/ui + `packages/ui` | CSS manual extenso + `packages/ui` parcial | padronizar (fase C) |
 | Ícones | Lucide | Lucide | manter |
-| Cotação | solicitação + aviso à equipe de vendas | não existe; o fluxo atual cobra e reserva estoque | implementar (E3/E4) |
+| Cotação | solicitação + aviso à equipe de vendas | **implementada** (`Quote`/`QuoteItem`/`QuoteEvent`, `POST /quotes` público, fila no admin, notificação) | telas finais/E2E (E8) |
+| Flags de escopo | fase 1 sem checkout/pagamento/treinamento | `FEATURE_CHECKOUT/PAYMENTS/TRAININGS` desligadas por padrão, rotas retornam 404 | esconder telas legadas do admin |
 | ERP | integração futura | inexistente | fase F |
 
 ## 1. Decisão FINAL de arquitetura — não reabrir por preferência de framework
