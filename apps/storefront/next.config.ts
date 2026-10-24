@@ -6,6 +6,8 @@ const api = new URL(apiUrl);
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Componentes compartilhados são publicados como TS e transpilados aqui.
+  transpilePackages: ['@commerce/ui'],
   images: {
     // As imagens de produto são servidas pela API (storage/uploads): nunca há
     // hotlink externo (docs/memory-ai.md §3).
