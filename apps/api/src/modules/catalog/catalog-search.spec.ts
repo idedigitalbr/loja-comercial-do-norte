@@ -4,7 +4,10 @@ import { CatalogService } from './catalog.service';
 function buildService(total = 25) {
   const prisma = {
     brand: { findUnique: vi.fn().mockResolvedValue(null) },
-    category: { findUnique: vi.fn().mockResolvedValue(null) },
+    category: {
+      findUnique: vi.fn().mockResolvedValue(null),
+      findMany: vi.fn().mockResolvedValue([]),
+    },
     product: {
       findMany: vi.fn().mockResolvedValue([]),
       count: vi.fn().mockResolvedValue(total),
