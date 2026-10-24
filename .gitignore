@@ -52,6 +52,7 @@ backups/
 .gh-cache/
 .gh-cache2/
 *.tsbuildinfo
+.agents-work/
 
 # Artefatos de build que não devem ser versionados
 apps/storefront/tsconfig.tsbuildinfo

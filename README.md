@@ -6,14 +6,14 @@ Catálogo e solicitação de cotação da **Comercial do Norte** — distribuido
 
 ## Estado do repositório
 
-Este repositório nasceu de uma base de e-commerce de outro cliente e está **em migração** para a arquitetura aprovada em 24/10/2026. O código ainda é o legado — não confundir decisão com implementação:
+Este repositório nasceu de uma base de e-commerce de outro cliente e está **em migração** para a arquitetura aprovada em 24/10/2026. A branch de desenvolvimento já incorpora Next.js, PostgreSQL e cotação; a main continua no checkpoint anterior até revisão humana:
 
 | Camada | Arquitetura-alvo (decidida) | Estado atual no código |
 |---|---|---|
-| Storefront | Next.js + React + TypeScript | React 19 + Vite (SPA/CSR) |
+| Storefront | Next.js + React + TypeScript | Next.js App Router em apps/storefront |
 | Admin | React + Vite | React 19 + Vite |
 | API | NestJS (mantido, fonte única da regra de negócio) | NestJS 11 + Express |
-| Banco | PostgreSQL | MySQL 8 |
+| Banco | PostgreSQL | PostgreSQL e quatro migrations versionadas |
 | ORM | Prisma | Prisma 6 |
 | UI | Tailwind CSS + shadcn/ui + `packages/ui` | CSS manual + `packages/ui` parcial |
 | Ícones | Lucide | Lucide |
@@ -40,9 +40,9 @@ A sequência da migração (banco, framework, design system e entrega da cotaç�
 3. [`docs/security/threat-model.md`](docs/security/threat-model.md) e [`docs/security/lgpd-data-map.md`](docs/security/lgpd-data-map.md) — complementos de segurança e LGPD.
 4. `site-comercial-do-norte-html-referencia/DESIGN-comercial-do-norte.md` — tokens, cores e tipografia oficiais.
 
-## Rodando o código atual (base legada)
+## Desenvolvimento local
 
-Pré-requisitos: **Node 22** (`.nvmrc`), **pnpm 10.15.1** e **MySQL 8** local.
+Pré-requisitos: **Node 22** (`.nvmrc`), **pnpm 10.15.1** e **PostgreSQL** local.
 
 ```bash
 cp .env.example .env      # preencha DATABASE_URL, COOKIE_SECRET, CRON_SECRET,
@@ -50,10 +50,10 @@ cp .env.example .env      # preencha DATABASE_URL, COOKIE_SECRET, CRON_SECRET,
                           # e DEFAULT_ADMIN_PASSWORD / DEFAULT_CUSTOMER_PASSWORD (exigidas pelo seed)
 pnpm install
 pnpm bootstrap:local      # migrations + seed
-pnpm dev                  # loja :5173 · admin :5174/admin · API na PORT (padrão 3000)
+pnpm dev                  # loja :3001 · admin :5174/admin · API na PORT (padrão 3000)
 ```
 
-Este passo a passo será substituído quando a migração para PostgreSQL + Next.js entrar em vigor.
+Antes de inicializar banco ou aplicar migrations, confira o ambiente e a memória do projeto. Esta missão de coordenação não executa essas operações.
 
 ## Regras rápidas
 

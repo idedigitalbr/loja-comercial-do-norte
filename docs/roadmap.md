@@ -5,12 +5,10 @@
 
 ## 1. Estado confirmado nesta revisão
 
-- Repositório público consultável: `victorwilliames/loja-comercial-do-norte`. O código analisado é o do commit `5781590` (24/10/2026, 14:56 UTC) — o commit `cd02781` apenas consolidou a documentação e **não alterou código**. Nenhum commit analisado migrou a stack.
-- **Decidido, ainda não implementado no código consultado:** frontend Next.js, PostgreSQL e padronização Tailwind/shadcn/ui. **Mantido:** NestJS, Prisma, Turborepo, pnpm, design de referência Comercial do Norte.
-- O responsável afirma que **ainda não há produtos cadastrados, pois o projeto está em desenvolvimento**. Conferir existência de outras entidades e dados locais antes de recomeçar migrations.
-- **Nada de execução foi validado neste ambiente:** este item foi **superado em 24/10/2026** pela revisão de execução descrita abaixo (§1.1). O bloqueio de `pnpm install` foi contornado com store e cache locais ao workspace.
-- **Permissões GitHub verificadas em 24/10:** `pull`, `push`, `admin` e `maintain`; `main` sem proteção de branch e sem force push. A consolidação documental foi commitada em `cd02781` e publicada em `main`.
-- Prazo histórico da fase 1: **31/10/2026**, com escopo de catálogo + cotação. Avaliar viabilidade considerando mudanças estruturais; não sacrificar segurança/qualidade para cumprir data.
+- Repositório oficial **privado**: [idedigitalbr/loja-comercial-do-norte](https://github.com/idedigitalbr/loja-comercial-do-norte). Branch de desenvolvimento `feat/stack-next-postgres` em `88c413c`; coordenação em `chore/multiagent-coordination`. Main em `564c9e3`; nenhuma integração/deploy autorizada nesta missão.
+- Código conferido: Next.js App Router na loja, NestJS como API única, admin React/Vite, Prisma/PostgreSQL com quatro migrations versionadas, cotação implementada e flags isolando módulos futuros. Padronização visual completa, Playwright e prontidão de produção ainda pendem.
+- Fonte operacional de tarefas/status: [Project 3](https://github.com/orgs/idedigitalbr/projects/3). Roadmap registra marcos, riscos e evidências; o manifesto é estrutura de bootstrap, não um espelho autoritativo de execução.
+- O prazo registrado da fase 1 permanece **31/10/2026**, sujeito a aceite; não prova datas individuais das Sprints. Não foi executada migration nem inicialização de PostgreSQL nesta recuperação.
 
 ### 1.1 Execução real em 24/10/2026 (branch `feat/stack-next-postgres`)
 
@@ -37,73 +35,18 @@ Complementos permitidos: `docs/security/lgpd-data-map.md` e `docs/security/threa
 
 Toda a documentação anterior (memórias, auditoria técnica, prompts, planos/specs, runbooks MySQL/Hostinger, importação WooCommerce e MVP antigo) foi **removida do worktree** em 24/10/2026 e permanece somente no histórico Git (`5781590`). **Não recriar cópias**, arquivos `*-old.md`, `*-backup.md` ou pastas de arquivo dentro do repositório.
 
-## 2. Sequência executável de migração — SEM BIG BANG
+## 2. Planejamento macro — tarefas e estados no Project
 
-### Fase A — Congelamento seguro / base de qualidade (P0)
+| Etapa | Evidência na branch de desenvolvimento | Pendência principal | Fonte operacional |
+|---|---|---|---|
+| 1 — Arquitetura/qualidade | CI e base de ambiente versionados; coordenação recuperada nesta missão | validar automações com credencial Projects e revisão humana | [#42](https://github.com/idedigitalbr/loja-comercial-do-norte/issues/42) |
+| 2 — PostgreSQL/Prisma | provider, SQL, seed e quatro migrations versionadas | integração concorrente real, backup/recovery e produção | [#43](https://github.com/idedigitalbr/loja-comercial-do-norte/issues/43) |
+| 3 — Design system | tokens e primitivos em packages/ui | consumo consistente, acessibilidade e admin | [#44](https://github.com/idedigitalbr/loja-comercial-do-norte/issues/44) |
+| 4 — Next.js | App Router, integração REST e metadata/sitemap/robots | fidelidade HTML, performance, navegador e produção | [#45](https://github.com/idedigitalbr/loja-comercial-do-norte/issues/45) |
+| 5 — Catálogo/cotação | hierarquia de categorias, busca, solicitação idempotente, fila admin e notificações | contatos/marcas/fotos oficiais, home final e aceite Playwright | [#46](https://github.com/idedigitalbr/loja-comercial-do-norte/issues/46) |
+| 6 — Homologação/futuro | escopo separado e dependências identificadas | ERP só com contrato; checkout só após correções/homologação | [#47](https://github.com/idedigitalbr/loja-comercial-do-norte/issues/47) |
 
-- [x] **A1 — Backup / branch:** **feito em 24/10/2026** — `git status` limpo, `origin/main` sincronizado, tag anotada `backup/pre-migracao-2026-10-24` apontando para `564c9e3` (HEAD legado) e branch de trabalho `feat/stack-next-postgres`.
-- [x] **A2 — Diagnóstico reprodutível:** **feito em 24/10/2026** com as ressalvas de sandbox do §1.1 — Node 24.15.0 (compatível), pnpm 10.15.1 fixado (executado via `.tools`, pois o pnpm global tentava baixar a versão fixada para fora do workspace), `pnpm install`/`typecheck`(6/6)/`lint`(6/6) OK; `build` OK em `contracts`, `api-client` e `api`, bloqueado em `admin`/`storefront` por `spawn EPERM` do esbuild no sandbox; suítes de teste não executam neste sandbox (mesma causa). Rodapé com a matriz completa em §1.1.
-- [x] **A3 — Configuração segura:** **feito em 24/10/2026** — `.env.example` migrado para `DATABASE_URL` PostgreSQL e passou a documentar `DEFAULT_ADMIN_*`/`DEFAULT_CUSTOMER_*`, exigidas pelo seed; `SETTINGS_ENCRYPTION_KEY` continua obrigatória em produção. Nenhum segredo real versionado (`.env` segue ignorado).
-- [x] **A4 — CI:** **feito em 24/10/2026** — `.github/workflows/ci.yml` com serviço PostgreSQL 17, `prisma generate`, `migrate deploy` (ou `db push` enquanto não houver migrations), `db:seed`, `typecheck:seed`, `lint`, `typecheck`, `test` e `build`. **Primeira execução verde:** run `40116859387` no commit `7a64b64` (lint 6/6, typecheck 6/6, testes de todos os pacotes e `next build` + build da API/admin). Playwright/E2E e checks de segurança dedicados continuam pendentes (ver E8).
-- [x] **A5 — Inventário de dados:** **feito em 24/10/2026** — não há instância MySQL local/homologação nesta máquina (nenhum serviço `mysql`/`mariadb`, nenhum binário em `Program Files`); não existe dado legado a preservar. O histórico MySQL de migrations permanece no Git (`564c9e3`/tag de backup).
-
-**Saída:** base conhecida e reproduzível, backup verificável e decisão documentada sobre dados que precisam ser migrados.
-
-### Fase B — Migração MySQL → PostgreSQL (P0, isolada)
-
-- [x] **B1 — Ambiente:** **feito em 24/10/2026** — PostgreSQL 18 real provisionado sem Docker via binários de `embedded-postgres` (`scripts/dev/postgres.mjs`, `pnpm db:local:*`), em `127.0.0.1:55432`, banco `comercial_norte_dev`, `DATABASE_URL` por variável. Cluster local com `trust` (uso exclusivo de desenvolvimento) e dados em `.postgres-data/` ignorado pelo Git.
-- [x] **B2 — Schema Prisma:** **feito em 24/10/2026** — `provider = "postgresql"`; os únicos tipos nativos são `@db.VarChar`, `@db.Text` e `@db.Char` (todos válidos no PostgreSQL) e `Json` passa a `jsonb`; a busca pública deixou de depender do `LIKE` case-insensitive do MySQL e usa `contains` + `mode: insensitive` (`catalog.service.ts`).
-- [x] **B3 — Histórico de migrations:** **feito em 24/10/2026** — migrations MySQL removidas do worktree e preservadas no Git (`564c9e3`, tag `backup/pre-migracao-2026-10-24`); baseline PostgreSQL gerada pelo próprio Prisma (`prisma migrate diff --from-empty --to-schema-datamodel`) em runner do GitHub e versionada em `prisma/migrations/20261024170000_init_postgresql/migration.sql`, com `migration_lock.toml` em `provider = "postgresql"`. **Validada aplicando em banco vazio**: `54 tabelas`, `29 enums`, `165 índices`. Motivo de ter sido gerada no CI: o sandbox local bloqueia o `schema-engine` com `spawn EPERM` (ver §1.1).
-- [x] **B4 — SQL específico:** **feito em 24/10/2026** — identificadores entre aspas duplas e cast explícito de enum em `inventory.service.ts` (`SELECT ... FOR UPDATE`), `trainings.service.ts` (`UPDATE ... NOW()`) e `coupon.service.ts` (3 consultas com `FOR UPDATE`). Nenhum uso de `LAST_INSERT_ID`/`ON DUPLICATE` encontrado.
-- [x] **B5 — Seed:** **feito em 24/10/2026** — `prisma/seed.ts` sem dados Jonas/Elivaldo: `siteName` padrão do schema agora é "Comercial do Norte", configuração do site usa os dados pesquisados (marcados como pendentes de confirmação) e o catálogo vem de `prisma/seed-catalog.ts` (`DEMO_SOURCE = SEED_DEMO`): 8 categorias reais do segmento, marca provisória "Marca Exemplo", 12 produtos de demonstração (10 `ACTIVE` e 2 `DRAFT`, um deles incompleto para exercitar `PRODUCT_INCOMPLETE`), variantes com SKU único, preço, peso e dimensões, saldo de estoque e imagens WebP geradas localmente com `sharp` (480/960/1440) — **sem hotlink**. Seed idempotente por `slug`/`sku`, credenciais por ambiente e `typecheck:seed` no CI.
-- [ ] **B6 — Integração:** transações, isolamento, locks concorrentes, reservas, cupons, login/RBAC, uploads, notificação, jobs, consultas, relatório. Testar com PostgreSQL real, não só mock.
-- [ ] **B7 — Deploy:** ajustar `DATABASE_URL`, scripts e documentação de provisionamento/backup/recovery do PostgreSQL; não manter instruções que partem de MySQL como runbook atual.
-
-**Aceite:** API NestJS inicia com PostgreSQL; schema e seed aplicam em ambiente limpo; suítes críticas passam; não existe dependência de runtime MySQL no caminho em produção; dados pré-existentes preservados se houver.
-
-### Fase C — Design system e monorepo (P0/P1, gradual)
-
-- [x] **C1 — Fonte visual:** **feito em 24/10/2026** — `packages/ui/src/styles/tokens.css` reescrito com os tokens oficiais (`#264887`, `#E33C34`, fundo `#F4F7FB`, títulos `#1D2433`, texto `#475467`, superfície escura `#13213B`, tipografia Lufga/Plus Jakarta), no lugar do preto/dourado herdado; prefixo `--cn-*` para não colidir com o Tailwind.
-- [ ] **C2 — Pacote UI:** parcial — Tailwind CSS v4 configurado no storefront Next (`app/globals.css` com `@theme inline` mapeando os tokens) e `@commerce/ui/styles/tokens.css` exportado pelo pacote; ainda faltam `cn`, variantes e a configuração equivalente no admin.
-- [ ] **C3 — Inventário de componentes:** Button, inputs, form, badges, table, product-card, mega-menu, dialog/sheet, toast, empty-state, skeleton, media/hero, slider/carousel; para cada um definir comportamento, states, responsividade, acessibilidade e testes.
-- [ ] **C4 — Admin existente:** manter React/Vite funcional enquanto incorpora tokens e componentes compartilhados; **não migrar o painel inteiro para Next antes de garantir o caminho crítico do lançamento**.
-- [ ] **C5 — Cortar CSS duplicado por módulos, sem substituição total em um commit; remover preto/dourado e branding herdado.**
-
-**Aceite:** uma fonte de cores/tipografia/espaçamentos, componentes compartilháveis entre loja e painel, sem identidades conflitantes.
-
-### Fase D — Vite/React → Next.js na loja pública (P0/P1)
-
-- [x] **D1 — Preparação (storefront Next.js):** **feito em 24/10/2026** — `apps/storefront` substituído pelo Next.js **16.4.3 com App Router + TypeScript** (`next build`, `next dev --port 3001`), rotas preservadas em `/`, `/loja`, `/produto/[slug]`, `/categoria/[slug]`, `/marca/[slug]`, `/marcas`, `/cotacao`, `/cotacao/[publicId]` e 404 próprio. O app Vite legado (64 arquivos, com checkout/Pix/Jonas) foi removido junto com seus testes obsoletos; fluxos fora da fase 1 seguem apenas na API, isolados.
-- [x] **D2 — Integração:** **feito em 24/10/2026** — o storefront consome **somente** REST da API NestJS (`lib/api.ts`), com `API_URL` para SSR e `NEXT_PUBLIC_API_URL` para o navegador; nenhum acesso a Prisma/banco no Next e nenhuma rota de negócio duplicada. CORS com credenciais liberado apenas para `APP_ORIGIN`/`ADMIN_ORIGIN` em `main.ts`; CSP deixou de permitir o domínio do salão.
-- [x] **D3 — SEO:** **feito em 24/10/2026** — `generateMetadata` por produto/categoria/marca com canonical, `robots.ts` (bloqueia `/cotacao`, `/conta`, `/admin`), `sitemap.ts` gerado a partir do catálogo publicado e `noindex` nas páginas de cotação. O renderer de SEO legado do Nest (`public-shell/seo-renderer`) foi **removido** junto com o shell da loja (R07/R13).
-- [ ] **D4 — Performance:** otimização de mídia (armazenamento confiável), estratégia clara de cache/revalidação, paginação/busca no servidor, imagem responsiva, bundle e web vitals; evitar cache indevido em cotação/autenticação.
-- [ ] **D5 — Integração visual:** parcial — home já tem cabeçalho S0 (barra, busca, mega menu, carrinho de cotação), S1 campanha, faixa de benefícios, S2 marcas, S3 ofertas reais (endpoint `/catalog/offers` a partir de `compareAtPriceCents`), S4 categorias com subcategorias, vitrine de destaques, explicação da cotação e S8 loja física; restam S5 (mais vendidos/atacado, depende de métricas reais), S6 "Explica Aí Comercial" (conteúdo oficial), S7 prova social (só com dados verificáveis), S9 Instagram (sem perfil confirmado) e revisão fina de layout contra a referência HTML.
-- [ ] **D6 — Rotas / SSR:** validar `/`, `/loja`, `/produto/:slug`, `/categoria/:slug`, `/marca/:slug`, fluxo de cotação e `/admin`; remover conflito do antigo Nest `public-shell` que servia SPAs por URL raiz.
-- [ ] **D7 — Produção:** Nest e Next com serviços e portas independentes por reverse proxy; HTTPS, domínio configurável, cookies seguros, CORS/CSRF, assets persistentes, health checks, métricas e logs. **Não reaproveitar deploy de um processo sem adequar.**
-
-**Aceite:** loja Next funciona ponta a ponta consumindo Nest, páginas de produtos indexáveis e responsivas, nenhum backend comercial duplicado.
-
-### Fase E — Entrega funcional da Comercial do Norte (P0/P1)
-
-- [x] **E1 — Flags de escopo:** **feito em 24/10/2026** — `FEATURE_CHECKOUT`, `FEATURE_PAYMENTS` e `FEATURE_TRAININGS` (schema Zod, **desligadas por padrão**, só habilitam com `true`) + `FeatureGuard`/`@RequireFeature` que responde **404** (`FEATURE_NOT_AVAILABLE`) sem revelar o recurso. Aplicado em `checkout`, `payments` (incluindo `refund`, com guards mesclados para não perder auth), `webhooks/mercado-pago`, `trainings` e `admin/trainings`. As flags são expostas em `GET /api/v1/site/config` (`features`). **Nada foi apagado:** módulos, tabelas e testes continuam no repositório. **Pendente:** esconder no admin as telas de pagamentos/treinamentos quando as flags estiverem desligadas.
-- [x] **E2 — Categorias:** **feito em 24/10/2026** — `Category` ganhou `parentId`, `imagePath` e `sortOrder` com relação pai/filho e índices (migration `20261024210000_category_hierarchy`); `createCategory`/`updateCategory` aceitam os novos campos e **bloqueiam ciclo** (`CATEGORY_CYCLE_DETECTED`) e auto-pai (`CATEGORY_PARENT_INVALID`); `categoryIdsWithDescendants` garante que o filtro da categoria pai traga as subcategorias (usado por `listProducts` e `searchProducts`); `listCategories` devolve pai/filhos ordenados. Admin: gestor de taxonomia permite escolher a categoria principal e exibe a árvore com "Subcategoria de…". Storefront: mega menu com subcategorias, chips na página da categoria e seed com 5 subcategorias de demonstração. Testes: `catalog-category-hierarchy.spec.ts`. **Pendente:** upload de imagem da categoria e ordenação manual no painel.
-- [x] **E3 — Cotação real (backend):** **feito em 24/10/2026** — modelo próprio `Quote`/`QuoteItem`/`QuoteEvent` (migration `20261024190000_add_quote_requests`), com `QuoteStatus` (`REQUESTED → IN_REVIEW → ANSWERED → WON/LOST/CANCELLED/EXPIRED`), máquina de estados validada, snapshot de item (nome, slug, SKU, imagem, preço unitário e total) e **preço sempre recalculado no servidor**. `POST /api/v1/quotes` público (sem login), com agrupamento de itens repetidos, validação de nome/WhatsApp/e-mail, idempotência por chave (`IdempotencyKey`, escopo `quote:<telefone>`) e protocolo `publicId` devolvido ao solicitante; `GET /api/v1/quotes/:publicId` expõe apenas os dados do próprio solicitante, com telefone mascarado. **Nada reserva estoque, cobra ou cria pedido.** Testes unitários: `quotes.service.spec.ts` e `quote-status-machine.spec.ts`.
-- [x] **E4 — Vendas:** **feito em 24/10/2026** — notificação `QUOTE_REQUESTED` enfileirada na transação (template `pt-BR` no seed + `NotificationPreference` com destinatário configurável por `QUOTES_SALES_EMAIL`/admin) e `QUOTE_STATUS_CHANGED` para o solicitante; `GET /api/v1/admin/quotes` (status, busca por protocolo/nome/telefone/empresa, paginação e contadores), `GET /api/v1/admin/quotes/:id` e `PATCH /api/v1/admin/quotes/:id/status` protegidos por `SessionGuard` + `quotes.manage`; **painel administrativo** ganhou a seção **Cotações** (`apps/admin/src/features/quotes/`) com fila, filtros, paginação, detalhe dos itens/observações e ações de status permitidas. Dados pessoais não são gravados em log.
-- [ ] **E5 — Conteúdo Comercial do Norte:** trocar seed, logo, categorias reais, dados de contato aprovados, imagens e banners; retirar conteúdo do salão e brands hardcoded. No seed, cada produto precisa de variante com SKU único, preço, peso e dimensões (a maioria `ACTIVE`, alguns `DRAFT` para exercitar a fila de pendentes); imagens em WebP geradas localmente, **sem hotlink**; marcas provisórias com nome genérico ("Marca Exemplo") até o cliente enviar a lista oficial. Nunca inventar marca real, depoimento ou dado de cliente.
-  - **Parcial em 24/10/2026 (seed/catálogo/banners/logo prontos):** `prisma/seed-catalog.ts` cria 8 categorias, marca provisória, 12 produtos demo (10 publicados, 2 em rascunho), variantes com SKU/peso/dimensões e imagens WebP locais; `default-home-banners.ts` foi reescrito com 3 banners de demonstração apontando para a storage local (fim dos 15 hotlinks do salão); o logo oficial da referência é convertido para WebP em `uploads/seed-brand/logo.webp` e ligado a `siteConfiguration.logoPath`. **Pendências:** confirmar dados cadastrais/contato oficiais, lista real de marcas e fotos reais; revisar textos herdados em `apps/storefront/src/content` durante a migração para Next (fase D).
-- [ ] **E6 — Home e catálogo:** S0–S10, mega menu, campanhas, marcas, ofertas, categorias, mais vendidos se houver dados, “Explica Aí Comercial”, loja física e rodapé. CTA de cotação em cards, produto e carrinho.
-- [x] **E7 — Busca:** **feito em 24/10/2026** — novo endpoint `GET /api/v1/catalog/products/search` com `search` (contains + `insensitive` no PostgreSQL), filtros por categoria/marca (incluindo marcas filhas), ordenação (`newest`/`name_asc`), paginação server-side (`page`/`pageSize`, limite 48) e `total`/`totalPages`; o catálogo do storefront usa a paginação do servidor com URLs estáveis (`?q=&categoria=&pagina=&ordem=`). Coberto por `catalog-search.spec.ts`. **Pendente:** índice trigram/GIN quando houver catálogo em escala (avaliar com dados reais) e ordenação por preço (preço vive na variante, exige desnormalização ou consulta dedicada).
-- [ ] **E8 — Smoke tests e aceite:** visitante encontra produto → adiciona à cotação → envia formulário → vendas recebe → admin vê solicitação → visitante não tem checkout/pagamento. Validar mobile, teclado, a11y, LGPD, SEO e erros de rede.
-  - **Parcial em 24/10/2026:** jornada coberta em nível de API e HTTP por `quote-flow.e2e-spec.ts`, agora executado no CI (`pnpm --filter api test:e2e`): catálogo público, `POST /quotes` sem login com idempotência, consulta pública com telefone mascarado, ausência de pedido, `checkout` respondendo 404 por flag e fila admin com transição de status. **Pendente:** Playwright cobrindo o navegador (home → produto → carrinho → formulário → confirmação → admin), checagens de a11y/teclado e erros de rede.
-
-**Aceite de negócio:** catálogo + cotação funciona de ponta a ponta, sem cobrar cliente, sem dados da outra empresa, e marketing opera o painel.
-
-### Fase F — ERP e e-commerce completo (P2; só após decisão de produto)
-
-- [ ] **F1 — ERP:** receber documentação oficial e acordo sobre fonte de verdade/IDs, mapeamento, auth, limites, logs, retries, conflitos, produtos DRAFT e reconciliação; só então implementar sync NestJS.
-- [ ] **F2 — Checkout real:** corrigir fluxo de pagamentos e webhooks, estoque/reservas, frete/retirada, cupons, reembolso e conciliação; homologar com provedores e testes de concorrência reais. **Aceite:** duas reservas concorrentes não consomem a última unidade; webhook duplicado ou fora de ordem não duplica pagamento nem pedido; usuário sem permissão não executa ação administrativa crítica; pedido preserva snapshot de preço, frete e contato.
-- [ ] **F3 — CMS próprio:** blocos e conteúdo editáveis no admin existente; se inspirar em UX de CMS sem instalar Payload.
-- [ ] **F4 — Melhorias:** observabilidade, relatórios, automação de marketing, conta do cliente completa, desempenho do catálogo em escala e automação de deploy.
+As **36 tarefas originais** permanecem no Project/manifesto com as mesmas identidades. A manutenção de coordenação é [#48](https://github.com/idedigitalbr/loja-comercial-do-norte/issues/48), adicional às originais. Não manter checklists duplicados de execução neste arquivo. O aceite de negócio segue: catálogo → cotação → vendas/admin, sem cobrança online, dados oficiais e operação possível pelo marketing.
 
 ## 3. Achados técnicos que NÃO podem se perder
 
@@ -115,18 +58,18 @@ Toda a documentação anterior (memórias, auditoria técnica, prompts, planos/s
 | R04 | **P0** | ~~Produto DRAFT acessível por slug~~ **Corrigido em 24/10/2026:** `getProductBySlug` passou a filtrar `status: ACTIVE`; coberto por `catalog-public-access.spec.ts` e validado no build compilado. | `apps/api/src/modules/catalog/catalog.service.ts` |
 | R05 | **P0** | ~~`GET /orders/:publicId` pode não validar ownership~~ **Corrigido em 24/10/2026:** `OrdersService.getForUser(publicId, userId)` filtra por dono e devolve 404 para terceiros; coberto por `orders-ownership.spec.ts` e validado no build compilado. | `apps/api/src/modules/orders/orders.service.ts` |
 | R06 | **P1** | Melhor Envio provider é stub e não consulta API real. Retirada traz rótulo legado “salão”. | `apps/api/src/modules/shipping/providers/{melhor-envio,pickup}.provider.ts` |
-| R07 | **P1** | SEO usa `Jonas & Elivaldo` e domínio antigo; CSP também permite domínio do salão; corrigir durante Next/limpeza. | `apps/api/src/public-shell/seo-renderer.service.ts`, `apps/api/src/main.ts` |
-| R08 | **P1** | Front filtra marca por lista hardcoded do cliente anterior e usa busca/paginação do catálogo no navegador. | `apps/storefront/src/pages/shop-page.tsx` |
-| R09 | **P1** | `Category` é plana; Brand já oferece padrão de hierarquia reutilizável. | `prisma/schema.prisma` |
-| R10 | **P1** | Fluxo de cotação e notificação para equipe de vendas não existem; fluxo de pedidos atual cobra/segura estoque. | `orders.service.ts`, `notifications`, `checkout` |
+| R07 | **P1** | **Corrigido na branch de desenvolvimento:** shell/SEO legado da loja removido, Next fornece metadata e CSP foi ajustada. Confirmar domínio final antes de publicar. | `apps/api/src/public-shell/seo-renderer.service.ts`, `apps/api/src/main.ts` |
+| R08 | **P1** | **Superado na branch de desenvolvimento:** loja Next usa busca/paginação REST no servidor; trecho Vite citado é histórico. | `apps/storefront/src/pages/shop-page.tsx` |
+| R09 | **P1** | **Implementado:** Category tem parentId/imagePath/sortOrder, filtro descendente e proteção contra ciclos. Aceite de upload/ordenação do admin pendente. | `prisma/schema.prisma` |
+| R10 | **P1** | **Implementado na API:** domínio próprio de cotação, fila admin e notificações. Solicitação não cria pedido/reserva de venda; aceite no navegador ainda pendente. | `orders.service.ts`, `notifications`, `checkout` |
 | R11 | P1 | **Parcialmente corrigido em 24/10/2026:** seed, banners default e nome padrão do schema não usam mais Jonas/Elivaldo; resta conteúdo herdado em `apps/storefront/src/content`, removido na migração Next. | `prisma/seed.ts`, `apps/api/src/modules/settings/default-home-banners.ts` |
-| R12 | **P1** | `prisma/schema.prisma` e `migration_lock.toml` vinculados a MySQL; migrations SQL são específicas do dialeto. | `prisma/`, `scripts/repair-migration-history.ts` |
-| R13 | **P1** | `public-shell` Nest legado pode conflitar com raiz Next/deploy de serviços separados. | `apps/api/src/public-shell/`, `apps/api/src/main.ts` |
-| R14 | **P1** | CI não possui workflow ativo no snapshot; execução da suíte não comprovada nesta revisão. | `.github/workflows/` ausente |
-| R15 | **P2** | Antigos testes institucionais referenciam rotas removidas; ajustar a contrato atual, não remover testes para ficar verde. | `apps/storefront/src/pages/institutional-pages.spec.tsx` |
+| R12 | **P1** | **Superado na branch de desenvolvimento:** provider/lock PostgreSQL e quatro migrations versionadas. Histórico MySQL permanece no Git. | `prisma/`, `scripts/repair-migration-history.ts` |
+| R13 | **P1** | Shell público da loja removido; validar reverse proxy Next/Nest/admin e rotas finais antes de produção. | `apps/api/src/public-shell/`, `apps/api/src/main.ts` |
+| R14 | **P1** | CI existe e possui runs verdes históricos. Resultado atual da recuperação está na seção 8; não confundir run antigo com validação do novo commit. | `.github/workflows/` ausente |
+| R15 | **P2** | Testes Vite antigos foram removidos na migração anterior; cobertura de navegador Next/Playwright continua pendente. | `apps/storefront/src/pages/institutional-pages.spec.tsx` |
 | R16 | **P2** | CSS extenso duplicado e tokens de salão contradizem referência Comercial do Norte; `packages/ui` subaproveitado. | `apps/*/src/styles.css`, `packages/ui` |
 
-**Severidade é de revisão estática; não significa exploração demonstrada.** Corrigir R04/R05 antes de abrir dados reais ao público; R01–R03/R06 são bloqueadores de **checkout de venda**, não necessariamente do MVP sem cobrança.
+**Severidade é de revisão estática; não significa exploração demonstrada.** Preservar as correções R04/R05 antes de abrir dados reais ao público; R01–R03/R06 são bloqueadores de **checkout de venda**, não necessariamente do MVP sem cobrança.
 
 ## 4. Catálogo e UI: critérios de aceitação completos
 
@@ -188,6 +131,66 @@ Removidos do worktree em 24/10/2026 (preservados no commit `5781590`, acessívei
 
 ### Protocolo de manutenção daqui em diante
 
-Após **cada etapa concluída**, substituir `[ ]` por `[x]` com evidência: data, branch/commit, comandos de teste, resultado, migrações aplicadas e rollback. Inserir uma linha nova no histórico **deste arquivo** em vez de criar `changelog.md` extra. Se o requisito mudar, atualizar `memory-ai.md` no mesmo commit.
+Após cada marco, atualizar a Issue operacional com evidência: data, branch/commit, comandos de teste, resultado e rollback. Conclusão exige revisão humana; não editar listas duplicadas de status. Inserir uma linha nova no histórico **deste arquivo** em vez de criar `changelog.md` extra. Se o requisito mudar, atualizar `memory-ai.md` no mesmo commit.
 
 **Critério principal de encerramento:** stack nova implementada e testada, projeto rodando em Next + Nest + PostgreSQL, UI padronizada em Tailwind/shadcn, negócio de cotação funcional, e nenhuma dependência de Medusa ou Payload.
+
+## 8. Recuperação da coordenação — 24/10/2026
+
+**Escopo:** [Issue #48](https://github.com/idedigitalbr/loja-comercial-do-norte/issues/48), [PR #37](https://github.com/idedigitalbr/loja-comercial-do-norte/pull/37). Não desenvolver e-commerce, executar migrations, iniciar PostgreSQL, fazer merge ou deploy.
+
+### Recuperado e preservado
+
+- Branch `chore/multiagent-coordination`, HEAD inicial `1078e31`, sincronizado com remoto; main `564c9e3`, desenvolvimento `88c413c`. Sem stash nem outro worktree. Origin já correto.
+- Três arquivos não rastreados do Harness: `setup-hierarchy.mjs`, `setup-views.mjs`, `verify-project.mjs`; quatro patches e consultas GraphQL em `.agents-work/`. Cópia externa preservada no TEMP, prefixo `cdn-coordination-recovery-20261024-180750`.
+- Patches não foram executados às cegas: continham leitura insegura de dono por comentário, referência a `project.items` não carregado e opção de reconciliar apagando status. Funcionalidades recuperadas foram incorporadas aos scripts com proteção e testes.
+- PR #37 tinha a migração da aplicação inteira contra main. Base alterada para a branch de desenvolvimento existente; diff de coordenação isolado, sem branch de trabalho adicional e sem reescrever histórico.
+
+### Quadro e histórico verificados pela API
+
+- Nome preservado: **Quadro -  loja-comercial-do-norte**. Project vinculado ao repo oficial privado. **47 itens**: 36 tarefas originais + 4 Sprints + 6 Etapas + manutenção #48. Relações nativas preservadas; #48 pertence à Etapa 1, reaberta por ter filho pendente.
+- **42/42 dependências originais** confirmadas por leitura, grafo validado sem ciclos. A recuperação não precisou recriar dependências que já existiam. Ciclos externos ao Project também são percorridos pelos scripts.
+- Todos os itens têm Assignee humano; nove agrupadores sem responsável receberam `victorwilliames`. Nenhum responsável legítimo removido.
+- Somente **Tabela, Kanban e Roadmap**. Tabela com 11 colunas na ordem aprovada e Labels oculta; cartões do Kanban reduzidos a campos essenciais. Roadmap filtra agrupadores por ausência de Tipo. Nenhuma data nova inferida; datas anteriores preservadas.
+- Agente executor contém Codex (Will), Antigravity (Will), Claude (Will), DeepSeek Harness (Will), OpenCode (Will), com IDs estáveis e modelo nulo até confirmação. Humano/Não atribuído removidos após limpeza. Valor legado DeepSeek da #23 preservado em participantes e comentário, com operador/horários não confirmados, sem sessão retroativa inventada.
+- Causa dos status incompatíveis: automações nativas continuavam usando IDs de opções renomeadas; reservar #48 fechou a Issue automaticamente, comprovado no timeline. Removidas as cinco regras nativas de status/fechamento, mantida Auto-add sub-issues to project. #48 reaberta; tarefas previamente fechadas com evidência foram apenas alinhadas a Concluído, sem novas aprovações de negócio.
+- Progresso é o campo nativo Sub-issues progress. Reconciliador não deriva status de execução dos contadores nem sobrescreve reserva/bloqueio de agrupadores. Nenhuma Sprint foi fechada.
+- Reserva própria #48 migrada para ref única antes de remover a própria ref legada. Ledger por commits mantém sessão inicial verificável, sessões do teste, eventos e participantes. Não registra telemetria inventada.
+
+### Validação e limites
+
+| Camada | Comando/evidência | Resultado |
+|---|---|---|
+| Regras locais | `node --test scripts/agents/*.test.mjs` | **8/8 aprovados**, com ciclo falhar/corrigir verificado; propriedade, histórico, ciclos longos/externos, aprovação estrutural e espelho pendente |
+| API real — concorrência | `node scripts/agents/live-reservation-test.mjs --live --issue-48` | dois commits irmãos disputam a mesma ref: um aceito, outro recusado; liberação atrasada recusada após nova sessão; histórico preservado |
+| API real — bloqueio | claim da #15 com dependência #14 aberta | recusado antes de criar reserva |
+| API real — propriedade | release #48 com sessão incorreta | recusado; reserva preservada |
+| API real — recuperação | `live-reservation-test.mjs --live --issue-48 --mirror-recovery` | release com espelho pendente impediu novo claim; reparo explícito e auditado removeu pendência; novo claim pela CLI confirmado. Participantes/histórico preservados |
+| API real — quadro | `node scripts/agents/verify-project.mjs` | 36 originais, 47 itens, 42/42 dependências; zero erros na auditoria implementada |
+| Idempotência | segunda reconciliação aplicada e dry-run | **zero alterações**, nenhuma Issue/view duplicada |
+| Lint/typecheck | launcher local pnpm | **lint 6/6 e typecheck 6/6 aprovados**; ESLint dos scripts de coordenação também aprovado |
+| PR real | `PR_NUMBER=37 node scripts/agents/pr-sync.mjs`, duas vezes | evidência publicada na #48 sem duplicação; estado e reserva preservados; transição para revisão usa a sessão proprietária |
+| Suíte geral local | launcher `.tools/bin/pnpm.cmd test`, TEMP/TMP em `.agents-work/tmp` | **falhou**: API com 12 arquivos de teste falhos, 52 aprovados; 126 testes aprovados, 1 falho e 16 pulados. PostgreSQL `127.0.0.1:55432` indisponível. Nenhum banco iniciado/alterado para contornar o limite |
+| Primeiras tentativas locais | pnpm global / TEMP do Windows | bloqueios de permissão resolvidos usando launcher/cache temporário do workspace; não confundir essas tentativas com teste aprovado |
+| Navegador | in-app browser e tentativa de Chrome | in-app sem login no GitHub; controle do Chrome interrompido pela ferramenta por não conseguir confirmar URL. Agrupamento por Status no Kanban, expansão hierárquica da Tabela e propriedades da timeline **não verificados visualmente** |
+| Automações Actions | secrets do repositório e branch padrão | `PROJECT_TOKEN` não listado no repo; visibilidade de eventuais secrets organizacionais não comprova disponibilização ao workflow. CLI OAuth com project/repo tem leitura/escrita real, mas não equivale ao token efêmero do Actions |
+
+### Ativação pendente, rollback e próxima revisão
+
+- Revisão humana do PR #37 contra `feat/stack-next-postgres`; integração na main continua proibida sem autorização. Automação por comentário só executa o código da branch padrão. PR privilegiado usa checkout explícito da branch padrão; enquanto os scripts não estiverem lá, a automação completa não está ativa.
+- Configurar secret `PROJECT_TOKEN` ou token de instalação de App com acesso mínimo de Projects e leitura das Issues vinculadas; provar a permissão no Actions. Não publicar a credencial local nem presumir que o secret exista por nome. Falha deve ser explícita antes de reservar.
+- Confirmar na UI: Kanban agrupado por Status com sete opções, Tabela com hierarquia expandida, Roadmap com campos Start date/Target date e progresso. API pública disponível nesta sessão não expõe agrupamento/timeline. Não inventar datas.
+- Sessões usam identificador aleatório único por operação e `pendingMirror` como barreira entre ledger e espelho: nova operação recusa enquanto houver reparo pendente. Recuperação exige confirmação de processo encerrado e motivo; refs permanentes não são excluídas. Cancelar uma projeção de conclusão inválida exige `repair --recover --cancel-pending --reason`, preserva o evento anterior e retorna à revisão; intenção de reabrir é persistida para repetição segura.
+- Rollback de código: revert dos commits de coordenação, sem restaurar o protocolo inseguro em operação ativa. Não apagar refs/ledgers ou histórico. Configuração do Project exige revisão dos IDs reais; nunca recriar auto-close/auto-done com opções renomeadas. Campos e relações existentes foram preservados.
+- Pendências de aplicação continuam nas Issues originais; esta recuperação não homologa produção, Playwright, ERP, checkout ou persistência.
+
+### Checkpoint solicitado pelo responsável
+
+Execução encerrada para conservar a franquia. Código e scripts recuperados preservados na branch `chore/multiagent-coordination`; PR #37 permanece com base em `feat/stack-next-postgres`. Últimas evidências: 8/8 testes rápidos, sintaxe/ESLint dos scripts, lint e typecheck 6/6; concorrência e recuperação confirmadas pela API/CLI. Não houve nova tentativa de integração PostgreSQL, merge ou deploy. Homologação do Actions com PROJECT_TOKEN e configuração visual do Kanban/timeline permanecem pendentes. O diagnóstico de credenciais foi preparado, mas ainda não executado no Actions. CI do novo checkpoint deve ser consultado na próxima sessão; não foi aguardado nesta rodada.
+
+### Checkpoint Project e agenda — 24/10/2026
+
+- Migração aplicada e conferida pela API: `Tipo` e `Agentes que participaram` multisseleção; `Agente executando` seleção única; `Início`/`Entrega` como datas; prioridade P0 renomeada para URGENTE. Campos legados removidos após migração. Tabela/Kanban atualizados; Roadmap permanece sem configuração visual de datas/escala, não exposta pela API disponível.
+- Agenda aplicada sem sobrescrever datas existentes: 34/34 itens fora de Backlog têm início e entrega; 8 itens em Backlog seguem sem datas. Datas ativas são estimativas. Sprint 3 mantém entrega de 31/10; agregação de tarefas chega a 07/11 e precisa de revisão humana.
+- Reconciliação de categorias executada; `verify-project.mjs`: 47 itens, 42/42 dependências, zero erros. A reserva de #48 continua ativa para `codex-will`, sem atividade confirmada nesta sessão.
+- Pendente: configuração visual do Roadmap, revisão da divergência de Sprint 3, CI após o novo push e homologação de `PROJECT_TOKEN` no Actions. Nenhum PostgreSQL iniciado; sem merge/deploy.

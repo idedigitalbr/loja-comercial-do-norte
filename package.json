@@ -8,6 +8,11 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "typecheck:seed": "tsc -p tsconfig.seed.json",
+    "agents:sync": "node scripts/agents/project-sync.mjs",
+    "agents:claim": "node scripts/agents/task-claim.mjs",
+    "agents:heartbeat": "node scripts/agents/task-claim.mjs heartbeat",
+    "agents:migrate-fields": "node scripts/agents/migrate-project-fields.mjs",
+    "agents:schedule": "node scripts/agents/schedule-project.mjs",
     "test": "node scripts/check-workspace.mjs && turbo test",
     "test:e2e": "playwright test",
     "db:format": "prisma format",
@@ -21,7 +26,11 @@
     "db:local:stop": "node scripts/dev/postgres.mjs stop",
     "db:import:woocommerce": "tsx scripts/import-woocommerce.ts",
     "verify:local": "node scripts/verify-local.mjs",
-    "bootstrap:local": "node scripts/bootstrap-local.mjs"
+    "bootstrap:local": "node scripts/bootstrap-local.mjs",
+    "agents:test": "node --test scripts/agents/*.test.mjs",
+    "agents:verify": "node scripts/agents/verify-project.mjs",
+    "agents:views": "node scripts/agents/setup-views.mjs",
+    "agents:hierarchy": "node scripts/agents/setup-hierarchy.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",

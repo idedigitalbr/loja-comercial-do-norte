@@ -1,0 +1,35 @@
+name: Sincronizar quadro com Pull Request
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, closed, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR para reconciliar (somente leitura do código do PR)"
+        required: true
+        type: string
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+concurrency:
+  group: agent-pr-${{ github.event.pull_request.number || inputs.pr }}
+  cancel-in-progress: false
+jobs:
+  sincronizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Privileged token + trusted base code. NEVER checkout/execute PR head or install its dependencies.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Atualizar Issue com evidência real do PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr }}
+        run: node scripts/agents/pr-sync.mjs
