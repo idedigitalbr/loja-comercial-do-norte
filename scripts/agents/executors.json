@@ -1,0 +1,37 @@
+[
+  {
+    "executorId": "codex-will",
+    "ferramenta": "Codex",
+    "operadorHumano": "victorwilliames",
+    "modelo": null,
+    "nomeExibido": "Codex (Will)"
+  },
+  {
+    "executorId": "antigravity-will",
+    "ferramenta": "Antigravity",
+    "operadorHumano": "victorwilliames",
+    "modelo": null,
+    "nomeExibido": "Antigravity (Will)"
+  },
+  {
+    "executorId": "claude-will",
+    "ferramenta": "Claude",
+    "operadorHumano": "victorwilliames",
+    "modelo": null,
+    "nomeExibido": "Claude (Will)"
+  },
+  {
+    "executorId": "deepseek-harness-will",
+    "ferramenta": "DeepSeek Harness",
+    "operadorHumano": "victorwilliames",
+    "modelo": null,
+    "nomeExibido": "DeepSeek Harness (Will)"
+  },
+  {
+    "executorId": "opencode-will",
+    "ferramenta": "OpenCode",
+    "operadorHumano": "victorwilliames",
+    "modelo": null,
+    "nomeExibido": "OpenCode (Will)"
+  }
+]

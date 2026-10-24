@@ -1,291 +1,413 @@
 #!/usr/bin/env node
-/**
- * Protocolo de reserva de tarefas para execução multiagente.
- *
- * Exclusividade REAL: a trava é um ref Git (`refs/heads/claims/issue-<n>--<agente>`).
- * Criar um ref é atômico no servidor: se já existir, o GitHub responde 422 e a
- * reserva é recusada. Campo de texto/label serve apenas como espelho visual.
- *
- * Comandos:
- *   claim   --issue N --agent <Agente> --branch <branch> [--session S] [--assignee login]
- *   start   --issue N --agent <Agente> [--branch B]
- *   block   --issue N --agent <Agente> --reason "motivo"
- *   review  --issue N --agent <Agente> [--pr URL]
- *   done    --issue N --agent <Agente> [--pr URL]
- *   release --issue N --agent <Agente> [--force] [--reason "..."]
- *   status  --issue N
- *
- * Env: GITHUB_TOKEN (escopos project, repo, issues).
+/** One permanent ref per issue. Immutable commits are session ledger and CAS generations.
+ * Release writes a tombstone; NEVER delete this ref (prevents stale-release/ABA races).
  */
-const args = process.argv.slice(2);
-const command = args[0];
-const token = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
-if (!token) throw new Error('Defina GITHUB_TOKEN.');
-
-const OWNER = process.env.PROJECT_OWNER ?? 'idedigitalbr';
-const REPO = process.env.PROJECT_REPO ?? 'loja-comercial-do-norte';
-const PROJECT_NUMBER = Number(process.env.PROJECT_NUMBER ?? 3);
-const AGENTS = ['Claude', 'Codex', 'DeepSeek', 'Antigravity', 'Copilot', 'Humano'];
-const STATUS_BY_COMMAND = {
-  claim: 'Reservado',
-  start: 'Em Andamento',
-  block: 'Bloqueado',
-  review: 'Em Revisão',
-  done: 'Concluído',
-};
-const DEFAULT_BRANCH_PREFIX = 'claims';
-
-function flag(name, required = false) {
-  const index = args.indexOf(`--${name}`);
-  const value = index >= 0 ? args[index + 1] : undefined;
-  if (required && !value) throw new Error(`Informe --${name}.`);
-  return value;
-}
-const has = (name) => args.includes(`--${name}`);
-
-const api = 'https://api.github.com';
-const headers = {
-  authorization: `Bearer ${token}`,
-  accept: 'application/vnd.github+json',
-  'x-github-api-version': '2022-11-28',
-  'content-type': 'application/json',
-  'user-agent': 'comercial-do-norte-agent-claim',
-};
-
-async function rest(path, init = {}) {
-  const response = await fetch(`${api}${path}`, { ...init, headers: { ...headers, ...init.headers } });
-  const text = await response.text();
-  const body = text ? JSON.parse(text) : null;
-  return { ok: response.ok, status: response.status, body };
-}
-
-async function graphql(query, variables = {}) {
-  const response = await fetch(`${api}/graphql`, { method: 'POST', headers, body: JSON.stringify({ query, variables }) });
-  const payload = await response.json();
-  if (payload.errors?.length) throw new Error(`GraphQL: ${payload.errors.map((error) => error.message).join(' | ')}`);
-  return payload.data;
-}
-
-const nowIso = () => new Date().toISOString();
-const state = { issueNumber: null, agent: null, session: '-', branch: '-', reservedAt: '-', updatedAt: nowIso(), status: 'livre' };
-
-async function projectContext() {
-  const data = await graphql(
-    `query($login:String!,$number:Int!){organization(login:$login){projectV2(number:$number){id fields(first:60){nodes{
-       ... on ProjectV2FieldCommon{id name}
-       ... on ProjectV2SingleSelectField{id name options{id name}}
-     }}}}}`,
-    { login: OWNER, number: PROJECT_NUMBER },
+import { readFileSync } from "node:fs";
+import { randomUUID } from "node:crypto";
+import { transition } from "./coordination.mjs";
+import { parseCommand } from "./arguments.mjs";
+import {
+  request,
+  graphql,
+  repoPath,
+  projectContext,
+  setField,
+  itemFor,
+  pages,
+  writeLedger,
+} from "./github.mjs";
+const executors = JSON.parse(
+  readFileSync(new URL("./executors.json", import.meta.url), "utf8"),
+);
+const { command, values } = parseCommand(process.argv.slice(2));
+const supported = [
+  "claim",
+  "renew",
+  "start",
+  "pause",
+  "resume",
+  "block",
+  "review",
+  "done",
+  "release",
+  "status",
+  "repair",
+];
+if (!supported.includes(command))
+  throw new Error(`Comandos: ${supported.join(", ")}`);
+const flag = (name) => values[name];
+const number = Number(flag("issue"));
+if (!Number.isSafeInteger(number) || number < 1)
+  throw new Error("--issue deve ser inteiro positivo.");
+const ref = `heads/claims/issue-${number}`;
+const issue = await request(`${repoPath}/issues/${number}`);
+if (issue.pull_request) throw new Error("Informe uma Issue, não um PR.");
+const legacy = await request(
+  `${repoPath}/git/matching-refs/heads/claims/issue-${number}--`,
+);
+if (legacy.length && command !== "status")
+  throw new Error(
+    "Reserva legada ativa. Verifique dono/processo/PR e migre manualmente antes de continuar.",
   );
-  const project = data.organization?.projectV2;
-  if (!project) throw new Error('Projeto não encontrado.');
-  return project;
+let previousRef = null;
+try {
+  previousRef = await request(`${repoPath}/git/ref/${ref}`);
+} catch (error) {
+  if (error.status !== 404) throw error;
 }
-
-async function projectItemFor(project, contentId) {
-  const data = await graphql(
-    `mutation($projectId:ID!,$contentId:ID!){addProjectV2ItemById(input:{projectId:$projectId,contentId:$contentId}){item{id}}}`,
-    { projectId: project.id, contentId },
+let previous = null;
+if (previousRef) {
+  const commit = await request(
+    `${repoPath}/git/commits/${previousRef.object.sha}`,
   );
-  return data.addProjectV2ItemById.item.id;
+  const tree = await request(`${repoPath}/git/trees/${commit.tree.sha}`);
+  const file = tree.tree.find((f) => f.path === "agent-session.json");
+  if (!file)
+    throw new Error("Reserva sem ledger: recuperação manual obrigatória.");
+  const blob = await request(`${repoPath}/git/blobs/${file.sha}`);
+  previous = JSON.parse(Buffer.from(blob.content, "base64").toString("utf8"));
 }
-
-async function setSelect(project, itemId, fieldName, value) {
-  const field = project.fields.nodes.find((node) => node.name === fieldName);
-  const option = field?.options?.find((candidate) => candidate.name === value);
-  if (!field || !option) throw new Error(`Campo/opção inexistente: ${fieldName}=${value}`);
-  await graphql(
-    `mutation($input:UpdateProjectV2ItemFieldValueInput!){updateProjectV2ItemFieldValue(input:$input){projectV2Item{id}}}`,
-    { input: { projectId: project.id, itemId, fieldId: field.id, value: { singleSelectOptionId: option.id } } },
-  );
-}
-
-async function issueByNumber(number) {
-  const { ok, body } = await rest(`/repos/${OWNER}/${REPO}/issues/${number}`);
-  if (!ok) throw new Error(`Issue #${number} não encontrada.`);
-  return body;
-}
-
-async function openDependencies(issueNodeId) {
-  const data = await graphql(
-    `query($id:ID!){node(id:$id){... on Issue{blockedBy(first:50){nodes{number title state}}}}}`,
-    { id: issueNodeId },
-  );
-  return (data.node.blockedBy.nodes ?? []).filter((node) => node.state === 'OPEN');
-}
-
-async function claimRefs(issueNumber) {
-  const { ok, body } = await rest(`/repos/${OWNER}/${REPO}/git/matching-refs/heads/${DEFAULT_BRANCH_PREFIX}/issue-${issueNumber}--`);
-  return ok && Array.isArray(body) ? body : [];
-}
-
-const holderOf = (ref) => ref?.ref?.split('--').pop() ?? 'desconhecido';
-
-async function baseSha() {
-  const { body } = await rest(`/repos/${OWNER}/${REPO}/git/ref/heads/main`);
-  return body.object.sha;
-}
-
-async function comment(number, body) {
-  await rest(`/repos/${OWNER}/${REPO}/issues/${number}/comments`, { method: 'POST', body: JSON.stringify({ body }) });
-}
-
-async function addLabels(number, labels) {
-  await rest(`/repos/${OWNER}/${REPO}/issues/${number}/labels`, { method: 'POST', body: JSON.stringify({ labels }) });
-}
-
-async function removeLabel(number, label) {
-  await rest(`/repos/${OWNER}/${REPO}/issues/${number}/labels/${encodeURIComponent(label)}`, { method: 'DELETE' });
-}
-
-function reservationComment(action, extra = '') {
-  return `${extra}<!-- agent-reservation
-tarefa: #${state.issueNumber}
-agente: ${state.agent ?? 'Não atribuído'}
-sessao: ${state.session}
-branch: ${state.branch}
-reservadoEm: ${state.reservedAt}
-atualizadoEm: ${state.updatedAt}
-estado: ${state.status}
-acao: ${action}
--->`;
-}
-
-async function applyStatus(project, issue, status) {
-  const itemId = await projectItemFor(project, issue.node_id);
-  await setSelect(project, itemId, 'Status', status);
-  if (state.agent && AGENTS.includes(state.agent)) await setSelect(project, itemId, 'Agente executor', state.agent);
-}
-
-// ------------------------------------------------------------------ comandos --
-
-async function requireAgent() {
-  const agent = flag('agent', true);
-  if (!AGENTS.includes(agent)) throw new Error(`Agente inválido. Use: ${AGENTS.join(', ')}`);
-  state.agent = agent;
-}
-
-async function commandClaim(project, issue) {
-  const refs = await claimRefs(issue.number);
-  const existing = refs[0];
-  if (existing) {
-    const holder = holderOf(existing);
-    if (holder !== state.agent) {
-      throw new Error(`Tarefa já reservada por "${holder}" (ref ${existing.ref}). Escolha outra Issue ou peça a liberação.`);
+const dependencies = await graphql(
+  `
+    query ($id: ID!) {
+      node(id: $id) {
+        ... on Issue {
+          blockedBy(first: 100) {
+            pageInfo {
+              hasNextPage
+            }
+            nodes {
+              number
+              state
+            }
+          }
+        }
+      }
     }
-    // Mesmo agente: renova a reserva.
-    await applyStatus(project, issue, 'Reservado');
-    await comment(issue.number, reservationComment('renovada', `**Reserva renovada** por \`${state.agent}\`.\n\n`));
-    return { resultado: 'renovada', issue: issue.number, agente: state.agent, branch: state.branch };
-  }
-
-  const blocked = await openDependencies(issue.node_id);
-  if (blocked.length) {
-    throw new Error(`Tarefa bloqueada por: ${blocked.map((node) => `#${node.number}`).join(', ')}. Resolva as dependências antes de assumir.`);
-  }
-
-  const sha = await baseSha();
-  const refName = `refs/heads/${DEFAULT_BRANCH_PREFIX}/issue-${issue.number}--${state.agent}`;
-  const created = await rest(`/repos/${OWNER}/${REPO}/git/refs`, {
-    method: 'POST',
-    body: JSON.stringify({ ref: refName, sha }),
+  `,
+  { id: issue.node_id },
+);
+const blockers = dependencies.node.blockedBy.nodes.filter(
+  (d) => d.state === "OPEN",
+);
+if (dependencies.node.blockedBy.pageInfo.hasNextPage)
+  throw new Error(
+    "Dependências truncadas; operação recusada para não ignorar bloqueadores.",
+  );
+if (command === "status") {
+  console.log(
+    JSON.stringify(
+      {
+        issue: number,
+        active: previous?.active ?? null,
+        legacy: legacy.map((r) => r.ref),
+        pendingMirror: previous?.pendingMirror ?? null,
+        blockedBy: blockers,
+        available:
+          issue.state === "open" &&
+          !previous?.active &&
+          !previous?.pendingMirror &&
+          !legacy.length &&
+          !blockers.length,
+        sessions: previous?.sessions ?? [],
+      },
+      null,
+      2,
+    ),
+  );
+  process.exit(0);
+}
+const authenticated = process.env.GITHUB_ACTIONS
+  ? await request(
+      `/users/${encodeURIComponent(process.env.GITHUB_ACTOR ?? "")}`,
+    )
+  : await request("/user");
+const actor = authenticated.login;
+if (!actor) throw new Error("Ator não identificado.");
+const permission = await request(
+  `${repoPath}/collaborators/${encodeURIComponent(actor)}/permission`,
+);
+if (!["admin", "maintain", "write"].includes(permission.permission))
+  throw new Error("Ator sem permissão de escrita no repositório.");
+const executor = executors.find((e) => e.executorId === flag("executor"));
+if (!executor || executor.operadorHumano !== actor)
+  throw new Error("Executor não cadastrado para este operador humano.");
+if (["claim", "start", "resume"].includes(command)) {
+  if (issue.state !== "open")
+    throw new Error("Issue fechada não pode iniciar execução.");
+  if (blockers.length)
+    throw new Error(
+      `Dependências abertas: ${blockers.map((d) => `#${d.number}`).join(", ")}`,
+    );
+}
+if (command === "block" && !flag("reason"))
+  throw new Error("Bloqueio exige --reason.");
+if (
+  command === "done" &&
+  (authenticated.type !== "User" || values["human-approved"] !== true)
+)
+  throw new Error(
+    "Conclusão exige usuário humano autenticado e --human-approved.",
+  );
+if (command === "done") {
+  const children = await pages(`${repoPath}/issues/${number}/sub_issues`);
+  if (children.some((child) => child.state !== "closed"))
+    throw new Error("Agrupador possui filhos abertos; não pode concluir.");
+}
+const session = flag("session") ?? (command === "claim" ? randomUUID() : null);
+if (!session)
+  throw new Error(
+    "--session obrigatório para modificar uma reserva existente.",
+  );
+const event = {
+  action: command,
+  session,
+  executorId: executor.executorId,
+  executor,
+  actor,
+  at: new Date().toISOString(),
+  branch: flag("branch") ?? null,
+  reason: flag("reason") ?? null,
+  pr: flag("pr") ?? null,
+  commit: flag("commit") ?? null,
+  tests: flag("tests") ?? null,
+  humanApproved: values["human-approved"] === true,
+};
+if (
+  event.branch &&
+  !/^(feat|fix|chore|docs|refactor)\/[a-z0-9._-]+$/.test(event.branch)
+)
+  throw new Error("Branch inválida.");
+const project = await projectContext(); // fail before reserving if Projects access is absent
+const item = await itemFor(project, issue.node_id);
+const next =
+  command === "repair"
+    ? structuredClone(previous)
+    : transition(previous, event);
+if (next) {
+  const participantValue = await graphql(
+    `
+      query ($id: ID!) {
+        node(id: $id) {
+          ... on ProjectV2Item {
+            fieldValueByName(name: "Agentes participantes") {
+              ... on ProjectV2ItemFieldTextValue {
+                text
+              }
+            }
+          }
+        }
+      }
+    `,
+    { id: item },
+  );
+  next.historicalParticipants = [
+    ...new Set([
+      ...(next.historicalParticipants ?? []),
+      ...(participantValue.node.fieldValueByName?.text ?? "")
+        .split(", ")
+        .filter(Boolean),
+    ]),
+  ];
+}
+if (
+  command === "repair" &&
+  (!previous?.sessions?.length ||
+    ["session", "executorId", "actor"].some(
+      (k) => (previous.active ?? previous.sessions.at(-1))[k] !== event[k],
+    ))
+)
+  throw new Error("Repair exige propriedade da última sessão.");
+let ledgerSha = previousRef?.object.sha;
+if (
+  command === "repair" &&
+  previous.pendingMirror &&
+  (!values.recover || !flag("reason"))
+)
+  throw new Error(
+    "Espelho pendente: confirme que o processo anterior terminou e use repair --recover --reason com a evidência.",
+  );
+if (values["cancel-pending"]) {
+  if (
+    command !== "repair" ||
+    !values.recover ||
+    !flag("reason") ||
+    !previous.pendingMirror ||
+    previous.sessions.at(-1).events.at(-1).action !== "done"
+  )
+    throw new Error(
+      "Cancelar projeção exige repair --recover --cancel-pending --reason e conclusão pendente.",
+    );
+  next.sessions.at(-1).events.push({
+    ...event,
+    action: "review",
+    reopenIssue: true,
+    reason: `Projeção de conclusão cancelada: ${event.reason}`,
   });
-  if (!created.ok) {
-    // 422 = outro agente criou o ref no mesmo instante (corrida real).
-    throw new Error(`Reserva recusada (${created.status}). Outro agente pode ter assumido a tarefa agora.`);
-  }
-
-  state.reservedAt = nowIso();
-  state.status = 'reservado';
-  await applyStatus(project, issue, 'Reservado');
-  await addLabels(issue.number, ['agent-claim']);
-  const assignee = flag('assignee');
-  if (assignee) await rest(`/repos/${OWNER}/${REPO}/issues/${issue.number}/assignees`, { method: 'POST', body: JSON.stringify({ assignees: [assignee] }) });
-  await comment(issue.number, reservationComment('assumida', `**Tarefa assumida** por \`${state.agent}\`.\nBranch prevista: \`${state.branch}\`.\n`));
-  return { resultado: 'reservada', issue: issue.number, agente: state.agent, branch: state.branch, ref: refName };
+  next.revision += 1;
 }
-
-async function commandProgress(project, issue, action, status, extraComment, labels = []) {
-  const refs = await claimRefs(issue.number);
-  const holder = refs.length ? holderOf(refs[0]) : null;
-  if (!holder) throw new Error('Tarefa sem reserva ativa. Rode `claim` antes.');
-  if (holder !== state.agent) throw new Error(`Reserva pertence a "${holder}".`);
-  state.status = status.toLowerCase();
-  await applyStatus(project, issue, status);
-  if (labels.length) await addLabels(issue.number, labels);
-  await comment(issue.number, reservationComment(action, `${extraComment}\n\n`));
-  return { resultado: action, issue: issue.number, agente: state.agent, status };
-}
-
-async function commandRelease(project, issue) {
-  const refs = await claimRefs(issue.number);
-  if (!refs.length) return { resultado: 'sem-reserva', issue: issue.number };
-  const holder = holderOf(refs[0]);
-  const force = has('force');
-  if (holder !== state.agent && !force) throw new Error(`Reserva pertence a "${holder}". Use --force apenas se confirmou que o processo morreu.`);
-
-  if (force) {
-    // Nunca libere automaticamente: confirme que não há PR aberto nem trabalho recente.
-    const { body: pulls } = await rest(`/repos/${OWNER}/${REPO}/pulls?state=open&per_page=100`);
-    const related = (pulls ?? []).filter((pull) => pull.head?.ref && pull.head.ref.includes(`issue-${issue.number}`));
-    if (related.length) {
-      throw new Error(`Há PR aberto para esta tarefa (${related.map((pull) => `#${pull.number}`).join(', ')}). Resolva o PR antes de forçar a liberação.`);
-    }
-    if (!has('reason')) throw new Error('Liberação forçada exige --reason (evidência de que o processo morreu).');
-  }
-
-  const { ok } = await rest(`/repos/${OWNER}/${REPO}/git/refs/heads/${DEFAULT_BRANCH_PREFIX}/issue-${issue.number}--${holder}`, { method: 'DELETE' });
-  if (!ok) throw new Error('Falha ao remover o ref de reserva.');
-  state.agent = state.agent ?? holder;
-  state.status = 'livre';
-  await applyStatus(project, issue, 'A Fazer');
-  await removeLabel(issue.number, 'agent-claim').catch(() => undefined);
-  await comment(issue.number, reservationComment('liberada', `**Reserva liberada** (era de \`${holder}\`)${has('reason') ? `.\nMotivo: ${flag('reason')}` : '.'}\n`));
-  return { resultado: 'liberada', issue: issue.number, eraDe: holder };
-}
-
-async function commandStatus(issue) {
-  const refs = await claimRefs(issue.number);
-  const blocked = await openDependencies(issue.node_id);
-  return {
-    issue: issue.number,
-    titulo: issue.title,
-    reserva: refs.length ? { agente: holderOf(refs[0]), ref: refs[0].ref } : null,
-    bloqueadoPor: blocked.map((node) => `#${node.number} ${node.title}`),
-    disponivel: !refs.length && blocked.length === 0,
+{
+  const operation = {
+    operationId: randomUUID(),
+    session,
+    actor,
+    executorId: executor.executorId,
+    at: event.at,
+    reason: event.reason,
   };
+  next.pendingMirror = operation;
+  if (command === "repair")
+    next.recoveryEvents = [
+      ...(next.recoveryEvents ?? []),
+      { ...operation, previousPending: previous.pendingMirror ?? null },
+    ];
+  try {
+    ledgerSha = await writeLedger(
+      ref,
+      next,
+      ledgerSha,
+      `agents: ${command} issue #${number} session ${session}`,
+    );
+  } catch (error) {
+    throw new Error(
+      `Concorrência: operação recusada (${error.message}). Consulte status.`,
+    );
+  }
 }
-
-// ---------------------------------------------------------------------- run --
-
-const issueNumber = Number(flag('issue', true));
-state.issueNumber = issueNumber;
-state.session = flag('session') ?? process.env.AGENT_SESSION ?? '-';
-state.branch = flag('branch') ?? '-';
-const project = await projectContext();
-const issue = await issueByNumber(issueNumber);
-
-let result;
-if (command === 'status') {
-  result = await commandStatus(issue);
-} else if (command === 'release') {
-  await requireAgent();
-  result = await commandRelease(project, issue);
-} else if (command === 'claim') {
-  await requireAgent();
-  result = await commandClaim(project, issue);
-} else if (['start', 'block', 'review', 'done'].includes(command)) {
-  await requireAgent();
-  const extra = {
-    start: `Implementação iniciada em \`${state.branch}\`.`,
-    block: `**Bloqueio registrado:** ${flag('reason') ?? 'motivo não informado'}`,
-    review: `Revisão solicitada${flag('pr') ? ` — ${flag('pr')}` : ''}.`,
-    done: `Implementação concluída${flag('pr') ? ` — ${flag('pr')}` : ''}. Aguardando validação humana.`,
-  }[command];
-  if (command === 'block' && !flag('reason')) throw new Error('Informe --reason no bloqueio.');
-  result = await commandProgress(project, issue, command, STATUS_BY_COMMAND[command], extra, command === 'review' ? ['needs-review'] : []);
-} else {
-  throw new Error('Comandos: claim, start, block, review, done, release, status.');
+// Ledger is authoritative; mirror failures preserve the lock and can be retried with repair.
+const latest = next.sessions.at(-1);
+const effectiveAction =
+  command === "repair" ? latest.events.at(-1).action : command;
+const mirrorEvent = latest.events.at(-1);
+const statuses = {
+  claim: "Reservado",
+  start: "Em Andamento",
+  resume: "Em Andamento",
+  block: "Bloqueado",
+  review: "Em Revisão",
+  done: "Concluído",
+};
+try {
+  if (mirrorEvent.reopenIssue)
+    await request(`${repoPath}/issues/${number}`, "PATCH", { state: "open" });
+  if (effectiveAction === "done") {
+    if (
+      !mirrorEvent.humanApproved ||
+      !mirrorEvent.pr ||
+      !mirrorEvent.commit ||
+      !mirrorEvent.tests
+    )
+      throw new Error("Conclusão sem aprovação/evidências no ledger.");
+    const children = await pages(`${repoPath}/issues/${number}/sub_issues`);
+    if (children.some((child) => child.state !== "closed"))
+      throw new Error(
+        "Agrupador possui filhos abertos; não pode concluir/reparar conclusão.",
+      );
+  }
+  if (!issue.assignees.length)
+    await request(`${repoPath}/issues/${number}/assignees`, "POST", {
+      assignees: [executor.operadorHumano],
+    });
+  if (next.active)
+    await request(`${repoPath}/issues/${number}/labels`, "POST", {
+      labels: ["agent-claim"],
+    });
+  else {
+    try {
+      await request(
+        `${repoPath}/issues/${number}/labels/agent-claim`,
+        "DELETE",
+      );
+    } catch (error) {
+      if (error.status !== 404) throw error;
+    }
+  }
+  await setField(
+    project,
+    item,
+    "Agente executor",
+    next.active ? executor.nomeExibido : null,
+  );
+  await setField(
+    project,
+    item,
+    "Agentes participantes",
+    [
+      ...new Set([
+        ...next.historicalParticipants,
+        ...next.participants.map(
+          (id) => executors.find((e) => e.executorId === id)?.nomeExibido ?? id,
+        ),
+      ]),
+    ].join(", "),
+  );
+  if (statuses[effectiveAction])
+    await setField(project, item, "Status", statuses[effectiveAction]);
+  if (effectiveAction === "release") {
+    // Preserve review/completion/block; release only resets reservation/in-progress.
+    const value = await graphql(
+      `
+        query ($id: ID!) {
+          node(id: $id) {
+            ... on ProjectV2Item {
+              fieldValueByName(name: "Status") {
+                ... on ProjectV2ItemFieldSingleSelectValue {
+                  name
+                }
+              }
+            }
+          }
+        }
+      `,
+      { id: item },
+    );
+    if (
+      ["Reservado", "Em Andamento"].includes(value.node.fieldValueByName?.name)
+    )
+      await setField(
+        project,
+        item,
+        "Status",
+        issue.state === "closed" ? "Concluído" : "A Fazer",
+      );
+  }
+  if (effectiveAction === "done") {
+    await request(`${repoPath}/issues/${number}`, "PATCH", {
+      state: "closed",
+      state_reason: "completed",
+    });
+  }
+  const marker = `<!-- agent-session:${session}:revision:${next.revision} -->`;
+  const comments = await pages(`${repoPath}/issues/${number}/comments`);
+  if (!comments.some((c) => c.body.includes(marker)))
+    await request(`${repoPath}/issues/${number}/comments`, "POST", {
+      body: `${marker}\n**Sessão ${session} — ${effectiveAction}**\nExecutor: ${executor.nomeExibido}; operador: @${actor}; modelo: ${executor.modelo ?? "Não disponível"}.\nInício: ${latest.startedAt}; fim: ${latest.endedAt ?? "em aberto"}; tempo decorrido: ${latest.elapsedSeconds ?? "em aberto"} s; tempo ativo/tokens/custo: Não disponível.\nResultado: ${mirrorEvent.reason ?? effectiveAction}.\nCommit: ${mirrorEvent.commit ?? "Não disponível"}; PR: ${mirrorEvent.pr ?? "Não disponível"}; testes: ${mirrorEvent.tests ?? "Não disponível"}.\nHistórico persistente: [ledger e eventos](https://github.com/${process.env.PROJECT_OWNER ?? "idedigitalbr"}/loja-comercial-do-norte/commits/claims/issue-${number}).`,
+    });
+  const settled = structuredClone(next);
+  delete settled.pendingMirror;
+  await writeLedger(
+    ref,
+    settled,
+    ledgerSha,
+    `agents: espelho confirmado issue #${number} revision ${next.revision}`,
+  );
+} catch (error) {
+  console.error(
+    `Ledger salvo; espelho pendente: ${error.message}. Após confirmar que este processo encerrou, execute repair --recover --reason com a mesma sessão.`,
+  );
+  process.exitCode = 1;
 }
-
-console.log(JSON.stringify(result, null, 2));
+console.log(
+  JSON.stringify(
+    {
+      issue: number,
+      action: command,
+      session,
+      active: next.active,
+      revision: next.revision,
+      ref: `refs/${ref}`,
+    },
+    null,
+    2,
+  ),
+);

@@ -2,7 +2,7 @@
 
 > **Documento canônico de contexto e decisões do projeto** — atualizado em **24/10/2026**.
 > Leitura obrigatória para qualquer agente de IA ou desenvolvedor antes de planejar, implementar ou revisar alterações.
-> Repositório: `https://github.com/victorwilliames/loja-comercial-do-norte`.
+> Repositório: `https://github.com/idedigitalbr/loja-comercial-do-norte`.
 > Complemento operacional: [`roadmap.md`](./roadmap.md). **Nesta pasta existem somente estes dois arquivos `.md`** (os únicos complementos ficam em `security/`).
 
 ## 0. Ordem de autoridade e regra de atualização
@@ -16,8 +16,8 @@
 
 ### Estado atual do código (transição)
 
-- Snapshot de referência **do código**: commit `5781590` (24/10/2026); a documentação foi consolidada depois, sem alterar código. Em 24/10/2026 o **storefront passou a ser Next.js 16 (App Router)** consumindo a API REST, o **admin** continua React/Vite, o Prisma aponta para **PostgreSQL** com migrations versionadas e o domínio de **cotação** já existe na API.
-- A arquitetura-alvo da seção 1 está **decidida e ainda não implementada**. Nada neste documento deve ser lido como funcionalidade pronta sem conferir o código.
+- Referência inspecionada: branch `chore/multiagent-coordination`, derivada de `feat/stack-next-postgres` (`88c413c`). A `main` permanece em `564c9e3` até revisão humana. Em 24/10/2026 o **storefront passou a ser Next.js 16 (App Router)** consumindo a API REST, o **admin** continua React/Vite, o Prisma aponta para **PostgreSQL** com migrations versionadas e o domínio de **cotação** já existe na API.
+- Next.js, NestJS e PostgreSQL estão implementados na branch de desenvolvimento; padronização completa de UI, aceite no navegador e produção permanecem pendentes. Não confundir implementação nessa branch com integração na `main` ou publicação.
 - Projeto **em desenvolvimento**; segundo o responsável, **ainda não há produtos cadastrados**. Não concluir daí que o banco está vazio: validar usuários, configurações, banners e demais registros antes de qualquer reset.
 - Meta da fase 1: **31/10/2026** (evento ACP), sujeita à validação de prontidão. Não declarar lançamento realizado.
 
@@ -25,7 +25,7 @@
 |---|---|---|---|
 | Storefront | Next.js App Router + TypeScript | **Next.js 16.4.3** em `apps/storefront` (App Router) consumindo a API REST | estado vazio/erros de rede, E2E Playwright, design da referência (fase C/D5) |
 | API | NestJS, fonte única da regra de negócio | NestJS 11 + Express 5 | manter e evoluir |
-| Banco | PostgreSQL | PostgreSQL (provider e SQL nativo migrados em 24/10/2026; migration baseline pendente) | gerar/aplicar migrations PostgreSQL (B3) |
+| Banco | PostgreSQL | PostgreSQL, provider/SQL adaptados e quatro migrations versionadas | testes completos de integração, backup e recuperação (B6/B7) |
 | ORM | Prisma | Prisma 6 | revisar schema e histórico de migrations |
 | UI | Tailwind CSS + shadcn/ui + `packages/ui` | CSS manual extenso + `packages/ui` parcial | padronizar (fase C) |
 | Ícones | Lucide | Lucide | manter |
@@ -41,7 +41,7 @@
 |---|---|---|
 | Storefront público | **Next.js + React + TypeScript** | Renderização adequada a SEO de produto/categoria, experiência responsiva e páginas institucionais |
 | API / regras comerciais | **NestJS existente**, Node.js + TypeScript | **Fonte única da lógica de negócio**, catálogo, cotação, autenticação, integrações, pagamentos futuros e autorização |
-| Banco de dados | **PostgreSQL** | Substituir MySQL; planejamento e testes antes de mudar qualquer banco real |
+| Banco de dados | **PostgreSQL** | Provider PostgreSQL implementado na branch de desenvolvimento; backup e validação antes de qualquer banco real |
 | ORM | **Prisma** | Modelagem, migrações e acesso a dados **somente pela API NestJS** |
 | Design e estilos | **Tailwind CSS + shadcn/ui + tokens CSS** | Componentes reutilizáveis, acessíveis, consistentes; **não instalar um segundo design system concorrente** |
 | Componentes compartilhados | `packages/ui` | Componentes base, variantes, utilitários e tokens únicos para loja e admin |
@@ -65,7 +65,7 @@
 
 ```text
 apps/
-  storefront/          # migrar Vite/React para Next.js App Router, por etapas
+  storefront/          # Next.js App Router implementado; evolução visual incremental
   admin/               # painel React/Vite EXISTENTE; padronizar shadcn/Tailwind
                          # avaliar integração futura ao Next, sem big bang
   api/                 # NestJS — única API de negócio e acesso ao PostgreSQL
@@ -75,7 +75,7 @@ packages/
   api-client/          # cliente de API tipado, autenticação e tratamento de erros
   config-eslint/
   config-typescript/
-prisma/                  # schema PostgreSQL + migrations NOVAS coerentes
+prisma/                  # schema PostgreSQL + quatro migrations versionadas
 site-comercial-do-norte-html-referencia/  # fonte visual de verdade
 docs/
   memory-ai.md          # ESTA fonte de verdade
@@ -121,7 +121,7 @@ docs/
 - Só produto `ACTIVE` aparece ao público; rascunho (`DRAFT`) fica invisível em listagem, busca, sitemap **e no acesso por slug**.
 - Publicar exige: SKU na variante principal, foto principal (`isPrimary`), peso e dimensões (largura, altura, comprimento). A regra já existe em `CatalogService.publish` (`ProductIncompleteError`).
 - Preço vive na variante, em centavos (`priceCents` e `compareAtPriceCents`); o "de/por" das ofertas deriva daí, nunca de texto livre.
-- Categoria: hoje é plana (sem `parentId`); o alvo é hierarquia pai/filho com imagem e ordem, no molde de `BrandHierarchy`.
+- Categoria: hierarquia pai/filho implementada com `parentId`, `imagePath`, `sortOrder` e proteção contra ciclos. Filtros incluem descendentes; upload/ordenação no painel ainda precisam de aceite.
 - Marca: já tem hierarquia pai/filho, e o filtro inclui as marcas filhas.
 - Mídia: upload até 10 MB (JPEG/PNG/WebP) gera 3 larguras WebP (480/960/1440) + original em armazenamento próprio; **proibido hotlink externo** em produto, banner ou conteúdo.
 - `legacySource` + `legacyId` (único composto) e `ProductVariant.sku` (único) são as âncoras de qualquer importação ou sincronização.
@@ -180,12 +180,12 @@ Artigos para Festa; Embalagens; Descartáveis; Doces e Bomboniere; Sacos e Sacol
 
 ## 4. Base existente — o que já está implementado
 
-- Monorepo Turbo + pnpm com `apps/storefront` (React 19 + Vite), `apps/admin` (React + Vite) e `apps/api` (NestJS 11 + Prisma 6 + MySQL 8), além de `packages/contracts`, `ui` e `api-client`.
+- Monorepo Turbo + pnpm com `apps/storefront` (Next.js App Router), `apps/admin` (React/Vite) e `apps/api` (NestJS 11 + Prisma 6 + PostgreSQL), além de `packages/contracts`, `ui` e `api-client`. Migrations versionadas incluem baseline, nome do site, cotações e hierarquia de categorias. A existência dos arquivos não comprova aplicação em produção.
 - API com autenticação por sessão (cookie assinado), RBAC por permissão, catálogo (produto/variante/imagem), marcas hierárquicas, categorias, estoque com reserva transacional, carrinhos anônimos, cupons/promoções, pedidos com máquina de estados, pagamentos Mercado Pago, entregas, clientes, configurações, banners, notificações, relatórios e treinamentos herdados.
 - `SiteBanner` é o model real de banners; `GET /api/v1/site/config` devolve site + banners ativos.
 - Mídia com Sharp: original + 480/960/1440 WebP.
 - Seed idempotente e importador WooCommerce ancorado em `legacySource`/`legacyId`.
-- Admin cobre catálogo, pedidos, estoque, clientes, promoções, relatórios e configurações (site, banners, pagamentos, SMTP, templates).
+- Admin cobre catálogo, fila de cotações, pedidos, estoque, clientes, promoções, relatórios e configurações. Módulos de compra são legado isolado por flags na API; ocultação completa no admin ainda está pendente.
 
 Lacunas, defeitos e riscos dessa base **não são repetidos aqui**: estão em `roadmap.md` §3 (R01–R16) e nas fases de migração.
 
@@ -201,6 +201,25 @@ Lacunas, defeitos e riscos dessa base **não são repetidos aqui**: estão em `r
 8. **Padrão UI:** reutilizar shadcn/ui + `packages/ui` e tokens oficiais; componentes acessíveis; nada de CSS arbitrário duplicado nem animação invasiva.
 9. **Segredo:** nunca commitar `.env`, tokens de ERP/Pagamentos, senhas ou dumps. Exemplos usam variáveis e valores fictícios marcados.
 10. **Restrições de escopo:** sem Medusa, sem Payload, sem TanStack Start, sem reconstrução do backend Nest e sem ativar pagamentos na fase 1.
+
+### 5.1 Coordenação multiagente permanente
+
+- Fonte operacional: [Project 3](https://github.com/orgs/idedigitalbr/projects/3), preservando o nome configurado e somente **Tabela, Kanban e Roadmap**. Repositório oficial privado: `idedigitalbr/loja-comercial-do-norte`. Hierarquia nativa **Sprint → Etapa → Tarefa**, 36 tarefas originais; manutenção adicional identificada separadamente no manifesto.
+- Toda Issue operacional possui responsável humano em Assignees; padrão autorizado `victorwilliames`, sem remover atribuições legítimas. Executor IA é outro campo. Campo vazio significa nenhuma IA designada.
+- Identidade estável em `scripts/agents/executors.json`: executorId, ferramenta, operadorHumano, modelo e nomeExibido. Modelo desconhecido fica nulo; não usar os exemplos de modelos do briefing como telemetria. Novos operadores precisam de cadastro explícito e permissão de escrita no repo.
+- Exclusividade: uma ref permanente `refs/heads/claims/issue-N` por Issue. Primeiro claim cria a ref atomicamente; operações têm nonce aleatório exclusivo, preservam a árvore do pai e eventos posteriores criam commits filhos e atualizam com **force:false**. Concorrentes com o mesmo pai não podem sobrescrever um ao outro. Release grava uma sessão encerrada, **não exclui a ref**: isso impede que uma liberação atrasada apague um sucessor. Refs livres são histórico, não branches de desenvolvimento abandonadas.
+- Ledger autoritativo: `agent-session.json` na própria ref, histórico imutável por commits, com ator autenticado, sessão única, branch, eventos, evidências e participantes acumulados. O nome exibido não concede propriedade: ator + executorId + session devem coincidir. Nunca confiar em comentários públicos como prova de dono.
+- Não há expiração/liberação forçada automática. Após falha, consultar status e retomar/renovar a mesma sessão; `pendingMirror` mantém a barreira até o espelho confirmar; nova operação é recusada nesse intervalo. `repair` recompõe o espelho a partir do ledger; se houver pendência, exige `--recover --reason` após confirmar que o processo anterior encerrou. Outra pessoa não deve apagar a ref para contornar a trava. Recuperação administrativa sem a sessão original exige inspeção humana de branch/PR/processo e migração auditada.
+- `pause/resume` registram eventos; duração total deriva de início/fim verificados. Tempo ativo, tokens de entrada/saída/cache/total, custo e provedor ficam **Não disponível** sem telemetria real. Não publicar custos privados nem segredos em campos, comentários ou ledger.
+- Agentes participantes é apenas resumo; comentários por sessão e commits da ref preservam os eventos completos. Valores legados sem prova de sessão são registrados como observação histórica, sem inventar operador, horário ou custo.
+- `project-sync.mjs` (bootstrap) cria o que falta; `--reconcile` corrige estrutura, dependências e incoerências comprovadas, sem reaplicar status/executor/assignees do manifesto sobre trabalho ativo. Não fecha tarefas nem agrupadores automaticamente. Repetição deve resultar em zero alterações. `verify-project.mjs` é somente leitura.
+- Dependências nativas Blocked by/Blocking são verificadas por leitura da API; ciclos longos são recusados. Dependência aberta impede claim/start/resume. O manifesto preserva as 36 tarefas e 42 dependências originais.
+- Status: Backlog, A Fazer, Reservado, Em Andamento, Em Revisão, Bloqueado, Concluído. Conclusão exige aprovação humana explícita, commit/PR/testes e filhos encerrados. CI e merge de PR não concluem nem liberam reserva. Revisão/bloqueio permanecem ao liberar a sessão.
+- Prioridades preservam IDs e escala: P0 — CRÍTICA | Pra ontem; P1 — ALTA | Pra hoje; P2 — NORMAL | Prioridade média; P3 — BAIXA | Pra depois. Labels continuam existindo, ocultas na Tabela.
+- Workflows consultam a permissão real do ator (write/maintain/admin), usam argumentos diretos ao Node e nunca executam texto de comentários no shell. PR privilegiado só usa código da branch padrão; nunca checkout da cabeça do PR com token privilegiado.
+- Automação de Projects usa secret `PROJECT_TOKEN` com escrita no Project da organização e leitura das Issues vinculadas. Preferir GitHub App com Organization projects read/write e acesso somente ao repo necessário; não pressupor que GITHUB_TOKEN efêmero tenha acesso organizacional. Git/Issues usam GITHUB_TOKEN com permissões do workflow. Não copiar a credencial OAuth local para secrets automaticamente. Referências: [autenticação de Projects](https://github.github.com/gh-aw/reference/auth-projects/), [refs Git](https://docs.github.com/en/rest/git/refs).
+- Regras nativas de Project que renomeiam/fecham por IDs antigos devem ser revistas antes de mudar Status. A regra de adicionar sub-issues pode permanecer. Nenhuma automação deve concluir apenas por CI ou PR mesclado.
+- Não criar branch para mudanças de campos. Para código, reutilizar branch segura quando possível; PR #37 tem base `feat/stack-next-postgres` para isolar coordenação. Merge na main e deploy exigem autorização separada.
 
 ## 6. Decisões pendentes fora da stack
 

@@ -1,0 +1,36 @@
+name: Validar coordenação multiagente
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore: ["claims/**"]
+    paths: ["scripts/agents/**", ".github/workflows/agent*.yml"]
+  pull_request:
+    paths: ["scripts/agents/**", ".github/workflows/agent*.yml"]
+permissions:
+  contents: read
+jobs:
+  permissao-project:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Provar leitura e escrita real no Project sem alterar o título
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+        run: node scripts/agents/project-auth-check.mjs
+  protocolo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test scripts/agents/*.test.mjs
+      - name: Verificar sintaxe de todos os scripts
+        run: for script in scripts/agents/*.mjs; do node --check "$script"; done

@@ -2,54 +2,630 @@
   "projectNumber": 3,
   "projectOwner": "idedigitalbr",
   "repository": "idedigitalbr/loja-comercial-do-norte",
-  "statusOptions": ["Backlog", "A Fazer", "Reservado", "Em Andamento", "Em Revisão", "Bloqueado", "Concluído"],
-  "agentOptions": ["Claude", "Codex", "DeepSeek", "Antigravity", "Copilot", "Humano", "Não atribuído"],
-  "sprintOptions": ["Sprint 1", "Sprint 2", "Sprint 3", "Sprint 4"],
-  "etapaOptions": ["Etapa 1", "Etapa 2", "Etapa 3", "Etapa 4", "Etapa 5", "Etapa 6"],
-  "tipoOptions": ["UX", "UI", "FRONT", "BACK", "BUG", "INFRA", "DB", "SEC", "QA", "SEO", "DOCS", "CONTENT", "ERP"],
-  "trilhaOptions": ["Engenharia", "Design/Frontend", "Compartilhado"],
-  "prioridadeOptions": ["P0", "P1", "P2", "P3"],
+  "statusOptions": [
+    "Backlog",
+    "A Fazer",
+    "Reservado",
+    "Em Andamento",
+    "Em Revisão",
+    "Bloqueado",
+    "Concluído"
+  ],
+  "agentOptions": [
+    "Codex (Will)",
+    "Antigravity (Will)",
+    "Claude (Will)",
+    "DeepSeek Harness (Will)",
+    "OpenCode (Will)"
+  ],
+  "sprintOptions": [
+    "Sprint 1",
+    "Sprint 2",
+    "Sprint 3",
+    "Sprint 4"
+  ],
+  "etapaOptions": [
+    "Etapa 1",
+    "Etapa 2",
+    "Etapa 3",
+    "Etapa 4",
+    "Etapa 5",
+    "Etapa 6"
+  ],
+  "tipoOptions": [
+    "UX",
+    "UI",
+    "FRONT",
+    "BACK",
+    "BUG",
+    "INFRA",
+    "DB",
+    "SEC",
+    "QA",
+    "SEO",
+    "DOCS",
+    "CONTENT",
+    "ERP"
+  ],
+  "trilhaOptions": [
+    "Engenharia",
+    "Design/Frontend",
+    "Compartilhado"
+  ],
+  "prioridadeOptions": [
+    "P0 — CRÍTICA | Pra ontem",
+    "P1 — ALTA | Pra hoje",
+    "P2 — NORMAL | Prioridade média",
+    "P3 — BAIXA | Pra depois"
+  ],
   "tasks": [
-    { "id": "A1", "etapa": "Etapa 1", "tipo": "INFRA", "titulo": "Backup, tag e branch de trabalho", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": [], "evidencia": "tag backup/pre-migracao-2026-10-24 em 564c9e3; branch feat/stack-next-postgres" },
-    { "id": "A2", "etapa": "Etapa 1", "tipo": "INFRA", "titulo": "Diagnóstico reprodutível (install, lint, typecheck, test, build)", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["A1"], "evidencia": "roadmap §1.1; CI run 40122279138" },
-    { "id": "A3", "etapa": "Etapa 1", "tipo": "INFRA", "titulo": "Configuração segura de ambiente e segredos", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["A2"], "evidencia": ".env.example PostgreSQL + senhas do seed" },
-    { "id": "A4", "etapa": "Etapa 1", "tipo": "QA", "titulo": "Restabelecer CI com lint, typecheck, testes, E2E e build", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["A2"], "evidencia": ".github/workflows/ci.yml; runs 40121852853 e 40122279138" },
-    { "id": "A5", "etapa": "Etapa 1", "tipo": "DB", "titulo": "Inventário de dados legados antes da migração", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["A1"], "evidencia": "sem MySQL local; histórico preservado no Git" },
-
-    { "id": "B1", "etapa": "Etapa 2", "tipo": "DB", "titulo": "PostgreSQL de desenvolvimento sem Docker", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["A2"], "evidencia": "scripts/dev/postgres.mjs; CI com Postgres 17" },
-    { "id": "B2", "etapa": "Etapa 2", "tipo": "DB", "titulo": "Schema Prisma para PostgreSQL", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["B1"], "evidencia": "prisma/schema.prisma provider postgresql" },
-    { "id": "B3", "etapa": "Etapa 2", "tipo": "DB", "titulo": "Migrations PostgreSQL versionadas", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["B2"], "evidencia": "4 migrations aplicadas em banco vazio (57 tabelas)" },
-    { "id": "B4", "etapa": "Etapa 2", "tipo": "DB", "titulo": "Adaptar SQL nativo para PostgreSQL", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["B2"], "evidencia": "inventory/trainings/coupon services" },
-    { "id": "B5", "etapa": "Etapa 2", "tipo": "DB", "titulo": "Seed idempotente Comercial do Norte com catálogo demo", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["B3"], "evidencia": "prisma/seed-catalog.ts; imagens WebP locais" },
-    { "id": "B6", "etapa": "Etapa 2", "tipo": "QA", "titulo": "Integração completa com PostgreSQL real (concorrência e locks)", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 2", "status": "A Fazer", "deps": ["B3", "B5"], "evidencia": "" },
-    { "id": "B7", "etapa": "Etapa 2", "tipo": "INFRA", "titulo": "Provisionamento, backup e recovery do PostgreSQL", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 3", "status": "Backlog", "deps": ["B3"], "evidencia": "" },
-
-    { "id": "C1", "etapa": "Etapa 3", "tipo": "UI", "titulo": "Tokens oficiais da marca em packages/ui", "trilha": "Design/Frontend", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["A2"], "evidencia": "packages/ui/src/styles/tokens.css" },
-    { "id": "C2", "etapa": "Etapa 3", "tipo": "UI", "titulo": "Tailwind e primitivos compartilhados (cn, botão, badge, vazio)", "trilha": "Design/Frontend", "prioridade": "P0", "sprint": "Sprint 2", "status": "Em Andamento", "deps": ["C1"], "evidencia": "packages/ui/src/web (criado, ainda não consumido)" },
-    { "id": "C3", "etapa": "Etapa 3", "tipo": "UI", "titulo": "Inventário de componentes com estados e acessibilidade", "trilha": "Design/Frontend", "prioridade": "P1", "sprint": "Sprint 2", "status": "A Fazer", "deps": ["C2"], "evidencia": "" },
-    { "id": "C4", "etapa": "Etapa 3", "tipo": "UI", "titulo": "Aplicar design system no painel administrativo", "trilha": "Design/Frontend", "prioridade": "P1", "sprint": "Sprint 3", "status": "Backlog", "deps": ["C2"], "evidencia": "" },
-    { "id": "C5", "etapa": "Etapa 3", "tipo": "UI", "titulo": "Remover CSS duplicado e branding herdado", "trilha": "Design/Frontend", "prioridade": "P1", "sprint": "Sprint 3", "status": "Backlog", "deps": ["C4"], "evidencia": "" },
-
-    { "id": "D1", "etapa": "Etapa 4", "tipo": "FRONT", "titulo": "Storefront migrado para Next.js App Router", "trilha": "Design/Frontend", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["A4"], "evidencia": "apps/storefront (Next 16); next build verde no CI" },
-    { "id": "D2", "etapa": "Etapa 4", "tipo": "FRONT", "titulo": "Integração exclusiva com a API NestJS", "trilha": "Design/Frontend", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["D1"], "evidencia": "lib/api.ts; CORS restrito em main.ts" },
-    { "id": "D3", "etapa": "Etapa 4", "tipo": "SEO", "titulo": "SEO técnico: metadata, sitemap, robots e canonical", "trilha": "Design/Frontend", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["D1"], "evidencia": "generateMetadata, sitemap.ts, robots.ts" },
-    { "id": "D4", "etapa": "Etapa 4", "tipo": "FRONT", "titulo": "Performance: cache, imagens responsivas e web vitals", "trilha": "Design/Frontend", "prioridade": "P1", "sprint": "Sprint 3", "status": "Backlog", "deps": ["D1"], "evidencia": "" },
-    { "id": "D5", "etapa": "Etapa 4", "tipo": "UX", "titulo": "Fidelidade visual completa à referência HTML (S0–S10)", "trilha": "Design/Frontend", "prioridade": "P0", "sprint": "Sprint 2", "status": "Em Andamento", "deps": ["C3", "D1"], "evidencia": "S0–S4 e S8 implementados; faltam S5–S7 e S9" },
-    { "id": "D6", "etapa": "Etapa 4", "tipo": "QA", "titulo": "Validar rotas e SSR sem conflito com o shell legado", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 2", "status": "A Fazer", "deps": ["D1"], "evidencia": "shell da loja removido; validação em navegador pendente" },
-    { "id": "D7", "etapa": "Etapa 4", "tipo": "INFRA", "titulo": "Produção: Next e Nest separados, HTTPS, storage e observabilidade", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 3", "status": "Backlog", "deps": ["B7", "D6"], "evidencia": "" },
-
-    { "id": "E1", "etapa": "Etapa 5", "tipo": "SEC", "titulo": "Feature flags isolando checkout, pagamentos e treinamentos", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["A4"], "evidencia": "FeatureGuard + 404; E2E valida checkout desligado" },
-    { "id": "E2", "etapa": "Etapa 5", "tipo": "BACK", "titulo": "Hierarquia de categorias com filtro descendente", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["B3"], "evidencia": "migration category_hierarchy + catalog-category-hierarchy.spec.ts" },
-    { "id": "E3", "etapa": "Etapa 5", "tipo": "BACK", "titulo": "Cotação pública sem login com preço no servidor e idempotência", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["B3"], "evidencia": "Quote/QuoteItem/QuoteEvent + quotes.service.spec.ts" },
-    { "id": "E4", "etapa": "Etapa 5", "tipo": "BACK", "titulo": "Fila de cotações para vendas (API e painel)", "trilha": "Compartilhado", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["E3"], "evidencia": "admin/quotes + apps/admin/src/features/quotes" },
-    { "id": "E5", "etapa": "Etapa 5", "tipo": "CONTENT", "titulo": "Conteúdo oficial: contatos, marcas, fotos e textos", "trilha": "Compartilhado", "prioridade": "P0", "sprint": "Sprint 2", "status": "Bloqueado", "deps": ["B5"], "evidencia": "depende de dados oficiais do responsável" },
-    { "id": "E6", "etapa": "Etapa 5", "tipo": "FRONT", "titulo": "Home e catálogo completos (S0–S10)", "trilha": "Design/Frontend", "prioridade": "P0", "sprint": "Sprint 2", "status": "A Fazer", "deps": ["D5", "E2"], "evidencia": "" },
-    { "id": "E7", "etapa": "Etapa 5", "tipo": "BACK", "titulo": "Busca e paginação no servidor com filtros", "trilha": "Engenharia", "prioridade": "P0", "sprint": "Sprint 1", "status": "Concluído", "deps": ["E2"], "evidencia": "/catalog/products/search + catalog-search.spec.ts" },
-    { "id": "E8", "etapa": "Etapa 5", "tipo": "QA", "titulo": "Smoke tests de aceite no navegador (Playwright)", "trilha": "Compartilhado", "prioridade": "P0", "sprint": "Sprint 2", "status": "Em Andamento", "deps": ["D5", "E3", "E4"], "evidencia": "E2E de API no CI (16 testes); navegador pendente" },
-
-    { "id": "F1", "etapa": "Etapa 6", "tipo": "ERP", "titulo": "Integração com ERP após documentação oficial", "trilha": "Engenharia", "prioridade": "P2", "sprint": "Sprint 4", "status": "Bloqueado", "deps": ["B6"], "evidencia": "depende de documentação e credenciais do ERP" },
-    { "id": "F2", "etapa": "Etapa 6", "tipo": "BACK", "titulo": "Checkout real, pagamentos e webhooks homologados", "trilha": "Engenharia", "prioridade": "P2", "sprint": "Sprint 4", "status": "Backlog", "deps": ["B6", "E8"], "evidencia": "riscos R01–R03/R06 em aberto" },
-    { "id": "F3", "etapa": "Etapa 6", "tipo": "BACK", "titulo": "CMS próprio para conteúdo editável no admin", "trilha": "Compartilhado", "prioridade": "P3", "sprint": "Sprint 4", "status": "Backlog", "deps": ["D6"], "evidencia": "" },
-    { "id": "F4", "etapa": "Etapa 6", "tipo": "INFRA", "titulo": "Observabilidade, automação de deploy e relatórios", "trilha": "Engenharia", "prioridade": "P2", "sprint": "Sprint 4", "status": "Backlog", "deps": ["D7"], "evidencia": "" }
+    {
+      "id": "A1",
+      "etapa": "Etapa 1",
+      "tipo": "INFRA",
+      "titulo": "Backup, tag e branch de trabalho",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [],
+      "evidencia": "tag backup/pre-migracao-2026-10-24 em 564c9e3; branch feat/stack-next-postgres"
+    },
+    {
+      "id": "A2",
+      "etapa": "Etapa 1",
+      "tipo": "INFRA",
+      "titulo": "Diagnóstico reprodutível (install, lint, typecheck, test, build)",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "A1"
+      ],
+      "evidencia": "roadmap §1.1; CI run 40122279138"
+    },
+    {
+      "id": "A3",
+      "etapa": "Etapa 1",
+      "tipo": "INFRA",
+      "titulo": "Configuração segura de ambiente e segredos",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "A2"
+      ],
+      "evidencia": ".env.example PostgreSQL + senhas do seed"
+    },
+    {
+      "id": "A4",
+      "etapa": "Etapa 1",
+      "tipo": "QA",
+      "titulo": "Restabelecer CI com lint, typecheck, testes, E2E e build",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "A2"
+      ],
+      "evidencia": ".github/workflows/ci.yml; runs 40121852853 e 40122279138"
+    },
+    {
+      "id": "A5",
+      "etapa": "Etapa 1",
+      "tipo": "DB",
+      "titulo": "Inventário de dados legados antes da migração",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "A1"
+      ],
+      "evidencia": "sem MySQL local; histórico preservado no Git"
+    },
+    {
+      "id": "B1",
+      "etapa": "Etapa 2",
+      "tipo": "DB",
+      "titulo": "PostgreSQL de desenvolvimento sem Docker",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "A2"
+      ],
+      "evidencia": "scripts/dev/postgres.mjs; CI com Postgres 17"
+    },
+    {
+      "id": "B2",
+      "etapa": "Etapa 2",
+      "tipo": "DB",
+      "titulo": "Schema Prisma para PostgreSQL",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "B1"
+      ],
+      "evidencia": "prisma/schema.prisma provider postgresql"
+    },
+    {
+      "id": "B3",
+      "etapa": "Etapa 2",
+      "tipo": "DB",
+      "titulo": "Migrations PostgreSQL versionadas",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "B2"
+      ],
+      "evidencia": "4 migrations aplicadas em banco vazio (57 tabelas)"
+    },
+    {
+      "id": "B4",
+      "etapa": "Etapa 2",
+      "tipo": "DB",
+      "titulo": "Adaptar SQL nativo para PostgreSQL",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "B2"
+      ],
+      "evidencia": "inventory/trainings/coupon services"
+    },
+    {
+      "id": "B5",
+      "etapa": "Etapa 2",
+      "tipo": "DB",
+      "titulo": "Seed idempotente Comercial do Norte com catálogo demo",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "B3"
+      ],
+      "evidencia": "prisma/seed-catalog.ts; imagens WebP locais"
+    },
+    {
+      "id": "B6",
+      "etapa": "Etapa 2",
+      "tipo": "QA",
+      "titulo": "Integração completa com PostgreSQL real (concorrência e locks)",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 2",
+      "status": "A Fazer",
+      "deps": [
+        "B3",
+        "B5"
+      ],
+      "evidencia": ""
+    },
+    {
+      "id": "B7",
+      "etapa": "Etapa 2",
+      "tipo": "INFRA",
+      "titulo": "Provisionamento, backup e recovery do PostgreSQL",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 3",
+      "status": "Backlog",
+      "deps": [
+        "B3"
+      ],
+      "evidencia": ""
+    },
+    {
+      "id": "C1",
+      "etapa": "Etapa 3",
+      "tipo": "UI",
+      "titulo": "Tokens oficiais da marca em packages/ui",
+      "trilha": "Design/Frontend",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "A2"
+      ],
+      "evidencia": "packages/ui/src/styles/tokens.css"
+    },
+    {
+      "id": "C2",
+      "etapa": "Etapa 3",
+      "tipo": "UI",
+      "titulo": "Tailwind e primitivos compartilhados (cn, botão, badge, vazio)",
+      "trilha": "Design/Frontend",
+      "prioridade": "P0",
+      "sprint": "Sprint 2",
+      "status": "Em Andamento",
+      "deps": [
+        "C1"
+      ],
+      "evidencia": "packages/ui/src/web (criado, ainda não consumido)"
+    },
+    {
+      "id": "C3",
+      "etapa": "Etapa 3",
+      "tipo": "UI",
+      "titulo": "Inventário de componentes com estados e acessibilidade",
+      "trilha": "Design/Frontend",
+      "prioridade": "P1",
+      "sprint": "Sprint 2",
+      "status": "A Fazer",
+      "deps": [
+        "C2"
+      ],
+      "evidencia": ""
+    },
+    {
+      "id": "C4",
+      "etapa": "Etapa 3",
+      "tipo": "UI",
+      "titulo": "Aplicar design system no painel administrativo",
+      "trilha": "Design/Frontend",
+      "prioridade": "P1",
+      "sprint": "Sprint 3",
+      "status": "Backlog",
+      "deps": [
+        "C2"
+      ],
+      "evidencia": ""
+    },
+    {
+      "id": "C5",
+      "etapa": "Etapa 3",
+      "tipo": "UI",
+      "titulo": "Remover CSS duplicado e branding herdado",
+      "trilha": "Design/Frontend",
+      "prioridade": "P1",
+      "sprint": "Sprint 3",
+      "status": "Backlog",
+      "deps": [
+        "C4"
+      ],
+      "evidencia": ""
+    },
+    {
+      "id": "D1",
+      "etapa": "Etapa 4",
+      "tipo": "FRONT",
+      "titulo": "Storefront migrado para Next.js App Router",
+      "trilha": "Design/Frontend",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "A4"
+      ],
+      "evidencia": "apps/storefront (Next 16); next build verde no CI"
+    },
+    {
+      "id": "D2",
+      "etapa": "Etapa 4",
+      "tipo": "FRONT",
+      "titulo": "Integração exclusiva com a API NestJS",
+      "trilha": "Design/Frontend",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "D1"
+      ],
+      "evidencia": "lib/api.ts; CORS restrito em main.ts"
+    },
+    {
+      "id": "D3",
+      "etapa": "Etapa 4",
+      "tipo": "SEO",
+      "titulo": "SEO técnico: metadata, sitemap, robots e canonical",
+      "trilha": "Design/Frontend",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "D1"
+      ],
+      "evidencia": "generateMetadata, sitemap.ts, robots.ts"
+    },
+    {
+      "id": "D4",
+      "etapa": "Etapa 4",
+      "tipo": "FRONT",
+      "titulo": "Performance: cache, imagens responsivas e web vitals",
+      "trilha": "Design/Frontend",
+      "prioridade": "P1",
+      "sprint": "Sprint 3",
+      "status": "Backlog",
+      "deps": [
+        "D1"
+      ],
+      "evidencia": ""
+    },
+    {
+      "id": "D5",
+      "etapa": "Etapa 4",
+      "tipo": "UX",
+      "titulo": "Fidelidade visual completa à referência HTML (S0–S10)",
+      "trilha": "Design/Frontend",
+      "prioridade": "P0",
+      "sprint": "Sprint 2",
+      "status": "Em Andamento",
+      "deps": [
+        "C3",
+        "D1"
+      ],
+      "evidencia": "S0–S4 e S8 implementados; faltam S5–S7 e S9"
+    },
+    {
+      "id": "D6",
+      "etapa": "Etapa 4",
+      "tipo": "QA",
+      "titulo": "Validar rotas e SSR sem conflito com o shell legado",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 2",
+      "status": "A Fazer",
+      "deps": [
+        "D1"
+      ],
+      "evidencia": "shell da loja removido; validação em navegador pendente"
+    },
+    {
+      "id": "D7",
+      "etapa": "Etapa 4",
+      "tipo": "INFRA",
+      "titulo": "Produção: Next e Nest separados, HTTPS, storage e observabilidade",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 3",
+      "status": "Backlog",
+      "deps": [
+        "B7",
+        "D6"
+      ],
+      "evidencia": ""
+    },
+    {
+      "id": "E1",
+      "etapa": "Etapa 5",
+      "tipo": "SEC",
+      "titulo": "Feature flags isolando checkout, pagamentos e treinamentos",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "A4"
+      ],
+      "evidencia": "FeatureGuard + 404; E2E valida checkout desligado"
+    },
+    {
+      "id": "E2",
+      "etapa": "Etapa 5",
+      "tipo": "BACK",
+      "titulo": "Hierarquia de categorias com filtro descendente",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "B3"
+      ],
+      "evidencia": "migration category_hierarchy + catalog-category-hierarchy.spec.ts"
+    },
+    {
+      "id": "E3",
+      "etapa": "Etapa 5",
+      "tipo": "BACK",
+      "titulo": "Cotação pública sem login com preço no servidor e idempotência",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "B3"
+      ],
+      "evidencia": "Quote/QuoteItem/QuoteEvent + quotes.service.spec.ts"
+    },
+    {
+      "id": "E4",
+      "etapa": "Etapa 5",
+      "tipo": "BACK",
+      "titulo": "Fila de cotações para vendas (API e painel)",
+      "trilha": "Compartilhado",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "E3"
+      ],
+      "evidencia": "admin/quotes + apps/admin/src/features/quotes"
+    },
+    {
+      "id": "E5",
+      "etapa": "Etapa 5",
+      "tipo": "CONTENT",
+      "titulo": "Conteúdo oficial: contatos, marcas, fotos e textos",
+      "trilha": "Compartilhado",
+      "prioridade": "P0",
+      "sprint": "Sprint 2",
+      "status": "Bloqueado",
+      "deps": [
+        "B5"
+      ],
+      "evidencia": "depende de dados oficiais do responsável"
+    },
+    {
+      "id": "E6",
+      "etapa": "Etapa 5",
+      "tipo": "FRONT",
+      "titulo": "Home e catálogo completos (S0–S10)",
+      "trilha": "Design/Frontend",
+      "prioridade": "P0",
+      "sprint": "Sprint 2",
+      "status": "A Fazer",
+      "deps": [
+        "D5",
+        "E2"
+      ],
+      "evidencia": ""
+    },
+    {
+      "id": "E7",
+      "etapa": "Etapa 5",
+      "tipo": "BACK",
+      "titulo": "Busca e paginação no servidor com filtros",
+      "trilha": "Engenharia",
+      "prioridade": "P0",
+      "sprint": "Sprint 1",
+      "status": "Concluído",
+      "deps": [
+        "E2"
+      ],
+      "evidencia": "/catalog/products/search + catalog-search.spec.ts"
+    },
+    {
+      "id": "E8",
+      "etapa": "Etapa 5",
+      "tipo": "QA",
+      "titulo": "Smoke tests de aceite no navegador (Playwright)",
+      "trilha": "Compartilhado",
+      "prioridade": "P0",
+      "sprint": "Sprint 2",
+      "status": "Em Andamento",
+      "deps": [
+        "D5",
+        "E3",
+        "E4"
+      ],
+      "evidencia": "E2E de API no CI (16 testes); navegador pendente"
+    },
+    {
+      "id": "F1",
+      "etapa": "Etapa 6",
+      "tipo": "ERP",
+      "titulo": "Integração com ERP após documentação oficial",
+      "trilha": "Engenharia",
+      "prioridade": "P2",
+      "sprint": "Sprint 4",
+      "status": "Bloqueado",
+      "deps": [
+        "B6"
+      ],
+      "evidencia": "depende de documentação e credenciais do ERP"
+    },
+    {
+      "id": "F2",
+      "etapa": "Etapa 6",
+      "tipo": "BACK",
+      "titulo": "Checkout real, pagamentos e webhooks homologados",
+      "trilha": "Engenharia",
+      "prioridade": "P2",
+      "sprint": "Sprint 4",
+      "status": "Backlog",
+      "deps": [
+        "B6",
+        "E8"
+      ],
+      "evidencia": "riscos R01–R03/R06 em aberto"
+    },
+    {
+      "id": "F3",
+      "etapa": "Etapa 6",
+      "tipo": "BACK",
+      "titulo": "CMS próprio para conteúdo editável no admin",
+      "trilha": "Compartilhado",
+      "prioridade": "P3",
+      "sprint": "Sprint 4",
+      "status": "Backlog",
+      "deps": [
+        "D6"
+      ],
+      "evidencia": ""
+    },
+    {
+      "id": "F4",
+      "etapa": "Etapa 6",
+      "tipo": "INFRA",
+      "titulo": "Observabilidade, automação de deploy e relatórios",
+      "trilha": "Engenharia",
+      "prioridade": "P2",
+      "sprint": "Sprint 4",
+      "status": "Backlog",
+      "deps": [
+        "D7"
+      ],
+      "evidencia": ""
+    }
+  ],
+  "sprints": [
+    {
+      "id": "Sprint 1",
+      "titulo": "Fundação do projeto"
+    },
+    {
+      "id": "Sprint 2",
+      "titulo": "Desenvolvimento"
+    },
+    {
+      "id": "Sprint 3",
+      "titulo": "Funcionalidades"
+    },
+    {
+      "id": "Sprint 4",
+      "titulo": "Validação e evolução"
+    }
+  ],
+  "etapas": [
+    {
+      "id": "Etapa 1",
+      "titulo": "Arquitetura, ambiente e qualidade",
+      "sprint": "Sprint 1"
+    },
+    {
+      "id": "Etapa 2",
+      "titulo": "PostgreSQL e Prisma",
+      "sprint": "Sprint 1"
+    },
+    {
+      "id": "Etapa 3",
+      "titulo": "Design system e componentes",
+      "sprint": "Sprint 2"
+    },
+    {
+      "id": "Etapa 4",
+      "titulo": "Storefront Next.js",
+      "sprint": "Sprint 2"
+    },
+    {
+      "id": "Etapa 5",
+      "titulo": "Catálogo, busca e cotação",
+      "sprint": "Sprint 3"
+    },
+    {
+      "id": "Etapa 6",
+      "titulo": "Homologação e fases futuras",
+      "sprint": "Sprint 4"
+    }
+  ],
+  "operationalTasks": [
+    {
+      "issue": 48,
+      "etapa": "Etapa 1",
+      "tipo": "INFRA",
+      "trilha": "Engenharia",
+      "prioridade": "P0"
+    }
   ]
 }

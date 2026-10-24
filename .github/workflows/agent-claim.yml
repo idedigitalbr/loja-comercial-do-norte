@@ -1,130 +1,86 @@
 name: Assumir tarefa (reserva multiagente)
-
-# Protocolo de reserva exclusiva. A exclusividade é garantida por dois mecanismos:
-#  1. `concurrency` do Actions serializa qualquer execução para a mesma Issue;
-#  2. o script cria um ref Git (refs/heads/claims/issue-<n>--<Agente>), que é atômico
-#     no servidor — se já existir, a reserva é recusada com 422.
-# Nenhum segredo extra é usado: apenas o GITHUB_TOKEN efêmero do próprio workflow,
-# com permissões mínimas (contents/issues write, pull-requests read).
-
 on:
   workflow_dispatch:
     inputs:
       command:
-        description: 'Comando'
+        description: "Comando (done exige aprovação humana explícita)"
         required: true
         type: choice
-        options: [claim, start, block, review, done, release, status]
+        options:
+          [
+            claim,
+            renew,
+            start,
+            pause,
+            resume,
+            block,
+            review,
+            done,
+            release,
+            repair,
+            status,
+          ]
       issue:
-        description: 'Número da Issue'
+        description: "Número da Issue"
         required: true
         type: string
-      agent:
-        description: 'Agente executor'
+      executor:
+        description: "executorId em scripts/agents/executors.json"
         required: true
-        type: choice
-        options: [Claude, Codex, DeepSeek, Antigravity, Copilot, Humano]
-      branch:
-        description: 'Branch de trabalho (ex.: feat/e5-conteudo-oficial)'
-        required: false
         type: string
+        default: codex-will
       session:
-        description: 'Identificador da sessão (opcional)'
-        required: false
+        description: "Sessão retornada pelo claim; obrigatória nos demais comandos"
+        type: string
+      branch:
+        description: "Branch de trabalho"
         type: string
       reason:
-        description: 'Motivo (obrigatório para block e release forçado)'
-        required: false
+        description: "Motivo ou resultado"
         type: string
       pr:
-        description: 'URL do Pull Request (opcional)'
-        required: false
+        description: "URL do PR"
         type: string
+      commit:
+        description: "Commit de evidência"
+        type: string
+      tests:
+        description: "Testes e resultado"
+        type: string
+      human_approved:
+        description: "Validei humanamente o resultado (somente done)"
+        type: boolean
+        default: false
+      recover:
+        description: "Confirmei que o processo anterior encerrou (repair, com motivo)"
+        type: boolean
+        default: false
+      cancel_pending:
+        description: "Cancelar projeção de conclusão pendente e devolver para revisão"
+        type: boolean
+        default: false
   issue_comment:
     types: [created]
-
-concurrency:
-  group: agent-claim-${{ github.event.issue.number || inputs.issue }}
-  cancel-in-progress: false
-
 permissions:
   contents: write
   issues: write
   pull-requests: read
-
+concurrency:
+  group: agent-claim-${{ github.event.issue.number || inputs.issue }}
+  cancel-in-progress: false
 jobs:
   reserva:
-    if: >
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/') &&
-       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR","CONTRIBUTOR"]'), github.event.comment.author_association))
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.comment.body, '/')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      # issue_comment runs trusted default-branch code; never checkout a comment/PR ref.
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-
-      - name: Interpretar comando
-        id: cmd
-        env:
-          EVENT: ${{ github.event_name }}
-          COMMENT: ${{ github.event.comment.body }}
-          INPUT_COMMAND: ${{ inputs.command }}
-          INPUT_ISSUE: ${{ inputs.issue }}
-          INPUT_AGENT: ${{ inputs.agent }}
-          INPUT_BRANCH: ${{ inputs.branch }}
-          INPUT_SESSION: ${{ inputs.session }}
-          INPUT_REASON: ${{ inputs.reason }}
-          INPUT_PR: ${{ inputs.pr }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-        run: |
-          set -euo pipefail
-          if [ "$EVENT" = "issue_comment" ]; then
-            COMMAND=$(printf '%s' "$COMMENT" | head -n1 | sed 's#^/##' | awk '{print $1}')
-            ISSUE="$ISSUE_NUMBER"
-            AGENT=$(printf '%s' "$COMMENT" | sed -n 's/.*--agent[ =]\([A-Za-z]*\).*/\1/p' | head -n1)
-            BRANCH=$(printf '%s' "$COMMENT" | sed -n 's/.*--branch[ =]\([^ ]*\).*/\1/p' | head -n1)
-            REASON=$(printf '%s' "$COMMENT" | sed -n 's/.*--reason[ =]\(.*\)$/\1/p' | head -n1)
-            SESSION="comment-${{ github.event.comment.id }}"
-            PR=""
-          else
-            COMMAND="$INPUT_COMMAND"; ISSUE="$INPUT_ISSUE"; AGENT="$INPUT_AGENT"
-            BRANCH="$INPUT_BRANCH"; REASON="$INPUT_REASON"; SESSION="$INPUT_SESSION"; PR="$INPUT_PR"
-          fi
-          case "$COMMAND" in
-            claim|start|block|review|done|release|status) ;;
-            *) echo "Comando inválido: $COMMAND" >&2; exit 1 ;;
-          esac
-          [[ "$ISSUE" =~ ^[0-9]+$ ]] || { echo "Issue inválida" >&2; exit 1; }
-          if [ -n "${BRANCH:-}" ]; then
-            [[ "$BRANCH" =~ ^(feat|fix|chore|docs|refactor)/[a-z0-9._-]+$ ]] || { echo "Branch fora do padrão feat|fix|chore|docs|refactor/..." >&2; exit 1; }
-          fi
-          echo "command=$COMMAND" >> "$GITHUB_OUTPUT"
-          echo "issue=$ISSUE" >> "$GITHUB_OUTPUT"
-          echo "agent=${AGENT:-Não atribuído}" >> "$GITHUB_OUTPUT"
-          echo "branch=${BRANCH:-}" >> "$GITHUB_OUTPUT"
-          echo "session=${SESSION:-}" >> "$GITHUB_OUTPUT"
-          echo "reason=${REASON:-}" >> "$GITHUB_OUTPUT"
-          echo "pr=${PR:-}" >> "$GITHUB_OUTPUT"
-
-      - name: Aplicar protocolo de reserva
+      - name: Validar ator e executar sem interpolação em shell
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PROJECT_OWNER: idedigitalbr
-          PROJECT_REPO: loja-comercial-do-norte
-          PROJECT_NUMBER: '3'
-        run: |
-          set -euo pipefail
-          ARGS=( "${{ steps.cmd.outputs.command }}" --issue "${{ steps.cmd.outputs.issue }}" )
-          if [ "${{ steps.cmd.outputs.command }}" != "status" ]; then
-            ARGS+=( --agent "${{ steps.cmd.outputs.agent }}" )
-          fi
-          [ -n "${{ steps.cmd.outputs.branch }}" ] && ARGS+=( --branch "${{ steps.cmd.outputs.branch }}" )
-          [ -n "${{ steps.cmd.outputs.session }}" ] && ARGS+=( --session "${{ steps.cmd.outputs.session }}" )
-          [ -n "${{ steps.cmd.outputs.reason }}" ] && ARGS+=( --reason "${{ steps.cmd.outputs.reason }}" )
-          if [ "${{ steps.cmd.outputs.command }}" = "release" ] && [ -n "${{ steps.cmd.outputs.reason }}" ]; then
-            ARGS+=( --force )
-          fi
-          node scripts/agents/task-claim.mjs "${ARGS[@]}"
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+        run: node scripts/agents/workflow-command.mjs

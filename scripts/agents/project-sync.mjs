@@ -1,284 +1,484 @@
 #!/usr/bin/env node
-/**
- * Sincroniza o GitHub Project da Comercial do Norte com scripts/agents/tasks.json.
- *
- * O que faz (idempotente):
- *  1. cria/atualiza os campos do Project (Agente executor, Sprint, Etapa, Tipo, Trilha, Prioridade)
- *     e reescreve as opções do campo Status;
- *  2. cria as labels usadas no quadro;
- *  3. cria as Issues do roadmap no padrão "[ETAPA N] [TIPO] Descrição" (não duplica as existentes);
- *  4. adiciona cada Issue ao Project e preenche os campos;
- *  5. registra as dependências reais com `addBlockedBy` (Blocked by / Blocking nativos).
- *
- * Uso: GITHUB_TOKEN=<token com escopo project+repo> node scripts/agents/project-sync.mjs [--dry-run]
+/** Bootstrap creates missing objects; reconciliation repairs structure only.
+ * Never replay manifest execution state over existing items or close Issues.
  */
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
-
-const here = dirname(fileURLToPath(import.meta.url));
-const manifest = JSON.parse(readFileSync(join(here, 'tasks.json'), 'utf8'));
-const dryRun = process.argv.includes('--dry-run');
-const token = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
-if (!token) throw new Error('Defina GITHUB_TOKEN (escopos: project, repo).');
-
-const [owner, repo] = manifest.repository.split('/');
-const projectNumber = manifest.projectNumber;
-const api = 'https://api.github.com';
-
-const headers = {
-  authorization: `Bearer ${token}`,
-  accept: 'application/vnd.github+json',
-  'x-github-api-version': '2022-11-28',
-  'content-type': 'application/json',
-  'user-agent': 'comercial-do-norte-project-sync',
-};
-
-async function rest(path, init = {}) {
-  const response = await fetch(`${api}${path}`, { ...init, headers: { ...headers, ...init.headers } });
-  const text = await response.text();
-  const body = text ? JSON.parse(text) : null;
-  if (!response.ok) throw new Error(`REST ${init.method ?? 'GET'} ${path} -> ${response.status}: ${text.slice(0, 300)}`);
-  return body;
+import { readFileSync } from "node:fs";
+import { validateDependencies, completeGraph } from "./coordination.mjs";
+import {
+  manifest,
+  request,
+  graphql,
+  pages,
+  repoPath,
+  projectContext,
+  projectItems,
+  itemFor,
+  setField,
+  dependencyNode,
+} from "./github.mjs";
+const dry = process.argv.includes("--dry-run");
+const reconcile = process.argv.includes("--reconcile");
+validateDependencies(manifest.tasks);
+const project = await projectContext();
+let items = await projectItems(project);
+const executors = JSON.parse(
+  readFileSync(new URL("./executors.json", import.meta.url), "utf8"),
+);
+const changes = [];
+async function change(description, fn) {
+  changes.push(description);
+  if (!dry) return fn();
 }
-
-async function graphql(query, variables = {}) {
-  const response = await fetch(`${api}/graphql`, { method: 'POST', headers, body: JSON.stringify({ query, variables }) });
-  const payload = await response.json();
-  if (payload.errors?.length) throw new Error(`GraphQL: ${payload.errors.map((error) => error.message).join(' | ')}`);
-  return payload.data;
-}
-
-const colorFor = (index) => ['BLUE', 'GRAY', 'GREEN', 'ORANGE', 'PINK', 'PURPLE', 'RED', 'YELLOW'][index % 8];
-
-// ---------------------------------------------------------------- project ----
-
-async function loadProject() {
-  const data = await graphql(
-    `query($login:String!,$number:Int!){organization(login:$login){projectV2(number:$number){id title fields(first:60){nodes{
-       __typename ... on ProjectV2FieldCommon{id name}
-       ... on ProjectV2SingleSelectField{options{id name}}
-     }}}}}`,
-    { login: manifest.projectOwner, number: projectNumber },
-  );
-  const project = data.organization?.projectV2;
-  if (!project) throw new Error('Projeto não encontrado ou sem permissão de leitura.');
-  return project;
-}
-
-async function ensureField(project, name, options) {
-  const existing = project.fields.nodes.find((field) => field.name === name);
-  if (!existing) {
-    if (dryRun) return null;
-    const data = await graphql(
-      `mutation($input:CreateProjectV2FieldInput!){createProjectV2Field(input:$input){projectV2Field{... on ProjectV2SingleSelectField{id name options{id name}}}}}`,
-      {
-        input: {
-          projectId: project.id,
-          dataType: 'SINGLE_SELECT',
-          name,
-          singleSelectOptions: options.map((label, index) => ({ name: label, color: colorFor(index), description: '' })),
+async function field(name, names, type = "SINGLE_SELECT") {
+  let current = project.fields.nodes.find((f) => f.name === name);
+  if (!current) {
+    const result = await change(`Criar campo ${name}`, () =>
+      graphql(
+        `
+          mutation ($input: CreateProjectV2FieldInput!) {
+            createProjectV2Field(input: $input) {
+              projectV2Field {
+                ... on ProjectV2FieldCommon {
+                  id
+                  name
+                }
+                ... on ProjectV2SingleSelectField {
+                  options {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+          }
+        `,
+        {
+          input: {
+            projectId: project.id,
+            name,
+            dataType: type,
+            ...(names
+              ? {
+                  singleSelectOptions: names.map((name) => ({
+                    name,
+                    color: "GRAY",
+                    description: "",
+                  })),
+                }
+              : {}),
+          },
         },
-      },
+      ),
     );
-    const created = data.createProjectV2Field.projectV2Field;
-    project.fields.nodes.push({ ...created, __typename: 'ProjectV2SingleSelectField' });
-    return created;
+    if (result) {
+      current = result.createProjectV2Field.projectV2Field;
+      project.fields.nodes.push(current);
+    }
+    return current;
   }
-  const missing = options.filter((label) => !existing.options?.some((option) => option.name === label));
-  if (!missing.length) return existing;
-  if (dryRun) return existing;
-  const merged = [
-    ...(existing.options ?? []).map((option) => ({ id: option.id, name: option.name, color: 'GRAY', description: '' })),
-    ...missing.map((label, index) => ({ name: label, color: colorFor(index + 2), description: '' })),
-  ];
-  const data = await graphql(
-    `mutation($input:UpdateProjectV2FieldInput!){updateProjectV2Field(input:$input){projectV2Field{... on ProjectV2SingleSelectField{id name options{id name}}}}}`,
-    { input: { fieldId: existing.id, singleSelectOptions: merged } },
-  );
-  const updated = data.updateProjectV2Field.projectV2Field;
-  Object.assign(existing, updated);
-  return updated;
+  if (!names) return current;
+  let options = current.options.map((o) => ({ ...o }));
+  if (name === "Prioridade")
+    options = options.map((o) => ({
+      ...o,
+      name:
+        names.find((n) => n.startsWith(o.name.split(" ")[0] + " ")) ?? o.name,
+    }));
+  // Preserve existing assignments by option ID; clear removed sentinel values first.
+  if (name === "Agente executor") {
+    for (const item of items) {
+      const value = item.fieldValues.nodes.find((v) => v.field?.name === name);
+      if (["Humano", "Não atribuído"].includes(value?.name))
+        await change(`Limpar sentinela #${item.content?.number}`, () =>
+          setField(project, item.id, name, null),
+        );
+    }
+    options = options.filter(
+      (o) => !["Humano", "Não atribuído"].includes(o.name),
+    );
+  }
+  for (const value of names)
+    if (!options.some((o) => o.name === value))
+      options.push({ name: value, color: "GRAY", description: "" });
+  if (
+    JSON.stringify(options.map((o) => [o.id, o.name])) !==
+    JSON.stringify(current.options.map((o) => [o.id, o.name]))
+  ) {
+    const result = await change(`Ajustar opções ${name}`, () =>
+      graphql(
+        `
+          mutation ($input: UpdateProjectV2FieldInput!) {
+            updateProjectV2Field(input: $input) {
+              projectV2Field {
+                ... on ProjectV2SingleSelectField {
+                  id
+                  name
+                  options {
+                    id
+                    name
+                    color
+                    description
+                  }
+                }
+              }
+            }
+          }
+        `,
+        {
+          input: {
+            fieldId: current.id,
+            singleSelectOptions: options.map((o) => ({
+              id: o.id,
+              name: o.name,
+              color: o.color ?? "GRAY",
+              description: o.description ?? "",
+            })),
+          },
+        },
+      ),
+    );
+    if (result)
+      Object.assign(current, result.updateProjectV2Field.projectV2Field);
+  }
+  return current;
 }
-
-async function ensureStatus(project) {
-  const status = project.fields.nodes.find((field) => field.name === 'Status');
-  const desired = manifest.statusOptions;
-  const current = status.options ?? [];
-  const missing = desired.filter((label) => !current.some((option) => option.name === label));
-  if (!missing.length) return status;
-  if (dryRun) return status;
-  // Reaproveita as opções padrão (Todo/In Progress/Done) renomeando-as para as primeiras da lista.
-  const reused = current.slice(0, desired.length).map((option, index) => ({
-    id: option.id,
-    name: desired[index],
-    color: colorFor(index),
-    description: '',
-  }));
-  const extra = desired.slice(reused.length).map((label, index) => ({ name: label, color: colorFor(index + 4), description: '' }));
-  const data = await graphql(
-    `mutation($input:UpdateProjectV2FieldInput!){updateProjectV2Field(input:$input){projectV2Field{... on ProjectV2SingleSelectField{id name options{id name}}}}}`,
-    { input: { fieldId: status.id, singleSelectOptions: [...reused, ...extra] } },
-  );
-  Object.assign(status, data.updateProjectV2Field.projectV2Field);
-  return status;
+await field("Status", manifest.statusOptions);
+await field("Agentes participantes", null, "TEXT");
+await field("Agente executor", manifest.agentOptions);
+for (const [name, values] of [
+  ["Sprint", manifest.sprintOptions],
+  ["Etapa", manifest.etapaOptions],
+  ["Tipo", manifest.tipoOptions],
+  ["Trilha", manifest.trilhaOptions],
+  ["Prioridade", manifest.prioridadeOptions],
+])
+  await field(name, values);
+const issues = (await pages(`${repoPath}/issues?state=all`)).filter(
+  (i) => !i.pull_request,
+);
+const byTitle = new Map(issues.map((i) => [i.title, i]));
+await request(`${repoPath}/assignees/victorwilliames`); // default human must be eligible
+async function ensure(title, body) {
+  const matches = issues.filter((i) => i.title === title);
+  if (matches.length > 1) throw new Error(`Issues duplicadas: ${title}`);
+  let issue = byTitle.get(title);
+  if (!issue) {
+    issue = await change(`Criar Issue ${title}`, () =>
+      request(`${repoPath}/issues`, "POST", {
+        title,
+        body,
+        assignees: ["victorwilliames"],
+      }),
+    );
+    if (issue) {
+      issues.push(issue);
+      byTitle.set(title, issue);
+    } // refresh map immediately, before linking dependencies
+  }
+  return issue;
 }
-
-// ----------------------------------------------------------------- labels ----
-
-async function ensureLabel(name, color, description) {
-  if (dryRun) return;
-  const response = await fetch(`${api}/repos/${owner}/${repo}/labels`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({ name, color, description }),
+const sprintIssues = new Map();
+const etapaIssues = new Map();
+const taskIssues = new Map();
+for (const s of manifest.sprints)
+  sprintIssues.set(
+    s.id,
+    await ensure(
+      `[${s.id.replace("Sprint ", "SPRINT ")}] ${s.titulo}`,
+      "Agrupador nativo de etapas. Fechamento somente após validação humana.",
+    ),
+  );
+for (const e of manifest.etapas)
+  etapaIssues.set(
+    e.id,
+    await ensure(
+      `[${e.id.replace("Etapa ", "ETAPA ")}] ${e.titulo}`,
+      "Agrupador nativo de tarefas. Fechamento somente após validação humana.",
+    ),
+  );
+for (const t of manifest.tasks)
+  taskIssues.set(
+    t.id,
+    await ensure(
+      `[${t.etapa.replace("Etapa ", "ETAPA ")}] [${t.tipo}] ${t.titulo}`,
+      `Tarefa ${t.id}. Evidência histórica: ${t.evidencia || "Não disponível"}. Consultar docs/roadmap.md e AGENTS.md. Sem conclusão automática.`,
+    ),
+  );
+async function structure(issue, values, parent) {
+  if (!issue) return;
+  let item = items.find((i) => i.content?.number === issue.number);
+  if (!item) {
+    const id = await change(`Adicionar #${issue.number} ao Project`, () =>
+      itemFor(project, issue.node_id),
+    );
+    if (!id) return;
+    item = {
+      id,
+      content: { number: issue.number, state: issue.state.toUpperCase() },
+      fieldValues: { nodes: [] },
+    };
+    items.push(item);
+  }
+  const current = (name) =>
+    item.fieldValues.nodes.find((v) => v.field?.name === name);
+  if (!issue.assignees?.length)
+    await change(`Responsável humano #${issue.number}`, () =>
+      request(`${repoPath}/issues/${issue.number}/assignees`, "POST", {
+        assignees: ["victorwilliames"],
+      }),
+    );
+  for (const [name, value] of Object.entries(values)) {
+    if (!current(name)?.name && value)
+      await change(`Preencher ${name} #${issue.number}`, () =>
+        setField(project, item.id, name, value),
+      );
+    else if (
+      reconcile &&
+      ["Sprint", "Etapa", "Tipo", "Trilha"].includes(name) &&
+      current(name)?.name !== value
+    )
+      await change(`Estrutura ${name} #${issue.number}`, () =>
+        setField(project, item.id, name, value),
+      );
+  }
+  if (parent) {
+    const relation = item.content?.id
+      ? { node: item.content }
+      : await graphql(
+          `
+            query ($id: ID!) {
+              node(id: $id) {
+                ... on Issue {
+                  parent {
+                    number
+                  }
+                }
+              }
+            }
+          `,
+          { id: issue.node_id },
+        );
+    if (relation.node.parent && relation.node.parent.number !== parent.number)
+      throw new Error(
+        `Pai divergente #${issue.number}; não reparentear automaticamente.`,
+      );
+    if (!relation.node.parent)
+      await change(`Sub-issue #${issue.number} -> #${parent.number}`, () =>
+        graphql(
+          `
+            mutation ($input: AddSubIssueInput!) {
+              addSubIssue(input: $input) {
+                issue {
+                  id
+                }
+              }
+            }
+          `,
+          { input: { issueId: parent.node_id, subIssueId: issue.node_id } },
+        ),
+      );
+  }
+  if (
+    reconcile &&
+    issue.state === "closed" &&
+    current("Status")?.name !== "Concluído"
+  ) {
+    const evidence = manifest.tasks.find(
+      (t) => taskIssues.get(t.id)?.number === issue.number,
+    )?.evidencia;
+    if (evidence || item.content.subIssuesSummary?.percentCompleted === 100)
+      await change(`Status fechado coerente #${issue.number}`, () =>
+        setField(project, item.id, "Status", "Concluído"),
+      );
+  }
+}
+for (const s of manifest.sprints)
+  await structure(sprintIssues.get(s.id), {
+    Sprint: s.id,
+    Status: "Backlog",
+    Trilha: "Compartilhado",
   });
-  if (response.status === 422) return; // já existe
-  if (!response.ok) throw new Error(`label ${name}: ${response.status} ${(await response.text()).slice(0, 200)}`);
-}
-
-// ----------------------------------------------------------------- issues ----
-
-const reservationBlock = (task) => `<!-- agent-reservation
-tarefa: ${task.id}
-agente: Não atribuído
-sessao: -
-branch: -
-reservadoEm: -
-atualizadoEm: -
-estado: livre
--->`;
-
-const issueBody = (task) => `## Contexto
-Tarefa \`${task.id}\` do roadmap (\`${task.etapa}\`) — ver [docs/roadmap.md](../../blob/main/docs/roadmap.md).
-
-## Evidência atual
-${task.evidencia ? task.evidencia : '— (sem evidência registrada ainda)'}
-
-## Protocolo do agente
-1. Ler \`docs/memory-ai.md\` e \`docs/roadmap.md\`.
-2. Conferir dependências (Blocked by) e a reserva desta Issue antes de editar código.
-3. Assumir a tarefa pelo workflow **Assumir tarefa** (Actions → \`agent-claim\`) — proteção atômica por \`concurrency\`.
-4. Trabalhar em branch própria \`feat/${task.id.toLowerCase()}-<slug>\` (ou \`fix/\`).
-5. Comentar progresso nesta Issue com commits, PRs, testes e bloqueios.
-6. Liberar a reserva ao encerrar a sessão.
-
-${reservationBlock(task)}`;
-
-async function listIssues() {
-  const issues = [];
-  for (let page = 1; page <= 10; page += 1) {
-    const batch = await rest(`/repos/${owner}/${repo}/issues?state=all&per_page=100&page=${page}`);
-    issues.push(...batch.filter((issue) => !issue.pull_request));
-    if (batch.length < 100) break;
-  }
-  return issues;
-}
-
-async function ensureIssue(task, existing) {
-  const title = `[${task.etapa.replace('Etapa ', 'ETAPA ')}] [${task.tipo}] ${task.titulo}`;
-  const labels = [`tipo:${task.tipo.toLowerCase()}`, `etapa:${task.etapa.replace('Etapa ', '')}`, `prioridade:${task.prioridade.toLowerCase()}`];
-  if (existing) return { issue: existing, title, created: false };
-  if (dryRun) return { issue: { number: 0, node_id: '', title }, title, created: false };
-  const issue = await rest(`/repos/${owner}/${repo}/issues`, {
-    method: 'POST',
-    body: JSON.stringify({ title, body: issueBody(task), labels }),
-  });
-  return { issue, title, created: true };
-}
-
-async function ensureProjectItem(project, issue) {
-  if (dryRun) return null;
-  const data = await graphql(
-    `mutation($projectId:ID!,$contentId:ID!){addProjectV2ItemById(input:{projectId:$projectId,contentId:$contentId}){item{id}}}`,
-    { projectId: project.id, contentId: issue.node_id },
+for (const e of manifest.etapas)
+  await structure(
+    etapaIssues.get(e.id),
+    {
+      Sprint: e.sprint,
+      Etapa: e.id,
+      Status: "Backlog",
+      Trilha: "Compartilhado",
+    },
+    sprintIssues.get(e.sprint),
   );
-  return data.addProjectV2ItemById.item.id;
-}
-
-async function setField(project, itemId, field, value) {
-  if (dryRun || !itemId) return;
-  const option = field.options?.find((candidate) => candidate.name === value);
-  if (!option) throw new Error(`Opção "${value}" não existe no campo ${field.name}`);
-  await graphql(
-    `mutation($input:UpdateProjectV2ItemFieldValueInput!){updateProjectV2ItemFieldValue(input:$input){projectV2Item{id}}}`,
-    { input: { projectId: project.id, itemId, fieldId: field.id, value: { singleSelectOptionId: option.id } } },
+for (const t of manifest.tasks) {
+  const e = manifest.etapas.find((e) => e.id === t.etapa);
+  await structure(
+    taskIssues.get(t.id),
+    {
+      Sprint: e.sprint,
+      Etapa: e.id,
+      Tipo: t.tipo,
+      Trilha: t.trilha,
+      Prioridade: manifest.prioridadeOptions.find((p) =>
+        p.startsWith(t.prioridade + " "),
+      ),
+      Status: t.status === "Concluído" ? "Em Revisão" : t.status,
+    },
+    etapaIssues.get(t.etapa),
   );
 }
-
-async function linkDependency(taskId, blockingTaskId, issuesByTitle, taskById) {
-  const blocked = issuesByTitle.get(taskById.get(taskId).title);
-  const blocking = issuesByTitle.get(taskById.get(blockingTaskId).title);
-  if (!blocked || !blocking || dryRun) return;
-  const data = await graphql(
-    `query($id:ID!){node(id:$id){... on Issue{blockedBy(first:50){nodes{id}}}}}`,
-    { id: blocked.node_id },
+for (const t of manifest.operationalTasks ?? []) {
+  const e = manifest.etapas.find((e) => e.id === t.etapa);
+  const issue = issues.find((i) => i.number === t.issue);
+  await structure(
+    issue,
+    {
+      Sprint: e.sprint,
+      Etapa: e.id,
+      Tipo: t.tipo,
+      Trilha: t.trilha,
+      Prioridade: manifest.prioridadeOptions.find((p) =>
+        p.startsWith(t.prioridade + " "),
+      ),
+    },
+    etapaIssues.get(t.etapa),
   );
-  const already = data.node.blockedBy.nodes.some((node) => node.id === blocking.node_id);
-  if (already) return;
-  await graphql(
-    `mutation($issueId:ID!,$blockingIssueId:ID!){addBlockedBy(input:{issueId:$issueId,blockingIssueId:$blockingIssueId}){issue{id}}}`,
-    { issueId: blocked.node_id, blockingIssueId: blocking.node_id },
+}
+// Native dependencies: check complete live graph (including relations outside manifest) before mutation.
+const graph = new Map(
+  items
+    .filter((i) => i.content?.id)
+    .map((i) => [
+      i.content.id,
+      {
+        id: i.content.id,
+        deps: i.content.blockedBy?.nodes.map((d) => d.id) ?? [],
+      },
+    ]),
+);
+for (const t of manifest.tasks) {
+  const issue = taskIssues.get(t.id);
+  if (!issue) continue;
+  graph.set(
+    issue.node_id,
+    graph.get(issue.node_id) ?? { id: issue.node_id, deps: [] },
   );
-}
-
-// ------------------------------------------------------------------- main ----
-
-const project = await loadProject();
-console.log(`Projeto: ${project.title} (${project.id})`);
-
-await ensureStatus(project);
-const fields = {
-  agente: await ensureField(project, 'Agente executor', manifest.agentOptions),
-  sprint: await ensureField(project, 'Sprint', manifest.sprintOptions),
-  etapa: await ensureField(project, 'Etapa', manifest.etapaOptions),
-  tipo: await ensureField(project, 'Tipo', manifest.tipoOptions),
-  trilha: await ensureField(project, 'Trilha', manifest.trilhaOptions),
-  prioridade: await ensureField(project, 'Prioridade', manifest.prioridadeOptions),
-};
-const statusField = project.fields.nodes.find((field) => field.name === 'Status');
-
-for (const tipo of manifest.tipoOptions) await ensureLabel(`tipo:${tipo.toLowerCase()}`, '0e8a16', 'Classificação [TIPO]');
-for (const etapa of manifest.etapaOptions) await ensureLabel(`etapa:${etapa.replace('Etapa ', '')}`, '1d76db', 'Etapa do roadmap');
-for (const prioridade of manifest.prioridadeOptions) await ensureLabel(`prioridade:${prioridade.toLowerCase()}`, 'fbca04', 'Prioridade');
-await ensureLabel('agent-claim', '5319e7', 'Reserva/exclusividade de execução por agente');
-await ensureLabel('needs-review', 'd93f0b', 'Aguardando revisão humana');
-
-const issues = await listIssues();
-const byTitle = new Map(issues.map((issue) => [issue.title, issue]));
-const taskById = new Map();
-const summary = { created: 0, existing: 0, linked: 0, tasks: [] };
-
-for (const task of manifest.tasks) {
-  const { issue, title, created } = await ensureIssue(task, byTitle.get(`[${task.etapa.replace('Etapa ', 'ETAPA ')}] [${task.tipo}] ${task.titulo}`));
-  taskById.set(task.id, { ...task, title, issue });
-  if (created) summary.created += 1; else summary.existing += 1;
-}
-
-for (const task of manifest.tasks) {
-  const record = taskById.get(task.id);
-  const itemId = await ensureProjectItem(project, record.issue);
-  await setField(project, itemId, statusField, task.status);
-  await setField(project, itemId, fields.agente, 'Não atribuído');
-  await setField(project, itemId, fields.sprint, task.sprint);
-  await setField(project, itemId, fields.etapa, task.etapa);
-  await setField(project, itemId, fields.tipo, task.tipo);
-  await setField(project, itemId, fields.trilha, task.trilha);
-  await setField(project, itemId, fields.prioridade, task.prioridade);
-  summary.tasks.push({ id: task.id, title: record.title, status: task.status, deps: task.deps.length });
-}
-
-for (const task of manifest.tasks) {
-  for (const dep of task.deps) {
-    await linkDependency(task.id, dep, byTitle, taskById);
-    summary.linked += 1;
+  for (const dep of t.deps) {
+    const blocker = taskIssues.get(dep);
+    if (blocker && !graph.get(issue.node_id).deps.includes(blocker.node_id))
+      graph.get(issue.node_id).deps.push(blocker.node_id);
   }
 }
-
-console.log(JSON.stringify({
-  modo: dryRun ? 'dry-run' : 'aplicado',
-  criadas: summary.created,
-  jaExistiam: summary.existing,
-  dependenciasVerificadas: summary.linked,
-  totalTarefas: manifest.tasks.length,
-}, null, 2));
+validateDependencies(await completeGraph([...graph.values()], dependencyNode));
+for (const t of manifest.tasks) {
+  const issue = taskIssues.get(t.id);
+  if (!issue) continue;
+  const initial = items.find((i) => i.content?.id === issue.node_id)?.content;
+  const live = initial
+    ? { node: initial }
+    : await graphql(
+        `
+          query ($id: ID!) {
+            node(id: $id) {
+              ... on Issue {
+                blockedBy(first: 100) {
+                  nodes {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        `,
+        { id: issue.node_id },
+      );
+  for (const dep of t.deps) {
+    const blocker = taskIssues.get(dep);
+    if (
+      blocker &&
+      !live.node.blockedBy.nodes.some((d) => d.id === blocker.node_id)
+    )
+      await change(`Dependência ${t.id} <- ${dep}`, () =>
+        graphql(
+          `
+            mutation ($input: AddBlockedByInput!) {
+              addBlockedBy(input: $input) {
+                issue {
+                  id
+                }
+              }
+            }
+          `,
+          {
+            input: { issueId: issue.node_id, blockingIssueId: blocker.node_id },
+          },
+        ),
+      );
+  }
+}
+// Link only the existing official repository and project.
+const repository = await request(repoPath);
+const linked = await graphql(
+  `
+    query ($id: ID!) {
+      node(id: $id) {
+        ... on ProjectV2 {
+          repositories(first: 50) {
+            nodes {
+              id
+            }
+          }
+        }
+      }
+    }
+  `,
+  { id: project.id },
+);
+if (!linked.node.repositories.nodes.some((r) => r.id === repository.node_id))
+  await change("Vincular repositório oficial", () =>
+    graphql(
+      `
+        mutation ($input: LinkProjectV2ToRepositoryInput!) {
+          linkProjectV2ToRepository(input: $input) {
+            repository {
+              id
+            }
+          }
+        }
+      `,
+      { input: { projectId: project.id, repositoryId: repository.node_id } },
+    ),
+  );
+if (reconcile) {
+  const fresh = await projectItems(project);
+  for (const item of fresh.filter((i) => i.content?.subIssuesSummary.total)) {
+    const issue = item.content;
+    const progress = issue.subIssuesSummary;
+    const status = item.fieldValues.nodes.find(
+      (v) => v.field?.name === "Status",
+    )?.name;
+    if (issue.state === "CLOSED" && progress.completed < progress.total)
+      await change(
+        `Reabrir agrupador #${issue.number} com filhos pendentes`,
+        () =>
+          request(`${repoPath}/issues/${issue.number}`, "PATCH", {
+            state: "open",
+          }),
+      );
+    // Progress is a separate native field, never a reason to overwrite operational state.
+    if (status === "Concluído" && progress.completed < progress.total)
+      await change(`Corrigir conclusão incompatível #${issue.number}`, () =>
+        setField(project, item.id, "Status", "Em Revisão"),
+      );
+  }
+}
+console.log(
+  JSON.stringify(
+    {
+      mode: dry ? "dry-run" : reconcile ? "reconcile" : "bootstrap",
+      changes: changes.length,
+      actions: changes,
+    },
+    null,
+    2,
+  ),
+);
