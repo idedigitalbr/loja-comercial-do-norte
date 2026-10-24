@@ -22,6 +22,9 @@ import {
 const executors = JSON.parse(
   readFileSync(new URL("./executors.json", import.meta.url), "utf8"),
 );
+const manifest = JSON.parse(
+  readFileSync(new URL("./tasks.json", import.meta.url), "utf8"),
+);
 const executorLabel = new Map(executors.flatMap((executor) => [
   [executor.nomeExibido, executor.nomeExibido],
   ...(executor.aliases ?? []).map((alias) => [alias, executor.nomeExibido]),
