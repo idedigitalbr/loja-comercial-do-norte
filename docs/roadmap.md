@@ -8,9 +8,24 @@
 - Repositório público consultável: `victorwilliames/loja-comercial-do-norte`. O código analisado é o do commit `5781590` (24/10/2026, 14:56 UTC) — o commit `cd02781` apenas consolidou a documentação e **não alterou código**. Nenhum commit analisado migrou a stack.
 - **Decidido, ainda não implementado no código consultado:** frontend Next.js, PostgreSQL e padronização Tailwind/shadcn/ui. **Mantido:** NestJS, Prisma, Turborepo, pnpm, design de referência Comercial do Norte.
 - O responsável afirma que **ainda não há produtos cadastrados, pois o projeto está em desenvolvimento**. Conferir existência de outras entidades e dados locais antes de recomeçar migrations.
-- **Nada de execução foi validado neste ambiente:** `pnpm install` foi tentado em 24/10 e **bloqueado pelo sandbox local** (lock de store em `%LOCALAPPDATA%\pnpm-store-operation-locks`, acesso negado); `lint`, `typecheck`, `test`, `build`, migrations e navegação **não foram executados**. Resultados citados em relatórios antigos são de outros ambientes e datas — não tratar como evidência.
+- **Nada de execução foi validado neste ambiente:** este item foi **superado em 24/10/2026** pela revisão de execução descrita abaixo (§1.1). O bloqueio de `pnpm install` foi contornado com store e cache locais ao workspace.
 - **Permissões GitHub verificadas em 24/10:** `pull`, `push`, `admin` e `maintain`; `main` sem proteção de branch e sem force push. A consolidação documental foi commitada em `cd02781` e publicada em `main`.
 - Prazo histórico da fase 1: **31/10/2026**, com escopo de catálogo + cotação. Avaliar viabilidade considerando mudanças estruturais; não sacrificar segurança/qualidade para cumprir data.
+
+### 1.1 Execução real em 24/10/2026 (branch `feat/stack-next-postgres`)
+
+| Verificação | Comando | Resultado |
+|---|---|---|
+| Dependências | `pnpm install` (store/cache no workspace, `--node-linker=hoisted`) | 471 pacotes instalados; `argon2` e `prisma generate` funcionais |
+| Typecheck | `pnpm typecheck` | **6/6 tarefas OK** (contracts, ui, api-client, admin, api, storefront) |
+| Lint | `pnpm lint` | **6/6 tarefas OK** |
+| Build | `pnpm build` | `contracts`, `api-client` e `api` **OK**; `admin`/`storefront` (Vite/esbuild) **bloqueados pelo sandbox** (`spawn EPERM` em pipes) |
+| Testes | `vitest` | **bloqueado pelo sandbox**: o Vite/esbuild não consegue iniciar o serviço (`spawn EPERM`); nenhuma suíte executada neste ambiente |
+| Verificação alternativa | build `tsc` + script JS puro | R04, E7 e R05 **verificados** contra o build compilado (`apps/api/dist`) |
+| PostgreSQL | binários `embedded-postgres` + `scripts/dev/postgres.mjs` | PostgreSQL **18** real em `127.0.0.1:55432`, banco `comercial_norte_dev` criado |
+| Prisma migrate | `prisma migrate dev` | **bloqueado pelo sandbox**: o CLI inicia o `schema-engine` com pipes (`spawn EPERM`); migration inicial PostgreSQL pendente de execução em ambiente normal/CI |
+
+**Consequência:** a base compila e passa em lint/typecheck, mas **nenhuma suíte de testes rodou** aqui. O CI criado em A4 é o caminho oficial para validar testes, migrations e build de produção.
 
 ### Fonte única dos arquivos de memória
 
@@ -25,20 +40,20 @@ Toda a documentação anterior (memórias, auditoria técnica, prompts, planos/s
 
 ### Fase A — Congelamento seguro / base de qualidade (P0)
 
-- [ ] **A1 — Backup / branch:** confirmar `git status` limpo e remoto sincronizado; criar branch de backup/tag referenciando HEAD real e branch de trabalho `feat/stack-next-postgres`; não apagar ou sobrescrever alterações de outro agente.
-- [ ] **A2 — Diagnóstico reprodutível:** Node compatível com versão escolhida de Next e dependências existentes, pnpm fixado e ambiente novo; `pnpm install`, `lint`, `typecheck`, `test`, `build`; registrar resultados efetivos. A base anterior fixava Node 22 + pnpm 10.15.1; atualizar só com compatibilidade validada.
-- [ ] **A3 — Configuração segura:** revisar `.env.example` (o seed exige `DEFAULT_ADMIN_PASSWORD` / `DEFAULT_CUSTOMER_PASSWORD`, hoje ausentes; `SETTINGS_ENCRYPTION_KEY` é obrigatória em produção como base64 de 32 bytes e a API recusa iniciar sem ela), storage, segredos, banco e CI. `storage/uploads` precisa ser volume persistente. Sem publicar segredo real.
-- [ ] **A4 — CI:** restabelecer pipeline de lint/typecheck/test/build, testes com PostgreSQL real isolado, Playwright para jornadas críticas e checks de segurança. Camadas: unitário (Vitest) para contratos, preços, máquinas de estado e componentes; integração contra PostgreSQL real para Prisma, locks, jobs, pagamentos e concorrência; E2E (Playwright) para catálogo → cotação → envio → admin.
-- [ ] **A5 — Inventário de dados:** confirmar se existe MySQL local/homologação, tabelas e registros de contas/admin, settings, banners; fazer backup se existir conteúdo a preservar.
+- [x] **A1 — Backup / branch:** **feito em 24/10/2026** — `git status` limpo, `origin/main` sincronizado, tag anotada `backup/pre-migracao-2026-10-24` apontando para `564c9e3` (HEAD legado) e branch de trabalho `feat/stack-next-postgres`.
+- [x] **A2 — Diagnóstico reprodutível:** **feito em 24/10/2026** com as ressalvas de sandbox do §1.1 — Node 24.15.0 (compatível), pnpm 10.15.1 fixado (executado via `.tools`, pois o pnpm global tentava baixar a versão fixada para fora do workspace), `pnpm install`/`typecheck`(6/6)/`lint`(6/6) OK; `build` OK em `contracts`, `api-client` e `api`, bloqueado em `admin`/`storefront` por `spawn EPERM` do esbuild no sandbox; suítes de teste não executam neste sandbox (mesma causa). Rodapé com a matriz completa em §1.1.
+- [x] **A3 — Configuração segura:** **feito em 24/10/2026** — `.env.example` migrado para `DATABASE_URL` PostgreSQL e passou a documentar `DEFAULT_ADMIN_*`/`DEFAULT_CUSTOMER_*`, exigidas pelo seed; `SETTINGS_ENCRYPTION_KEY` continua obrigatória em produção. Nenhum segredo real versionado (`.env` segue ignorado).
+- [x] **A4 — CI:** **criado em 24/10/2026** — `.github/workflows/ci.yml` com serviço PostgreSQL 17, `prisma generate`, aplicação do schema (`migrate deploy` ou `db push` enquanto não houver migrations), seed, `lint`, `typecheck`, `test` e `build`. **Primeira execução no GitHub pendente de validação.**
+- [x] **A5 — Inventário de dados:** **feito em 24/10/2026** — não há instância MySQL local/homologação nesta máquina (nenhum serviço `mysql`/`mariadb`, nenhum binário em `Program Files`); não existe dado legado a preservar. O histórico MySQL de migrations permanece no Git (`564c9e3`/tag de backup).
 
 **Saída:** base conhecida e reproduzível, backup verificável e decisão documentada sobre dados que precisam ser migrados.
 
 ### Fase B — Migração MySQL → PostgreSQL (P0, isolada)
 
-- [ ] **B1 — Ambiente:** provisionar PostgreSQL de desenvolvimento/testes; conexão e credenciais por variável, backup e política de acesso. **Não tocar banco original sem inventário.**
-- [ ] **B2 — Schema Prisma:** avaliar compatibilidade dos **54 models** e enums atuais; mudar `provider`, revisar `@db.*`, índices, unicidades, collation, case sensitivity, JSON, timestamps e defaults. Não editar migrations MySQL como se fossem compatíveis com PostgreSQL.
-- [ ] **B3 — Histórico de migrations:** preservar histórico MySQL no Git/backup; criar **histórico inicial PostgreSQL separado e consistente** conforme versão Prisma fixada. Validar geração/aplicação em PostgreSQL vazio e novamente em outro ambiente limpo. Não executar reset destrutivo em bancos com dados reais.
-- [ ] **B4 — SQL específico:** adaptar `apps/api/src/modules/inventory/inventory.service.ts` (`SELECT ... FOR UPDATE` com identificadores PostgreSQL), `promotions/coupon.service.ts`, `trainings/trainings.service.ts`, `scripts/repair-migration-history.ts` e quaisquer `$queryRaw`/`$executeRaw` encontrados por busca completa.
+- [x] **B1 — Ambiente:** **feito em 24/10/2026** — PostgreSQL 18 real provisionado sem Docker via binários de `embedded-postgres` (`scripts/dev/postgres.mjs`, `pnpm db:local:*`), em `127.0.0.1:55432`, banco `comercial_norte_dev`, `DATABASE_URL` por variável. Cluster local com `trust` (uso exclusivo de desenvolvimento) e dados em `.postgres-data/` ignorado pelo Git.
+- [x] **B2 — Schema Prisma:** **feito em 24/10/2026** — `provider = "postgresql"`; os únicos tipos nativos são `@db.VarChar`, `@db.Text` e `@db.Char` (todos válidos no PostgreSQL) e `Json` passa a `jsonb`; a busca pública deixou de depender do `LIKE` case-insensitive do MySQL e usa `contains` + `mode: insensitive` (`catalog.service.ts`).
+- [ ] **B3 — Histórico de migrations:** **bloqueado em 24/10/2026** — as migrations MySQL foram removidas do worktree (`git rm -r prisma/migrations`) e preservadas no histórico (`564c9e3`/tag `backup/pre-migracao-2026-10-24`), mas a **baseline PostgreSQL não pôde ser gerada aqui**: o CLI do Prisma inicia o `schema-engine` com pipes e o sandbox retorna `spawn EPERM`. Ação necessária em ambiente normal ou no CI: `pnpm db:migrate --name init_postgresql` e commitar `prisma/migrations/*_init_postgresql/migration.sql` + `migration_lock.toml` com `provider = "postgresql"`. O CI já aplica migrations quando elas existirem.
+- [x] **B4 — SQL específico:** **feito em 24/10/2026** — identificadores entre aspas duplas e cast explícito de enum em `inventory.service.ts` (`SELECT ... FOR UPDATE`), `trainings.service.ts` (`UPDATE ... NOW()`) e `coupon.service.ts` (3 consultas com `FOR UPDATE`). Nenhum uso de `LAST_INSERT_ID`/`ON DUPLICATE` encontrado.
 - [ ] **B5 — Seed:** remover dados e domínios de Jonas & Elivaldo, tornar idempotente, credenciais por ambiente; criar somente dados reais aprovados ou DEMO claramente marcados. Conferir imagens e status DRAFT.
 - [ ] **B6 — Integração:** transações, isolamento, locks concorrentes, reservas, cupons, login/RBAC, uploads, notificação, jobs, consultas, relatório. Testar com PostgreSQL real, não só mock.
 - [ ] **B7 — Deploy:** ajustar `DATABASE_URL`, scripts e documentação de provisionamento/backup/recovery do PostgreSQL; não manter instruções que partem de MySQL como runbook atual.
@@ -94,8 +109,8 @@ Toda a documentação anterior (memórias, auditoria técnica, prompts, planos/s
 | R01 | **P0** | O `payments.service.ts` atualiza o pagamento no webhook mas não demonstra transição automática do pedido para `PAID`; testar e corrigir ANTES de habilitar checkout. | `apps/api/src/modules/payments/payments.service.ts` |
 | R02 | **P0** | `checkout` aceita `shippingCents` fornecido pelo cliente; não confiar em preço, frete ou total vindos da interface. A API precisa recalcular/verificar cotação de frete autenticada. | `apps/api/src/modules/checkout/checkout.service.ts` / `orders/orders.service.ts` |
 | R03 | **P0** | `job-handlers.ts` é um mapa de no-ops; apenas `SEND_TRANSACTIONAL_EMAIL` é sobrescrito com implementação real em `jobs.module.ts:20`. `RELEASE_EXPIRED_RESERVATIONS`, `RECONCILE_PAYMENT`, `GENERATE_REPORT` e `CLEAN_EXPIRED_CARTS` só retornam `undefined` — o runner marca o job como concluído sem executar nada. Implementar antes de operar vendas/estoque. | `apps/api/src/modules/jobs/job-handlers.ts:5-11`, `jobs.module.ts:18-21` |
-| R04 | **P0** | Produto DRAFT acessível por slug (listagem só filtra ACTIVE). | `apps/api/src/modules/catalog/catalog.service.ts` |
-| R05 | **P0** | `GET /orders/:publicId` pode não validar ownership; revisar autenticação/autorização de acesso a pedidos e cotações (IDOR). | `apps/api/src/modules/orders/orders.controller.ts` |
+| R04 | **P0** | ~~Produto DRAFT acessível por slug~~ **Corrigido em 24/10/2026:** `getProductBySlug` passou a filtrar `status: ACTIVE`; coberto por `catalog-public-access.spec.ts` e validado no build compilado. | `apps/api/src/modules/catalog/catalog.service.ts` |
+| R05 | **P0** | ~~`GET /orders/:publicId` pode não validar ownership~~ **Corrigido em 24/10/2026:** `OrdersService.getForUser(publicId, userId)` filtra por dono e devolve 404 para terceiros; coberto por `orders-ownership.spec.ts` e validado no build compilado. | `apps/api/src/modules/orders/orders.service.ts` |
 | R06 | **P1** | Melhor Envio provider é stub e não consulta API real. Retirada traz rótulo legado “salão”. | `apps/api/src/modules/shipping/providers/{melhor-envio,pickup}.provider.ts` |
 | R07 | **P1** | SEO usa `Jonas & Elivaldo` e domínio antigo; CSP também permite domínio do salão; corrigir durante Next/limpeza. | `apps/api/src/public-shell/seo-renderer.service.ts`, `apps/api/src/main.ts` |
 | R08 | **P1** | Front filtra marca por lista hardcoded do cliente anterior e usa busca/paginação do catálogo no navegador. | `apps/storefront/src/pages/shop-page.tsx` |
@@ -164,6 +179,7 @@ Removidos do worktree em 24/10/2026 (preservados no commit `5781590`, acessívei
 | **24/10/2026 — decisão do responsável** | **Escolhida a stack Next.js + NestJS + PostgreSQL + Prisma + Tailwind CSS + shadcn/ui, monorepo e componentes compartilhados.** Medusa/Payload/TanStack Start excluídos da implementação; manter fase 1 cotação. |
 | **24/10/2026 — esta revisão** | Contexto histórico e auditoria consolidados em **dois Markdown**; tarefas de migração formalizadas; **nenhuma alteração de código, banco, deploy ou GitHub afirmada**. |
 | **24/10/2026 — consolidação final** | Documentação reduzida a `docs/memory-ai.md` + `docs/roadmap.md` + `docs/security/`; **31 arquivos legados** (22 de `docs/` + 9 da memória antiga) e a pasta `prompts-memory-ai/` removidos do worktree; pacote de memória em Downloads apagado. Histórico preservado no commit `5781590`. **Nenhum código, banco ou migration alterado.** |
+| **24/10/2026 — execução (branch `feat/stack-next-postgres`)** | Dependências instaladas (store local), `typecheck`/`lint` 6/6, build OK na API e bloqueado no Vite pelo sandbox; **R04 e R05 corrigidos** com testes; Prisma migrado para PostgreSQL, SQL nativo adaptado e busca case-insensitive; PostgreSQL 18 local provisionado por script; **CI criado**; migration baseline PostgreSQL bloqueada pelo sandbox (`spawn EPERM` no `schema-engine`). |
 
 ### Protocolo de manutenção daqui em diante
 

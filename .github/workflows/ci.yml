@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualidade:
+    name: lint + typecheck + testes + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: comercial_norte_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d comercial_norte_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/comercial_norte_test?schema=public
+      COOKIE_SECRET: ci-cookie-secret-com-no-minimo-16-chars
+      CRON_SECRET: ci-cron-secret-com-no-minimo-16-chars
+      SETTINGS_ENCRYPTION_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      DEFAULT_ADMIN_EMAIL: admin@ci.local
+      DEFAULT_ADMIN_PASSWORD: CiAdmin!2026
+      DEFAULT_CUSTOMER_EMAIL: cliente@ci.local
+      DEFAULT_CUSTOMER_PASSWORD: CiCliente!2026
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Gerar cliente Prisma
+        run: pnpm db:generate
+
+      - name: Aplicar schema no PostgreSQL de teste
+        run: |
+          if ls prisma/migrations/*/migration.sql >/dev/null 2>&1; then
+            pnpm exec prisma migrate deploy
+          else
+            echo "Sem migrations versionadas; usando db push no banco efemero do CI."
+            pnpm exec prisma db push --skip-generate
+          fi
+
+      - name: Semear dados de teste
+        run: pnpm db:seed
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Testes
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build

@@ -9,9 +9,9 @@ export class TrainingsService {
     if (!input.participantName.trim() || !input.participantEmail.trim()) throw new BadRequestException('PARTICIPANT_DATA_REQUIRED');
     return this.prisma.$transaction(async (transaction) => {
       const changed = await transaction.$executeRaw`
-        UPDATE TrainingSession
-        SET reservedSeats = reservedSeats + 1, updatedAt = NOW()
-        WHERE id = ${input.sessionId} AND status = 'OPEN' AND reservedSeats < capacity
+        UPDATE "TrainingSession"
+        SET "reservedSeats" = "reservedSeats" + 1, "updatedAt" = NOW()
+        WHERE "id" = ${input.sessionId} AND "status" = 'OPEN'::"TrainingSessionStatus" AND "reservedSeats" < "capacity"
       `;
       if (changed !== 1) throw new BadRequestException('TRAINING_SEATS_UNAVAILABLE');
       return transaction.enrollment.create({ data: input });

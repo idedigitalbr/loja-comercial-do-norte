@@ -97,11 +97,11 @@ async function countCustomerUses(client: Pick<PrismaService, 'couponRedemption'>
 async function countCustomerUsesForUpdate(transaction: Prisma.TransactionClient, couponId: string, userId?: string, customerEmail?: string): Promise<number | undefined> {
   const ids = new Set<string>();
   if (userId) {
-    const rows = await transaction.$queryRaw<Array<{ id: string }>>`SELECT id FROM CouponRedemption WHERE couponId = ${couponId} AND userId = ${userId} FOR UPDATE`;
+    const rows = await transaction.$queryRaw<Array<{ id: string }>>`SELECT "id" FROM "CouponRedemption" WHERE "couponId" = ${couponId} AND "userId" = ${userId} FOR UPDATE`;
     rows.forEach((row) => ids.add(row.id));
   }
   if (customerEmail) {
-    const rows = await transaction.$queryRaw<Array<{ id: string }>>`SELECT id FROM CouponRedemption WHERE couponId = ${couponId} AND customerEmail = ${customerEmail} FOR UPDATE`;
+    const rows = await transaction.$queryRaw<Array<{ id: string }>>`SELECT "id" FROM "CouponRedemption" WHERE "couponId" = ${couponId} AND "customerEmail" = ${customerEmail} FOR UPDATE`;
     rows.forEach((row) => ids.add(row.id));
   }
   return userId || customerEmail ? ids.size : undefined;
@@ -211,7 +211,7 @@ export class CouponService {
 
   async consumeInTransaction(transaction: Prisma.TransactionClient, input: ConsumeCouponInput) {
     const now = new Date();
-    await transaction.$queryRaw<{ id: string }[]>`SELECT id FROM Coupon WHERE id = ${input.couponId} FOR UPDATE`;
+    await transaction.$queryRaw<{ id: string }[]>`SELECT "id" FROM "Coupon" WHERE "id" = ${input.couponId} FOR UPDATE`;
     const coupon = await transaction.coupon.findUnique({ where: { id: input.couponId } });
     if (!coupon) throw new CouponError('Cupom fora da vigência.');
     assertActive(coupon, now);

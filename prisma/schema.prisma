@@ -1,5 +1,6 @@
 datasource db {
-  provider = "mysql"
+  // PostgreSQL e o banco oficial do projeto (ver docs/memory-ai.md §1).
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

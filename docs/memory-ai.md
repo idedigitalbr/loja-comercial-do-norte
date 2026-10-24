@@ -16,7 +16,7 @@
 
 ### Estado atual do código (transição)
 
-- Snapshot de referência **do código**: commit `5781590` (24/10/2026); a documentação foi consolidada depois, sem alterar código. O código **ainda é legado**: React 19 + Vite no storefront/admin, NestJS 11, Prisma 6 e **MySQL 8**.
+- Snapshot de referência **do código**: commit `5781590` (24/10/2026); a documentação foi consolidada depois, sem alterar código. O código **ainda é legado**: React 19 + Vite no storefront/admin, NestJS 11, Prisma 6. Em 24/10/2026 o Prisma já aponta para **PostgreSQL** e o SQL nativo foi adaptado, mas as **migrations PostgreSQL ainda não foram geradas** (bloqueio de sandbox registrado em `roadmap.md` §1.1 e B3).
 - A arquitetura-alvo da seção 1 está **decidida e ainda não implementada**. Nada neste documento deve ser lido como funcionalidade pronta sem conferir o código.
 - Projeto **em desenvolvimento**; segundo o responsável, **ainda não há produtos cadastrados**. Não concluir daí que o banco está vazio: validar usuários, configurações, banners e demais registros antes de qualquer reset.
 - Meta da fase 1: **31/10/2026** (evento ACP), sujeita à validação de prontidão. Não declarar lançamento realizado.
@@ -25,7 +25,7 @@
 |---|---|---|---|
 | Storefront | Next.js App Router + TypeScript | React 19 + Vite (SPA/CSR) | migrar (fase D do roadmap) |
 | API | NestJS, fonte única da regra de negócio | NestJS 11 + Express 5 | manter e evoluir |
-| Banco | PostgreSQL | MySQL 8 com migrations MySQL | migrar (fase B) |
+| Banco | PostgreSQL | PostgreSQL (provider e SQL nativo migrados em 24/10/2026; migration baseline pendente) | gerar/aplicar migrations PostgreSQL (B3) |
 | ORM | Prisma | Prisma 6 | revisar schema e histórico de migrations |
 | UI | Tailwind CSS + shadcn/ui + `packages/ui` | CSS manual extenso + `packages/ui` parcial | padronizar (fase C) |
 | Ícones | Lucide | Lucide | manter |
