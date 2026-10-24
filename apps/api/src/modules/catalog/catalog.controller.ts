@@ -1,4 +1,5 @@
-import { Controller, Get, Inject, Param, Query } from '@nestjs/common';
+import { Controller, Get, Inject, Param, Query, UseGuards } from '@nestjs/common';
+import { PublicRateLimit, PublicRateLimitGuard } from '../../common/security/public-rate-limit.guard';
 import { CatalogService } from './catalog.service';
 
 type ProductQuery = {
@@ -18,16 +19,19 @@ type SearchQuery = {
   sort?: string;
 };
 
+@UseGuards(PublicRateLimitGuard)
 @Controller('catalog')
 export class CatalogController {
   constructor(@Inject(CatalogService) private readonly catalogService: CatalogService) {}
 
+  @PublicRateLimit({ limit: 120, windowMs: 60_000 })
   @Get('products')
   listProducts(@Query() query: ProductQuery) {
     return this.catalogService.listProducts(query);
   }
 
   /** Busca paginada usada pelo storefront (server-side search/filtros). */
+  @PublicRateLimit({ limit: 120, windowMs: 60_000 })
   @Get('products/search')
   searchProducts(@Query() query: SearchQuery) {
     return this.catalogService.searchProducts({

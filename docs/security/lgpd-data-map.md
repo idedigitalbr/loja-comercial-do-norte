@@ -9,4 +9,6 @@
 | Documento | finalidade fiscal quando aplicável | operação autorizada | minimizar e anonimizar conforme política fiscal |
 | Consentimentos | comprovar preferências | cliente e operação autorizada | preservar histórico necessário |
 | Pagamento externo | conciliação sem armazenar cartão | operação financeira | guardar IDs/status do provedor, nunca PAN/CVV |
+| Cotação: nome, WhatsApp, e-mail/empresa opcionais, itens e observações | responder à solicitação comercial e organizar a fila de vendas | solicitante (visão pública mascarada) e equipe comercial autorizada | manter enquanto a negociação estiver ativa; excluir/anonimizar após prazo definido e mediante solicitação |
+| IP e identificador de requisição do endpoint de cotação | proteção contra abuso (rate limit) e rastreabilidade | operação autorizada | manter apenas em memória/por janela curta; não persistir em log com dados pessoais |
 | Logs e auditoria | segurança e responsabilização | operação autorizada | retenção definida por política e sem segredos |

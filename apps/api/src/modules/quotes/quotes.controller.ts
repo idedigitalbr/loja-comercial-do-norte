@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Inject, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { Type } from 'class-transformer';
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsInt, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
 import type { Request } from 'express';
+import { PublicRateLimit, PublicRateLimitGuard } from '../../common/security/public-rate-limit.guard';
 import { AuthenticatedUser } from '../auth/auth.service';
 import { QuotesService } from './quotes.service';
 
@@ -62,10 +63,12 @@ class CreateQuoteDto {
  * Endpoints públicos da cotação: visitante não precisa de conta.
  * Não existe checkout, pagamento ou reserva de estoque neste fluxo.
  */
+@UseGuards(PublicRateLimitGuard)
 @Controller('quotes')
 export class QuotesController {
   constructor(@Inject(QuotesService) private readonly quotesService: QuotesService) {}
 
+  @PublicRateLimit({ limit: 10, windowMs: 60_000 })
   @Post()
   create(@Body() body: CreateQuoteDto, @Req() request: Request & { user?: AuthenticatedUser }) {
     return this.quotesService.create({ ...body, userId: request.user?.id });
