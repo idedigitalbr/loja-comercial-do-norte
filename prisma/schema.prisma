@@ -926,7 +926,7 @@ model ScheduledJob {
 
 model SiteConfiguration {
   id           String   @id @default("default")
-  siteName     String   @default("Loja Jonas & Elivaldo") @db.VarChar(160)
+  siteName     String   @default("Comercial do Norte") @db.VarChar(160)
   logoPath     String?  @db.VarChar(500)
   faviconPath  String?  @db.VarChar(500)
   address      String?  @db.VarChar(255)

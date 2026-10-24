@@ -76,6 +76,9 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Typecheck do seed e scripts
+        run: pnpm typecheck:seed
+
       - name: Testes
         run: pnpm test
 

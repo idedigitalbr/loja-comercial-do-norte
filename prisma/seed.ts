@@ -1,6 +1,7 @@
 import argon2 from 'argon2';
 import { ActorType, EmailEventKey, OrderItemType, OrderStatus, PrismaClient, UserStatus } from '@prisma/client';
 import { seedDefaultHomeBanners } from '../apps/api/src/modules/settings/default-home-banners';
+import { DEMO_LOGO_PATH, seedCatalog } from './seed-catalog';
 
 const prisma = new PrismaClient();
 
@@ -66,8 +67,8 @@ async function main(): Promise<void> {
       status: UserStatus.ACTIVE,
       profile: {
         upsert: {
-          update: { firstName: 'Cliente', lastName: 'Demonstração', phone: '(96) 98100-1897' },
-          create: { firstName: 'Cliente', lastName: 'Demonstração', phone: '(96) 98100-1897' },
+          update: { firstName: 'Cliente', lastName: 'Demonstração', phone: '(91) 90000-0000' },
+          create: { firstName: 'Cliente', lastName: 'Demonstração', phone: '(91) 90000-0000' },
         },
       },
     },
@@ -75,7 +76,7 @@ async function main(): Promise<void> {
       email: defaultCustomerEmail,
       passwordHash: customerPasswordHash,
       status: UserStatus.ACTIVE,
-      profile: { create: { firstName: 'Cliente', lastName: 'Demonstração', phone: '(96) 98100-1897' } },
+      profile: { create: { firstName: 'Cliente', lastName: 'Demonstração', phone: '(91) 90000-0000' } },
     },
     select: { id: true },
   });
@@ -167,15 +168,20 @@ async function main(): Promise<void> {
     update: {},
     create: {
       id: 'default',
-      siteName: 'Jonas & Elivaldo Hair Designers',
-      address: 'Av. Gen. Gurjão, 151 - Central, Macapá - AP, 68900-050',
-      phone: '(96) 98100-1897',
-      whatsapp: '5596981001897',
-      instagramUrl: 'https://www.instagram.com/jonas_elivaldo_hair_designers/',
-      title: 'Jonas & Elivaldo Hair Designers',
-      description: 'Beleza, cuidado e experiência profissional em Macapá.',
+      // Dados pesquisados e ainda PENDENTES de confirmacao oficial (docs/memory-ai.md §3).
+      siteName: 'Comercial do Norte',
+      logoPath: DEMO_LOGO_PATH,
+      address: 'Av. Rômulo Maiorana, 115A, São Braz, Belém/PA, 66093-635',
+      phone: '(91) 4042-0513',
+      whatsapp: '5591983440880',
+      instagramUrl: null,
+      title: 'Comercial do Norte | Embalagens, descartáveis e mercearia',
+      description: 'Distribuidora de plásticos, descartáveis, embalagens e mercearia em Belém/PA. Catálogo com cotação sem cobrança online (ambiente de demonstração).',
     },
   });
+
+  const catalogResult = await seedCatalog(prisma);
+  console.log(`Catalogo de demonstracao: ${catalogResult.categories} categorias, ${catalogResult.products} produtos.`);
 
   await seedDefaultHomeBanners(prisma);
 
