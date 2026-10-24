@@ -43,7 +43,7 @@ describe('CatalogService — busca paginada do storefront (E7)', () => {
     await service.searchProducts({ search: 'Copo 300ml', category: 'descartaveis' });
 
     const args = prisma.product.findMany.mock.calls[0][0];
-    expect(args.where.categories).toEqual({ some: { categoryId: 'category-1' } });
+    expect(args.where.categories).toEqual({ some: { categoryId: { in: ['category-1'] } } });
     expect(args.where.OR).toEqual([
       { name: { contains: 'Copo 300ml', mode: 'insensitive' } },
       { slug: { contains: 'copo-300ml' } },

@@ -18,7 +18,7 @@ describe('CatalogService filters', () => {
     expect(prisma.product.findMany).toHaveBeenCalledWith(expect.objectContaining({
       where: expect.objectContaining({
         brandId: 'brand-knut',
-        categories: { some: { categoryId: 'category-shampoo' } },
+        categories: { some: { categoryId: { in: ['category-shampoo'] } } },
       }),
     }));
   });
