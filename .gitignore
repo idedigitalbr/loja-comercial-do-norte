@@ -49,6 +49,12 @@ backups/
 .npm-cache/
 .pnpm-local/
 .pnpm-state/
+.gh-cache/
+.gh-cache2/
+*.tsbuildinfo
+
+# Artefatos de build que não devem ser versionados
+apps/storefront/tsconfig.tsbuildinfo
 
 # Tooling and OS files
 .codegraph/
