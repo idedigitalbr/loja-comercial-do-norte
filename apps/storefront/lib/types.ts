@@ -74,6 +74,11 @@ export type SiteConfig = {
     ctaHref: string | null;
     sortOrder: number;
   }>;
+  features?: {
+    checkout: boolean;
+    payments: boolean;
+    trainings: boolean;
+  };
 };
 
 export type PublicQuote = {

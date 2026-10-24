@@ -86,6 +86,12 @@ export type PublicSiteConfig = {
     ctaHref: string | null;
     sortOrder: number;
   }>;
+  /** Escopo comercial ativo (fase 1: catálogo + cotação). */
+  features: {
+    checkout: boolean;
+    payments: boolean;
+    trainings: boolean;
+  };
 };
 
 export type AdminSettingsSnapshot = {

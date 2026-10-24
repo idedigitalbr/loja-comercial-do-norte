@@ -15,7 +15,10 @@
     "QUOTES_SALES_EMAIL",
     "API_URL",
     "NEXT_PUBLIC_API_URL",
-    "NEXT_PUBLIC_SITE_URL"
+    "NEXT_PUBLIC_SITE_URL",
+    "FEATURE_CHECKOUT",
+    "FEATURE_PAYMENTS",
+    "FEATURE_TRAININGS"
   ],
   "tasks": {
     "build": {

@@ -3,6 +3,7 @@ import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { PermissionGuard, Permissions, RequirePermissions } from '../auth/guards/permission.guard';
 import { SessionGuard } from '../auth/guards/session.guard';
 import { PaymentsService } from './payments.service';
+import { FeatureGuard, RequireFeature } from '../../common/features/feature-flags';
 
 class CardPaymentDto {
   @IsString() orderId!: string;
@@ -23,6 +24,8 @@ class RefundDto {
   @IsString() reason!: string;
 }
 
+@UseGuards(FeatureGuard)
+@RequireFeature('PAYMENTS')
 @Controller('payments')
 export class PaymentsController {
   constructor(@Inject(PaymentsService) private readonly paymentsService: PaymentsService) {}
@@ -37,7 +40,7 @@ export class PaymentsController {
     return this.paymentsService.payPix(body, idempotencyKey);
   }
 
-  @UseGuards(SessionGuard, PermissionGuard)
+  @UseGuards(FeatureGuard, SessionGuard, PermissionGuard)
   @RequirePermissions(Permissions.PAYMENTS_REFUND)
   @Post('refund')
   refund(@Body() body: RefundDto, @Headers('idempotency-key') idempotencyKey: string) {
