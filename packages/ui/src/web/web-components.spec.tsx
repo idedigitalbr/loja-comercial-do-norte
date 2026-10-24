@@ -1,10 +1,13 @@
 import '@testing-library/jest-dom/vitest';
-import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
 import { WebBadge } from './web-badge';
 import { WebButton } from './web-button';
 import { WebEmptyState } from './web-empty-state';
 import { cn } from './cn';
+
+// O cleanup automático do RTL depende dos globals do vitest (desligados aqui).
+afterEach(cleanup);
 
 describe('design system web (tokens oficiais)', () => {
   it('aplica variante e tamanho do botão', () => {
