@@ -1,3 +1,3 @@
-﻿# Historico oficial de migrations do projeto e PostgreSQL.
+# Historico oficial de migrations do projeto e PostgreSQL.
 # As migrations MySQL anteriores permanecem apenas no historico Git (commit 564c9e3).
 provider = "postgresql"
