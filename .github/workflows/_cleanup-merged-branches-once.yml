@@ -1,0 +1,44 @@
+name: One-time merged branch cleanup
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/_cleanup-merged-branches-once.yml'
+permissions:
+  contents: write
+jobs:
+  remove-merged-development-refs:
+    if: github.repository == 'idedigitalbr/loja-comercial-do-norte'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete only immutable, fully merged development refs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for spec in \
+            "chore/multiagent-coordination:757d2c963fbe6197cfa1c99d6c19b2ba6841b884" \
+            "feat/stack-next-postgres:0f7bc8efecc3d6dcd6bd891ea022e93a395a1536"
+          do
+            branch="${spec%%:*}"
+            expected="${spec#*:}"
+            actual="$(gh api "/repos/$GITHUB_REPOSITORY/git/ref/heads/$branch" --jq '.object.sha' 2>/dev/null || true)"
+            if [[ "$actual" != "$expected" ]]; then
+              echo "::notice::Skipping $branch: deleted or moved since inspection"
+              continue
+            fi
+            ahead="$(gh api "/repos/$GITHUB_REPOSITORY/compare/main...$branch" --jq '.ahead_by')"
+            if [[ "$ahead" != "0" ]]; then
+              echo "::warning::Skipping $branch: contains commits absent from main"
+              continue
+            fi
+            open_prs="$(gh api "/repos/$GITHUB_REPOSITORY/pulls?state=open&per_page=100" --jq "map(select(.head.ref == \"$branch\")) | length")"
+            if [[ "$open_prs" != "0" ]]; then
+              echo "::warning::Skipping $branch: still referenced by an open PR"
+              continue
+            fi
+            gh api -X DELETE "/repos/$GITHUB_REPOSITORY/git/refs/heads/$branch"
+            echo "Removed fully merged temporary development branch $branch"
+          done
+          echo "Persistent claims/* refs are intentionally excluded from cleanup."
