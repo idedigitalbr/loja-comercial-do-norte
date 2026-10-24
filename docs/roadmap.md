@@ -5,11 +5,11 @@
 
 ## 1. Estado confirmado nesta revisão
 
-- Repositório público consultável: `victorwilliames/loja-comercial-do-norte`; `main` HEAD `5781590` (2026-10-24 14:56 UTC). Último commit consultado é de **reorganização documental**, não de migração da stack.
-- **Decidido, ainda não implementado no HEAD consultado:** frontend Next.js, PostgreSQL e padronização Tailwind/shadcn/ui. **Mantido:** NestJS, Prisma, Turborepo, pnpm, design de referência Comercial do Norte.
+- Repositório público consultável: `victorwilliames/loja-comercial-do-norte`. O código analisado é o do commit `5781590` (24/10/2026, 14:56 UTC) — o commit `cd02781` apenas consolidou a documentação e **não alterou código**. Nenhum commit analisado migrou a stack.
+- **Decidido, ainda não implementado no código consultado:** frontend Next.js, PostgreSQL e padronização Tailwind/shadcn/ui. **Mantido:** NestJS, Prisma, Turborepo, pnpm, design de referência Comercial do Norte.
 - O responsável afirma que **ainda não há produtos cadastrados, pois o projeto está em desenvolvimento**. Conferir existência de outras entidades e dados locais antes de recomeçar migrations.
 - **Nada de execução foi validado neste ambiente:** `pnpm install` foi tentado em 24/10 e **bloqueado pelo sandbox local** (lock de store em `%LOCALAPPDATA%\pnpm-store-operation-locks`, acesso negado); `lint`, `typecheck`, `test`, `build`, migrations e navegação **não foram executados**. Resultados citados em relatórios antigos são de outros ambientes e datas — não tratar como evidência.
-- **Permissões GitHub verificadas em 24/10:** `pull`, `push`, `admin` e `maintain`; `main` sem proteção de branch. O commit `5781590` foi publicado pelo próprio agente, e o push está autorizado nesta máquina. A consolidação documental de 24/10 está **na árvore de trabalho, ainda não commitada**.
+- **Permissões GitHub verificadas em 24/10:** `pull`, `push`, `admin` e `maintain`; `main` sem proteção de branch e sem force push. A consolidação documental foi commitada em `cd02781` e publicada em `main`.
 - Prazo histórico da fase 1: **31/10/2026**, com escopo de catálogo + cotação. Avaliar viabilidade considerando mudanças estruturais; não sacrificar segurança/qualidade para cumprir data.
 
 ### Fonte única dos arquivos de memória

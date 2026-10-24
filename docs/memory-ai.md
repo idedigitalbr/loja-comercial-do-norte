@@ -16,7 +16,7 @@
 
 ### Estado atual do código (transição)
 
-- Snapshot de referência: `main` no commit `5781590` (24/10/2026). O código **ainda é legado**: React 19 + Vite no storefront/admin, NestJS 11, Prisma 6 e **MySQL 8**.
+- Snapshot de referência **do código**: commit `5781590` (24/10/2026); a documentação foi consolidada depois, sem alterar código. O código **ainda é legado**: React 19 + Vite no storefront/admin, NestJS 11, Prisma 6 e **MySQL 8**.
 - A arquitetura-alvo da seção 1 está **decidida e ainda não implementada**. Nada neste documento deve ser lido como funcionalidade pronta sem conferir o código.
 - Projeto **em desenvolvimento**; segundo o responsável, **ainda não há produtos cadastrados**. Não concluir daí que o banco está vazio: validar usuários, configurações, banners e demais registros antes de qualquer reset.
 - Meta da fase 1: **31/10/2026** (evento ACP), sujeita à validação de prontidão. Não declarar lançamento realizado.
