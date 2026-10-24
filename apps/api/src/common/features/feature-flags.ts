@@ -45,6 +45,9 @@ export class FeatureGuard implements CanActivate {
     if (!flag) return true;
     if (isFeatureEnabled(flag)) return true;
     // 404 evita revelar a existência de um recurso desligado.
-    throw new NotFoundException('FEATURE_NOT_AVAILABLE');
+    throw new NotFoundException({
+      code: 'FEATURE_NOT_AVAILABLE',
+      message: 'Recurso não disponível nesta fase do projeto.',
+    });
   }
 }
