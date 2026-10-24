@@ -19,9 +19,10 @@ import { SecurityModule } from './common/security/security.module';
 import { PromotionsModule } from './modules/promotions/promotions.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { AccountModule } from './modules/account/account.module';
+import { QuotesModule } from './modules/quotes/quotes.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, CatalogModule, CartsModule, InventoryModule, ShippingModule, OrdersModule, PaymentsModule, JobsModule, CheckoutModule, TrainingsModule, AuditModule, CustomersModule, ReportsModule, PromotionsModule, SettingsModule, AccountModule, PublicShellModule, SecurityModule],
+  imports: [DatabaseModule, AuthModule, CatalogModule, CartsModule, InventoryModule, ShippingModule, OrdersModule, PaymentsModule, JobsModule, CheckoutModule, TrainingsModule, AuditModule, CustomersModule, ReportsModule, PromotionsModule, SettingsModule, AccountModule, QuotesModule, PublicShellModule, SecurityModule],
   controllers: [HealthController],
 })
 export class AppModule {}

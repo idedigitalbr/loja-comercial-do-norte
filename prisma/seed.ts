@@ -18,6 +18,7 @@ const permissions = [
   ['settings.manage', 'Gerenciar configurações do site'],
   ['payments.manage', 'Gerenciar integração de pagamentos'],
   ['notifications.manage', 'Gerenciar notificações e e-mails'],
+  ['quotes.manage', 'Gerenciar solicitações de cotação'],
 ] as const;
 
 const emailTemplates = [
@@ -27,6 +28,8 @@ const emailTemplates = [
   { key: EmailEventKey.PAYMENT_APPROVED, subject: 'Pagamento aprovado — pedido {{orderId}}', htmlBody: '<p>Seu pagamento foi aprovado e o pedido {{orderId}} seguirá para preparação.</p>', textBody: 'Seu pagamento foi aprovado e o pedido {{orderId}} seguirá para preparação.' },
   { key: EmailEventKey.PAYMENT_REJECTED, subject: 'Não foi possível aprovar o pagamento do pedido {{orderId}}', htmlBody: '<p>O pagamento do pedido {{orderId}} não foi aprovado. Revise os dados ou escolha outra forma de pagamento.</p>', textBody: 'O pagamento do pedido {{orderId}} não foi aprovado. Revise os dados ou escolha outra forma de pagamento.' },
   { key: EmailEventKey.ORDER_STATUS_CHANGED, subject: 'Atualização do pedido {{orderId}}', htmlBody: '<p>O status do pedido {{orderId}} mudou para <strong>{{status}}</strong>.</p><p>Acompanhe em {{orderUrl}}.</p>', textBody: 'O status do pedido {{orderId}} mudou para {{status}}. Acompanhe em {{orderUrl}}.' },
+  { key: EmailEventKey.QUOTE_REQUESTED, subject: 'Nova cotação {{quoteId}} — {{customerName}}', htmlBody: '<p>Olá, equipe comercial.</p><p>Chegou uma nova solicitação de cotação <strong>{{quoteId}}</strong> de {{customerName}}.</p><p>Itens: {{itemsCount}} — total de referência {{total}}.</p><p>Acesse o painel: {{quoteUrl}}</p>', textBody: 'Nova cotação {{quoteId}} de {{customerName}}. Itens: {{itemsCount}}. Total de referência: {{total}}. Painel: {{quoteUrl}}' },
+  { key: EmailEventKey.QUOTE_STATUS_CHANGED, subject: 'Cotação {{quoteId}} atualizada para {{status}}', htmlBody: '<p>Olá {{customerName}},</p><p>Sua cotação <strong>{{quoteId}}</strong> foi atualizada para <strong>{{status}}</strong>.</p><p>Acompanhe em {{quoteUrl}}.</p>', textBody: 'Sua cotação {{quoteId}} foi atualizada para {{status}}. Acompanhe em {{quoteUrl}}.' },
   { key: EmailEventKey.PASSWORD_RESET, subject: 'Recupere o acesso à {{siteName}}', htmlBody: '<p>Olá {{customerName}},</p><p>Use este link para redefinir sua senha: <a href="{{resetUrl}}">{{resetUrl}}</a>.</p>', textBody: 'Olá {{customerName}}, use este link para redefinir sua senha: {{resetUrl}}.' },
 ] as const;
 
@@ -204,6 +207,15 @@ async function main(): Promise<void> {
       create: { eventKey: template.key, enabled: true },
     });
   }
+
+  // A equipe comercial recebe as solicitacoes de cotacao. O destinatario real
+  // deve ser ajustado no admin ou por QUOTES_SALES_EMAIL em producao.
+  const salesEmail = process.env.QUOTES_SALES_EMAIL?.trim().toLowerCase() || 'vendas@comercialdonorte.local';
+  await prisma.notificationPreference.upsert({
+    where: { eventKey: EmailEventKey.QUOTE_REQUESTED },
+    update: {},
+    create: { eventKey: EmailEventKey.QUOTE_REQUESTED, enabled: true, recipientOverride: salesEmail },
+  });
 }
 
 main()

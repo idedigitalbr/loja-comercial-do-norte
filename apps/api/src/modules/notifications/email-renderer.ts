@@ -26,6 +26,10 @@ export const EMAIL_TEMPLATE_VARIABLES = [
   'expiresAt',
   'resetUrl',
   'supportUrl',
+  'quoteId',
+  'quoteUrl',
+  'itemsCount',
+  'companyName',
 ] as const;
 
 const allowedVariables = new Set<string>(EMAIL_TEMPLATE_VARIABLES);
