@@ -82,5 +82,8 @@ jobs:
       - name: Testes
         run: pnpm test
 
+      - name: Testes E2E da API (jornada de cotação)
+        run: pnpm --filter api test:e2e
+
       - name: Build
         run: pnpm build
