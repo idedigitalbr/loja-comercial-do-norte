@@ -40,6 +40,10 @@ export type ApiCategory = {
   publicId: string;
   name: string;
   slug: string;
+  parentId: string | null;
+  imagePath: string | null;
+  sortOrder: number;
+  children?: ApiCategory[];
 };
 
 export type ApiBrand = {

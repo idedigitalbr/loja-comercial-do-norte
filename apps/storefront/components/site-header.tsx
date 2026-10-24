@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Menu, Phone, Search, ShoppingBasket, X } from 'lucide-react';
+import { ChevronDown, Menu, Phone, Search, ShoppingBasket, X } from 'lucide-react';
 import { useState } from 'react';
 import { useQuoteCart } from './quote-cart-provider';
 import type { ApiBrand, ApiCategory } from '@/lib/types';
@@ -23,6 +23,7 @@ export function SiteHeader({ siteName, logoUrl, phone, whatsapp, categories, bra
   const { count, openDrawer } = useQuoteCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const rootCategories = categories.filter((category) => !category.parentId);
 
   function submitSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -105,10 +106,30 @@ export function SiteHeader({ siteName, logoUrl, phone, whatsapp, categories, bra
       <nav aria-label="Categorias" className="hidden border-t border-white/15 lg:block">
         <div className="cn-container flex flex-wrap items-center gap-1 py-2 text-sm">
           <Link className="rounded px-3 py-2 font-semibold hover:bg-white/10" href="/loja">Todas as categorias</Link>
-          {categories.slice(0, 8).map((category) => (
-            <Link className="rounded px-3 py-2 hover:bg-white/10" href={`/categoria/${category.slug}`} key={category.id}>
-              {category.name}
-            </Link>
+          {rootCategories.slice(0, 8).map((category) => (
+            <div className="group relative" key={category.id}>
+              <Link
+                aria-haspopup={category.children?.length ? 'true' : undefined}
+                className="inline-flex items-center gap-1 rounded px-3 py-2 hover:bg-white/10 focus:bg-white/10"
+                href={`/categoria/${category.slug}`}
+              >
+                {category.name}
+                {category.children?.length ? <ChevronDown aria-hidden className="size-3.5 opacity-70" /> : null}
+              </Link>
+              {category.children?.length ? (
+                <div className="invisible absolute left-0 top-full z-40 w-64 rounded-card border border-line bg-surface p-2 text-body opacity-0 shadow-elevated transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                  <ul className="grid gap-0.5">
+                    {category.children.map((child) => (
+                      <li key={child.id}>
+                        <Link className="block rounded px-3 py-2 text-sm hover:bg-brand-soft hover:text-brand" href={`/categoria/${child.slug}`}>
+                          {child.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
           ))}
           {brands.length ? (
             <Link className="rounded px-3 py-2 hover:bg-white/10" href="/marcas">Marcas</Link>
@@ -120,11 +141,22 @@ export function SiteHeader({ siteName, logoUrl, phone, whatsapp, categories, bra
         <nav aria-label="Categorias (mobile)" className="border-t border-white/15 bg-brand px-4 py-3 lg:hidden" id="mobile-menu">
           <ul className="grid gap-1 text-sm">
             <li><Link className="block rounded px-2 py-2 font-semibold hover:bg-white/10" href="/loja" onClick={() => setMobileOpen(false)}>Todas as categorias</Link></li>
-            {categories.map((category) => (
+            {rootCategories.map((category) => (
               <li key={category.id}>
-                <Link className="block rounded px-2 py-2 hover:bg-white/10" href={`/categoria/${category.slug}`} onClick={() => setMobileOpen(false)}>
+                <Link className="block rounded px-2 py-2 font-medium hover:bg-white/10" href={`/categoria/${category.slug}`} onClick={() => setMobileOpen(false)}>
                   {category.name}
                 </Link>
+                {category.children?.length ? (
+                  <ul className="ml-3 grid gap-0.5 border-l border-white/20 pl-2">
+                    {category.children.map((child) => (
+                      <li key={child.id}>
+                        <Link className="block rounded px-2 py-1.5 text-white/85 hover:bg-white/10" href={`/categoria/${child.slug}`} onClick={() => setMobileOpen(false)}>
+                          {child.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
               </li>
             ))}
             {phone ? <li><a className="block rounded px-2 py-2 hover:bg-white/10" href={`tel:${phone.replace(/\D+/g, '')}`}>{phone}</a></li> : null}

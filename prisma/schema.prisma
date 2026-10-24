@@ -366,13 +366,20 @@ model Category {
   name                String               @unique @db.VarChar(160)
   slug                String               @unique @db.VarChar(191)
   status              RecordStatus         @default(DRAFT)
+  parentId            String?
+  imagePath           String?              @db.VarChar(500)
+  sortOrder           Int                  @default(0)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
+  parent              Category?            @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children            Category[]           @relation("CategoryHierarchy")
   products            ProductCategory[]
   promotionScopes     PromotionScope[]
   couponCategoryRules CouponCategoryRule[]
 
   @@unique([legacySource, legacyId])
+  @@index([parentId, status])
+  @@index([status, sortOrder])
 }
 
 model Product {

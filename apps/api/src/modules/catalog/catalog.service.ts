@@ -43,6 +43,7 @@ export type TaxonomyInput = {
   parentId?: string;
   description?: string;
   imagePath?: string;
+  sortOrder?: number;
 };
 
 export type TaxonomyUpdateInput = Partial<TaxonomyInput> & { status?: RecordStatus };
@@ -198,12 +199,67 @@ export class CatalogService {
     return this.prisma.brand.update({ where: { id }, data: { status: RecordStatus.ARCHIVED } });
   }
 
-  createCategory(input: TaxonomyInput) {
-    return this.prisma.category.create({ data: { name: input.name, slug: input.slug || toSlug(input.name) } });
+  async createCategory(input: TaxonomyInput) {
+    return this.prisma.category.create({
+      data: {
+        name: input.name,
+        slug: input.slug || toSlug(input.name),
+        ...(input.parentId ? { parentId: input.parentId } : {}),
+        ...(input.imagePath ? { imagePath: input.imagePath } : {}),
+        ...(input.sortOrder !== undefined ? { sortOrder: input.sortOrder } : {}),
+      },
+    });
   }
 
-  updateCategory(id: string, input: TaxonomyUpdateInput) {
-    return this.prisma.category.update({ where: { id }, data: { ...(input.name !== undefined ? { name: input.name } : {}), ...(input.slug !== undefined ? { slug: input.slug } : {}), ...(input.status !== undefined ? { status: input.status } : {}) } });
+  async updateCategory(id: string, input: TaxonomyUpdateInput) {
+    if (input.parentId === id) throw new BadRequestException('CATEGORY_PARENT_INVALID');
+    if (input.parentId) await this.assertNoCategoryCycle(id, input.parentId);
+    return this.prisma.category.update({
+      where: { id },
+      data: {
+        ...(input.name !== undefined ? { name: input.name } : {}),
+        ...(input.slug !== undefined ? { slug: input.slug } : {}),
+        ...(input.status !== undefined ? { status: input.status } : {}),
+        ...(input.parentId !== undefined ? { parentId: input.parentId || null } : {}),
+        ...(input.imagePath !== undefined ? { imagePath: input.imagePath || null } : {}),
+        ...(input.sortOrder !== undefined ? { sortOrder: input.sortOrder } : {}),
+      },
+    });
+  }
+
+  /** Impede que a hierarquia de categorias vire um ciclo (A > B > A). */
+  private async assertNoCategoryCycle(categoryId: string, parentId: string): Promise<void> {
+    let cursor: string | null = parentId;
+    const visited = new Set<string>();
+    while (cursor) {
+      if (cursor === categoryId) throw new BadRequestException('CATEGORY_CYCLE_DETECTED');
+      if (visited.has(cursor)) break;
+      visited.add(cursor);
+      const parent: { parentId: string | null } | null = await this.prisma.category.findUnique({
+        where: { id: cursor },
+        select: { parentId: true },
+      });
+      cursor = parent?.parentId ?? null;
+    }
+  }
+
+  /** Resolve uma categoria e todas as suas descendentes (para filtros). */
+  async categoryIdsWithDescendants(id: string): Promise<string[]> {
+    const ids = [id];
+    let frontier = [id];
+    const visited = new Set(ids);
+    while (frontier.length) {
+      const children = await this.prisma.category.findMany({
+        where: { parentId: { in: frontier } },
+        select: { id: true },
+      });
+      frontier = children.map((child) => child.id).filter((childId) => !visited.has(childId));
+      for (const childId of frontier) {
+        visited.add(childId);
+        ids.push(childId);
+      }
+    }
+    return ids;
   }
 
   archiveCategory(id: string) {
@@ -308,11 +364,17 @@ export class CatalogService {
         : null,
     ]);
     const resolvedBrandIds = brand ? [brand.id, ...(brand.children?.map((child) => child.id) ?? [])] : input.brand || input.brandId ? ['__unknown_brand__'] : [];
-    const resolvedCategoryId = input.categoryId ?? (input.category ? category?.id ?? '__unknown_category__' : undefined);
+    const categoryId = input.categoryId ?? (input.category ? category?.id : undefined);
+    // Categoria pai inclui as subcategorias (começo de hierarquia, E2).
+    const resolvedCategoryIds = categoryId
+      ? await this.categoryIdsWithDescendants(categoryId)
+      : input.category || input.categoryId
+        ? ['__unknown_category__']
+        : [];
     return {
       ...(input.status === undefined ? { status: RecordStatus.ACTIVE } : input.status ? { status: input.status } : {}),
       ...(resolvedBrandIds.length === 1 ? { brandId: resolvedBrandIds[0] } : resolvedBrandIds.length > 1 ? { brandId: { in: resolvedBrandIds } } : {}),
-      ...(resolvedCategoryId ? { categories: { some: { categoryId: resolvedCategoryId } } } : {}),
+      ...(resolvedCategoryIds.length ? { categories: { some: { categoryId: { in: resolvedCategoryIds } } } } : {}),
       ...(input.search?.trim()
         ? {
             OR: [
@@ -379,7 +441,17 @@ export class CatalogService {
   }
 
   listCategories(status: RecordStatus | null = RecordStatus.ACTIVE) {
-    return this.prisma.category.findMany({ where: status ? { status } : {}, orderBy: { name: 'asc' } });
+    return this.prisma.category.findMany({
+      where: status ? { status } : {},
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+      include: {
+        parent: { select: { id: true, name: true, slug: true } },
+        children: {
+          where: status ? { status } : {},
+          orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+        },
+      },
+    });
   }
 
   private async assertProduct(id: string): Promise<void> {

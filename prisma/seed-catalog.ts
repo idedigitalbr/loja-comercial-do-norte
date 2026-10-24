@@ -17,7 +17,9 @@ import { resolveApiStorageRoot } from '../apps/api/src/modules/files/storage-roo
 
 export const DEMO_SOURCE = 'SEED_DEMO';
 
-const categories = [
+type DemoCategory = { name: string; slug: string; parentSlug?: string };
+
+const categories: readonly DemoCategory[] = [
   { name: 'Artigos para Festa', slug: 'artigos-para-festa' },
   { name: 'Embalagens', slug: 'embalagens' },
   { name: 'Descartáveis', slug: 'descartaveis' },
@@ -26,7 +28,13 @@ const categories = [
   { name: 'Produtos de Limpeza', slug: 'produtos-de-limpeza' },
   { name: 'Frios e Laticínios', slug: 'frios-e-laticinios' },
   { name: 'Mercearia', slug: 'mercearia' },
-] as const;
+  // Subcategorias de demonstração: exercitam a hierarquia (roadmap E2).
+  { name: 'Copos', slug: 'copos', parentSlug: 'descartaveis' },
+  { name: 'Pratos', slug: 'pratos', parentSlug: 'descartaveis' },
+  { name: 'Caixas e Bandejas', slug: 'caixas-e-bandejas', parentSlug: 'embalagens' },
+  { name: 'Filme e Alumínio', slug: 'filme-e-aluminio', parentSlug: 'embalagens' },
+  { name: 'Velas e Suprimentos', slug: 'velas-e-suprimentos', parentSlug: 'artigos-para-festa' },
+];
 
 const brands = [{ name: 'Marca Exemplo', slug: 'marca-exemplo' }] as const;
 
@@ -51,13 +59,13 @@ export const demoProducts: readonly DemoProduct[] = [
   {
     slug: 'copo-descartavel-300ml', name: 'Copo Descartável Transparente 300 ml',
     description: 'Pacote com 100 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'descartaveis', sku: 'DEMO-COP-300', priceCents: 890, compareAtPriceCents: 1090,
+    categorySlug: 'copos', sku: 'DEMO-COP-300', priceCents: 890, compareAtPriceCents: 1090,
     weightGrams: 1200, widthMm: 300, heightMm: 400, lengthMm: 300, physicalQuantity: 180, status: 'ACTIVE',
   },
   {
     slug: 'prato-descartavel-21cm', name: 'Prato Descartável Branco 21 cm',
     description: 'Pacote com 50 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'descartaveis', sku: 'DEMO-PRA-021', priceCents: 1250,
+    categorySlug: 'pratos', sku: 'DEMO-PRA-021', priceCents: 1250,
     weightGrams: 900, widthMm: 210, heightMm: 120, lengthMm: 210, physicalQuantity: 140, status: 'ACTIVE',
   },
   {
@@ -69,13 +77,13 @@ export const demoProducts: readonly DemoProduct[] = [
   {
     slug: 'caixa-pizza-35cm', name: 'Caixa de Pizza 35 cm',
     description: 'Caixa de papelão para pizza, 100 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'embalagens', sku: 'DEMO-CAI-035', priceCents: 390, compareAtPriceCents: 450,
+    categorySlug: 'caixas-e-bandejas', sku: 'DEMO-CAI-035', priceCents: 390, compareAtPriceCents: 450,
     weightGrams: 400, widthMm: 350, heightMm: 40, lengthMm: 350, physicalQuantity: 300, status: 'ACTIVE',
   },
   {
     slug: 'bandeja-isopor-n2', name: 'Bandeja de Isopor nº 2',
     description: 'Bandeja para frios e carnes, 100 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'embalagens', sku: 'DEMO-BAN-002', priceCents: 990,
+    categorySlug: 'caixas-e-bandejas', sku: 'DEMO-BAN-002', priceCents: 990,
     weightGrams: 300, widthMm: 250, heightMm: 30, lengthMm: 200, physicalQuantity: 160, status: 'ACTIVE',
   },
   {
@@ -87,7 +95,7 @@ export const demoProducts: readonly DemoProduct[] = [
   {
     slug: 'velas-aniversario-coloridas', name: 'Velas de Aniversário Coloridas',
     description: 'Cartela com 12 velas. Produto de demonstração do catálogo.',
-    categorySlug: 'artigos-para-festa', sku: 'DEMO-VEL-0012', priceCents: 420,
+    categorySlug: 'velas-e-suprimentos', sku: 'DEMO-VEL-0012', priceCents: 420,
     weightGrams: 120, widthMm: 150, heightMm: 20, lengthMm: 100, physicalQuantity: 75, status: 'ACTIVE',
   },
   {
@@ -112,7 +120,7 @@ export const demoProducts: readonly DemoProduct[] = [
     // DRAFT: falta comprimento, então a publicação deve falhar com PRODUCT_INCOMPLETE.
     slug: 'filme-pvc-30cm', name: 'Filme PVC 30 cm x 30 m',
     description: 'Rolo de filme PVC. Produto de demonstração aguardando dados completos.',
-    categorySlug: 'embalagens', sku: 'DEMO-FIL-030', priceCents: 1890,
+    categorySlug: 'filme-e-aluminio', sku: 'DEMO-FIL-030', priceCents: 1890,
     weightGrams: 350, widthMm: 300, heightMm: 100, physicalQuantity: 45, status: 'DRAFT',
   },
   {
@@ -190,11 +198,22 @@ export async function seedCatalog(prisma: PrismaClient): Promise<{ categories: n
   await seedDemoMedia();
 
   const categoryIdBySlug = new Map<string, string>();
-  for (const category of categories) {
+  // Duas passadas: categorias principais primeiro, depois as subcategorias com parentId.
+  for (const category of categories.filter((item) => !item.parentSlug)) {
     const row = await prisma.category.upsert({
       where: { slug: category.slug },
-      update: { name: category.name, status: 'ACTIVE' },
-      create: { name: category.name, slug: category.slug, status: 'ACTIVE', legacySource: DEMO_SOURCE, legacyId: category.slug },
+      update: { name: category.name, status: 'ACTIVE', sortOrder: 0 },
+      create: { name: category.name, slug: category.slug, status: 'ACTIVE', sortOrder: 0, legacySource: DEMO_SOURCE, legacyId: category.slug },
+    });
+    categoryIdBySlug.set(category.slug, row.id);
+  }
+  for (const category of categories.filter((item) => item.parentSlug)) {
+    const parentId = categoryIdBySlug.get(category.parentSlug ?? '');
+    if (!parentId) continue;
+    const row = await prisma.category.upsert({
+      where: { slug: category.slug },
+      update: { name: category.name, status: 'ACTIVE', parentId },
+      create: { name: category.name, slug: category.slug, status: 'ACTIVE', parentId, legacySource: DEMO_SOURCE, legacyId: category.slug },
     });
     categoryIdBySlug.set(category.slug, row.id);
   }

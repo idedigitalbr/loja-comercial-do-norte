@@ -40,6 +40,20 @@ export default async function CategoryPage({ params }: { params: Params }) {
         <p className="text-sm text-muted">{products.length} produto(s) disponível(is) para cotação.</p>
       </header>
 
+      {category.children?.length ? (
+        <nav aria-label="Subcategorias" className="mt-4 flex flex-wrap gap-2">
+          {category.children.map((child) => (
+            <Link
+              className="rounded-pill border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink hover:border-brand hover:text-brand"
+              href={`/categoria/${child.slug}`}
+              key={child.id}
+            >
+              {child.name}
+            </Link>
+          ))}
+        </nav>
+      ) : null}
+
       {products.length ? (
         <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
           {products.map((product) => <ProductCard key={product.id} product={product} />)}
