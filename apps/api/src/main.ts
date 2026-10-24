@@ -19,17 +19,26 @@ import { resolveApiProjectRoot, resolveApiStorageRoot } from './modules/files/st
 
 export function configureApp(app: INestApplication): INestApplication {
   const httpServer = app.getHttpAdapter().getInstance();
-  httpServer.use('/assets', serveStatic(join(resolveApiProjectRoot(), 'public/storefront/assets')));
   httpServer.use('/admin/assets', serveStatic(join(resolveApiProjectRoot(), 'public/admin/assets')));
   httpServer.use('/storage/uploads', serveStatic(join(resolveApiStorageRoot(), 'uploads')));
   app.setGlobalPrefix('api/v1', {
     exclude: ['webhooks/mercado-pago', 'internal/cron/process'],
   });
+  // Storefront (Next.js) e admin rodam em origens separadas da API: liberar
+  // apenas as origens configuradas, sempre com credenciais.
+  const allowedOrigins = [process.env.APP_ORIGIN, process.env.ADMIN_ORIGIN]
+    .map((origin) => origin?.trim())
+    .filter((origin): origin is string => Boolean(origin));
+  app.enableCors({
+    origin: allowedOrigins.length ? allowedOrigins : false,
+    credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+  });
   app.use(cookieParser(process.env.COOKIE_SECRET));
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
-        imgSrc: ["'self'", 'data:', 'https://jonaselivaldohair.com.br'],
+        imgSrc: ["'self'", 'data:'],
         frameSrc: ["'self'", 'https://www.youtube.com', 'https://www.youtube-nocookie.com'],
       },
     },

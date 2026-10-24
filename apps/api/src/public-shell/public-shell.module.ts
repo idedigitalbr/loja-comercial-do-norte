@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
-import { CatalogModule } from '../modules/catalog/catalog.module';
 import { AdminShellController } from './admin-shell.controller';
-import { SeoRendererService } from './seo-renderer.service';
-import { StorefrontShellController } from './storefront-shell.controller';
 
-@Module({ imports: [CatalogModule], controllers: [StorefrontShellController, AdminShellController], providers: [SeoRendererService] })
+/**
+ * Apenas o painel administrativo (React/Vite) é servido pela API.
+ * A loja pública roda em Next.js como serviço separado — o antigo shell do
+ * storefront e o renderer de SEO foram removidos (roadmap D6/R07).
+ */
+@Module({ controllers: [AdminShellController] })
 export class PublicShellModule {}
