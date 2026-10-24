@@ -1,0 +1,39 @@
+name: Sincronizar quadro com Pull Request
+
+# Mantém a Issue alinhada ao PR: comenta links, move para "Em Revisão" e exige
+# validação humana — CI verde NÃO conclui tarefa automaticamente.
+# Descobre a tarefa pelo nome da branch (`feat/e5-...` -> E5) usando o manifesto
+# versionado em scripts/agents/tasks.json.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+concurrency:
+  group: agent-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  sincronizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Atualizar Issue da tarefa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_ACTION: ${{ github.event.action }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_MERGED: ${{ github.event.pull_request.merged }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node scripts/agents/pr-sync.mjs

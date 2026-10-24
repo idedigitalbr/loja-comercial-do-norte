@@ -8,6 +8,8 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "typecheck:seed": "tsc -p tsconfig.seed.json",
+    "agents:sync": "node scripts/agents/project-sync.mjs",
+    "agents:claim": "node scripts/agents/task-claim.mjs",
     "test": "node scripts/check-workspace.mjs && turbo test",
     "test:e2e": "playwright test",
     "db:format": "prisma format",
