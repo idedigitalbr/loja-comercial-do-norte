@@ -1,0 +1,29 @@
+name: Gerar baseline PostgreSQL
+
+# Workflow temporario e manual: gera o SQL da migration inicial do PostgreSQL a
+# partir de prisma/schema.prisma. Usado apenas enquanto o ambiente local nao
+# consegue executar o schema-engine do Prisma.
+on:
+  workflow_dispatch:
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Gerar SQL da baseline
+        run: pnpm exec prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > baseline.sql
+      - uses: actions/upload-artifact@v4
+        with:
+          name: postgres-baseline
+          path: baseline.sql
+          retention-days: 1
