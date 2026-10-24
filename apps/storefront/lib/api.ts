@@ -42,6 +42,36 @@ export function getProducts(input: { search?: string; category?: string; brand?:
   return safeJson<ApiProduct[]>(`/catalog/products${params.size ? `?${params}` : ''}`, []);
 }
 
+export type ProductPage = {
+  items: ApiProduct[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  sort: 'newest' | 'name_asc';
+};
+
+const emptyPage = (page: number, pageSize: number): ProductPage => ({ items: [], total: 0, page, pageSize, totalPages: 1, sort: 'newest' });
+
+/** Busca paginada no servidor (filtros, ordenação e contagem). */
+export function getProductsPage(input: {
+  search?: string;
+  category?: string;
+  brand?: string;
+  page?: number;
+  pageSize?: number;
+  sort?: 'newest' | 'name_asc';
+} = {}): Promise<ProductPage> {
+  const page = Math.max(1, input.page ?? 1);
+  const pageSize = Math.min(48, Math.max(1, input.pageSize ?? 12));
+  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+  if (input.search?.trim()) params.set('search', input.search.trim());
+  if (input.category) params.set('category', input.category);
+  if (input.brand) params.set('brand', input.brand);
+  if (input.sort) params.set('sort', input.sort);
+  return safeJson<ProductPage>(`/catalog/products/search?${params}`, emptyPage(page, pageSize));
+}
+
 export async function getProduct(slug: string): Promise<ApiProduct | null> {
   try {
     return await getJson<ApiProduct>(`/catalog/products/${encodeURIComponent(slug)}`);

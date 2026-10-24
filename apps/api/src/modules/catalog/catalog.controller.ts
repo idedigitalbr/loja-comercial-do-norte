@@ -9,6 +9,15 @@ type ProductQuery = {
   category?: string;
 };
 
+type SearchQuery = {
+  search?: string;
+  brand?: string;
+  category?: string;
+  page?: string;
+  pageSize?: string;
+  sort?: string;
+};
+
 @Controller('catalog')
 export class CatalogController {
   constructor(@Inject(CatalogService) private readonly catalogService: CatalogService) {}
@@ -16,6 +25,19 @@ export class CatalogController {
   @Get('products')
   listProducts(@Query() query: ProductQuery) {
     return this.catalogService.listProducts(query);
+  }
+
+  /** Busca paginada usada pelo storefront (server-side search/filtros). */
+  @Get('products/search')
+  searchProducts(@Query() query: SearchQuery) {
+    return this.catalogService.searchProducts({
+      search: query.search,
+      brand: query.brand,
+      category: query.category,
+      page: query.page ? Number(query.page) : undefined,
+      pageSize: query.pageSize ? Number(query.pageSize) : undefined,
+      sort: query.sort === 'name_asc' ? 'name_asc' : 'newest',
+    });
   }
 
   @Get('products/:slug')

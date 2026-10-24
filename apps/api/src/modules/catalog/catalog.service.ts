@@ -251,6 +251,54 @@ export class CatalogService {
     category?: string;
     status?: RecordStatus | null;
   } = {}) {
+    const where = await this.buildPublicWhere(input);
+    return this.prisma.product.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: productRelations,
+    });
+  }
+
+  /**
+   * Busca paginada para o storefront (E7): filtros e ordenação no servidor,
+   * com contagem total para a paginação.
+   */
+  async searchProducts(input: {
+    search?: string;
+    brand?: string;
+    category?: string;
+    page?: number;
+    pageSize?: number;
+    sort?: 'newest' | 'name_asc';
+  } = {}) {
+    const page = Math.max(1, Math.trunc(input.page ?? 1));
+    const pageSize = Math.min(48, Math.max(1, Math.trunc(input.pageSize ?? 12)));
+    const where = await this.buildPublicWhere(input);
+    const orderBy: Prisma.ProductOrderByWithRelationInput = input.sort === 'name_asc' ? { name: 'asc' } : { createdAt: 'desc' };
+
+    const [items, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        orderBy,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: productRelations,
+      }),
+      this.prisma.product.count({ where }),
+    ]);
+
+    return { items, total, page, pageSize, totalPages: Math.max(1, Math.ceil(total / pageSize)), sort: input.sort ?? 'newest' };
+  }
+
+  /** Filtro público compartilhado: nunca expõe produto fora de ACTIVE. */
+  private async buildPublicWhere(input: {
+    search?: string;
+    brandId?: string;
+    categoryId?: string;
+    brand?: string;
+    category?: string;
+    status?: RecordStatus | null;
+  }): Promise<Prisma.ProductWhereInput> {
     const [brand, category] = await Promise.all([
       input.brand || input.brandId
         ? this.prisma.brand.findUnique({ where: input.brandId ? { id: input.brandId } : { slug: input.brand }, select: { id: true, children: { select: { id: true } } } })
@@ -261,7 +309,7 @@ export class CatalogService {
     ]);
     const resolvedBrandIds = brand ? [brand.id, ...(brand.children?.map((child) => child.id) ?? [])] : input.brand || input.brandId ? ['__unknown_brand__'] : [];
     const resolvedCategoryId = input.categoryId ?? (input.category ? category?.id ?? '__unknown_category__' : undefined);
-    const where: Prisma.ProductWhereInput = {
+    return {
       ...(input.status === undefined ? { status: RecordStatus.ACTIVE } : input.status ? { status: input.status } : {}),
       ...(resolvedBrandIds.length === 1 ? { brandId: resolvedBrandIds[0] } : resolvedBrandIds.length > 1 ? { brandId: { in: resolvedBrandIds } } : {}),
       ...(resolvedCategoryId ? { categories: { some: { categoryId: resolvedCategoryId } } } : {}),
@@ -274,11 +322,6 @@ export class CatalogService {
           }
         : {}),
     };
-    return this.prisma.product.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      include: productRelations,
-    });
   }
 
   async getProductBySlug(slug: string) {
