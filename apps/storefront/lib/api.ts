@@ -88,6 +88,11 @@ export async function getBrands(): Promise<ApiBrand[]> {
   return safeJson<ApiBrand[]>('/catalog/brands', []);
 }
 
+/** Ofertas reais (variante com preço "de/por"), sem inventar desconto. */
+export async function getOffers(limit = 8): Promise<ApiProduct[]> {
+  return safeJson<ApiProduct[]>(`/catalog/offers?limit=${limit}`, []);
+}
+
 export async function getQuote(publicId: string): Promise<PublicQuote | null> {
   try {
     const response = await fetch(`${API_URL}/api/v1/quotes/${encodeURIComponent(publicId)}`, {

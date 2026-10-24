@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { BadgeCheck, PackageCheck, ShieldCheck, Truck } from 'lucide-react';
 import { ProductCard } from '@/components/product-card';
-import { getCategories, getProducts, getSiteConfig, mediaUrl } from '@/lib/api';
+import { getBrands, getCategories, getOffers, getProducts, getSiteConfig, mediaUrl } from '@/lib/api';
 import type { ApiCategory } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -14,8 +14,15 @@ const benefits = [
 ];
 
 export default async function HomePage() {
-  const [config, categories, products] = await Promise.all([getSiteConfig(), getCategories(), getProducts()]);
+  const [config, categories, brands, offers, products] = await Promise.all([
+    getSiteConfig(),
+    getCategories(),
+    getBrands(),
+    getOffers(8),
+    getProducts(),
+  ]);
   const banners = config?.banners ?? [];
+  const site = config?.site ?? null;
   const hero = banners[0];
   const highlights = products.slice(0, 8);
   const categoryCount = new Map<string, number>();
@@ -75,7 +82,7 @@ export default async function HomePage() {
           <Link className="text-sm font-semibold text-brand hover:underline" href="/loja">Ver catálogo completo</Link>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-          {categories.map((category: ApiCategory) => (
+          {categories.filter((category: ApiCategory) => !category.parentId).map((category: ApiCategory) => (
             <Link
               className="group rounded-card border border-line bg-surface p-4 shadow-card transition hover:-translate-y-0.5 hover:border-brand"
               href={`/categoria/${category.slug}`}
@@ -84,11 +91,47 @@ export default async function HomePage() {
               <p className="text-sm font-bold text-ink group-hover:text-brand">{category.name}</p>
               <p className="mt-1 text-xs text-muted">
                 {categoryCount.get(category.slug) ?? 0} produto(s)
+                {category.children?.length ? ` · ${category.children.length} subcategoria(s)` : ''}
               </p>
             </Link>
           ))}
         </div>
       </section>
+
+      {brands.length ? (
+        <section aria-label="Marcas" className="border-y border-line bg-surface">
+          <div className="cn-container flex items-center gap-4 overflow-x-auto py-6">
+            <p className="shrink-0 text-xs font-semibold uppercase tracking-wide text-muted">Marcas</p>
+            <div className="flex flex-wrap items-center gap-3">
+              {brands.slice(0, 10).map((brand) => (
+                <Link
+                  className="rounded-pill border border-line px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand hover:text-brand"
+                  href={`/marca/${brand.slug}`}
+                  key={brand.id}
+                >
+                  {brand.name}
+                </Link>
+              ))}
+              <Link className="text-xs font-semibold text-brand hover:underline" href="/marcas">Ver todas</Link>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {offers.length ? (
+        <section className="cn-container py-10">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-extrabold text-ink">Ofertas do dia</h2>
+              <p className="text-sm text-muted">Descontos reais de preço de referência — sujeitos à cotação.</p>
+            </div>
+            <Link className="text-sm font-semibold text-brand hover:underline" href="/loja">Ver tudo</Link>
+          </div>
+          <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+            {offers.slice(0, 8).map((product) => <ProductCard key={product.id} product={product} />)}
+          </div>
+        </section>
+      ) : null}
 
       <section className="cn-container py-4">
         <div className="flex items-end justify-between gap-4">
@@ -106,6 +149,33 @@ export default async function HomePage() {
             Nenhum produto publicado ainda. Rode o seed de demonstração para popular o catálogo.
           </p>
         )}
+      </section>
+
+      <section className="cn-container py-10">
+        <div className="grid gap-4 rounded-card border border-line bg-surface p-6 shadow-card md:grid-cols-3 md:p-8">
+          <div className="md:col-span-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">Loja física (S8)</p>
+            <h2 className="mt-1 text-xl font-extrabold text-ink">Atendimento no atacado e no varejo</h2>
+            {site?.address ? <p className="mt-2 text-sm text-body">{site.address}</p> : null}
+            <p className="mt-1 text-sm text-body">
+              {site?.phone ? <a className="font-semibold text-brand hover:underline" href={`tel:${site.phone.replace(/\D+/g, '')}`}>{site.phone}</a> : null}
+              {site?.whatsapp ? (
+                <>
+                  {' · '}
+                  <a className="font-semibold text-brand hover:underline" href={`https://wa.me/${site.whatsapp.replace(/\D+/g, '')}`} rel="noreferrer" target="_blank">
+                    WhatsApp comercial
+                  </a>
+                </>
+              ) : null}
+            </p>
+            <p className="mt-2 text-xs text-muted">Dados cadastrais exibidos a partir da configuração do site (sujeitos à confirmação oficial).</p>
+          </div>
+          <div className="flex items-center">
+            <Link className="w-full rounded-pill bg-brand px-5 py-3 text-center text-sm font-bold text-white hover:bg-brand-hover" href="/cotacao">
+              Enviar minha lista
+            </Link>
+          </div>
+        </div>
       </section>
 
       <section className="cn-container py-10">

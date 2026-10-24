@@ -50,6 +50,12 @@ export class CatalogController {
     return this.catalogService.listBrands();
   }
 
+  /** Ofertas com preço "de/por" vindo da variante (S3). */
+  @Get('offers')
+  listOffers(@Query('limit') limit?: string) {
+    return this.catalogService.listOffers(limit ? Number(limit) : undefined);
+  }
+
   @Get('categories')
   listCategories() {
     return this.catalogService.listCategories();

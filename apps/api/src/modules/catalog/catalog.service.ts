@@ -316,6 +316,23 @@ export class CatalogService {
   }
 
   /**
+   * Ofertas do dia (S3): produtos ACTIVE cuja variante tem preço "de/por"
+   * real (compareAtPriceCents > priceCents). Nada é inventado no front.
+   */
+  async listOffers(limit = 8) {
+    const take = Math.min(24, Math.max(1, Math.trunc(limit)));
+    return this.prisma.product.findMany({
+      where: {
+        status: RecordStatus.ACTIVE,
+        variants: { some: { status: RecordStatus.ACTIVE, compareAtPriceCents: { gt: 0 } } },
+      },
+      orderBy: { updatedAt: 'desc' },
+      take,
+      include: productRelations,
+    });
+  }
+
+  /**
    * Busca paginada para o storefront (E7): filtros e ordenação no servidor,
    * com contagem total para a paginação.
    */

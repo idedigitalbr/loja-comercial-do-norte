@@ -7,7 +7,10 @@ import { AddToQuoteButton } from './add-to-quote-button';
 
 /** Card de produto com preço de referência e CTA de cotação (nunca compra). */
 export function ProductCard({ product }: { product: ApiProduct }) {
-  const variant = product.variants[0];
+  // Prioriza a variante com desconto real para exibir o "de/por".
+  const variant = product.variants.find(
+    (item) => item.compareAtPriceCents && item.compareAtPriceCents > item.priceCents,
+  ) ?? product.variants[0];
   const image = mediaUrl(product.images[0]?.path ?? null);
   const compareAt = variant?.compareAtPriceCents ?? null;
   const hasDiscount = Boolean(compareAt && variant && compareAt > variant.priceCents);
