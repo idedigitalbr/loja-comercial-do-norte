@@ -5,13 +5,14 @@ import { ProductEditorPage } from './features/catalog/product-editor-page';
 import { BrandEditorPage } from './features/catalog/brand-editor-page';
 import { InventoryPage } from './features/inventory/inventory-page';
 import { OrdersListPage } from './features/orders/orders-list-page';
+import { QuotesPage } from './features/quotes/quotes-page';
 import { ReportsPage } from './features/reports/reports-page';
 import { CustomersPage } from './features/customers/customers-page';
 import { PromotionsPage } from './features/promotions/promotions-page';
 import { SettingsPage } from './features/settings/settings-page';
 import { HomeBannersPage } from './features/settings/home-banners-page';
 
-export type AdminSection = 'overview' | 'home-banners' | 'catalog' | 'orders' | 'inventory' | 'customers' | 'promotions' | 'reports' | 'settings';
+export type AdminSection = 'overview' | 'home-banners' | 'catalog' | 'quotes' | 'orders' | 'inventory' | 'customers' | 'promotions' | 'reports' | 'settings';
 
 type NavigationItem = { id: AdminSection; label: string; description: string; icon: IconName };
 type DashboardProduct = { id: string };
@@ -21,6 +22,7 @@ const navigation: NavigationItem[] = [
   { id: 'overview', label: 'Visão geral', description: 'Resumo da operação', icon: 'layout-dashboard' },
   { id: 'home-banners', label: 'Banner da Home', description: 'Imagens e textos da Home', icon: 'image' },
   { id: 'catalog', label: 'Catálogo', description: 'Produtos e marcas', icon: 'shopping-bag' },
+  { id: 'quotes', label: 'Cotações', description: 'Solicitações da loja', icon: 'clipboard-list' },
   { id: 'orders', label: 'Pedidos', description: 'Venda e atendimento', icon: 'clipboard-list' },
   { id: 'inventory', label: 'Estoque', description: 'Saldos e ajustes', icon: 'warehouse' },
   { id: 'customers', label: 'Clientes', description: 'Base e relacionamento', icon: 'users' },
@@ -33,6 +35,7 @@ const adminSectionRoutes: Record<AdminSection, string> = {
   overview: '/admin/',
   'home-banners': '/admin/banners-home',
   catalog: '/admin/catalogo/produtos',
+  quotes: '/admin/cotacoes',
   orders: '/admin/orders',
   inventory: '/admin/inventory',
   customers: '/admin/customers',
@@ -58,7 +61,7 @@ export function getStorefrontUrl(origin = window.location.origin): string {
   const configuredUrl = (import.meta.env.VITE_STOREFRONT_URL as string | undefined)?.trim();
   if (configuredUrl) return appendStorefrontPath(configuredUrl);
 
-  const storefrontOrigin = origin.includes(':5174') ? origin.replace(':5174', ':5173') : origin;
+  const storefrontOrigin = origin.includes(':5174') ? origin.replace(':5174', ':3001') : origin;
   return appendStorefrontPath(storefrontOrigin);
 }
 
@@ -145,6 +148,7 @@ export function getInitialAdminSection(pathname = window.location.pathname): Adm
 function SectionContent({ section, onCreateProduct, onEditProduct, onCreateBrand, onEditBrand }: { section: AdminSection; onCreateProduct: () => void; onEditProduct: (id: string) => void; onCreateBrand: () => void; onEditBrand: (id: string) => void }) {
   if (section === 'home-banners') return <HomeBannersPage />;
   if (section === 'catalog') return <ProductListPage onCreate={onCreateProduct} onEdit={onEditProduct} onCreateBrand={onCreateBrand} onEditBrand={onEditBrand} />;
+  if (section === 'quotes') return <QuotesPage />;
   if (section === 'orders') return <OrdersListPage />;
   if (section === 'inventory') return <InventoryPage />;
   if (section === 'customers') return <CustomersPage />;
@@ -194,7 +198,7 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
   return (
     <div className="admin-app-shell">
       <aside className="admin-sidebar">
-        <div className="admin-sidebar__brand"><span className="admin-eyebrow">Jonas & Elivaldo</span><strong>Gestão<br />profissional</strong></div>
+        <div className="admin-sidebar__brand"><span className="admin-eyebrow">Comercial do Norte</span><strong>Gestão<br />profissional</strong></div>
         <nav className="admin-nav" aria-label="Navegação administrativa">{navigation.map((item) => <button key={item.id} className={section === item.id ? 'is-active' : ''} type="button" onClick={() => navigate(adminSectionRoutes[item.id])}><span className="admin-nav__label"><Icon name={item.icon} size={18} strokeWidth={1.8} /><span>{item.label}</span></span><small>{item.description}</small></button>)}</nav>
         <button className="admin-sidebar__logout" type="button" onClick={() => void logout()}>Sair da conta</button>
       </aside>

@@ -351,3 +351,11 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--admin-gold)
   .admin-settings__banner-item { grid-template-columns: 1fr; }
   .admin-settings__test-row { align-items: stretch; flex-direction: column; }
 }
+
+/* Fila de cotacoes (fase 1) */
+.admin-inline-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.admin-detail-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin: 16px 0; }
+.admin-detail-grid dt { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--admin-muted); }
+.admin-detail-grid dd { margin: 2px 0 0; font-weight: 600; }
+.admin-note { margin: 12px 0; padding: 10px 12px; border-radius: 10px; background: var(--admin-surface-alt, #f4f7fb); font-size: 13px; }
+.admin-modal__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
