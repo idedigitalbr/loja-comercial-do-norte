@@ -5,6 +5,9 @@ name: Gerar baseline PostgreSQL
 # consegue executar o schema-engine do Prisma.
 on:
   workflow_dispatch:
+  push:
+    branches: ['feat/stack-next-postgres']
+    paths: ['prisma/schema.prisma', '.github/workflows/db-baseline.yml']
 
 jobs:
   baseline:
