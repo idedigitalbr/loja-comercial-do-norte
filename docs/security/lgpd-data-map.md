@@ -1,5 +1,7 @@
 # Mapa LGPD inicial
 
+> Complemento de `docs/memory-ai.md` §5. Revisar com o jurídico antes do go-live.
+
 | Dado | Finalidade | Acesso | Retenção/ação |
 |---|---|---|---|
 | E-mail e nome | conta, pedido e comunicação transacional | cliente autorizado e operação | manter enquanto necessário; anonimizar após solicitação válida |

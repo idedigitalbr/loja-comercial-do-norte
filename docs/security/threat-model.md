@@ -1,5 +1,7 @@
 # Threat model resumido
 
+> Complemento de `docs/memory-ai.md` §5 (segurança). Não define escopo nem arquitetura.
+
 ## Ativos
 
 - credenciais e sessões de clientes e administradores;
@@ -14,7 +16,7 @@
 - RBAC validado na API;
 - validação de DTOs e uploads;
 - idempotência para checkout, pagamentos, cupons, estoque e jobs;
-- locks MySQL para estoque e vagas;
+- locks transacionais no banco para estoque e vagas;
 - HMAC no webhook Mercado Pago;
 - segredos fora do repositório;
 - anonimização transacional de dados pessoais.
@@ -23,5 +25,5 @@
 
 - configurar rate limiting e bloqueio progressivo de login;
 - validar credenciais e assinatura no ambiente Mercado Pago real;
-- testar backup/restauração e permissões do hPanel;
+- testar backup/restauração e permissões do servidor (VPS com Next + Nest + PostgreSQL);
 - revisar retenção, suporte ao titular e logs antes do go-live.
