@@ -62,7 +62,8 @@ test("release preserva histórico e duração sem inventar tempo ativo ou tokens
     at: "2026-10-24T20:00:00Z",
   };
   const state = core.transition(null, { ...event, action: "claim" });
-  const ended = core.transition(state, {
+  const started = core.transition(state, { ...event, action: "start", at: "2026-10-24T20:00:10Z" });
+  const ended = core.transition(started, {
     ...event,
     action: "release",
     at: "2026-10-24T20:01:00Z",
@@ -72,7 +73,24 @@ test("release preserva histórico e duração sem inventar tempo ativo ou tokens
   assert.equal(ended.sessions[0].tokens, null);
   assert.equal(ended.sessions[0].activeSeconds, null);
   assert.deepEqual(ended.participants, ["codex-will"]);
-  assert.equal(ended.sessions[0].events.length, 2);
+  assert.equal(started.sessions[0].events.length, 2);
+  assert.equal(ended.sessions[0].events.length, 3);
+});
+
+test("claim não atribui participação; start e heartbeat registram atividade sem expirar reserva", () => {
+  assert.equal(typeof core.activityStatus, "function");
+  const event = { session: "a", executorId: "codex-will", actor: "will", at: "2026-10-24T20:00:00Z" };
+  const claimed = core.transition(null, { ...event, action: "claim" });
+  assert.deepEqual(claimed.participants, []);
+  assert.equal(claimed.sessions[0].startedAt, null);
+  const started = core.transition(claimed, { ...event, action: "start", at: "2026-10-24T20:01:00Z" });
+  assert.deepEqual(started.participants, ["codex-will"]);
+  const heartbeat = core.transition(started, { ...event, action: "heartbeat", at: "2026-10-24T20:02:00Z" });
+  assert.equal(heartbeat.lastActivityAt, "2026-10-24T20:02:00Z");
+  assert.equal(heartbeat.active.session, "a");
+  assert.equal(core.activityStatus(heartbeat, "2026-10-24T20:31:00Z"), "atividade_recente");
+  assert.equal(core.activityStatus(heartbeat, "2026-10-24T20:33:00Z"), "atividade_nao_confirmada");
+  assert.equal(core.activityStatus({ active: null }, "2026-10-24T20:33:00Z"), "finalizada");
 });
 
 test("ciclos longos e dependências inexistentes são recusados antes de escrever", () => {

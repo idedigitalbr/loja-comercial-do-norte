@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 /** Read-only audit. Never count attempted writes as persisted relationships. */
-import { validateDependencies, completeGraph } from "./coordination.mjs";
+import { activityStatus, validateDependencies, completeGraph } from "./coordination.mjs";
+import { validateSchedule, aggregateSchedule } from "./project-fields.mjs";
+import { readFileSync } from "node:fs";
 import {
   manifest,
   projectContext,
@@ -8,7 +10,9 @@ import {
   request,
   repoPath,
   dependencyNode,
+  readLedger,
 } from "./github.mjs";
+const executors = JSON.parse(readFileSync(new URL("./executors.json", import.meta.url), "utf8"));
 validateDependencies(manifest.tasks);
 const project = await projectContext();
 const items = await projectItems(project);
@@ -36,6 +40,13 @@ for (const t of manifest.tasks) {
       confirmed++;
     else errors.push(`Dependência ausente ${t.id} <- ${dep}`);
   }
+  const actualTypes =
+    item.fieldValues.nodes.find((v) => v.field?.name === "Tipo")?.options?.map((option) => option.name) ?? [];
+  const expectedTypes = [...new Set(t.tipos ?? [t.tipo])].map(
+    (code) => manifest.tipoOptions.find((option) => option.id === code)?.name,
+  );
+  if (expectedTypes.some((name) => !actualTypes.includes(name)))
+    errors.push(`Tipo ausente ${t.id}: ${expectedTypes.filter((name) => !actualTypes.includes(name)).join(", ")}`);
   const etapa = items.find(
     (i) =>
       i.content?.title.startsWith(
@@ -84,9 +95,8 @@ const desired = [
   "Tipo",
   "Prioridade",
   "Assignees",
-  "Agente executor",
-  "Agentes participantes",
-  "Trilha",
+  "Agente executando",
+  "Agentes que participaram",
   "Sub-issues progress",
 ];
 if (JSON.stringify(columns) !== JSON.stringify(desired))
@@ -96,17 +106,104 @@ if (
   JSON.stringify(["Kanban", "Roadmap", "Tabela"])
 )
   errors.push("Views divergentes");
-const agents = project.fields.nodes
-  .find((f) => f.name === "Agente executor")
-  .options.map((o) => o.name);
+const viewColumns = {
+  Kanban: ["Title", "Tipo", "Prioridade", "Assignees", "Agente executando", "Sub-issues progress"],
+};
+for (const [name, expected] of Object.entries(viewColumns)) {
+  const actual = project.views.nodes.find((view) => view.name === name)?.configuration.visibleFields.nodes.map((field) => field.name) ?? [];
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) errors.push(`Colunas da view ${name} divergentes`);
+}
+const field = (name) => project.fields.nodes.find((f) => f.name === name);
+const agents = field("Agente executando")?.options.map((o) => o.name) ?? [];
 if (agents.some((n) => ["Humano", "Não atribuído"].includes(n)))
   errors.push("Opções sentinela ainda presentes");
+if (field("Agente executando")?.dataType !== "SINGLE_SELECT")
+  errors.push("Agente executando deve ser SINGLE_SELECT");
+if (field("Agentes que participaram")?.dataType !== "MULTI_SELECT")
+  errors.push("Agentes que participaram deve ser MULTI_SELECT");
+if (field("Tipo")?.dataType !== "MULTI_SELECT")
+  errors.push("Tipo deve ser MULTI_SELECT");
+if (field("Trilha")) errors.push("Campo Trilha ainda existe");
+for (const dateName of [manifest.dateFields.start, manifest.dateFields.target])
+  if (field(dateName)?.dataType !== "DATE") errors.push(`${dateName} deve ser DATE`);
+if (project.fields.nodes.some((f) => ["Agentes participantes", "Tipo (legado)", "Agentes que participaram (legado)"].includes(f.name)))
+  errors.push("Campos legados não foram removidos após a migração");
+const typeOptions = field("Tipo")?.options.map((o) => o.name) ?? [];
+if (JSON.stringify(typeOptions) !== JSON.stringify(manifest.tipoOptions.map((option) => option.name)))
+  errors.push("Opções de Tipo divergentes");
+const agentOptions = field("Agentes que participaram")?.options.map((o) => o.name) ?? [];
+if (JSON.stringify(agentOptions) !== JSON.stringify(agents))
+  errors.push("Catálogo de agentes divergente entre os dois campos");
 const priorities = project.fields.nodes
   .find((f) => f.name === "Prioridade")
   .options.map((o) => o.name);
 if (JSON.stringify(priorities) !== JSON.stringify(manifest.prioridadeOptions))
   errors.push("Prioridades divergentes");
+let nonBacklog = 0;
+let nonBacklogScheduled = 0;
+let backlogWithoutDates = 0;
+for (const item of items) {
+  if (!item.content) continue;
+  const value = (name) => {
+    const entry = item.fieldValues.nodes.find((candidate) => candidate.field?.name === name);
+    return entry?.date ?? entry?.name ?? entry?.options?.map((option) => option.name) ?? null;
+  };
+  const status = value("Status") ?? "Backlog";
+  const start = value(manifest.dateFields.start);
+  const target = value(manifest.dateFields.target);
+  if (status !== "Backlog") {
+    nonBacklog++;
+    try {
+      validateSchedule(status, start, target);
+      nonBacklogScheduled++;
+    } catch (error) {
+      errors.push(`#${item.content.number}: ${error.message}`);
+    }
+  } else if (!start && !target) backlogWithoutDates++;
+  const types = value("Tipo");
+  if (/^\[ETAPA \d+\] \[/.test(item.content.title) && (!types || !types.length))
+    errors.push(`#${item.content.number} sem tipo MULTI_SELECT`);
+}
+const groupItems = items
+  .filter((item) => item.content?.subIssuesSummary?.total > 0)
+  .sort((left, right) => Number(/^\[SPRINT/.test(left.content.title)) - Number(/^\[SPRINT/.test(right.content.title)));
+const groupScheduleByIssue = new Map();
+for (const group of groupItems) {
+  const children = items.filter((item) => item.content?.parent?.number === group.content.number);
+  const value = (item, name) => item.fieldValues.nodes.find((entry) => entry.field?.name === name)?.date ?? null;
+  const aggregate = aggregateSchedule(children.map((item) => ({
+    status: item.fieldValues.nodes.find((entry) => entry.field?.name === "Status")?.name ?? "Backlog",
+    start: value(item, manifest.dateFields.start),
+    target: value(item, manifest.dateFields.target),
+  })));
+  const descendantUnplanned = children.reduce((total, child) => total + (groupScheduleByIssue.get(child.content.number)?.unplannedChildren ?? 0), 0);
+  groupScheduleByIssue.set(group.content.number, {
+    issue: group.content.number,
+    title: group.content.title,
+    start: value(group, manifest.dateFields.start),
+    target: value(group, manifest.dateFields.target),
+    aggregatedStart: aggregate.start,
+    aggregatedTarget: aggregate.target,
+    unplannedChildren: aggregate.unplanned + descendantUnplanned,
+  });
+}
+const groupPeriods = [...groupScheduleByIssue.values()];
 const refs = await request(`${repoPath}/git/matching-refs/heads/claims/`);
+const activeReservations = [];
+for (const ref of refs) {
+  const match = ref.ref.match(/^refs\/heads\/claims\/issue-(\d+)$/);
+  if (!match) continue;
+  const ledger = await readLedger(Number(match[1]));
+  if (ledger?.active) activeReservations.push({ issue: Number(match[1]), executorId: ledger.active.executorId, activity: activityStatus(ledger), lastActivityAt: ledger.lastActivityAt ?? null });
+}
+for (const item of items) {
+  const issueNumber = item.content?.number;
+  if (!issueNumber) continue;
+  const actual = item.fieldValues.nodes.find((value) => value.field?.name === "Agente executando")?.name ?? null;
+  const active = activeReservations.find((reservation) => reservation.issue === issueNumber);
+  const expected = active ? executors.find((executor) => executor.executorId === active.executorId)?.nomeExibido : null;
+  if (actual !== expected) errors.push(`#${issueNumber}: Agente executando não corresponde à reserva ativa`);
+}
 const graph = items
   .filter((i) => i.content?.id)
   .map((i) => ({
@@ -137,7 +234,11 @@ console.log(
         columns: v.configuration.visibleFields.nodes.map((f) => f.name),
       })),
       reservationRefs: refs.map((r) => r.ref),
+      activeReservations,
       errors,
+      schedule: { nonBacklog, nonBacklogScheduled, backlogWithoutDates },
+      groupPeriods,
+      roadmapTimelineSelectors: "Não expostos por ProjectV2View GraphQL; requerem confirmação na UI autenticada.",
     },
     null,
     2,

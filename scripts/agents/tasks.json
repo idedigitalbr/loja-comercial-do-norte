@@ -11,13 +11,11 @@
     "Bloqueado",
     "Concluído"
   ],
-  "agentOptions": [
-    "Codex (Will)",
-    "Antigravity (Will)",
-    "Claude (Will)",
-    "DeepSeek Harness (Will)",
-    "OpenCode (Will)"
-  ],
+  "dateFields": {
+    "start": "Início",
+    "target": "Entrega",
+    "timezone": "America/Belem"
+  },
   "sprintOptions": [
     "Sprint 1",
     "Sprint 2",
@@ -33,27 +31,61 @@
     "Etapa 6"
   ],
   "tipoOptions": [
-    "UX",
-    "UI",
-    "FRONT",
-    "BACK",
-    "BUG",
-    "INFRA",
-    "DB",
-    "SEC",
-    "QA",
-    "SEO",
-    "DOCS",
-    "CONTENT",
-    "ERP"
-  ],
-  "trilhaOptions": [
-    "Engenharia",
-    "Design/Frontend",
-    "Compartilhado"
+    {
+      "id": "UX",
+      "name": "UX — UX Design"
+    },
+    {
+      "id": "UI",
+      "name": "UI — UI Design"
+    },
+    {
+      "id": "FRONT",
+      "name": "FRONT — Front-end"
+    },
+    {
+      "id": "BACK",
+      "name": "BACK — Back-end"
+    },
+    {
+      "id": "BUG",
+      "name": "BUG — Correção de bugs"
+    },
+    {
+      "id": "INFRA",
+      "name": "INFRA — Infraestrutura"
+    },
+    {
+      "id": "DB",
+      "name": "DB — Banco de dados"
+    },
+    {
+      "id": "SEC",
+      "name": "SEC — Segurança"
+    },
+    {
+      "id": "QA",
+      "name": "QA — Qualidade e testes"
+    },
+    {
+      "id": "SEO",
+      "name": "SEO — Otimização para buscadores"
+    },
+    {
+      "id": "DOCS",
+      "name": "DOCS — Documentação"
+    },
+    {
+      "id": "CONTENT",
+      "name": "CONTENT — Conteúdo"
+    },
+    {
+      "id": "ERP",
+      "name": "ERP — Integração ERP"
+    }
   ],
   "prioridadeOptions": [
-    "P0 — CRÍTICA | Pra ontem",
+    "P0 — URGENTE | Pra ontem",
     "P1 — ALTA | Pra hoje",
     "P2 — NORMAL | Prioridade média",
     "P3 — BAIXA | Pra depois"
@@ -64,7 +96,6 @@
       "etapa": "Etapa 1",
       "tipo": "INFRA",
       "titulo": "Backup, tag e branch de trabalho",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -76,7 +107,6 @@
       "etapa": "Etapa 1",
       "tipo": "INFRA",
       "titulo": "Diagnóstico reprodutível (install, lint, typecheck, test, build)",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -90,7 +120,6 @@
       "etapa": "Etapa 1",
       "tipo": "INFRA",
       "titulo": "Configuração segura de ambiente e segredos",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -104,7 +133,6 @@
       "etapa": "Etapa 1",
       "tipo": "QA",
       "titulo": "Restabelecer CI com lint, typecheck, testes, E2E e build",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -118,7 +146,6 @@
       "etapa": "Etapa 1",
       "tipo": "DB",
       "titulo": "Inventário de dados legados antes da migração",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -132,7 +159,6 @@
       "etapa": "Etapa 2",
       "tipo": "DB",
       "titulo": "PostgreSQL de desenvolvimento sem Docker",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -146,7 +172,6 @@
       "etapa": "Etapa 2",
       "tipo": "DB",
       "titulo": "Schema Prisma para PostgreSQL",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -160,7 +185,6 @@
       "etapa": "Etapa 2",
       "tipo": "DB",
       "titulo": "Migrations PostgreSQL versionadas",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -174,7 +198,6 @@
       "etapa": "Etapa 2",
       "tipo": "DB",
       "titulo": "Adaptar SQL nativo para PostgreSQL",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -188,7 +211,6 @@
       "etapa": "Etapa 2",
       "tipo": "DB",
       "titulo": "Seed idempotente Comercial do Norte com catálogo demo",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -202,7 +224,6 @@
       "etapa": "Etapa 2",
       "tipo": "QA",
       "titulo": "Integração completa com PostgreSQL real (concorrência e locks)",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 2",
       "status": "A Fazer",
@@ -217,7 +238,6 @@
       "etapa": "Etapa 2",
       "tipo": "INFRA",
       "titulo": "Provisionamento, backup e recovery do PostgreSQL",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 3",
       "status": "Backlog",
@@ -231,7 +251,6 @@
       "etapa": "Etapa 3",
       "tipo": "UI",
       "titulo": "Tokens oficiais da marca em packages/ui",
-      "trilha": "Design/Frontend",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -245,21 +264,23 @@
       "etapa": "Etapa 3",
       "tipo": "UI",
       "titulo": "Tailwind e primitivos compartilhados (cn, botão, badge, vazio)",
-      "trilha": "Design/Frontend",
       "prioridade": "P0",
       "sprint": "Sprint 2",
       "status": "Em Andamento",
       "deps": [
         "C1"
       ],
-      "evidencia": "packages/ui/src/web (criado, ainda não consumido)"
+      "evidencia": "packages/ui/src/web (criado, ainda não consumido)",
+      "tipos": [
+        "UI",
+        "FRONT"
+      ]
     },
     {
       "id": "C3",
       "etapa": "Etapa 3",
       "tipo": "UI",
       "titulo": "Inventário de componentes com estados e acessibilidade",
-      "trilha": "Design/Frontend",
       "prioridade": "P1",
       "sprint": "Sprint 2",
       "status": "A Fazer",
@@ -273,7 +294,6 @@
       "etapa": "Etapa 3",
       "tipo": "UI",
       "titulo": "Aplicar design system no painel administrativo",
-      "trilha": "Design/Frontend",
       "prioridade": "P1",
       "sprint": "Sprint 3",
       "status": "Backlog",
@@ -287,7 +307,6 @@
       "etapa": "Etapa 3",
       "tipo": "UI",
       "titulo": "Remover CSS duplicado e branding herdado",
-      "trilha": "Design/Frontend",
       "prioridade": "P1",
       "sprint": "Sprint 3",
       "status": "Backlog",
@@ -301,7 +320,6 @@
       "etapa": "Etapa 4",
       "tipo": "FRONT",
       "titulo": "Storefront migrado para Next.js App Router",
-      "trilha": "Design/Frontend",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -315,7 +333,6 @@
       "etapa": "Etapa 4",
       "tipo": "FRONT",
       "titulo": "Integração exclusiva com a API NestJS",
-      "trilha": "Design/Frontend",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -329,7 +346,6 @@
       "etapa": "Etapa 4",
       "tipo": "SEO",
       "titulo": "SEO técnico: metadata, sitemap, robots e canonical",
-      "trilha": "Design/Frontend",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -343,7 +359,6 @@
       "etapa": "Etapa 4",
       "tipo": "FRONT",
       "titulo": "Performance: cache, imagens responsivas e web vitals",
-      "trilha": "Design/Frontend",
       "prioridade": "P1",
       "sprint": "Sprint 3",
       "status": "Backlog",
@@ -357,7 +372,6 @@
       "etapa": "Etapa 4",
       "tipo": "UX",
       "titulo": "Fidelidade visual completa à referência HTML (S0–S10)",
-      "trilha": "Design/Frontend",
       "prioridade": "P0",
       "sprint": "Sprint 2",
       "status": "Em Andamento",
@@ -372,7 +386,6 @@
       "etapa": "Etapa 4",
       "tipo": "QA",
       "titulo": "Validar rotas e SSR sem conflito com o shell legado",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 2",
       "status": "A Fazer",
@@ -386,7 +399,6 @@
       "etapa": "Etapa 4",
       "tipo": "INFRA",
       "titulo": "Produção: Next e Nest separados, HTTPS, storage e observabilidade",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 3",
       "status": "Backlog",
@@ -401,7 +413,6 @@
       "etapa": "Etapa 5",
       "tipo": "SEC",
       "titulo": "Feature flags isolando checkout, pagamentos e treinamentos",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -415,7 +426,6 @@
       "etapa": "Etapa 5",
       "tipo": "BACK",
       "titulo": "Hierarquia de categorias com filtro descendente",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -429,7 +439,6 @@
       "etapa": "Etapa 5",
       "tipo": "BACK",
       "titulo": "Cotação pública sem login com preço no servidor e idempotência",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -443,7 +452,6 @@
       "etapa": "Etapa 5",
       "tipo": "BACK",
       "titulo": "Fila de cotações para vendas (API e painel)",
-      "trilha": "Compartilhado",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -457,7 +465,6 @@
       "etapa": "Etapa 5",
       "tipo": "CONTENT",
       "titulo": "Conteúdo oficial: contatos, marcas, fotos e textos",
-      "trilha": "Compartilhado",
       "prioridade": "P0",
       "sprint": "Sprint 2",
       "status": "Bloqueado",
@@ -471,7 +478,6 @@
       "etapa": "Etapa 5",
       "tipo": "FRONT",
       "titulo": "Home e catálogo completos (S0–S10)",
-      "trilha": "Design/Frontend",
       "prioridade": "P0",
       "sprint": "Sprint 2",
       "status": "A Fazer",
@@ -479,14 +485,18 @@
         "D5",
         "E2"
       ],
-      "evidencia": ""
+      "evidencia": "",
+      "tipos": [
+        "FRONT",
+        "UI",
+        "UX"
+      ]
     },
     {
       "id": "E7",
       "etapa": "Etapa 5",
       "tipo": "BACK",
       "titulo": "Busca e paginação no servidor com filtros",
-      "trilha": "Engenharia",
       "prioridade": "P0",
       "sprint": "Sprint 1",
       "status": "Concluído",
@@ -500,7 +510,6 @@
       "etapa": "Etapa 5",
       "tipo": "QA",
       "titulo": "Smoke tests de aceite no navegador (Playwright)",
-      "trilha": "Compartilhado",
       "prioridade": "P0",
       "sprint": "Sprint 2",
       "status": "Em Andamento",
@@ -516,7 +525,6 @@
       "etapa": "Etapa 6",
       "tipo": "ERP",
       "titulo": "Integração com ERP após documentação oficial",
-      "trilha": "Engenharia",
       "prioridade": "P2",
       "sprint": "Sprint 4",
       "status": "Bloqueado",
@@ -530,7 +538,6 @@
       "etapa": "Etapa 6",
       "tipo": "BACK",
       "titulo": "Checkout real, pagamentos e webhooks homologados",
-      "trilha": "Engenharia",
       "prioridade": "P2",
       "sprint": "Sprint 4",
       "status": "Backlog",
@@ -545,7 +552,6 @@
       "etapa": "Etapa 6",
       "tipo": "BACK",
       "titulo": "CMS próprio para conteúdo editável no admin",
-      "trilha": "Compartilhado",
       "prioridade": "P3",
       "sprint": "Sprint 4",
       "status": "Backlog",
@@ -559,7 +565,6 @@
       "etapa": "Etapa 6",
       "tipo": "INFRA",
       "titulo": "Observabilidade, automação de deploy e relatórios",
-      "trilha": "Engenharia",
       "prioridade": "P2",
       "sprint": "Sprint 4",
       "status": "Backlog",
@@ -624,7 +629,6 @@
       "issue": 48,
       "etapa": "Etapa 1",
       "tipo": "INFRA",
-      "trilha": "Engenharia",
       "prioridade": "P0"
     }
   ]

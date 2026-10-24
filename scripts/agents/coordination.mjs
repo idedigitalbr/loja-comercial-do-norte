@@ -41,18 +41,18 @@ export function transition(previous, event) {
       ...state.active,
       executor: event.executor,
       branch: event.branch ?? null,
-      startedAt: event.at,
+      claimedAt: event.at,
+      startedAt: null,
       endedAt: null,
       elapsedSeconds: null,
+      executionSeconds: null,
       activeSeconds: null,
       tokens: null,
       cost: null,
       provider: null,
       events: [],
     });
-    state.participants = [
-      ...new Set([...state.participants, event.executorId]),
-    ];
+    state.lastActivityAt = null;
   } else if (
     !state.active ||
     ["session", "executorId", "actor"].some(
@@ -69,17 +69,45 @@ export function transition(previous, event) {
     throw new Error("Conclusão exige evidências: PR, commit e testes.");
   const session = state.sessions.at(-1);
   session.events.push(event);
+  if (event.action === "start") {
+    if (session.startedAt)
+      throw new Error("A sessão já foi iniciada; use heartbeat para atividade.");
+    session.startedAt = event.at;
+    state.participants = [
+      ...new Set([...state.participants, event.executorId]),
+    ];
+    state.lastActivityAt = event.at;
+  }
+  if (event.action === "heartbeat") {
+    if (!session.startedAt)
+      throw new Error("Heartbeat exige uma sessão iniciada.");
+    state.lastActivityAt = event.at;
+  }
   if (event.action === "release") {
     session.endedAt = event.at;
     session.elapsedSeconds = Math.max(
       0,
-      (Date.parse(event.at) - Date.parse(session.startedAt)) / 1000,
+      (Date.parse(event.at) - Date.parse(session.claimedAt)) / 1000,
     );
+    session.executionSeconds = session.startedAt
+      ? Math.max(0, (Date.parse(event.at) - Date.parse(session.startedAt)) / 1000)
+      : null;
     session.result = event.reason ?? "Liberada";
     state.active = null;
   }
   state.revision += 1;
   return state;
+}
+
+export function activityStatus(state, now = new Date().toISOString()) {
+  if (!state?.active) return "finalizada";
+  const timestamp = Date.parse(state.lastActivityAt ?? "");
+  const current = Date.parse(now);
+  if (Number.isNaN(timestamp) || Number.isNaN(current))
+    return "atividade_nao_confirmada";
+  return current - timestamp <= 30 * 60 * 1000
+    ? "atividade_recente"
+    : "atividade_nao_confirmada";
 }
 
 export async function completeGraph(initial, load) {

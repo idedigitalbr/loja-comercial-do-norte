@@ -10,9 +10,8 @@ const desired = {
     "Tipo",
     "Prioridade",
     "Assignees",
-    "Agente executor",
-    "Agentes participantes",
-    "Trilha",
+    "Agente executando",
+    "Agentes que participaram",
     "Sub-issues progress",
   ],
   Kanban: [
@@ -20,7 +19,7 @@ const desired = {
     "Tipo",
     "Prioridade",
     "Assignees",
-    "Agente executor",
+    "Agente executando",
     "Sub-issues progress",
   ],
 };
@@ -56,10 +55,10 @@ for (const [name, fields] of Object.entries(desired)) {
       { input: { viewId: view.id, configuration: { visibleFieldIds: ids } } },
     );
 }
-// Roadmap is macro only; do not infer dates for individual Sprints from a global deadline.
+// ProjectV2ViewConfigurationInput rejects visible fields on ROADMAP_LAYOUT; only persist its filter here.
 const roadmap = project.views.nodes.find((v) => v.name === "Roadmap");
-const macroFilter = '-has:"Tipo"';
-if (roadmap.filter !== macroFilter)
+const roadmapFilter = "";
+if (roadmap.filter !== roadmapFilter)
   await graphql(
     `
       mutation ($input: UpdateProjectV2ViewInput!) {
@@ -70,7 +69,7 @@ if (roadmap.filter !== macroFilter)
         }
       }
     `,
-    { input: { viewId: roadmap.id, filter: macroFilter } },
+    { input: { viewId: roadmap.id, filter: roadmapFilter } },
   );
 const saved = await projectContext();
 for (const [name, fields] of Object.entries(desired)) {
@@ -85,7 +84,7 @@ console.log(
     {
       views: saved.views.nodes,
       dates:
-        "Nenhuma data criada/alterada. Agrupamento e propriedades de timeline exigem UI; a API expõe apenas visibleFieldIds.",
+        "The Roadmap filter is empty so Sprints, Etapas and tasks remain visible. Start/Target field selectors, scale, grouping and sort are not exposed by the public ProjectV2View API and require UI confirmation.",
     },
     null,
     2,

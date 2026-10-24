@@ -21,6 +21,14 @@ const reconcile = process.argv.includes("--reconcile");
 validateDependencies(manifest.tasks);
 const project = await projectContext();
 let items = await projectItems(project);
+const migrationRequired =
+  project.fields.nodes.some((field) => field.name === "Trilha") ||
+  project.fields.nodes.some((field) => field.name === "Agente executor") ||
+  project.fields.nodes.some((field) => field.name === "Agentes participantes") ||
+  project.fields.nodes.some((field) => field.name === "Tipo" && field.dataType !== "MULTI_SELECT") ||
+  project.fields.nodes.some((field) => field.name === "Start date" || field.name === "Target date");
+if (migrationRequired)
+  throw new Error("Migração de campos pendente. Execute `pnpm agents:migrate-fields --apply` e confirme os valores antes de sincronizar.");
 const executors = JSON.parse(
   readFileSync(new URL("./executors.json", import.meta.url), "utf8"),
 );
@@ -31,6 +39,8 @@ async function change(description, fn) {
 }
 async function field(name, names, type = "SINGLE_SELECT") {
   let current = project.fields.nodes.find((f) => f.name === name);
+  if (current && current.dataType !== type)
+    throw new Error(`Campo ${name} tem tipo ${current.dataType}; migre-o explicitamente para ${type} antes do sync.`);
   if (!current) {
     const result = await change(`Criar campo ${name}`, () =>
       graphql(
@@ -41,11 +51,20 @@ async function field(name, names, type = "SINGLE_SELECT") {
                 ... on ProjectV2FieldCommon {
                   id
                   name
+                  dataType
                 }
                 ... on ProjectV2SingleSelectField {
                   options {
                     id
                     name
+                  }
+                }
+                ... on ProjectV2MultiSelectField {
+                  options: multiSelectOptions {
+                    id
+                    name
+                    color
+                    description
                   }
                 }
               }
@@ -57,9 +76,18 @@ async function field(name, names, type = "SINGLE_SELECT") {
             projectId: project.id,
             name,
             dataType: type,
-            ...(names
+            ...(names && type === "SINGLE_SELECT"
               ? {
                   singleSelectOptions: names.map((name) => ({
+                    name,
+                    color: "GRAY",
+                    description: "",
+                  })),
+                }
+              : {}),
+            ...(names && type === "MULTI_SELECT"
+              ? {
+                  multiSelectOptions: names.map((name) => ({
                     name,
                     color: "GRAY",
                     description: "",
@@ -85,7 +113,7 @@ async function field(name, names, type = "SINGLE_SELECT") {
         names.find((n) => n.startsWith(o.name.split(" ")[0] + " ")) ?? o.name,
     }));
   // Preserve existing assignments by option ID; clear removed sentinel values first.
-  if (name === "Agente executor") {
+  if (name === "Agente executando") {
     for (const item of items) {
       const value = item.fieldValues.nodes.find((v) => v.field?.name === name);
       if (["Humano", "Não atribuído"].includes(value?.name))
@@ -120,6 +148,16 @@ async function field(name, names, type = "SINGLE_SELECT") {
                     description
                   }
                 }
+                ... on ProjectV2MultiSelectField {
+                  id
+                  name
+                  options: multiSelectOptions {
+                    id
+                    name
+                    color
+                    description
+                  }
+                }
               }
             }
           }
@@ -127,7 +165,7 @@ async function field(name, names, type = "SINGLE_SELECT") {
         {
           input: {
             fieldId: current.id,
-            singleSelectOptions: options.map((o) => ({
+            [type === "MULTI_SELECT" ? "multiSelectOptions" : "singleSelectOptions"]: options.map((o) => ({
               id: o.id,
               name: o.name,
               color: o.color ?? "GRAY",
@@ -143,16 +181,17 @@ async function field(name, names, type = "SINGLE_SELECT") {
   return current;
 }
 await field("Status", manifest.statusOptions);
-await field("Agentes participantes", null, "TEXT");
-await field("Agente executor", manifest.agentOptions);
+await field("Agentes que participaram", executors.map((executor) => executor.nomeExibido), "MULTI_SELECT");
+await field("Agente executando", executors.map((executor) => executor.nomeExibido));
+await field("Início", null, "DATE");
+await field("Entrega", null, "DATE");
 for (const [name, values] of [
   ["Sprint", manifest.sprintOptions],
   ["Etapa", manifest.etapaOptions],
-  ["Tipo", manifest.tipoOptions],
-  ["Trilha", manifest.trilhaOptions],
+  ["Tipo", manifest.tipoOptions.map((option) => option.name)],
   ["Prioridade", manifest.prioridadeOptions],
 ])
-  await field(name, values);
+  await field(name, values, name === "Tipo" ? "MULTI_SELECT" : "SINGLE_SELECT");
 const issues = (await pages(`${repoPath}/issues?state=all`)).filter(
   (i) => !i.pull_request,
 );
@@ -219,8 +258,11 @@ async function structure(issue, values, parent) {
     };
     items.push(item);
   }
-  const current = (name) =>
-    item.fieldValues.nodes.find((v) => v.field?.name === name);
+  const currentValue = (name) => {
+    const value = item.fieldValues.nodes.find((v) => v.field?.name === name);
+    return value?.date ?? value?.name ?? value?.text ?? value?.options?.map((option) => option.name) ?? null;
+  };
+  const hasValue = (value) => Array.isArray(value) ? value.length > 0 : Boolean(value);
   if (!issue.assignees?.length)
     await change(`Responsável humano #${issue.number}`, () =>
       request(`${repoPath}/issues/${issue.number}/assignees`, "POST", {
@@ -228,14 +270,15 @@ async function structure(issue, values, parent) {
       }),
     );
   for (const [name, value] of Object.entries(values)) {
-    if (!current(name)?.name && value)
+    if (!hasValue(currentValue(name)) && hasValue(value))
       await change(`Preencher ${name} #${issue.number}`, () =>
         setField(project, item.id, name, value),
       );
     else if (
       reconcile &&
-      ["Sprint", "Etapa", "Tipo", "Trilha"].includes(name) &&
-      current(name)?.name !== value
+      ["Sprint", "Etapa", "Tipo"].includes(name) &&
+      JSON.stringify([...(Array.isArray(currentValue(name)) ? currentValue(name) : [currentValue(name)])].sort()) !==
+        JSON.stringify([...(Array.isArray(value) ? value : [value])].sort())
     )
       await change(`Estrutura ${name} #${issue.number}`, () =>
         setField(project, item.id, name, value),
@@ -281,7 +324,7 @@ async function structure(issue, values, parent) {
   if (
     reconcile &&
     issue.state === "closed" &&
-    current("Status")?.name !== "Concluído"
+    currentValue("Status") !== "Concluído"
   ) {
     const evidence = manifest.tasks.find(
       (t) => taskIssues.get(t.id)?.number === issue.number,
@@ -296,7 +339,6 @@ for (const s of manifest.sprints)
   await structure(sprintIssues.get(s.id), {
     Sprint: s.id,
     Status: "Backlog",
-    Trilha: "Compartilhado",
   });
 for (const e of manifest.etapas)
   await structure(
@@ -305,7 +347,6 @@ for (const e of manifest.etapas)
       Sprint: e.sprint,
       Etapa: e.id,
       Status: "Backlog",
-      Trilha: "Compartilhado",
     },
     sprintIssues.get(e.sprint),
   );
@@ -316,12 +357,13 @@ for (const t of manifest.tasks) {
     {
       Sprint: e.sprint,
       Etapa: e.id,
-      Tipo: t.tipo,
-      Trilha: t.trilha,
+      Tipo: [...new Set(t.tipos ?? [t.tipo])].map(
+        (code) => manifest.tipoOptions.find((option) => option.id === code)?.name,
+      ),
       Prioridade: manifest.prioridadeOptions.find((p) =>
         p.startsWith(t.prioridade + " "),
       ),
-      Status: t.status === "Concluído" ? "Em Revisão" : t.status,
+      Status: "Backlog",
     },
     etapaIssues.get(t.etapa),
   );
@@ -334,8 +376,9 @@ for (const t of manifest.operationalTasks ?? []) {
     {
       Sprint: e.sprint,
       Etapa: e.id,
-      Tipo: t.tipo,
-      Trilha: t.trilha,
+      Tipo: [...new Set(t.tipos ?? [t.tipo])].map(
+        (code) => manifest.tipoOptions.find((option) => option.id === code)?.name,
+      ),
       Prioridade: manifest.prioridadeOptions.find((p) =>
         p.startsWith(t.prioridade + " "),
       ),

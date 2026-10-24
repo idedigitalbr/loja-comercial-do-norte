@@ -4,26 +4,34 @@
  */
 import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
-import { transition } from "./coordination.mjs";
+import { activityStatus, transition } from "./coordination.mjs";
 import { parseCommand } from "./arguments.mjs";
+import { proposeSchedule, validateSchedule } from "./project-fields.mjs";
 import {
   request,
   graphql,
   repoPath,
   projectContext,
+  projectItems,
   setField,
   itemFor,
+  readLedger,
   pages,
   writeLedger,
 } from "./github.mjs";
 const executors = JSON.parse(
   readFileSync(new URL("./executors.json", import.meta.url), "utf8"),
 );
+const executorLabel = new Map(executors.flatMap((executor) => [
+  [executor.nomeExibido, executor.nomeExibido],
+  ...(executor.aliases ?? []).map((alias) => [alias, executor.nomeExibido]),
+]));
 const { command, values } = parseCommand(process.argv.slice(2));
 const supported = [
   "claim",
   "renew",
   "start",
+  "heartbeat",
   "pause",
   "resume",
   "block",
@@ -100,6 +108,8 @@ if (command === "status") {
       {
         issue: number,
         active: previous?.active ?? null,
+        activity: activityStatus(previous),
+        lastActivityAt: previous?.lastActivityAt ?? null,
         legacy: legacy.map((r) => r.ref),
         pendingMirror: previous?.pendingMirror ?? null,
         blockedBy: blockers,
@@ -180,6 +190,85 @@ if (
   throw new Error("Branch inválida.");
 const project = await projectContext(); // fail before reserving if Projects access is absent
 const item = await itemFor(project, issue.node_id);
+const liveItems = await projectItems(project);
+const projectItem = liveItems.find((candidate) => candidate.content?.number === number);
+if (!projectItem) throw new Error(`Issue #${number} não foi lida do Project após inclusão.`);
+const fieldValue = (fieldName) => {
+  const value = projectItem.fieldValues.nodes.find((candidate) => candidate.field?.name === fieldName);
+  return value?.date ?? value?.name ?? value?.text ?? value?.options?.map((option) => option.name) ?? null;
+};
+const effectiveActionForSchedule = command === "repair"
+  ? previous?.sessions?.at(-1)?.events?.at(-1)?.action
+  : command;
+const statusAfter = {
+  claim: "Reservado", start: "Em Andamento", resume: "Em Andamento",
+  block: "Bloqueado", review: "Em Revisão", done: "Concluído",
+}[effectiveActionForSchedule] ?? fieldValue("Status") ?? "Backlog";
+if (statusAfter !== "Backlog") {
+  const startField = manifest.dateFields?.start ?? "Início";
+  const targetField = manifest.dateFields?.target ?? "Entrega";
+  const existingStart = fieldValue(startField);
+  const existingTarget = fieldValue(targetField);
+  if (Boolean(existingStart) !== Boolean(existingTarget))
+    throw new Error(`Agenda incompleta em #${number}; preserve a data existente e complete ${startField}/${targetField} antes da operação.`);
+  let start = existingStart;
+  let target = existingTarget;
+  let proposed = false;
+  if (!start && !target) {
+    if (Boolean(flag("start-date")) !== Boolean(flag("target-date")))
+      throw new Error("Informe --start-date e --target-date em conjunto.");
+    if (flag("start-date")) {
+      start = flag("start-date");
+      target = flag("target-date");
+    } else {
+      const primaryCode = issue.title.match(/^\[ETAPA \d+\] \[([A-Z]+)\]/)?.[1]
+        ?? manifest.operationalTasks?.find((task) => task.issue === number)?.tipo;
+      if (!primaryCode) throw new Error(`Tipo principal não identificado para propor datas em #${number}.`);
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Belem", year: "numeric", month: "2-digit", day: "2-digit",
+      }).formatToParts(new Date());
+      const today = `${parts.find((part) => part.type === "year").value}-${parts.find((part) => part.type === "month").value}-${parts.find((part) => part.type === "day").value}`;
+      const dependenciesWithDates = projectItem.content.blockedBy.nodes.map((dependency) => {
+        const blocked = liveItems.find((candidate) => candidate.content?.number === dependency.number);
+        return blocked?.fieldValues.nodes.find((value) => value.field?.name === targetField)?.date
+          ?? (blocked?.content?.state === "CLOSED" ? blocked.content.closedAt?.slice(0, 10) : null);
+      });
+      if (dependenciesWithDates.some((date) => !date))
+        throw new Error(`Dependência sem Entrega planejada; não é possível propor datas para #${number}.`);
+      const ledger = await readLedger(number);
+      const actualStart = ledger?.sessions?.flatMap((current) => current.events ?? [])
+        .find((entry) => entry.action === "start")?.at?.slice(0, 10);
+      const schedule = proposeSchedule({
+        today: actualStart ?? today,
+        type: primaryCode,
+        title: issue.title,
+        dependencyTargets: dependenciesWithDates,
+      });
+      start = actualStart ?? schedule.start;
+      target = schedule.target;
+      proposed = !actualStart;
+    }
+    validateSchedule(statusAfter, start, target);
+    await setField(project, item, startField, start);
+    await setField(project, item, targetField, target);
+    const refreshed = await projectItems(project);
+    const savedItem = refreshed.find((candidate) => candidate.content?.number === number);
+    const saved = Object.fromEntries(savedItem.fieldValues.nodes
+      .filter((value) => [startField, targetField].includes(value.field?.name))
+      .map((value) => [value.field.name, value.date]));
+    validateSchedule(statusAfter, saved[startField], saved[targetField]);
+    if (proposed) {
+      const marker = `<!-- roadmap-estimate:${number} -->`;
+      const comments = await pages(`${repoPath}/issues/${number}/comments`);
+      if (!comments.some((comment) => comment.body.includes(marker)))
+        await request(`${repoPath}/issues/${number}/comments`, "POST", {
+          body: `${marker}\nPlanejamento **estimado**, não é prazo prometido pelo responsável. Início: ${saved[startField]}; entrega proposta: ${saved[targetField]}. Estimativa baseada no tipo ${primaryCode}, no escopo do título e no término das dependências; datas existentes são preservadas. Fuso do calendário: America/Belem.`,
+        });
+    }
+  } else {
+    validateSchedule(statusAfter, start, target);
+  }
+}
 const next =
   command === "repair"
     ? structuredClone(previous)
@@ -190,9 +279,14 @@ if (next) {
       query ($id: ID!) {
         node(id: $id) {
           ... on ProjectV2Item {
-            fieldValueByName(name: "Agentes participantes") {
+            fieldValueByName(name: "Agentes que participaram") {
               ... on ProjectV2ItemFieldTextValue {
                 text
+              }
+              ... on ProjectV2ItemFieldMultiSelectValue {
+                options {
+                  name
+                }
               }
             }
           }
@@ -207,6 +301,9 @@ if (next) {
       ...(participantValue.node.fieldValueByName?.text ?? "")
         .split(", ")
         .filter(Boolean),
+      ...(participantValue.node.fieldValueByName?.options ?? []).map(
+        (option) => option.name,
+      ),
     ]),
   ];
 }
@@ -325,21 +422,21 @@ try {
   await setField(
     project,
     item,
-    "Agente executor",
+    "Agente executando",
     next.active ? executor.nomeExibido : null,
   );
   await setField(
     project,
     item,
-    "Agentes participantes",
-    [
-      ...new Set([
+    "Agentes que participaram",
+    [...new Set([
         ...next.historicalParticipants,
         ...next.participants.map(
           (id) => executors.find((e) => e.executorId === id)?.nomeExibido ?? id,
         ),
-      ]),
-    ].join(", "),
+      ])]
+      .map((name) => executorLabel.get(name))
+      .filter((name) => project.fields.nodes.find((field) => field.name === "Agentes que participaram")?.options.some((option) => option.name === name)),
   );
   if (statuses[effectiveAction])
     await setField(project, item, "Status", statuses[effectiveAction]);

@@ -187,3 +187,10 @@ Após cada marco, atualizar a Issue operacional com evidência: data, branch/com
 ### Checkpoint solicitado pelo responsável
 
 Execução encerrada para conservar a franquia. Código e scripts recuperados preservados na branch `chore/multiagent-coordination`; PR #37 permanece com base em `feat/stack-next-postgres`. Últimas evidências: 8/8 testes rápidos, sintaxe/ESLint dos scripts, lint e typecheck 6/6; concorrência e recuperação confirmadas pela API/CLI. Não houve nova tentativa de integração PostgreSQL, merge ou deploy. Homologação do Actions com PROJECT_TOKEN e configuração visual do Kanban/timeline permanecem pendentes. O diagnóstico de credenciais foi preparado, mas ainda não executado no Actions. CI do novo checkpoint deve ser consultado na próxima sessão; não foi aguardado nesta rodada.
+
+### Checkpoint Project e agenda — 24/10/2026
+
+- Migração aplicada e conferida pela API: `Tipo` e `Agentes que participaram` multisseleção; `Agente executando` seleção única; `Início`/`Entrega` como datas; prioridade P0 renomeada para URGENTE. Campos legados removidos após migração. Tabela/Kanban atualizados; Roadmap permanece sem configuração visual de datas/escala, não exposta pela API disponível.
+- Agenda aplicada sem sobrescrever datas existentes: 34/34 itens fora de Backlog têm início e entrega; 8 itens em Backlog seguem sem datas. Datas ativas são estimativas. Sprint 3 mantém entrega de 31/10; agregação de tarefas chega a 07/11 e precisa de revisão humana.
+- Reconciliação de categorias executada; `verify-project.mjs`: 47 itens, 42/42 dependências, zero erros. A reserva de #48 continua ativa para `codex-will`, sem atividade confirmada nesta sessão.
+- Pendente: configuração visual do Roadmap, revisão da divergência de Sprint 3, CI após o novo push e homologação de `PROJECT_TOKEN` no Actions. Nenhum PostgreSQL iniciado; sem merge/deploy.

@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { serializeFieldValue } from "./project-fields.mjs";
 
 export const manifest = JSON.parse(
   readFileSync(new URL("./tasks.json", import.meta.url), "utf8"),
@@ -75,9 +76,18 @@ export async function projectContext() {
                 ... on ProjectV2FieldCommon {
                   id
                   name
+                  dataType
                 }
                 ... on ProjectV2SingleSelectField {
                   options {
+                    id
+                    name
+                    color
+                    description
+                  }
+                }
+                ... on ProjectV2MultiSelectField {
+                  options: multiSelectOptions {
                     id
                     name
                     color
@@ -133,6 +143,8 @@ export async function projectItems(project) {
                       number
                       title
                       state
+                      createdAt
+                      closedAt
                       assignees(first: 20) {
                         nodes {
                           login
@@ -170,12 +182,36 @@ export async function projectItems(project) {
                           }
                         }
                       }
+                      ... on ProjectV2ItemFieldMultiSelectValue {
+                        options {
+                          id
+                          name
+                        }
+                        field {
+                          ... on ProjectV2FieldCommon {
+                            id
+                            name
+                            dataType
+                          }
+                        }
+                      }
+                      ... on ProjectV2ItemFieldDateValue {
+                        date
+                        field {
+                          ... on ProjectV2FieldCommon {
+                            id
+                            name
+                            dataType
+                          }
+                        }
+                      }
                       ... on ProjectV2ItemFieldTextValue {
                         text
                         field {
                           ... on ProjectV2FieldCommon {
                             id
                             name
+                            dataType
                           }
                         }
                       }
@@ -217,9 +253,7 @@ export async function setField(project, itemId, name, value) {
       `,
       { input: { projectId: project.id, itemId, fieldId: field.id } },
     );
-  const option = field.options?.find((o) => o.name === value);
-  if (field.options && !option)
-    throw new Error(`Opção ausente: ${name}=${value}`);
+  const fieldValue = serializeFieldValue(field, value);
   return graphql(
     `
       mutation ($input: UpdateProjectV2ItemFieldValueInput!) {
@@ -235,11 +269,28 @@ export async function setField(project, itemId, name, value) {
         projectId: project.id,
         itemId,
         fieldId: field.id,
-        value: option ? { singleSelectOptionId: option.id } : { text: value },
+        value: fieldValue,
       },
     },
   );
 }
+
+export async function readLedger(issueNumber) {
+  let ref;
+  try {
+    ref = await request(`${repoPath}/git/ref/heads/claims/issue-${issueNumber}`);
+  } catch (error) {
+    if (error.status === 404) return null;
+    throw error;
+  }
+  const commit = await request(`${repoPath}/git/commits/${ref.object.sha}`);
+  const tree = await request(`${repoPath}/git/trees/${commit.tree.sha}`);
+  const file = tree.tree.find((entry) => entry.path === "agent-session.json");
+  if (!file) throw new Error(`Ledger ausente para Issue #${issueNumber}.`);
+  const blob = await request(`${repoPath}/git/blobs/${file.sha}`);
+  return JSON.parse(Buffer.from(blob.content, "base64").toString("utf8"));
+}
+
 export async function itemFor(project, issueId) {
   const data = await graphql(
     `

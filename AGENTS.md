@@ -11,7 +11,7 @@ Fonte de decisões: [docs/memory-ai.md](docs/memory-ai.md). Estado macro e evid�
 
 ## Protocolo obrigatório — Codex, Claude, Harness, Antigravity e outros
 
-Quadro único: [Project 3](https://github.com/orgs/idedigitalbr/projects/3), repo `idedigitalbr/loja-comercial-do-norte`. Somente **Tabela, Kanban e Roadmap**; hierarquia nativa **Sprint → Etapa → Tarefa**. Títulos `[ETAPA N] [TIPO] Descrição`; campos/filtros distinguem Engenharia, Design/Frontend e Compartilhado.
+Quadro único: [Project 3](https://github.com/orgs/idedigitalbr/projects/3), repo `idedigitalbr/loja-comercial-do-norte`. Somente **Tabela, Kanban e Roadmap**; hierarquia nativa **Sprint → Etapa → Tarefa**. Títulos `[ETAPA N] [TIPO] Descrição`. `Tipo` é multisseleção; não existe mais campo operacional `Trilha`.
 
 1. Consulte a Issue e dependências Blocked by; não inicie com bloqueador aberto ou outra reserva ativa. Toda Issue, incluindo agrupadores, precisa de Assignee humano; padrão autorizado `victorwilliames`, preservando responsáveis existentes.
 2. Identifique ferramenta/operador/modelo confirmado em `scripts/agents/executors.json`. Use `executorId`, não nome genérico. Modelo desconhecido fica nulo. Não atribua a si o modelo de um exemplo.
@@ -22,7 +22,7 @@ Quadro único: [Project 3](https://github.com/orgs/idedigitalbr/projects/3), rep
 7. Libere ao encerrar: `pnpm agents:claim release --issue N --executor codex-will --session S --reason "entregue para revisão"`. Participantes e histórico permanecem; revisão/bloqueio não são apagados.
 8. Nunca apague `refs/heads/claims/issue-N`: é trava e histórico persistente. Release grava estado livre na ref. Propriedade exige **ator + executorId + sessão**. Refs antigas `issue-N--Agente` bloqueiam migração até auditoria manual.
 9. Após falha, consulte `status`. `repair` recompõe o espelho. Se existir `pendingMirror`, confirme que o processo anterior encerrou e use `repair --recover --reason "evidência"` com a mesma sessão. Não recupere trabalho ainda ativo em outra máquina. Outra identidade exige recuperação administrativa humana auditada, sem apagar histórico.
-10. Bootstrap `pnpm agents:sync`; reconciliação `pnpm agents:sync --reconcile`; inspeção prévia `--dry-run`. Não reaplicar o manifesto para apagar progresso. Verifique com `pnpm agents:verify` e `pnpm agents:test`.
+10. Bootstrap `pnpm agents:sync`; reconciliação `pnpm agents:sync --reconcile`; inspeção prévia `--dry-run`. Datas de `Início`/`Entrega` são obrigatórias ao sair de Backlog e nunca são sobrescritas; estime via `pnpm agents:schedule` e registre heartbeat via `pnpm agents:heartbeat`. Não reaplicar o manifesto para apagar progresso. Verifique com `pnpm agents:verify` e `pnpm agents:test`.
 
 ## Publicação e automações
 

@@ -12,6 +12,8 @@ export function parseCommand(args) {
       "pr",
       "commit",
       "tests",
+      "start-date",
+      "target-date",
     ].map((name) => [name, { type: "string" }]),
   );
   options["human-approved"] = { type: "boolean" };
