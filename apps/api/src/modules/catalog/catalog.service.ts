@@ -265,8 +265,13 @@ export class CatalogService {
       ...(input.status === undefined ? { status: RecordStatus.ACTIVE } : input.status ? { status: input.status } : {}),
       ...(resolvedBrandIds.length === 1 ? { brandId: resolvedBrandIds[0] } : resolvedBrandIds.length > 1 ? { brandId: { in: resolvedBrandIds } } : {}),
       ...(resolvedCategoryId ? { categories: { some: { categoryId: resolvedCategoryId } } } : {}),
-      ...(input.search
-        ? { OR: [{ name: { startsWith: input.search } }, { slug: { startsWith: input.search } }] }
+      ...(input.search?.trim()
+        ? {
+            OR: [
+              { name: { contains: input.search.trim(), mode: Prisma.QueryMode.insensitive } },
+              { slug: { contains: normalizeProductSlug(input.search) } },
+            ],
+          }
         : {}),
     };
     return this.prisma.product.findMany({
@@ -277,8 +282,10 @@ export class CatalogService {
   }
 
   async getProductBySlug(slug: string) {
-    const product = await this.prisma.product.findUnique({
-      where: { slug },
+    // Apenas produtos ACTIVE sao publicos: rascunhos/arquivados nao podem ser
+    // acessados nem por URL direta (roadmap R04).
+    const product = await this.prisma.product.findFirst({
+      where: { slug, status: RecordStatus.ACTIVE },
       include: productRelations,
     });
     if (!product) throw new NotFoundException('PRODUCT_NOT_FOUND');

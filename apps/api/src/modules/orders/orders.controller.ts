@@ -25,8 +25,8 @@ export class OrdersController {
 
   @UseGuards(SessionGuard)
   @Get(':publicId')
-  get(@Param('publicId') publicId: string) {
-    return this.ordersService.getByPublicId(publicId);
+  get(@Param('publicId') publicId: string, @Req() request: Request & { user: AuthenticatedUser }) {
+    return this.ordersService.getForUser(publicId, request.user.id);
   }
 
   @UseGuards(SessionGuard)

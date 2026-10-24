@@ -164,8 +164,17 @@ export class OrdersService {
     });
   }
 
-  getByPublicId(publicId: string) {
-    return this.prisma.order.findUnique({ where: { publicId }, include: { items: true, statusHistory: { orderBy: { createdAt: 'asc' } }, payments: true } });
+  /**
+   * Busca um pedido do proprio usuario. O filtro por `userId` impede IDOR:
+   * quem conhece o `publicId` de outro cliente nao consegue ler o pedido.
+   */
+  async getForUser(publicId: string, userId: string) {
+    const order = await this.prisma.order.findFirst({
+      where: { publicId, userId },
+      include: { items: true, statusHistory: { orderBy: { createdAt: 'asc' } }, payments: true },
+    });
+    if (!order) throw new NotFoundException('ORDER_NOT_FOUND');
+    return order;
   }
 
   listForUser(userId: string) {
