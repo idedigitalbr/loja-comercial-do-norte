@@ -1,9 +1,29 @@
 {
   "$schema": "https://turborepo.com/schema.json",
+  "globalEnv": [
+    "NODE_ENV",
+    "DATABASE_URL",
+    "APP_ORIGIN",
+    "ADMIN_ORIGIN",
+    "COOKIE_SECRET",
+    "CRON_SECRET",
+    "SETTINGS_ENCRYPTION_KEY",
+    "DEFAULT_ADMIN_EMAIL",
+    "DEFAULT_ADMIN_PASSWORD",
+    "DEFAULT_CUSTOMER_EMAIL",
+    "DEFAULT_CUSTOMER_PASSWORD",
+    "QUOTES_SALES_EMAIL",
+    "API_URL",
+    "NEXT_PUBLIC_API_URL",
+    "NEXT_PUBLIC_SITE_URL",
+    "FEATURE_CHECKOUT",
+    "FEATURE_PAYMENTS",
+    "FEATURE_TRAININGS"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", "build/**"]
+      "outputs": ["dist/**", "build/**", ".next/**", "!.next/cache/**"]
     },
     "dev": {
       "cache": false,

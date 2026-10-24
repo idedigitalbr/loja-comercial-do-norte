@@ -1,6 +1,7 @@
 import argon2 from 'argon2';
 import { ActorType, EmailEventKey, OrderItemType, OrderStatus, PrismaClient, UserStatus } from '@prisma/client';
 import { seedDefaultHomeBanners } from '../apps/api/src/modules/settings/default-home-banners';
+import { DEMO_LOGO_PATH, seedCatalog } from './seed-catalog';
 
 const prisma = new PrismaClient();
 
@@ -17,6 +18,7 @@ const permissions = [
   ['settings.manage', 'Gerenciar configurações do site'],
   ['payments.manage', 'Gerenciar integração de pagamentos'],
   ['notifications.manage', 'Gerenciar notificações e e-mails'],
+  ['quotes.manage', 'Gerenciar solicitações de cotação'],
 ] as const;
 
 const emailTemplates = [
@@ -26,6 +28,8 @@ const emailTemplates = [
   { key: EmailEventKey.PAYMENT_APPROVED, subject: 'Pagamento aprovado — pedido {{orderId}}', htmlBody: '<p>Seu pagamento foi aprovado e o pedido {{orderId}} seguirá para preparação.</p>', textBody: 'Seu pagamento foi aprovado e o pedido {{orderId}} seguirá para preparação.' },
   { key: EmailEventKey.PAYMENT_REJECTED, subject: 'Não foi possível aprovar o pagamento do pedido {{orderId}}', htmlBody: '<p>O pagamento do pedido {{orderId}} não foi aprovado. Revise os dados ou escolha outra forma de pagamento.</p>', textBody: 'O pagamento do pedido {{orderId}} não foi aprovado. Revise os dados ou escolha outra forma de pagamento.' },
   { key: EmailEventKey.ORDER_STATUS_CHANGED, subject: 'Atualização do pedido {{orderId}}', htmlBody: '<p>O status do pedido {{orderId}} mudou para <strong>{{status}}</strong>.</p><p>Acompanhe em {{orderUrl}}.</p>', textBody: 'O status do pedido {{orderId}} mudou para {{status}}. Acompanhe em {{orderUrl}}.' },
+  { key: EmailEventKey.QUOTE_REQUESTED, subject: 'Nova cotação {{quoteId}} — {{customerName}}', htmlBody: '<p>Olá, equipe comercial.</p><p>Chegou uma nova solicitação de cotação <strong>{{quoteId}}</strong> de {{customerName}}.</p><p>Itens: {{itemsCount}} — total de referência {{total}}.</p><p>Acesse o painel: {{quoteUrl}}</p>', textBody: 'Nova cotação {{quoteId}} de {{customerName}}. Itens: {{itemsCount}}. Total de referência: {{total}}. Painel: {{quoteUrl}}' },
+  { key: EmailEventKey.QUOTE_STATUS_CHANGED, subject: 'Cotação {{quoteId}} atualizada para {{status}}', htmlBody: '<p>Olá {{customerName}},</p><p>Sua cotação <strong>{{quoteId}}</strong> foi atualizada para <strong>{{status}}</strong>.</p><p>Acompanhe em {{quoteUrl}}.</p>', textBody: 'Sua cotação {{quoteId}} foi atualizada para {{status}}. Acompanhe em {{quoteUrl}}.' },
   { key: EmailEventKey.PASSWORD_RESET, subject: 'Recupere o acesso à {{siteName}}', htmlBody: '<p>Olá {{customerName}},</p><p>Use este link para redefinir sua senha: <a href="{{resetUrl}}">{{resetUrl}}</a>.</p>', textBody: 'Olá {{customerName}}, use este link para redefinir sua senha: {{resetUrl}}.' },
 ] as const;
 
@@ -66,8 +70,8 @@ async function main(): Promise<void> {
       status: UserStatus.ACTIVE,
       profile: {
         upsert: {
-          update: { firstName: 'Cliente', lastName: 'Demonstração', phone: '(96) 98100-1897' },
-          create: { firstName: 'Cliente', lastName: 'Demonstração', phone: '(96) 98100-1897' },
+          update: { firstName: 'Cliente', lastName: 'Demonstração', phone: '(91) 90000-0000' },
+          create: { firstName: 'Cliente', lastName: 'Demonstração', phone: '(91) 90000-0000' },
         },
       },
     },
@@ -75,7 +79,7 @@ async function main(): Promise<void> {
       email: defaultCustomerEmail,
       passwordHash: customerPasswordHash,
       status: UserStatus.ACTIVE,
-      profile: { create: { firstName: 'Cliente', lastName: 'Demonstração', phone: '(96) 98100-1897' } },
+      profile: { create: { firstName: 'Cliente', lastName: 'Demonstração', phone: '(91) 90000-0000' } },
     },
     select: { id: true },
   });
@@ -167,15 +171,20 @@ async function main(): Promise<void> {
     update: {},
     create: {
       id: 'default',
-      siteName: 'Jonas & Elivaldo Hair Designers',
-      address: 'Av. Gen. Gurjão, 151 - Central, Macapá - AP, 68900-050',
-      phone: '(96) 98100-1897',
-      whatsapp: '5596981001897',
-      instagramUrl: 'https://www.instagram.com/jonas_elivaldo_hair_designers/',
-      title: 'Jonas & Elivaldo Hair Designers',
-      description: 'Beleza, cuidado e experiência profissional em Macapá.',
+      // Dados pesquisados e ainda PENDENTES de confirmacao oficial (docs/memory-ai.md §3).
+      siteName: 'Comercial do Norte',
+      logoPath: DEMO_LOGO_PATH,
+      address: 'Av. Rômulo Maiorana, 115A, São Braz, Belém/PA, 66093-635',
+      phone: '(91) 4042-0513',
+      whatsapp: '5591983440880',
+      instagramUrl: null,
+      title: 'Comercial do Norte | Embalagens, descartáveis e mercearia',
+      description: 'Distribuidora de plásticos, descartáveis, embalagens e mercearia em Belém/PA. Catálogo com cotação sem cobrança online (ambiente de demonstração).',
     },
   });
+
+  const catalogResult = await seedCatalog(prisma);
+  console.log(`Catalogo de demonstracao: ${catalogResult.categories} categorias, ${catalogResult.products} produtos.`);
 
   await seedDefaultHomeBanners(prisma);
 
@@ -198,6 +207,15 @@ async function main(): Promise<void> {
       create: { eventKey: template.key, enabled: true },
     });
   }
+
+  // A equipe comercial recebe as solicitacoes de cotacao. O destinatario real
+  // deve ser ajustado no admin ou por QUOTES_SALES_EMAIL em producao.
+  const salesEmail = process.env.QUOTES_SALES_EMAIL?.trim().toLowerCase() || 'vendas@comercialdonorte.local';
+  await prisma.notificationPreference.upsert({
+    where: { eventKey: EmailEventKey.QUOTE_REQUESTED },
+    update: {},
+    create: { eventKey: EmailEventKey.QUOTE_REQUESTED, enabled: true, recipientOverride: salesEmail },
+  });
 }
 
 main()

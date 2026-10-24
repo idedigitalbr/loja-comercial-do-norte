@@ -21,6 +21,7 @@ export const Permissions = {
   SETTINGS_MANAGE: 'settings.manage',
   PAYMENTS_MANAGE: 'payments.manage',
   NOTIFICATIONS_MANAGE: 'notifications.manage',
+  QUOTES_MANAGE: 'quotes.manage',
 } as const;
 
 export const RequirePermissions = (...permissions: string[]) =>

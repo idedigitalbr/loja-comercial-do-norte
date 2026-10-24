@@ -1,0 +1,62 @@
+@import 'tailwindcss';
+@import '@commerce/ui/styles/tokens.css';
+
+/*
+ * Mapeia os tokens oficiais (packages/ui/src/styles/tokens.css) para os
+ * utilitários do Tailwind. Nenhum valor de cor é duplicado aqui.
+ */
+@theme inline {
+  --color-brand: var(--cn-primary);
+  --color-brand-hover: var(--cn-primary-hover);
+  --color-brand-soft: var(--cn-primary-soft);
+  --color-promo: var(--cn-accent);
+  --color-promo-hover: var(--cn-accent-hover);
+  --color-promo-soft: var(--cn-accent-soft);
+  --color-ink: var(--cn-heading);
+  --color-body: var(--cn-text);
+  --color-muted: var(--cn-muted);
+  --color-line: var(--cn-border);
+  --color-surface: var(--cn-surface);
+  --color-surface-soft: var(--cn-surface-subtle);
+  --color-canvas: var(--cn-bg);
+  --color-deep: var(--cn-dark);
+  --color-deep-soft: var(--cn-dark-soft);
+  --color-ok: var(--cn-success);
+  --color-alert: var(--cn-danger);
+  --radius-card: var(--cn-radius-lg);
+  --radius-pill: var(--cn-radius-pill);
+  --shadow-card: var(--cn-shadow-card);
+  --shadow-elevated: var(--cn-shadow-elevated);
+  --font-sans: var(--cn-font-sans);
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background-color: var(--cn-bg);
+  color: var(--cn-text);
+  font-family: var(--cn-font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--cn-focus-ring);
+  border-radius: var(--cn-radius-sm);
+}
+
+/* Classe utilitária única para o container do site. */
+.cn-container {
+  width: 100%;
+  max-width: var(--cn-container-max);
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 768px) {
+  .cn-container {
+    padding-inline: 1.5rem;
+  }
+}

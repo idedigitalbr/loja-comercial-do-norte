@@ -10,35 +10,49 @@ export type DefaultHomeBanner = {
   status: 'ACTIVE';
 };
 
-const currentHomeHeroImages = [
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/11/FOTO-288.jpg',
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/04/JE-6-scaled.jpg',
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/04/JE-8-scaled.jpg',
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/04/JE-4-scaled.jpg',
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/04/JE-7-scaled.jpg',
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/04/JE-5-1-scaled.jpg',
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/11/FOTO-365.jpg',
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/04/JE-9-1-scaled.jpg',
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/04/JE-2-1-scaled.jpg',
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/04/JE-3-scaled.jpg',
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/04/JE-1-scaled.jpg',
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/04/produt-3-scaled.jpg',
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/04/produt-4-scaled.jpg',
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/04/produt-5-scaled.jpg',
-  'https://jonaselivaldohair.com.br/wp-content/uploads/2025/11/FOTO-305.jpg',
+/**
+ * Banners de demonstração da home da Comercial do Norte.
+ *
+ * Regras (docs/memory-ai.md §3, roadmap E5):
+ * - nenhuma mídia externa/hotlink: os caminhos apontam para a storage local;
+ * - copy explicitamente demonstrativa, sem marca, preço ou depoimento real;
+ * - as imagens são geradas localmente pelo seed (`prisma/seed-catalog.ts`).
+ */
+export const defaultHomeBanners: readonly DefaultHomeBanner[] = [
+  {
+    desktopPath: 'uploads/seed-banner-ofertas/1440.webp',
+    mobilePath: 'uploads/seed-banner-ofertas/960.webp',
+    eyebrow: 'Ofertas da semana (demonstração)',
+    title: 'Preço de atacado para o seu negócio',
+    description: 'Embalagens, descartáveis e utilidades para pizzarias, lanchonetes, padarias e revendas.',
+    ctaLabel: 'Ver ofertas',
+    ctaHref: '/ofertas',
+    sortOrder: 0,
+    status: 'ACTIVE',
+  },
+  {
+    desktopPath: 'uploads/seed-banner-cotacao/1440.webp',
+    mobilePath: 'uploads/seed-banner-cotacao/960.webp',
+    eyebrow: 'Cotação rápida (demonstração)',
+    title: 'Monte sua lista e receba a cotação',
+    description: 'Adicione produtos, envie seus dados e a equipe comercial responde com a proposta.',
+    ctaLabel: 'Como funciona',
+    ctaHref: '/cotacao',
+    sortOrder: 1,
+    status: 'ACTIVE',
+  },
+  {
+    desktopPath: 'uploads/seed-banner-festa/1440.webp',
+    mobilePath: 'uploads/seed-banner-festa/960.webp',
+    eyebrow: 'Tudo em um só lugar (demonstração)',
+    title: 'Sua festa completa em um só pedido',
+    description: 'Artigos para festa, doces e descartáveis reunidos na mesma cotação.',
+    ctaLabel: 'Explorar catálogo',
+    ctaHref: '/loja',
+    sortOrder: 2,
+    status: 'ACTIVE',
+  },
 ] as const;
-
-export const defaultHomeBanners: readonly DefaultHomeBanner[] = currentHomeHeroImages.map((desktopPath, sortOrder) => ({
-  desktopPath,
-  mobilePath: null,
-  eyebrow: null,
-  title: 'Você linda todos os dias',
-  description: 'Agende já e venha se sentir ainda mais linda!',
-  ctaLabel: 'ASSISTA NOSSO VÍDEO',
-  ctaHref: 'https://www.youtube.com/embed/LHVlCGzfb4I?feature=oembed',
-  sortOrder,
-  status: 'ACTIVE' as const,
-}));
 
 type BannerSeedClient = {
   siteBanner: {
@@ -47,7 +61,7 @@ type BannerSeedClient = {
   };
 };
 
-/** Adds the current Home slides once, preserving banners configured by an administrator. */
+/** Cria os banners de demonstração ausentes, preservando os configurados pelo admin. */
 export async function seedDefaultHomeBanners(prisma: BannerSeedClient): Promise<number> {
   let created = 0;
 

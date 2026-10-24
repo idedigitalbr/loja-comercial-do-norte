@@ -1,0 +1,86 @@
+name: Assumir tarefa (reserva multiagente)
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: "Comando (done exige aprovação humana explícita)"
+        required: true
+        type: choice
+        options:
+          [
+            claim,
+            renew,
+            start,
+            pause,
+            resume,
+            block,
+            review,
+            done,
+            release,
+            repair,
+            status,
+          ]
+      issue:
+        description: "Número da Issue"
+        required: true
+        type: string
+      executor:
+        description: "executorId em scripts/agents/executors.json"
+        required: true
+        type: string
+        default: codex-will
+      session:
+        description: "Sessão retornada pelo claim; obrigatória nos demais comandos"
+        type: string
+      branch:
+        description: "Branch de trabalho"
+        type: string
+      reason:
+        description: "Motivo ou resultado"
+        type: string
+      pr:
+        description: "URL do PR"
+        type: string
+      commit:
+        description: "Commit de evidência"
+        type: string
+      tests:
+        description: "Testes e resultado"
+        type: string
+      human_approved:
+        description: "Validei humanamente o resultado (somente done)"
+        type: boolean
+        default: false
+      recover:
+        description: "Confirmei que o processo anterior encerrou (repair, com motivo)"
+        type: boolean
+        default: false
+      cancel_pending:
+        description: "Cancelar projeção de conclusão pendente e devolver para revisão"
+        type: boolean
+        default: false
+  issue_comment:
+    types: [created]
+permissions:
+  contents: write
+  issues: write
+  pull-requests: read
+concurrency:
+  group: agent-claim-${{ github.event.issue.number || inputs.issue }}
+  cancel-in-progress: false
+jobs:
+  reserva:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.comment.body, '/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # issue_comment runs trusted default-branch code; never checkout a comment/PR ref.
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validar ator e executar sem interpolação em shell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+        run: node scripts/agents/workflow-command.mjs

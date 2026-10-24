@@ -1,5 +1,6 @@
 datasource db {
-  provider = "mysql"
+  // PostgreSQL e o banco oficial do projeto (ver docs/memory-ai.md §1).
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -100,6 +101,18 @@ enum OrderItemType {
   TRAINING_SESSION
 }
 
+/// Estado da solicitacao de cotacao. Nenhum estado cobra ou reserva estoque:
+/// a negociacao e o fechamento acontecem fora do site (ERP).
+enum QuoteStatus {
+  REQUESTED
+  IN_REVIEW
+  ANSWERED
+  WON
+  LOST
+  CANCELLED
+  EXPIRED
+}
+
 enum PaymentMethod {
   CARD
   PIX
@@ -133,6 +146,8 @@ enum EmailEventKey {
   PAYMENT_REJECTED
   ORDER_STATUS_CHANGED
   PASSWORD_RESET
+  QUOTE_REQUESTED
+  QUOTE_STATUS_CHANGED
 }
 
 enum EmailDeliveryStatus {
@@ -234,6 +249,8 @@ model User {
   vipMemberships    VipMembership[]
   reportExports     ReportExport[]
   favorites         CustomerFavorite[]
+  quotes            Quote[]            @relation("QuoteRequester")
+  assignedQuotes    Quote[]            @relation("QuoteAssignee")
   auditActorId      String?
 }
 
@@ -349,13 +366,20 @@ model Category {
   name                String               @unique @db.VarChar(160)
   slug                String               @unique @db.VarChar(191)
   status              RecordStatus         @default(DRAFT)
+  parentId            String?
+  imagePath           String?              @db.VarChar(500)
+  sortOrder           Int                  @default(0)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
+  parent              Category?            @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children            Category[]           @relation("CategoryHierarchy")
   products            ProductCategory[]
   promotionScopes     PromotionScope[]
   couponCategoryRules CouponCategoryRule[]
 
   @@unique([legacySource, legacyId])
+  @@index([parentId, status])
+  @@index([status, sortOrder])
 }
 
 model Product {
@@ -418,6 +442,7 @@ model ProductVariant {
   orderItems          OrderItem[]
   reservations        InventoryReservation[]
   stockMovements      StockMovement[]
+  quoteItems          QuoteItem[]
 
   @@index([productId, status])
 }
@@ -925,7 +950,7 @@ model ScheduledJob {
 
 model SiteConfiguration {
   id           String   @id @default("default")
-  siteName     String   @default("Loja Jonas & Elivaldo") @db.VarChar(160)
+  siteName     String   @default("Comercial do Norte") @db.VarChar(160)
   logoPath     String?  @db.VarChar(500)
   faviconPath  String?  @db.VarChar(500)
   address      String?  @db.VarChar(255)
@@ -1069,4 +1094,70 @@ model ReportExport {
 
   @@index([createdById, createdAt])
   @@index([status, createdAt])
+}
+
+/// Solicitacao de cotacao feita pelo site. Nao cobra, nao reserva estoque e
+/// nao gera pedido: apenas registra a intencao e avisa a equipe comercial.
+model Quote {
+  id            String      @id @default(cuid())
+  publicId      String      @unique @default(cuid())
+  status        QuoteStatus @default(REQUESTED)
+  customerName  String      @db.VarChar(160)
+  customerPhone String      @db.VarChar(40)
+  customerEmail String?     @db.VarChar(191)
+  companyName   String?     @db.VarChar(160)
+  document      String?     @db.VarChar(30)
+  notes         String?     @db.Text
+  origin        String      @default("site") @db.VarChar(40)
+  itemsCount    Int         @default(0)
+  subtotalCents Int         @default(0)
+  userId        String?
+  assignedToId  String?
+  expiresAt     DateTime?
+  answeredAt    DateTime?
+  closedAt      DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          User?       @relation("QuoteRequester", fields: [userId], references: [id], onDelete: SetNull)
+  assignedTo    User?       @relation("QuoteAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  items         QuoteItem[]
+  events        QuoteEvent[]
+
+  @@index([status, createdAt])
+  @@index([customerPhone])
+  @@index([userId])
+}
+
+/// Snapshot dos itens no momento da solicitacao (preco vem do servidor).
+model QuoteItem {
+  id             String          @id @default(cuid())
+  quoteId        String
+  variantId      String?
+  productName    String          @db.VarChar(220)
+  productSlug    String          @db.VarChar(191)
+  sku            String          @db.VarChar(100)
+  imagePath      String?         @db.VarChar(500)
+  quantity       Int
+  unitPriceCents Int
+  totalCents     Int
+  createdAt      DateTime        @default(now())
+  quote          Quote           @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  variant        ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  @@index([quoteId])
+}
+
+/// Trilha de auditoria do estado da cotacao.
+model QuoteEvent {
+  id         String       @id @default(cuid())
+  quoteId    String
+  fromStatus QuoteStatus?
+  toStatus   QuoteStatus
+  actorType  ActorType
+  actorId    String?
+  reason     String?      @db.Text
+  createdAt  DateTime     @default(now())
+  quote      Quote        @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId, createdAt])
 }

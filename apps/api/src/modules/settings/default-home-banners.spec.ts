@@ -2,20 +2,18 @@ import { describe, expect, it, vi } from 'vitest';
 import { defaultHomeBanners, seedDefaultHomeBanners } from './default-home-banners';
 
 describe('default home banners', () => {
-  it('contains the current home hero slides with a complete CTA payload', () => {
-    expect(defaultHomeBanners).toHaveLength(15);
-    expect(defaultHomeBanners[0]).toEqual(expect.objectContaining({
-      desktopPath: 'https://jonaselivaldohair.com.br/wp-content/uploads/2025/11/FOTO-288.jpg',
-      title: 'Você linda todos os dias',
-      description: 'Agende já e venha se sentir ainda mais linda!',
-      ctaLabel: 'ASSISTA NOSSO VÍDEO',
-      ctaHref: 'https://www.youtube.com/embed/LHVlCGzfb4I?feature=oembed',
-      status: 'ACTIVE',
-      sortOrder: 0,
-    }));
+  it('aponta apenas para a storage local, sem hotlink externo', () => {
+    expect(defaultHomeBanners).toHaveLength(3);
+    for (const banner of defaultHomeBanners) {
+      expect(banner.desktopPath).toMatch(/^uploads\/seed-banner-[a-z-]+\/\d+\.webp$/);
+      expect(banner.mobilePath).toMatch(/^uploads\/seed-banner-[a-z-]+\/\d+\.webp$/);
+      expect(banner.title).toBeTruthy();
+      expect(banner.ctaHref?.startsWith('/')).toBe(true);
+      expect(JSON.stringify(banner)).not.toMatch(/jonas|elivaldo/i);
+    }
   });
 
-  it('creates missing slides and is idempotent without overwriting existing records', async () => {
+  it('cria os banners ausentes e é idempotente sem sobrescrever os existentes', async () => {
     const existing = { id: 'existing', desktopPath: defaultHomeBanners[0].desktopPath };
     const created = new Map<string, { id: string; desktopPath: string }>();
     const prisma = {
@@ -32,9 +30,9 @@ describe('default home banners', () => {
     const firstRun = await seedDefaultHomeBanners(prisma as never);
     const secondRun = await seedDefaultHomeBanners(prisma as never);
 
-    expect(firstRun).toBe(14);
+    expect(firstRun).toBe(2);
     expect(secondRun).toBe(0);
-    expect(prisma.siteBanner.create).toHaveBeenCalledTimes(14);
+    expect(prisma.siteBanner.create).toHaveBeenCalledTimes(2);
     expect(prisma.siteBanner.create).not.toHaveBeenCalledWith(expect.objectContaining({ data: existing }));
   });
 });

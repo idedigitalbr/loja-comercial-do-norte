@@ -110,9 +110,9 @@ export class InventoryService {
 
   private async lockBalance(transaction: Transaction, variantId: string) {
     const rows = await transaction.$queryRaw<Array<{ id: string; physicalQuantity: number; reservedQuantity: number }>>`
-      SELECT id, physicalQuantity, reservedQuantity
-      FROM InventoryBalance
-      WHERE variantId = ${variantId}
+      SELECT "id", "physicalQuantity", "reservedQuantity"
+      FROM "InventoryBalance"
+      WHERE "variantId" = ${variantId}
       FOR UPDATE
     `;
     if (!rows[0]) throw new NotFoundException('INVENTORY_BALANCE_NOT_FOUND');

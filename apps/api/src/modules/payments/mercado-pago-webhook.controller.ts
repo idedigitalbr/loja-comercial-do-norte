@@ -1,8 +1,9 @@
-import { BadRequestException, Body, Controller, Headers, Inject, Param, Post, Query, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Headers, Inject, Param, Post, Query, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { PaymentSettingsService } from '../settings/payment-settings.service';
 import { PaymentsService } from './payments.service';
+import { FeatureGuard, RequireFeature } from '../../common/features/feature-flags';
 
 type LegacyWebhookPayload = {
   eventId?: string;
@@ -31,6 +32,8 @@ function signatureParts(signature: string): { timestamp?: string; hash?: string 
   }, {});
 }
 
+@UseGuards(FeatureGuard)
+@RequireFeature('PAYMENTS')
 @Controller('webhooks/mercado-pago')
 export class MercadoPagoWebhookController {
   constructor(

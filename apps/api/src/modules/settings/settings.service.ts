@@ -6,6 +6,7 @@ import {
   SmtpSecurity,
 } from '@prisma/client';
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { featureFlagsSnapshot } from '../../common/features/feature-flags';
 import { SettingsCryptoService } from '../../common/crypto/settings-crypto.service';
 import { PrismaService } from '../database/prisma.service';
 import { normalizeStoredMediaPath, publicStoragePath } from '../files/storage-path';
@@ -46,38 +47,19 @@ const DEFAULT_SITE: Required<SiteFields> = {
   description: null,
 };
 
-const APPROVED_LEGACY_MEDIA_HOST = 'jonaselivaldohair.com.br';
-
 function safeCtaHref(value: string | null | undefined): string | null {
   if (!value) return null;
   return /^(?:\/(?!\/)[^\s]*|https:\/\/[^\s]+|mailto:[^\s]+|tel:[^\s]+)$/i.test(value) ? value : null;
 }
 
-function approvedLegacyMediaPath(value: string): string | null {
-  try {
-    const url = new URL(value);
-    if (url.protocol !== 'https:' || url.hostname !== APPROVED_LEGACY_MEDIA_HOST || !url.pathname.startsWith('/wp-content/uploads/')) return null;
-    return value;
-  } catch {
-    return null;
-  }
-}
-
 function publicBannerMediaPath(value: string | null | undefined): string | null {
-  const localPath = publicStoragePath(value);
-  if (localPath || !value) return localPath;
-  return approvedLegacyMediaPath(value);
+  // Somente mídia própria: hotlink externo não é permitido (docs/memory-ai.md §3).
+  return publicStoragePath(value);
 }
 
 function normalizeBannerMediaPath(value: string | null | undefined): string | null | undefined {
   if (value === undefined || value === null) return value;
-  try {
-    return normalizeStoredMediaPath(value);
-  } catch (error) {
-    const legacyPath = approvedLegacyMediaPath(value);
-    if (legacyPath) return legacyPath;
-    throw error;
-  }
+  return normalizeStoredMediaPath(value);
 }
 
 function normalizeBannerInput<T extends SiteBannerInput | Partial<SiteBannerInput>>(input: T): T {
@@ -135,6 +117,7 @@ export class SettingsService {
     return {
       site: mapSite(site ?? DEFAULT_SITE),
       banners: banners.map((banner) => mapBanner(banner)),
+      features: featureFlagsSnapshot(),
     };
   }
 

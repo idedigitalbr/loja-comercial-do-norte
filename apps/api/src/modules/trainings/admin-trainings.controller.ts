@@ -2,6 +2,7 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { IsDateString, IsInt, IsString, Min } from 'class-validator';
 import { PermissionGuard, Permissions, RequirePermissions } from '../auth/guards/permission.guard';
 import { SessionGuard } from '../auth/guards/session.guard';
+import { FeatureGuard, RequireFeature } from '../../common/features/feature-flags';
 import { TrainingsService } from './trainings.service';
 
 class TrainingDto {
@@ -18,8 +19,9 @@ class SessionDto {
   @IsInt() @Min(1) capacity!: number;
 }
 
-@UseGuards(SessionGuard, PermissionGuard)
+@UseGuards(FeatureGuard, SessionGuard, PermissionGuard)
 @RequirePermissions(Permissions.PRODUCTS_WRITE)
+@RequireFeature('TRAININGS')
 @Controller('admin/trainings')
 export class AdminTrainingsController {
   constructor(private readonly trainingsService: TrainingsService) {}

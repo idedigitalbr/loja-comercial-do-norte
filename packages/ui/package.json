@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./web": "./src/web/index.ts",
+    "./styles/tokens.css": "./src/styles/tokens.css"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -22,8 +24,10 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "tailwind-merge": "^3.7.0"
   }
 }

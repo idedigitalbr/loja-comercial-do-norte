@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Headers, Inject, Param, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Inject, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { IsEmail, IsInt, IsObject, IsOptional, IsString, Min } from 'class-validator';
 import type { Request, Response } from 'express';
+import { FeatureGuard, RequireFeature } from '../../common/features/feature-flags';
 import { AuthenticatedUser } from '../auth/auth.service';
 import { CheckoutService } from './checkout.service';
 
@@ -22,6 +23,8 @@ class QuoteCheckoutDto {
   @IsOptional() @IsInt() @Min(0) shippingCents?: number;
 }
 
+@UseGuards(FeatureGuard)
+@RequireFeature('CHECKOUT')
 @Controller('checkout')
 export class CheckoutController {
   constructor(@Inject(CheckoutService) private readonly checkoutService: CheckoutService) {}

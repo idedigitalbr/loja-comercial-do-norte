@@ -12,6 +12,7 @@ describe('admin shell', () => {
       'overview',
       'home-banners',
       'catalog',
+      'quotes',
       'orders',
       'inventory',
       'customers',
@@ -24,6 +25,7 @@ describe('admin shell', () => {
       'image',
       'shopping-bag',
       'clipboard-list',
+      'clipboard-list',
       'warehouse',
       'users',
       'ticket-percent',
@@ -32,14 +34,15 @@ describe('admin shell', () => {
     ]);
   });
 
-  it('builds the local storefront link from the admin origin', () => {
-    expect(getStorefrontUrl('http://localhost:5174')).toBe('http://localhost:5173/loja');
+  it('aponta para o storefront Next.js (porta 3001) a partir do admin', () => {
+    expect(getStorefrontUrl('http://localhost:5174')).toBe('http://localhost:3001/loja');
   });
 
   it('opens deep-linked operational pages directly', () => {
     expect(getInitialAdminSection('/admin/')).toBe('overview');
     expect(getInitialAdminSection('/admin/promotions')).toBe('promotions');
     expect(getInitialAdminSection('/admin/banners-home/')).toBe('home-banners');
+    expect(getInitialAdminSection('/admin/cotacoes')).toBe('quotes');
     expect(getInitialAdminSection('/admin/orders')).toBe('orders');
     expect(getInitialAdminSection('/admin/catalogo/produtos')).toBe('catalog');
   });

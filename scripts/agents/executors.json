@@ -1,0 +1,42 @@
+[
+  {
+    "executorId": "codex-will",
+    "ferramenta": "Codex",
+    "operadorHumano": "victorwilliames",
+    "modelo": null,
+    "nomeExibido": "Codex (Astra 6 - Will)",
+    "aliases": ["Codex (Will)"]
+  },
+  {
+    "executorId": "antigravity-will",
+    "ferramenta": "Antigravity",
+    "operadorHumano": "victorwilliames",
+    "modelo": null,
+    "nomeExibido": "Antigravity (Will)",
+    "aliases": ["Antigravity (Will)"]
+  },
+  {
+    "executorId": "claude-will",
+    "ferramenta": "Claude",
+    "operadorHumano": "victorwilliames",
+    "modelo": null,
+    "nomeExibido": "Claude (Opus 4.5 - Will)",
+    "aliases": ["Claude (Will)"]
+  },
+  {
+    "executorId": "deepseek-harness-will",
+    "ferramenta": "DeepSeek Harness",
+    "operadorHumano": "victorwilliames",
+    "modelo": null,
+    "nomeExibido": "DeepSeek Harness (DeepSeek V4.1 Flash - Will)",
+    "aliases": ["DeepSeek Harness (Will)"]
+  },
+  {
+    "executorId": "opencode-will",
+    "ferramenta": "OpenCode",
+    "operadorHumano": "victorwilliames",
+    "modelo": null,
+    "nomeExibido": "OpenCode (Will)",
+    "aliases": ["OpenCode (Will)"]
+  }
+]

@@ -31,7 +31,7 @@ describe.skipIf(!hasConfiguredSeedPasswords)('seed default accounts', () => {
 
     expect(customer).not.toBeNull();
     expect(customer?.status).toBe(UserStatus.ACTIVE);
-    expect(customer?.profile).toEqual({ firstName: 'Cliente', lastName: 'Demonstração', phone: '(96) 98100-1897' });
+    expect(customer?.profile).toEqual({ firstName: 'Cliente', lastName: 'Demonstração', phone: '(91) 90000-0000' });
     expect(customer?._count.orders).toBe(1);
     expect(await argon2.verify(customer?.passwordHash ?? '', customerCredential ?? '')).toBe(true);
   });
