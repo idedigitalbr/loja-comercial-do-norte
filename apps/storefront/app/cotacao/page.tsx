@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Minus, Plus, Trash2 } from 'lucide-react';
+import { WebButton, WebEmptyState } from '@commerce/ui/web';
 import { useQuoteCart } from '@/components/quote-cart-provider';
 import { API_URL, mediaUrl } from '@/lib/api';
 import { formatMoney } from '@/lib/format';
@@ -69,13 +70,16 @@ export default function QuoteFormPage() {
   if (!items.length) {
     return (
       <div className="cn-container py-16">
-        <div className="mx-auto max-w-xl rounded-card border border-dashed border-line bg-surface p-8 text-center">
-          <h1 className="text-xl font-extrabold text-ink">Sua cotação está vazia</h1>
-          <p className="mt-2 text-sm text-muted">Adicione produtos do catálogo para montar sua lista.</p>
-          <Link className="mt-5 inline-block rounded-pill bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-hover" href="/loja">
-            Ver catálogo
-          </Link>
-        </div>
+        <WebEmptyState
+          action={
+            <Link className="inline-block rounded-pill bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-hover" href="/loja">
+              Ver catálogo
+            </Link>
+          }
+          className="mx-auto max-w-xl"
+          description="Adicione produtos do catálogo para montar sua lista."
+          title="Sua cotação está vazia"
+        />
       </div>
     );
   }
@@ -117,13 +121,16 @@ export default function QuoteFormPage() {
             <p aria-live="polite" className="mt-4 rounded-md bg-promo-soft px-3 py-2 text-sm text-alert">{error}</p>
           ) : null}
 
-          <button
-            className="mt-5 w-full rounded-pill bg-promo px-5 py-3 text-sm font-bold text-white hover:bg-promo-hover disabled:cursor-not-allowed disabled:opacity-60"
+          <WebButton
+            className="mt-5 py-3 text-sm font-bold"
             disabled={submitting}
+            fullWidth
+            loading={submitting}
             type="submit"
+            variant="promo"
           >
             {submitting ? 'Enviando…' : 'Enviar cotação'}
-          </button>
+          </WebButton>
           <p className="mt-2 text-center text-xs text-muted">Ao enviar, você concorda com o contato da equipe comercial sobre esta cotação.</p>
         </form>
 

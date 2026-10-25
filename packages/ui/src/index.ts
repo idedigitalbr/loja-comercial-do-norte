@@ -8,3 +8,5 @@ export { StatusBadge } from './components/status-badge';
 export type { StatusBadgeProps } from './components/status-badge';
 export { Icon } from './components/icon';
 export type { IconName, IconProps } from './components/icon';
+export { cn, WebBadge, WebButton, WebEmptyState } from './web';
+export type { WebBadgeProps, WebButtonProps, WebButtonSize, WebButtonVariant, WebEmptyStateProps } from './web';

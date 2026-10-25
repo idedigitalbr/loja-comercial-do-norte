@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { cn, WebBadge, WebButton, WebEmptyState } from '@commerce/ui/web';
 import { ProductCard } from '@/components/product-card';
 import { getCategories, getProductsPage } from '@/lib/api';
 
@@ -64,17 +65,17 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
             type="search"
           />
           {categoria ? <input name="categoria" type="hidden" value={categoria} /> : null}
-          <button className="rounded-pill bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-hover" type="submit">Buscar</button>
+          <WebButton size="md" type="submit" variant="primary">Buscar</WebButton>
         </form>
       </header>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <Link className={`rounded-pill border px-3 py-1.5 text-xs font-semibold ${!activeCategory ? 'border-brand bg-brand text-white' : 'border-line bg-surface text-ink hover:border-brand'}`} href={buildHref({})}>
+        <Link className={cn('rounded-pill border px-3 py-1.5 text-xs font-semibold', !activeCategory ? 'border-brand bg-brand text-white' : 'border-line bg-surface text-ink hover:border-brand')} href={buildHref({})}>
           Todas
         </Link>
         {categories.map((category) => (
           <Link
-            className={`rounded-pill border px-3 py-1.5 text-xs font-semibold ${activeCategory?.slug === category.slug ? 'border-brand bg-brand text-white' : 'border-line bg-surface text-ink hover:border-brand'}`}
+            className={cn('rounded-pill border px-3 py-1.5 text-xs font-semibold', activeCategory?.slug === category.slug ? 'border-brand bg-brand text-white' : 'border-line bg-surface text-ink hover:border-brand')}
             href={(() => {
               const params = new URLSearchParams();
               if (q) params.set('q', q);
@@ -86,10 +87,11 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
             {category.name}
           </Link>
         ))}
+        {q ? <WebBadge tone="brand">Filtro: {q}</WebBadge> : null}
         <span className="ml-auto flex items-center gap-2 text-xs text-muted">
           Ordenar:
-          <Link className={`rounded-pill border px-3 py-1.5 font-semibold ${sort === 'newest' ? 'border-brand text-brand' : 'border-line text-ink hover:border-brand'}`} href={buildHref({ ordem: 'novidades' })}>Novidades</Link>
-          <Link className={`rounded-pill border px-3 py-1.5 font-semibold ${sort === 'name_asc' ? 'border-brand text-brand' : 'border-line text-ink hover:border-brand'}`} href={buildHref({ ordem: 'nome' })}>Nome A–Z</Link>
+          <Link className={cn('rounded-pill border px-3 py-1.5 font-semibold', sort === 'newest' ? 'border-brand text-brand' : 'border-line text-ink hover:border-brand')} href={buildHref({ ordem: 'novidades' })}>Novidades</Link>
+          <Link className={cn('rounded-pill border px-3 py-1.5 font-semibold', sort === 'name_asc' ? 'border-brand text-brand' : 'border-line text-ink hover:border-brand')} href={buildHref({ ordem: 'nome' })}>Nome A–Z</Link>
         </span>
       </div>
 
@@ -111,7 +113,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
                     {index > 0 && value - list[index - 1] > 1 ? <span className="text-muted">…</span> : null}
                     <Link
                       aria-current={value === result.page ? 'page' : undefined}
-                      className={`rounded-pill border px-3.5 py-2 text-sm font-semibold ${value === result.page ? 'border-brand bg-brand text-white' : 'border-line text-ink hover:border-brand'}`}
+                      className={cn('rounded-pill border px-3.5 py-2 text-sm font-semibold', value === result.page ? 'border-brand bg-brand text-white' : 'border-line text-ink hover:border-brand')}
                       href={buildHref({ pagina: value })}
                     >
                       {value}
@@ -125,11 +127,16 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
           ) : null}
         </>
       ) : (
-        <div className="mt-8 rounded-card border border-dashed border-line bg-surface p-8 text-center">
-          <p className="text-sm font-semibold text-ink">Nenhum produto encontrado</p>
-          <p className="mt-1 text-sm text-muted">Ajuste a busca ou volte para todas as categorias.</p>
-          <Link className="mt-4 inline-block rounded-pill bg-brand px-4 py-2 text-sm font-semibold text-white" href="/loja">Ver tudo</Link>
-        </div>
+        <WebEmptyState
+          action={
+            <Link className="inline-block rounded-pill bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-hover" href="/loja">
+              Ver tudo
+            </Link>
+          }
+          className="mt-8"
+          description="Ajuste a busca ou volte para todas as categorias."
+          title="Nenhum produto encontrado"
+        />
       )}
     </div>
   );
