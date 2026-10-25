@@ -2,22 +2,25 @@
 
 import React, { useState } from 'react';
 import {
-  AlignLeft,
-  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Copy,
+  Edit,
   Eye,
   Flame,
   Grid,
+  GripVertical,
   Image as ImageIcon,
   Layers,
   Layout,
+  Link as LinkIcon,
   Menu,
   Minus,
   Move,
   Palette,
   Plus,
+  RefreshCw,
   Search,
   Settings,
   Sliders,
@@ -27,44 +30,56 @@ import {
   X,
 } from 'lucide-react';
 import { useElementor } from './elementor-editor-context';
+import { ElementorMediaModal, availableMediaLibrary } from './elementor-media-modal';
 import type { BenefitItem, ContainedHeroSlide, HeroSlide, WidgetType } from '@/lib/storefront/widget-types';
 
-const availableBanners = [
+const widgetDefinitions: Array<{
+  type: WidgetType;
+  title: string;
+  category: string;
+  icon: React.ElementType;
+  desc: string;
+  badge: string;
+}> = [
   {
-    name: 'Intelbras Semana (Verde ML)',
-    url: '/assets/Pagina/S1 TOPO HERO/topo-banners-ML/D_NQ_2X_977867-MLA118147004068_102026-OO.webp',
+    type: 'hero-carousel',
+    title: 'Carrossel Full',
+    category: 'Básico',
+    icon: Tv,
+    desc: 'Banners 100% largura estilo Mercado Livre',
+    badge: 'HERO',
   },
   {
-    name: 'Super Ofertas (Azul ML)',
-    url: '/assets/Pagina/S1 TOPO HERO/topo-banners-ML/D_NQ_2X_690577-MLA118270011000_102026-OO.webp',
+    type: 'contained-hero',
+    title: 'Carrossel Padrão',
+    category: 'Básico',
+    icon: Layout,
+    desc: 'Banners arredondados de campanhas',
+    badge: 'BANNER',
   },
   {
-    name: 'Copo Cristalcopo',
-    url: '/assets/S1-banners-topo-hero/Gemini_Generated_Image_x5pilwx5pilwx5pi.jpg',
+    type: 'benefits-bar',
+    title: 'Barra de Benefícios',
+    category: 'Geral',
+    icon: Sparkles,
+    desc: '4 colunas com ícones e vantagens',
+    badge: 'ICONS',
   },
   {
-    name: 'Outlet Embalagens',
-    url: '/assets/S1-banners-topo-hero/Gemini_Generated_Image_k46c0pk46c0pk46c.jpg',
+    type: 'product-carousel',
+    title: 'Vitrine de Produtos',
+    category: 'Pro',
+    icon: Flame,
+    desc: 'Carrossel de ofertas com cotação',
+    badge: 'OFERTAS',
   },
   {
-    name: 'Verão Total',
-    url: '/assets/S1-banners-topo-hero/Gemini_Generated_Image_k93f3kk93f3kk93f.jpg',
-  },
-  {
-    name: 'Pará Trigo Gastronomia',
-    url: '/assets/S1-banners-topo-hero/Gemini_Generated_Image_m54tnlm54tnlm54t.jpg',
-  },
-  {
-    name: 'Ofertas Faltam 3 Dias',
-    url: '/assets/S1-banners-topo-hero/Gemini_Generated_Image_nmv06jnmv06jnmv0.jpg',
-  },
-  {
-    name: 'Fachada Comercial do Norte',
-    url: '/assets/S1-banners-topo-hero/Gemini_Generated_Image_u1xlqu1xlqu1xlqu.jpg',
-  },
-  {
-    name: 'Convenção Futuro',
-    url: '/assets/S1-banners-topo-hero/Gemini_Generated_Image_yr0ncxyr0ncxyr0n (1).jpg',
+    type: 'category-grid',
+    title: 'Grade Categorias',
+    category: 'Pro',
+    icon: Grid,
+    desc: 'Departamentos da loja em grade',
+    badge: 'GRID',
   },
 ];
 
@@ -72,614 +87,690 @@ export function ElementorPanel() {
   const {
     isEditing,
     previewMode,
-    composition,
-    selectedWidgetId,
-    setSelectedWidgetId,
     activeTab,
     setActiveTab,
-    panelCollapsed,
-    setPanelCollapsed,
+    selectedWidgetId,
+    setSelectedWidgetId,
+    composition,
     updateWidgetProps,
+    removeWidget,
+    toggleWidget,
     addWidget,
     addSlideToWidget,
     removeSlideFromWidget,
     updateSlideInWidget,
     updateBenefitItem,
+    panelCollapsed,
+    setPanelCollapsed,
   } = useElementor();
 
   const [widgetSearch, setWidgetSearch] = useState('');
-  const [contentSectionOpen, setContentSectionOpen] = useState(true);
-  const [settingsSectionOpen, setSettingsSectionOpen] = useState(true);
+  const [openSlideIndex, setOpenSlideIndex] = useState<number | null>(0);
+  const [mediaModalState, setMediaModalState] = useState<{
+    isOpen: boolean;
+    slideId?: string;
+    currentUrl?: string;
+  }>({ isOpen: false });
 
   if (!isEditing || previewMode) return null;
 
   const selectedWidget = composition.widgets.find((w) => w.id === selectedWidgetId);
-  const isEditingWidget = !!selectedWidget;
+  const isBrowsingCatalog = selectedWidgetId === 'NEW_WIDGET_CATALOG' || !selectedWidget;
+
+  const filteredWidgets = widgetDefinitions.filter((w) =>
+    w.title.toLowerCase().includes(widgetSearch.toLowerCase()) ||
+    w.desc.toLowerCase().includes(widgetSearch.toLowerCase())
+  );
 
   return (
-    <aside
-      aria-label="Painel Lateral Elementor"
-      className={`fixed top-12 bottom-0 left-0 z-[90] flex border-r border-[#d5d8dc] bg-[#f7f8f9] transition-transform duration-300 ${
-        panelCollapsed ? '-translate-x-[300px]' : 'translate-x-0'
-      } w-[300px] select-none shadow-2xl flex-col`}
-    >
-      {/* Botão Retrátil na borda direita do painel */}
+    <>
+      {/* Modal de Biblioteca de Mídia Elementor */}
+      <ElementorMediaModal
+        currentImageUrl={mediaModalState.currentUrl}
+        isOpen={mediaModalState.isOpen}
+        onClose={() => setMediaModalState({ isOpen: false })}
+        onSelectImage={(imageUrl, altText) => {
+          if (selectedWidget && mediaModalState.slideId) {
+            updateSlideInWidget(selectedWidget.id, mediaModalState.slideId, {
+              imageUrl,
+              altText: altText || undefined,
+            });
+          }
+        }}
+        title="Biblioteca de Mídia Elementor"
+      />
+
+      {/* Botão de Aba Retrátil que fica na borda direita do painel */}
       <button
-        aria-label={panelCollapsed ? 'Expandir Painel' : 'Recolher Painel'}
-        className="absolute top-1/2 -right-4 z-10 flex h-10 w-4 -translate-y-1/2 cursor-pointer items-center justify-center rounded-r border border-l-0 border-[#d5d8dc] bg-[#eef0f2] text-gray-600 shadow-sm hover:bg-white hover:text-black"
+        aria-label={panelCollapsed ? 'Expandir Painel Elementor' : 'Recolher Painel Elementor'}
+        className={`fixed top-1/2 z-[9995] flex h-14 w-4 -translate-y-1/2 items-center justify-center rounded-r-md bg-[#26292c] text-white/70 shadow-xl transition-all duration-300 hover:bg-[#8C1D40] hover:text-white cursor-pointer border-y border-r border-white/10 ${
+          panelCollapsed ? 'left-0' : 'left-[300px]'
+        }`}
         onClick={() => setPanelCollapsed(!panelCollapsed)}
-        title={panelCollapsed ? 'Abrir painel lateral' : 'Recolher painel lateral'}
+        title={panelCollapsed ? 'Expandir painel' : 'Recolher painel'}
         type="button"
       >
-        {panelCollapsed ? <ChevronRight className="size-3" /> : <ChevronLeft className="size-3" />}
+        {panelCollapsed ? <ChevronRight className="size-3.5" /> : <ChevronLeft className="size-3.5" />}
       </button>
 
-      {/* CABEÇALHO VINHO CANÔNICO DO ELEMENTOR (#8C1D40 / #92003B) */}
-      <div className="flex h-11 items-center justify-between bg-[#8C1D40] px-3.5 text-white">
-        <button
-          className="flex cursor-pointer items-center text-white/80 hover:text-white"
-          onClick={() => setSelectedWidgetId(null)}
-          title="Menu de Elementos"
-          type="button"
-        >
-          <Menu className="size-4.5" />
-        </button>
-
-        <span className="text-xs font-bold uppercase tracking-wide">
-          {isEditingWidget ? `Editar Seção` : 'Elementor'}
-        </span>
-
-        {/* Ícone de Grid 9 pontinhos (Volta para os Elementos) */}
-        <button
-          className="flex cursor-pointer items-center text-white/80 hover:text-white"
-          onClick={() => setSelectedWidgetId(null)}
-          title="Ver todos os Widgets"
-          type="button"
-        >
-          <Grid className="size-4.5" />
-        </button>
-      </div>
-
-      {/* SE ESTIVER EDITANDO UM WIDGET: 3 ABAS CANÔNICAS (Content | Style | Advanced) */}
-      {isEditingWidget ? (
-        <div className="flex border-b border-[#d5d8dc] bg-white">
+      {/* PAINEL LATERAL ESQUERDO DO ELEMENTOR */}
+      <aside
+        aria-label="Painel de Edição Elementor"
+        className={`fixed top-12 left-0 bottom-0 z-[9990] flex w-[300px] flex-col border-r border-black/40 bg-[#26292c] text-[#d5dadf] shadow-2xl transition-transform duration-300 select-none ${
+          panelCollapsed ? '-translate-x-full' : 'translate-x-0'
+        }`}
+      >
+        {/* CABEÇALHO DO PAINEL ESTILO ELEMENTOR */}
+        <div className="flex h-11 shrink-0 items-center justify-between bg-[#1e2022] px-3 text-white border-b border-black/40">
+          {/* Botão Menu Hamburger */}
           <button
-            className={`flex flex-1 cursor-pointer flex-col items-center py-2 text-[11px] font-bold uppercase tracking-wider transition ${
-              activeTab === 'content'
-                ? 'border-b-2 border-[#8C1D40] text-[#8C1D40]'
-                : 'text-gray-500 hover:text-gray-900'
-            }`}
-            onClick={() => setActiveTab('content')}
+            aria-label="Menu Principal Elementor"
+            className="flex size-7 cursor-pointer items-center justify-center rounded text-white/80 transition hover:bg-white/10 hover:text-white"
+            onClick={() => setSelectedWidgetId('NEW_WIDGET_CATALOG')}
+            title="Menu de Widgets"
             type="button"
           >
-            <span>Content</span>
+            <Menu className="size-4" />
           </button>
-          <button
-            className={`flex flex-1 cursor-pointer flex-col items-center py-2 text-[11px] font-bold uppercase tracking-wider transition ${
-              activeTab === 'style'
-                ? 'border-b-2 border-[#8C1D40] text-[#8C1D40]'
-                : 'text-gray-500 hover:text-gray-900'
-            }`}
-            onClick={() => setActiveTab('style')}
-            type="button"
-          >
-            <span>Style</span>
-          </button>
-          <button
-            className={`flex flex-1 cursor-pointer flex-col items-center py-2 text-[11px] font-bold uppercase tracking-wider transition ${
-              activeTab === 'advanced'
-                ? 'border-b-2 border-[#8C1D40] text-[#8C1D40]'
-                : 'text-gray-500 hover:text-gray-900'
-            }`}
-            onClick={() => setActiveTab('advanced')}
-            type="button"
-          >
-            <span>Advanced</span>
-          </button>
-        </div>
-      ) : (
-        /* SE ESTIVER NO MODO LISTA DE WIDGETS: BARRA DE BUSCA */
-        <div className="border-b border-[#d5d8dc] bg-white p-2.5">
-          <div className="flex items-center rounded border border-[#d5d8dc] bg-[#fbfcfc] px-2 py-1 text-xs">
-            <Search className="mr-1.5 size-3.5 text-gray-400" />
-            <input
-              className="w-full bg-transparent text-xs text-gray-800 outline-none placeholder:text-gray-400"
-              onChange={(e) => setWidgetSearch(e.target.value)}
-              placeholder="Search Widget..."
-              type="text"
-              value={widgetSearch}
-            />
+
+          {/* Título do Cabeçalho */}
+          <div className="truncate text-center">
+            <span className="text-xs font-bold uppercase tracking-wider text-white">
+              {isBrowsingCatalog
+                ? 'ELEMENTOR'
+                : selectedWidget?.type === 'hero-carousel'
+                  ? 'Edit Media Carousel'
+                  : selectedWidget?.type === 'contained-hero'
+                    ? 'Edit Image Carousel'
+                    : `Edit ${selectedWidget?.type || 'Section'}`}
+            </span>
           </div>
+
+          {/* Botão Grid de Elementos (Voltar à Biblioteca de Widgets) */}
+          <button
+            aria-label="Biblioteca de Widgets"
+            className={`flex size-7 cursor-pointer items-center justify-center rounded transition ${
+              isBrowsingCatalog ? 'bg-[#8C1D40] text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'
+            }`}
+            onClick={() => setSelectedWidgetId('NEW_WIDGET_CATALOG')}
+            title="Ver todos os Widgets (⊞)"
+            type="button"
+          >
+            <Grid className="size-4" />
+          </button>
         </div>
-      )}
 
-      {/* CORPO DO PAINEL LATERAL (SCROLLÁVEL) */}
-      <div className="no-scrollbar flex-1 overflow-y-auto p-3 text-xs text-gray-700">
-        {/* ========================================================
-            MODO 1: LISTA DE WIDGETS DISPONÍVEIS (GRID ESTILO ELEMENTOR)
-            ======================================================== */}
-        {!isEditingWidget ? (
-          <div className="flex flex-col gap-4">
-            {/* Categoria 1: Banners e Hero */}
-            <div>
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Banners &amp; Destaques</span>
-                <ChevronDown className="size-3 text-gray-400" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                {/* Widget 1: Carrossel Full Largura */}
-                <button
-                  className="group flex flex-col items-center justify-center rounded border border-[#d5d8dc] bg-white p-3 text-center transition hover:border-[#8C1D40] hover:shadow-sm cursor-pointer"
-                  onClick={() => addWidget('hero-carousel')}
-                  type="button"
-                >
-                  <div className="mb-2 flex size-8 items-center justify-center rounded bg-gray-50 text-gray-600 group-hover:text-[#8C1D40]">
-                    <ImageIcon className="size-4.5" />
-                  </div>
-                  <span className="text-[11px] font-medium text-gray-800 leading-tight">Carrossel Full ML</span>
-                </button>
-
-                {/* Widget 2: Carrossel Contido */}
-                <button
-                  className="group flex flex-col items-center justify-center rounded border border-[#d5d8dc] bg-white p-3 text-center transition hover:border-[#8C1D40] hover:shadow-sm cursor-pointer"
-                  onClick={() => addWidget('contained-hero')}
-                  type="button"
-                >
-                  <div className="mb-2 flex size-8 items-center justify-center rounded bg-gray-50 text-gray-600 group-hover:text-[#8C1D40]">
-                    <Layers className="size-4.5" />
-                  </div>
-                  <span className="text-[11px] font-medium text-gray-800 leading-tight">Carrossel Contido</span>
-                </button>
+        {/* MODO 1: CATÁLOGO DE WIDGETS (Quando nenhum widget está selecionado ou clicou em ⊞) */}
+        {isBrowsingCatalog ? (
+          <div className="flex flex-1 flex-col overflow-hidden bg-[#26292c]">
+            {/* Campo de Busca de Widgets */}
+            <div className="p-3">
+              <div className="flex items-center gap-2 rounded bg-[#1e2022] px-2.5 py-1.5 border border-white/10">
+                <Search className="size-3.5 text-white/40" />
+                <input
+                  className="w-full bg-transparent text-xs text-white placeholder-white/40 outline-none"
+                  onChange={(e) => setWidgetSearch(e.target.value)}
+                  placeholder="Search Widget..."
+                  type="text"
+                  value={widgetSearch}
+                />
+                {widgetSearch && (
+                  <button
+                    className="text-white/40 hover:text-white"
+                    onClick={() => setWidgetSearch('')}
+                    type="button"
+                  >
+                    <X className="size-3" />
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* Categoria 2: Vantagens e Produtos */}
-            <div>
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Estrutura Comercial</span>
-                <ChevronDown className="size-3 text-gray-400" />
+            {/* Cabeçalho da Seção de Widgets com Dica de Drag & Drop */}
+            <div className="flex items-center justify-between border-t border-b border-black/30 bg-[#222426] px-3 py-1.5 text-[11px] font-bold uppercase text-white/60">
+              <span>BÁSICOS</span>
+              <span className="text-[9px] text-[#8C1D40] lowercase">arraste para o canvas</span>
+            </div>
+
+            {/* Grade de Widgets em 2 Colunas com suporte a DRAG AND DROP */}
+            <div className="flex-1 overflow-y-auto p-3">
+              <div className="grid grid-cols-2 gap-2">
+                {filteredWidgets.map((w) => {
+                  const Icon = w.icon;
+                  return (
+                    <div
+                      aria-label={`Arrastar ou inserir ${w.title}`}
+                      className="group flex flex-col items-center justify-center rounded-md border border-black/40 bg-[#1e2022] p-3 text-center transition-all duration-150 hover:border-[#8C1D40] hover:bg-[#2e3134] hover:shadow-lg cursor-grab active:cursor-grabbing relative"
+                      draggable={true}
+                      key={w.type}
+                      onClick={() => addWidget(w.type)}
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData('text/widget-type', w.type);
+                        e.dataTransfer.effectAllowed = 'copy';
+                      }}
+                      title={`${w.title} — Arraste para o canvas ou clique para adicionar`}
+                    >
+                      <div className="flex size-9 items-center justify-center rounded text-white/70 transition-transform group-hover:scale-110 group-hover:text-[#8C1D40]">
+                        <Icon className="size-5" />
+                      </div>
+                      <span className="mt-1.5 text-[11px] font-medium text-white/90 group-hover:text-white leading-tight">
+                        {w.title}
+                      </span>
+
+                      {/* Indicador de badge */}
+                      <span className="mt-1 rounded bg-black/40 px-1 py-0.2 text-[8px] font-bold text-white/50 group-hover:text-[#8C1D40]">
+                        {w.badge}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                {/* Widget 3: Linha de 4 Cards Benefícios */}
-                <button
-                  className="group flex flex-col items-center justify-center rounded border border-[#d5d8dc] bg-white p-3 text-center transition hover:border-[#8C1D40] hover:shadow-sm cursor-pointer"
-                  onClick={() => addWidget('benefits-bar')}
-                  type="button"
-                >
-                  <div className="mb-2 flex size-8 items-center justify-center rounded bg-gray-50 text-gray-600 group-hover:text-[#8C1D40]">
-                    <Sparkles className="size-4.5" />
-                  </div>
-                  <span className="text-[11px] font-medium text-gray-800 leading-tight">4 Cards Benefícios</span>
-                </button>
-
-                {/* Widget 4: Vitrine de Ofertas */}
-                <button
-                  className="group flex flex-col items-center justify-center rounded border border-[#d5d8dc] bg-white p-3 text-center transition hover:border-[#8C1D40] hover:shadow-sm cursor-pointer"
-                  onClick={() => addWidget('product-carousel')}
-                  type="button"
-                >
-                  <div className="mb-2 flex size-8 items-center justify-center rounded bg-gray-50 text-gray-600 group-hover:text-[#8C1D40]">
-                    <Flame className="size-4.5" />
-                  </div>
-                  <span className="text-[11px] font-medium text-gray-800 leading-tight">Vitrine Ofertas</span>
-                </button>
-
-                {/* Widget 5: Grade de Departamentos */}
-                <button
-                  className="group flex flex-col items-center justify-center rounded border border-[#d5d8dc] bg-white p-3 text-center transition hover:border-[#8C1D40] hover:shadow-sm cursor-pointer"
-                  onClick={() => addWidget('category-grid')}
-                  type="button"
-                >
-                  <div className="mb-2 flex size-8 items-center justify-center rounded bg-gray-50 text-gray-600 group-hover:text-[#8C1D40]">
-                    <Grid className="size-4.5" />
-                  </div>
-                  <span className="text-[11px] font-medium text-gray-800 leading-tight">Departamentos</span>
-                </button>
+              <div className="mt-6 rounded-lg border border-dashed border-white/10 bg-black/20 p-3 text-center">
+                <p className="text-[11px] text-white/60 leading-relaxed">
+                  💡 <strong>Dica Elementor:</strong> Arraste qualquer card acima para a caixa pontilhada no canvas para inseri-lo na posição desejada.
+                </p>
               </div>
             </div>
           </div>
         ) : (
-          /* ========================================================
-             MODO 2: EDIÇÃO DO WIDGET SELECIONADO (CONTENT / STYLE / ADVANCED)
-             ======================================================== */
-          <div className="flex flex-col gap-3">
-            {/* ABA 1: CONTENT (CONTEÚDO E SLIDES) */}
-            {activeTab === 'content' ? (
-              <div className="flex flex-col gap-3">
-                {/* Accordion: Conteúdo / Banners */}
-                <div className="rounded border border-[#d5d8dc] bg-white">
-                  <button
-                    className="flex w-full cursor-pointer items-center justify-between p-2.5 font-bold text-gray-800 hover:bg-gray-50"
-                    onClick={() => setContentSectionOpen(!contentSectionOpen)}
-                    type="button"
-                  >
-                    <span className="text-xs">Itens e Slides</span>
-                    <ChevronDown className={`size-3.5 transition-transform ${contentSectionOpen ? 'rotate-180' : ''}`} />
-                  </button>
+          /* MODO 2: EDIÇÃO DO WIDGET SELECIONADO COM AS 3 ABAS (Content | Style | Advanced) */
+          <div className="flex flex-1 flex-col overflow-hidden bg-[#26292c]">
+            {/* BARRA DAS 3 ABAS DO ELEMENTOR (EXATA AOS PRINTS) */}
+            <div className="flex h-10 shrink-0 border-b border-black/40 bg-[#1e2022] select-none">
+              <button
+                className={`flex flex-1 items-center justify-center gap-1.5 text-xs font-semibold transition cursor-pointer border-b-2 ${
+                  activeTab === 'content'
+                    ? 'border-[#8C1D40] text-white font-bold bg-[#26292c]'
+                    : 'border-transparent text-white/60 hover:text-white'
+                }`}
+                onClick={() => setActiveTab('content')}
+                type="button"
+              >
+                <Edit className="size-3.5" />
+                <span>Content</span>
+              </button>
 
-                  {contentSectionOpen ? (
-                    <div className="border-t border-[#d5d8dc] p-3 flex flex-col gap-3">
-                      {/* SLIDES PARA CARROSSEL FULL LARGURA */}
-                      {selectedWidget.type === 'hero-carousel' ? (
-                        <>
-                          {(selectedWidget.props as any).slides?.map((slide: HeroSlide, idx: number) => (
-                            <div className="rounded border border-gray-200 bg-gray-50/70 p-2.5" key={slide.id}>
-                              <div className="flex items-center justify-between pb-1.5 border-b border-gray-200">
-                                <span className="font-bold text-[11px] text-[#8C1D40]">Slide {idx + 1}</span>
+              <button
+                className={`flex flex-1 items-center justify-center gap-1.5 text-xs font-semibold transition cursor-pointer border-b-2 ${
+                  activeTab === 'style'
+                    ? 'border-[#8C1D40] text-white font-bold bg-[#26292c]'
+                    : 'border-transparent text-white/60 hover:text-white'
+                }`}
+                onClick={() => setActiveTab('style')}
+                type="button"
+              >
+                <Palette className="size-3.5" />
+                <span>Style</span>
+              </button>
+
+              <button
+                className={`flex flex-1 items-center justify-center gap-1.5 text-xs font-semibold transition cursor-pointer border-b-2 ${
+                  activeTab === 'advanced'
+                    ? 'border-[#8C1D40] text-white font-bold bg-[#26292c]'
+                    : 'border-transparent text-white/60 hover:text-white'
+                }`}
+                onClick={() => setActiveTab('advanced')}
+                type="button"
+              >
+                <Settings className="size-3.5" />
+                <span>Advanced</span>
+              </button>
+            </div>
+
+            {/* CORPO DO PAINEL CONFORME A ABA ATIVA */}
+            <div className="flex-1 overflow-y-auto p-3 text-xs">
+              {/* ABA 1: CONTENT */}
+              {activeTab === 'content' && (
+                <div className="flex flex-col gap-3">
+                  {/* EDIÇÃO PARA HERO CAROUSEL OU CONTAINED HERO */}
+                  {(selectedWidget.type === 'hero-carousel' || selectedWidget.type === 'contained-hero') && (
+                    <div className="flex flex-col gap-3">
+                      {/* ACCORDION: ▾ Slides / ▾ Image Carousel */}
+                      <div className="rounded-lg border border-black/40 bg-[#1e2022] overflow-hidden">
+                        <div className="flex items-center justify-between bg-[#222426] px-3 py-2 text-xs font-bold text-white border-b border-black/30">
+                          <div className="flex items-center gap-1.5">
+                            <ChevronDown className="size-3.5 text-[#8C1D40]" />
+                            <span>Slides do Carrossel</span>
+                          </div>
+                          <span className="rounded bg-black/40 px-1.5 py-0.2 text-[10px] text-white/70">
+                            {((selectedWidget.props as any).slides || []).length} itens
+                          </span>
+                        </div>
+
+                        {/* BOX DE VISÃO GERAL DE IMAGENS SELECIONADAS (ESTILO ANEXOS 3 E 5) */}
+                        <div className="p-3 border-b border-black/30 bg-[#1b1c1e]">
+                          <div className="flex items-center justify-between text-[11px] font-bold text-white/80 mb-2">
+                            <span>
+                              {((selectedWidget.props as any).slides || []).length} Imagens Selecionadas
+                            </span>
+                            <div className="flex items-center gap-1">
+                              <button
+                                aria-label="Limpar todas as imagens"
+                                className="flex size-6 cursor-pointer items-center justify-center rounded text-white/50 hover:bg-red-500/20 hover:text-red-400"
+                                onClick={() => {
+                                  if (confirm('Deseja remover todos os slides deste carrossel?')) {
+                                    updateWidgetProps(selectedWidget.id, { slides: [] });
+                                  }
+                                }}
+                                title="Limpar todas as imagens"
+                                type="button"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                              <button
+                                aria-label="Adicionar novo slide"
+                                className="flex size-6 cursor-pointer items-center justify-center rounded text-white/50 hover:bg-white/10 hover:text-white"
+                                onClick={() => addSlideToWidget(selectedWidget.id)}
+                                title="Adicionar slide"
+                                type="button"
+                              >
+                                <Plus className="size-4" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Tira com miniaturas quadradas das imagens (Anexos 3 e 5) */}
+                          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                            {((selectedWidget.props as any).slides || []).map((slide: any, idx: number) => {
+                              const isActive = openSlideIndex === idx;
+                              return (
                                 <button
-                                  className="text-red-500 hover:text-red-700 cursor-pointer"
-                                  onClick={() => removeSlideFromWidget(selectedWidget.id, slide.id)}
+                                  className={`relative size-11 shrink-0 overflow-hidden rounded-md border-2 transition cursor-pointer ${
+                                    isActive
+                                      ? 'border-[#8C1D40] ring-1 ring-[#8C1D40]'
+                                      : 'border-white/15 hover:border-white/40 opacity-70 hover:opacity-100'
+                                  }`}
+                                  key={slide.id || idx}
+                                  onClick={() => setOpenSlideIndex(idx)}
+                                  title={`Slide ${idx + 1}: ${slide.title || 'Banner'}`}
                                   type="button"
                                 >
-                                  <Trash2 className="size-3.5" />
+                                  {/* eslint-disable-next-js/next/no-img-element */}
+                                  <img
+                                    alt={slide.altText || 'Thumbnail'}
+                                    className="h-full w-full object-cover"
+                                    src={slide.imageUrl}
+                                  />
                                 </button>
-                              </div>
+                              );
+                            })}
+                          </div>
+                        </div>
 
-                              <div className="mt-2 flex flex-col gap-1.5">
-                                <label className="text-[10.5px] text-gray-500 font-semibold">
-                                  Título:
-                                  <input
-                                    className="mt-0.5 w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-800 outline-none"
-                                    onChange={(e) =>
-                                      updateSlideInWidget(selectedWidget.id, slide.id, { title: e.target.value })
-                                    }
-                                    type="text"
-                                    value={slide.title}
-                                  />
-                                </label>
-
-                                <label className="text-[10.5px] text-gray-500 font-semibold">
-                                  URL da Imagem:
-                                  <input
-                                    className="mt-0.5 w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-800 outline-none"
-                                    onChange={(e) =>
-                                      updateSlideInWidget(selectedWidget.id, slide.id, { imageUrl: e.target.value })
-                                    }
-                                    type="text"
-                                    value={slide.imageUrl}
-                                  />
-                                </label>
-
-                                {/* Mini galeria com atalho para os banners da loja */}
-                                <div className="mt-1">
-                                  <span className="text-[10px] text-gray-400">Trocar por imagem da loja:</span>
-                                  <div className="mt-1 flex flex-wrap gap-1">
-                                    {availableBanners.slice(0, 3).map((b) => (
-                                      <button
-                                        className="rounded bg-gray-200 px-1.5 py-0.5 text-[9.5px] text-gray-700 hover:bg-[#8C1D40] hover:text-white"
-                                        key={b.name}
-                                        onClick={() =>
-                                          updateSlideInWidget(selectedWidget.id, slide.id, { imageUrl: b.url })
-                                        }
-                                        type="button"
-                                      >
-                                        {b.name}
-                                      </button>
-                                    ))}
+                        {/* REPEATER LIST DE SLIDES (ESTILO ANEXO 4: ITEM #1 COM BOX DE IMAGEM GRANDE) */}
+                        <div className="divide-y divide-black/30 p-2">
+                          {((selectedWidget.props as any).slides || []).map((slide: any, index: number) => {
+                            const isOpen = openSlideIndex === index;
+                            return (
+                              <div className="rounded-md overflow-hidden my-1 bg-[#222426]" key={slide.id || index}>
+                                {/* Barra do Item */}
+                                <div
+                                  className="flex items-center justify-between px-3 py-2 bg-[#25282a] hover:bg-[#2b2e31] cursor-pointer"
+                                  onClick={() => setOpenSlideIndex(isOpen ? null : index)}
+                                >
+                                  <div className="flex items-center gap-2 truncate">
+                                    <GripVertical className="size-3 text-white/30" />
+                                    <span className="font-bold text-white text-xs truncate">
+                                      Item #{index + 1}: {slide.title || 'Slide'}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                    {/* Duplicar */}
+                                    <button
+                                      aria-label="Duplicar slide"
+                                      className="flex size-6 cursor-pointer items-center justify-center rounded text-white/50 hover:bg-white/10 hover:text-white"
+                                      onClick={() => addSlideToWidget(selectedWidget.id)}
+                                      title="Duplicar slide"
+                                      type="button"
+                                    >
+                                      <Copy className="size-3" />
+                                    </button>
+                                    {/* Excluir */}
+                                    <button
+                                      aria-label="Excluir slide"
+                                      className="flex size-6 cursor-pointer items-center justify-center rounded text-white/50 hover:bg-red-500/20 hover:text-red-400"
+                                      onClick={() => removeSlideFromWidget(selectedWidget.id, slide.id)}
+                                      title="Remover slide"
+                                      type="button"
+                                    >
+                                      <X className="size-3.5" />
+                                    </button>
                                   </div>
                                 </div>
 
-                                <label className="text-[10.5px] text-gray-500 font-semibold">
-                                  Cor de Fundo:
-                                  <div className="mt-1 flex items-center gap-2">
-                                    <input
-                                      className="size-6 cursor-pointer rounded border border-gray-300"
-                                      onChange={(e) =>
-                                        updateSlideInWidget(selectedWidget.id, slide.id, { backgroundColor: e.target.value })
-                                      }
-                                      type="color"
-                                      value={slide.backgroundColor || '#028F34'}
-                                    />
-                                    <span className="text-[11px] font-mono text-gray-600">{slide.backgroundColor || '#028F34'}</span>
-                                  </div>
-                                </label>
-                              </div>
-                            </div>
-                          ))}
-
-                          <button
-                            className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded border border-dashed border-[#8C1D40] bg-pink-50/40 py-2 font-bold text-xs text-[#8C1D40] transition hover:bg-pink-50"
-                            onClick={() => addSlideToWidget(selectedWidget.id)}
-                            type="button"
-                          >
-                            <Plus className="size-3.5" />
-                            <span>+ Adicionar Slide</span>
-                          </button>
-                        </>
-                      ) : null}
-
-                      {/* SLIDES PARA CARROSSEL CONTIDO */}
-                      {selectedWidget.type === 'contained-hero' ? (
-                        <>
-                          {(selectedWidget.props as any).slides?.map((slide: ContainedHeroSlide, idx: number) => (
-                            <div className="rounded border border-gray-200 bg-gray-50/70 p-2.5" key={slide.id}>
-                              <div className="flex items-center justify-between pb-1.5 border-b border-gray-200">
-                                <span className="font-bold text-[11px] text-[#8C1D40]">Banner {idx + 1}</span>
-                                <button
-                                  className="text-red-500 hover:text-red-700 cursor-pointer"
-                                  onClick={() => removeSlideFromWidget(selectedWidget.id, slide.id)}
-                                  type="button"
-                                >
-                                  <Trash2 className="size-3.5" />
-                                </button>
-                              </div>
-
-                              <div className="mt-2 flex flex-col gap-1.5">
-                                <label className="text-[10.5px] text-gray-500 font-semibold">
-                                  Título / Campanha:
-                                  <input
-                                    className="mt-0.5 w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-800 outline-none"
-                                    onChange={(e) =>
-                                      updateSlideInWidget(selectedWidget.id, slide.id, { title: e.target.value })
-                                    }
-                                    type="text"
-                                    value={slide.title}
-                                  />
-                                </label>
-
-                                <label className="text-[10.5px] text-gray-500 font-semibold">
-                                  URL da Imagem:
-                                  <input
-                                    className="mt-0.5 w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-800 outline-none"
-                                    onChange={(e) =>
-                                      updateSlideInWidget(selectedWidget.id, slide.id, { imageUrl: e.target.value })
-                                    }
-                                    type="text"
-                                    value={slide.imageUrl}
-                                  />
-                                </label>
-
-                                <div className="mt-1">
-                                  <span className="text-[10px] text-gray-400">Imagens oficiais da Comercial:</span>
-                                  <div className="mt-1 flex flex-wrap gap-1">
-                                    {availableBanners.slice(2, 6).map((b) => (
-                                      <button
-                                        className="rounded bg-gray-200 px-1.5 py-0.5 text-[9.5px] text-gray-700 hover:bg-[#8C1D40] hover:text-white"
-                                        key={b.name}
-                                        onClick={() =>
-                                          updateSlideInWidget(selectedWidget.id, slide.id, { imageUrl: b.url })
-                                        }
-                                        type="button"
+                                {/* Formulário Expandido do Slide (ESTILO ANEXO 4) */}
+                                {isOpen && (
+                                  <div className="p-3 bg-[#1e2022] flex flex-col gap-3 animate-in fade-in duration-100">
+                                    {/* BOX DE PREVIEW DE IMAGEM GRANDE (ANEXO 4) */}
+                                    <div>
+                                      <label className="text-[11px] font-bold text-white/70 block mb-1">
+                                        Imagem do Banner
+                                      </label>
+                                      <div
+                                        className="group relative aspect-video w-full overflow-hidden rounded-lg border-2 border-dashed border-white/20 bg-black/40 hover:border-[#8C1D40] transition cursor-pointer"
+                                        onClick={() => {
+                                          setMediaModalState({
+                                            isOpen: true,
+                                            slideId: slide.id,
+                                            currentUrl: slide.imageUrl,
+                                          });
+                                        }}
+                                        title="Clique para escolher imagem na biblioteca"
                                       >
-                                        {b.name}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
+                                        {/* eslint-disable-next-js/next/no-img-element */}
+                                        <img
+                                          alt={slide.altText || 'Slide banner'}
+                                          className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
+                                          src={slide.imageUrl}
+                                        />
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                                          <ImageIcon className="size-6 text-white mb-1" />
+                                          <span className="rounded bg-[#8C1D40] px-2 py-0.5 text-[10px] font-bold text-white">
+                                            Alterar Imagem
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
 
+                                    {/* Título / Legenda */}
+                                    <div>
+                                      <label className="text-[11px] font-bold text-white/70 block mb-1">
+                                        Título do Slide
+                                      </label>
+                                      <input
+                                        className="w-full rounded border border-white/10 bg-black/30 px-2.5 py-1.5 text-xs text-white placeholder-white/30 focus:border-[#8C1D40] outline-none"
+                                        onChange={(e) =>
+                                          updateSlideInWidget(selectedWidget.id, slide.id, {
+                                            title: e.target.value,
+                                          })
+                                        }
+                                        type="text"
+                                        value={slide.title || ''}
+                                      />
+                                    </div>
+
+                                    {/* Link de Destino */}
+                                    <div>
+                                      <label className="text-[11px] font-bold text-white/70 block mb-1">
+                                        Link do Slide
+                                      </label>
+                                      <input
+                                        className="w-full rounded border border-white/10 bg-black/30 px-2.5 py-1.5 text-xs text-white placeholder-white/30 focus:border-[#8C1D40] outline-none"
+                                        onChange={(e) =>
+                                          updateSlideInWidget(selectedWidget.id, slide.id, {
+                                            linkUrl: e.target.value,
+                                          })
+                                        }
+                                        placeholder="/loja ou https://..."
+                                        type="text"
+                                        value={slide.linkUrl || ''}
+                                      />
+                                    </div>
+
+                                    {/* Texto Alternativo (SEO) */}
+                                    <div>
+                                      <label className="text-[11px] font-bold text-white/70 block mb-1">
+                                        Texto Alternativo (Alt)
+                                      </label>
+                                      <input
+                                        className="w-full rounded border border-white/10 bg-black/30 px-2.5 py-1.5 text-xs text-white placeholder-white/30 focus:border-[#8C1D40] outline-none"
+                                        onChange={(e) =>
+                                          updateSlideInWidget(selectedWidget.id, slide.id, {
+                                            altText: e.target.value,
+                                          })
+                                        }
+                                        type="text"
+                                        value={slide.altText || ''}
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Botão + Add Item (ANEXO 4) */}
+                        <div className="p-3 border-t border-black/30 bg-[#1e2022]">
                           <button
-                            className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded border border-dashed border-[#8C1D40] bg-pink-50/40 py-2 font-bold text-xs text-[#8C1D40] transition hover:bg-pink-50"
+                            className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md bg-[#8C1D40] py-2 text-xs font-bold text-white transition hover:bg-[#a6224c]"
                             onClick={() => addSlideToWidget(selectedWidget.id)}
                             type="button"
                           >
-                            <Plus className="size-3.5" />
-                            <span>+ Adicionar Banner</span>
+                            <Plus className="size-4" />
+                            <span>+ Adicionar Item</span>
                           </button>
-                        </>
-                      ) : null}
-
-                      {/* ITENS PARA 4 CARDS DE BENEFÍCIOS */}
-                      {selectedWidget.type === 'benefits-bar' ? (
-                        <>
-                          {((selectedWidget.props as any).items || []).map((item: BenefitItem, idx: number) => (
-                            <div className="rounded border border-gray-200 bg-gray-50 p-2" key={idx}>
-                              <span className="font-bold text-[11px] text-[#8C1D40]">Card {idx + 1}</span>
-                              <div className="mt-1.5 flex flex-col gap-1.5">
-                                <label className="text-[10px] text-gray-500">
-                                  Ícone:
-                                  <select
-                                    className="mt-0.5 w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs"
-                                    onChange={(e) =>
-                                      updateBenefitItem(selectedWidget.id, idx, { iconName: e.target.value as any })
-                                    }
-                                    value={item.iconName}
-                                  >
-                                    <option value="truck">Caminhão (Entrega)</option>
-                                    <option value="tag">Etiqueta (Preço)</option>
-                                    <option value="package">Pacote (Variedade)</option>
-                                    <option value="shield">Escudo (Confiança)</option>
-                                    <option value="store">Loja Física (Retirada)</option>
-                                    <option value="clock">Relógio (Agilidade)</option>
-                                  </select>
-                                </label>
-
-                                <label className="text-[10px] text-gray-500">
-                                  Título:
-                                  <input
-                                    className="mt-0.5 w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs"
-                                    onChange={(e) => updateBenefitItem(selectedWidget.id, idx, { title: e.target.value })}
-                                    type="text"
-                                    value={item.title}
-                                  />
-                                </label>
-
-                                <label className="text-[10px] text-gray-500">
-                                  Descrição:
-                                  <input
-                                    className="mt-0.5 w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs"
-                                    onChange={(e) =>
-                                      updateBenefitItem(selectedWidget.id, idx, { description: e.target.value })
-                                    }
-                                    type="text"
-                                    value={item.description}
-                                  />
-                                </label>
-                              </div>
-                            </div>
-                          ))}
-                        </>
-                      ) : null}
-
-                      {/* PROPRIEDADES DE PRODUTOS */}
-                      {selectedWidget.type === 'product-carousel' ? (
-                        <div className="flex flex-col gap-2">
-                          <label className="text-[10.5px] font-semibold text-gray-600">
-                            Título:
-                            <input
-                              className="mt-0.5 w-full rounded border border-gray-300 px-2 py-1 text-xs"
-                              onChange={(e) => updateWidgetProps(selectedWidget.id, { title: e.target.value })}
-                              type="text"
-                              value={(selectedWidget.props as any).title || ''}
-                            />
-                          </label>
-
-                          <label className="text-[10.5px] font-semibold text-gray-600">
-                            Badge:
-                            <input
-                              className="mt-0.5 w-full rounded border border-gray-300 px-2 py-1 text-xs"
-                              onChange={(e) => updateWidgetProps(selectedWidget.id, { badge: e.target.value })}
-                              type="text"
-                              value={(selectedWidget.props as any).badge || ''}
-                            />
-                          </label>
-
-                          <label className="text-[10.5px] font-semibold text-gray-600">
-                            Quantidade:
-                            <input
-                              className="mt-0.5 w-full rounded border border-gray-300 px-2 py-1 text-xs"
-                              onChange={(e) => updateWidgetProps(selectedWidget.id, { limit: Number(e.target.value) || 8 })}
-                              type="number"
-                              value={(selectedWidget.props as any).limit || 8}
-                            />
-                          </label>
                         </div>
-                      ) : null}
+                      </div>
 
-                      {/* PROPRIEDADES DE CATEGORIAS */}
-                      {selectedWidget.type === 'category-grid' ? (
-                        <div className="flex flex-col gap-2">
-                          <label className="text-[10.5px] font-semibold text-gray-600">
-                            Título:
-                            <input
-                              className="mt-0.5 w-full rounded border border-gray-300 px-2 py-1 text-xs"
-                              onChange={(e) => updateWidgetProps(selectedWidget.id, { title: e.target.value })}
-                              type="text"
-                              value={(selectedWidget.props as any).title || ''}
-                            />
-                          </label>
+                      {/* CONTROLES DE COLUNAS E ESPAÇAMENTO (EXATOS AO ANEXO 3) */}
+                      <div className="rounded-lg border border-black/40 bg-[#1e2022] p-3">
+                        <span className="text-[11px] font-bold uppercase text-white/60 block mb-3">
+                          Configurações de Exibição
+                        </span>
 
-                          <label className="text-[10.5px] font-semibold text-gray-600">
-                            Colunas:
-                            <select
-                              className="mt-0.5 w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs"
-                              onChange={(e) => updateWidgetProps(selectedWidget.id, { columns: Number(e.target.value) || 4 })}
-                              value={(selectedWidget.props as any).columns || 4}
-                            >
-                              <option value="2">2 Colunas</option>
-                              <option value="3">3 Colunas</option>
-                              <option value="4">4 Colunas</option>
-                            </select>
-                          </label>
+                        {/* Tempo de transição */}
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="text-[11px] text-white/80">Intervalo (ms)</label>
+                          <input
+                            className="w-20 rounded border border-white/10 bg-black/30 px-2 py-1 text-right text-xs text-white outline-none"
+                            max={15000}
+                            min={1000}
+                            onChange={(e) =>
+                              updateWidgetProps(selectedWidget.id, {
+                                autoplayIntervalMs: Number(e.target.value),
+                              })
+                            }
+                            step={500}
+                            type="number"
+                            value={(selectedWidget.props as any).autoplayIntervalMs || 5000}
+                          />
                         </div>
-                      ) : null}
+
+                        {/* Lazy Load Toggle (ANEXO 3) */}
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="text-[11px] text-white/80">Lazy Load</label>
+                          <button
+                            className="rounded-full bg-[#8C1D40] px-2.5 py-0.5 text-[10px] font-bold text-white cursor-pointer"
+                            type="button"
+                          >
+                            Sim
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  ) : null}
-                </div>
-              </div>
-            ) : null}
+                  )}
 
-            {/* ABA 2: STYLE (ESTILO, CORES E SOMBRAS) */}
-            {activeTab === 'style' ? (
-              <div className="flex flex-col gap-3">
-                <div className="rounded border border-[#d5d8dc] bg-white p-3">
-                  <span className="font-bold text-xs uppercase text-gray-700">Comportamento Visual</span>
-                  <div className="mt-3 flex flex-col gap-2.5">
-                    {selectedWidget.type === 'hero-carousel' ? (
-                      <>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-gray-600">Degradê de Transição:</span>
+                  {/* EDIÇÃO PARA VITRINE DE PRODUTOS / OFERTAS */}
+                  {selectedWidget.type === 'product-carousel' && (
+                    <div className="flex flex-col gap-3">
+                      <div className="rounded-lg border border-black/40 bg-[#1e2022] p-3">
+                        <span className="text-[11px] font-bold uppercase text-white/60 block mb-3">
+                          Conteúdo da Vitrine
+                        </span>
+
+                        <div className="mb-3">
+                          <label className="text-[11px] text-white/70 block mb-1">Título da Seção</label>
                           <input
-                            checked={(selectedWidget.props as any).bottomGradient !== false}
-                            className="size-4 accent-[#8C1D40]"
-                            onChange={(e) =>
-                              updateWidgetProps(selectedWidget.id, { bottomGradient: e.target.checked })
-                            }
-                            type="checkbox"
+                            className="w-full rounded border border-white/10 bg-black/30 px-2.5 py-1.5 text-xs text-white outline-none"
+                            onChange={(e) => updateWidgetProps(selectedWidget.id, { title: e.target.value })}
+                            type="text"
+                            value={(selectedWidget.props as any).title || ''}
                           />
                         </div>
 
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-gray-600">Mostrar Setas:</span>
+                        <div className="mb-3">
+                          <label className="text-[11px] text-white/70 block mb-1">Subtítulo</label>
                           <input
-                            checked={(selectedWidget.props as any).showArrows !== false}
-                            className="size-4 accent-[#8C1D40]"
-                            onChange={(e) =>
-                              updateWidgetProps(selectedWidget.id, { showArrows: e.target.checked })
-                            }
-                            type="checkbox"
+                            className="w-full rounded border border-white/10 bg-black/30 px-2.5 py-1.5 text-xs text-white outline-none"
+                            onChange={(e) => updateWidgetProps(selectedWidget.id, { subtitle: e.target.value })}
+                            type="text"
+                            value={(selectedWidget.props as any).subtitle || ''}
                           />
                         </div>
 
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-gray-600">Mostrar Indicadores:</span>
+                        {/* Columns Stepper (ANEXO 3) */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-1 text-[11px] text-white/80">
+                            <span>Columns</span>
+                            <Tv className="size-3 text-white/50" />
+                          </div>
                           <input
-                            checked={(selectedWidget.props as any).showDots !== false}
-                            className="size-4 accent-[#8C1D40]"
-                            onChange={(e) =>
-                              updateWidgetProps(selectedWidget.id, { showDots: e.target.checked })
-                            }
-                            type="checkbox"
+                            className="w-16 rounded border border-white/10 bg-black/30 px-2 py-1 text-center text-xs text-white outline-none"
+                            max={6}
+                            min={2}
+                            onChange={(e) => updateWidgetProps(selectedWidget.id, { limit: Number(e.target.value) * 2 })}
+                            type="number"
+                            value={4}
                           />
                         </div>
-                      </>
-                    ) : null}
+                      </div>
+                    </div>
+                  )}
 
-                    {selectedWidget.type === 'contained-hero' ? (
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-gray-600">Sobreposição Superior (-mt):</span>
+                  {/* EDIÇÃO PARA BARRA DE BENEFÍCIOS */}
+                  {selectedWidget.type === 'benefits-bar' && (
+                    <div className="flex flex-col gap-3">
+                      <div className="rounded-lg border border-black/40 bg-[#1e2022] p-3">
+                        <span className="text-[11px] font-bold uppercase text-white/60 block mb-2">
+                          4 Cartões de Vantagens
+                        </span>
+                        {((selectedWidget.props as any).items || []).map((item: BenefitItem, bIdx: number) => (
+                          <div className="my-2 rounded border border-white/10 bg-black/20 p-2" key={bIdx}>
+                            <span className="text-[10px] font-bold text-[#8C1D40]">Item #{bIdx + 1}</span>
+                            <input
+                              className="mt-1 w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-white outline-none"
+                              onChange={(e) => updateBenefitItem(selectedWidget.id, bIdx, { title: e.target.value })}
+                              type="text"
+                              value={item.title}
+                            />
+                            <input
+                              className="mt-1 w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-[11px] text-white/70 outline-none"
+                              onChange={(e) => updateBenefitItem(selectedWidget.id, bIdx, { description: e.target.value })}
+                              type="text"
+                              value={item.description}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* EDIÇÃO PARA GRADE DE CATEGORIAS */}
+                  {selectedWidget.type === 'category-grid' && (
+                    <div className="flex flex-col gap-3">
+                      <div className="rounded-lg border border-black/40 bg-[#1e2022] p-3">
+                        <label className="text-[11px] text-white/70 block mb-1">Título</label>
                         <input
-                          checked={(selectedWidget.props as any).overlapTop !== false}
-                          className="size-4 accent-[#8C1D40]"
-                          onChange={(e) =>
-                            updateWidgetProps(selectedWidget.id, { overlapTop: e.target.checked })
-                          }
+                          className="w-full rounded border border-white/10 bg-black/30 px-2.5 py-1.5 text-xs text-white outline-none"
+                          onChange={(e) => updateWidgetProps(selectedWidget.id, { title: e.target.value })}
+                          type="text"
+                          value={(selectedWidget.props as any).title || ''}
+                        />
+
+                        {/* Spacing Slider (ANEXO 3) */}
+                        <div className="mt-4">
+                          <div className="flex items-center justify-between text-[11px] text-white/80 mb-1">
+                            <div className="flex items-center gap-1">
+                              <span>Spacing</span>
+                              <Tv className="size-3 text-white/50" />
+                            </div>
+                            <span className="rounded bg-black/40 px-2 py-0.5 text-xs text-white font-mono">16</span>
+                          </div>
+                          <input className="w-full accent-[#8C1D40]" max={40} min={4} type="range" value={16} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ABA 2: STYLE */}
+              {activeTab === 'style' && (
+                <div className="flex flex-col gap-3">
+                  <div className="rounded-lg border border-black/40 bg-[#1e2022] p-3">
+                    <span className="text-[11px] font-bold uppercase text-white/60 block mb-3">
+                      Estilos Visuais Elementor
+                    </span>
+
+                    <div className="flex items-center justify-between py-2 border-b border-white/5">
+                      <span className="text-[11px] text-white/80">Setas de Navegação</span>
+                      <input
+                        checked={(selectedWidget.props as any).showArrows !== false}
+                        className="accent-[#8C1D40]"
+                        onChange={(e) => updateWidgetProps(selectedWidget.id, { showArrows: e.target.checked })}
+                        type="checkbox"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between py-2 border-b border-white/5">
+                      <span className="text-[11px] text-white/80">Pontos de Paginação</span>
+                      <input
+                        checked={(selectedWidget.props as any).showDots !== false}
+                        className="accent-[#8C1D40]"
+                        onChange={(e) => updateWidgetProps(selectedWidget.id, { showDots: e.target.checked })}
+                        type="checkbox"
+                      />
+                    </div>
+
+                    {selectedWidget.type === 'hero-carousel' && (
+                      <div className="flex items-center justify-between py-2">
+                        <span className="text-[11px] text-white/80">Degradê Inferior Suave</span>
+                        <input
+                          checked={(selectedWidget.props as any).bottomGradient !== false}
+                          className="accent-[#8C1D40]"
+                          onChange={(e) => updateWidgetProps(selectedWidget.id, { bottomGradient: e.target.checked })}
                           type="checkbox"
                         />
                       </div>
-                    ) : null}
+                    )}
                   </div>
                 </div>
-              </div>
-            ) : null}
+              )}
 
-            {/* ABA 3: ADVANCED (AVANÇADO / RESPONSIVIDADE) */}
-            {activeTab === 'advanced' ? (
-              <div className="flex flex-col gap-3">
-                <div className="rounded border border-[#d5d8dc] bg-white p-3">
-                  <span className="font-bold text-xs uppercase text-gray-700">Tempo de Rotação</span>
-                  <div className="mt-2">
-                    <label className="text-[11px] text-gray-600">
-                      Autoplay Interval (ms):
-                      <input
-                        className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-xs"
-                        onChange={(e) =>
-                          updateWidgetProps(selectedWidget.id, {
-                            autoplayIntervalMs: Number(e.target.value) || 5000,
-                          })
-                        }
-                        type="number"
-                        value={(selectedWidget.props as any).autoplayIntervalMs || 5000}
-                      />
-                    </label>
+              {/* ABA 3: ADVANCED */}
+              {activeTab === 'advanced' && (
+                <div className="flex flex-col gap-3">
+                  <div className="rounded-lg border border-black/40 bg-[#1e2022] p-3">
+                    <span className="text-[11px] font-bold uppercase text-white/60 block mb-3">
+                      Posicionamento e Seção
+                    </span>
+
+                    <div className="flex items-center justify-between py-2 border-b border-white/5">
+                      <span className="text-[11px] text-white/80">Visibilidade da Seção</span>
+                      <button
+                        className={`rounded px-2 py-0.5 text-[10px] font-bold cursor-pointer ${
+                          selectedWidget.enabled ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
+                        }`}
+                        onClick={() => toggleWidget(selectedWidget.id)}
+                        type="button"
+                      >
+                        {selectedWidget.enabled ? 'Ativo' : 'Oculto'}
+                      </button>
+                    </div>
+
+                    <div className="mt-4 pt-2 border-t border-white/10">
+                      <button
+                        className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded bg-red-600/20 py-2 text-xs font-bold text-red-400 hover:bg-red-600 hover:text-white transition"
+                        onClick={() => {
+                          if (confirm('Deseja remover esta seção permanentemente da página?')) {
+                            removeWidget(selectedWidget.id);
+                          }
+                        }}
+                        type="button"
+                      >
+                        <Trash2 className="size-3.5" />
+                        <span>Excluir Esta Seção</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
-
-                <div className="rounded border border-[#d5d8dc] bg-white p-3">
-                  <span className="font-bold text-xs uppercase text-gray-700">Ordem da Seção</span>
-                  <p className="mt-1 text-[11px] text-gray-500">
-                    Posição atual na vitrine: <b>#{selectedWidget.order}</b>
-                  </p>
-                </div>
-              </div>
-            ) : null}
+              )}
+            </div>
           </div>
         )}
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }

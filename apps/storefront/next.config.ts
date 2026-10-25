@@ -6,6 +6,9 @@ const api = new URL(apiUrl);
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  devIndicators: {
+    position: 'bottom-right',
+  },
   // Componentes compartilhados são publicados como TS e transpilados aqui.
   transpilePackages: ['@commerce/ui'],
   images: {

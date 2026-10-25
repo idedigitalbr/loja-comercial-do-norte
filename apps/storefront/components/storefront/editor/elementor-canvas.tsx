@@ -1,26 +1,25 @@
 'use client';
 
 import React from 'react';
-import { Laptop, Smartphone, Tablet } from 'lucide-react';
+import { Smartphone, Tablet } from 'lucide-react';
 import { useElementor } from './elementor-editor-context';
 
 export function ElementorCanvas({ children }: { children: React.ReactNode }) {
   const { isEditing, previewMode, viewport, panelCollapsed } = useElementor();
 
-  // Se não estiver editando ou se estiver em modo Preview ou Desktop puro:
   const isResponsiveDevice = isEditing && !previewMode && (viewport === 'tablet' || viewport === 'mobile');
 
-  // Offset esquerdo para o painel lateral do Elementor
-  const panelPaddingClass =
+  // Offset esquerdo e superior para acomodar a TopBar e o Painel Lateral
+  const canvasOffsetClass =
     isEditing && !previewMode
       ? panelCollapsed
-        ? 'md:pl-0'
-        : 'md:pl-[300px]'
+        ? 'pt-12 md:pl-0'
+        : 'pt-12 md:pl-[300px]'
       : '';
 
   return (
     <div
-      className={`min-h-screen transition-all duration-300 ${panelPaddingClass} ${
+      className={`min-h-screen transition-all duration-300 ${canvasOffsetClass} ${
         isResponsiveDevice ? 'bg-[#3b3d40] py-6 px-4' : 'bg-white'
       }`}
     >

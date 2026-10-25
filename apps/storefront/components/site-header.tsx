@@ -1,29 +1,30 @@
 'use client';
 
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
+  ChevronDown,
+  ChevronRight,
+  Flame,
   Heart,
-  HelpCircle,
-  Home,
-  Info,
   MapPin,
   Menu,
   Phone,
   Search,
   ShoppingBag,
+  Sparkles,
   Store,
   Tag,
   Truck,
   User,
   X,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import { useQuoteCart } from './quote-cart-provider';
 import type { ApiBrand, ApiCategory } from '@/lib/types';
 
-export type SiteHeaderProps = {
+type SiteHeaderProps = {
   siteName: string;
   logoUrl: string | null;
   phone: string | null;
@@ -44,57 +45,6 @@ export function SiteHeader({
   const { count, openDrawer } = useQuoteCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  // Efeito inteligente de auto-hide no scroll conforme a referência oficial
-  useEffect(() => {
-    let lastScrollY = window.scrollY;
-    let ticking = false;
-    const SCROLL_THRESHOLD = 10;
-    const TOP_OFFSET = 60;
-
-    function onScroll() {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const currentScrollY = Math.max(0, window.scrollY);
-
-          if (mobileMenuOpen) {
-            setIsHeaderHidden(false);
-            lastScrollY = currentScrollY;
-            ticking = false;
-            return;
-          }
-
-          if (currentScrollY <= TOP_OFFSET) {
-            setIsHeaderHidden(false);
-            setIsScrolled(false);
-            lastScrollY = currentScrollY;
-            ticking = false;
-            return;
-          }
-
-          setIsScrolled(true);
-          const diff = currentScrollY - lastScrollY;
-
-          if (Math.abs(diff) >= SCROLL_THRESHOLD) {
-            if (diff > 0 && currentScrollY > TOP_OFFSET) {
-              setIsHeaderHidden(true);
-            } else if (diff < 0) {
-              setIsHeaderHidden(false);
-            }
-            lastScrollY = currentScrollY;
-          }
-
-          ticking = false;
-        });
-        ticking = true;
-      }
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [mobileMenuOpen]);
 
   function submitSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -112,9 +62,7 @@ export function SiteHeader({
     <>
       <header
         id="siteHeader"
-        className={`sticky top-0 z-50 w-full transition-transform duration-300 ease-in-out ${
-          isHeaderHidden ? '-translate-y-full' : 'translate-y-0'
-        } ${isScrolled ? 'shadow-lg' : ''}`}
+        className="relative w-full shadow-md z-30 bg-[#004CB1]"
       >
         {/* BARRA 01: FAIXA SUPERIOR VERMELHA DE BENEFÍCIOS (FIGMA OFICIAL) */}
         <div className="bg-[#E2091E] px-3 py-1.5 text-white sm:px-4 md:px-6">
@@ -138,106 +86,86 @@ export function SiteHeader({
             </div>
 
             {/* WhatsApp Vendas (Direita) */}
-            <a
-              className="flex items-center gap-1.5 pl-2 font-bold whitespace-nowrap text-white transition hover:underline"
-              href={`https://wa.me/${whatsappDigits}?text=Ol%C3%A1!%20Vim%20pelo%20site%20Comercial%20do%20Norte%20e%20gostaria%20de%20atendimento.`}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <Phone aria-hidden className="size-3.5 fill-current flex-shrink-0" />
-              <span>{whatsappDisplay} · WhatsApp Vendas</span>
-            </a>
+            <div className="flex items-center gap-2 whitespace-nowrap pl-2">
+              <a
+                className="flex items-center gap-1.5 font-bold text-white transition hover:text-amber-200"
+                href={`https://wa.me/${whatsappDigits}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <Phone aria-hidden className="size-3 flex-shrink-0" />
+                <span>{whatsappDisplay} - WhatsApp Vendas</span>
+              </a>
+            </div>
           </div>
         </div>
 
-        {/* BARRA 02: NAVBAR PRINCIPAL AZUL COM MASCOTE, LOGO, CEP, BUSCA E AÇÕES */}
-        <div className="relative bg-[#004CB1] py-2 text-white md:h-[72px] md:py-0">
-          <div className="cn-container relative flex h-full flex-col justify-between gap-2 md:flex-row md:items-center md:gap-4 lg:gap-6">
-            {/* Lado Esquerdo: Mascote + Toggle Mobile + Logo + CEP */}
-            <div className="flex flex-shrink-0 items-center justify-between gap-2 sm:gap-3 md:justify-start lg:gap-4">
-              <div className="flex items-center gap-2 sm:gap-3">
-                {/* Botão Mobile Toggle */}
-                <button
-                  aria-controls="mobileMenu"
-                  aria-expanded={mobileMenuOpen}
-                  aria-label="Abrir Menu de Navegação"
-                  className="cursor-pointer p-1.5 text-white focus:outline-none md:hidden"
-                  onClick={() => setMobileMenuOpen(true)}
-                  type="button"
-                >
-                  <Menu aria-hidden className="size-6 stroke-[2.2]" />
-                </button>
+        {/* BARRA 02: PRINCIPAL AZUL (#004CB1) COM LOGO, MASCOTE JAMES 3D, BUSCA E COTAÇÃO */}
+        <div className="relative bg-[#004CB1] px-3 py-2 text-white sm:px-4 sm:py-3 md:px-6">
+          {/* MASCOTE JAMES 3D OFICIAL (Vazando para cima sobre a barra vermelha) */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-4 left-3 z-30 hidden md:block lg:left-6"
+          >
+            <div className="relative h-[84px] w-[72px] lg:h-[92px] lg:w-[80px]">
+              <Image
+                alt="Mascote James 3D Comercial do Norte"
+                className="drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)] object-contain object-bottom"
+                fill
+                priority
+                sizes="80px"
+                src="/assets/imgs/Mascote-3D-James-em-pe/principais/1-james-3d-principal.png"
+              />
+            </div>
+          </div>
 
-                {/* Mascote 3D James Oficial (Apoiado na base da barra azul, subindo para a vermelha) */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute bottom-0 left-2.5 z-30 hidden h-[98px] w-[74px] items-end leading-none md:flex"
-                >
-                  <img
-                    alt="Mascote James Oficial Comercial do Norte"
-                    className="block h-[98px] w-auto flex-shrink-0 object-contain object-bottom filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.28)]"
-                    height={98}
-                    loading="eager"
-                    src="/assets/imgs/Mascote-3D-James-em-pe/principais/1-james-3d-principal.png"
-                    width={74}
-                  />
-                </div>
+          <div className="cn-container flex items-center justify-between gap-3 md:gap-4">
+            {/* LADO ESQUERDO: HAMBURGER (MOBILE) + LOGO BRANCA */}
+            <div className="flex items-center gap-2 sm:gap-3 md:pl-[84px] lg:pl-[88px]">
+              {/* Botão Menu Hamburger Mobile */}
+              <button
+                aria-label="Abrir menu principal"
+                className="flex size-9 items-center justify-center rounded-lg text-white hover:bg-white/10 md:hidden cursor-pointer"
+                onClick={() => setMobileMenuOpen(true)}
+                type="button"
+              >
+                <Menu className="size-6" />
+              </button>
 
-                {/* Logo Oficial Comercial do Norte (Branca com recuo para acomodar o mascote em desktop) */}
-                <Link
-                  aria-label="Comercial do Norte - Início"
-                  className="flex items-center pr-2 pl-0 md:pl-[84px] lg:pl-[90px]"
-                  href="/"
-                >
-                  <img
+              {/* Logo Oficial Branca */}
+              <Link
+                aria-label={`${siteName} - Página Inicial`}
+                className="flex items-center"
+                href="/"
+              >
+                <div className="relative h-9 w-[150px] sm:h-11 sm:w-[170px] lg:h-12 lg:w-[190px]">
+                  <Image
                     alt={siteName}
-                    className="h-7 w-auto object-contain sm:h-8 md:h-10 lg:h-11"
-                    fetchPriority="high"
-                    height={44}
-                    src="/assets/Logos/logo-comercial-do-norte-branca.png"
-                    width={180}
+                    className="object-contain object-left"
+                    fill
+                    priority
+                    sizes="(max-width: 640px) 150px, (max-width: 1024px) 170px, 190px"
+                    src={logoUrl || '/assets/Logos/logo-comercial-do-norte-branca.png'}
                   />
-                </Link>
-
-                {/* Divisória vertical | idêntica ao Figma */}
-                <span className="hidden h-7 w-px bg-white/25 md:inline-block sm:mx-1.5 lg:mx-2.5 flex-shrink-0" />
-
-                {/* Widget CEP / Localização */}
-                <div className="hidden flex-shrink-0 items-center gap-2 text-left md:flex">
-                  <MapPin aria-hidden className="size-5 flex-shrink-0 text-white/90" />
-                  <div className="flex flex-col leading-tight whitespace-nowrap">
-                    <span className="text-[10px] font-normal text-white/75">Enviar para</span>
-                    <span className="text-[12px] font-bold text-white">Belém 66020-600</span>
-                  </div>
                 </div>
-              </div>
+              </Link>
+            </div>
 
-              {/* Ação Mobile: Carrinho com Badge */}
-              <div className="flex items-center gap-2 md:hidden">
-                <button
-                  aria-label="Abrir Carrinho de Cotação"
-                  className="relative cursor-pointer p-1.5 text-white/90 hover:text-white"
-                  onClick={openDrawer}
-                  type="button"
-                >
-                  <ShoppingBag aria-hidden className="size-6 stroke-[1.8]" />
-                  <span className="absolute top-0 right-0 flex size-4 items-center justify-center rounded-full border-2 border-[#004CB1] bg-[#E33C34] text-[9.5px] font-black text-white">
-                    {count}
-                  </span>
-                </button>
+            {/* SELETOR DE CEP / LOCALIZAÇÃO (BELÉM 66020-600) */}
+            <div className="hidden items-center gap-2 rounded-lg bg-white/10 px-2.5 py-1.5 text-xs text-white xl:flex hover:bg-white/15 transition cursor-pointer">
+              <MapPin className="size-4 shrink-0 text-white/90" />
+              <div className="leading-tight">
+                <span className="block text-[10px] text-white/70">Enviar para</span>
+                <span className="font-bold">Belém 66020-600</span>
               </div>
             </div>
 
-            {/* Centro: Barra de Busca com Botão Circular Figma */}
-            <div className="w-full flex-1 md:mx-2 md:max-w-[540px] lg:mx-4">
-              <form
-                className="flex w-full items-center rounded-full bg-white px-2 py-1 shadow-sm transition focus-within:ring-2 focus-within:ring-white/40"
-                onSubmit={submitSearch}
-                role="search"
-              >
+            {/* BARRA DE BUSCA CENTRAL COM BOTÃO CIRCULAR AZUL */}
+            <div className="flex-1 max-w-2xl">
+              <form className="relative flex items-center w-full" onSubmit={submitSearch}>
                 <input
-                  aria-label="Buscar produtos no catálogo"
-                  className="w-full min-w-0 border-none bg-transparent pl-4 text-[13.5px] text-[#1D2433] outline-none placeholder:text-[#71717A]"
+                  aria-label="Buscar produtos, categorias ou marcas"
+                  className="w-full rounded-full bg-white py-2.5 pr-12 pl-4 text-xs sm:text-sm text-slate-800 placeholder-slate-400 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#00357B] transition-all"
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Buscar embalagens, copos descartáveis, caixas de pizza, sacolas..."
                   type="search"
@@ -245,230 +173,253 @@ export function SiteHeader({
                 />
                 <button
                   aria-label="Pesquisar"
-                  className="flex size-9 flex-shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#004CB1] text-white transition hover:scale-105 hover:bg-[#003b8a]"
+                  className="absolute right-1.5 flex size-8 cursor-pointer items-center justify-center rounded-full bg-[#004CB1] text-white transition hover:bg-[#00357B] hover:scale-105 active:scale-95 shadow-sm"
                   type="submit"
                 >
-                  <Search aria-hidden className="size-4 stroke-[2.5]" />
+                  <Search className="size-4 stroke-[2.4]" />
                 </button>
               </form>
             </div>
 
-            {/* Lado Direito Desktop: Favoritos, Carrinho/Cotação e Conta */}
-            <div className="hidden flex-shrink-0 items-center gap-4 md:flex lg:gap-6">
+            {/* AÇÕES À DIREITA: FAVORITOS, MINHA COTAÇÃO (DRAWER) E MINHA CONTA */}
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               {/* Favoritos */}
               <Link
-                className="group flex cursor-pointer flex-col items-center justify-center text-white/90 transition hover:text-white"
-                href="/loja"
-                title="Meus Favoritos"
+                aria-label="Meus Favoritos"
+                className="hidden flex-col items-center justify-center text-white/90 transition hover:text-white lg:flex"
+                href="/favoritos"
               >
-                <Heart aria-hidden className="size-5 stroke-[1.8] transition-transform group-hover:scale-105" />
-                <span className="mt-0.5 text-[11px] font-medium tracking-tight">Favoritos</span>
+                <Heart className="size-5" />
+                <span className="mt-0.5 text-[10px] font-medium">Favoritos</span>
               </Link>
 
-              {/* Carrinho / Cotação com Badge Oficial */}
+              {/* Botão de Cotação com Badge Contador */}
               <button
-                aria-label="Abrir Minha Cotação"
-                className="group relative flex cursor-pointer flex-col items-center justify-center text-white/90 transition hover:text-white focus:outline-none"
+                aria-label={`Ver lista de cotação com ${count} itens`}
+                className="relative flex flex-col items-center justify-center text-white/90 transition hover:text-white cursor-pointer"
                 onClick={openDrawer}
-                title="Carrinho de Cotação"
                 type="button"
               >
                 <div className="relative">
-                  <ShoppingBag aria-hidden className="size-5 stroke-[1.8] transition-transform group-hover:scale-105" />
-                  <span className="absolute -top-1 -right-2 flex size-4 items-center justify-center rounded-full border-2 border-[#004CB1] bg-[#E33C34] text-[10px] font-extrabold text-white shadow-xs">
-                    {count}
-                  </span>
+                  <ShoppingBag className="size-5 sm:size-6" />
+                  {count > 0 && (
+                    <span className="absolute -top-1.5 -right-2 flex size-4.5 items-center justify-center rounded-full bg-[#E2091E] font-black text-[10px] text-white shadow-sm ring-2 ring-[#004CB1]">
+                      {count > 99 ? '99+' : count}
+                    </span>
+                  )}
                 </div>
-                <span className="mt-0.5 text-center text-[10.5px] font-medium leading-[1.1]">
-                  Minha<br />Cotação
+                <span className="mt-0.5 hidden text-[10px] font-medium sm:block">
+                  Minha Cotação
                 </span>
               </button>
 
-              {/* Conta / Acesso */}
+              {/* Minha Conta / Login */}
               <Link
-                className="group flex cursor-pointer items-center gap-1.5 text-left text-white/90 transition hover:text-white sm:gap-2"
-                href="/cotacao"
-                title="Minha Conta ou Cotações"
+                aria-label="Minha Conta ou Fazer Login"
+                className="flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/5 px-2.5 py-1.5 text-xs text-white transition hover:bg-white/15"
+                href="/conta"
               >
-                <User aria-hidden="true" className="size-6 stroke-[1.8] flex-shrink-0 transition-transform group-hover:scale-105" />
-                <div className="flex flex-col leading-tight">
-                  <span className="text-[10.5px] font-normal text-white/80">Entre</span>
-                  <span className="text-[11.5px] font-bold text-white">ou Cotar</span>
+                <User className="size-4.5" />
+                <div className="hidden text-left xl:block leading-tight">
+                  <span className="block text-[10px] text-white/70">Entre</span>
+                  <span className="font-bold">ou Cotar</span>
                 </div>
               </Link>
             </div>
           </div>
         </div>
 
-        {/* BARRA 03: SUB-BARRA DE DEPARTAMENTOS AZUL ESCURO (#00357B) */}
-        <nav
-          aria-label="Departamentos Comercial do Norte"
-          className="w-full border-t border-white/10 bg-[#00357B] text-white"
-        >
-          <div className="cn-container no-scrollbar flex items-center justify-between gap-4 overflow-x-auto py-2 text-[12.5px] font-medium whitespace-nowrap sm:gap-6 lg:text-[13px]">
-            {/* Tem no Comercial do Norte */}
-            <Link
-              className="flex flex-shrink-0 items-center gap-2 font-bold text-white transition hover:text-white/80"
-              href="/loja"
-            >
-              <Menu aria-hidden className="size-4 stroke-[2.2]" />
-              <span>Tem no Comercial do Norte</span>
-            </Link>
-
-            <span className="hidden h-4 w-px flex-shrink-0 bg-white/20 sm:inline-block sm:mx-1" />
-
-            {/* Ofertas do Dia NOVO */}
-            <Link
-              className="flex flex-shrink-0 items-center gap-1.5 transition hover:text-white/80"
-              href="/loja"
-            >
-              <span>Ofertas do Dia</span>
-              <span className="rounded-full bg-[#E33C34] px-1.5 py-0.5 text-[9.5px] font-black uppercase leading-none tracking-wider text-white shadow-xs">
-                NOVO
-              </span>
-            </Link>
-
-            {/* Departamentos Canônicos */}
-            {rootCategories.slice(0, 6).map((cat) => (
-              <Link
-                className="flex flex-shrink-0 items-center gap-1 transition hover:text-white/80"
-                href={`/categoria/${cat.slug}`}
-                key={cat.id}
-              >
-                <span>{cat.name}</span>
-              </Link>
-            ))}
-
-            <Link
-              className="flex-shrink-0 font-medium transition hover:text-white/80"
-              href="/loja"
-            >
-              Mais Vendidos
-            </Link>
-          </div>
-        </nav>
-      </header>
-
-      {/* MOBILE MENU DRAWER (OFF-CANVAS FIDELIDADE À REFERÊNCIA) */}
-      {mobileMenuOpen ? (
-        <div
-          aria-hidden="true"
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs transition-opacity"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      ) : null}
-
-      <aside
-        aria-hidden={!mobileMenuOpen}
-        aria-label="Menu Mobile"
-        className={`fixed top-0 bottom-0 left-0 z-50 flex w-[280px] max-w-[85vw] flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out sm:w-[320px] ${
-          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <div className="flex items-center justify-between border-b border-line p-4">
-          <img
-            alt={siteName}
-            className="h-8 w-auto object-contain"
-            height={32}
-            src="/assets/Logos/logo-comercial-do-norte.png"
-            width={140}
-          />
-          <button
-            aria-label="Fechar Menu"
-            className="cursor-pointer rounded-lg p-1 text-muted hover:bg-surface-soft hover:text-ink"
-            onClick={() => setMobileMenuOpen(false)}
-            type="button"
-          >
-            <X aria-hidden className="size-5" />
-          </button>
-        </div>
-
-        <div className="no-scrollbar flex-1 overflow-y-auto p-4">
-          <div className="mb-6">
-            <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-muted">
-              Navegação Principal
-            </span>
-            <nav className="flex flex-col gap-1">
-              <Link
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-ink hover:bg-surface-soft"
-                href="/"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Home aria-hidden className="size-4 text-brand" />
-                <span>Início</span>
-              </Link>
-              <Link
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-ink hover:bg-surface-soft"
-                href="/loja"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Tag aria-hidden className="size-4 text-promo" />
-                <span>Ofertas da Semana</span>
-              </Link>
-              <Link
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-ink hover:bg-surface-soft"
-                href="/cotacao"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <ShoppingBag aria-hidden className="size-4 text-brand" />
-                <span>Minha Cotação</span>
-              </Link>
-            </nav>
-          </div>
-
-          <div className="mb-6">
-            <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-muted">
-              Departamentos
-            </span>
-            <div className="flex flex-col gap-1">
-              {rootCategories.map((cat) => (
-                <Link
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-body hover:bg-surface-soft hover:text-ink"
-                  href={`/categoria/${cat.slug}`}
-                  key={cat.id}
-                  onClick={() => setMobileMenuOpen(false)}
+        {/* BARRA 03: SUBNORMAL AZUL ESCURO (#00357B) - DEPARTAMENTOS E CATEGORIAS */}
+        <div className="hidden border-t border-white/10 bg-[#00357B] px-3 text-xs font-semibold text-white md:block md:px-6">
+          <div className="cn-container flex items-center justify-between">
+            {/* Menu Departamentos (Dropdown) */}
+            <div className="flex items-center gap-1">
+              <div className="group relative">
+                <button
+                  className="flex items-center gap-2 py-2.5 pr-4 pl-2 text-white hover:bg-white/10 rounded-sm transition cursor-pointer"
+                  type="button"
                 >
-                  {cat.name}
-                </Link>
-              ))}
-            </div>
-          </div>
+                  <Menu className="size-4" />
+                  <span className="uppercase tracking-wide text-xs font-bold">
+                    Todos os Departamentos
+                  </span>
+                  <ChevronDown className="size-3 text-white/70 transition-transform group-hover:rotate-180" />
+                </button>
 
-          <div>
-            <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-muted">
-              Atendimento
-            </span>
-            <div className="flex flex-col gap-2 text-xs text-body">
-              <p className="font-semibold text-ink">Horário de Funcionamento:</p>
-              <p>Segunda a Sexta: 06:30 às 18:00</p>
-              <p>Sábado: 06:30 às 12:30</p>
+                {/* Dropdown de Categorias Principais */}
+                <div className="invisible absolute top-full left-0 z-50 w-64 rounded-b-xl border border-slate-200 bg-white py-2 text-slate-800 shadow-2xl opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
+                  <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    Departamentos
+                  </div>
+                  {rootCategories.slice(0, 10).map((cat) => (
+                    <Link
+                      className="flex items-center justify-between px-3 py-2 text-xs font-medium hover:bg-slate-50 hover:text-[#004CB1] transition"
+                      href={`/categoria/${cat.slug}`}
+                      key={cat.id}
+                    >
+                      <span>{cat.name}</span>
+                      <ChevronRight className="size-3 text-slate-400" />
+                    </Link>
+                  ))}
+                  <div className="mt-1 border-t border-slate-100 pt-1">
+                    <Link
+                      className="block px-3 py-2 text-center text-xs font-bold text-[#004CB1] hover:underline"
+                      href="/loja"
+                    >
+                      Ver Todas as Categorias →
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Links Rápidos em Destaque */}
+              <div className="flex items-center gap-1 pl-2">
+                <Link
+                  className="flex items-center gap-1.5 rounded-sm px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
+                  href="/loja?ofertas=true"
+                >
+                  <Sparkles className="size-3.5 text-amber-300" />
+                  <span>Ofertas do Dia</span>
+                  <span className="rounded bg-[#E2091E] px-1.5 py-0.2 text-[9px] font-black uppercase text-white">
+                    NOVO
+                  </span>
+                </Link>
+
+                <Link
+                  className="rounded-sm px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
+                  href="/loja?destaque=mais-vendidos"
+                >
+                  Mais Vendidos
+                </Link>
+
+                <Link
+                  className="rounded-sm px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
+                  href="/loja?tipo=atacado"
+                >
+                  Atacado &amp; Distribuição
+                </Link>
+
+                <Link
+                  className="rounded-sm px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
+                  href="/marcas"
+                >
+                  Marcas Parceiras
+                </Link>
+
+                <Link
+                  className="rounded-sm px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
+                  href="/sobre"
+                >
+                  Nossas Lojas
+                </Link>
+              </div>
+            </div>
+
+            {/* Vendas Corporativas e Televendas */}
+            <div className="hidden lg:flex items-center gap-2 text-xs text-white/80">
+              <span className="text-white/60">Atendimento Corporativo:</span>
               <a
-                className="mt-2 inline-flex items-center gap-1.5 font-bold text-brand hover:underline"
+                className="font-bold text-white hover:text-amber-200 transition"
                 href={`https://wa.me/${whatsappDigits}`}
+                rel="noreferrer"
                 target="_blank"
-                rel="noopener noreferrer"
               >
-                <Phone aria-hidden className="size-3.5" />
-                Falar com Vendas: {whatsappDisplay}
+                Fale com um Consultor
               </a>
             </div>
           </div>
         </div>
+      </header>
 
-        <div className="border-t border-line p-4">
-          <button
-            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-promo py-3 text-center text-sm font-bold text-white shadow-md transition hover:bg-promo-hover"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              openDrawer();
-            }}
-            type="button"
-          >
-            <ShoppingBag aria-hidden className="size-4" />
-            <span>Ver Cotação ({count})</span>
-          </button>
+      {/* DRAWER MOBILE OFF-CANVAS PARA CELULAR */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden animate-in fade-in duration-200">
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div className="relative flex w-4/5 max-w-xs flex-col bg-white text-slate-900 shadow-2xl">
+            {/* Topo do Drawer Mobile */}
+            <div className="flex items-center justify-between bg-[#004CB1] p-4 text-white">
+              <div className="flex items-center gap-2">
+                <Store className="size-5" />
+                <span className="text-sm font-bold">Comercial do Norte</span>
+              </div>
+              <button
+                aria-label="Fechar menu"
+                className="flex size-7 items-center justify-center rounded text-white/80 hover:text-white"
+                onClick={() => setMobileMenuOpen(false)}
+                type="button"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            {/* Lista de Navegação Mobile */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <div className="mb-4">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  Departamentos
+                </span>
+                <div className="mt-2 divide-y divide-slate-100">
+                  {rootCategories.map((c) => (
+                    <Link
+                      className="flex items-center justify-between py-2.5 text-xs font-semibold text-slate-700 hover:text-[#004CB1]"
+                      href={`/categoria/${c.slug}`}
+                      key={c.id}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span>{c.name}</span>
+                      <ChevronRight className="size-3.5 text-slate-400" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4 border-t border-slate-100 pt-4">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  Acesso Rápido
+                </span>
+                <div className="mt-2 flex flex-col gap-2 text-xs font-medium">
+                  <Link
+                    className="flex items-center gap-2 py-1.5 text-slate-700"
+                    href="/loja?ofertas=true"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Flame className="size-4 text-[#E2091E]" />
+                    <span>Ofertas do Dia</span>
+                  </Link>
+                  <Link
+                    className="flex items-center gap-2 py-1.5 text-slate-700"
+                    href="/favoritos"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Heart className="size-4 text-slate-500" />
+                    <span>Meus Favoritos</span>
+                  </Link>
+                  <Link
+                    className="flex items-center gap-2 py-1.5 text-slate-700"
+                    href="/sobre"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Store className="size-4 text-slate-500" />
+                    <span>Nossas Lojas</span>
+                  </Link>
+                  <a
+                    className="flex items-center gap-2 py-1.5 text-[#004CB1] font-bold"
+                    href={`https://wa.me/${whatsappDigits}`}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <Phone className="size-4" />
+                    <span>WhatsApp Vendas</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </aside>
+      )}
     </>
   );
 }

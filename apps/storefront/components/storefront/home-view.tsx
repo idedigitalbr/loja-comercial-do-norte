@@ -1,18 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ElementorEditorProvider, useElementor } from './editor/elementor-editor-context';
-import { ElementorTopBar } from './editor/elementor-top-bar';
-import { ElementorPanel } from './editor/elementor-panel';
-import { ElementorCanvas } from './editor/elementor-canvas';
+import { useElementor } from './editor/elementor-editor-context';
 import { ElementorSectionWrapper } from './editor/elementor-section-wrapper';
 import { ElementorAddSectionBox } from './editor/elementor-add-section-box';
-import { ElementorNavigator } from './editor/elementor-navigator';
-import { ElementorTogglePill } from './editor/elementor-toggle-pill';
 import { renderWidget } from '@/lib/storefront/widget-registry';
 import type { PageComposition, WidgetContextData } from '@/lib/storefront/widget-types';
 
-function HomeWidgetComposition({ contextData }: { contextData: WidgetContextData }) {
+export function HomeView({
+  contextData,
+}: {
+  contextData: WidgetContextData;
+  initialComposition?: PageComposition;
+}) {
   const { composition, isEditing, previewMode } = useElementor();
   const [insertAboveIndex, setInsertAboveIndex] = useState<number | null>(null);
 
@@ -45,34 +45,5 @@ function HomeWidgetComposition({ contextData }: { contextData: WidgetContextData
       {/* Caixa de Inserção / Drop Box no final da vitrine */}
       <ElementorAddSectionBox insertIndex={sortedWidgets.length + 1} />
     </div>
-  );
-}
-
-export function HomeView({
-  initialComposition,
-  contextData,
-}: {
-  initialComposition: PageComposition;
-  contextData: WidgetContextData;
-}) {
-  return (
-    <ElementorEditorProvider initialComposition={initialComposition}>
-      {/* Top Bar Fixa do Elementor */}
-      <ElementorTopBar />
-
-      {/* Painel Lateral Esquerdo Retrátil do Elementor */}
-      <ElementorPanel />
-
-      {/* Janela Flutuante do Navegador em Árvore */}
-      <ElementorNavigator />
-
-      {/* Canvas com Viewport Responsivo (Desktop, Tablet, Mobile) */}
-      <ElementorCanvas>
-        <HomeWidgetComposition contextData={contextData} />
-      </ElementorCanvas>
-
-      {/* Botão Flutuante de Ativação do Elementor na Loja */}
-      <ElementorTogglePill />
-    </ElementorEditorProvider>
   );
 }

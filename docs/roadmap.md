@@ -202,19 +202,19 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
   - Diagnóstico da referência `site-comercial-do-norte-html-referencia` e sincronização de assets e favicons para `apps/storefront/public/assets`.
   - Design Tokens do Header oficial e Hero integrados em `packages/ui/src/styles/tokens.css` e mapeados no Tailwind 4 (`apps/storefront/app/globals.css`).
   - Arquitetura Modular de Widgets (`apps/storefront/lib/storefront/widget-types.ts`, `widget-registry.tsx`, `home-configuration.ts`).
-  - Header fiel em 3 barras com Mascote 3D James, logo oficial branca, seletor de CEP, busca Figma, ações de cotação/favoritos/conta, subnav de departamentos e drawer mobile off-canvas (`apps/storefront/components/site-header.tsx`).
+  - Header fiel em 3 barras com Mascote 3D James, logo oficial branca, seletor de CEP, busca Figma, ações de cotação/favoritos/conta, subnav de departamentos e drawer mobile off-canvas (`apps/storefront/components/site-header.tsx`), estático e sem comportamento instável de scroll/auto-hide.
   - Hero Carousel de largura total estilo Mercado Livre (`HeroCarouselWidget`).
   - Hero Secundário Contido com bordas arredondadas e sobreposição negativa (`ContainedHeroWidget`).
   - Barra de benefícios comerciais (`BenefitsBarWidget`).
   - Carrossel de ofertas com cards de produto e cotação (`ProductCarouselWidget`).
   - Grid de departamentos do catálogo (`CategoryGridWidget`).
-  - Suíte completa do Editor Visual da Vitrine no padrão exato Elementor (`HomeView`, `ElementorEditorProvider`, `ElementorTopBar`, `ElementorPanel`, `ElementorSectionWrapper`, `ElementorAddSectionBox`, `ElementorNavigator`, `ElementorCanvas`, `ElementorTogglePill`):
-    - Top Bar escura de 48px com botões de Undo/Redo, seletores de viewport (Desktop 100%, Tablet 768px, Mobile 390px), Navigator e botão Publish com feedback.
-    - Painel lateral retrátil estilo Elementor com cabeçalho vinho (`#8C1D40`), abas `Content | Style | Advanced`, grid de widgets em 2 colunas e formulário dinâmico de banners/slides.
-    - Alças de seção (`ElementorSectionWrapper`) com botões `+`, `:::`, `x`, duplicar, reordenar e visibilidade.
-    - Caixas de inserção pontilhadas com botão circular `+` vinho e pasta cinza ("Drag widget here"), com menu contextual para inserir novos blocos em qualquer posição.
-    - Janela flutuante Navigator (`ElementorNavigator`) em árvore hierárquica com rolagem suave até a seção selecionada.
-    - Canvas responsivo (`ElementorCanvas`) com moldura física de Tablet e Mobile (notch e barra inferior).
+  - Suíte completa do Editor Visual da Vitrine no padrão exato Elementor (`StorefrontShell`, `HomeView`, `ElementorEditorProvider`, `ElementorTopBar`, `ElementorPanel`, `ElementorSectionWrapper`, `ElementorAddSectionBox`, `ElementorMediaModal`, `ElementorNavigator`, `ElementorCanvas`, `ElementorTogglePill`):
+    - Top Bar escura de 48px fixa no topo da janela com botões de Undo/Redo, seletores de viewport (Desktop 100%, Tablet 768px, Mobile 390px), Navigator e botão Publish com feedback.
+    - Painel lateral retrátil estilo Elementor com cabeçalho vinho (`#8C1D40`), abas `Content | Style | Advanced`, grid de widgets em 2 colunas com suporte a **Drag & Drop** nativo para o canvas.
+    - Caixas de inserção pontilhadas ("Drag widget here") como alvos de drop ativos e clique direto no `+` focando a galeria de widgets no painel lateral esquerdo (sem popups no canvas).
+    - Gerenciador de slides e carrosséis com visual idêntico ao Elementor Media Carousel: faixa de miniaturas selecionadas com contorno, accordion de itens (`Item #1`, `Item #2`), box grande de pré-visualização de imagem com botão de troca e modal `ElementorMediaModal` completo com banners oficiais.
+    - Canvas responsivo (`ElementorCanvas`) com moldura física de Tablet e Mobile (notch e barra inferior), integrado no `StorefrontShell` que elimina qualquer sobreposição do header com a barra ou painel lateral.
+    - Indicador de desenvolvimento do Next.js posicionado no canto inferior direito (`bottom-right`).
     - Botão flutuante de ativação (`ElementorTogglePill`) para alternar entre navegação normal e modo de edição visual.
   - Página inicial `apps/storefront/app/page.tsx` refatorada para renderização dinâmica via `PageRenderer` e suporte ao editor visual.
 - **Validação técnica:**

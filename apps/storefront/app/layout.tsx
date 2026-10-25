@@ -4,6 +4,7 @@ import { QuoteCartProvider } from '@/components/quote-cart-provider';
 import { QuoteDrawer } from '@/components/quote-drawer';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
+import { StorefrontShell } from '@/components/storefront/storefront-shell';
 import { getCategories, getBrands, getSiteConfig, mediaUrl } from '@/lib/api';
 
 export const metadata: Metadata = {
@@ -18,23 +19,28 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="pt-BR">
-      <body className="min-h-screen antialiased">
+      <body className="min-h-screen antialiased bg-white">
         <a className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-ink" href="#conteudo">
           Pular para o conteúdo
         </a>
         <QuoteCartProvider>
-          <SiteHeader
-            brands={brands}
-            categories={categories}
-            logoUrl={mediaUrl(site?.logoPath ?? null)}
-            phone={site?.phone ?? null}
-            siteName={site?.siteName ?? 'Comercial do Norte'}
-            whatsapp={site?.whatsapp ?? null}
-          />
-          <main id="conteudo">{children}</main>
-          <QuoteDrawer />
+          <StorefrontShell
+            footer={<SiteFooter categories={categories} site={site} />}
+            header={
+              <SiteHeader
+                brands={brands}
+                categories={categories}
+                logoUrl={mediaUrl(site?.logoPath ?? null)}
+                phone={site?.phone ?? null}
+                siteName={site?.siteName ?? 'Comercial do Norte'}
+                whatsapp={site?.whatsapp ?? null}
+              />
+            }
+          >
+            <main id="conteudo">{children}</main>
+            <QuoteDrawer />
+          </StorefrontShell>
         </QuoteCartProvider>
-        <SiteFooter categories={categories} site={site} />
       </body>
     </html>
   );
