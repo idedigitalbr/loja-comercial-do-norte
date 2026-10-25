@@ -154,8 +154,30 @@ docs/
   - **Hero de Largura Total (S1):** `HeroCarouselWidget` estilo Mercado Livre, com autoplay, setas circulares brancas, indicadores de pontos e transição degradê inferior.
   - **Hero Secundário Contido (S1):** `ContainedHeroWidget` arredondado (`rounded-2xl md:rounded-3xl`), sobreposto com margem negativa (`-mt-8 sm:-mt-12 md:-mt-16 lg:-mt-20`), setas escuras translúcidas com blur e badge com dot da marca.
   - **Widgets Complementares:** `BenefitsBarWidget` (4 pilares comerciais), `ProductCarouselWidget` (ofertas com cards e cotação) e `CategoryGridWidget` (departamentos).
-  - **Editor Visual Estilo Elementor (25/10/2026):** Implementado modo de edição visual interativo direto na vitrine pública (`HomeView`, `EditorProvider`, `EditorToolbar`, `EditorSidebar`, `WidgetContainer`). Permite ao administrador clicar em "Editar Vitrine", selecionar qualquer seção, reordenar (subir/descer), adicionar novos widgets do catálogo, remover seções, alternar visibilidade e editar em tempo real as propriedades de cada widget (como adicionar/remover slides de banners, trocar imagens, links, tempos de autoplay, cores de fundo e editar os 4 cards de benefícios). Suporta persistência imediata no navegador (`localStorage`) e preparação para API NestJS.
-  - **Validação:** `pnpm typecheck` 6/6 aprovados e `pnpm lint` 6/6 aprovados no monorepo.
+  - **Editor Visual Estilo Elementor (25/10/2026):** Implementado modo de edição visual interativo direto na vitrine pública (`HomeView`, `ElementorEditorProvider`, `ElementorTopBar`, `ElementorSectionWrapper`, `InlineImageEditorOverlay`). Permite ao administrador selecionar qualquer seção via alça minimalista (`[ ✎ Lápis ] | [ ⠿ Drag & Drop ] | [ ↑ ] [ ↓ ]`), inserir seção acima/abaixo, duplicar, ocultar ou remover, além de trocar imagens e links diretamente no centro de cada banner/card (`InlineImageEditorOverlay`) com persistência híbrida (`localStorage` + `/api/storefront/composition`).
+  - **Biblioteca Completa de Widgets e Homepage de 20 Seções (`site-final.jpg` + `wireframe.png` — 25/10/2026):**
+    - Reconstruída a homepage inteira em fidelidade 1:1 com `REFERENCIA/site-final.jpg` (`2880×17208`) e `REFERENCIA/wireframe.png` (`1920×9267`), composta pelo `SiteHeader` (3 barras), **19 seções sequenciais de widgets configuráveis** (`defaultHomeComposition` em `home-configuration.ts`) e `SiteFooter` (Seção 20):
+      - `01` `hero-carousel` (*Tudo para sua Pizzaria* — largura total com degradê inferior)
+      - `02` `contained-hero` (*Semana do Feirante — Copo 180ml* — contido arredondado com overlap negativo)
+      - `03` `category-grid` (`variant: 'icons-bar'` — faixa branca com 8 ícones quadrados editáveis)
+      - `04` `product-carousel` (`variant: 'split-banner'` — banner vertical *Semana do Feirante* à esquerda + 3 produtos em promoção à direita)
+      - `05` `banner-grid` (3 banners triplos: *Limpeza*, *Feirante*, *Sacos e Sacolas*)
+      - `06` `product-carousel` (`variant: 'standard-5col'` — *Mais vendidos* com 5 colunas)
+      - `07` `quote-steps-banner` (*Saiba / Como funciona a cotação online* — Mascote 3D James + 4 cards numerados com ícones azuis e setas vermelhas + arte direita)
+      - `08` `segments-carousel` (*Tudo para todos os negócios / Para todos os tamanhos!* — 4 cards escuros com foto superior editável e ícone circular vermelho)
+      - `09` `promo-strip` (`variant: 'offers-strip'` — *OFERTAS IMPERDÍVEIS* com logo branca, itens centrais e 3 selos contornados)
+      - `10` `product-carousel` (`variant: 'standard-5col'` — *Para você* com 5 colunas)
+      - `11` `banner-grid` (3 banners triplos: *Hamburgueira*, *Luva Vermelho*, *Luva Azul*)
+      - `12` `events-carousel` (*Nossos Eventos / Tudo que acontece no Comercial do Norte* — fundo escuro quadriculado, banner superior de palco e 4 cartazes `9:16`)
+      - `13` `promo-strip` (`variant: 'conditions-mascot'` — *CONDIÇÕES ESPECIAIS para o seu negócio* com Mascote James, sacolas e 4 selos em colunas)
+      - `14` `product-carousel` (`variant: 'standard-5col'` — *Para você* com 5 colunas)
+      - `15` `video-articles-carousel` (*Explica aí comercial* — bloco bordô com 2 cards horizontais de vídeo/artigo *Como escolher a caixa de pizza certa*)
+      - `16` `instagram-feed` (*A Loja no Instagram* — `@comercialdonorte` com 6 cards verticais editáveis)
+      - `17` `promo-strip` (`variant: 'whatsapp-group'` — *Entre em nosso Grupo de ofertas Exclusivas do WhatsApp*)
+      - `18` `testimonials-grid` (*AVALIAÇÕES NO GOOGLE — O que nossos clientes dizem no Google.* — 10 cards 5 estrelas em grid 5×2)
+      - `19` `store-locations-map` (*Encontre nossas unidades / Lojas mais perto de você* — busca na coluna esquerda + 3 cards escuros com foto da fachada + Google Maps)
+      - `20` `SiteFooter` (Logo branca centralizada, redes sociais Instagram/TikTok/Facebook e barra azul `#1D3B78`)
+  - **Validação:** `pnpm typecheck` 6/6 aprovados, `pnpm lint` 6/6 aprovados e `pnpm --filter storefront test` aprovados no monorepo.
 
 | Papel | Valor oficial | Uso |
 |---|---|---|

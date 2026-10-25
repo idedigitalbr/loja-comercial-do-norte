@@ -23,34 +23,37 @@ export function EventsCarouselWidget({
   if (!items || items.length === 0) return null;
 
   return (
-    <section aria-label={title} className="w-full bg-[#060709] py-10 sm:py-14">
+    <section
+      aria-label={title}
+      className="w-full bg-[#060709] bg-[linear-gradient(to_right,#ffffff06_1px,transparent_1px),linear-gradient(to_bottom,#ffffff06_1px,transparent_1px)] bg-[size:36px_36px] py-10 sm:py-14"
+    >
       <div className="cn-container">
-        {/* Header escuro com mini-thumb à direita */}
-        <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        {/* Header escuro com barra vermelha à esquerda e banner largo do palco + botão à direita */}
+        <div className="mb-8 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
           <div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+            <p className="text-lg font-medium text-slate-300 sm:text-xl">
               {title}
-            </h2>
-            <p className="mt-1 text-base font-medium text-slate-300 sm:text-lg">
-              {subtitle}
             </p>
+            <h2 className="mt-0.5 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+              {subtitle}
+            </h2>
+            <div className="mt-2.5 h-1 w-28 rounded-full bg-[#E2091E]" />
           </div>
 
-          <div className="flex items-center gap-3 self-start rounded-full border border-white/15 bg-white/5 p-1.5 pr-5 backdrop-blur-xs sm:self-auto">
+          <div className="relative flex h-24 w-full max-w-[540px] items-center justify-end overflow-hidden rounded-2xl border border-white/15 bg-zinc-900 px-5 shadow-lg">
             {topThumbUrl ? (
-              <div className="relative h-10 w-20 overflow-hidden rounded-full border border-white/10">
-                <Image
-                  alt="Eventos Comercial do Norte"
-                  className="size-full object-cover"
-                  height={120}
-                  src={topThumbUrl}
-                  unoptimized
-                  width={225}
-                />
-              </div>
+              <Image
+                alt="Eventos Comercial do Norte"
+                className="pointer-events-none absolute inset-0 size-full object-cover opacity-85"
+                height={270}
+                src={topThumbUrl}
+                unoptimized
+                width={1080}
+              />
             ) : null}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/20 via-black/35 to-black/75" />
             <Link
-              className="inline-flex items-center gap-2 text-xs font-bold text-white transition hover:text-blue-300 sm:text-sm"
+              className="relative z-10 inline-flex items-center gap-2 rounded-xl border border-white/35 bg-black/55 px-4 py-2.5 text-xs font-bold text-white backdrop-blur-xs transition hover:bg-black/80 sm:text-sm"
               href={ctaUrl}
             >
               <span>{ctaLabel}</span>
@@ -123,14 +126,14 @@ export function EventsCarouselWidget({
           </button>
         </div>
 
-        {/* Dots inferiores */}
+        {/* Dots inferiores em pílula azul marinho (#101F3C) */}
         <div className="mt-7 flex justify-center">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#101F3C] px-3.5 py-1.5 shadow-sm">
             {[0, 1, 2, 3].map((dot) => (
               <button
                 aria-label={`Evento ${dot + 1}`}
                 className={`h-1.5 rounded-full transition-all ${
-                  activeIdx === dot ? 'w-5 bg-[#E2091E]' : 'w-1.5 bg-white/40'
+                  activeIdx === dot ? 'w-5 bg-[#E2091E]' : 'w-1.5 bg-white/60'
                 }`}
                 key={dot}
                 onClick={() => setActiveIdx(dot)}

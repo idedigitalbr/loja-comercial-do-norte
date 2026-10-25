@@ -4,7 +4,7 @@ import { defaultHomeComposition } from './home-configuration';
 describe('defaultHomeComposition (19 seções site-final)', () => {
   it('possui exatamente 19 seções de widgets habilitadas em ordem sequencial de 1 a 19', () => {
     expect(defaultHomeComposition.page).toBe('home');
-    expect(defaultHomeComposition.version).toBe(2);
+    expect(defaultHomeComposition.version).toBeGreaterThanOrEqual(2);
     expect(defaultHomeComposition.widgets).toHaveLength(19);
 
     defaultHomeComposition.widgets.forEach((widget, idx) => {

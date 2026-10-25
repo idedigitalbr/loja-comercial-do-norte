@@ -43,31 +43,40 @@ export function TestimonialsGridWidget({
             key={item.id || idx}
           >
             <div>
-              <div className="mb-2.5 flex items-center gap-0.5 text-amber-400">
-                {Array.from({ length: item.rating || 5 }).map((_, i) => (
-                  <Star className="size-3 fill-amber-400 text-amber-400" key={i} />
-                ))}
+              {/* Topo: Avatar + Nome + Quantidade de avaliações */}
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-white"
+                  style={{ backgroundColor: item.avatarColor || '#004CB1' }}
+                >
+                  {item.avatarInitials}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-xs font-bold text-slate-900">
+                    {item.authorName}
+                  </p>
+                  <p className="truncate text-[10px] text-slate-400">
+                    {item.authorHandle}
+                  </p>
+                </div>
               </div>
-              <p className="line-clamp-3 text-xs leading-relaxed text-slate-600">
+
+              {/* Meio: 5 Estrelas + Tempo atrás */}
+              <div className="mt-2.5 flex items-center gap-1.5">
+                <div className="flex items-center gap-0.5 text-amber-400">
+                  {Array.from({ length: item.rating || 5 }).map((_, i) => (
+                    <Star className="size-3 fill-amber-400 text-amber-400" key={i} />
+                  ))}
+                </div>
+                <span className="text-[10px] text-slate-400">
+                  {item.timeAgo || '1 mês atrás'}
+                </span>
+              </div>
+
+              {/* Base: Texto do depoimento */}
+              <p className="mt-2 line-clamp-4 text-[11px] leading-relaxed text-slate-600">
                 “{item.text}”
               </p>
-            </div>
-
-            <div className="mt-4 flex items-center gap-2.5 border-t border-slate-100 pt-3">
-              <div
-                className="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-white"
-                style={{ backgroundColor: item.avatarColor || '#004CB1' }}
-              >
-                {item.avatarInitials}
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-xs font-bold text-slate-900">
-                  {item.authorName}
-                </p>
-                <p className="truncate text-[10px] text-slate-400">
-                  {item.authorHandle}
-                </p>
-              </div>
             </div>
           </article>
         ))}

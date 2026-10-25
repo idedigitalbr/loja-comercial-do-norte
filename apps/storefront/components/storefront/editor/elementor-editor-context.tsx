@@ -11,7 +11,7 @@ import type {
   WidgetType,
 } from '@/lib/storefront/widget-types';
 
-const STORAGE_KEY = 'cdn_home_composition_v2';
+const STORAGE_KEY = 'cdn_home_composition_v3';
 
 export type ViewportMode = 'desktop' | 'tablet' | 'mobile';
 export type ElementorTab = 'content' | 'style' | 'advanced';

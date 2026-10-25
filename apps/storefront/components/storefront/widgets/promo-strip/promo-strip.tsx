@@ -11,19 +11,19 @@ import type { PromoStripBadge, PromoStripProps } from '@/lib/storefront/widget-t
 function BadgeIcon({ icon }: { icon?: PromoStripBadge['icon'] }) {
   switch (icon) {
     case 'tag':
-      return <Tag className="size-3.5 text-amber-300" />;
+      return <Tag className="size-4 text-white" />;
     case 'grid':
-      return <Grid2X2 className="size-3.5 text-amber-300" />;
+      return <Grid2X2 className="size-4 text-white" />;
     case 'whatsapp':
-      return <MessageCircle className="size-3.5 text-emerald-400" />;
+      return <MessageCircle className="size-4 text-white" />;
     case 'percent':
-      return <Percent className="size-3.5 text-amber-300" />;
+      return <Percent className="size-4 text-white" />;
     case 'clock':
-      return <Clock className="size-3.5 text-amber-300" />;
+      return <Clock className="size-4 text-white" />;
     case 'truck':
-      return <Truck className="size-3.5 text-amber-300" />;
+      return <Truck className="size-4 text-white" />;
     default:
-      return <Tag className="size-3.5 text-amber-300" />;
+      return <Tag className="size-4 text-white" />;
   }
 }
 
@@ -36,18 +36,19 @@ export function PromoStripWidget({
   badges = [],
   ctaLabel,
   ctaUrl = '/cotacao',
-  mascotImageUrl = '/assets/imgs/Mascote-3D-James-em-pe/principais/Mascote 3D sorridente com joinha.png',
+  mascotImageUrl = '/assets/imgs/Mascote-3D-James-em-pe/principais/james-11-piscando.png',
   rightImageUrl = '/assets/home-ref/s17-whatsapp-phones.jpg',
 }: PromoStripProps) {
   const { isEditing, previewMode } = useElementor();
 
-  // Variante 1: Seção 09 — Faixa OFERTAS IMPERDÍVEIS (fundo azul marinho full-width com pílula vermelha/azul central)
+  // Variante 1: Seção 09 — Faixa OFERTAS IMPERDÍVEIS (fundo azul marinho full-width com pílula central)
   if (variant === 'offers-strip') {
     return (
       <section aria-label={title} className="w-full bg-[#001F4D] py-4 sm:py-5">
         <div className="cn-container">
-          <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-white/15 bg-gradient-to-r from-[#00357B] via-[#C8081A] to-[#00357B] px-5 py-3.5 shadow-lg lg:flex-row lg:px-8">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-white/15 bg-gradient-to-r from-[#002D72] via-[#7A091B] to-[#002D72] px-5 py-3 shadow-lg lg:flex-row lg:px-7">
+            {/* Logo Comercial do Norte Branca */}
+            <div className="flex shrink-0 items-center">
               <Image
                 alt="Comercial do Norte"
                 className="h-9 w-auto object-contain"
@@ -58,24 +59,43 @@ export function PromoStripWidget({
               />
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-2 text-center">
-              <span className="rounded-md bg-[#E2091E] px-2.5 py-1 text-sm font-black uppercase tracking-wide text-white shadow-xs sm:text-base">
-                {highlightText || 'OFERTAS IMPERDÍVEIS'}
-              </span>
-              <span className="text-sm font-semibold text-white sm:text-base">
+            {/* Texto OFERTAS IMPERDÍVEIS + em embalagens, descartáveis e utilidades */}
+            <div className="text-center lg:text-left">
+              <p className="text-sm font-black uppercase leading-tight tracking-wide text-white sm:text-base">
+                <span>OFERTAS </span>
+                <span className="text-[#FF1E32]">IMPERDÍVEIS</span>
+              </p>
+              <p className="text-[11px] font-medium text-white/90 sm:text-xs">
                 {title || 'em embalagens, descartáveis e utilidades'}
-              </span>
+              </p>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-2">
+            {/* Imagem central dos itens descartáveis (copos, pratos, sacolas) */}
+            <div className="hidden h-14 w-36 shrink-0 overflow-hidden rounded-lg xl:block">
+              <Image
+                alt="Embalagens e descartáveis em oferta"
+                className="size-full object-cover object-center"
+                height={150}
+                src="/assets/home-ref/s09-offers-center-items.jpg"
+                unoptimized
+                width={320}
+              />
+            </div>
+
+            {/* 3 Selos à direita com caixas contornadas e divisórias verticais */}
+            <div className="flex flex-wrap items-center justify-center divide-x divide-white/20">
               {badges.map((b, idx) => (
-                <span
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-[#00285E]/90 px-3 py-1.5 text-xs font-bold text-white"
+                <div
+                  className="flex items-center gap-2.5 px-3.5 py-1 first:pl-0 last:pr-0"
                   key={idx}
                 >
-                  <BadgeIcon icon={b.icon} />
-                  {b.label}
-                </span>
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-white/35 bg-white/10">
+                    <BadgeIcon icon={b.icon} />
+                  </span>
+                  <span className="max-w-[74px] text-[11px] font-bold leading-tight text-white">
+                    {b.label}
+                  </span>
+                </div>
               ))}
             </div>
           </div>
@@ -84,21 +104,31 @@ export function PromoStripWidget({
     );
   }
 
-  // Variante 2: Seção 13 — CONDIÇÕES ESPECIAIS para o seu negócio (Mascote James dando joinha + 4 selos)
+  // Variante 2: Seção 13 — CONDIÇÕES ESPECIAIS para o seu negócio (Logo + Mascote James + texto + sacolas + 4 selos)
   if (variant === 'conditions-mascot') {
     return (
       <section aria-label={title} className="cn-container py-4 sm:py-6">
-        <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-r from-[#002B66] via-[#00449E] to-[#9E0B18] px-5 py-4 shadow-lg sm:px-8 sm:py-5">
+        <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-r from-[#002868] via-[#6D0D26] to-[#1A0D2A] px-5 py-3.5 shadow-lg sm:px-7">
           <div className="flex flex-col items-center justify-between gap-4 lg:flex-row">
-            <div className="flex items-center gap-4">
-              <div className="group/img relative hidden h-20 w-20 shrink-0 sm:block">
+            {/* Esquerda: Logo + Mascote James + Título */}
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+              <Image
+                alt="Comercial do Norte"
+                className="h-8 w-auto object-contain sm:h-9"
+                height={40}
+                src="/assets/Logos/logo-comercial-do-norte-branca.png"
+                unoptimized
+                width={145}
+              />
+
+              <div className="group/img relative hidden h-16 w-16 shrink-0 sm:block">
                 <Image
                   alt="Mascote James Comercial do Norte"
                   className="size-full object-contain object-bottom drop-shadow-md"
-                  height={120}
+                  height={110}
                   src={mascotImageUrl}
                   unoptimized
-                  width={120}
+                  width={110}
                 />
                 {widgetId ? (
                   <InlineImageEditorOverlay
@@ -115,35 +145,45 @@ export function PromoStripWidget({
                 ) : null}
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="text-center sm:text-left">
+                <p className="text-sm font-black uppercase leading-none tracking-wide text-white sm:text-base">
+                  CONDIÇÕES
+                </p>
+                <p className="text-sm font-black uppercase leading-tight tracking-wide text-[#FF1E32] sm:text-base">
+                  ESPECIAIS
+                </p>
+                <p className="text-[11px] font-medium text-white/90 sm:text-xs">
+                  {title || 'para o seu negócio'}
+                </p>
+              </div>
+
+              {/* Imagem de sacolas/embalagens ao centro */}
+              <div className="hidden h-14 w-28 shrink-0 overflow-hidden rounded-lg xl:block">
                 <Image
-                  alt="Comercial do Norte"
-                  className="hidden h-8 w-auto object-contain md:block"
-                  height={36}
-                  src="/assets/Logos/logo-comercial-do-norte-branca.png"
+                  alt="Sacolas e embalagens Comercial do Norte"
+                  className="size-full object-cover object-center"
+                  height={160}
+                  src="/assets/home-ref/s13-conditions-items.jpg"
                   unoptimized
-                  width={135}
+                  width={260}
                 />
-                <div>
-                  <span className="inline-block rounded bg-[#E2091E] px-2 py-0.5 text-xs font-black uppercase tracking-wider text-white sm:text-sm">
-                    {highlightText || 'CONDIÇÕES ESPECIAIS'}
-                  </span>
-                  <p className="mt-0.5 text-sm font-bold text-white sm:text-base">
-                    {title || 'para o seu negócio'}
-                  </p>
-                </div>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-2">
+            {/* Direita: 4 colunas com ícone acima do texto e divisórias verticais */}
+            <div className="grid grid-cols-2 divide-x divide-white/15 sm:grid-cols-4">
               {badges.map((b, idx) => (
-                <span
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-xs"
+                <div
+                  className="flex flex-col items-center justify-center gap-1.5 px-3.5 py-1 text-center"
                   key={idx}
                 >
-                  <BadgeIcon icon={b.icon} />
-                  {b.label}
-                </span>
+                  <span className="flex size-8 items-center justify-center rounded-lg border border-white/35 bg-white/10">
+                    <BadgeIcon icon={b.icon} />
+                  </span>
+                  <span className="max-w-[105px] text-[10px] font-semibold leading-tight text-white/95">
+                    {b.label}
+                  </span>
+                </div>
               ))}
             </div>
           </div>
@@ -155,17 +195,17 @@ export function PromoStripWidget({
   // Variante 3: Seção 17 — Entre em nosso Grupo de ofertas Exclusivas do WhatsApp
   return (
     <section aria-label={title} className="cn-container py-4 sm:py-6">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#002B66] via-[#00449E] to-[#0059CC] shadow-[0_8px_28px_rgba(0,53,123,0.18)]">
-        <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-12">
-          {/* Mascote à esquerda */}
-          <div className="group/img relative hidden h-full min-h-[230px] items-end justify-center pt-4 lg:col-span-3 lg:flex">
+      <div className="relative overflow-hidden rounded-2xl bg-[#00449E] shadow-[0_8px_28px_rgba(0,53,123,0.18)]">
+        <div className="grid grid-cols-1 items-center lg:grid-cols-12">
+          {/* Arte Mascote + Ícones 3D à esquerda */}
+          <div className="group/img relative hidden h-full min-h-[250px] overflow-hidden lg:col-span-4 lg:block">
             <Image
               alt="Mascote Comercial do Norte WhatsApp"
-              className="h-[220px] w-auto object-contain object-bottom drop-shadow-xl"
-              height={320}
+              className="size-full object-cover object-center"
+              height={420}
               src={mascotImageUrl}
               unoptimized
-              width={240}
+              width={640}
             />
             {widgetId ? (
               <InlineImageEditorOverlay
@@ -182,37 +222,42 @@ export function PromoStripWidget({
             ) : null}
           </div>
 
-          {/* Texto + Botão Central */}
-          <div className="px-6 py-7 text-center lg:col-span-5 lg:px-2 lg:text-left">
-            <h2 className="text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl">
-              {title || 'Entre em nosso Grupo de ofertas'}{' '}
-              <span className="mt-1 inline-block rounded-lg bg-[#E2091E] px-2.5 py-0.5 text-white">
-                {highlightText || 'Exclusivas do WhatsApp'}
-              </span>
+          {/* Texto + Barra Vermelha + Botão Contornado Central */}
+          <div className="px-6 py-7 text-center lg:col-span-4 lg:px-4 lg:text-left">
+            <p className="text-base font-medium text-blue-100 sm:text-lg">
+              Entre em nosso
+            </p>
+            <h2 className="mt-0.5 text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl">
+              Grupo de ofertas
+              <span className="block">Exclusivas do WhatsApp</span>
             </h2>
+            <div className="mx-auto mt-2.5 h-1 w-24 rounded-full bg-[#E2091E] lg:mx-0" />
+
             {subtitle ? (
-              <p className="mt-2.5 text-xs leading-relaxed text-blue-100 sm:text-sm">
+              <p className="mt-3 text-xs leading-relaxed text-blue-100 sm:text-sm">
                 {subtitle}
               </p>
             ) : null}
 
             <div className="mt-5">
               <Link
-                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-xs font-extrabold text-[#00357B] shadow-md transition hover:scale-105 hover:bg-blue-50 sm:text-sm"
+                className="inline-flex items-center gap-2.5 rounded-xl border border-white/45 bg-[#002E73]/90 px-5 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-[#002258] sm:text-sm"
                 href={ctaUrl}
                 onClick={(e) => {
                   if (isEditing && !previewMode) e.preventDefault();
                 }}
               >
-                <MessageCircle className="size-4 fill-emerald-500 text-emerald-500" />
+                <span className="flex size-5 items-center justify-center rounded-full bg-[#E2091E] text-white">
+                  <MessageCircle className="size-3 fill-white text-white" />
+                </span>
                 <span>{ctaLabel || 'Participar do Grupo WhatsApp'}</span>
-                <ChevronRight className="size-4" />
+                <ChevronRight className="size-4 text-white/80" />
               </Link>
             </div>
           </div>
 
           {/* Arte Mockup Celular WhatsApp à direita */}
-          <div className="group/img relative hidden h-full min-h-[230px] overflow-hidden lg:col-span-4 lg:block">
+          <div className="group/img relative hidden h-full min-h-[250px] overflow-hidden lg:col-span-4 lg:block">
             <Image
               alt="Grupo de Ofertas WhatsApp Comercial do Norte"
               className="size-full object-cover object-center"

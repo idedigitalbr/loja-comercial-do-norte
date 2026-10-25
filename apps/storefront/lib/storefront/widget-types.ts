@@ -260,6 +260,7 @@ export interface TestimonialItem {
   id: string;
   authorName: string;
   authorHandle: string;
+  timeAgo?: string;
   avatarInitials: string;
   avatarColor?: string;
   rating: number;
@@ -279,6 +280,9 @@ export type TestimonialsGridWidgetConfig = BaseWidgetConfig<'testimonials-grid',
 export interface StoreLocationItem {
   id: string;
   name: string;
+  subtitle?: string;
+  ratingText?: string;
+  imageUrl?: string;
   badge: string;
   isFeatured?: boolean;
   address: string;

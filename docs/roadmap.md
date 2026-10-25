@@ -218,7 +218,13 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
     - Indicador de desenvolvimento do Next.js posicionado no canto inferior direito (`bottom-right`).
     - Botão flutuante de ativação (`ElementorTogglePill`) para alternar entre navegação normal e modo de edição visual.
   - Página inicial `apps/storefront/app/page.tsx` refatorada para renderização dinâmica via `PageRenderer` e suporte ao editor visual.
+  - **Expansão Completa da Biblioteca de Widgets e Reconstrução das 20 Seções (`site-final.jpg` + `wireframe.png` — 25/10/2026):**
+    - Recortes de imagens e produtos extraídos sem textos pré-achatados em `apps/storefront/public/assets/home-ref/` e catalogados no modal de mídia (`ElementorMediaModal`).
+    - Evoluídos os widgets `category-grid` (`variant: 'icons-bar'`), `product-carousel` (`variant: 'split-banner' | 'standard-5col'`) e `ProductCard` (badges empilhados `35% OFF` + `⚡ RELÂMPAGO`, divisória, título antes das estrelas `4.8 (212)`, preço em `#163264`, condição de atacado e botão `"Adicionar à cotação"`).
+    - Implementados 8 novos widgets reutilizáveis: `banner-grid` (Seções 05 e 11), `quote-steps-banner` (Seção 07), `segments-carousel` (Seção 08), `promo-strip` com 3 variantes `'offers-strip' | 'conditions-mascot' | 'whatsapp-group'` (Seções 09, 13 e 17), `events-carousel` (Seção 12), `video-articles-carousel` (Seção 15), `instagram-feed` (Seção 16), `testimonials-grid` (Seção 18) e `store-locations-map` (Seção 19), além do `SiteFooter` fiel à Seção 20.
+    - Testes unitários de composição (`apps/storefront/lib/storefront/home-configuration.spec.ts`) garantindo as 19 seções de widgets habilitadas em ordem sequencial.
 - **Validação técnica:**
   - `pnpm typecheck`: **6/6 pacotes aprovados**.
   - `pnpm lint`: **6/6 pacotes aprovados**.
+  - `pnpm --filter storefront test`: **2 suítes / 6 testes aprovados**.
   - Sem quebras nas integrações existentes de API NestJS ou cotação.

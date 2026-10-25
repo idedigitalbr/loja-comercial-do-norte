@@ -30,27 +30,28 @@ export function SegmentsCarouselWidget({
   items = [],
 }: SegmentsCarouselProps) {
   const { isEditing, previewMode } = useElementor();
-  const [activeIdx, setActiveIdx] = useState(0);
+  const [activeIdx, setActiveIdx] = useState(4);
 
   if (!items || items.length === 0) return null;
 
   return (
     <section aria-label={title} className="cn-container py-4 sm:py-6">
       <div className="relative overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-[0_6px_24px_rgba(15,23,42,0.06)]">
-        {/* Topo Azul Escuro com Curva Diagonal */}
-        <div className="relative bg-gradient-to-r from-[#002B66] via-[#003B8E] to-[#004CB1] px-6 pb-36 pt-7 sm:px-10 sm:pt-9">
+        {/* Topo Azul Escuro com Barra Vermelha abaixo do Subtítulo */}
+        <div className="relative bg-gradient-to-r from-[#002868] via-[#003E99] to-[#002B66] px-6 pb-36 pt-7 sm:px-10 sm:pt-9">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
                 {title}
               </h2>
-              <p className="mt-0.5 text-lg font-medium text-blue-100 sm:text-xl">
+              <p className="mt-1 text-lg font-medium text-blue-100 sm:text-xl">
                 {subtitle}
               </p>
+              <div className="mt-2.5 h-1 w-28 rounded-full bg-[#E2091E]" />
             </div>
 
             <Link
-              className="inline-flex items-center gap-2 self-start rounded-full border border-white/25 bg-white/10 px-5 py-2.5 text-xs font-bold text-white backdrop-blur-xs transition hover:bg-white/20 sm:self-auto"
+              className="inline-flex items-center gap-2 self-start rounded-xl border border-white/40 bg-[#002868]/70 px-5 py-2.5 text-xs font-bold text-white backdrop-blur-xs transition hover:bg-white/20 sm:self-auto"
               href={ctaUrl}
             >
               <span>{ctaLabel}</span>
@@ -60,7 +61,7 @@ export function SegmentsCarouselWidget({
         </div>
 
         {/* Grid de Cards sobrepondo o fundo azul */}
-        <div className="relative -mt-28 px-5 pb-8 sm:px-9">
+        <div className="relative -mt-28 px-5 pb-7 sm:px-9">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {items.map((item, idx) => (
               <div
@@ -105,49 +106,53 @@ export function SegmentsCarouselWidget({
                   ) : null}
                 </div>
 
-                {/* Conteúdo do Card */}
-                <div className="relative flex flex-1 flex-col px-5 pb-5 pt-6">
-                  {/* Ícone Circular Vermelho Sobreposto */}
-                  <div className="absolute -top-5 left-5 flex size-10 items-center justify-center rounded-full border-2 border-white bg-[#E2091E] shadow-md">
-                    <SegmentIcon type={item.iconType} />
+                {/* Conteúdo do Card (Ícone circular vermelho + Para sua + Título + Linha vermelha + Descrição) */}
+                <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#E2091E] shadow-md">
+                      <SegmentIcon type={item.iconType} />
+                    </div>
+                    <div>
+                      <span className="block text-[11px] font-medium text-slate-400">
+                        {item.prefix}
+                      </span>
+                      <h3 className="text-xl font-extrabold leading-tight tracking-tight text-[#002868]">
+                        {item.title}
+                      </h3>
+                    </div>
                   </div>
-
-                  <span className="text-xs font-medium text-slate-500">{item.prefix}</span>
-                  <h3 className="text-xl font-extrabold tracking-tight text-[#00357B]">
-                    {item.title}
-                  </h3>
-                  <div className="my-2.5 h-[3px] w-7 rounded-full bg-[#E2091E]" />
+                  <div className="my-3 h-[3px] w-12 rounded-full bg-[#E2091E]" />
                   <p className="text-xs leading-relaxed text-slate-600">{item.description}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Setas Laterais e Dots Inferiores */}
+          {/* Setas Laterais e Pílula Azul Marinho Inferior */}
           <button
             aria-label="Segmento anterior"
-            className="absolute left-2 top-1/3 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 sm:flex"
-            onClick={() => setActiveIdx((p) => (p - 1 + 4) % 4)}
+            className="absolute left-3 top-1/3 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 sm:flex"
+            onClick={() => setActiveIdx((p) => (p - 1 + 6) % 6)}
             type="button"
           >
             <ChevronLeft className="size-5" />
           </button>
           <button
             aria-label="Próximo segmento"
-            className="absolute right-2 top-1/3 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 sm:flex"
-            onClick={() => setActiveIdx((p) => (p + 1) % 4)}
+            className="absolute right-3 top-1/3 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 sm:flex"
+            onClick={() => setActiveIdx((p) => (p + 1) % 6)}
             type="button"
           >
             <ChevronRight className="size-5" />
           </button>
 
           <div className="mt-6 flex justify-center">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5">
-              {[0, 1, 2, 3].map((dot) => (
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#101F3C] px-3 py-1.5">
+              {[0, 1, 2, 3, 4, 5].map((dot) => (
                 <button
                   aria-label={`Slide ${dot + 1}`}
                   className={`h-1.5 rounded-full transition-all ${
-                    activeIdx === dot ? 'w-5 bg-[#E2091E]' : 'w-1.5 bg-slate-300'
+                    activeIdx === dot ? 'w-4 bg-[#E2091E]' : 'w-1.5 bg-white/40 hover:bg-white/70'
                   }`}
                   key={dot}
                   onClick={() => setActiveIdx(dot)}

@@ -27,14 +27,17 @@ export function VideoArticlesCarouselWidget({
         {/* Header */}
         <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+            <p className="text-base font-medium text-red-100 sm:text-lg">
               {title}
+            </p>
+            <h2 className="mt-0.5 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+              {subtitle}
             </h2>
-            <p className="mt-1 text-sm text-red-100 sm:text-base">{subtitle}</p>
+            <div className="mt-2.5 h-1 w-28 rounded-full bg-[#004CB1]" />
           </div>
 
           <Link
-            className="inline-flex items-center gap-1.5 self-start rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-bold text-white transition hover:bg-white/20 sm:self-auto"
+            className="inline-flex items-center gap-1.5 self-start rounded-xl border border-white/35 bg-white/10 px-4 py-2 text-xs font-bold text-white transition hover:bg-white/20 sm:self-auto"
             href={viewAllUrl}
           >
             <span>{viewAllLabel}</span>
@@ -42,25 +45,19 @@ export function VideoArticlesCarouselWidget({
           </Link>
         </div>
 
-        {/* Cards Horizontais */}
+        {/* Cards Horizontais (2 colunas iguais no desktop) */}
         <div className="relative">
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             {items.map((item, idx) => (
               <div
-                className={`flex flex-col overflow-hidden rounded-2xl bg-white shadow-lg sm:flex-row ${
-                  idx === 0 ? 'lg:col-span-8' : 'lg:col-span-4'
-                }`}
+                className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-lg sm:flex-row"
                 key={item.id || idx}
               >
                 {/* Coluna Foto com Play Button */}
-                <div
-                  className={`group/img relative shrink-0 overflow-hidden bg-slate-900 ${
-                    idx === 0 ? 'sm:w-[44%]' : 'sm:w-[48%]'
-                  }`}
-                >
+                <div className="group/img relative shrink-0 overflow-hidden bg-slate-900 sm:w-[44%]">
                   <Image
                     alt={item.title}
-                    className={`h-full min-h-[240px] w-full object-cover transition duration-500 ${
+                    className={`h-full min-h-[260px] w-full object-cover transition duration-500 ${
                       isEditing && !previewMode
                         ? 'group-hover/img:brightness-50 group-hover/img:grayscale'
                         : 'group-hover/img:scale-105'
@@ -95,13 +92,11 @@ export function VideoArticlesCarouselWidget({
                 {/* Coluna Conteúdo */}
                 <div className="flex flex-1 flex-col justify-between p-5 sm:p-6">
                   <div>
-                    <div className="mb-3 flex flex-wrap gap-1.5">
+                    <div className="mb-2.5 flex flex-wrap gap-1.5">
                       {item.tags.map((tag, tIdx) => (
                         <span
-                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${
-                            tIdx === 0
-                              ? 'bg-red-50 text-[#E2091E] border border-red-200'
-                              : 'bg-blue-50 text-[#004CB1] border border-blue-200'
+                          className={`rounded px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white ${
+                            tIdx === 0 ? 'bg-[#E2091E]' : 'bg-[#004CB1]'
                           }`}
                           key={tIdx}
                         >
@@ -110,22 +105,22 @@ export function VideoArticlesCarouselWidget({
                       ))}
                     </div>
 
-                    <h3 className="text-lg font-extrabold leading-snug text-slate-900 sm:text-xl">
+                    <h3 className="text-lg font-extrabold leading-snug text-[#0B1E3F] sm:text-xl">
                       {item.title}
                     </h3>
 
-                    <div className="mt-3 space-y-2 text-xs leading-relaxed text-slate-600">
+                    <div className="mt-3 divide-y divide-slate-200/80 text-[11px] leading-relaxed text-slate-600">
                       {item.paragraphs.map((p, pIdx) => (
-                        <p className={idx > 0 && pIdx > 0 ? 'hidden xl:block' : ''} key={pIdx}>
+                        <p className="py-2 first:pt-0 last:pb-0" key={pIdx}>
                           {p}
                         </p>
                       ))}
                     </div>
                   </div>
 
-                  <div className="mt-5 pt-2">
+                  <div className="mt-4 pt-2">
                     <Link
-                      className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-800 transition hover:border-[#004CB1] hover:text-[#004CB1]"
+                      className="inline-flex items-center gap-1 rounded-lg border border-[#E2091E]/50 bg-white px-4 py-1.5 text-xs font-bold text-[#E2091E] transition hover:bg-red-50"
                       href={item.ctaUrl || '/loja'}
                     >
                       <span>{item.ctaLabel || 'Ver Completo'}</span>
@@ -155,14 +150,14 @@ export function VideoArticlesCarouselWidget({
           </button>
         </div>
 
-        {/* Dots inferiores */}
+        {/* Dots inferiores em pílula azul marinho (#101F3C) */}
         <div className="mt-6 flex justify-center">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-black/25 px-3 py-1.5">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#101F3C] px-3.5 py-1.5 shadow-sm">
             {[0, 1, 2].map((dot) => (
               <button
                 aria-label={`Página ${dot + 1}`}
                 className={`h-1.5 rounded-full transition-all ${
-                  activeIdx === dot ? 'w-5 bg-white' : 'w-1.5 bg-white/40'
+                  activeIdx === dot ? 'w-5 bg-[#E2091E]' : 'w-1.5 bg-white/60'
                 }`}
                 key={dot}
                 onClick={() => setActiveIdx(dot)}
