@@ -5,10 +5,10 @@ import {
   ArrowDown,
   ArrowUp,
   Copy,
-  Edit3,
   Eye,
   EyeOff,
-  Palette,
+  GripVertical,
+  Pencil,
   Plus,
   Trash2,
   X,
@@ -16,32 +16,12 @@ import {
 import { useElementor } from './elementor-editor-context';
 import type { WidgetConfig } from '@/lib/storefront/widget-types';
 
-const widgetLabels: Record<string, { label: string; badge: string; color: string }> = {
-  'hero-carousel': {
-    label: 'Carrossel Full Largura (Mercado Livre)',
-    badge: 'HERO',
-    color: '#004CB1',
-  },
-  'contained-hero': {
-    label: 'Carrossel Padrão (Campanhas)',
-    badge: 'BANNER',
-    color: '#E2091E',
-  },
-  'benefits-bar': {
-    label: 'Barra de Benefícios (4 Ícones)',
-    badge: 'ICONS',
-    color: '#028F34',
-  },
-  'product-carousel': {
-    label: 'Carrossel de Produtos / Ofertas',
-    badge: 'PRODUTOS',
-    color: '#FF7A00',
-  },
-  'category-grid': {
-    label: 'Grade de Departamentos',
-    badge: 'CATEGORIAS',
-    color: '#8C1D40',
-  },
+const widgetLabels: Record<string, string> = {
+  'hero-carousel': 'Carrossel Full Largura',
+  'contained-hero': 'Carrossel Padrão (Campanhas)',
+  'benefits-bar': 'Barra de Benefícios',
+  'product-carousel': 'Vitrine de Produtos / Ofertas',
+  'category-grid': 'Grade de Departamentos',
 };
 
 export function ElementorSectionWrapper({
@@ -63,76 +43,90 @@ export function ElementorSectionWrapper({
     selectedWidgetId,
     setSelectedWidgetId,
     moveWidget,
+    reorderWidgets,
     removeWidget,
     toggleWidget,
     addWidget,
-    updateWidgetProps,
   } = useElementor();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
 
-  // Se não estiver editando ou estiver em modo Preview, renderiza a seção de forma 100% limpa
   if (!isEditing || previewMode) {
     if (!widget.enabled) return null;
     return <section id={`section-${widget.id}`}>{children}</section>;
   }
 
   const isSelected = selectedWidgetId === widget.id;
-  const meta = widgetLabels[widget.type] || {
-    label: widget.type,
-    badge: 'WIDGET',
-    color: '#004CB1',
+  const label = widgetLabels[widget.type] || widget.type;
+
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('text/section-index', String(index));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (!isDragOver) setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const fromIndex = Number(e.dataTransfer.getData('text/section-index'));
+    if (!isNaN(fromIndex) && fromIndex !== index) {
+      reorderWidgets(fromIndex, index);
+    }
   };
 
   return (
     <section
       className={`group/section relative transition-all duration-200 ${
         isSelected
-          ? 'ring-2 ring-[#004CB1] rounded-2xl'
-          : 'hover:ring-2 hover:ring-dashed hover:ring-[#004CB1]/40 rounded-2xl'
-      } ${!widget.enabled ? 'opacity-40 grayscale select-none' : ''}`}
+          ? 'ring-1 ring-zinc-500/70 rounded-2xl'
+          : 'hover:ring-1 hover:ring-zinc-600/40 rounded-2xl'
+      } ${isDragOver ? 'ring-2 ring-sky-500 bg-sky-950/10' : ''} ${
+        !widget.enabled ? 'opacity-40 grayscale select-none' : ''
+      }`}
       id={`section-${widget.id}`}
       onClick={() => setSelectedWidgetId(widget.id)}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
     >
-      {/* LAPIZINHO MINIMALISTA: Aparece suavemente no canto superior direito no hover (Conforme solicitado) */}
+      {/* LADO ESQUERDO: APENAS O PINCELZINHO MINIMALISTA (Estilo Dark / Shadcn) */}
       <div
-        className="absolute top-3 right-4 z-40 transition-all duration-200"
+        className="absolute top-3 left-4 z-40 transition-all duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative">
-          {/* O Lápis Botão Minimalista com Badge */}
+          {/* Botão Ícone do Lápis Minimalista */}
           <button
-            aria-label={`Editar ${meta.label}`}
-            className="flex items-center gap-1.5 rounded-full bg-[#004CB1] px-3 py-1.5 text-xs font-bold text-white shadow-xl transition-all duration-200 hover:scale-105 hover:bg-[#00357B] cursor-pointer opacity-0 group-hover/section:opacity-100 group-hover/section:translate-y-0 translate-y-1 focus:opacity-100"
+            aria-label={`Editar ${label}`}
+            className="flex size-9 cursor-pointer items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950/90 text-zinc-300 shadow-xl backdrop-blur-md transition-all duration-150 hover:scale-105 hover:border-sky-500/50 hover:bg-black hover:text-sky-400 opacity-0 group-hover/section:opacity-100 group-hover/section:translate-y-0 translate-y-1 focus:opacity-100"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            title="Clique para abrir opções desta seção"
+            title="Configurar esta seção"
             type="button"
           >
-            <Edit3 className="size-3.5" />
-            <span>Editar Seção</span>
-            <span
-              className="ml-1 rounded px-1.5 py-0.2 text-[9px] font-black text-white"
-              style={{ backgroundColor: meta.color }}
-            >
-              {meta.badge}
-            </span>
+            <Pencil className="size-4" />
           </button>
 
-          {/* JANELA FLUTUANTE / TOOLTIP DE OPÇÕES DA SEÇÃO (Abre ao clicar no lápis) */}
+          {/* Janela Suspensa Shadcn Dark Mode de Opções */}
           {isMenuOpen && (
-            <div className="absolute top-10 right-0 z-50 w-72 rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-150 text-slate-800">
-              {/* Cabeçalho do Popover */}
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="size-2.5 rounded-full"
-                    style={{ backgroundColor: meta.color }}
-                  />
-                  <span className="text-xs font-bold truncate max-w-[170px]">{meta.label}</span>
-                </div>
+            <div className="absolute top-11 left-0 z-50 w-64 rounded-2xl border border-zinc-800 bg-zinc-950 p-3 text-zinc-200 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+              {/* Topo do Menu */}
+              <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2 mb-2">
+                <span className="text-xs font-bold text-white truncate max-w-[180px]">
+                  {label}
+                </span>
                 <button
                   aria-label="Fechar"
-                  className="flex size-6 cursor-pointer items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                  className="flex size-6 cursor-pointer items-center justify-center rounded-full text-zinc-400 hover:bg-zinc-800 hover:text-white"
                   onClick={() => setIsMenuOpen(false)}
                   type="button"
                 >
@@ -140,94 +134,119 @@ export function ElementorSectionWrapper({
                 </button>
               </div>
 
-              {/* Grid de Ações Rápidas da Seção */}
-              <div className="grid grid-cols-2 gap-1.5 text-xs">
-                {/* Mover para Cima */}
+              {/* Lista de Ações Limpas */}
+              <div className="flex flex-col gap-1 text-xs">
+                {/* Inserir Acima */}
                 <button
-                  className="flex items-center gap-1.5 rounded-lg border border-slate-200 p-2 hover:bg-slate-50 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed font-medium text-slate-700"
-                  disabled={index === 0}
-                  onClick={() => moveWidget(widget.id, 'up')}
-                  type="button"
-                >
-                  <ArrowUp className="size-3.5 text-[#004CB1]" />
-                  <span>Subir</span>
-                </button>
-
-                {/* Mover para Baixo */}
-                <button
-                  className="flex items-center gap-1.5 rounded-lg border border-slate-200 p-2 hover:bg-slate-50 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed font-medium text-slate-700"
-                  disabled={index === totalWidgets - 1}
-                  onClick={() => moveWidget(widget.id, 'down')}
-                  type="button"
-                >
-                  <ArrowDown className="size-3.5 text-[#004CB1]" />
-                  <span>Descer</span>
-                </button>
-
-                {/* Duplicar Seção */}
-                <button
-                  className="flex items-center gap-1.5 rounded-lg border border-slate-200 p-2 hover:bg-slate-50 transition cursor-pointer font-medium text-slate-700"
-                  onClick={() => {
-                    addWidget(widget.type, widget.order + 1);
-                    setIsMenuOpen(false);
-                  }}
-                  type="button"
-                >
-                  <Copy className="size-3.5 text-slate-600" />
-                  <span>Duplicar</span>
-                </button>
-
-                {/* Alternar Visibilidade */}
-                <button
-                  className="flex items-center gap-1.5 rounded-lg border border-slate-200 p-2 hover:bg-slate-50 transition cursor-pointer font-medium text-slate-700"
-                  onClick={() => toggleWidget(widget.id)}
-                  type="button"
-                >
-                  {widget.enabled ? (
-                    <>
-                      <Eye className="size-3.5 text-emerald-600" />
-                      <span>Visível</span>
-                    </>
-                  ) : (
-                    <>
-                      <EyeOff className="size-3.5 text-red-500" />
-                      <span className="text-red-500 font-bold">Oculto</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* Botão de Inserir Seção Acima */}
-              <div className="mt-2 pt-2 border-t border-slate-100 flex flex-col gap-1.5">
-                <button
-                  className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-blue-50 py-1.5 text-xs font-bold text-[#004CB1] hover:bg-blue-100 transition cursor-pointer"
+                  className="flex items-center gap-2 rounded-lg p-2 text-zinc-300 hover:bg-zinc-900 hover:text-white transition cursor-pointer"
                   onClick={() => {
                     onAddAbove();
                     setIsMenuOpen(false);
                   }}
                   type="button"
                 >
-                  <Plus className="size-3.5" />
-                  <span>Inserir Nova Seção Acima</span>
+                  <Plus className="size-3.5 text-sky-400" />
+                  <span>Inserir seção acima</span>
                 </button>
 
-                {/* Excluir Seção */}
+                {/* Duplicar */}
                 <button
-                  className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-red-50 py-1.5 text-xs font-bold text-red-600 hover:bg-red-100 transition cursor-pointer"
+                  className="flex items-center gap-2 rounded-lg p-2 text-zinc-300 hover:bg-zinc-900 hover:text-white transition cursor-pointer"
                   onClick={() => {
-                    if (confirm(`Remover "${meta.label}" da página?`)) {
-                      removeWidget(widget.id);
-                      setIsMenuOpen(false);
-                    }
+                    addWidget(widget.type, widget.order + 1);
+                    setIsMenuOpen(false);
                   }}
                   type="button"
                 >
-                  <Trash2 className="size-3.5" />
-                  <span>Excluir Seção</span>
+                  <Copy className="size-3.5 text-zinc-400" />
+                  <span>Duplicar seção</span>
                 </button>
+
+                {/* Visibilidade */}
+                <button
+                  className="flex items-center gap-2 rounded-lg p-2 text-zinc-300 hover:bg-zinc-900 hover:text-white transition cursor-pointer"
+                  onClick={() => toggleWidget(widget.id)}
+                  type="button"
+                >
+                  {widget.enabled ? (
+                    <>
+                      <Eye className="size-3.5 text-emerald-400" />
+                      <span>Visível na vitrine</span>
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff className="size-3.5 text-red-400" />
+                      <span className="text-red-400">Oculto</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Excluir Seção */}
+                <div className="mt-1 pt-1 border-t border-zinc-800/80">
+                  <button
+                    className="flex w-full items-center gap-2 rounded-lg p-2 text-red-400 hover:bg-red-950/40 hover:text-red-300 transition cursor-pointer"
+                    onClick={() => {
+                      if (confirm(`Remover "${label}" da página?`)) {
+                        removeWidget(widget.id);
+                        setIsMenuOpen(false);
+                      }
+                    }}
+                    type="button"
+                  >
+                    <Trash2 className="size-3.5" />
+                    <span>Excluir seção</span>
+                  </button>
+                </div>
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* LADO DIREITO: ALÇA DE MOVIMENTAÇÃO DRAG & DROP (Quadradinhos) + Setinhas */}
+      <div
+        className="absolute top-3 right-4 z-40 transition-all duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div
+          className="flex items-center gap-0.5 rounded-xl border border-zinc-800 bg-zinc-950/90 p-1 text-zinc-400 shadow-xl backdrop-blur-md opacity-0 group-hover/section:opacity-100 group-hover/section:translate-y-0 translate-y-1 transition-all duration-150 focus-within:opacity-100"
+        >
+          {/* Alça Drag & Drop dos Quadradinhos */}
+          <div
+            aria-label="Arrastar para reordenar"
+            className="flex size-7 cursor-grab active:cursor-grabbing items-center justify-center rounded-lg hover:bg-zinc-800 hover:text-sky-400 transition"
+            draggable={true}
+            onDragStart={handleDragStart}
+            title="Arraste para mover esta seção para cima ou para baixo"
+          >
+            <GripVertical className="size-4" />
+          </div>
+
+          <span className="h-4 w-px bg-zinc-800" />
+
+          {/* Subir */}
+          <button
+            aria-label="Subir seção"
+            className="flex size-7 cursor-pointer items-center justify-center rounded-lg hover:bg-zinc-800 hover:text-white transition disabled:opacity-20 disabled:cursor-not-allowed"
+            disabled={index === 0}
+            onClick={() => moveWidget(widget.id, 'up')}
+            title="Mover para cima"
+            type="button"
+          >
+            <ArrowUp className="size-3.5" />
+          </button>
+
+          {/* Descer */}
+          <button
+            aria-label="Descer seção"
+            className="flex size-7 cursor-pointer items-center justify-center rounded-lg hover:bg-zinc-800 hover:text-white transition disabled:opacity-20 disabled:cursor-not-allowed"
+            disabled={index === totalWidgets - 1}
+            onClick={() => moveWidget(widget.id, 'down')}
+            title="Mover para baixo"
+            type="button"
+          >
+            <ArrowDown className="size-3.5" />
+          </button>
         </div>
       </div>
 

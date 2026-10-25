@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useRef } from 'react';
-import { ArrowUp, Image as ImageIcon, Link as LinkIcon, Plus, Upload } from 'lucide-react';
+import React from 'react';
+import { Image as ImageIcon, Plus, Trash2 } from 'lucide-react';
 import { useElementor } from './elementor-editor-context';
 
 interface InlineImageEditorOverlayProps {
@@ -16,133 +16,63 @@ export function InlineImageEditorOverlay({
   widgetId,
   slideId,
   currentImageUrl,
-  currentLinkUrl,
   title,
 }: InlineImageEditorOverlayProps) {
-  const { isEditing, previewMode, openMediaModal, updateSlideInWidget, addSlideToWidget } = useElementor();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { isEditing, previewMode, openMediaModal, removeSlideFromWidget, addSlideToWidget } = useElementor();
 
   if (!isEditing || previewMode) return null;
 
-  // Lida com upload direto de arquivo do computador do usuário
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        if (result) {
-          updateSlideInWidget(widgetId, slideId, {
-            imageUrl: result,
-            altText: file.name.replace(/\.[^/.]+$/, ''),
-          });
-        }
-      };
-      reader.readAsDataURL(file);
+  const handleRemoveSlide = () => {
+    const itemName = title ? `"${title}"` : 'este slide';
+    if (confirm(`Você tem certeza que deseja remover do slide o item ${itemName}?`)) {
+      removeSlideFromWidget(widgetId, slideId);
     }
   };
 
   return (
-    <>
-      {/* Input de arquivo invisível para upload direto */}
-      <input
-        accept="image/*"
-        className="hidden"
-        onChange={handleFileUpload}
-        ref={fileInputRef}
-        type="file"
-      />
-
-      {/* Camada centralizada de edição sobre a imagem (Conforme Anexo do usuário) */}
-      <div
-        className="absolute inset-0 z-30 flex items-center justify-center bg-black/35 opacity-0 transition-opacity duration-200 hover:opacity-100 backdrop-blur-[1px]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex flex-col items-center gap-3 animate-in fade-in zoom-in-95 duration-150">
-          {/* Caixa Central de Seleção Estilo Print do Usuário */}
-          <div
-            className="group/box relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-white bg-black/60 p-4 shadow-2xl backdrop-blur-md transition-transform hover:scale-105 hover:border-amber-300"
-            onClick={() => openMediaModal({ widgetId, slideId, currentUrl: currentImageUrl })}
-            title="Clique para trocar imagem do banner"
-          >
-            {/* 4 Alças nas pontas da caixa estilo ferramenta gráfica */}
-            <span className="absolute -top-1.5 -left-1.5 size-2.5 rounded-xs border border-black bg-white" />
-            <span className="absolute -top-1.5 -right-1.5 size-2.5 rounded-xs border border-black bg-white" />
-            <span className="absolute -bottom-1.5 -left-1.5 size-2.5 rounded-xs border border-black bg-white" />
-            <span className="absolute -bottom-1.5 -right-1.5 size-2.5 rounded-xs border border-black bg-white" />
-
-            {/* Ícone de Foto com Seta para Cima (Exato ao Anexo do Usuário) */}
-            <div className="relative mb-1 flex size-14 items-center justify-center rounded-2xl bg-white text-slate-900 shadow-xl">
-              <ImageIcon className="size-7 text-[#004CB1]" />
-              <div className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-[#E2091E] text-white shadow-md">
-                <ArrowUp className="size-3 stroke-[3]" />
-              </div>
-            </div>
-
-            <span className="text-xs font-bold text-white tracking-wide">
-              Trocar Imagem do Banner
-            </span>
-            <span className="text-[10px] text-white/70">
-              Galeria ou Upload do PC
-            </span>
+    <div
+      className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 opacity-0 transition-all duration-300 hover:opacity-100 backdrop-blur-[2px]"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Botões Centrais Flutuantes Minimalistas (Estilo Dark / Shadcn) */}
+      <div className="flex items-center gap-2.5 animate-in fade-in zoom-in-95 duration-200">
+        {/* BOTÃO PRINCIPAL: Trocar Imagem (Branco para cinza, animação e azul claro no hover) */}
+        <button
+          className="group/btn flex cursor-pointer items-center gap-2.5 rounded-full border border-zinc-700/80 bg-zinc-900/90 px-5 py-3 text-zinc-300 shadow-2xl backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-sky-500/60 hover:bg-black hover:text-sky-400 hover:shadow-[0_0_25px_rgba(56,189,248,0.25)]"
+          onClick={() => openMediaModal({ widgetId, slideId, currentUrl: currentImageUrl })}
+          title="Clique para escolher nova imagem ou enviar do computador"
+          type="button"
+        >
+          <div className="relative transition-transform duration-200 group-hover/btn:scale-110">
+            <ImageIcon className="size-5 transition-colors duration-200 group-hover/btn:text-sky-400" />
           </div>
+          <span className="text-xs font-semibold tracking-wide">
+            Trocar Imagem
+          </span>
+        </button>
 
-          {/* Barra Flutuante com Ações Rápidas (Pill abaixo da caixa) */}
-          <div className="flex items-center gap-1.5 rounded-full border border-white/20 bg-black/85 p-1 text-white shadow-2xl backdrop-blur-md">
-            {/* Botão Ver Galeria */}
-            <button
-              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition hover:bg-white/20 cursor-pointer"
-              onClick={() => openMediaModal({ widgetId, slideId, currentUrl: currentImageUrl })}
-              type="button"
-            >
-              <ImageIcon className="size-3.5 text-amber-300" />
-              <span>Ver Galeria</span>
-            </button>
+        {/* BOTÃO: Remover este item do slide com confirmação */}
+        <button
+          aria-label="Remover item do slide"
+          className="group/del flex size-11 cursor-pointer items-center justify-center rounded-full border border-zinc-700/80 bg-zinc-900/90 text-zinc-400 shadow-xl backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-red-500/60 hover:bg-black hover:text-red-400 hover:shadow-[0_0_20px_rgba(239,68,68,0.25)]"
+          onClick={handleRemoveSlide}
+          title={`Remover este slide (${title || 'Slide'})`}
+          type="button"
+        >
+          <Trash2 className="size-4.5 transition-transform duration-200 group-hover/del:scale-110" />
+        </button>
 
-            <span className="h-3 w-px bg-white/20" />
-
-            {/* Botão Fazer Upload */}
-            <button
-              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition hover:bg-white/20 cursor-pointer"
-              onClick={() => fileInputRef.current?.click()}
-              type="button"
-            >
-              <Upload className="size-3.5 text-emerald-300" />
-              <span>Enviar Foto</span>
-            </button>
-
-            <span className="h-3 w-px bg-white/20" />
-
-            {/* Botão Alterar Link */}
-            <button
-              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition hover:bg-white/20 cursor-pointer"
-              onClick={() => {
-                const newLink = prompt('Informe o link do banner (ex: /loja ou https://...):', currentLinkUrl || '/loja');
-                if (newLink !== null) {
-                  updateSlideInWidget(widgetId, slideId, { linkUrl: newLink });
-                }
-              }}
-              type="button"
-            >
-              <LinkIcon className="size-3.5 text-sky-300" />
-              <span>Link</span>
-            </button>
-
-            <span className="h-3 w-px bg-white/20" />
-
-            {/* Botão Adicionar Mais Um Slide */}
-            <button
-              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition hover:bg-[#004CB1] cursor-pointer"
-              onClick={() => addSlideToWidget(widgetId)}
-              title="Adicionar novo slide ao carrossel"
-              type="button"
-            >
-              <Plus className="size-3.5" />
-              <span>+ Slide</span>
-            </button>
-          </div>
-        </div>
+        {/* BOTÃO: Adicionar novo slide */}
+        <button
+          aria-label="Adicionar novo slide"
+          className="group/add flex size-11 cursor-pointer items-center justify-center rounded-full border border-zinc-700/80 bg-zinc-900/90 text-zinc-400 shadow-xl backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-sky-500/60 hover:bg-black hover:text-sky-400 hover:shadow-[0_0_20px_rgba(56,189,248,0.25)]"
+          onClick={() => addSlideToWidget(widgetId)}
+          title="Adicionar novo slide ao carrossel"
+          type="button"
+        >
+          <Plus className="size-5 transition-transform duration-200 group-hover/add:scale-110" />
+        </button>
       </div>
-    </>
+    </div>
   );
 }

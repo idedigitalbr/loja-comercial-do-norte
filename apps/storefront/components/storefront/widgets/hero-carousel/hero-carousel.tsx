@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { InlineImageEditorOverlay } from '@/components/storefront/editor/inline-image-editor-overlay';
+import { useElementor } from '@/components/storefront/editor/elementor-editor-context';
 import type { HeroCarouselProps } from '@/lib/storefront/widget-types';
 
 export function HeroCarouselWidget({
@@ -14,8 +15,11 @@ export function HeroCarouselWidget({
   showDots = true,
   bottomGradient = true,
 }: HeroCarouselProps) {
+  const { isEditing, previewMode } = useElementor();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+
+  const isEditMode = isEditing && !previewMode;
 
   const nextSlide = useCallback(() => {
     if (slides.length <= 1) return;
@@ -52,7 +56,7 @@ export function HeroCarouselWidget({
             return (
               <div
                 aria-hidden={!isActive}
-                className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                className={`group/slide absolute inset-0 transition-opacity duration-700 ease-in-out ${
                   isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
                 }`}
                 key={slide.id}
@@ -66,7 +70,9 @@ export function HeroCarouselWidget({
                   {/* eslint-disable-next-js/next/no-img-element */}
                   <img
                     alt={slide.altText}
-                    className="block size-full object-cover object-center"
+                    className={`block size-full object-cover object-center transition-all duration-300 ${
+                      isEditMode ? 'group-hover/slide:grayscale group-hover/slide:brightness-40' : ''
+                    }`}
                     fetchPriority={index === 0 ? 'high' : 'auto'}
                     height={500}
                     loading={index === 0 ? 'eager' : 'lazy'}
@@ -75,7 +81,7 @@ export function HeroCarouselWidget({
                   />
                 </Link>
 
-                {/* ÍCONE DE TROCAR FOTO NO CENTRO DA IMAGEM (Conforme print do usuário) */}
+                {/* ÍCONE DE TROCAR FOTO NO CENTRO DA IMAGEM (Minimalista, Dark, sem pontilhado) */}
                 {isActive && (
                   <InlineImageEditorOverlay
                     currentImageUrl={slide.imageUrl}

@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { InlineImageEditorOverlay } from '@/components/storefront/editor/inline-image-editor-overlay';
+import { useElementor } from '@/components/storefront/editor/elementor-editor-context';
 import type { ContainedHeroProps } from '@/lib/storefront/widget-types';
 
 export function ContainedHeroWidget({
@@ -14,8 +15,11 @@ export function ContainedHeroWidget({
   showDots = true,
   overlapTop = true,
 }: ContainedHeroProps) {
+  const { isEditing, previewMode } = useElementor();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+
+  const isEditMode = isEditing && !previewMode;
 
   const nextSlide = useCallback(() => {
     if (slides.length <= 1) return;
@@ -50,7 +54,7 @@ export function ContainedHeroWidget({
             return (
               <div
                 aria-hidden={!isActive}
-                className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                className={`group/slide absolute inset-0 transition-all duration-700 ease-in-out ${
                   isActive
                     ? 'scale-100 opacity-100 z-10 pointer-events-auto'
                     : 'scale-105 opacity-0 z-0 pointer-events-none'
@@ -66,7 +70,9 @@ export function ContainedHeroWidget({
                   {/* eslint-disable-next-js/next/no-img-element */}
                   <img
                     alt={slide.altText}
-                    className="block size-full object-cover object-center"
+                    className={`block size-full object-cover object-center transition-all duration-300 ${
+                      isEditMode ? 'group-hover/slide:grayscale group-hover/slide:brightness-40' : ''
+                    }`}
                     fetchPriority={index === 0 ? 'high' : 'auto'}
                     height={1056}
                     loading={index === 0 ? 'eager' : 'lazy'}
@@ -75,7 +81,7 @@ export function ContainedHeroWidget({
                   />
                 </Link>
 
-                {/* ÍCONE DE TROCAR FOTO NO CENTRO DO BANNER (Exato ao anexo do usuário) */}
+                {/* ÍCONE DE TROCAR FOTO NO CENTRO DO BANNER (Minimalista, Dark, sem pontilhado) */}
                 {isActive && (
                   <InlineImageEditorOverlay
                     currentImageUrl={slide.imageUrl}

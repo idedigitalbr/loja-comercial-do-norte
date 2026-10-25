@@ -39,6 +39,7 @@ interface ElementorContextValue {
   setSelectedWidgetId: (id: string | null) => void;
   updateWidgetProps: (id: string, newProps: any) => void;
   moveWidget: (id: string, direction: 'up' | 'down') => void;
+  reorderWidgets: (fromIndex: number, toIndex: number) => void;
   removeWidget: (id: string) => void;
   toggleWidget: (id: string) => void;
   addWidget: (type: WidgetType, insertIndex?: number) => void;
@@ -176,6 +177,16 @@ export function ElementorEditorProvider({
       ...composition,
       widgets: [...sorted].sort((a, b) => a.order - b.order),
     });
+  }
+
+  function reorderWidgets(fromIndex: number, toIndex: number) {
+    if (fromIndex === toIndex) return;
+    const sorted = [...composition.widgets].sort((a, b) => a.order - b.order);
+    const [moved] = sorted.splice(fromIndex, 1);
+    if (!moved) return;
+    sorted.splice(toIndex, 0, moved);
+    const updated = sorted.map((w, idx) => ({ ...w, order: idx + 1 }));
+    commitChange({ ...composition, widgets: updated });
   }
 
   function removeWidget(id: string) {
@@ -430,6 +441,7 @@ export function ElementorEditorProvider({
         setSelectedWidgetId,
         updateWidgetProps,
         moveWidget,
+        reorderWidgets,
         removeWidget,
         toggleWidget,
         addWidget,
