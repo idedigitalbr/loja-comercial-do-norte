@@ -11,6 +11,8 @@ composer.phar
 !.env.example
 
 # Builds, caches and coverage
+.next/
+out/
 dist/
 build/
 apps/api/public/

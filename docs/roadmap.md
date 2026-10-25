@@ -1,10 +1,11 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
-> **Único documento operacional de execução, bloqueios, riscos e histórico breve** — atualizado em **24/10/2026**.
+> **Único documento operacional de execução, bloqueios, riscos e histórico breve** — atualizado em **25/10/2026**.
 > Decisões permanentes e contexto: [`memory-ai.md`](./memory-ai.md). Não criar changelog, checklist ou prompts de memória separados nesta pasta.
 
 ## 1. Estado confirmado nesta revisão
 
+- **Atualização de 25/10/2026:** main remota em `984079e`, com integração Next.js/PostgreSQL/coordenação no commit `018648f`. Checkout local atualizado de `c6977e0` para `984079e` por fast-forward, sem descarte de trabalho. As referências abaixo à main `564c9e3` e PR #37 pendente descrevem a revisão anterior, não o estado atual. A refatoração visual solicitada hoje ainda não começou.
 - Repositório oficial **privado**: [idedigitalbr/loja-comercial-do-norte](https://github.com/idedigitalbr/loja-comercial-do-norte). Branch de desenvolvimento `feat/stack-next-postgres` em `88c413c`; coordenação em `chore/multiagent-coordination`. Main em `564c9e3`; nenhuma integração/deploy autorizada nesta missão.
 - Código conferido: Next.js App Router na loja, NestJS como API única, admin React/Vite, Prisma/PostgreSQL com quatro migrations versionadas, cotação implementada e flags isolando módulos futuros. Padronização visual completa, Playwright e prontidão de produção ainda pendem.
 - Fonte operacional de tarefas/status: [Project 3](https://github.com/orgs/idedigitalbr/projects/3). Roadmap registra marcos, riscos e evidências; o manifesto é estrutura de bootstrap, não um espelho autoritativo de execução.
@@ -194,3 +195,21 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
 - Agenda aplicada sem sobrescrever datas existentes: 34/34 itens fora de Backlog têm início e entrega; 8 itens em Backlog seguem sem datas. Datas ativas são estimativas. Sprint 3 mantém entrega de 31/10; agregação de tarefas chega a 07/11 e precisa de revisão humana.
 - Reconciliação de categorias executada; `verify-project.mjs`: 47 itens, 42/42 dependências, zero erros. A reserva de #48 continua ativa para `codex-will`, sem atividade confirmada nesta sessão.
 - Pendente: configuração visual do Roadmap, revisão da divergência de Sprint 3, CI após o novo push e homologação de `PROJECT_TOKEN` no Actions. Nenhum PostgreSQL iniciado; sem merge/deploy.
+
+### Checkpoint Vitrine Modular e Fidelidade Visual — 25/10/2026
+
+- **Entrega executada:**
+  - Diagnóstico da referência `site-comercial-do-norte-html-referencia` e sincronização de assets e favicons para `apps/storefront/public/assets`.
+  - Design Tokens do Header oficial e Hero integrados em `packages/ui/src/styles/tokens.css` e mapeados no Tailwind 4 (`apps/storefront/app/globals.css`).
+  - Arquitetura Modular de Widgets (`apps/storefront/lib/storefront/widget-types.ts`, `widget-registry.tsx`, `home-configuration.ts`).
+  - Header fiel em 3 barras com Mascote 3D James, logo oficial branca, seletor de CEP, busca Figma, ações de cotação/favoritos/conta, subnav de departamentos e drawer mobile off-canvas (`apps/storefront/components/site-header.tsx`).
+  - Hero Carousel de largura total estilo Mercado Livre (`HeroCarouselWidget`).
+  - Hero Secundário Contido com bordas arredondadas e sobreposição negativa (`ContainedHeroWidget`).
+  - Barra de benefícios comerciais (`BenefitsBarWidget`).
+  - Carrossel de ofertas com cards de produto e cotação (`ProductCarouselWidget`).
+  - Grid de departamentos do catálogo (`CategoryGridWidget`).
+  - Página inicial `apps/storefront/app/page.tsx` refatorada para renderização dinâmica via `PageRenderer`.
+- **Validação técnica:**
+  - `pnpm typecheck`: **6/6 pacotes aprovados**.
+  - `pnpm lint`: **6/6 pacotes aprovados**.
+  - Sem quebras nas integrações existentes de API NestJS ou cotação.

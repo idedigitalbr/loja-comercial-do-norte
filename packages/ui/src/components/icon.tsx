@@ -228,7 +228,7 @@ export type IconProps = Omit<LucideProps, 'ref'> & {
   name: IconName;
 };
 
-export function Icon({ name, className, size = 18, strokeWidth = 1.8, 'aria-hidden': ariaHidden = true, ...props }: IconProps) {
+export function Icon({ name, className, size = 18, strokeWidth = 1.8, 'aria-hidden': ariaHidden = true, ...props }: IconProps): React.JSX.Element {
   const IconComponent = iconMap[name];
   return (
     <IconComponent

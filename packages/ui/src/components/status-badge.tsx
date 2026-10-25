@@ -12,7 +12,7 @@ export type StatusBadgeProps = {
   label?: string;
 };
 
-export function StatusBadge({ status, label }: StatusBadgeProps) {
+export function StatusBadge({ status, label }: StatusBadgeProps): React.JSX.Element {
   const normalizedStatus = status.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   return (
     <span className={`commerce-status-badge commerce-status-badge--${normalizedStatus}`}>

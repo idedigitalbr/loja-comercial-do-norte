@@ -1,6 +1,6 @@
 # MEMORY AI — COMERCIAL DO NORTE
 
-> **Documento canônico de contexto e decisões do projeto** — atualizado em **24/10/2026**.
+> **Documento canônico de contexto e decisões do projeto** — atualizado em **25/10/2026**.
 > Leitura obrigatória para qualquer agente de IA ou desenvolvedor antes de planejar, implementar ou revisar alterações.
 > Repositório: `https://github.com/idedigitalbr/loja-comercial-do-norte`.
 > Complemento operacional: [`roadmap.md`](./roadmap.md). **Nesta pasta existem somente estes dois arquivos `.md`** (os únicos complementos ficam em `security/`).
@@ -16,6 +16,7 @@
 
 ### Estado atual do código (transição)
 
+- **Correção confirmada em 25/10/2026:** a main remota já contém Next.js/PostgreSQL e a coordenação, integrados em `018648f`; HEAD consultado `984079e`. Os apontamentos abaixo sobre main antiga e branches de desenvolvimento são históricos. A cópia local `D:\.GITHUB\sistemas\loja-comercial-do-norte` estava em `c6977e0` (23/10), foi sincronizada por fast-forward para `984079e` nesta sessão. O origin local ainda usa a URL antiga de `victorwilliames`; o repositório oficial é `idedigitalbr/loja-comercial-do-norte`. **Não refazer a migração Next nem reutilizar o storefront Vite antigo.** Vite permanece no admin.
 - Referência inspecionada: branch `chore/multiagent-coordination`, derivada de `feat/stack-next-postgres` (`88c413c`). A `main` permanece em `564c9e3` até revisão humana. Em 24/10/2026 o **storefront passou a ser Next.js 16 (App Router)** consumindo a API REST, o **admin** continua React/Vite, o Prisma aponta para **PostgreSQL** com migrations versionadas e o domínio de **cotação** já existe na API.
 - Next.js, NestJS e PostgreSQL estão implementados na branch de desenvolvimento; padronização completa de UI, aceite no navegador e produção permanecem pendentes. Não confundir implementação nessa branch com integração na `main` ou publicação.
 - Projeto **em desenvolvimento**; segundo o responsável, **ainda não há produtos cadastrados**. Não concluir daí que o banco está vazio: validar usuários, configurações, banners e demais registros antes de qualquer reset.
@@ -138,6 +139,22 @@ docs/
 ## 3. Identidade visual e UX oficiais
 
 **Fonte oficial:** `site-comercial-do-norte-html-referencia/DESIGN-comercial-do-norte.md`, com `index.html`, prévia de design system e `assets/`. Reutilizar a composição e os ativos já aprovados; não substituir por referência visual da +B Farma nem pelo visual preto/dourado da Jonas & Elivaldo.
+
+### Requisito vigente de vitrine modular — 25/10/2026
+
+- O responsável pediu reprodução extremamente fiel do **HTML real**, sem redesign, comparando viewports iguais. Não alterar a referência. Preservar API Nest, cotação e integrações existentes.
+- Home por widgets conhecidos, tipados e validados: instância com `id`, `type`, `enabled`, `order`, `props`; composição versionada; registro fechado de renderizadores, sem HTML arbitrário vindo do banco. Conteúdo separado do JSX. Header/navegação/footer globais fora da ordenação livre.
+- Server Components para carregamento/composição; Client Components apenas nas interações. Reutilizar `packages/ui`, contratos e API. Tailwind + tema shadcn alinhados aos tokens extraídos; a presença de primitivos próprios **não comprova** instalação completa do shadcn/Radix.
+- Primeira implementação: fundamentos → header/navegação → hero de largura total → carrossel contido → carrossel de campanhas convencional. Não implementar todos os widgets nem editor visual agora.
+- Evolução planejada: edição pelo admin, publicação sem deploy e preview/editor usando os mesmos renderizadores públicos. Persistência e autorização exclusivamente no Nest; não criar CMS/backend paralelo.
+- **Implementação executada em 25/10/2026:**
+  - **Fundamentos e Tokens:** Tokens oficiais do Header (`--cn-header-top-red: #e2091e`, `--cn-header-main-blue: #004cb1`, `--cn-header-subnav-blue: #00357b`, `--cn-bg-hero: #ebebeb`) centralizados em `packages/ui/src/styles/tokens.css` e mapeados no Tailwind 4 em `apps/storefront/app/globals.css`. Assets e favicons sincronizados em `apps/storefront/public/assets/`.
+  - **Arquitetura Modular de Widgets:** Tipos estritos em `apps/storefront/lib/storefront/widget-types.ts` (`WidgetConfig`, `HeroCarouselProps`, `ContainedHeroProps`, `BenefitsBarProps`, `ProductCarouselProps`, `CategoryGridProps`), registro em `widget-registry.tsx` e renderizador seguro `PageRenderer`. Composição padrão da vitrine desacoplada do JSX em `home-configuration.ts`.
+  - **Header Fiel à Referência (S0):** Três barras canônicas (`#E2091E` benefícios/WhatsApp, `#004CB1` Mascote James 3D / Logo oficial branca / CEP Belém / Busca circular Figma / Ações cotação e conta, `#00357B` departamentos e ofertas com tag NOVO), scroll auto-hide inteligente e Drawer Mobile off-canvas.
+  - **Hero de Largura Total (S1):** `HeroCarouselWidget` estilo Mercado Livre, com autoplay, setas circulares brancas, indicadores de pontos e transição degradê inferior.
+  - **Hero Secundário Contido (S1):** `ContainedHeroWidget` arredondado (`rounded-2xl md:rounded-3xl`), sobreposto com margem negativa (`-mt-8 sm:-mt-12 md:-mt-16 lg:-mt-20`), setas escuras translúcidas com blur e badge com dot da marca.
+  - **Widgets Complementares:** `BenefitsBarWidget` (4 pilares comerciais), `ProductCarouselWidget` (ofertas com cards e cotação) e `CategoryGridWidget` (departamentos).
+  - **Validação:** `pnpm typecheck` 6/6 aprovados e `pnpm lint` 6/6 aprovados no monorepo.
 
 | Papel | Valor oficial | Uso |
 |---|---|---|

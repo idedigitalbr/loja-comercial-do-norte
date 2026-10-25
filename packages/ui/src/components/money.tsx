@@ -10,6 +10,6 @@ export function formatMoney(amountCents: number, currency: 'BRL' = 'BRL'): strin
   }).format(amountCents / 100);
 }
 
-export function Money({ amountCents, currency = 'BRL' }: MoneyProps) {
+export function Money({ amountCents, currency = 'BRL' }: MoneyProps): React.JSX.Element {
   return <span>{formatMoney(amountCents, currency)}</span>;
 }

@@ -7,6 +7,12 @@
  * O prefixo `--cn-` evita colisão com os namespaces do Tailwind (`--color-*`).
  */
 :root {
+  /* Cores oficiais do Header (Fidelidade ao Figma e index.html) */
+  --cn-header-top-red: #e2091e;
+  --cn-header-main-blue: #004cb1;
+  --cn-header-subnav-blue: #00357b;
+  --cn-bg-hero: #ebebeb;
+
   /* Cores oficiais */
   --cn-primary: #264887;
   --cn-primary-hover: #1e3a6e;

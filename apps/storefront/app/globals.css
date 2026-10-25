@@ -9,6 +9,10 @@
   --color-brand: var(--cn-primary);
   --color-brand-hover: var(--cn-primary-hover);
   --color-brand-soft: var(--cn-primary-soft);
+  --color-header-red: var(--cn-header-top-red);
+  --color-header-blue: var(--cn-header-main-blue);
+  --color-header-dark: var(--cn-header-subnav-blue);
+  --color-hero-bg: var(--cn-bg-hero);
   --color-promo: var(--cn-accent);
   --color-promo-hover: var(--cn-accent-hover);
   --color-promo-soft: var(--cn-accent-soft);
@@ -47,7 +51,16 @@ body {
   border-radius: var(--cn-radius-sm);
 }
 
-/* Classe utilitária única para o container do site. */
+/* Ocultar barra de rolagem horizontal mantendo navegação por toque e mouse */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Classe utilitária única para o container do site */
 .cn-container {
   width: 100%;
   max-width: var(--cn-container-max);
