@@ -21,7 +21,7 @@ export default async function HomePage() {
   };
 
   return (
-    <div className="flex flex-col gap-0 pb-12">
+    <div className="flex flex-col gap-0 bg-[#EBEBEB]">
       <HomeView contextData={contextData} initialComposition={defaultHomeComposition} />
     </div>
   );

@@ -11,7 +11,7 @@ import type {
   WidgetType,
 } from '@/lib/storefront/widget-types';
 
-const STORAGE_KEY = 'cdn_home_composition_v1';
+const STORAGE_KEY = 'cdn_home_composition_v2';
 
 export type ViewportMode = 'desktop' | 'tablet' | 'mobile';
 export type ElementorTab = 'content' | 'style' | 'advanced';
@@ -20,6 +20,8 @@ export interface MediaModalState {
   isOpen: boolean;
   widgetId?: string;
   slideId?: string;
+  slideIndex?: number;
+  fieldPath?: string;
   currentUrl?: string;
   slideTitle?: string;
 }
@@ -28,6 +30,7 @@ export interface LinkModalState {
   isOpen: boolean;
   widgetId?: string;
   slideId?: string;
+  fieldPath?: string;
   currentLinkUrl?: string;
   currentImageUrl?: string;
   slideTitle?: string;
@@ -48,6 +51,7 @@ interface ElementorContextValue {
   selectedWidgetId: string | null;
   setSelectedWidgetId: (id: string | null) => void;
   updateWidgetProps: (id: string, newProps: any) => void;
+  updateWidgetNestedField: (id: string, fieldPath: string, value: any) => void;
   moveWidget: (id: string, direction: 'up' | 'down') => void;
   reorderWidgets: (fromIndex: number, toIndex: number) => void;
   removeWidget: (id: string) => void;
@@ -68,12 +72,22 @@ interface ElementorContextValue {
   canUndo: boolean;
   canRedo: boolean;
   mediaModalState: MediaModalState;
-  openMediaModal: (options: { widgetId: string; slideId?: string; currentUrl?: string; slideTitle?: string }) => void;
+  openMediaModal: (options: {
+    widgetId: string;
+    slideId?: string;
+    slideIndex?: number;
+    fieldPath?: string;
+    currentUrl?: string;
+    previewUrl?: string;
+    slideTitle?: string;
+    title?: string;
+  }) => void;
   closeMediaModal: () => void;
   linkModalState: LinkModalState;
   openLinkModal: (options: {
     widgetId: string;
-    slideId: string;
+    slideId?: string;
+    fieldPath?: string;
     currentLinkUrl?: string;
     currentImageUrl?: string;
     slideTitle?: string;
@@ -82,6 +96,27 @@ interface ElementorContextValue {
 }
 
 const ElementorContext = createContext<ElementorContextValue | null>(null);
+
+function setByPath(obj: any, pathStr: string, value: any): any {
+  const keys = pathStr.split('.');
+  const clone = Array.isArray(obj) ? [...obj] : { ...obj };
+  let cur: any = clone;
+  for (let i = 0; i < keys.length - 1; i++) {
+    const k = keys[i];
+    const nextIsIndex = !isNaN(Number(keys[i + 1]));
+    const existing = cur[k];
+    cur[k] = Array.isArray(existing)
+      ? [...existing]
+      : existing && typeof existing === 'object'
+        ? { ...existing }
+        : nextIsIndex
+          ? []
+          : {};
+    cur = cur[k];
+  }
+  cur[keys[keys.length - 1]] = value;
+  return clone;
+}
 
 export function ElementorEditorProvider({
   children,
@@ -95,7 +130,7 @@ export function ElementorEditorProvider({
   const [viewport, setViewport] = useState<ViewportMode>('desktop');
   const [showNavigator, setShowNavigator] = useState(false);
   const [activeTab, setActiveTab] = useState<ElementorTab>('content');
-  const [panelCollapsed, setPanelCollapsed] = useState(true); // Fechado por padrão para deixar o site 100% normal
+  const [panelCollapsed, setPanelCollapsed] = useState(true);
 
   const [composition, setComposition] = useState<PageComposition>(initialComposition);
   const [history, setHistory] = useState<PageComposition[]>([initialComposition]);
@@ -113,14 +148,13 @@ export function ElementorEditorProvider({
     isOpen: false,
   });
 
-  // Carrega composição local e sincroniza com o servidor
   useEffect(() => {
     let loadedFromLocal = false;
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed?.widgets && Array.isArray(parsed.widgets)) {
+        if (parsed?.version === 2 && parsed?.widgets && Array.isArray(parsed.widgets)) {
           setComposition(parsed);
           setHistory([parsed]);
           setHistoryIndex(0);
@@ -131,12 +165,11 @@ export function ElementorEditorProvider({
       // Ignora erro
     }
 
-    // Busca do servidor Next.js se não carregou local
     if (!loadedFromLocal) {
       fetch('/api/storefront/composition')
         .then((res) => res.json())
         .then((res) => {
-          if (res?.success && res?.data?.widgets?.length) {
+          if (res?.success && res?.data?.version === 2 && res?.data?.widgets?.length) {
             setComposition(res.data);
             setHistory([res.data]);
             setHistoryIndex(0);
@@ -178,6 +211,18 @@ export function ElementorEditorProvider({
       widgets: composition.widgets.map((w) =>
         w.id === id ? { ...w, props: { ...w.props, ...newProps } } : w
       ) as WidgetConfig[],
+    };
+    commitChange(updated);
+  }
+
+  function updateWidgetNestedField(id: string, fieldPath: string, value: any) {
+    const updated: PageComposition = {
+      ...composition,
+      widgets: composition.widgets.map((w) => {
+        if (w.id !== id) return w;
+        const nextProps = setByPath(w.props, fieldPath, value);
+        return { ...w, props: nextProps };
+      }) as WidgetConfig[],
     };
     commitChange(updated);
   }
@@ -237,66 +282,11 @@ export function ElementorEditorProvider({
     const newId = `${type}-${Date.now().toString(36)}`;
     const maxOrder = composition.widgets.reduce((max, w) => Math.max(max, w.order), 0);
 
-    let defaultProps: any = {};
-    if (type === 'hero-carousel') {
-      defaultProps = {
-        autoplayIntervalMs: 5000,
-        showArrows: true,
-        showDots: true,
-        bottomGradient: true,
-        slides: [
-          {
-            id: `slide-${Date.now()}`,
-            title: 'Semana Intelbras no seu ritmo',
-            imageUrl: '/assets/Pagina/S1 TOPO HERO/topo-banners-ML/D_NQ_2X_977867-MLA118147004068_102026-OO.webp',
-            linkUrl: '/loja',
-            altText: 'Banner Comercial do Norte',
-            backgroundColor: '#028F34',
-          },
-        ],
-      };
-    } else if (type === 'contained-hero') {
-      defaultProps = {
-        autoplayIntervalMs: 6000,
-        showArrows: true,
-        showDots: true,
-        overlapTop: true,
-        slides: [
-          {
-            id: `slide-c-${Date.now()}`,
-            title: 'Super Oferta Cristalcopo',
-            imageUrl: '/assets/S1-banners-topo-hero/Gemini_Generated_Image_x5pilwx5pilwx5pi.jpg',
-            linkUrl: '/loja',
-            altText: 'Campanha Comercial do Norte',
-          },
-        ],
-      };
-    } else if (type === 'benefits-bar') {
-      defaultProps = {
-        items: [
-          { iconName: 'truck', title: 'Entrega em Belém', description: 'Logística rápida para sua empresa' },
-          { iconName: 'tag', title: 'Menor Preço Atacado', description: 'Condições de distribuidora oficial' },
-          { iconName: 'package', title: 'Tudo em um Só Lugar', description: 'Embalagens, descartáveis e festas' },
-          { iconName: 'shield', title: 'Atendimento Próximo', description: 'Cotação rápida por WhatsApp' },
-        ],
-      };
-    } else if (type === 'product-carousel') {
-      defaultProps = {
-        title: 'Ofertas em Destaque',
-        subtitle: 'Preços especiais para cotação imediata',
-        badge: 'OFERTAS',
-        source: 'offers',
-        limit: 8,
-        viewAllLink: '/loja',
-      };
-    } else if (type === 'category-grid') {
-      defaultProps = {
-        title: 'Departamentos da Loja',
-        subtitle: 'Encontre o que você precisa com facilidade',
-        viewAllLink: '/loja',
-        columns: 4,
-      };
-    }
+    // Procura um template equivalente na composição oficial ou usa fallback rico
+    const templateWidget = defaultHomeComposition.widgets.find((w) => w.type === type);
+    const defaultProps: any = templateWidget
+      ? JSON.parse(JSON.stringify(templateWidget.props))
+      : {};
 
     const newWidget: WidgetConfig = {
       id: newId,
@@ -329,10 +319,10 @@ export function ElementorEditorProvider({
           const newSlide: HeroSlide = {
             id: `slide-${Date.now()}`,
             title: `Novo Slide ${currentSlides.length + 1}`,
-            imageUrl: '/assets/Pagina/S1 TOPO HERO/topo-banners-ML/D_NQ_2X_690577-MLA118270011000_102026-OO.webp',
+            imageUrl: '/assets/home-ref/s01-hero-pizzaria.jpg',
             linkUrl: '/loja',
             altText: 'Banner Comercial do Norte',
-            backgroundColor: '#004CB1',
+            backgroundColor: '#022B76',
           };
           return {
             ...w,
@@ -344,9 +334,9 @@ export function ElementorEditorProvider({
           const newSlide: ContainedHeroSlide = {
             id: `slide-c-${Date.now()}`,
             title: `Nova Oferta ${currentSlides.length + 1}`,
-            imageUrl: '/assets/S1-banners-topo-hero/Gemini_Generated_Image_k46c0pk46c0pk46c.jpg',
+            imageUrl: '/assets/home-ref/s02-contained-feirante.jpg',
             linkUrl: '/loja',
-            altText: 'Outlet Comercial do Norte',
+            altText: 'Campanha Comercial do Norte',
           };
           return {
             ...w,
@@ -414,7 +404,6 @@ export function ElementorEditorProvider({
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(composition));
 
-      // Salva no backend do servidor Next.js
       await fetch('/api/storefront/composition', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -431,23 +420,34 @@ export function ElementorEditorProvider({
   }
 
   function resetToDefault() {
-    if (confirm('Deseja restaurar a vitrine padrão do Comercial do Norte?')) {
+    if (confirm('Deseja restaurar a vitrine oficial de 19 seções do Comercial do Norte?')) {
       localStorage.removeItem(STORAGE_KEY);
       commitChange(defaultHomeComposition);
       setSelectedWidgetId(null);
       setHasUnsavedChanges(false);
-      setSaveMessage('Vitrine resetada para o padrão!');
+      setSaveMessage('Vitrine oficial restaurada!');
       setTimeout(() => setSaveMessage(null), 3000);
     }
   }
 
-  function openMediaModal(options: { widgetId: string; slideId?: string; currentUrl?: string; slideTitle?: string }) {
+  function openMediaModal(options: {
+    widgetId: string;
+    slideId?: string;
+    slideIndex?: number;
+    fieldPath?: string;
+    currentUrl?: string;
+    previewUrl?: string;
+    slideTitle?: string;
+    title?: string;
+  }) {
     setMediaModalState({
       isOpen: true,
       widgetId: options.widgetId,
       slideId: options.slideId,
-      currentUrl: options.currentUrl,
-      slideTitle: options.slideTitle,
+      slideIndex: options.slideIndex,
+      fieldPath: options.fieldPath,
+      currentUrl: options.currentUrl || options.previewUrl,
+      slideTitle: options.slideTitle || options.title,
     });
   }
 
@@ -457,7 +457,8 @@ export function ElementorEditorProvider({
 
   function openLinkModal(options: {
     widgetId: string;
-    slideId: string;
+    slideId?: string;
+    fieldPath?: string;
     currentLinkUrl?: string;
     currentImageUrl?: string;
     slideTitle?: string;
@@ -466,6 +467,7 @@ export function ElementorEditorProvider({
       isOpen: true,
       widgetId: options.widgetId,
       slideId: options.slideId,
+      fieldPath: options.fieldPath,
       currentLinkUrl: options.currentLinkUrl,
       currentImageUrl: options.currentImageUrl,
       slideTitle: options.slideTitle,
@@ -493,6 +495,7 @@ export function ElementorEditorProvider({
         selectedWidgetId,
         setSelectedWidgetId,
         updateWidgetProps,
+        updateWidgetNestedField,
         moveWidget,
         reorderWidgets,
         removeWidget,

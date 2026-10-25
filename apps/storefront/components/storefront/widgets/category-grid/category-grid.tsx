@@ -1,23 +1,101 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Edit2, Layers } from 'lucide-react';
+import { ArrowRight, Edit2, ImageUp, Layers } from 'lucide-react';
 import { useElementor } from '@/components/storefront/editor/elementor-editor-context';
-import type { CategoryGridProps, WidgetContextData } from '@/lib/storefront/widget-types';
+import type { CategoryGridProps, CategoryIconItem, WidgetContextData } from '@/lib/storefront/widget-types';
 import type { ApiCategory } from '@/lib/types';
+
+const DEFAULT_ICON_ITEMS: CategoryIconItem[] = [
+  { id: 'cat-icon-1', label: 'Ofertas Relâmpago', imageUrl: '/assets/home-ref/s03-icon-01-ofertas.jpg', linkUrl: '/loja?oferta=1' },
+  { id: 'cat-icon-2', label: 'Internacional', imageUrl: '/assets/home-ref/s03-icon-02-internacional.jpg', linkUrl: '/loja' },
+  { id: 'cat-icon-3', label: 'Casa', imageUrl: '/assets/home-ref/s03-icon-03-casa.jpg', linkUrl: '/loja' },
+  { id: 'cat-icon-4', label: 'Ferramentas', imageUrl: '/assets/home-ref/s03-icon-04-ferramentas.jpg', linkUrl: '/loja' },
+  { id: 'cat-icon-5', label: 'Eletroportáteis', imageUrl: '/assets/home-ref/s03-icon-05-eletroportateis.jpg', linkUrl: '/loja' },
+  { id: 'cat-icon-6', label: 'Brinquedos', imageUrl: '/assets/home-ref/s03-icon-06-brinquedos.jpg', linkUrl: '/loja' },
+  { id: 'cat-icon-7', label: 'Automotivo', imageUrl: '/assets/home-ref/s03-icon-07-automotivo.jpg', linkUrl: '/loja' },
+  { id: 'cat-icon-8', label: 'Utilidades Domésticas', imageUrl: '/assets/home-ref/s03-icon-08-utilidades.jpg', linkUrl: '/loja' },
+];
 
 export function CategoryGridWidget({
   widgetId,
+  variant = 'icons-bar',
   title,
   subtitle,
   viewAllLink = '/loja',
   columns = 4,
   maxItems = 8,
+  customItems,
   contextData,
 }: CategoryGridProps & { contextData?: WidgetContextData }) {
-  const { isEditing, previewMode, updateWidgetProps } = useElementor();
+  const { isEditing, previewMode, updateWidgetProps, openMediaModal } = useElementor();
   const [editingTitle, setEditingTitle] = useState(false);
+
+  if (variant === 'icons-bar') {
+    const items = customItems && customItems.length > 0 ? customItems : DEFAULT_ICON_ITEMS;
+
+    return (
+      <section aria-label={title || 'Atalhos de categorias'} className="cn-container py-2.5 sm:py-3.5">
+        <div className="rounded-2xl border border-slate-200/80 bg-white px-4 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.04)] sm:px-8 sm:py-5">
+          <div className="grid grid-cols-4 gap-3 sm:grid-cols-8 sm:gap-4">
+            {items.map((item, idx) => (
+              <div className="group relative flex flex-col items-center text-center" key={item.id}>
+                <div className="relative size-[64px] overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs transition duration-200 group-hover:-translate-y-0.5 group-hover:border-[#004CB1] group-hover:shadow-md sm:size-[74px]">
+                  <Link
+                    className="block size-full"
+                    href={item.linkUrl || '/loja'}
+                    onClick={(e) => {
+                      if (isEditing && !previewMode) e.preventDefault();
+                    }}
+                  >
+                    <Image
+                      alt={item.label}
+                      className="size-full object-cover"
+                      height={146}
+                      src={item.imageUrl}
+                      unoptimized
+                      width={146}
+                    />
+                  </Link>
+                  {isEditing && !previewMode && widgetId ? (
+                    <button
+                      className="absolute inset-0 flex items-center justify-center bg-black/55 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openMediaModal({
+                          widgetId,
+                          slideIndex: idx,
+                          fieldPath: `customItems.${idx}.imageUrl`,
+                          title: `Ícone: ${item.label}`,
+                          previewUrl: item.imageUrl,
+                        });
+                      }}
+                      title="Trocar ícone"
+                      type="button"
+                    >
+                      <ImageUp className="size-4" />
+                    </button>
+                  ) : null}
+                </div>
+                <Link
+                  className="mt-2 line-clamp-2 text-[11px] font-medium leading-tight text-slate-700 transition-colors group-hover:text-[#004CB1] sm:text-[12px]"
+                  href={item.linkUrl || '/loja'}
+                  onClick={(e) => {
+                    if (isEditing && !previewMode) e.preventDefault();
+                  }}
+                >
+                  {item.label}
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const allCategories = contextData?.categories ?? [];
   const rootCategories = allCategories.filter((c) => !c.parentId).slice(0, maxItems);
@@ -29,10 +107,11 @@ export function CategoryGridWidget({
     3: 'grid-cols-2 sm:grid-cols-3',
     4: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4',
     6: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-6',
+    8: 'grid-cols-2 sm:grid-cols-4 md:grid-cols-8',
   }[columns];
 
   return (
-    <section aria-label={title} className="cn-container py-8 sm:py-10">
+    <section aria-label={title} className="cn-container py-6 sm:py-8">
       <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
         <div>
           {isEditing && !previewMode ? (

@@ -13,6 +13,102 @@ import {
 
 export const availableMediaLibrary = [
   {
+    id: 'ref-s01-pizzaria',
+    name: 'Hero Full — Tudo para sua Pizzaria (Oficial)',
+    category: 'Referência Oficial',
+    url: '/assets/home-ref/s01-hero-pizzaria.jpg',
+  },
+  {
+    id: 'ref-s02-feirante',
+    name: 'Hero Contido — Semana do Feirante Copo 180ml',
+    category: 'Referência Oficial',
+    url: '/assets/home-ref/s02-contained-feirante.jpg',
+  },
+  {
+    id: 'ref-s04-side',
+    name: 'Banner Vertical — Semana do Feirante Luva',
+    category: 'Referência Oficial',
+    url: '/assets/home-ref/s04-side-banner-feirante.jpg',
+  },
+  {
+    id: 'ref-s05-limpeza',
+    name: 'Banner Triplo — Produtos de Limpeza até 30% OFF',
+    category: 'Banners Triplos',
+    url: '/assets/home-ref/s05-triple-01-limpeza.jpg',
+  },
+  {
+    id: 'ref-s05-feirante',
+    name: 'Banner Triplo — Semana do Feirante Luva Nitrílica',
+    category: 'Banners Triplos',
+    url: '/assets/home-ref/s05-triple-02-feirante.jpg',
+  },
+  {
+    id: 'ref-s05-sacolas',
+    name: 'Banner Triplo — Sacos e Sacolas até 25% OFF',
+    category: 'Banners Triplos',
+    url: '/assets/home-ref/s05-triple-03-sacolas.jpg',
+  },
+  {
+    id: 'ref-s11-hamburgueira',
+    name: 'Banner Triplo — Hamburgueira Isopor R$ 85,95',
+    category: 'Banners Triplos',
+    url: '/assets/home-ref/s11-triple-01-hamburgueira.jpg',
+  },
+  {
+    id: 'ref-s11-luva-vermelho',
+    name: 'Banner Triplo — Luva Nitrílica Vermelho R$ 27,10',
+    category: 'Banners Triplos',
+    url: '/assets/home-ref/s11-triple-02-luva-vermelho.jpg',
+  },
+  {
+    id: 'ref-s11-luva-azul',
+    name: 'Banner Triplo — Luva Nitrílica Azul R$ 27,10',
+    category: 'Banners Triplos',
+    url: '/assets/home-ref/s11-triple-03-luva-azul.jpg',
+  },
+  {
+    id: 'ref-s08-lanchonete',
+    name: 'Segmento — Para sua Lanchonete',
+    category: 'Segmentos',
+    url: '/assets/home-ref/s08-segment-01-lanchonete.jpg',
+  },
+  {
+    id: 'ref-s08-pizzaria',
+    name: 'Segmento — Para sua Pizzaria',
+    category: 'Segmentos',
+    url: '/assets/home-ref/s08-segment-02-pizzaria.jpg',
+  },
+  {
+    id: 'ref-s08-padaria',
+    name: 'Segmento — Para sua Padaria',
+    category: 'Segmentos',
+    url: '/assets/home-ref/s08-segment-03-padaria.jpg',
+  },
+  {
+    id: 'ref-s08-festas',
+    name: 'Segmento — Para sua Loja de Festas',
+    category: 'Segmentos',
+    url: '/assets/home-ref/s08-segment-04-festas.jpg',
+  },
+  {
+    id: 'ref-s12-ev1',
+    name: 'Evento — Encontro de Empreendedores James Holanda',
+    category: 'Eventos',
+    url: '/assets/home-ref/s12-event-01-empreendedores.jpg',
+  },
+  {
+    id: 'ref-s12-ev2',
+    name: 'Evento — Grande Reinauguração Loja Pedreira',
+    category: 'Eventos',
+    url: '/assets/home-ref/s12-event-02-reinauguracao.jpg',
+  },
+  {
+    id: 'ref-s12-ev4',
+    name: 'Evento — Sábado Croquete de Charque Pará Trigo',
+    category: 'Eventos',
+    url: '/assets/home-ref/s12-event-04-croquete.jpg',
+  },
+  {
     id: 'ml-intelbras',
     name: 'Semana Intelbras no seu ritmo (Verde ML)',
     category: 'Topo Mercado Livre',

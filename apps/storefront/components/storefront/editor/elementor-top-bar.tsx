@@ -40,10 +40,10 @@ const availableNewWidgets: Array<{
     icon: Layout,
   },
   {
-    type: 'benefits-bar',
-    title: 'Barra de Benefícios',
-    desc: '4 colunas de vantagens comerciais com ícones',
-    icon: Sparkles,
+    type: 'category-grid',
+    title: 'Barra de Ícones / Categorias',
+    desc: '8 atalhos visuais ou grade de departamentos',
+    icon: Grid,
   },
   {
     type: 'product-carousel',
@@ -52,10 +52,58 @@ const availableNewWidgets: Array<{
     icon: Flame,
   },
   {
-    type: 'category-grid',
-    title: 'Grade de Departamentos',
-    desc: 'Navegação visual pelas principais categorias',
+    type: 'banner-grid',
+    title: 'Banners Triplos Promocionais',
+    desc: '3 banners lado a lado em container arredondado',
+    icon: Layout,
+  },
+  {
+    type: 'quote-steps-banner',
+    title: 'Como Funciona a Cotação',
+    desc: '4 passos numerados + Mascote James 3D',
+    icon: Sparkles,
+  },
+  {
+    type: 'segments-carousel',
+    title: 'Carrossel de Segmentos',
+    desc: 'Lanchonete, Pizzaria, Padaria e Loja de Festas',
     icon: Grid,
+  },
+  {
+    type: 'promo-strip',
+    title: 'Faixa Promocional / WhatsApp',
+    desc: 'Ofertas Imperdíveis, Condições ou Grupo VIP',
+    icon: Sparkles,
+  },
+  {
+    type: 'events-carousel',
+    title: 'Nossos Eventos',
+    desc: '4 cartazes verticais em fundo escuro',
+    icon: Tv,
+  },
+  {
+    type: 'video-articles-carousel',
+    title: 'Explica Aí Comercial',
+    desc: 'Dicas em vídeos e artigos para o negócio',
+    icon: Tv,
+  },
+  {
+    type: 'instagram-feed',
+    title: 'A Loja no Instagram',
+    desc: '6 cards verticais com selo do Instagram',
+    icon: Grid,
+  },
+  {
+    type: 'testimonials-grid',
+    title: 'Avaliações no Google',
+    desc: '10 depoimentos 5 estrelas em 2 linhas',
+    icon: Sparkles,
+  },
+  {
+    type: 'store-locations-map',
+    title: 'Unidades + Mapa Interativo',
+    desc: 'Busca por CEP, 3 lojas e Google Maps',
+    icon: Layout,
   },
 ];
 

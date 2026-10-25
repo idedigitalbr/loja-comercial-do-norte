@@ -21,7 +21,17 @@ const widgetLabels: Record<string, string> = {
   'contained-hero': 'Carrossel Padrão (Campanhas)',
   'benefits-bar': 'Barra de Benefícios',
   'product-carousel': 'Vitrine de Produtos / Ofertas',
-  'category-grid': 'Grade de Departamentos',
+  'category-grid': 'Atalhos / Grade de Categorias',
+  'banner-grid': 'Banners Triplos Promocionais',
+  'brands-carousel': 'Carrossel de Marcas',
+  'quote-steps-banner': 'Banner Como Funciona Cotação',
+  'segments-carousel': 'Carrossel de Segmentos de Negócio',
+  'promo-strip': 'Faixa Promocional / WhatsApp',
+  'events-carousel': 'Carrossel Nossos Eventos',
+  'video-articles-carousel': 'Explica Aí Comercial (Vídeos/Dicas)',
+  'instagram-feed': 'Feed A Loja no Instagram',
+  'testimonials-grid': 'Avaliações no Google (Depoimentos)',
+  'store-locations-map': 'Unidades e Mapa Interativo',
 };
 
 export function ElementorSectionWrapper({

@@ -240,8 +240,8 @@ export function SiteHeader({
                   type="button"
                 >
                   <Menu className="size-4" />
-                  <span className="uppercase tracking-wide text-xs font-bold">
-                    Todos os Departamentos
+                  <span className="tracking-wide text-xs font-bold">
+                    Tem no Comercial do Norte
                   </span>
                   <ChevronDown className="size-3 text-white/70 transition-transform group-hover:rotate-180" />
                 </button>
@@ -272,11 +272,11 @@ export function SiteHeader({
                 </div>
               </div>
 
-              {/* Links Rápidos em Destaque */}
-              <div className="flex items-center gap-1 pl-2">
+              {/* Links Rápidos em Destaque (site-final) */}
+              <div className="flex items-center gap-0.5 pl-1">
                 <Link
-                  className="flex items-center gap-1.5 rounded-sm px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
-                  href="/loja?ofertas=true"
+                  className="flex items-center gap-1.5 rounded-sm px-2.5 py-2 text-white/95 hover:bg-white/10 hover:text-white transition"
+                  href="/loja?oferta=1"
                 >
                   <Sparkles className="size-3.5 text-amber-300" />
                   <span>Ofertas do Dia</span>
@@ -286,46 +286,54 @@ export function SiteHeader({
                 </Link>
 
                 <Link
-                  className="rounded-sm px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
-                  href="/loja?destaque=mais-vendidos"
+                  className="rounded-sm px-2.5 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
+                  href="/loja?q=embalagens"
+                >
+                  Embalagens
+                </Link>
+
+                <Link
+                  className="rounded-sm px-2.5 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
+                  href="/loja?q=descartaveis"
+                >
+                  Descartáveis
+                </Link>
+
+                <Link
+                  className="rounded-sm px-2.5 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
+                  href="/loja?q=festa"
+                >
+                  Artigos para Festa
+                </Link>
+
+                <Link
+                  className="hidden xl:inline-block rounded-sm px-2.5 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
+                  href="/loja?q=confeitaria"
+                >
+                  Doces &amp; Confeitaria
+                </Link>
+
+                <Link
+                  className="hidden lg:inline-block rounded-sm px-2.5 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
+                  href="/loja?q=sacolas"
+                >
+                  Sacos &amp; Sacolas
+                </Link>
+
+                <Link
+                  className="hidden xl:inline-block rounded-sm px-2.5 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
+                  href="/loja?q=limpeza"
+                >
+                  Limpeza Profissional
+                </Link>
+
+                <Link
+                  className="rounded-sm px-2.5 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
+                  href="/loja"
                 >
                   Mais Vendidos
                 </Link>
-
-                <Link
-                  className="rounded-sm px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
-                  href="/loja?tipo=atacado"
-                >
-                  Atacado &amp; Distribuição
-                </Link>
-
-                <Link
-                  className="rounded-sm px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
-                  href="/marcas"
-                >
-                  Marcas Parceiras
-                </Link>
-
-                <Link
-                  className="rounded-sm px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
-                  href="/sobre"
-                >
-                  Nossas Lojas
-                </Link>
               </div>
-            </div>
-
-            {/* Vendas Corporativas e Televendas */}
-            <div className="hidden lg:flex items-center gap-2 text-xs text-white/80">
-              <span className="text-white/60">Atendimento Corporativo:</span>
-              <a
-                className="font-bold text-white hover:text-amber-200 transition"
-                href={`https://wa.me/${whatsappDigits}`}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Fale com um Consultor
-              </a>
             </div>
           </div>
         </div>

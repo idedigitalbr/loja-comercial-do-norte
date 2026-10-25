@@ -1,5 +1,6 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import { Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { Facebook, Instagram, Music2 } from 'lucide-react';
 import type { SiteConfig } from '@/lib/types';
 
 type SiteFooterProps = {
@@ -7,77 +8,77 @@ type SiteFooterProps = {
   categories: Array<{ id: string; name: string; slug: string }>;
 };
 
-/** Rodapé S10: institucional, atendimento, contatos e aviso de fase 1. */
-export function SiteFooter({ site, categories }: SiteFooterProps) {
-  const whatsapp = site?.whatsapp?.replace(/\D+/g, '');
+/** Rodapé oficial (Seção 20 de site-final): logo centralizada, redes sociais e barra inferior azul. */
+export function SiteFooter({ site }: SiteFooterProps) {
   return (
-    <footer className="mt-16 bg-deep text-white">
-      <div className="cn-container grid gap-8 py-12 md:grid-cols-4">
-        <div>
-          <p className="text-lg font-extrabold">{site?.siteName ?? 'Comercial do Norte'}</p>
-          <p className="mt-2 text-sm text-white/70">
-            Plásticos, descartáveis, embalagens, variedades e mercearia para atacado e varejo.
-          </p>
-          <p className="mt-4 inline-flex rounded-pill bg-white/10 px-3 py-1 text-xs font-semibold text-white/80">
-            Fase 1 · catálogo e cotação
-          </p>
-        </div>
+    <footer className="bg-[#141519] text-white">
+      <div className="border-t border-white/10 py-10 sm:py-12">
+        <div className="cn-container flex flex-col items-center justify-center text-center">
+          <Link className="inline-block" href="/">
+            <Image
+              alt={site?.siteName ?? 'Comercial do Norte'}
+              className="h-12 w-auto object-contain sm:h-14"
+              height={60}
+              src="/assets/Logos/logo-comercial-do-norte-branca.png"
+              unoptimized
+              width={210}
+            />
+          </Link>
 
-        <div>
-          <p className="text-sm font-bold uppercase tracking-wide text-white/60">Categorias</p>
-          <ul className="mt-3 grid gap-2 text-sm">
-            {categories.slice(0, 6).map((category) => (
-              <li key={category.id}>
-                <Link className="text-white/80 hover:text-white" href={`/categoria/${category.slug}`}>{category.name}</Link>
-              </li>
-            ))}
-            <li><Link className="text-white/80 hover:text-white" href="/loja">Ver todo o catálogo</Link></li>
-          </ul>
-        </div>
-
-        <div>
-          <p className="text-sm font-bold uppercase tracking-wide text-white/60">Atendimento</p>
-          <ul className="mt-3 grid gap-3 text-sm text-white/80">
-            <li className="flex items-start gap-2">
-              <MessageCircle aria-hidden className="mt-0.5 size-4 shrink-0" />
-              <Link className="hover:text-white" href="/cotacao">Enviar lista e receber cotação</Link>
-            </li>
-            {site?.phone ? (
-              <li className="flex items-start gap-2">
-                <Phone aria-hidden className="mt-0.5 size-4 shrink-0" />
-                <a className="hover:text-white" href={`tel:${site.phone.replace(/\D+/g, '')}`}>{site.phone}</a>
-              </li>
-            ) : null}
-            {whatsapp ? (
-              <li className="flex items-start gap-2">
-                <MessageCircle aria-hidden className="mt-0.5 size-4 shrink-0" />
-                <a className="hover:text-white" href={`https://wa.me/${whatsapp}`} rel="noreferrer" target="_blank">WhatsApp comercial</a>
-              </li>
-            ) : null}
-          </ul>
-        </div>
-
-        <div>
-          <p className="text-sm font-bold uppercase tracking-wide text-white/60">Loja física</p>
-          <ul className="mt-3 grid gap-3 text-sm text-white/80">
-            {site?.address ? (
-              <li className="flex items-start gap-2">
-                <MapPin aria-hidden className="mt-0.5 size-4 shrink-0" />
-                <span>{site.address}</span>
-              </li>
-            ) : null}
-            <li className="flex items-start gap-2">
-              <Mail aria-hidden className="mt-0.5 size-4 shrink-0" />
-              <span>Atendimento comercial pelo formulário de cotação</span>
-            </li>
-          </ul>
+          <div className="mt-5 flex items-center justify-center gap-3">
+            <a
+              aria-label="Instagram Comercial do Norte"
+              className="flex size-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition hover:border-white/40 hover:bg-white/15 hover:text-white"
+              href="https://www.instagram.com/comercialdonorte"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <Instagram className="size-4" />
+            </a>
+            <a
+              aria-label="TikTok Comercial do Norte"
+              className="flex size-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition hover:border-white/40 hover:bg-white/15 hover:text-white"
+              href="https://www.tiktok.com/@comercialdonorte"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <Music2 className="size-4" />
+            </a>
+            <a
+              aria-label="Facebook Comercial do Norte"
+              className="flex size-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition hover:border-white/40 hover:bg-white/15 hover:text-white"
+              href="https://www.facebook.com/comercialdonorte"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <Facebook className="size-4" />
+            </a>
+          </div>
         </div>
       </div>
 
-      <div className="border-t border-white/10">
-        <div className="cn-container flex flex-col gap-2 py-4 text-xs text-white/60 md:flex-row md:items-center md:justify-between">
-          <p>© {new Date().getFullYear()} {site?.siteName ?? 'Comercial do Norte'}. Todos os direitos reservados.</p>
-          <p>Sem cobrança online nesta fase. A negociação é feita pela equipe comercial.</p>
+      {/* Barra Azul Inferior */}
+      <div className="bg-[#1D3B78] py-3.5 text-[11px] text-white/90 sm:text-xs">
+        <div className="cn-container flex flex-col items-center justify-between gap-3 md:flex-row">
+          <p>
+            Copyright © {new Date().getFullYear()} {site?.siteName ?? 'Comercial do Norte'} – Todos os direitos reservados
+          </p>
+
+          <Link className="underline-offset-4 hover:underline" href="/loja">
+            Termos &amp; Privacidade
+          </Link>
+
+          <div className="flex items-center gap-2">
+            <span className="text-white/75">Desenvolvido por:</span>
+            <Image
+              alt="idedigital"
+              className="h-4 w-auto object-contain"
+              height={20}
+              src="/assets/Logos/logo-idedigital.png"
+              unoptimized
+              width={80}
+            />
+          </div>
         </div>
       </div>
     </footer>

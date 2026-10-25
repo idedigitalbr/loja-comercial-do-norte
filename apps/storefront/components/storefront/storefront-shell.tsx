@@ -9,7 +9,7 @@ import { ElementorMediaModal } from './editor/elementor-media-modal';
 import { ElementorLinkModal } from './editor/elementor-link-modal';
 
 function ElementorGlobalMediaModal() {
-  const { mediaModalState, closeMediaModal, updateSlideInWidget } = useElementor();
+  const { mediaModalState, closeMediaModal, updateSlideInWidget, updateWidgetNestedField } = useElementor();
 
   return (
     <ElementorMediaModal
@@ -17,7 +17,10 @@ function ElementorGlobalMediaModal() {
       isOpen={mediaModalState.isOpen}
       onClose={closeMediaModal}
       onSelectImage={(imageUrl, altText) => {
-        if (mediaModalState.widgetId && mediaModalState.slideId) {
+        if (!mediaModalState.widgetId) return;
+        if (mediaModalState.fieldPath) {
+          updateWidgetNestedField(mediaModalState.widgetId, mediaModalState.fieldPath, imageUrl);
+        } else if (mediaModalState.slideId) {
           updateSlideInWidget(mediaModalState.widgetId, mediaModalState.slideId, {
             imageUrl,
             altText: altText || undefined,
@@ -31,7 +34,7 @@ function ElementorGlobalMediaModal() {
 }
 
 function ElementorGlobalLinkModal() {
-  const { linkModalState, closeLinkModal, updateSlideInWidget } = useElementor();
+  const { linkModalState, closeLinkModal, updateSlideInWidget, updateWidgetNestedField } = useElementor();
 
   return (
     <ElementorLinkModal
@@ -40,7 +43,10 @@ function ElementorGlobalLinkModal() {
       isOpen={linkModalState.isOpen}
       onClose={closeLinkModal}
       onSaveLink={(linkUrl) => {
-        if (linkModalState.widgetId && linkModalState.slideId) {
+        if (!linkModalState.widgetId) return;
+        if (linkModalState.fieldPath) {
+          updateWidgetNestedField(linkModalState.widgetId, linkModalState.fieldPath, linkUrl);
+        } else if (linkModalState.slideId) {
           updateSlideInWidget(linkModalState.widgetId, linkModalState.slideId, {
             linkUrl,
           });
@@ -62,23 +68,16 @@ export function StorefrontShell({
 }) {
   return (
     <ElementorEditorProvider>
-      {/* Barra Superior Discreta de Ferramentas */}
       <ElementorTopBar />
-
-      {/* Modal Global de Mídia e Upload (Abre ao clicar no ícone de imagem) */}
       <ElementorGlobalMediaModal />
-
-      {/* Modal Global de Link do Banner (Abre ao clicar no ícone de link) */}
       <ElementorGlobalLinkModal />
 
-      {/* Canvas da Loja 100% Normal e em Largura Total (Sem painel lateral empurrando a página) */}
       <ElementorCanvas>
         {header}
         {children}
         {footer}
       </ElementorCanvas>
 
-      {/* Botão Flutuante de Ativação do Modo Edição */}
       <ElementorTogglePill />
     </ElementorEditorProvider>
   );
