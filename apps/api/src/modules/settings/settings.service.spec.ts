@@ -7,14 +7,14 @@ describe('SettingsService', () => {
       siteConfiguration: {
         findUnique: vi.fn().mockResolvedValue({
           id: 'default',
-          siteName: 'Loja Jonas & Elivaldo',
+          siteName: 'Comercial do Norte',
           logoPath: 'uploads/site/logo.webp',
           faviconPath: 'uploads/site/favicon.webp',
           address: 'Macapá - AP',
           phone: '(96) 98100-1897',
           whatsapp: '5596981001897',
           instagramUrl: 'https://instagram.com/loja',
-          title: 'Jonas & Elivaldo',
+          title: 'Comercial do Norte',
           description: 'Loja profissional',
         }),
       },
@@ -41,7 +41,7 @@ describe('SettingsService', () => {
 
     expect(result).toEqual({
       site: expect.objectContaining({
-        siteName: 'Loja Jonas & Elivaldo',
+        siteName: 'Comercial do Norte',
         logoPath: '/storage/uploads/site/logo.webp',
       }),
       banners: [expect.objectContaining({ id: 'banner-1', desktopPath: '/storage/uploads/site/banner.webp' })],

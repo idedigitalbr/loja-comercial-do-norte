@@ -4,8 +4,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { HomeBannersPage } from './home-banners-page';
 
 const snapshot = {
-  site: { siteName: 'Jonas & Elivaldo', logoPath: null, faviconPath: null, address: null, phone: null, whatsapp: null, instagramUrl: null, title: null, description: null },
-  banners: [{ id: 'banner-1', desktopPath: '/storage/home.webp', mobilePath: '/storage/home-mobile.webp', eyebrow: 'Jonas & Elivaldo', title: 'Você linda todos os dias', description: 'Agende já.', ctaLabel: 'ASSISTA NOSSO VÍDEO', ctaHref: 'https://youtube.com/watch?v=demo', sortOrder: 0, status: 'ACTIVE' as const }],
+  site: { siteName: 'Comercial do Norte', logoPath: null, faviconPath: null, address: null, phone: null, whatsapp: null, instagramUrl: null, title: null, description: null },
+  banners: [{ id: 'banner-1', desktopPath: '/storage/home.webp', mobilePath: '/storage/home-mobile.webp', eyebrow: 'Comercial do Norte', title: 'Você linda todos os dias', description: 'Agende já.', ctaLabel: 'ASSISTA NOSSO VÍDEO', ctaHref: 'https://youtube.com/watch?v=demo', sortOrder: 0, status: 'ACTIVE' as const }],
   payments: { environment: 'TEST' as const, publicKey: null, enabled: false, enablePix: true, enableCard: true, hasAccessToken: false, hasWebhookSecret: false },
   smtp: { host: null, port: 587, username: null, security: 'STARTTLS' as const, fromEmail: null, fromName: null, replyTo: null, enabled: false, hasPassword: false },
   templates: [],

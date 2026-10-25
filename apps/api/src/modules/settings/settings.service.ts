@@ -36,7 +36,7 @@ type SiteFields = {
 };
 
 const DEFAULT_SITE: Required<SiteFields> = {
-  siteName: 'Loja Jonas & Elivaldo',
+  siteName: 'Comercial do Norte',
   logoPath: null,
   faviconPath: null,
   address: null,
@@ -267,7 +267,7 @@ export class SettingsService {
       password: smtp.passwordEncrypted ? this.crypto.decrypt(smtp.passwordEncrypted) : null,
       security: smtp.security,
       fromEmail: smtp.fromEmail,
-      fromName: smtp.fromName ?? 'Loja Jonas & Elivaldo',
+      fromName: smtp.fromName ?? 'Comercial do Norte',
       replyTo: smtp.replyTo,
       enabled: smtp.enabled,
     };

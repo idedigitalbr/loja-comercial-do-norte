@@ -116,9 +116,9 @@ export class NotificationsService {
     if (!normalizedRecipient) throw new BadRequestException('TEST_RECIPIENT_REQUIRED');
     const message: EmailMessage = {
       to: normalizedRecipient,
-      subject: 'Teste de SMTP — Loja Jonas & Elivaldo',
-      html: '<p>O SMTP da loja Jonas &amp; Elivaldo foi configurado com sucesso.</p>',
-      text: 'O SMTP da loja Jonas & Elivaldo foi configurado com sucesso.',
+      subject: 'Teste de SMTP — Comercial do Norte',
+      html: '<p>O SMTP da Comercial do Norte foi configurado com sucesso.</p>',
+      text: 'O SMTP da Comercial do Norte foi configurado com sucesso.',
     };
     await this.sender.send(message);
   }

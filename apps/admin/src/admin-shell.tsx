@@ -102,7 +102,7 @@ function OverviewPage() {
         <article className="admin-kpi"><span>Volume bruto</span><strong>{formatCurrency(grossCents)}</strong><small>Pedidos carregados</small></article>
       </div>
       <div className="admin-dashboard-grid">
-        <article className="admin-card"><p className="admin-eyebrow">Atalhos</p><h3>Próximas ações</h3><p>Gerencie produtos, atualize saldos e acompanhe pedidos em um único fluxo.</p><div className="admin-card__actions"><span>Catálogo conectado ao WooCommerce</span><span>Reserva de estoque ativa no checkout</span><span>Pix aguardando credenciais do provedor</span></div></article>
+        <article className="admin-card"><p className="admin-eyebrow">Atalhos</p><h3>Próximas ações</h3><p>Gerencie produtos, atualize saldos e acompanhe solicitações de cotação em um único fluxo.</p><div className="admin-card__actions"><span>Catálogo institucional e vitrine modular ativos</span><span>Fila de cotações integrada ao atendimento comercial</span><span>Banners e identidade visual gerenciáveis no painel</span></div></article>
         <article className="admin-card"><p className="admin-eyebrow">Últimos pedidos</p><h3>Movimentações recentes</h3>{orders.length ? <ul className="admin-list">{orders.slice(0, 5).map((order) => <li key={order.id}><span>{order.publicId}</span><strong>{formatCurrency(order.totalCents)}</strong><small>{order.status}</small></li>)}</ul> : <p className="admin-empty">Nenhum pedido carregado.</p>}</article>
       </div>
     </section>

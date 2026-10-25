@@ -196,7 +196,7 @@ export function HomeBannersPage() {
             <label className="admin-settings__upload admin-settings__upload--large">Enviar imagem mobile (opcional)<input aria-label="Enviar imagem mobile (opcional)" type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => { const file = event.target.files?.[0]; void handleUpload(file, 'mobile'); event.currentTarget.value = ''; }} /><small>{banner.mobilePath ? 'Imagem carregada' : 'Usará a imagem desktop'}</small></label>
           </div>
           <div className="admin-form-grid admin-form-grid--three">
-            <label>Etiqueta<input value={banner.eyebrow} onChange={(event) => setBanner({ ...banner, eyebrow: event.target.value })} placeholder="Ex.: Jonas & Elivaldo" /></label>
+            <label>Etiqueta<input value={banner.eyebrow} onChange={(event) => setBanner({ ...banner, eyebrow: event.target.value })} placeholder="Ex.: Comercial do Norte" /></label>
             <label>Título<input value={banner.title} onChange={(event) => setBanner({ ...banner, title: event.target.value })} placeholder="Título do banner" /></label>
             <label>Ordem<input type="number" min="0" value={banner.sortOrder} onChange={(event) => setBanner({ ...banner, sortOrder: event.target.value })} /></label>
           </div>

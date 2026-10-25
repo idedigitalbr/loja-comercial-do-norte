@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SettingsPage } from './settings-page';
 
 const snapshot = {
-  site: { siteName: 'Jonas & Elivaldo', logoPath: '/storage/logo.webp', faviconPath: null, address: 'Macapá', phone: '(96) 98100-1897', whatsapp: '5596981001897', instagramUrl: 'https://instagram.com/je', title: 'Jonas', description: 'Descrição' },
+  site: { siteName: 'Comercial do Norte', logoPath: '/storage/logo.webp', faviconPath: null, address: 'Macapá', phone: '(96) 98100-1897', whatsapp: '5596981001897', instagramUrl: 'https://instagram.com/comercialdonorte', title: 'Comercial do Norte', description: 'Descrição' },
   banners: [],
   payments: { environment: 'TEST', publicKey: 'TEST-public', enabled: false, enablePix: true, enableCard: true, hasAccessToken: true, hasWebhookSecret: false },
   smtp: { host: 'smtp.example.com', port: 587, username: 'mailer@example.com', security: 'STARTTLS', fromEmail: 'loja@example.com', fromName: 'Loja', replyTo: null, enabled: false, hasPassword: true },
