@@ -7,6 +7,8 @@ import type { WidgetType } from '@/lib/storefront/widget-types';
 
 interface ElementorAddSectionBoxProps {
   insertIndex?: number;
+  initialOpen?: boolean;
+  onClose?: () => void;
 }
 
 const quickWidgets: Array<{
@@ -47,12 +49,21 @@ const quickWidgets: Array<{
   },
 ];
 
-export function ElementorAddSectionBox({ insertIndex }: ElementorAddSectionBoxProps) {
+export function ElementorAddSectionBox({
+  insertIndex,
+  initialOpen = false,
+  onClose,
+}: ElementorAddSectionBoxProps) {
   const { isEditing, previewMode, addWidget } = useElementor();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(initialOpen);
   const [isDragOver, setIsDragOver] = useState(false);
 
   if (!isEditing || previewMode) return null;
+
+  const handleClose = () => {
+    setIsOpen(false);
+    onClose?.();
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -128,7 +139,7 @@ export function ElementorAddSectionBox({ insertIndex }: ElementorAddSectionBoxPr
             <button
               aria-label="Fechar"
               className="flex size-6 cursor-pointer items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white transition"
-              onClick={() => setIsOpen(false)}
+              onClick={handleClose}
               type="button"
             >
               <X className="size-4" />
@@ -144,7 +155,7 @@ export function ElementorAddSectionBox({ insertIndex }: ElementorAddSectionBoxPr
                   key={w.type}
                   onClick={() => {
                     addWidget(w.type, insertIndex);
-                    setIsOpen(false);
+                    handleClose();
                   }}
                   type="button"
                 >

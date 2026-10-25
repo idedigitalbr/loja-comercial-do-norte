@@ -30,12 +30,14 @@ export function ElementorSectionWrapper({
   totalWidgets,
   children,
   onAddAbove,
+  onAddBelow,
 }: {
   widget: WidgetConfig;
   index: number;
   totalWidgets: number;
   children: React.ReactNode;
   onAddAbove: () => void;
+  onAddBelow: () => void;
 }) {
   const {
     isEditing,
@@ -99,26 +101,71 @@ export function ElementorSectionWrapper({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      {/* LADO ESQUERDO: APENAS O PINCELZINHO MINIMALISTA (Estilo Dark / Shadcn) */}
+      {/* LADO DIREITO: CÁPSULA MINIMALISTA SHADCN COM LÁPIS À ESQUERDA DAS BOLINHAS */}
       <div
-        className="absolute top-3 left-4 z-40 transition-all duration-200"
+        className="absolute top-3 right-4 z-40 transition-all duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative">
-          {/* Botão Ícone do Lápis Minimalista */}
-          <button
-            aria-label={`Editar ${label}`}
-            className="flex size-9 cursor-pointer items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950/90 text-zinc-300 shadow-xl backdrop-blur-md transition-all duration-150 hover:scale-105 hover:border-sky-500/50 hover:bg-black hover:text-sky-400 opacity-0 group-hover/section:opacity-100 group-hover/section:translate-y-0 translate-y-1 focus:opacity-100"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            title="Configurar esta seção"
-            type="button"
+          <div
+            className="flex items-center gap-0.5 rounded-xl border border-zinc-800 bg-zinc-950/90 p-1 text-zinc-400 shadow-xl backdrop-blur-md opacity-0 group-hover/section:opacity-100 group-hover/section:translate-y-0 translate-y-1 transition-all duration-150 focus-within:opacity-100"
           >
-            <Pencil className="size-4" />
-          </button>
+            {/* 1. Lápis / Pincel Minimalista (do lado esquerdo das bolinhas) */}
+            <button
+              aria-label={`Opções da seção ${label}`}
+              className={`flex size-7 cursor-pointer items-center justify-center rounded-lg transition-all duration-150 hover:bg-zinc-800 hover:text-sky-400 ${
+                isMenuOpen ? 'bg-zinc-800 text-sky-400' : 'text-zinc-400'
+              }`}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              title="Configurar esta seção (inserir acima/abaixo, duplicar, excluir)"
+              type="button"
+            >
+              <Pencil className="size-3.5" />
+            </button>
 
-          {/* Janela Suspensa Shadcn Dark Mode de Opções */}
+            <span className="h-4 w-px bg-zinc-800" />
+
+            {/* 2. Bolinhas / Quadradinhos de Drag & Drop */}
+            <div
+              aria-label="Arrastar para reordenar"
+              className="flex size-7 cursor-grab active:cursor-grabbing items-center justify-center rounded-lg hover:bg-zinc-800 hover:text-sky-400 transition"
+              draggable={true}
+              onDragStart={handleDragStart}
+              title="Arraste para mover esta seção para cima ou para baixo"
+            >
+              <GripVertical className="size-4" />
+            </div>
+
+            <span className="h-4 w-px bg-zinc-800" />
+
+            {/* 3. Subir */}
+            <button
+              aria-label="Subir seção"
+              className="flex size-7 cursor-pointer items-center justify-center rounded-lg hover:bg-zinc-800 hover:text-white transition disabled:opacity-20 disabled:cursor-not-allowed"
+              disabled={index === 0}
+              onClick={() => moveWidget(widget.id, 'up')}
+              title="Mover para cima"
+              type="button"
+            >
+              <ArrowUp className="size-3.5" />
+            </button>
+
+            {/* 4. Descer */}
+            <button
+              aria-label="Descer seção"
+              className="flex size-7 cursor-pointer items-center justify-center rounded-lg hover:bg-zinc-800 hover:text-white transition disabled:opacity-20 disabled:cursor-not-allowed"
+              disabled={index === totalWidgets - 1}
+              onClick={() => moveWidget(widget.id, 'down')}
+              title="Mover para baixo"
+              type="button"
+            >
+              <ArrowDown className="size-3.5" />
+            </button>
+          </div>
+
+          {/* Janela Suspensa Shadcn Dark Mode de Opções (ancorada à direita abaixo da cápsula) */}
           {isMenuOpen && (
-            <div className="absolute top-11 left-0 z-50 w-64 rounded-2xl border border-zinc-800 bg-zinc-950 p-3 text-zinc-200 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+            <div className="absolute top-11 right-0 z-50 w-64 rounded-2xl border border-zinc-800 bg-zinc-950 p-3 text-zinc-200 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
               {/* Topo do Menu */}
               <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2 mb-2">
                 <span className="text-xs font-bold text-white truncate max-w-[180px]">
@@ -136,7 +183,7 @@ export function ElementorSectionWrapper({
 
               {/* Lista de Ações Limpas */}
               <div className="flex flex-col gap-1 text-xs">
-                {/* Inserir Acima */}
+                {/* Inserir Seção Acima */}
                 <button
                   className="flex items-center gap-2 rounded-lg p-2 text-zinc-300 hover:bg-zinc-900 hover:text-white transition cursor-pointer"
                   onClick={() => {
@@ -149,11 +196,24 @@ export function ElementorSectionWrapper({
                   <span>Inserir seção acima</span>
                 </button>
 
+                {/* Inserir Seção Abaixo */}
+                <button
+                  className="flex items-center gap-2 rounded-lg p-2 text-zinc-300 hover:bg-zinc-900 hover:text-white transition cursor-pointer"
+                  onClick={() => {
+                    onAddBelow();
+                    setIsMenuOpen(false);
+                  }}
+                  type="button"
+                >
+                  <Plus className="size-3.5 text-sky-400" />
+                  <span>Inserir seção abaixo</span>
+                </button>
+
                 {/* Duplicar */}
                 <button
                   className="flex items-center gap-2 rounded-lg p-2 text-zinc-300 hover:bg-zinc-900 hover:text-white transition cursor-pointer"
                   onClick={() => {
-                    addWidget(widget.type, widget.order + 1);
+                    addWidget(widget.type, index + 1);
                     setIsMenuOpen(false);
                   }}
                   type="button"
@@ -200,53 +260,6 @@ export function ElementorSectionWrapper({
               </div>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* LADO DIREITO: ALÇA DE MOVIMENTAÇÃO DRAG & DROP (Quadradinhos) + Setinhas */}
-      <div
-        className="absolute top-3 right-4 z-40 transition-all duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div
-          className="flex items-center gap-0.5 rounded-xl border border-zinc-800 bg-zinc-950/90 p-1 text-zinc-400 shadow-xl backdrop-blur-md opacity-0 group-hover/section:opacity-100 group-hover/section:translate-y-0 translate-y-1 transition-all duration-150 focus-within:opacity-100"
-        >
-          {/* Alça Drag & Drop dos Quadradinhos */}
-          <div
-            aria-label="Arrastar para reordenar"
-            className="flex size-7 cursor-grab active:cursor-grabbing items-center justify-center rounded-lg hover:bg-zinc-800 hover:text-sky-400 transition"
-            draggable={true}
-            onDragStart={handleDragStart}
-            title="Arraste para mover esta seção para cima ou para baixo"
-          >
-            <GripVertical className="size-4" />
-          </div>
-
-          <span className="h-4 w-px bg-zinc-800" />
-
-          {/* Subir */}
-          <button
-            aria-label="Subir seção"
-            className="flex size-7 cursor-pointer items-center justify-center rounded-lg hover:bg-zinc-800 hover:text-white transition disabled:opacity-20 disabled:cursor-not-allowed"
-            disabled={index === 0}
-            onClick={() => moveWidget(widget.id, 'up')}
-            title="Mover para cima"
-            type="button"
-          >
-            <ArrowUp className="size-3.5" />
-          </button>
-
-          {/* Descer */}
-          <button
-            aria-label="Descer seção"
-            className="flex size-7 cursor-pointer items-center justify-center rounded-lg hover:bg-zinc-800 hover:text-white transition disabled:opacity-20 disabled:cursor-not-allowed"
-            disabled={index === totalWidgets - 1}
-            onClick={() => moveWidget(widget.id, 'down')}
-            title="Mover para baixo"
-            type="button"
-          >
-            <ArrowDown className="size-3.5" />
-          </button>
         </div>
       </div>
 

@@ -279,12 +279,20 @@ export function ElementorEditorProvider({
       id: newId,
       type,
       enabled: true,
-      order: typeof insertIndex === 'number' ? insertIndex : maxOrder + 1,
+      order: 0,
       props: defaultProps,
     } as WidgetConfig;
 
-    const newWidgets = [...composition.widgets, newWidget].sort((a, b) => a.order - b.order);
-    commitChange({ ...composition, widgets: newWidgets });
+    const sorted = [...composition.widgets].sort((a, b) => a.order - b.order);
+    if (typeof insertIndex === 'number' && insertIndex >= 0 && insertIndex <= sorted.length) {
+      sorted.splice(insertIndex, 0, newWidget);
+      const updated = sorted.map((w, idx) => ({ ...w, order: idx + 1 }));
+      commitChange({ ...composition, widgets: updated });
+    } else {
+      newWidget.order = maxOrder + 1;
+      const updated = [...sorted, newWidget].map((w, idx) => ({ ...w, order: idx + 1 }));
+      commitChange({ ...composition, widgets: updated });
+    }
     setSelectedWidgetId(newId);
   }
 
