@@ -217,6 +217,7 @@ if (statusAfter !== "Backlog") {
   let start = existingStart;
   let target = existingTarget;
   let proposed = false;
+  let primaryCode = null;
   if (!start && !target) {
     if (Boolean(flag("start-date")) !== Boolean(flag("target-date")))
       throw new Error("Informe --start-date e --target-date em conjunto.");
@@ -224,7 +225,7 @@ if (statusAfter !== "Backlog") {
       start = flag("start-date");
       target = flag("target-date");
     } else {
-      const primaryCode = issue.title.match(/^\[ETAPA \d+\] \[([A-Z]+)\]/)?.[1]
+      primaryCode = issue.title.match(/^\[ETAPA \d+\] \[([A-Z]+)\]/)?.[1]
         ?? manifest.operationalTasks?.find((task) => task.issue === number)?.tipo;
       if (!primaryCode) throw new Error(`Tipo principal não identificado para propor datas em #${number}.`);
       const parts = new Intl.DateTimeFormat("en-US", {

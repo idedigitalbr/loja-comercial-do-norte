@@ -54,9 +54,9 @@ export function LoginPage({ onAuthenticated }: { onAuthenticated: (email: string
     <div className="admin-shell">
       <main className="admin-auth">
         <section className="admin-auth__brand" aria-label="Identidade do painel">
-          <p className="admin-eyebrow">Jonas & Elivaldo</p>
-          <h1>Gestão profissional para uma operação mais leve.</h1>
-          <p>Catálogo, pedidos, estoque e relacionamento em um só lugar.</p>
+          <p className="admin-eyebrow">Comercial do Norte</p>
+          <h1>Gestão comercial e catálogo em um só painel.</h1>
+          <p>Catálogo, fila de cotações, banners da vitrine e configurações integrados.</p>
         </section>
         <section className="admin-auth__card">
           <p className="admin-eyebrow">Área restrita</p>
