@@ -1,4 +1,4 @@
-import { PageRenderer } from '@/lib/storefront/widget-registry';
+import { HomeView } from '@/components/storefront/home-view';
 import { defaultHomeComposition } from '@/lib/storefront/home-configuration';
 import { getBrands, getCategories, getOffers, getProducts, getSiteConfig } from '@/lib/api';
 
@@ -22,7 +22,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col gap-0 pb-12">
-      <PageRenderer composition={defaultHomeComposition} contextData={contextData} />
+      <HomeView contextData={contextData} initialComposition={defaultHomeComposition} />
     </div>
   );
 }

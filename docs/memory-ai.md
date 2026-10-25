@@ -154,6 +154,7 @@ docs/
   - **Hero de Largura Total (S1):** `HeroCarouselWidget` estilo Mercado Livre, com autoplay, setas circulares brancas, indicadores de pontos e transição degradê inferior.
   - **Hero Secundário Contido (S1):** `ContainedHeroWidget` arredondado (`rounded-2xl md:rounded-3xl`), sobreposto com margem negativa (`-mt-8 sm:-mt-12 md:-mt-16 lg:-mt-20`), setas escuras translúcidas com blur e badge com dot da marca.
   - **Widgets Complementares:** `BenefitsBarWidget` (4 pilares comerciais), `ProductCarouselWidget` (ofertas com cards e cotação) e `CategoryGridWidget` (departamentos).
+  - **Editor Visual Estilo Elementor (25/10/2026):** Implementado modo de edição visual interativo direto na vitrine pública (`HomeView`, `EditorProvider`, `EditorToolbar`, `EditorSidebar`, `WidgetContainer`). Permite ao administrador clicar em "Editar Vitrine", selecionar qualquer seção, reordenar (subir/descer), adicionar novos widgets do catálogo, remover seções, alternar visibilidade e editar em tempo real as propriedades de cada widget (como adicionar/remover slides de banners, trocar imagens, links, tempos de autoplay, cores de fundo e editar os 4 cards de benefícios). Suporta persistência imediata no navegador (`localStorage`) e preparação para API NestJS.
   - **Validação:** `pnpm typecheck` 6/6 aprovados e `pnpm lint` 6/6 aprovados no monorepo.
 
 | Papel | Valor oficial | Uso |

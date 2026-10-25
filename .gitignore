@@ -76,3 +76,6 @@ Thumbs.db
 /storage/docs
 /storage/framework/testing
 /public/uploads
+
+# Arquivo de regras gerado dinamicamente pelo Next.js
+apps/storefront/AGENTS.md

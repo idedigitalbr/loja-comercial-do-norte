@@ -208,7 +208,8 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
   - Barra de benefícios comerciais (`BenefitsBarWidget`).
   - Carrossel de ofertas com cards de produto e cotação (`ProductCarouselWidget`).
   - Grid de departamentos do catálogo (`CategoryGridWidget`).
-  - Página inicial `apps/storefront/app/page.tsx` refatorada para renderização dinâmica via `PageRenderer`.
+  - Modo Editor Visual da Vitrine no estilo Elementor (`HomeView`, `EditorProvider`, `EditorToolbar`, `EditorSidebar`, `WidgetContainer`), com seleção em tempo real, adição/remoção de widgets, reordenação de seções, edição completa de slides e banners com atalhos rápidos de imagens e persistência local.
+  - Página inicial `apps/storefront/app/page.tsx` refatorada para renderização dinâmica via `PageRenderer` e suporte ao editor visual.
 - **Validação técnica:**
   - `pnpm typecheck`: **6/6 pacotes aprovados**.
   - `pnpm lint`: **6/6 pacotes aprovados**.
