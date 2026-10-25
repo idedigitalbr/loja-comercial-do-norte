@@ -3,8 +3,10 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Package, Ruler, Truck } from 'lucide-react';
+import { WebBadge, WebCard } from '@commerce/ui/web';
 import { AddToQuoteButton } from '@/components/add-to-quote-button';
-import { getProduct, mediaUrl } from '@/lib/api';
+import { ProductCard } from '@/components/product-card';
+import { getProduct, getProducts, mediaUrl } from '@/lib/api';
 import { formatMoney } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
@@ -39,6 +41,13 @@ export default async function ProductPage({ params }: { params: Params }) {
   const category = product.categories[0]?.category;
   const compareAt = variant?.compareAtPriceCents ?? null;
   const hasDiscount = Boolean(compareAt && variant && compareAt > variant.priceCents);
+  const discountPct =
+    hasDiscount && compareAt && variant
+      ? Math.round(((compareAt - variant.priceCents) / compareAt) * 100)
+      : 0;
+
+  const relatedRaw = category ? await getProducts({ category: category.slug }) : await getProducts();
+  const related = relatedRaw.filter((item) => item.id !== product.id).slice(0, 4);
 
   return (
     <div className="cn-container py-8">
@@ -55,7 +64,15 @@ export default async function ProductPage({ params }: { params: Params }) {
         <div className="overflow-hidden rounded-card border border-line bg-surface">
           <div className="aspect-square bg-surface-soft">
             {image ? (
-              <Image alt={product.images[0]?.altText ?? product.name} className="size-full object-cover" height={960} priority src={image} width={960} />
+              <Image
+                alt={product.images[0]?.altText ?? product.name}
+                className="size-full object-cover"
+                height={960}
+                priority
+                sizes="(max-width: 768px) 100vw, 50vw"
+                src={image}
+                width={960}
+              />
             ) : (
               <span className="flex size-full items-center justify-center text-sm text-muted">Imagem em preparação</span>
             )}
@@ -63,11 +80,14 @@ export default async function ProductPage({ params }: { params: Params }) {
         </div>
 
         <div>
-          {product.brand ? <p className="text-xs uppercase tracking-wide text-muted">{product.brand.name}</p> : null}
+          <div className="flex flex-wrap items-center gap-2">
+            {product.brand ? <p className="text-xs uppercase tracking-wide text-muted">{product.brand.name}</p> : null}
+            {hasDiscount ? <WebBadge tone="promo">-{discountPct}% OFF</WebBadge> : null}
+          </div>
           <h1 className="mt-1 text-2xl font-extrabold text-ink md:text-3xl">{product.name}</h1>
           {variant ? <p className="mt-1 text-xs text-muted">SKU {variant.sku}</p> : null}
 
-          <div className="mt-4 rounded-card border border-line bg-surface p-4 shadow-card">
+          <WebCard className="mt-4">
             {variant ? (
               <>
                 <div className="flex items-baseline gap-3">
@@ -95,7 +115,7 @@ export default async function ProductPage({ params }: { params: Params }) {
             ) : (
               <p className="text-sm text-muted">Produto sem variante disponível para cotação.</p>
             )}
-          </div>
+          </WebCard>
 
           {product.description ? (
             <section className="mt-6">
@@ -136,6 +156,22 @@ export default async function ProductPage({ params }: { params: Params }) {
           </section>
         </div>
       </div>
+
+      {related.length > 0 ? (
+        <section aria-label="Produtos relacionados" className="mt-12 border-t border-line pt-8">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-extrabold text-ink">Produtos relacionados</h2>
+            <Link className="text-xs font-bold text-brand hover:underline" href={category ? `/categoria/${category.slug}` : '/loja'}>
+              Ver mais →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {related.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

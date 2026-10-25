@@ -1,7 +1,9 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CheckCircle2 } from 'lucide-react';
+import { WebAlert, WebBadge, WebCard } from '@commerce/ui/web';
 import { getQuote, mediaUrl } from '@/lib/api';
 import { formatDate, formatMoney } from '@/lib/format';
 import { QUOTE_STATUS_LABELS } from '@/lib/types';
@@ -23,14 +25,16 @@ export default async function QuoteConfirmationPage({ params }: { params: Params
   return (
     <div className="cn-container py-10">
       <div className="mx-auto max-w-3xl">
-        <div className="rounded-card border border-line bg-surface p-6 shadow-card">
+        <WebCard className="p-6">
           <div className="flex items-start gap-3">
             <CheckCircle2 aria-hidden className="mt-0.5 size-7 text-ok" />
             <div>
-              <h1 className="text-xl font-extrabold text-ink">Cotação enviada com sucesso</h1>
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-xl font-extrabold text-ink">Cotação enviada com sucesso</h1>
+                <WebBadge tone="success">{QUOTE_STATUS_LABELS[quote.status] ?? quote.status}</WebBadge>
+              </div>
               <p className="mt-1 text-sm text-muted">
-                Protocolo <strong className="text-ink">{quote.publicId}</strong> · status atual:{' '}
-                <strong className="text-ink">{QUOTE_STATUS_LABELS[quote.status] ?? quote.status}</strong>
+                Protocolo <strong className="text-ink">{quote.publicId}</strong>
               </p>
               <p className="mt-1 text-xs text-muted">Solicitada em {formatDate(quote.createdAt)}</p>
             </div>
@@ -65,7 +69,7 @@ export default async function QuoteConfirmationPage({ params }: { params: Params
                 <li className="flex items-center gap-3 py-3" key={`${item.sku}-${item.productSlug}`}>
                   <div className="size-12 shrink-0 overflow-hidden rounded bg-surface-soft">
                     {image ? (
-                      <img alt={item.productName} className="size-full object-cover" src={image} />
+                      <Image alt={item.productName} className="size-full object-cover" height={48} src={image} width={48} />
                     ) : null}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -85,13 +89,10 @@ export default async function QuoteConfirmationPage({ params }: { params: Params
             <strong className="text-lg font-extrabold text-brand">{formatMoney(quote.subtotalCents)}</strong>
           </div>
 
-          <div className="mt-6 rounded-md bg-brand-soft px-4 py-3 text-sm text-ink">
-            <p className="font-semibold">Próximos passos</p>
-            <p className="mt-1 text-body">
-              A equipe comercial entra em contato pelo WhatsApp informado com a proposta. Nenhum pagamento foi feito
-              pelo site: a negociação e o fechamento acontecem com a loja.
-            </p>
-          </div>
+          <WebAlert className="mt-6" title="Próximos passos" tone="info">
+            A equipe comercial entra em contato pelo WhatsApp informado com a proposta. Nenhum pagamento foi feito
+            pelo site: a negociação e o fechamento acontecem com a loja.
+          </WebAlert>
 
           <div className="mt-6 flex flex-wrap gap-3">
             <Link className="rounded-pill bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-hover" href="/loja">
@@ -101,7 +102,7 @@ export default async function QuoteConfirmationPage({ params }: { params: Params
               Enviar nova cotação
             </Link>
           </div>
-        </div>
+        </WebCard>
 
         <p className="mt-4 text-center text-xs text-muted">
           Guarde o protocolo <strong>{quote.publicId}</strong> para acompanhar o atendimento.

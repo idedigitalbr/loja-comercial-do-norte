@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { WebEmptyState } from '@commerce/ui/web';
 import { ProductCard } from '@/components/product-card';
 import { getCategories, getProducts } from '@/lib/api';
 
@@ -59,10 +60,16 @@ export default async function CategoryPage({ params }: { params: Params }) {
           {products.map((product) => <ProductCard key={product.id} product={product} />)}
         </div>
       ) : (
-        <div className="mt-8 rounded-card border border-dashed border-line bg-surface p-8 text-center">
-          <p className="text-sm font-semibold text-ink">Ainda não há produtos publicados nesta categoria.</p>
-          <Link className="mt-4 inline-block rounded-pill bg-brand px-4 py-2 text-sm font-semibold text-white" href="/loja">Ver catálogo</Link>
-        </div>
+        <WebEmptyState
+          action={
+            <Link className="inline-block rounded-pill bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-hover" href="/loja">
+              Ver catálogo
+            </Link>
+          }
+          className="mt-8"
+          description="Explore outras categorias ou solicite atendimento pelo WhatsApp."
+          title="Ainda não há produtos publicados nesta categoria."
+        />
       )}
     </div>
   );
