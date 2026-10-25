@@ -21,6 +21,16 @@ export interface MediaModalState {
   widgetId?: string;
   slideId?: string;
   currentUrl?: string;
+  slideTitle?: string;
+}
+
+export interface LinkModalState {
+  isOpen: boolean;
+  widgetId?: string;
+  slideId?: string;
+  currentLinkUrl?: string;
+  currentImageUrl?: string;
+  slideTitle?: string;
 }
 
 interface ElementorContextValue {
@@ -58,8 +68,17 @@ interface ElementorContextValue {
   canUndo: boolean;
   canRedo: boolean;
   mediaModalState: MediaModalState;
-  openMediaModal: (options: { widgetId: string; slideId?: string; currentUrl?: string }) => void;
+  openMediaModal: (options: { widgetId: string; slideId?: string; currentUrl?: string; slideTitle?: string }) => void;
   closeMediaModal: () => void;
+  linkModalState: LinkModalState;
+  openLinkModal: (options: {
+    widgetId: string;
+    slideId: string;
+    currentLinkUrl?: string;
+    currentImageUrl?: string;
+    slideTitle?: string;
+  }) => void;
+  closeLinkModal: () => void;
 }
 
 const ElementorContext = createContext<ElementorContextValue | null>(null);
@@ -87,6 +106,10 @@ export function ElementorEditorProvider({
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   const [mediaModalState, setMediaModalState] = useState<MediaModalState>({
+    isOpen: false,
+  });
+
+  const [linkModalState, setLinkModalState] = useState<LinkModalState>({
     isOpen: false,
   });
 
@@ -418,17 +441,39 @@ export function ElementorEditorProvider({
     }
   }
 
-  function openMediaModal(options: { widgetId: string; slideId?: string; currentUrl?: string }) {
+  function openMediaModal(options: { widgetId: string; slideId?: string; currentUrl?: string; slideTitle?: string }) {
     setMediaModalState({
       isOpen: true,
       widgetId: options.widgetId,
       slideId: options.slideId,
       currentUrl: options.currentUrl,
+      slideTitle: options.slideTitle,
     });
   }
 
   function closeMediaModal() {
     setMediaModalState({ isOpen: false });
+  }
+
+  function openLinkModal(options: {
+    widgetId: string;
+    slideId: string;
+    currentLinkUrl?: string;
+    currentImageUrl?: string;
+    slideTitle?: string;
+  }) {
+    setLinkModalState({
+      isOpen: true,
+      widgetId: options.widgetId,
+      slideId: options.slideId,
+      currentLinkUrl: options.currentLinkUrl,
+      currentImageUrl: options.currentImageUrl,
+      slideTitle: options.slideTitle,
+    });
+  }
+
+  function closeLinkModal() {
+    setLinkModalState({ isOpen: false });
   }
 
   return (
@@ -470,6 +515,9 @@ export function ElementorEditorProvider({
         mediaModalState,
         openMediaModal,
         closeMediaModal,
+        linkModalState,
+        openLinkModal,
+        closeLinkModal,
       }}
     >
       {children}

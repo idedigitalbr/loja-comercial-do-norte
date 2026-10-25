@@ -79,6 +79,7 @@ interface ElementorMediaModalProps {
   onClose: () => void;
   onSelectImage: (imageUrl: string, altText?: string) => void;
   currentImageUrl?: string;
+  slideTitle?: string;
   title?: string;
 }
 
@@ -87,7 +88,8 @@ export function ElementorMediaModal({
   onClose,
   onSelectImage,
   currentImageUrl,
-  title = 'Selecionar ou Enviar Imagem',
+  slideTitle,
+  title = 'Selecionar ou Enviar Imagem do Banner',
 }: ElementorMediaModalProps) {
   const [activeTab, setActiveTab] = useState<'library' | 'upload' | 'url'>('library');
   const [selectedUrl, setSelectedUrl] = useState<string>(currentImageUrl || availableMediaLibrary[0]?.url || '');
@@ -204,9 +206,31 @@ export function ElementorMediaModal({
             type="button"
           >
             <LinkIcon className="size-4 text-zinc-400" />
-            <span>Inserir via Link / URL</span>
+            <span>URL Externa da Imagem</span>
           </button>
         </div>
+
+        {/* Item Sendo Alterado Preview Bar */}
+        {(slideTitle || currentImageUrl) && (
+          <div className="flex items-center justify-between border-b border-zinc-800/80 bg-zinc-900/20 px-6 py-2.5 text-xs">
+            <div className="flex items-center gap-3">
+              {currentImageUrl ? (
+                <div className="size-8 shrink-0 overflow-hidden rounded border border-zinc-800 bg-black">
+                  {/* eslint-disable-next-js/next/no-img-element */}
+                  <img alt={slideTitle || ''} className="size-full object-cover" src={currentImageUrl} />
+                </div>
+              ) : null}
+              <span className="text-zinc-400">
+                Item atual sendo alterado: <strong className="text-white">{slideTitle || 'Slide do Banner'}</strong>
+              </span>
+            </div>
+            {currentImageUrl ? (
+              <span className="text-[11px] text-zinc-500 hidden sm:inline">
+                A nova imagem substituirá este slide
+              </span>
+            ) : null}
+          </div>
+        )}
 
         {/* Corpo do Modal */}
         <div className="flex flex-1 overflow-hidden">
