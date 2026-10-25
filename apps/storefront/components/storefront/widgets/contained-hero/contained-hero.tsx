@@ -1,11 +1,13 @@
 'use client';
 
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { InlineImageEditorOverlay } from '@/components/storefront/editor/inline-image-editor-overlay';
 import type { ContainedHeroProps } from '@/lib/storefront/widget-types';
 
 export function ContainedHeroWidget({
+  widgetId,
   slides,
   autoplayIntervalMs = 6000,
   showArrows = true,
@@ -61,6 +63,7 @@ export function ContainedHeroWidget({
                   href={slide.linkUrl}
                   tabIndex={isActive ? 0 : -1}
                 >
+                  {/* eslint-disable-next-js/next/no-img-element */}
                   <img
                     alt={slide.altText}
                     className="block size-full object-cover object-center"
@@ -71,6 +74,17 @@ export function ContainedHeroWidget({
                     width={4064}
                   />
                 </Link>
+
+                {/* ÍCONE DE TROCAR FOTO NO CENTRO DO BANNER (Exato ao anexo do usuário) */}
+                {isActive && (
+                  <InlineImageEditorOverlay
+                    currentImageUrl={slide.imageUrl}
+                    currentLinkUrl={slide.linkUrl}
+                    slideId={slide.id}
+                    title={slide.title}
+                    widgetId={widgetId || 'hero-secundario-contido'}
+                  />
+                )}
               </div>
             );
           })}
@@ -98,32 +112,32 @@ export function ContainedHeroWidget({
           </>
         ) : null}
 
-        {/* Indicador de Pontos com Logo e Badge Comercial do Norte */}
+        {/* Indicadores / Bolinhas com Logo Comercial no Ponto Ativo */}
         {showDots && slides.length > 1 ? (
-          <div className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/20 bg-black/50 px-3.5 py-1.5 shadow-xl backdrop-blur-md sm:bottom-4 md:bottom-5">
-            <div className="flex items-center gap-1 border-r border-white/20 pr-1.5">
-              <span className="flex size-3.5 items-center justify-center rounded-full border-2 border-white">
-                <span className="size-1.5 rounded-full bg-promo" />
-              </span>
-              <span className="hidden text-[10px] font-bold tracking-tight text-white/80 sm:inline">
-                comercial
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              {slides.map((slide, idx) => (
+          <div className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 backdrop-blur-md sm:bottom-4">
+            {slides.map((slide, index) => {
+              const isActive = index === currentIndex;
+              return (
                 <button
-                  aria-label={`Ir para campanha ${idx + 1}`}
-                  className={`size-2 rounded-full transition-all duration-300 sm:size-2.5 ${
-                    idx === currentIndex
-                      ? 'bg-promo shadow-xs scale-125'
-                      : 'bg-white/40 hover:bg-white'
+                  aria-label={`Ir para a campanha ${index + 1}`}
+                  className={`transition-all duration-300 cursor-pointer ${
+                    isActive
+                      ? 'flex items-center gap-1 rounded-full bg-[#E2091E] px-2 py-0.5 text-[10px] font-bold text-white'
+                      : 'size-2 rounded-full bg-white/50 hover:bg-white/80'
                   }`}
                   key={slide.id}
-                  onClick={() => setCurrentIndex(idx)}
+                  onClick={() => setCurrentIndex(index)}
                   type="button"
-                />
-              ))}
-            </div>
+                >
+                  {isActive ? (
+                    <>
+                      <span className="size-1.5 rounded-full bg-white" />
+                      <span className="hidden sm:inline">comercial</span>
+                    </>
+                  ) : null}
+                </button>
+              );
+            })}
           </div>
         ) : null}
       </div>

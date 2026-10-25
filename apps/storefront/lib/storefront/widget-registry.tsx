@@ -11,15 +11,15 @@ export function renderWidget(widget: WidgetConfig, contextData: WidgetContextDat
 
   switch (widget.type) {
     case 'hero-carousel':
-      return <HeroCarouselWidget key={widget.id} {...widget.props} />;
+      return <HeroCarouselWidget key={widget.id} widgetId={widget.id} {...widget.props} />;
     case 'contained-hero':
-      return <ContainedHeroWidget key={widget.id} {...widget.props} />;
+      return <ContainedHeroWidget key={widget.id} widgetId={widget.id} {...widget.props} />;
     case 'benefits-bar':
-      return <BenefitsBarWidget key={widget.id} {...widget.props} />;
+      return <BenefitsBarWidget key={widget.id} widgetId={widget.id} {...widget.props} />;
     case 'product-carousel':
-      return <ProductCarouselWidget contextData={contextData} key={widget.id} {...widget.props} />;
+      return <ProductCarouselWidget contextData={contextData} key={widget.id} widgetId={widget.id} {...widget.props} />;
     case 'category-grid':
-      return <CategoryGridWidget contextData={contextData} key={widget.id} {...widget.props} />;
+      return <CategoryGridWidget contextData={contextData} key={widget.id} widgetId={widget.id} {...widget.props} />;
     default:
       return null;
   }

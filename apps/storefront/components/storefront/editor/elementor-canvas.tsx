@@ -5,21 +5,16 @@ import { Smartphone, Tablet } from 'lucide-react';
 import { useElementor } from './elementor-editor-context';
 
 export function ElementorCanvas({ children }: { children: React.ReactNode }) {
-  const { isEditing, previewMode, viewport, panelCollapsed } = useElementor();
+  const { isEditing, previewMode, viewport } = useElementor();
 
   const isResponsiveDevice = isEditing && !previewMode && (viewport === 'tablet' || viewport === 'mobile');
 
-  // Offset esquerdo e superior para acomodar a TopBar e o Painel Lateral
-  const canvasOffsetClass =
-    isEditing && !previewMode
-      ? panelCollapsed
-        ? 'pt-12 md:pl-0'
-        : 'pt-12 md:pl-[300px]'
-      : '';
+  // O site continua normal em 100% de largura (sem painel lateral empurrando a página)
+  const topPaddingClass = isEditing && !previewMode ? 'pt-11' : '';
 
   return (
     <div
-      className={`min-h-screen transition-all duration-300 ${canvasOffsetClass} ${
+      className={`min-h-screen w-full transition-all duration-300 ${topPaddingClass} ${
         isResponsiveDevice ? 'bg-[#3b3d40] py-6 px-4' : 'bg-white'
       }`}
     >
@@ -30,12 +25,12 @@ export function ElementorCanvas({ children }: { children: React.ReactNode }) {
           <div className="mb-2 flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white/90 shadow-md backdrop-blur-md">
             {viewport === 'tablet' ? (
               <>
-                <Tablet className="size-3.5 text-[#8C1D40]" />
+                <Tablet className="size-3.5 text-[#004CB1]" />
                 <span>Simulador Tablet (768px)</span>
               </>
             ) : (
               <>
-                <Smartphone className="size-3.5 text-[#8C1D40]" />
+                <Smartphone className="size-3.5 text-[#004CB1]" />
                 <span>Simulador Mobile (390px)</span>
               </>
             )}

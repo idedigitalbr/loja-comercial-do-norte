@@ -5,12 +5,13 @@ import {
   ArrowDown,
   ArrowUp,
   Copy,
-  Edit2,
+  Edit3,
   Eye,
   EyeOff,
-  GripVertical,
+  Palette,
   Plus,
   Trash2,
+  X,
 } from 'lucide-react';
 import { useElementor } from './elementor-editor-context';
 import type { WidgetConfig } from '@/lib/storefront/widget-types';
@@ -64,14 +65,13 @@ export function ElementorSectionWrapper({
     moveWidget,
     removeWidget,
     toggleWidget,
-    setActiveTab,
-    setPanelCollapsed,
     addWidget,
+    updateWidgetProps,
   } = useElementor();
 
-  const [isHovered, setIsHovered] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Se não estiver no modo de edição ou estiver no modo Preview, renderiza a seção limpa
+  // Se não estiver editando ou estiver em modo Preview, renderiza a seção de forma 100% limpa
   if (!isEditing || previewMode) {
     if (!widget.enabled) return null;
     return <section id={`section-${widget.id}`}>{children}</section>;
@@ -81,140 +81,154 @@ export function ElementorSectionWrapper({
   const meta = widgetLabels[widget.type] || {
     label: widget.type,
     badge: 'WIDGET',
-    color: '#8C1D40',
+    color: '#004CB1',
   };
 
   return (
     <section
-      className={`group/section relative transition-all duration-150 ${
+      className={`group/section relative transition-all duration-200 ${
         isSelected
-          ? 'outline-2 outline-[#8C1D40] outline-offset-[-2px] z-20'
-          : isHovered
-            ? 'outline-1 outline-dashed outline-[#8C1D40]/70 z-10'
-            : ''
+          ? 'ring-2 ring-[#004CB1] rounded-2xl'
+          : 'hover:ring-2 hover:ring-dashed hover:ring-[#004CB1]/40 rounded-2xl'
       } ${!widget.enabled ? 'opacity-40 grayscale select-none' : ''}`}
       id={`section-${widget.id}`}
-      onClick={(e) => {
-        e.stopPropagation();
-        setSelectedWidgetId(widget.id);
-        setPanelCollapsed(false);
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => setSelectedWidgetId(widget.id)}
     >
-      {/* Alça Superior Suspensa Estilo Elementor (Aparece no Hover ou quando Selecionado) */}
+      {/* LAPIZINHO MINIMALISTA: Aparece suavemente no canto superior direito no hover (Conforme solicitado) */}
       <div
-        className={`absolute -top-4.5 left-1/2 -translate-x-1/2 z-30 flex items-center transition-all duration-150 ${
-          isHovered || isSelected ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
-        }`}
+        className="absolute top-3 right-4 z-40 transition-all duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center rounded-md bg-[#8C1D40] text-white shadow-lg overflow-hidden border border-white/20">
-          {/* Botão + : Inserir seção acima */}
+        <div className="relative">
+          {/* O Lápis Botão Minimalista com Badge */}
           <button
-            aria-label="Adicionar seção acima"
-            className="flex size-7 cursor-pointer items-center justify-center transition hover:bg-black/20"
-            onClick={onAddAbove}
-            title="Adicionar seção acima (+)"
+            aria-label={`Editar ${meta.label}`}
+            className="flex items-center gap-1.5 rounded-full bg-[#004CB1] px-3 py-1.5 text-xs font-bold text-white shadow-xl transition-all duration-200 hover:scale-105 hover:bg-[#00357B] cursor-pointer opacity-0 group-hover/section:opacity-100 group-hover/section:translate-y-0 translate-y-1 focus:opacity-100"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            title="Clique para abrir opções desta seção"
             type="button"
           >
-            <Plus className="size-3.5 stroke-[2.5]" />
+            <Edit3 className="size-3.5" />
+            <span>Editar Seção</span>
+            <span
+              className="ml-1 rounded px-1.5 py-0.2 text-[9px] font-black text-white"
+              style={{ backgroundColor: meta.color }}
+            >
+              {meta.badge}
+            </span>
           </button>
 
-          {/* Alça Central / Editar Seção ::: */}
-          <button
-            aria-label="Editar Seção"
-            className={`flex h-7 items-center gap-1 px-2 font-bold text-xs cursor-pointer transition ${
-              isSelected ? 'bg-black/25 text-white' : 'hover:bg-black/20'
-            }`}
-            onClick={() => {
-              setSelectedWidgetId(widget.id);
-              setActiveTab('content');
-              setPanelCollapsed(false);
-            }}
-            title="Editar Seção no Painel"
-            type="button"
-          >
-            <GripVertical className="size-3.5" />
-            <span className="text-[11px] uppercase tracking-wide">Editar Seção</span>
-          </button>
+          {/* JANELA FLUTUANTE / TOOLTIP DE OPÇÕES DA SEÇÃO (Abre ao clicar no lápis) */}
+          {isMenuOpen && (
+            <div className="absolute top-10 right-0 z-50 w-72 rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-150 text-slate-800">
+              {/* Cabeçalho do Popover */}
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="size-2.5 rounded-full"
+                    style={{ backgroundColor: meta.color }}
+                  />
+                  <span className="text-xs font-bold truncate max-w-[170px]">{meta.label}</span>
+                </div>
+                <button
+                  aria-label="Fechar"
+                  className="flex size-6 cursor-pointer items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                  onClick={() => setIsMenuOpen(false)}
+                  type="button"
+                >
+                  <X className="size-3.5" />
+                </button>
+              </div>
 
-          {/* Duplicar widget */}
-          <button
-            aria-label="Duplicar seção"
-            className="flex size-7 cursor-pointer items-center justify-center transition hover:bg-black/20"
-            onClick={() => addWidget(widget.type, widget.order + 1)}
-            title="Duplicar seção"
-            type="button"
-          >
-            <Copy className="size-3.5" />
-          </button>
+              {/* Grid de Ações Rápidas da Seção */}
+              <div className="grid grid-cols-2 gap-1.5 text-xs">
+                {/* Mover para Cima */}
+                <button
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-200 p-2 hover:bg-slate-50 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed font-medium text-slate-700"
+                  disabled={index === 0}
+                  onClick={() => moveWidget(widget.id, 'up')}
+                  type="button"
+                >
+                  <ArrowUp className="size-3.5 text-[#004CB1]" />
+                  <span>Subir</span>
+                </button>
 
-          {/* Mover para Cima */}
-          <button
-            aria-label="Mover para cima"
-            className="flex size-7 cursor-pointer items-center justify-center transition hover:bg-black/20 disabled:opacity-30 disabled:cursor-not-allowed"
-            disabled={index === 0}
-            onClick={() => moveWidget(widget.id, 'up')}
-            title="Mover para cima"
-            type="button"
-          >
-            <ArrowUp className="size-3.5" />
-          </button>
+                {/* Mover para Baixo */}
+                <button
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-200 p-2 hover:bg-slate-50 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed font-medium text-slate-700"
+                  disabled={index === totalWidgets - 1}
+                  onClick={() => moveWidget(widget.id, 'down')}
+                  type="button"
+                >
+                  <ArrowDown className="size-3.5 text-[#004CB1]" />
+                  <span>Descer</span>
+                </button>
 
-          {/* Mover para Baixo */}
-          <button
-            aria-label="Mover para baixo"
-            className="flex size-7 cursor-pointer items-center justify-center transition hover:bg-black/20 disabled:opacity-30 disabled:cursor-not-allowed"
-            disabled={index === totalWidgets - 1}
-            onClick={() => moveWidget(widget.id, 'down')}
-            title="Mover para baixo"
-            type="button"
-          >
-            <ArrowDown className="size-3.5" />
-          </button>
+                {/* Duplicar Seção */}
+                <button
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-200 p-2 hover:bg-slate-50 transition cursor-pointer font-medium text-slate-700"
+                  onClick={() => {
+                    addWidget(widget.type, widget.order + 1);
+                    setIsMenuOpen(false);
+                  }}
+                  type="button"
+                >
+                  <Copy className="size-3.5 text-slate-600" />
+                  <span>Duplicar</span>
+                </button>
 
-          {/* Ocultar / Mostrar */}
-          <button
-            aria-label="Ocultar / Mostrar seção"
-            className="flex size-7 cursor-pointer items-center justify-center transition hover:bg-black/20"
-            onClick={() => toggleWidget(widget.id)}
-            title={widget.enabled ? 'Ocultar na vitrine' : 'Tornar visível'}
-            type="button"
-          >
-            {widget.enabled ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5 text-red-300" />}
-          </button>
+                {/* Alternar Visibilidade */}
+                <button
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-200 p-2 hover:bg-slate-50 transition cursor-pointer font-medium text-slate-700"
+                  onClick={() => toggleWidget(widget.id)}
+                  type="button"
+                >
+                  {widget.enabled ? (
+                    <>
+                      <Eye className="size-3.5 text-emerald-600" />
+                      <span>Visível</span>
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff className="size-3.5 text-red-500" />
+                      <span className="text-red-500 font-bold">Oculto</span>
+                    </>
+                  )}
+                </button>
+              </div>
 
-          {/* Botão X : Deletar seção */}
-          <button
-            aria-label="Excluir seção"
-            className="flex size-7 cursor-pointer items-center justify-center transition bg-red-600/80 hover:bg-red-700"
-            onClick={() => {
-              if (confirm(`Remover "${meta.label}" da página?`)) {
-                removeWidget(widget.id);
-              }
-            }}
-            title="Excluir seção"
-            type="button"
-          >
-            <Trash2 className="size-3.5" />
-          </button>
+              {/* Botão de Inserir Seção Acima */}
+              <div className="mt-2 pt-2 border-t border-slate-100 flex flex-col gap-1.5">
+                <button
+                  className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-blue-50 py-1.5 text-xs font-bold text-[#004CB1] hover:bg-blue-100 transition cursor-pointer"
+                  onClick={() => {
+                    onAddAbove();
+                    setIsMenuOpen(false);
+                  }}
+                  type="button"
+                >
+                  <Plus className="size-3.5" />
+                  <span>Inserir Nova Seção Acima</span>
+                </button>
+
+                {/* Excluir Seção */}
+                <button
+                  className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-red-50 py-1.5 text-xs font-bold text-red-600 hover:bg-red-100 transition cursor-pointer"
+                  onClick={() => {
+                    if (confirm(`Remover "${meta.label}" da página?`)) {
+                      removeWidget(widget.id);
+                      setIsMenuOpen(false);
+                    }
+                  }}
+                  type="button"
+                >
+                  <Trash2 className="size-3.5" />
+                  <span>Excluir Seção</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-
-      {/* Badge de Identificação no Canto Superior Esquerdo */}
-      <div
-        className={`absolute top-2 left-2 z-20 flex items-center gap-1.5 rounded bg-black/75 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm backdrop-blur-xs transition-opacity duration-150 ${
-          isHovered || isSelected ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <span
-          className="size-2 rounded-full"
-          style={{ backgroundColor: meta.color }}
-        />
-        <span>{meta.badge}</span>
-        <span className="text-white/60">#{widget.id.slice(-4)}</span>
-        {!widget.enabled && <span className="text-red-400 font-extrabold">(Oculto)</span>}
       </div>
 
       {/* Conteúdo Real do Widget */}

@@ -16,6 +16,13 @@ const STORAGE_KEY = 'cdn_home_composition_v1';
 export type ViewportMode = 'desktop' | 'tablet' | 'mobile';
 export type ElementorTab = 'content' | 'style' | 'advanced';
 
+export interface MediaModalState {
+  isOpen: boolean;
+  widgetId?: string;
+  slideId?: string;
+  currentUrl?: string;
+}
+
 interface ElementorContextValue {
   isEditing: boolean;
   setIsEditing: (editing: boolean) => void;
@@ -40,7 +47,7 @@ interface ElementorContextValue {
   updateSlideInWidget: (widgetId: string, slideId: string, partial: any) => void;
   updateBenefitItem: (widgetId: string, index: number, partial: Partial<BenefitItem>) => void;
   resetToDefault: () => void;
-  saveComposition: () => void;
+  saveComposition: () => Promise<void>;
   hasUnsavedChanges: boolean;
   saveMessage: string | null;
   panelCollapsed: boolean;
@@ -49,6 +56,9 @@ interface ElementorContextValue {
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  mediaModalState: MediaModalState;
+  openMediaModal: (options: { widgetId: string; slideId?: string; currentUrl?: string }) => void;
+  closeMediaModal: () => void;
 }
 
 const ElementorContext = createContext<ElementorContextValue | null>(null);
@@ -65,7 +75,7 @@ export function ElementorEditorProvider({
   const [viewport, setViewport] = useState<ViewportMode>('desktop');
   const [showNavigator, setShowNavigator] = useState(false);
   const [activeTab, setActiveTab] = useState<ElementorTab>('content');
-  const [panelCollapsed, setPanelCollapsed] = useState(false);
+  const [panelCollapsed, setPanelCollapsed] = useState(true); // Fechado por padrão para deixar o site 100% normal
 
   const [composition, setComposition] = useState<PageComposition>(initialComposition);
   const [history, setHistory] = useState<PageComposition[]>([initialComposition]);
@@ -75,7 +85,13 @@ export function ElementorEditorProvider({
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
+  const [mediaModalState, setMediaModalState] = useState<MediaModalState>({
+    isOpen: false,
+  });
+
+  // Carrega composição local e sincroniza com o servidor
   useEffect(() => {
+    let loadedFromLocal = false;
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -84,10 +100,25 @@ export function ElementorEditorProvider({
           setComposition(parsed);
           setHistory([parsed]);
           setHistoryIndex(0);
+          loadedFromLocal = true;
         }
       }
     } catch {
-      // Ignora erro de storage
+      // Ignora erro
+    }
+
+    // Busca do servidor Next.js se não carregou local
+    if (!loadedFromLocal) {
+      fetch('/api/storefront/composition')
+        .then((res) => res.json())
+        .then((res) => {
+          if (res?.success && res?.data?.widgets?.length) {
+            setComposition(res.data);
+            setHistory([res.data]);
+            setHistoryIndex(0);
+          }
+        })
+        .catch(() => {});
     }
   }, []);
 
@@ -113,6 +144,9 @@ export function ElementorEditorProvider({
       setComposition(history[nextIndex]);
     }
   }
+
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < history.length - 1;
 
   function updateWidgetProps(id: string, newProps: any) {
     const updated: PageComposition = {
@@ -241,8 +275,6 @@ export function ElementorEditorProvider({
     const newWidgets = [...composition.widgets, newWidget].sort((a, b) => a.order - b.order);
     commitChange({ ...composition, widgets: newWidgets });
     setSelectedWidgetId(newId);
-    setActiveTab('content');
-    setPanelCollapsed(false);
   }
 
   function addSlideToWidget(widgetId: string) {
@@ -260,18 +292,24 @@ export function ElementorEditorProvider({
             altText: 'Banner Comercial do Norte',
             backgroundColor: '#004CB1',
           };
-          return { ...w, props: { ...w.props, slides: [...currentSlides, newSlide] } };
+          return {
+            ...w,
+            props: { ...w.props, slides: [...currentSlides, newSlide] },
+          };
         }
         if (w.type === 'contained-hero') {
           const currentSlides = (w.props as any).slides || [];
           const newSlide: ContainedHeroSlide = {
             id: `slide-c-${Date.now()}`,
-            title: `Novo Banner ${currentSlides.length + 1}`,
+            title: `Nova Oferta ${currentSlides.length + 1}`,
             imageUrl: '/assets/S1-banners-topo-hero/Gemini_Generated_Image_k46c0pk46c0pk46c.jpg',
             linkUrl: '/loja',
-            altText: 'Campanha Comercial do Norte',
+            altText: 'Outlet Comercial do Norte',
           };
-          return { ...w, props: { ...w.props, slides: [...currentSlides, newSlide] } };
+          return {
+            ...w,
+            props: { ...w.props, slides: [...currentSlides, newSlide] },
+          };
         }
         return w;
       }) as WidgetConfig[],
@@ -330,20 +368,28 @@ export function ElementorEditorProvider({
     commitChange(updated);
   }
 
-  function saveComposition() {
+  async function saveComposition() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(composition));
+
+      // Salva no backend do servidor Next.js
+      await fetch('/api/storefront/composition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(composition),
+      });
+
       setHasUnsavedChanges(false);
-      setSaveMessage('Alterações salvas e publicadas!');
-      setTimeout(() => setSaveMessage(null), 3000);
+      setSaveMessage('Alterações salvas e sincronizadas com o servidor!');
+      setTimeout(() => setSaveMessage(null), 3500);
     } catch {
-      setSaveMessage('Erro ao gravar no navegador.');
-      setTimeout(() => setSaveMessage(null), 3000);
+      setSaveMessage('Erro ao sincronizar com o servidor.');
+      setTimeout(() => setSaveMessage(null), 3500);
     }
   }
 
   function resetToDefault() {
-    if (confirm('Deseja restaurar a vitrine oficial do Comercial do Norte?')) {
+    if (confirm('Deseja restaurar a vitrine padrão do Comercial do Norte?')) {
       localStorage.removeItem(STORAGE_KEY);
       commitChange(defaultHomeComposition);
       setSelectedWidgetId(null);
@@ -351,6 +397,19 @@ export function ElementorEditorProvider({
       setSaveMessage('Vitrine resetada para o padrão!');
       setTimeout(() => setSaveMessage(null), 3000);
     }
+  }
+
+  function openMediaModal(options: { widgetId: string; slideId?: string; currentUrl?: string }) {
+    setMediaModalState({
+      isOpen: true,
+      widgetId: options.widgetId,
+      slideId: options.slideId,
+      currentUrl: options.currentUrl,
+    });
+  }
+
+  function closeMediaModal() {
+    setMediaModalState({ isOpen: false });
   }
 
   return (
@@ -366,8 +425,6 @@ export function ElementorEditorProvider({
         setShowNavigator,
         activeTab,
         setActiveTab,
-        panelCollapsed,
-        setPanelCollapsed,
         composition,
         selectedWidgetId,
         setSelectedWidgetId,
@@ -384,10 +441,15 @@ export function ElementorEditorProvider({
         saveComposition,
         hasUnsavedChanges,
         saveMessage,
+        panelCollapsed,
+        setPanelCollapsed,
         undo,
         redo,
-        canUndo: historyIndex > 0,
-        canRedo: historyIndex < history.length - 1,
+        canUndo,
+        canRedo,
+        mediaModalState,
+        openMediaModal,
+        closeMediaModal,
       }}
     >
       {children}
@@ -397,6 +459,8 @@ export function ElementorEditorProvider({
 
 export function useElementor() {
   const ctx = useContext(ElementorContext);
-  if (!ctx) throw new Error('useElementor deve ser usado dentro de ElementorEditorProvider');
+  if (!ctx) {
+    throw new Error('useElementor must be used within an ElementorEditorProvider');
+  }
   return ctx;
 }

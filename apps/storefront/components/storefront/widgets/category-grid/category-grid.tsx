@@ -1,9 +1,14 @@
+'use client';
+
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Layers } from 'lucide-react';
+import { ArrowRight, Edit2, Layers } from 'lucide-react';
+import { useElementor } from '@/components/storefront/editor/elementor-editor-context';
 import type { CategoryGridProps, WidgetContextData } from '@/lib/storefront/widget-types';
 import type { ApiCategory } from '@/lib/types';
 
 export function CategoryGridWidget({
+  widgetId,
   title,
   subtitle,
   viewAllLink = '/loja',
@@ -11,6 +16,9 @@ export function CategoryGridWidget({
   maxItems = 8,
   contextData,
 }: CategoryGridProps & { contextData?: WidgetContextData }) {
+  const { isEditing, previewMode, updateWidgetProps } = useElementor();
+  const [editingTitle, setEditingTitle] = useState(false);
+
   const allCategories = contextData?.categories ?? [];
   const rootCategories = allCategories.filter((c) => !c.parentId).slice(0, maxItems);
 
@@ -27,7 +35,38 @@ export function CategoryGridWidget({
     <section aria-label={title} className="cn-container py-8 sm:py-10">
       <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
         <div>
-          <h2 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{title}</h2>
+          {isEditing && !previewMode ? (
+            <div className="group/title relative flex items-center gap-2">
+              {editingTitle ? (
+                <input
+                  autoFocus
+                  className="rounded-lg border-2 border-[#004CB1] bg-white px-2 py-1 text-2xl font-extrabold text-ink outline-none sm:text-3xl"
+                  onBlur={() => setEditingTitle(false)}
+                  onChange={(e) => {
+                    if (widgetId) updateWidgetProps(widgetId, { title: e.target.value });
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') setEditingTitle(false);
+                  }}
+                  value={title}
+                />
+              ) : (
+                <div
+                  className="flex cursor-pointer items-center gap-2 rounded-lg p-1 hover:bg-slate-100 transition"
+                  onClick={() => setEditingTitle(true)}
+                  title="Clique para editar o título diretamente"
+                >
+                  <h2 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
+                    {title}
+                  </h2>
+                  <Edit2 className="size-4 text-[#004CB1] opacity-0 group-hover/title:opacity-100 transition-opacity" />
+                </div>
+              )}
+            </div>
+          ) : (
+            <h2 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{title}</h2>
+          )}
+
           {subtitle ? <p className="mt-1 text-sm text-muted">{subtitle}</p> : null}
         </div>
         {viewAllLink ? (
@@ -58,7 +97,7 @@ export function CategoryGridWidget({
             </div>
             <div className="mt-4 flex items-center justify-between text-xs font-semibold text-muted">
               <span>{category.children?.length ? `${category.children.length} subcategorias` : 'Explorar'}</span>
-              <ArrowRight aria-hidden className="size-3.5 transition-transform group-hover:translate-x-1" />
+              <ArrowRight aria-hidden className="size-3.5 transition-transform group-hover:translate-x-0.5" />
             </div>
           </Link>
         ))}

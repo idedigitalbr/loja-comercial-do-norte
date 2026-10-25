@@ -29,6 +29,7 @@ export interface HeroSlide {
 }
 
 export interface HeroCarouselProps {
+  widgetId?: string;
   slides: HeroSlide[];
   autoplayIntervalMs?: number;
   showArrows?: boolean;
@@ -46,6 +47,7 @@ export interface ContainedHeroSlide {
 }
 
 export interface ContainedHeroProps {
+  widgetId?: string;
   slides: ContainedHeroSlide[];
   autoplayIntervalMs?: number;
   showArrows?: boolean;
@@ -61,11 +63,13 @@ export interface BenefitItem {
 }
 
 export interface BenefitsBarProps {
+  widgetId?: string;
   items: BenefitItem[];
 }
 export type BenefitsBarWidgetConfig = BaseWidgetConfig<'benefits-bar', BenefitsBarProps>;
 
 export interface ProductCarouselProps {
+  widgetId?: string;
   title: string;
   subtitle?: string;
   badge?: string;
@@ -79,6 +83,7 @@ export interface ProductCarouselProps {
 export type ProductCarouselWidgetConfig = BaseWidgetConfig<'product-carousel', ProductCarouselProps>;
 
 export interface CategoryGridProps {
+  widgetId?: string;
   title: string;
   subtitle?: string;
   viewAllLink?: string;

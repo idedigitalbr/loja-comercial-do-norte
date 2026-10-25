@@ -208,12 +208,13 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
   - Barra de benefícios comerciais (`BenefitsBarWidget`).
   - Carrossel de ofertas com cards de produto e cotação (`ProductCarouselWidget`).
   - Grid de departamentos do catálogo (`CategoryGridWidget`).
-  - Suíte completa do Editor Visual da Vitrine no padrão exato Elementor (`StorefrontShell`, `HomeView`, `ElementorEditorProvider`, `ElementorTopBar`, `ElementorPanel`, `ElementorSectionWrapper`, `ElementorAddSectionBox`, `ElementorMediaModal`, `ElementorNavigator`, `ElementorCanvas`, `ElementorTogglePill`):
-    - Top Bar escura de 48px fixa no topo da janela com botões de Undo/Redo, seletores de viewport (Desktop 100%, Tablet 768px, Mobile 390px), Navigator e botão Publish com feedback.
-    - Painel lateral retrátil estilo Elementor com cabeçalho vinho (`#8C1D40`), abas `Content | Style | Advanced`, grid de widgets em 2 colunas com suporte a **Drag & Drop** nativo para o canvas.
-    - Caixas de inserção pontilhadas ("Drag widget here") como alvos de drop ativos e clique direto no `+` focando a galeria de widgets no painel lateral esquerdo (sem popups no canvas).
-    - Gerenciador de slides e carrosséis com visual idêntico ao Elementor Media Carousel: faixa de miniaturas selecionadas com contorno, accordion de itens (`Item #1`, `Item #2`), box grande de pré-visualização de imagem com botão de troca e modal `ElementorMediaModal` completo com banners oficiais.
-    - Canvas responsivo (`ElementorCanvas`) com moldura física de Tablet e Mobile (notch e barra inferior), integrado no `StorefrontShell` que elimina qualquer sobreposição do header com a barra ou painel lateral.
+  - Suíte do Editor Visual In-Place Minimalista da Vitrine (`StorefrontShell`, `HomeView`, `ElementorEditorProvider`, `ElementorTopBar`, `ElementorSectionWrapper`, `ElementorAddSectionBox`, `ElementorMediaModal`, `InlineImageEditorOverlay`, `ElementorCanvas`, `ElementorTogglePill`):
+    - Layout 100% normal, fluido e sem barra lateral fixa empurrando a página.
+    - Alça de seção minimalista: no hover surge apenas um botão lápis ("Lápizinho") no canto superior direito que abre janela popover/tooltip com ações de mover, duplicar, visibilidade e exclusão.
+    - Ferramenta de troca de imagem centralizada exatamente no meio de cada banner/slide (`InlineImageEditorOverlay`) com upload direto do computador, galeria de 10 banners oficiais da loja e edição de links.
+    - Edição inline de títulos diretamente na página (vitrine de ofertas, departamentos).
+    - Top Bar compacta (44px) com seletores de viewport (Desktop, Tablet 768px, Mobile 390px), Undo/Redo, modal flutuante de novas seções e botão de salvar no servidor.
+    - Rota de persistência no backend Next.js (`POST /api/storefront/composition`) permitindo sincronizar e recuperar o estado da vitrine no servidor.
     - Indicador de desenvolvimento do Next.js posicionado no canto inferior direito (`bottom-right`).
     - Botão flutuante de ativação (`ElementorTogglePill`) para alternar entre navegação normal e modo de edição visual.
   - Página inicial `apps/storefront/app/page.tsx` refatorada para renderização dinâmica via `PageRenderer` e suporte ao editor visual.

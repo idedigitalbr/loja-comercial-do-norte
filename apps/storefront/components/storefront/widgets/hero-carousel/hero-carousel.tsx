@@ -1,12 +1,13 @@
 'use client';
 
-import Image from 'next/image';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { InlineImageEditorOverlay } from '@/components/storefront/editor/inline-image-editor-overlay';
 import type { HeroCarouselProps } from '@/lib/storefront/widget-types';
 
 export function HeroCarouselWidget({
+  widgetId,
   slides,
   autoplayIntervalMs = 5000,
   showArrows = true,
@@ -62,6 +63,7 @@ export function HeroCarouselWidget({
                   href={slide.linkUrl}
                   tabIndex={isActive ? 0 : -1}
                 >
+                  {/* eslint-disable-next-js/next/no-img-element */}
                   <img
                     alt={slide.altText}
                     className="block size-full object-cover object-center"
@@ -72,6 +74,17 @@ export function HeroCarouselWidget({
                     width={1920}
                   />
                 </Link>
+
+                {/* ÍCONE DE TROCAR FOTO NO CENTRO DA IMAGEM (Conforme print do usuário) */}
+                {isActive && (
+                  <InlineImageEditorOverlay
+                    currentImageUrl={slide.imageUrl}
+                    currentLinkUrl={slide.linkUrl}
+                    slideId={slide.id}
+                    title={slide.title}
+                    widgetId={widgetId || 'ml-hero-superior'}
+                  />
+                )}
               </div>
             );
           })}
@@ -99,32 +112,31 @@ export function HeroCarouselWidget({
           </>
         ) : null}
 
-        {/* Indicadores de Pontos (Dots) */}
+        {/* Pontos de Paginação com Pílula Ativa */}
         {showDots && slides.length > 1 ? (
-          <div className="pointer-events-auto absolute bottom-12 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 sm:bottom-16 sm:gap-2 md:bottom-20">
-            {slides.map((slide, idx) => (
-              <button
-                aria-label={`Ir para slide ${idx + 1}`}
-                className={`size-2 rounded-full transition-all duration-300 sm:size-2.5 ${
-                  idx === currentIndex ? 'bg-white shadow-xs scale-125' : 'bg-white/50 hover:bg-white'
-                }`}
-                key={slide.id}
-                onClick={() => setCurrentIndex(idx)}
-                type="button"
-              />
-            ))}
+          <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 sm:bottom-8">
+            {slides.map((slide, index) => {
+              const isActive = index === currentIndex;
+              return (
+                <button
+                  aria-label={`Ir para o slide ${index + 1}`}
+                  className={`h-2 rounded-full transition-all duration-300 focus:outline-none cursor-pointer ${
+                    isActive ? 'w-6 bg-white shadow-md' : 'w-2 bg-white/50 hover:bg-white/80'
+                  }`}
+                  key={slide.id}
+                  onClick={() => setCurrentIndex(index)}
+                  type="button"
+                />
+              );
+            })}
           </div>
         ) : null}
 
-        {/* Degradê Inferior Transição para o Contêiner Seguinte */}
+        {/* FAIXA DEGRADÊ SUAVE INFERIOR */}
         {bottomGradient ? (
           <div
-            aria-hidden
-            className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-24 sm:h-32 md:h-40"
-            style={{
-              background:
-                'linear-gradient(180deg, rgba(235, 235, 235, 0) 0%, rgba(235, 235, 235, 0.3) 30%, rgba(235, 235, 235, 0.75) 65%, #EBEBEB 100%)',
-            }}
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-10 bg-gradient-to-t from-[#EBEBEB] to-transparent sm:h-12 md:h-14"
           />
         ) : null}
       </div>
