@@ -5,7 +5,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Minus, Plus, Trash2 } from 'lucide-react';
-import { WebButton, WebEmptyState } from '@commerce/ui/web';
+import {
+  WebAlert,
+  WebButton,
+  WebCard,
+  WebEmptyState,
+  WebField,
+  WebInput,
+  WebTextarea,
+} from '@commerce/ui/web';
 import { useQuoteCart } from '@/components/quote-cart-provider';
 import { API_URL, mediaUrl } from '@/lib/api';
 import { formatMoney } from '@/lib/format';
@@ -90,51 +98,93 @@ export default function QuoteFormPage() {
       <p className="text-sm text-muted">Sem pagamento online. A equipe comercial responde pelo contato informado.</p>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <form className="rounded-card border border-line bg-surface p-5 shadow-card" noValidate onSubmit={handleSubmit}>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-              <label className="text-sm font-semibold text-ink" htmlFor="customerName">Nome completo *</label>
-              <input className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand" id="customerName" name="customerName" required />
-              {fieldErrors.customerName ? <p className="mt-1 text-xs text-alert">{fieldErrors.customerName.join(' ')}</p> : null}
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-ink" htmlFor="customerPhone">WhatsApp *</label>
-              <input className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand" id="customerPhone" inputMode="tel" name="customerPhone" placeholder="(91) 90000-0000" required />
-              {fieldErrors.customerPhone ? <p className="mt-1 text-xs text-alert">{fieldErrors.customerPhone.join(' ')}</p> : null}
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-ink" htmlFor="customerEmail">E-mail (opcional)</label>
-              <input className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand" id="customerEmail" name="customerEmail" type="email" />
-              {fieldErrors.customerEmail ? <p className="mt-1 text-xs text-alert">{fieldErrors.customerEmail.join(' ')}</p> : null}
-            </div>
-            <div className="sm:col-span-2">
-              <label className="text-sm font-semibold text-ink" htmlFor="companyName">Empresa (opcional)</label>
-              <input className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand" id="companyName" name="companyName" />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="text-sm font-semibold text-ink" htmlFor="notes">Observações</label>
-              <textarea className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand" id="notes" name="notes" placeholder="Prazo, endereço de entrega, condições..." rows={4} />
-            </div>
-          </div>
+        <WebCard>
+          <form noValidate onSubmit={handleSubmit}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <WebField
+                className="sm:col-span-2"
+                error={fieldErrors.customerName?.join(' ')}
+                id="customerName"
+                label="Nome completo"
+                required
+              >
+                <WebInput
+                  aria-describedby={fieldErrors.customerName ? 'customerName-error' : undefined}
+                  id="customerName"
+                  invalid={Boolean(fieldErrors.customerName)}
+                  name="customerName"
+                  required
+                />
+              </WebField>
 
-          {error ? (
-            <p aria-live="polite" className="mt-4 rounded-md bg-promo-soft px-3 py-2 text-sm text-alert">{error}</p>
-          ) : null}
+              <WebField
+                error={fieldErrors.customerPhone?.join(' ')}
+                id="customerPhone"
+                label="WhatsApp"
+                required
+              >
+                <WebInput
+                  aria-describedby={fieldErrors.customerPhone ? 'customerPhone-error' : undefined}
+                  id="customerPhone"
+                  inputMode="tel"
+                  invalid={Boolean(fieldErrors.customerPhone)}
+                  name="customerPhone"
+                  placeholder="(91) 90000-0000"
+                  required
+                />
+              </WebField>
 
-          <WebButton
-            className="mt-5 py-3 text-sm font-bold"
-            disabled={submitting}
-            fullWidth
-            loading={submitting}
-            type="submit"
-            variant="promo"
-          >
-            {submitting ? 'Enviando…' : 'Enviar cotação'}
-          </WebButton>
-          <p className="mt-2 text-center text-xs text-muted">Ao enviar, você concorda com o contato da equipe comercial sobre esta cotação.</p>
-        </form>
+              <WebField
+                error={fieldErrors.customerEmail?.join(' ')}
+                id="customerEmail"
+                label="E-mail (opcional)"
+              >
+                <WebInput
+                  aria-describedby={fieldErrors.customerEmail ? 'customerEmail-error' : undefined}
+                  id="customerEmail"
+                  invalid={Boolean(fieldErrors.customerEmail)}
+                  name="customerEmail"
+                  type="email"
+                />
+              </WebField>
 
-        <aside className="h-fit rounded-card border border-line bg-surface p-5 shadow-card">
+              <WebField className="sm:col-span-2" id="companyName" label="Empresa (opcional)">
+                <WebInput id="companyName" name="companyName" />
+              </WebField>
+
+              <WebField className="sm:col-span-2" id="notes" label="Observações">
+                <WebTextarea
+                  id="notes"
+                  name="notes"
+                  placeholder="Prazo, endereço de entrega, condições..."
+                  rows={4}
+                />
+              </WebField>
+            </div>
+
+            {error ? (
+              <WebAlert className="mt-4" tone="error">
+                {error}
+              </WebAlert>
+            ) : null}
+
+            <WebButton
+              className="mt-5 py-3 text-sm font-bold"
+              disabled={submitting}
+              fullWidth
+              loading={submitting}
+              type="submit"
+              variant="promo"
+            >
+              {submitting ? 'Enviando…' : 'Enviar cotação'}
+            </WebButton>
+            <p className="mt-2 text-center text-xs text-muted">
+              Ao enviar, você concorda com o contato da equipe comercial sobre esta cotação.
+            </p>
+          </form>
+        </WebCard>
+
+        <WebCard className="h-fit">
           <h2 className="text-sm font-bold uppercase tracking-wide text-ink">Itens ({count})</h2>
           <ul className="mt-3 divide-y divide-line">
             {items.map((item) => {
@@ -166,7 +216,7 @@ export default function QuoteFormPage() {
             <strong className="text-ink">{formatMoney(subtotalCents)}</strong>
           </div>
           <p className="mt-2 text-xs text-muted">Valores de referência; a proposta final é enviada pela equipe comercial.</p>
-        </aside>
+        </WebCard>
       </div>
     </div>
   );
