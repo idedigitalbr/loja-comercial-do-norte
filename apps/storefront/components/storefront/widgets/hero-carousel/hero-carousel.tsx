@@ -61,25 +61,42 @@ export function HeroCarouselWidget({
                 }`}
                 key={slide.id}
               >
-                <Link
-                  aria-label={slide.title}
-                  className="block size-full focus:outline-none"
-                  href={slide.linkUrl}
-                  tabIndex={isActive ? 0 : -1}
-                >
-                  {/* eslint-disable-next-js/next/no-img-element */}
-                  <img
-                    alt={slide.altText}
-                    className={`block size-full object-cover object-center transition-all duration-300 ${
-                      isEditMode ? 'group-hover/slide:grayscale group-hover/slide:brightness-40' : ''
-                    }`}
-                    fetchPriority={index === 0 ? 'high' : 'auto'}
-                    height={500}
-                    loading={index === 0 ? 'eager' : 'lazy'}
-                    src={slide.imageUrl}
-                    width={1920}
-                  />
-                </Link>
+                {slide.linkUrl && slide.linkUrl.trim() !== '' && slide.linkUrl !== '#' ? (
+                  <Link
+                    aria-label={slide.title}
+                    className="block size-full focus:outline-none cursor-pointer"
+                    href={slide.linkUrl}
+                    tabIndex={isActive ? 0 : -1}
+                  >
+                    {/* eslint-disable-next-js/next/no-img-element */}
+                    <img
+                      alt={slide.altText}
+                      className={`block size-full object-cover object-center transition-all duration-300 ${
+                        isEditMode ? 'group-hover/slide:grayscale group-hover/slide:brightness-40' : ''
+                      }`}
+                      fetchPriority={index === 0 ? 'high' : 'auto'}
+                      height={500}
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      src={slide.imageUrl}
+                      width={1920}
+                    />
+                  </Link>
+                ) : (
+                  <div className="block size-full select-none cursor-default">
+                    {/* eslint-disable-next-js/next/no-img-element */}
+                    <img
+                      alt={slide.altText}
+                      className={`block size-full object-cover object-center transition-all duration-300 ${
+                        isEditMode ? 'group-hover/slide:grayscale group-hover/slide:brightness-40' : ''
+                      }`}
+                      fetchPriority={index === 0 ? 'high' : 'auto'}
+                      height={500}
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      src={slide.imageUrl}
+                      width={1920}
+                    />
+                  </div>
+                )}
 
                 {/* ÍCONE DE TROCAR FOTO NO CENTRO DA IMAGEM (Minimalista, Dark, sem pontilhado) */}
                 {isActive && (
