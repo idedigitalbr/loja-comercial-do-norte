@@ -13,9 +13,20 @@ import type {
 
 const STORAGE_KEY = 'cdn_home_composition_v1';
 
-interface EditorContextValue {
+export type ViewportMode = 'desktop' | 'tablet' | 'mobile';
+export type ElementorTab = 'content' | 'style' | 'advanced';
+
+interface ElementorContextValue {
   isEditing: boolean;
   setIsEditing: (editing: boolean) => void;
+  previewMode: boolean;
+  setPreviewMode: (preview: boolean) => void;
+  viewport: ViewportMode;
+  setViewport: (vp: ViewportMode) => void;
+  showNavigator: boolean;
+  setShowNavigator: (show: boolean) => void;
+  activeTab: ElementorTab;
+  setActiveTab: (tab: ElementorTab) => void;
   composition: PageComposition;
   selectedWidgetId: string | null;
   setSelectedWidgetId: (id: string | null) => void;
@@ -23,7 +34,7 @@ interface EditorContextValue {
   moveWidget: (id: string, direction: 'up' | 'down') => void;
   removeWidget: (id: string) => void;
   toggleWidget: (id: string) => void;
-  addWidget: (type: WidgetType) => void;
+  addWidget: (type: WidgetType, insertIndex?: number) => void;
   addSlideToWidget: (widgetId: string) => void;
   removeSlideFromWidget: (widgetId: string, slideId: string) => void;
   updateSlideInWidget: (widgetId: string, slideId: string, partial: any) => void;
@@ -32,11 +43,17 @@ interface EditorContextValue {
   saveComposition: () => void;
   hasUnsavedChanges: boolean;
   saveMessage: string | null;
+  panelCollapsed: boolean;
+  setPanelCollapsed: (collapsed: boolean) => void;
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
 }
 
-const EditorContext = createContext<EditorContextValue | null>(null);
+const ElementorContext = createContext<ElementorContextValue | null>(null);
 
-export function EditorProvider({
+export function ElementorEditorProvider({
   children,
   initialComposition = defaultHomeComposition,
 }: {
@@ -44,12 +61,20 @@ export function EditorProvider({
   initialComposition?: PageComposition;
 }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
+  const [viewport, setViewport] = useState<ViewportMode>('desktop');
+  const [showNavigator, setShowNavigator] = useState(false);
+  const [activeTab, setActiveTab] = useState<ElementorTab>('content');
+  const [panelCollapsed, setPanelCollapsed] = useState(false);
+
   const [composition, setComposition] = useState<PageComposition>(initialComposition);
+  const [history, setHistory] = useState<PageComposition[]>([initialComposition]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
   const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
-  // Carrega do localStorage no cliente se existir versão salva
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -57,64 +82,90 @@ export function EditorProvider({
         const parsed = JSON.parse(saved);
         if (parsed?.widgets && Array.isArray(parsed.widgets)) {
           setComposition(parsed);
+          setHistory([parsed]);
+          setHistoryIndex(0);
         }
       }
     } catch {
-      // Ignora erro de parse e mantém padrão
+      // Ignora erro de storage
     }
   }, []);
 
-  function updateWidgetProps(id: string, newProps: any) {
-    setComposition((prev) => ({
-      ...prev,
-      widgets: prev.widgets.map((w) => (w.id === id ? { ...w, props: { ...w.props, ...newProps } } : w)) as WidgetConfig[],
-    }));
+  function commitChange(newComp: PageComposition) {
+    setComposition(newComp);
+    setHistory((prev) => [...prev.slice(0, historyIndex + 1), newComp]);
+    setHistoryIndex((prev) => prev + 1);
     setHasUnsavedChanges(true);
+  }
+
+  function undo() {
+    if (historyIndex > 0) {
+      const nextIndex = historyIndex - 1;
+      setHistoryIndex(nextIndex);
+      setComposition(history[nextIndex]);
+    }
+  }
+
+  function redo() {
+    if (historyIndex < history.length - 1) {
+      const nextIndex = historyIndex + 1;
+      setHistoryIndex(nextIndex);
+      setComposition(history[nextIndex]);
+    }
+  }
+
+  function updateWidgetProps(id: string, newProps: any) {
+    const updated: PageComposition = {
+      ...composition,
+      widgets: composition.widgets.map((w) =>
+        w.id === id ? { ...w, props: { ...w.props, ...newProps } } : w
+      ) as WidgetConfig[],
+    };
+    commitChange(updated);
   }
 
   function moveWidget(id: string, direction: 'up' | 'down') {
-    setComposition((prev) => {
-      const sorted = [...prev.widgets].sort((a, b) => a.order - b.order);
-      const index = sorted.findIndex((w) => w.id === id);
-      if (index === -1) return prev;
-      if (direction === 'up' && index === 0) return prev;
-      if (direction === 'down' && index === sorted.length - 1) return prev;
+    const sorted = [...composition.widgets].sort((a, b) => a.order - b.order);
+    const index = sorted.findIndex((w) => w.id === id);
+    if (index === -1) return;
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === sorted.length - 1) return;
 
-      const targetIndex = direction === 'up' ? index - 1 : index + 1;
-      const currentOrder = sorted[index].order;
-      const targetOrder = sorted[targetIndex].order;
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    const currentOrder = sorted[index].order;
+    const targetOrder = sorted[targetIndex].order;
 
-      sorted[index].order = targetOrder;
-      sorted[targetIndex].order = currentOrder;
+    sorted[index].order = targetOrder;
+    sorted[targetIndex].order = currentOrder;
 
-      return {
-        ...prev,
-        widgets: [...sorted].sort((a, b) => a.order - b.order),
-      };
+    commitChange({
+      ...composition,
+      widgets: [...sorted].sort((a, b) => a.order - b.order),
     });
-    setHasUnsavedChanges(true);
   }
 
   function removeWidget(id: string) {
-    setComposition((prev) => ({
-      ...prev,
-      widgets: prev.widgets.filter((w) => w.id !== id),
-    }));
+    const updated: PageComposition = {
+      ...composition,
+      widgets: composition.widgets.filter((w) => w.id !== id),
+    };
     if (selectedWidgetId === id) {
       setSelectedWidgetId(null);
     }
-    setHasUnsavedChanges(true);
+    commitChange(updated);
   }
 
   function toggleWidget(id: string) {
-    setComposition((prev) => ({
-      ...prev,
-      widgets: prev.widgets.map((w) => (w.id === id ? { ...w, enabled: !w.enabled } : w)) as WidgetConfig[],
-    }));
-    setHasUnsavedChanges(true);
+    const updated: PageComposition = {
+      ...composition,
+      widgets: composition.widgets.map((w) =>
+        w.id === id ? { ...w, enabled: !w.enabled } : w
+      ) as WidgetConfig[],
+    };
+    commitChange(updated);
   }
 
-  function addWidget(type: WidgetType) {
+  function addWidget(type: WidgetType, insertIndex?: number) {
     const newId = `${type}-${Date.now().toString(36)}`;
     const maxOrder = composition.widgets.reduce((max, w) => Math.max(max, w.order), 0);
 
@@ -128,11 +179,11 @@ export function EditorProvider({
         slides: [
           {
             id: `slide-${Date.now()}`,
-            title: 'Novo Banner Destaque',
+            title: 'Semana Intelbras no seu ritmo',
             imageUrl: '/assets/Pagina/S1 TOPO HERO/topo-banners-ML/D_NQ_2X_977867-MLA118147004068_102026-OO.webp',
             linkUrl: '/loja',
-            altText: 'Novo Banner Comercial do Norte',
-            backgroundColor: '#004CB1',
+            altText: 'Banner Comercial do Norte',
+            backgroundColor: '#028F34',
           },
         ],
       };
@@ -141,11 +192,11 @@ export function EditorProvider({
         autoplayIntervalMs: 6000,
         showArrows: true,
         showDots: true,
-        overlapTop: false,
+        overlapTop: true,
         slides: [
           {
             id: `slide-c-${Date.now()}`,
-            title: 'Campanha Comercial do Norte',
+            title: 'Super Oferta Cristalcopo',
             imageUrl: '/assets/S1-banners-topo-hero/Gemini_Generated_Image_x5pilwx5pilwx5pi.jpg',
             linkUrl: '/loja',
             altText: 'Campanha Comercial do Norte',
@@ -155,25 +206,25 @@ export function EditorProvider({
     } else if (type === 'benefits-bar') {
       defaultProps = {
         items: [
-          { iconName: 'truck', title: 'Entrega Rápida', description: 'Em Belém e Região Metropolitana' },
-          { iconName: 'tag', title: 'Menor Preço', description: 'Condições de atacado e varejo' },
-          { iconName: 'package', title: 'Variedade', description: 'Milhares de itens em um só lugar' },
-          { iconName: 'shield', title: 'Qualidade Garantida', description: 'Tradição e atendimento comercial' },
+          { iconName: 'truck', title: 'Entrega em Belém', description: 'Logística rápida para sua empresa' },
+          { iconName: 'tag', title: 'Menor Preço Atacado', description: 'Condições de distribuidora oficial' },
+          { iconName: 'package', title: 'Tudo em um Só Lugar', description: 'Embalagens, descartáveis e festas' },
+          { iconName: 'shield', title: 'Atendimento Próximo', description: 'Cotação rápida por WhatsApp' },
         ],
       };
     } else if (type === 'product-carousel') {
       defaultProps = {
-        title: 'Produtos em Destaque',
-        subtitle: 'Confira as melhores ofertas para o seu negócio',
-        badge: 'DESTAQUES',
+        title: 'Ofertas em Destaque',
+        subtitle: 'Preços especiais para cotação imediata',
+        badge: 'OFERTAS',
         source: 'offers',
         limit: 8,
         viewAllLink: '/loja',
       };
     } else if (type === 'category-grid') {
       defaultProps = {
-        title: 'Navegue por Departamentos',
-        subtitle: 'Encontre embalagens, descartáveis e mais',
+        title: 'Departamentos da Loja',
+        subtitle: 'Encontre o que você precisa com facilidade',
         viewAllLink: '/loja',
         columns: 4,
       };
@@ -183,22 +234,21 @@ export function EditorProvider({
       id: newId,
       type,
       enabled: true,
-      order: maxOrder + 1,
+      order: typeof insertIndex === 'number' ? insertIndex : maxOrder + 1,
       props: defaultProps,
     } as WidgetConfig;
 
-    setComposition((prev) => ({
-      ...prev,
-      widgets: [...prev.widgets, newWidget],
-    }));
+    const newWidgets = [...composition.widgets, newWidget].sort((a, b) => a.order - b.order);
+    commitChange({ ...composition, widgets: newWidgets });
     setSelectedWidgetId(newId);
-    setHasUnsavedChanges(true);
+    setActiveTab('content');
+    setPanelCollapsed(false);
   }
 
   function addSlideToWidget(widgetId: string) {
-    setComposition((prev) => ({
-      ...prev,
-      widgets: prev.widgets.map((w) => {
+    const updated: PageComposition = {
+      ...composition,
+      widgets: composition.widgets.map((w) => {
         if (w.id !== widgetId) return w;
         if (w.type === 'hero-carousel') {
           const currentSlides = (w.props as any).slides || [];
@@ -208,7 +258,7 @@ export function EditorProvider({
             imageUrl: '/assets/Pagina/S1 TOPO HERO/topo-banners-ML/D_NQ_2X_690577-MLA118270011000_102026-OO.webp',
             linkUrl: '/loja',
             altText: 'Banner Comercial do Norte',
-            backgroundColor: '#028F34',
+            backgroundColor: '#004CB1',
           };
           return { ...w, props: { ...w.props, slides: [...currentSlides, newSlide] } };
         }
@@ -216,7 +266,7 @@ export function EditorProvider({
           const currentSlides = (w.props as any).slides || [];
           const newSlide: ContainedHeroSlide = {
             id: `slide-c-${Date.now()}`,
-            title: `Novo Banner de Campanha ${currentSlides.length + 1}`,
+            title: `Novo Banner ${currentSlides.length + 1}`,
             imageUrl: '/assets/S1-banners-topo-hero/Gemini_Generated_Image_k46c0pk46c0pk46c.jpg',
             linkUrl: '/loja',
             altText: 'Campanha Comercial do Norte',
@@ -225,14 +275,14 @@ export function EditorProvider({
         }
         return w;
       }) as WidgetConfig[],
-    }));
-    setHasUnsavedChanges(true);
+    };
+    commitChange(updated);
   }
 
   function removeSlideFromWidget(widgetId: string, slideId: string) {
-    setComposition((prev) => ({
-      ...prev,
-      widgets: prev.widgets.map((w) => {
+    const updated: PageComposition = {
+      ...composition,
+      widgets: composition.widgets.map((w) => {
         if (w.id !== widgetId) return w;
         const currentSlides = (w.props as any).slides || [];
         return {
@@ -243,14 +293,14 @@ export function EditorProvider({
           },
         };
       }) as WidgetConfig[],
-    }));
-    setHasUnsavedChanges(true);
+    };
+    commitChange(updated);
   }
 
   function updateSlideInWidget(widgetId: string, slideId: string, partial: any) {
-    setComposition((prev) => ({
-      ...prev,
-      widgets: prev.widgets.map((w) => {
+    const updated: PageComposition = {
+      ...composition,
+      widgets: composition.widgets.map((w) => {
         if (w.id !== widgetId) return w;
         const currentSlides = (w.props as any).slides || [];
         return {
@@ -261,14 +311,14 @@ export function EditorProvider({
           },
         };
       }) as WidgetConfig[],
-    }));
-    setHasUnsavedChanges(true);
+    };
+    commitChange(updated);
   }
 
   function updateBenefitItem(widgetId: string, index: number, partial: Partial<BenefitItem>) {
-    setComposition((prev) => ({
-      ...prev,
-      widgets: prev.widgets.map((w) => {
+    const updated: PageComposition = {
+      ...composition,
+      widgets: composition.widgets.map((w) => {
         if (w.id !== widgetId || w.type !== 'benefits-bar') return w;
         const items = [...((w.props as any).items || [])];
         if (items[index]) {
@@ -276,38 +326,48 @@ export function EditorProvider({
         }
         return { ...w, props: { ...w.props, items } };
       }) as WidgetConfig[],
-    }));
-    setHasUnsavedChanges(true);
+    };
+    commitChange(updated);
   }
 
   function saveComposition() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(composition));
       setHasUnsavedChanges(false);
-      setSaveMessage('Alterações salvas com sucesso no navegador!');
-      setTimeout(() => setSaveMessage(null), 3500);
+      setSaveMessage('Alterações salvas e publicadas!');
+      setTimeout(() => setSaveMessage(null), 3000);
     } catch {
-      setSaveMessage('Erro ao salvar no navegador.');
-      setTimeout(() => setSaveMessage(null), 3500);
+      setSaveMessage('Erro ao gravar no navegador.');
+      setTimeout(() => setSaveMessage(null), 3000);
     }
   }
 
   function resetToDefault() {
-    if (confirm('Tem certeza de que deseja restaurar o layout original da vitrine?')) {
+    if (confirm('Deseja restaurar a vitrine oficial do Comercial do Norte?')) {
       localStorage.removeItem(STORAGE_KEY);
-      setComposition(defaultHomeComposition);
+      commitChange(defaultHomeComposition);
       setSelectedWidgetId(null);
       setHasUnsavedChanges(false);
-      setSaveMessage('Vitrine restaurada para o padrão oficial!');
-      setTimeout(() => setSaveMessage(null), 3500);
+      setSaveMessage('Vitrine resetada para o padrão!');
+      setTimeout(() => setSaveMessage(null), 3000);
     }
   }
 
   return (
-    <EditorContext.Provider
+    <ElementorContext.Provider
       value={{
         isEditing,
         setIsEditing,
+        previewMode,
+        setPreviewMode,
+        viewport,
+        setViewport,
+        showNavigator,
+        setShowNavigator,
+        activeTab,
+        setActiveTab,
+        panelCollapsed,
+        setPanelCollapsed,
         composition,
         selectedWidgetId,
         setSelectedWidgetId,
@@ -324,17 +384,19 @@ export function EditorProvider({
         saveComposition,
         hasUnsavedChanges,
         saveMessage,
+        undo,
+        redo,
+        canUndo: historyIndex > 0,
+        canRedo: historyIndex < history.length - 1,
       }}
     >
       {children}
-    </EditorContext.Provider>
+    </ElementorContext.Provider>
   );
 }
 
-export function useEditor() {
-  const context = useContext(EditorContext);
-  if (!context) {
-    throw new Error('useEditor deve ser usado dentro de um EditorProvider');
-  }
-  return context;
+export function useElementor() {
+  const ctx = useContext(ElementorContext);
+  if (!ctx) throw new Error('useElementor deve ser usado dentro de ElementorEditorProvider');
+  return ctx;
 }

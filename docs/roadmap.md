@@ -208,7 +208,14 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
   - Barra de benefícios comerciais (`BenefitsBarWidget`).
   - Carrossel de ofertas com cards de produto e cotação (`ProductCarouselWidget`).
   - Grid de departamentos do catálogo (`CategoryGridWidget`).
-  - Modo Editor Visual da Vitrine no estilo Elementor (`HomeView`, `EditorProvider`, `EditorToolbar`, `EditorSidebar`, `WidgetContainer`), com seleção em tempo real, adição/remoção de widgets, reordenação de seções, edição completa de slides e banners com atalhos rápidos de imagens e persistência local.
+  - Suíte completa do Editor Visual da Vitrine no padrão exato Elementor (`HomeView`, `ElementorEditorProvider`, `ElementorTopBar`, `ElementorPanel`, `ElementorSectionWrapper`, `ElementorAddSectionBox`, `ElementorNavigator`, `ElementorCanvas`, `ElementorTogglePill`):
+    - Top Bar escura de 48px com botões de Undo/Redo, seletores de viewport (Desktop 100%, Tablet 768px, Mobile 390px), Navigator e botão Publish com feedback.
+    - Painel lateral retrátil estilo Elementor com cabeçalho vinho (`#8C1D40`), abas `Content | Style | Advanced`, grid de widgets em 2 colunas e formulário dinâmico de banners/slides.
+    - Alças de seção (`ElementorSectionWrapper`) com botões `+`, `:::`, `x`, duplicar, reordenar e visibilidade.
+    - Caixas de inserção pontilhadas com botão circular `+` vinho e pasta cinza ("Drag widget here"), com menu contextual para inserir novos blocos em qualquer posição.
+    - Janela flutuante Navigator (`ElementorNavigator`) em árvore hierárquica com rolagem suave até a seção selecionada.
+    - Canvas responsivo (`ElementorCanvas`) com moldura física de Tablet e Mobile (notch e barra inferior).
+    - Botão flutuante de ativação (`ElementorTogglePill`) para alternar entre navegação normal e modo de edição visual.
   - Página inicial `apps/storefront/app/page.tsx` refatorada para renderização dinâmica via `PageRenderer` e suporte ao editor visual.
 - **Validação técnica:**
   - `pnpm typecheck`: **6/6 pacotes aprovados**.
