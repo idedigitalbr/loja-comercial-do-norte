@@ -2,12 +2,16 @@
 
 import React, { useState } from 'react';
 import { Edit3 } from 'lucide-react';
+import { useAuth } from '@/components/auth-provider';
 import { useElementor } from './elementor-editor-context';
 
 export function ElementorTogglePill() {
+  const { user, ready } = useAuth();
   const { isEditing, setIsEditing, setPreviewMode } = useElementor();
   const [isHovered, setIsHovered] = useState(false);
 
+  // Somente administradores autenticados podem ver o botão e abrir o editor visual
+  if (!ready || !user?.isAdmin) return null;
   if (isEditing) return null;
 
   return (
@@ -17,7 +21,7 @@ export function ElementorTogglePill() {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Botão compacto "Editar Página" - sutil e discreto, só surge ao encostar o mouse no canto inferior esquerdo */}
+      {/* Botão compacto "Editar Página" - sutil e discreto, só surge para admins ao encostar o mouse no canto inferior esquerdo */}
       <button
         aria-label="Editar Página"
         className={`flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-900/90 py-1.5 px-3 text-xs font-semibold text-white shadow-xl ring-1 ring-white/15 backdrop-blur-md transition-all duration-200 hover:bg-[#004CB1] hover:ring-[#004CB1]/50 active:scale-95 ${

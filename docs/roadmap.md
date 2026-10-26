@@ -30,11 +30,11 @@
 ### 1.2 Configuração e migração para Neon (PostgreSQL na nuvem) — 26/10/2026
 
 - **Projeto Neon oficial conectado:**
-  - Projeto: `DB-loja-comercial-norte` (`bitter-haze-15129381`)
+  - Projeto: `projeto_db_lojacomercialdonorte` (`bitter-haze-15129381`)
   - Organização: `org-wandering-union-17658713`
   - Região: `aws-sa-east-1` (São Paulo)
   - Branch ativa: `production` (`br-floral-grass-b6brkh2t`)
-  - Banco: `neondb`
+  - Banco: `db_lojacomercialdonorte`
   - Plano: Free
 - **MCP Server oficial e Agent Skills:**
   - Neon MCP Server configurado em `~/.gemini/config/mcp_config.json` e `~/.gemini/antigravity/mcp_config.json` com endpoint oficial `https://mcp.neon.tech/mcp`.
@@ -246,8 +246,8 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
     - Alça de seção minimalista: no hover surge apenas um botão lápis ("Lápizinho") no canto superior direito que abre janela popover/tooltip com ações de mover, duplicar, visibilidade e exclusão.
     - Ferramenta de troca de imagem centralizada exatamente no meio de cada banner/slide (`InlineImageEditorOverlay`) com upload direto do computador, galeria de 10 banners oficiais da loja e edição de links.
     - Edição inline de títulos diretamente na página (vitrine de ofertas, departamentos).
-    - Top Bar compacta (44px) com seletores de viewport (Desktop, Tablet 768px, Mobile 390px), Undo/Redo, modal flutuante de novas seções e botão de salvar no servidor.
-    - Rota de persistência no backend Next.js (`POST /api/storefront/composition`) permitindo sincronizar e recuperar o estado da vitrine no servidor.
+    - Top Bar compacta (44px) com seletores de viewport (Desktop, Tablet 768px, Mobile 390px), Undo/Redo, botão de Histórico de Revisões com checkpoints (`ElementorRevisionsModal`), modal flutuante de novas seções e botão de salvar no servidor.
+    - Rota de persistência no backend Next.js (`POST /api/storefront/composition`) e histórico (`/api/storefront/revisions`) com autenticação estrita de administrador (`403 Forbidden` para não-admins), persistência real em disco/banco, checkpoints com autoria e data/hora, revalidação ISR de rota (`revalidatePath('/')`), autosave local imediato (`localStorage`) e entrega SSR no `layout.tsx`/`page.tsx` para exibição instantânea em abas anônimas e visitantes.
     - Indicador de desenvolvimento do Next.js posicionado no canto inferior direito (`bottom-right`).
     - Botão flutuante de ativação (`ElementorTogglePill`) para alternar entre navegação normal e modo de edição visual.
   - Página inicial `apps/storefront/app/page.tsx` refatorada para renderização dinâmica via `PageRenderer` e suporte ao editor visual.

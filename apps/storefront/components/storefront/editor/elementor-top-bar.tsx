@@ -6,6 +6,7 @@ import {
   Eye,
   Flame,
   Grid,
+  History,
   Laptop,
   Layout,
   Plus,
@@ -124,6 +125,7 @@ export function ElementorTopBar() {
     canRedo,
     resetToDefault,
     addWidget,
+    setRevisionsModalOpen,
   } = useElementor();
 
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -250,6 +252,15 @@ export function ElementorTopBar() {
               type="button"
             >
               <Redo2 className="size-3.5" />
+            </button>
+            <button
+              aria-label="Histórico de Revisões"
+              className="flex size-7 cursor-pointer items-center justify-center rounded-lg text-zinc-400 transition hover:bg-zinc-900 hover:text-white"
+              onClick={() => setRevisionsModalOpen(true)}
+              title="Histórico de Revisões e Checkpoints (Elementor)"
+              type="button"
+            >
+              <History className="size-3.5 text-sky-400" />
             </button>
           </div>
         </div>

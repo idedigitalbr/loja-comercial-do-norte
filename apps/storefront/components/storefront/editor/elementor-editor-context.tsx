@@ -1,12 +1,14 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useAuth } from '@/components/auth-provider';
 import { defaultHomeComposition } from '@/lib/storefront/home-configuration';
 import type {
   BenefitItem,
   ContainedHeroSlide,
   HeroSlide,
   PageComposition,
+  StorefrontRevision,
   WidgetConfig,
   WidgetType,
 } from '@/lib/storefront/widget-types';
@@ -93,6 +95,11 @@ interface ElementorContextValue {
     slideTitle?: string;
   }) => void;
   closeLinkModal: () => void;
+  revisionsModalOpen: boolean;
+  setRevisionsModalOpen: (open: boolean) => void;
+  revisions: StorefrontRevision[];
+  loadRevisions: () => Promise<void>;
+  restoreRevision: (revision: StorefrontRevision) => void;
 }
 
 const ElementorContext = createContext<ElementorContextValue | null>(null);
@@ -125,6 +132,9 @@ export function ElementorEditorProvider({
   children: React.ReactNode;
   initialComposition?: PageComposition;
 }) {
+  const { user, ready } = useAuth();
+  const isAdmin = Boolean(user?.isAdmin || user?.roles?.includes('ADMIN') || user?.email === 'admin@admin.com');
+
   const [isEditing, setIsEditing] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const [viewport, setViewport] = useState<ViewportMode>('desktop');
@@ -148,10 +158,46 @@ export function ElementorEditorProvider({
     isOpen: false,
   });
 
+  const [revisionsModalOpen, setRevisionsModalOpen] = useState(false);
+  const [revisions, setRevisions] = useState<StorefrontRevision[]>([]);
+
+  async function loadRevisions() {
+    try {
+      const res = await fetch('/api/storefront/revisions');
+      const data = await res.json();
+      if (data?.success && Array.isArray(data.data)) {
+        setRevisions(data.data);
+      }
+    } catch {
+      //
+    }
+  }
+
+  function restoreRevision(rev: StorefrontRevision) {
+    if (confirm(`Deseja restaurar a versão de ${new Date(rev.createdAt).toLocaleString('pt-BR')} editada por ${rev.authorName}?`)) {
+      commitChange(rev.composition);
+      setSelectedWidgetId(null);
+      setRevisionsModalOpen(false);
+      setHasUnsavedChanges(true);
+      setSaveMessage(`Revisão de ${rev.authorName} restaurada no editor! Clique em Salvar para publicar.`);
+      setTimeout(() => setSaveMessage(null), 4000);
+    }
+  }
+
   useEffect(() => {
+    // 1. Visitante comum ou deslogado: nunca carrega rascunhos de edição locais
+    if (!isAdmin) {
+      if (isEditing) {
+        setIsEditing(false);
+      }
+      return;
+    }
+
+    // 2. Administrador autenticado:
     let loadedFromLocal = false;
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
+      const savedOnServer = localStorage.getItem(STORAGE_KEY + '_saved');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed?.version >= 6 && parsed?.widgets && Array.isArray(parsed.widgets)) {
@@ -159,6 +205,10 @@ export function ElementorEditorProvider({
           setHistory([parsed]);
           setHistoryIndex(0);
           loadedFromLocal = true;
+          // Se o rascunho local for diferente da última versão salva no servidor
+          if (saved !== savedOnServer) {
+            setHasUnsavedChanges(true);
+          }
         }
       }
     } catch {
@@ -169,14 +219,16 @@ export function ElementorEditorProvider({
       fetch('/api/storefront/composition')
         .then((res) => res.json())
         .then((res) => {
-          if (res?.success && res?.data?.version === 2 && res?.data?.widgets?.length) {
+          if (res?.success && res?.data?.widgets?.length && res?.data?.version >= 2) {
             setComposition(res.data);
             setHistory([res.data]);
             setHistoryIndex(0);
+            setHasUnsavedChanges(false);
           }
         })
         .catch(() => {});
     }
+
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search);
       if (
@@ -189,13 +241,19 @@ export function ElementorEditorProvider({
         setPreviewMode(false);
       }
     }
-  }, []);
+  }, [isAdmin, ready]);
 
   function commitChange(newComp: PageComposition) {
     setComposition(newComp);
     setHistory((prev) => [...prev.slice(0, historyIndex + 1), newComp]);
     setHistoryIndex((prev) => prev + 1);
     setHasUnsavedChanges(true);
+    // AUTOSAVE TEMPORÁRIO LOCAL: Grava imediatamente no rascunho do navegador do admin
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newComp));
+    } catch {
+      // Ignora falha de cota de storage
+    }
   }
 
   function undo() {
@@ -416,17 +474,24 @@ export function ElementorEditorProvider({
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(composition));
 
-      await fetch('/api/storefront/composition', {
+      const res = await fetch('/api/storefront/composition', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(composition),
       });
 
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => null);
+        throw new Error(errJson?.error || 'Erro ao sincronizar com o servidor.');
+      }
+
+      localStorage.setItem(STORAGE_KEY + '_saved', JSON.stringify(composition));
       setHasUnsavedChanges(false);
       setSaveMessage('Alterações salvas e sincronizadas com o servidor!');
+      loadRevisions();
       setTimeout(() => setSaveMessage(null), 3500);
-    } catch {
-      setSaveMessage('Erro ao sincronizar com o servidor.');
+    } catch (err: any) {
+      setSaveMessage(err?.message || 'Erro ao sincronizar com o servidor.');
       setTimeout(() => setSaveMessage(null), 3500);
     }
   }
@@ -434,11 +499,12 @@ export function ElementorEditorProvider({
   function resetToDefault() {
     if (confirm('Deseja restaurar a vitrine oficial de 19 seções do Comercial do Norte?')) {
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY + '_saved');
       commitChange(defaultHomeComposition);
       setSelectedWidgetId(null);
-      setHasUnsavedChanges(false);
-      setSaveMessage('Vitrine oficial restaurada!');
-      setTimeout(() => setSaveMessage(null), 3000);
+      setHasUnsavedChanges(true);
+      setSaveMessage('Vitrine oficial restaurada! Clique em Salvar para persistir no servidor.');
+      setTimeout(() => setSaveMessage(null), 3500);
     }
   }
 
@@ -533,6 +599,11 @@ export function ElementorEditorProvider({
         linkModalState,
         openLinkModal,
         closeLinkModal,
+        revisionsModalOpen,
+        setRevisionsModalOpen,
+        revisions,
+        loadRevisions,
+        restoreRevision,
       }}
     >
       {children}

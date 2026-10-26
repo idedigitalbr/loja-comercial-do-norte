@@ -11,6 +11,7 @@ import { SiteHeader } from '@/components/site-header';
 import { StorefrontShell } from '@/components/storefront/storefront-shell';
 import { WebVitalsReporter } from '@/components/web-vitals-reporter';
 import { getCategories, getBrands, getSiteConfig, mediaUrl } from '@/lib/api';
+import { getStorefrontComposition } from '@/lib/storefront/composition-storage';
 
 export const metadata: Metadata = {
   title: 'Comercial do Norte | Embalagens, descartáveis e mercearia',
@@ -19,7 +20,12 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [config, categories, brands] = await Promise.all([getSiteConfig(), getCategories(), getBrands()]);
+  const [config, categories, brands, composition] = await Promise.all([
+    getSiteConfig(),
+    getCategories(),
+    getBrands(),
+    getStorefrontComposition(),
+  ]);
   const site = config?.site ?? null;
 
   return (
@@ -34,6 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <QuoteCartProvider>
                 <WebVitalsReporter />
                 <StorefrontShell
+                  initialComposition={composition}
                   footer={<SiteFooter categories={categories} site={site} />}
                   header={
                     <SiteHeader

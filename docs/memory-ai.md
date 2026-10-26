@@ -154,7 +154,11 @@ docs/
   - **Hero de Largura Total (S1):** `HeroCarouselWidget` estilo Mercado Livre, com autoplay, setas circulares brancas, indicadores de pontos e transição degradê inferior.
   - **Hero Secundário Contido (S1):** `ContainedHeroWidget` arredondado (`rounded-2xl md:rounded-3xl`), sobreposto com margem negativa (`-mt-8 sm:-mt-12 md:-mt-16 lg:-mt-20`), setas escuras translúcidas com blur e badge com dot da marca.
   - **Widgets Complementares:** `BenefitsBarWidget` (4 pilares comerciais), `ProductCarouselWidget` (ofertas com cards e cotação) e `CategoryGridWidget` (departamentos).
-  - **Editor Visual Estilo Elementor (25/10/2026):** Implementado modo de edição visual interativo direto na vitrine pública (`HomeView`, `ElementorEditorProvider`, `ElementorTopBar`, `ElementorSectionWrapper`, `InlineImageEditorOverlay`). Permite ao administrador selecionar qualquer seção via alça minimalista (`[ ✎ Lápis ] | [ ⠿ Drag & Drop ] | [ ↑ ] [ ↓ ]`), inserir seção acima/abaixo, duplicar, ocultar ou remover, além de trocar imagens e links diretamente no centro de cada banner/card (`InlineImageEditorOverlay`) com persistência híbrida (`localStorage` + `/api/storefront/composition`).
+  - **Editor Visual Estilo Elementor (25-26/10/2026):** Implementado modo de edição visual interativo direto na vitrine pública (`HomeView`, `ElementorEditorProvider`, `ElementorTopBar`, `ElementorSectionWrapper`, `InlineImageEditorOverlay`). Permite ao administrador selecionar qualquer seção via alça minimalista (`[ ✎ Lápis ] | [ ⠿ Drag & Drop ] | [ ↑ ] [ ↓ ]`), inserir seção acima/abaixo, duplicar, ocultar ou remover, além de trocar imagens e links diretamente no centro de cada banner/card (`InlineImageEditorOverlay`). Possui:
+    - **Controle de Acesso Admin:** O botão flutuante discreto `ElementorTogglePill` e o modo de edição só são visíveis e ativáveis por usuários autenticados como administradores (`user.isAdmin === true`). A rota `POST /api/storefront/composition` valida o cookie/permissão de administrador antes de salvar (retornando `403 Forbidden` para acessos não autorizados).
+    - **Autosave Temporário Local vs Salvar no Servidor:** Cada alteração visual (troca de imagem, exclusão de slide, reordenação de seções) realiza autosave local imediato no navegador (`localStorage`) para evitar perda de rascunhos. O botão de publicação no topo fica pulsando com status `Salvar *`. Ao clicar, publica no servidor e passa a exibir `Salvo no Servidor` com ícone verde.
+    - **Persistência Real no Servidor & SSR:** O arquivo `home-composition.json` é gravado no disco do servidor (`lib/storefront/composition-storage.ts`), revalida o cache Next.js (`revalidatePath('/')`), e é entregue via SSR no `layout.tsx` e `page.tsx` para que qualquer visitante ou aba anônima visualize as alterações imediatamente sem telas em branco ou layouts desatualizados.
+    - **Histórico de Revisões e Checkpoints estilo Elementor (26/10/2026):** Implementado sistema completo de auditoria e restauração de versões (`ElementorRevisionsModal`, `StorefrontRevision`, `/api/storefront/revisions`). Cada salvamento no servidor grava automaticamente um checkpoint com data, hora, autor da alteração (`authorName`, `authorEmail`) e snapshot da vitrine. Permite visualizar a linha do tempo e restaurar com 1 clique qualquer versão anterior caso o administrador queira reverter alterações indevidas.
   - **Biblioteca Completa de Widgets e Homepage de 20 Seções (`site-final.jpg` + `wireframe.png` — 25/10/2026):**
     - Reconstruída a homepage inteira em fidelidade 1:1 com `REFERENCIA/site-final.jpg` (`2880×17208`) e `REFERENCIA/wireframe.png` (`1920×9267`), composta pelo `SiteHeader` (3 barras), **19 seções sequenciais de widgets configuráveis** (`defaultHomeComposition` em `home-configuration.ts`) e `SiteFooter` (Seção 20):
       - `01` `hero-carousel` (*Tudo para sua Pizzaria* — largura total com degradê inferior)
@@ -269,5 +273,22 @@ Lacunas, defeitos e riscos dessa base **não são repetidos aqui**: estão em `r
 - Documentação e contrato da API do ERP (Bruno/equipe), autenticação, limites, eventos, periodicidade e estratégia de sincronização.
 - Infra de VPS, estratégia de deploy Next + Nest + PostgreSQL, armazenamento persistente de mídia, backups, CI/CD e plano de rollback.
 - Definição de quando o painel administrativo será migrado para Next.js; **o objetivo firme agora é migrar a loja pública**, mantendo o painel utilizável durante a transição.
+
+## 7. Checklist de Hardening, Segurança e Pré-Lançamento (Go-Live)
+
+> **Regra de convivência com o desenvolvimento:** Durante a fase ativa de desenvolvimento e prototipação, atalhos de conveniência (contas mock de login, bypass de teste em rotas e fallbacks locais) permanecem ativos para acelerar a validação e não travar o fluxo de trabalho dos agentes e desenvolvedores. **Nenhum destes atalhos deve ser removido prematuramente**, devendo ser resolvidos estritamente na etapa final de homologação e lançamento.
+
+### 7.1 Segurança & Acesso (Hardening)
+- [ ] **Contas e senhas de demonstração:** Remover o botão *"Ver Senhas de Demonstração / Acesso Rápido"* e as contas estáticas (`admin@admin.com` / `cliente@demo.com`) de `AuthFlowCard` e `auth-provider.tsx` antes de disponibilizar para o público real.
+- [ ] **Senha do Administrador de Produção:** Alterar a senha da conta administradora principal no banco de dados do Neon para uma senha forte, única e segura (substituindo a senha padrão de seed `admin123456`).
+- [ ] **Blindagem da API de Vitrine:** Fechar a permissão de conveniência `x-admin-role` e a leitura de cookie cru na rota `POST /api/storefront/composition`, validando exclusivamente a sessão oficial autenticada pelo NestJS (`je_access`).
+- [ ] **Fallback de Segredo de Sessão:** Remover o fallback `'development-cookie-secret'` nos serviços de autenticação e criptografia da API, exigindo `COOKIE_SECRET` estrito em qualquer runtime de produção.
+- [ ] **Controle de Mídia e Uploads:** Limitar tipos MIME e tamanhos máximos para uploads de banners e logotipos no painel do editor visual.
+
+### 7.2 Performance, Cache & Infraestrutura
+- [ ] **Auditoria de Imagens:** Otimização de todos os assets estáticos via `next/image` com configuração rigorosa de domínios em `next.config.ts`.
+- [ ] **Estratégia de Cache e ISR:** Ajustar os tempos de revalidação estática da vitrine e catálogo para equilibrar atualização em tempo real e economia de recursos no Neon/Vercel.
+- [ ] **Connection Pooling no PostgreSQL:** Validar o limite de conexões simultâneas do pooler do Neon (`-pooler`) com a escala de acessos simultâneos na inauguração.
+- [ ] **Headers de Segurança e CORS:** Revisar a lista de origens autorizadas (`APP_ORIGIN`, `ADMIN_ORIGIN`) nos cabeçalhos de resposta da API para bloquear requisições de origens desconhecidas.
 
 **Regra final:** implementação ainda em andamento. Nenhuma documentação anterior, prompt ou decisão revogada revoga as escolhas de **Next.js + NestJS + PostgreSQL + Prisma + Tailwind + shadcn/ui** estabelecidas em 24/10/2026.

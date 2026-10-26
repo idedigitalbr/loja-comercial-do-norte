@@ -332,6 +332,16 @@ export interface PageComposition {
   widgets: WidgetConfig[];
 }
 
+export interface StorefrontRevision {
+  id: string;
+  createdAt: string;
+  authorName: string;
+  authorEmail: string;
+  widgetsCount: number;
+  note?: string;
+  composition: PageComposition;
+}
+
 export interface WidgetContextData {
   categories: ApiCategory[];
   brands: ApiBrand[];

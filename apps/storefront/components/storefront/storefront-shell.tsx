@@ -8,6 +8,8 @@ import { ElementorCanvas } from './editor/elementor-canvas';
 import { ElementorTogglePill } from './editor/elementor-toggle-pill';
 import { ElementorMediaModal } from './editor/elementor-media-modal';
 import { ElementorLinkModal } from './editor/elementor-link-modal';
+import { ElementorRevisionsModal } from './editor/elementor-revisions-modal';
+import type { PageComposition } from '@/lib/storefront/widget-types';
 
 function ElementorGlobalMediaModal() {
   const { mediaModalState, closeMediaModal, updateSlideInWidget, updateWidgetNestedField } = useElementor();
@@ -62,10 +64,12 @@ export function StorefrontShell({
   header,
   children,
   footer,
+  initialComposition,
 }: {
   header: React.ReactNode;
   children: React.ReactNode;
   footer: React.ReactNode;
+  initialComposition?: PageComposition;
 }) {
   const pathname = usePathname();
   const isAuthPage = pathname === '/login' || pathname?.startsWith('/login/');
@@ -82,10 +86,11 @@ export function StorefrontShell({
   }
 
   return (
-    <ElementorEditorProvider>
+    <ElementorEditorProvider initialComposition={initialComposition}>
       <ElementorTopBar />
       <ElementorGlobalMediaModal />
       <ElementorGlobalLinkModal />
+      <ElementorRevisionsModal />
 
       <ElementorCanvas>
         {header}
