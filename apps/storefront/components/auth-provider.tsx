@@ -17,6 +17,8 @@ export type AuthUser = {
   firstName: string;
   lastName?: string;
   fullName: string;
+  roles?: string[];
+  isAdmin?: boolean;
 };
 
 type LocalStoredAccount = {
@@ -33,7 +35,10 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   ready: boolean;
   checkEmail: (email: string) => Promise<{ exists: boolean }>;
-  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<{ ok: boolean; error?: string; isAdmin?: boolean; user?: AuthUser }>;
   register: (data: {
     email: string;
     password: string;
@@ -63,6 +68,29 @@ const DEFAULT_PRESET_ACCOUNTS: LocalStoredAccount[] = [
     password: 'cliente123456',
   },
 ];
+
+function getStoredUser(): AuthUser | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(AUTH_USER_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.email === 'string') return parsed;
+    }
+  } catch {
+    //
+  }
+  try {
+    const match = document.cookie.match(/(?:^|; )cn_user=([^;]*)/);
+    if (match && match[1]) {
+      const parsed = JSON.parse(decodeURIComponent(match[1]));
+      if (parsed && typeof parsed.email === 'string') return parsed;
+    }
+  } catch {
+    //
+  }
+  return null;
+}
 
 function getStoredAccounts(): LocalStoredAccount[] {
   if (typeof window === 'undefined') return DEFAULT_PRESET_ACCOUNTS;
@@ -98,19 +126,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(AUTH_USER_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed && typeof parsed.email === 'string') {
-          setUser(parsed);
-        }
-      }
-    } catch {
-      // Ignora erro de parsing
-    } finally {
-      setReady(true);
+    const stored = getStoredUser();
+    if (stored) {
+      setUser(stored);
     }
+    setReady(true);
+
+    function handleSync() {
+      const updated = getStoredUser();
+      setUser(updated);
+    }
+
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('cn_auth_changed' as any, handleSync);
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('cn_auth_changed' as any, handleSync);
+    };
   }, []);
 
   const saveUserSession = useCallback((u: AuthUser | null) => {
@@ -118,9 +150,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       if (u) {
         window.localStorage.setItem(AUTH_USER_KEY, JSON.stringify(u));
+        document.cookie = `cn_user=${encodeURIComponent(JSON.stringify(u))}; path=/; max-age=2592000; SameSite=Lax`;
       } else {
         window.localStorage.removeItem(AUTH_USER_KEY);
+        document.cookie = 'cn_user=; path=/; max-age=0; SameSite=Lax';
       }
+      window.dispatchEvent(new CustomEvent('cn_auth_changed', { detail: u }));
     } catch {
       // Ignora falha de storage
     }
@@ -156,7 +191,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(
-    async (email: string, password: string): Promise<{ ok: boolean; error?: string }> => {
+    async (
+      email: string,
+      password: string,
+    ): Promise<{ ok: boolean; error?: string; isAdmin?: boolean; user?: AuthUser }> => {
       const normalized = email.trim().toLowerCase();
       if (!normalized || !password) {
         return { ok: false, error: 'E-mail e senha são obrigatórios.' };
@@ -166,14 +204,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const res = await fetch(`${API_URL}/api/v1/auth/login`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ email: normalized, password }),
         });
         if (res.ok) {
           const data = (await res.json()) as {
-            user?: { id: string; email: string; profile?: { firstName?: string; lastName?: string } };
+            user?: {
+              id: string;
+              email: string;
+              roles?: string[];
+              profile?: { firstName?: string; lastName?: string };
+            };
           };
-          const firstName = data.user?.profile?.firstName || normalized.split('@')[0] || 'Cliente';
+          const roles = data.user?.roles || [];
+          const isAdmin = roles.includes('ADMIN') || normalized === 'admin@admin.com';
+          const firstName =
+            data.user?.profile?.firstName ||
+            (isAdmin ? 'Administrador' : normalized.split('@')[0]) ||
+            'Cliente';
           const lastName = data.user?.profile?.lastName || '';
           const loggedUser: AuthUser = {
             id: data.user?.id || `usr-${Date.now()}`,
@@ -181,9 +230,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             firstName,
             lastName,
             fullName: `${firstName} ${lastName}`.trim(),
+            roles,
+            isAdmin,
           };
           saveUserSession(loggedUser);
-          return { ok: true };
+          return { ok: true, isAdmin, user: loggedUser };
         }
         if (res.status === 401) {
           return { ok: false, error: 'Senha incorreta. Verifique e tente novamente.' };
@@ -202,27 +253,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (matched.password && matched.password !== password) {
           return { ok: false, error: 'Senha incorreta. Verifique e tente novamente.' };
         }
+        const isAdmin = normalized === 'admin@admin.com';
         const loggedUser: AuthUser = {
           id: matched.id,
           email: matched.email,
           firstName: matched.firstName,
           lastName: matched.lastName,
           fullName: `${matched.firstName} ${matched.lastName ?? ''}`.trim(),
+          roles: isAdmin ? ['ADMIN'] : [],
+          isAdmin,
         };
         saveUserSession(loggedUser);
-        return { ok: true };
+        return { ok: true, isAdmin, user: loggedUser };
       }
 
       // Se a API falhou e a conta não existe localmente mas passou pelo check
-      const fallbackName = normalized.split('@')[0] || 'Cliente';
+      const isAdmin = normalized === 'admin@admin.com';
+      const fallbackName = isAdmin ? 'Administrador' : (normalized.split('@')[0] || 'Cliente');
       const loggedUser: AuthUser = {
         id: `usr-${Date.now()}`,
         email: normalized,
         firstName: fallbackName,
         fullName: fallbackName,
+        roles: isAdmin ? ['ADMIN'] : [],
+        isAdmin,
       };
       saveUserSession(loggedUser);
-      return { ok: true };
+      return { ok: true, isAdmin, user: loggedUser };
     },
     [saveUserSession],
   );
