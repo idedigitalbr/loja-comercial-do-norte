@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import {
   getStorefrontRevisions,
   restoreStorefrontRevision,
+  CompositionApiError,
 } from '@/lib/storefront/composition-storage';
 import { verifyAdminAuthorization } from '@/lib/auth/admin-guard';
 
@@ -22,14 +23,14 @@ export async function GET(request: Request) {
       );
     }
 
-    const revisions = await getStorefrontRevisions();
+    const revisions = await getStorefrontRevisions(authResult.headers);
     return NextResponse.json({
       success: true,
       data: revisions,
     });
   } catch (err: any) {
     return NextResponse.json(
-      { success: false, error: err?.message || 'Falha ao buscar histórico de revisões.' },
+      { success: false, error: 'Falha ao buscar histórico de revisões.' },
       { status: 500 }
     );
   }
@@ -37,6 +38,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    if (request.headers.get('origin') && request.headers.get('origin') !== new URL(request.url).origin) {
+      return NextResponse.json({ success: false, error: 'Origem não autorizada.' }, { status: 403 });
+    }
     const authResult = await verifyAdminAuthorization(request);
     if (!authResult.isAdmin) {
       return NextResponse.json(
@@ -58,7 +62,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const restored = await restoreStorefrontRevision(revisionId);
+    const restored = await restoreStorefrontRevision(revisionId, authResult.headers, {
+      name: authResult.authorName, email: authResult.authorEmail,
+    });
     if (!restored) {
       return NextResponse.json(
         { success: false, error: 'Revisão não encontrada no histórico.' },
@@ -79,8 +85,8 @@ export async function POST(request: Request) {
     });
   } catch (err: any) {
     return NextResponse.json(
-      { success: false, error: err?.message || 'Falha ao restaurar revisão.' },
-      { status: 500 }
+      { success: false, error: err instanceof CompositionApiError && err.status === 404 ? 'Revisão não encontrada.' : 'Falha ao restaurar revisão.' },
+      { status: err instanceof CompositionApiError && err.status === 404 ? 404 : 500 }
     );
   }
 }

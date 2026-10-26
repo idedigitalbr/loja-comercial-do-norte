@@ -83,3 +83,5 @@ apps/storefront/AGENTS.md
 
 .vercel
 .env*
+# Offline storefront state (composition and checkpoints saved atomically).
+apps/storefront/data/home-state.json*

@@ -18,6 +18,7 @@ describe('admin-guard (Segurança por Ambiente)', () => {
 
   afterEach(() => {
     process.env = originalEnv;
+    vi.unstubAllGlobals();
   });
 
   it('permite bypass de x-admin-role em desenvolvimento/testes locais', async () => {
@@ -56,7 +57,7 @@ describe('admin-guard (Segurança por Ambiente)', () => {
     expect(result.reason).toContain('produção');
   });
 
-  it('permite acesso em produção via segredo de serviço autorizado (x-admin-secret)', async () => {
+  it('não transforma segredo de cron em autorização de publicação em produção', async () => {
     (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
     process.env.VERCEL = '1';
     process.env.CRON_SECRET = 'super-secret-service-token-123';
@@ -70,7 +71,27 @@ describe('admin-guard (Segurança por Ambiente)', () => {
     });
 
     const result = await verifyAdminAuthorization(request);
+    expect(result.isAdmin).toBe(false);
+  });
+
+  it('interpreta o contrato { user } e encaminha a sessão com settings.manage', async () => {
+    process.env.VERCEL = '1';
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ user: {
+      id: 'admin', email: 'editor@localhost', permissions: ['settings.manage'],
+    } })));
+    const result = await verifyAdminAuthorization(new Request('https://store.local', { headers: { Authorization: 'Bearer session' } }));
     expect(result.isAdmin).toBe(true);
-    expect(result.authorName).toBe('Pipeline CI/CD');
+    expect(result.authorEmail).toBe('editor@localhost');
+    expect(result.headers).toEqual({ Authorization: 'Bearer session' });
+  });
+
+  it.each([
+    { roles: ['ADMIN'], permissions: [] },
+    { email: 'admin@admin.com' },
+    null,
+  ])('rejeita sessão sem permissão settings.manage: %j', async (user) => {
+    process.env.VERCEL = '1';
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ user })));
+    expect((await verifyAdminAuthorization(new Request('https://store.local', { headers: { Authorization: 'Bearer session' } }))).isAdmin).toBe(false);
   });
 });

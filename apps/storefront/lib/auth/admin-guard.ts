@@ -6,12 +6,12 @@ export type AdminAuthResult = {
   authorName: string;
   authorEmail: string;
   reason?: string;
+  headers?: Record<string, string>;
 };
 
 /**
  * Valida autorização administrativa com distinção estrita por ambiente:
- * - Em Produção / Vercel: Rejeita bypass inseguro de cabeçalhos sem segredo e valida
- *   estritamente a sessão real do NestJS (cookie `je_access`) ou token de serviço autorizado.
+ * - Em Produção / Vercel: valida a sessão real do NestJS e settings.manage.
  * - Em Desenvolvimento / Testes locais: Permite os atalhos de conveniência (cookie `cn_user` e `x-admin-role`)
  *   para preservar o trabalho autônomo dos agentes e os testes automatizados sem login manual.
  */
@@ -32,12 +32,12 @@ export async function verifyAdminAuthorization(request: Request): Promise<AdminA
           accept: 'application/json',
         },
         cache: 'no-store',
+        signal: AbortSignal.timeout(10_000),
       });
 
       if (response.ok) {
-        const userData = await response.json();
+        const { user: userData } = await response.json();
         const hasAdminRole =
-          userData?.roles?.includes('ADMIN') ||
           userData?.permissions?.includes('settings.manage');
 
         if (hasAdminRole) {
@@ -45,6 +45,7 @@ export async function verifyAdminAuthorization(request: Request): Promise<AdminA
             isAdmin: true,
             authorName: userData.fullName || userData.firstName || 'Administrador',
             authorEmail: userData.email || 'admin@admin.com',
+            headers: { Authorization: `Bearer ${sessionToken}` },
           };
         }
       }
@@ -53,10 +54,10 @@ export async function verifyAdminAuthorization(request: Request): Promise<AdminA
     }
   }
 
-  // 2. Chave de serviço interna (M2M / Scripts autorizados em produção e dev)
+  // 2. Conveniência exclusiva de desenvolvimento; cron não concede RBAC no Nest.
   const serverSecret = process.env.CRON_SECRET || process.env.COOKIE_SECRET;
   const adminSecretHeader = request.headers.get('x-admin-secret');
-  if (serverSecret && adminSecretHeader && adminSecretHeader === serverSecret) {
+  if (!isProduction && serverSecret && adminSecretHeader && adminSecretHeader === serverSecret) {
     return {
       isAdmin: true,
       authorName: request.headers.get('x-admin-name') || 'Serviço Autorizado',
