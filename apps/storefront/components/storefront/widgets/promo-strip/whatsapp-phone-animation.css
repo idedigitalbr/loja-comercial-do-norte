@@ -34,7 +34,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #ffffff;
+  background: #0a0c12;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   line-height: normal;
   font-size: 13px;
@@ -864,11 +864,5 @@
   .wpp-typing-dot {
     animation: none !important;
     transition: none !important;
-  }
-  .wpp-scene-drawer { display: none !important; }
-  .wpp-scene-list { display: none !important; }
-  .wpp-scene-chat {
-    opacity: 1 !important;
-    transform: none !important;
   }
 }

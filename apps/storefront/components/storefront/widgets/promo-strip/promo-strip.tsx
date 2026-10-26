@@ -195,33 +195,8 @@ export function PromoStripWidget({
     <section aria-label={title || 'Grupo de WhatsApp'} className="cn-container py-4 sm:py-6">
       <div className="relative overflow-hidden rounded-2xl bg-[#00449E] shadow-[0_8px_32px_rgba(0,45,114,0.22)]">
         <div className="grid grid-cols-1 items-center lg:grid-cols-12">
-          {/* Arte Mascote James à esquerda */}
-          <div className="group/img relative hidden h-full min-h-[340px] overflow-hidden lg:col-span-4 lg:block">
-            <Image
-              alt="Mascote Comercial do Norte WhatsApp"
-              className="size-full object-cover object-bottom"
-              height={420}
-              src={mascotImageUrl}
-              unoptimized
-              width={640}
-            />
-            {widgetId ? (
-              <InlineImageEditorOverlay
-                canAdd={false}
-                canRemove={false}
-                currentLinkUrl={ctaUrl}
-                fieldPath="mascotImageUrl"
-                linkFieldPath="ctaUrl"
-                previewUrl={mascotImageUrl}
-                slideIndex={0}
-                title="Mascote Grupo WhatsApp"
-                widgetId={widgetId}
-              />
-            ) : null}
-          </div>
-
-          {/* Texto + Badge + Barra Vermelha + Botão Contornado Central */}
-          <div className="px-6 py-8 text-center lg:col-span-4 lg:px-4 lg:text-left">
+          {/* Conteúdo: Badge + Título + Benefícios + Botão de Ação */}
+          <div className="px-6 py-8 text-center sm:py-10 lg:col-span-8 lg:px-10 lg:py-12 lg:text-left">
             {/* Badge de Destaque */}
             <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-[11px] font-bold tracking-wider text-white backdrop-blur-sm">
               <span className="flex size-2 rounded-full bg-[#25D366] animate-pulse" />
@@ -231,35 +206,35 @@ export function PromoStripWidget({
             <p className="mt-3 text-base font-medium text-blue-100 sm:text-lg">
               Entre em nosso
             </p>
-            <h2 className="mt-0.5 text-2xl font-black leading-tight tracking-tight text-white sm:text-3xl">
+            <h2 className="mt-0.5 text-2xl font-black leading-tight tracking-tight text-white sm:text-3xl lg:text-4xl">
               Grupo de ofertas
               <span className="block text-[#FFDE59]">Exclusivas do WhatsApp</span>
             </h2>
             <div className="mx-auto mt-2.5 h-1 w-24 rounded-full bg-[#E2091E] lg:mx-0" />
 
             {subtitle ? (
-              <p className="mt-3 text-xs leading-relaxed text-blue-100/90 sm:text-sm">
+              <p className="mt-3.5 max-w-xl text-xs leading-relaxed text-blue-100/90 sm:text-sm">
                 {subtitle}
               </p>
             ) : null}
 
             {/* Selos de Benefício */}
-            <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-[11px] font-medium text-blue-100/90 lg:justify-start">
-              <span className="inline-flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5">
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[11px] font-medium text-blue-100/90 lg:justify-start">
+              <span className="inline-flex items-center gap-1 rounded-md bg-white/10 px-2.5 py-1">
                 <span className="text-[#25D366]">✓</span> 100% Gratuito
               </span>
-              <span className="inline-flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5">
+              <span className="inline-flex items-center gap-1 rounded-md bg-white/10 px-2.5 py-1">
                 <span className="text-[#25D366]">✓</span> Preço de Atacado
               </span>
-              <span className="inline-flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5">
+              <span className="inline-flex items-center gap-1 rounded-md bg-white/10 px-2.5 py-1">
                 <span className="text-[#25D366]">✓</span> Sem Spam
               </span>
             </div>
 
             {/* Botão de Ação */}
-            <div className="mt-5">
+            <div className="mt-6">
               <Link
-                className="group inline-flex items-center gap-2.5 rounded-xl border border-white/40 bg-[#002258] px-6 py-3 text-xs font-bold text-white shadow-lg transition duration-200 hover:bg-[#001740] hover:scale-[1.02] sm:text-sm"
+                className="group inline-flex items-center gap-2.5 rounded-xl border border-white/40 bg-[#002258] px-7 py-3.5 text-xs font-bold text-white shadow-lg transition duration-200 hover:bg-[#001740] hover:scale-[1.02] sm:text-sm"
                 href={ctaUrl || 'https://wa.me/5591983440880'}
                 onClick={(e) => {
                   if (isEditing && !previewMode) e.preventDefault();
@@ -276,7 +251,7 @@ export function PromoStripWidget({
             </div>
 
             {/* Dica interativa para o usuário */}
-            <p className="mt-2 text-[11px] text-blue-200/70">
+            <p className="mt-2.5 text-[11px] text-blue-200/70">
               ⚡ O celular ao lado é interativo — toque nele para reiniciar a demonstração
             </p>
 
@@ -295,6 +270,21 @@ export function PromoStripWidget({
             />
           </div>
         </div>
+
+        {/* Suporte a upload de imagem no modo Editor Inline */}
+        {widgetId && isEditing && !previewMode ? (
+          <InlineImageEditorOverlay
+            canAdd={false}
+            canRemove={false}
+            currentLinkUrl={ctaUrl}
+            fieldPath="mascotImageUrl"
+            linkFieldPath="ctaUrl"
+            previewUrl={mascotImageUrl}
+            slideIndex={0}
+            title="Imagem de Fundo Grupo WhatsApp"
+            widgetId={widgetId}
+          />
+        ) : null}
       </div>
     </section>
   );

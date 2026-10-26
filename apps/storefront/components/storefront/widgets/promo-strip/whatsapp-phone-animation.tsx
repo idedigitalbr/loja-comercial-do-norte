@@ -316,8 +316,7 @@ export function WhatsappPhoneAnimation({
           {/* ─────────────────────────────────────────────────────────────
               CENA 1: GAVETA / HOME DE APLICATIVOS
               ───────────────────────────────────────────────────────────── */}
-          {currentScene === 1 ? (
-            <div className="wpp-scene-drawer">
+          <div className={`wpp-scene-drawer ${currentScene > 1 ? 'is-hidden' : ''}`}>
               {/* Barra de Status na Gaveta */}
               <div aria-hidden="true" className="wpp-status-bar drawer-status">
                 <span className="wpp-status-time">09:41</span>
@@ -414,13 +413,11 @@ export function WhatsappPhoneAnimation({
                 </div>
               </div>
             </div>
-          ) : null}
 
           {/* ─────────────────────────────────────────────────────────────
               CENA 2: LISTA DE CONVERSAS DO WHATSAPP
               ───────────────────────────────────────────────────────────── */}
-          {currentScene === 2 ? (
-            <div className="wpp-scene-list is-active">
+          <div className={`wpp-scene-list ${currentScene === 2 ? 'is-active' : ''}`}>
               <div className="wpp-list-header">
                 <div aria-hidden="true" className="wpp-status-bar">
                   <span className="wpp-status-time">09:41</span>
@@ -519,13 +516,11 @@ export function WhatsappPhoneAnimation({
                 </div>
               </div>
             </div>
-          ) : null}
 
           {/* ─────────────────────────────────────────────────────────────
               CENA 3: A CONVERSA (COMERCIAL DO NORTE)
               ───────────────────────────────────────────────────────────── */}
-          {currentScene === 3 ? (
-            <div className="wpp-scene-chat is-active">
+          <div className={`wpp-scene-chat ${currentScene === 3 ? 'is-active' : ''}`}>
               {/* Header Verde do WhatsApp */}
               <div className="wpp-chat-header-wrap">
                 <div aria-hidden="true" className="wpp-status-bar">
@@ -789,9 +784,8 @@ export function WhatsappPhoneAnimation({
                 </button>
               </div>
             </div>
-          ) : null}
+          </div>
         </div>
       </div>
-    </div>
   );
 }
