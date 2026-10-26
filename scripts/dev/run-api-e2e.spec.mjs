@@ -1,5 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { isAllowedTestServerAddress } from './run-api-e2e.mjs';
 
 test('allows only loopback outside GitHub Actions', () => {
@@ -20,5 +23,12 @@ test('allows the private Docker bridge only with explicit GitHub Actions opt-in'
   assert.equal(isAllowedTestServerAddress('8.8.8.8', optedIn), false);
   assert.equal(isAllowedTestServerAddress('172.20.0.3', { GITHUB_ACTIONS: 'true' }), false);
   assert.equal(isAllowedTestServerAddress('172.20.0.3', { API_TEST_ALLOW_DOCKER: 'true' }), false);
+});
+
+test('passes the explicit CI guard through Turborepo to API test tasks', () => {
+  const root = resolve(fileURLToPath(new URL('.', import.meta.url)), '../..');
+  const turbo = JSON.parse(readFileSync(resolve(root, 'turbo.json'), 'utf8'));
+  assert.ok(turbo.globalPassThroughEnv.includes('API_TEST_ALLOW_DOCKER'));
+  assert.ok(turbo.globalPassThroughEnv.includes('GITHUB_ACTIONS'));
 });
 
