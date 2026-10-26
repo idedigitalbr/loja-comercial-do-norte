@@ -22,6 +22,7 @@ import {
   X,
 } from 'lucide-react';
 import { useQuoteCart } from './quote-cart-provider';
+import { useUserLocation } from './location-provider';
 import { MegaMenu } from './mega-menu';
 import { CategoryMegaMenu, CATEGORY_MENUS_DATA } from './category-mega-menu';
 import type { ApiBrand, ApiCategory } from '@/lib/types';
@@ -45,6 +46,7 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   const router = useRouter();
   const { count, openDrawer } = useQuoteCart();
+  const { location, openModal } = useUserLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
 
@@ -153,14 +155,23 @@ export function SiteHeader({
               </Link>
             </div>
 
-            {/* SELETOR DE CEP / LOCALIZAÇÃO (BELÉM 66020-600) */}
-            <div className="hidden items-center gap-2 rounded-lg bg-white/10 px-2.5 py-1.5 text-xs text-white xl:flex hover:bg-white/15 transition cursor-pointer">
-              <MapPin className="size-4 shrink-0 text-white/90" />
-              <div className="leading-tight">
-                <span className="block text-[10px] text-white/70">Enviar para</span>
-                <span className="font-bold">Belém 66020-600</span>
+            {/* SELETOR DE CEP / LOCALIZAÇÃO INTERATIVO (ESTILO MAGALU) */}
+            <button
+              aria-haspopup="dialog"
+              aria-label={`Enviar para ${location.shortLabel}. Clique para alterar CEP ou endereço.`}
+              className="hidden items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 px-3 py-1.5 text-xs text-white xl:flex transition cursor-pointer text-left group shadow-xs"
+              onClick={openModal}
+              type="button"
+            >
+              <MapPin className="size-4 shrink-0 text-amber-300 transition-transform group-hover:scale-110" />
+              <div className="leading-tight min-w-0 max-w-[170px]">
+                <span className="block text-[10px] text-white/75 font-medium">Enviar para</span>
+                <div className="flex items-center gap-1">
+                  <span className="font-bold truncate text-white">{location.shortLabel}</span>
+                  <ChevronDown className="size-3 text-white/70 transition-transform group-hover:translate-y-0.5 shrink-0" />
+                </div>
               </div>
-            </div>
+            </button>
 
             {/* BARRA DE BUSCA CENTRAL COM BOTÃO CIRCULAR AZUL */}
             <div className="flex-1 max-w-2xl">
@@ -229,6 +240,31 @@ export function SiteHeader({
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* BARRA MOBILE/TABLET: LOCALIZAÇÃO & CEP COMPACTO (ESTILO MAGALU) */}
+        <div className="flex xl:hidden items-center justify-between border-t border-white/10 bg-[#00357B]/90 px-3 py-1.5 text-xs text-white">
+          <button
+            aria-haspopup="dialog"
+            aria-label={`Enviar para: ${location.shortLabel}. Clique para alterar.`}
+            className="flex items-center gap-1.5 text-white/95 hover:text-white transition cursor-pointer text-left min-w-0 flex-1 mr-2"
+            onClick={openModal}
+            type="button"
+          >
+            <MapPin className="size-3.5 shrink-0 text-amber-300" />
+            <span className="truncate text-[11px]">
+              Enviar para:{' '}
+              <strong className="underline decoration-white/40 font-semibold">{location.shortLabel}</strong>
+            </span>
+            <ChevronDown className="size-3 opacity-75 shrink-0" />
+          </button>
+          <button
+            className="shrink-0 text-[10px] font-bold text-amber-300 hover:text-amber-200 uppercase tracking-wide cursor-pointer py-0.5 px-2 rounded-md bg-white/10 hover:bg-white/20 transition"
+            onClick={openModal}
+            type="button"
+          >
+            Trocar CEP
+          </button>
         </div>
 
         {/* BARRA 03: SUBNORMAL AZUL ESCURO (#00357B) - DEPARTAMENTOS E CATEGORIAS */}
@@ -375,8 +411,40 @@ export function SiteHeader({
               </button>
             </div>
 
+            {/* Card de Região/CEP Mobile Interativo */}
+            <div className="m-4 mb-2 rounded-xl border border-blue-100 bg-blue-50/70 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <MapPin className="size-4 shrink-0 text-[#004CB1]" />
+                  <div className="min-w-0 leading-tight">
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                      Enviar para
+                    </span>
+                    <span className="block truncate text-xs font-bold text-slate-900">
+                      {location.shortLabel}
+                    </span>
+                    {location.cep && (
+                      <span className="block text-[10px] text-slate-500 font-mono">
+                        CEP {location.cep}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  className="rounded-lg bg-[#004CB1] px-2.5 py-1 text-[11px] font-bold text-white hover:bg-[#00357B] transition shrink-0 cursor-pointer"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openModal();
+                  }}
+                  type="button"
+                >
+                  Alterar
+                </button>
+              </div>
+            </div>
+
             {/* Lista de Navegação Mobile */}
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-4 pt-2">
               <div className="mb-4">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                   Departamentos
@@ -403,7 +471,7 @@ export function SiteHeader({
                 <div className="mt-2 flex flex-col gap-2 text-xs font-medium">
                   <Link
                     className="flex items-center gap-2 py-1.5 text-slate-700"
-                    href="/loja?ofertas=true"
+                    href="/loja?oferta=1"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Flame className="size-4 text-[#E2091E]" />

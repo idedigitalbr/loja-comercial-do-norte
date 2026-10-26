@@ -45,13 +45,13 @@ const DEFAULT_MEGA_MENU_GROUPS: MegaMenuGroup[] = [
     ],
   },
   {
-    title: 'DESCARTÁVEIS & EVENTOS',
+    title: 'FESTAS & EVENTOS',
     subtitle: 'Itens essenciais para festas, bares e buffets.',
     items: [
       { name: 'Copos Plásticos & Térmicos', href: '/loja?q=copo', icon: Coffee },
       { name: 'Pratos, Garfos & Facas', href: '/loja?q=talheres', icon: Utensils },
       { name: 'Guardanapos & Canudos Bio', href: '/loja?q=guardanapo', icon: ShieldCheck },
-      { name: 'Artigos para Festa & Forminhas', href: '/loja?q=festa', icon: Sparkles, badge: 'NOVO' },
+      { name: 'Artigos para Festas & Eventos', href: '/loja?q=festa', icon: Sparkles, badge: 'NOVO' },
     ],
   },
   {
