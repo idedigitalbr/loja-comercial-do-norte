@@ -334,7 +334,7 @@ export function ProductListPage({
     setQuickEdit({
       productId: product.id,
       name: product.name,
-      slug: product.slug,
+      slug: product.slug ?? '',
       sku: variant?.sku ?? '',
       priceCents: variant?.priceCents ?? 0,
       stockQuantity: variant?.inventoryBalance?.physicalQuantity ?? variant?.inventoryQuantity ?? 0,

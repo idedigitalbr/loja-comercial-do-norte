@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { getAdminView, getAdminNavigation, getInitialAdminSection, getStorefrontUrl } from './admin-shell';
+import {
+  getAdminView,
+  getAdminNavigation,
+  getInitialAdminSection,
+  getStorefrontUrl,
+  readCatalogSubPage,
+} from './admin-shell';
 
 describe('admin shell', () => {
   it('opens the dashboard when an authenticated user is available', () => {
@@ -32,6 +38,8 @@ describe('admin shell', () => {
       'bar-chart-3',
       'sliders-horizontal',
     ]);
+    // The label is changed to "Produtos" as requested
+    expect(getAdminNavigation().find((item) => item.id === 'catalog')?.label).toBe('Produtos');
   });
 
   it('aponta para o storefront Next.js (porta 3001) a partir do admin', () => {
@@ -45,5 +53,14 @@ describe('admin shell', () => {
     expect(getInitialAdminSection('/admin/cotacoes')).toBe('quotes');
     expect(getInitialAdminSection('/admin/orders')).toBe('orders');
     expect(getInitialAdminSection('/admin/catalogo/produtos')).toBe('catalog');
+    expect(getInitialAdminSection('/admin/catalogo/categorias')).toBe('catalog');
+    expect(getInitialAdminSection('/admin/catalogo/tags')).toBe('catalog');
+  });
+
+  it('identifies the active WordPress-style catalog subpage', () => {
+    expect(readCatalogSubPage('/admin/catalogo/produtos')).toBe('products');
+    expect(readCatalogSubPage('/admin/catalogo/categorias')).toBe('categories');
+    expect(readCatalogSubPage('/admin/catalogo/tags')).toBe('tags');
+    expect(readCatalogSubPage('/admin/catalogo/marcas')).toBe('tags');
   });
 });

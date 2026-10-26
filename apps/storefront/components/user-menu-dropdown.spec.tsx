@@ -99,6 +99,49 @@ describe('UserMenuDropdown', () => {
     expect(screen.queryByText('Sua conta')).toBeNull();
   });
 
+  it('points each button to its proper dedicated section', () => {
+    mockAuthState = {
+      user: {
+        id: 'usr-1',
+        email: 'victor@loja.com',
+        firstName: 'Victor',
+        fullName: 'Victor Williames',
+        isAdmin: true,
+      },
+      isAuthenticated: true,
+      logout: mockLogout,
+    };
+
+    render(<UserMenuDropdown />);
+
+    const triggerButton = screen.getByRole('button', { name: /menu da conta de victor/i });
+    fireEvent.click(triggerButton);
+
+    const contaLink = screen.getByText('Sua conta').closest('a');
+    expect(contaLink?.getAttribute('href')).toBe('/conta');
+
+    const pedidosLink = screen.getByText('Meus pedidos').closest('a');
+    expect(pedidosLink?.getAttribute('href')).toBe('/conta/pedidos');
+
+    const trocasLink = screen.getByText('Trocas e cancelamentos').closest('a');
+    expect(trocasLink?.getAttribute('href')).toBe('/conta/trocas');
+
+    const dadosLink = screen.getByText('Dados pessoais').closest('a');
+    expect(dadosLink?.getAttribute('href')).toBe('/conta/dados-pessoais');
+
+    const contatoLink = screen.getByText('Alterar e-mail ou telefone').closest('a');
+    expect(contatoLink?.getAttribute('href')).toBe('/conta/contato');
+
+    const lojistaLink = screen.getByText('Fale com lojista').closest('a');
+    expect(lojistaLink?.getAttribute('href')).toBe('/conta/atendimento');
+
+    const ouroBadge = screen.getByText('CLIENTE OURO').closest('a');
+    expect(ouroBadge?.getAttribute('href')).toBe('/conta/fidelidade');
+
+    const ptsBadge = screen.getByText('9.2100 PTS').closest('a');
+    expect(ptsBadge?.getAttribute('href')).toBe('/conta/fidelidade');
+  });
+
   it('closes when Escape key is pressed', () => {
     mockAuthState = {
       user: {
