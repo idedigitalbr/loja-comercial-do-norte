@@ -299,3 +299,8 @@ Lacunas, defeitos e riscos dessa base **não são repetidos aqui**: estão em `r
 - O responsável definiu `/login` do storefront como única tela de login, inclusive para administradores. O painel Vite não deve apresentar formulário de credenciais próprio.
 - O painel consulta a sessão no NestJS: sessão administrativa válida abre o dashboard; sessão ausente/expirada redireciona ao storefront; cliente autenticado recebe acesso restrito; falha de rede permite nova tentativa sem conceder acesso.
 - `VITE_STOREFRONT_URL` define a origem de login em hospedagem separada. Em desenvolvimento, admin 5174 usa storefront 3001. A autenticação/publicação da Issue #55 permanece independente.
+
+### Fluxo de entrega autorizado pelo responsável — 26/10/2026
+
+- O responsável determinou integração direta na `main` para os ajustes solicitados, sem abrir PRs nem aguardar revisão de PR. Esta instrução explícita substitui a exigência anterior de PR para essas entregas. Preservar commits isolados, validações, reservas e push sem force; não presumir autorização de migrations ou deploy manual.
+- A correção de login único da Issue #56 foi autorizada para integração direta. Validação real local: API NestJS e PostgreSQL existentes ligados, painel sem sessão redirecionou para `/login`, entrada pela conta ADMIN de desenvolvimento reconhecida pela API e dashboard aberto com a mesma sessão. Sem seed ou migration.

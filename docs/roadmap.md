@@ -320,3 +320,9 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
 - Validação local no checkout de desenvolvimento: 11 suítes / 31 testes do admin aprovados; TypeScript e ESLint dos dois arquivos alterados aprovados. Sem validação de login real: API local na porta 3000 indisponível. CI e aceite humano pendentes.
 - Alteração isolada em `fix/issue-56-login-unico`, com cópia dos dois arquivos aplicada ao servidor local para acompanhamento. Arquivos da Issue #55 preservados. Sem migration, deploy ou merge.
 - Rollback: reverter o commit desta Issue restaura o formulário anterior; nenhuma alteração de banco ou contrato de autenticação.
+
+### Entrega direta do login único autorizada — 26/10/2026
+
+- Responsável dispensou revisão do PR #59 e autorizou envio direto da correção à `main`. Código isolado em `3b3f852`; o commit deste registro atualiza o fluxo para os próximos ajustes solicitados.
+- Login validado no navegador com API NestJS e PostgreSQL locais: sem sessão redireciona para `/login`; login ADMIN de desenvolvimento compartilha sessão com o painel e abre dashboard. Nenhum seed/migration/deploy manual executado.
+- CI do PR falhou no seed com P2022 (`SiteConfiguration.homeComposition` ausente na base), antes de executar testes. A entrega não altera schema nem migrations; falha registrada separadamente das 31 verificações unitárias locais aprovadas e do teste real de login.
