@@ -57,7 +57,7 @@ export const CATEGORY_MENUS_DATA: Record<string, CategoryMenuConfig> = {
       title: 'Embalagens Térmicas para Restaurantes e Delivery',
       description: 'Caixas master com desconto progressivo para compras no atacado em Belém.',
       imageUrl: '/assets/categorias/cat-embalagens.jpg',
-      ctaLabel: 'Ver Embalagens',
+      ctaLabel: 'Explorar Embalagens',
       ctaHref: '/categoria/embalagens',
     },
   },
@@ -93,7 +93,7 @@ export const CATEGORY_MENUS_DATA: Record<string, CategoryMenuConfig> = {
       title: 'Copos e Pratos Descartáveis por Caixa Fechada',
       description: 'Abasteça lanchonetes, eventos e hospitais com entrega expressa.',
       imageUrl: '/assets/categorias/cat-descartaveis.jpg',
-      ctaLabel: 'Ver Descartáveis',
+      ctaLabel: 'Explorar Descartáveis',
       ctaHref: '/categoria/descartaveis',
     },
   },
@@ -129,7 +129,7 @@ export const CATEGORY_MENUS_DATA: Record<string, CategoryMenuConfig> = {
       title: 'Decoração e Descartáveis para Festas & Eventos',
       description: 'Variedade completa para aniversários, casamentos e confraternizações.',
       imageUrl: '/assets/categorias/cat-festas.jpg',
-      ctaLabel: 'Ver Festas & Eventos',
+      ctaLabel: 'Explorar Festas & Eventos',
       ctaHref: '/categoria/artigos-festa',
     },
   },
@@ -161,11 +161,11 @@ export const CATEGORY_MENUS_DATA: Record<string, CategoryMenuConfig> = {
       ],
     ],
     banner: {
-      tag: 'DOCES & CONFEITARIA',
+      tag: 'CONFEITARIA ARTESANAL',
       title: 'Embalagens Premium para Bolos e Doces Gourmet',
       description: 'Valorize seu produto final com tampas cristalinas e caixas estruturadas.',
       imageUrl: '/assets/categorias/cat-confeitaria.jpg',
-      ctaLabel: 'Ver Doces & Confeitaria',
+      ctaLabel: 'Explorar Confeitaria',
       ctaHref: '/categoria/confeitaria',
     },
   },
@@ -201,7 +201,7 @@ export const CATEGORY_MENUS_DATA: Record<string, CategoryMenuConfig> = {
       title: 'Galões de 5L e Linha Institucional com Alto Rendimento',
       description: 'Ideal para condomínios, clínicas, escolas e restaurantes.',
       imageUrl: '/assets/categorias/cat-limpeza.jpg',
-      ctaLabel: 'Ver Limpeza Profissional',
+      ctaLabel: 'Explorar Limpeza',
       ctaHref: '/categoria/limpeza',
     },
   },
@@ -292,42 +292,45 @@ export function CategoryMegaMenu({ config, onClose, align = 'left' }: CategoryMe
 
           </div>
 
-        {/* Coluna 3: Card Promocional com Banner da Categoria */}
-        <div className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-slate-100 bg-gradient-to-b from-slate-50 to-white p-4 shadow-sm">
-          <div>
-            <span className="inline-block rounded bg-blue-100 px-2 py-0.5 text-[9px] font-extrabold tracking-wider text-[#004CB1] uppercase">
-              {config.banner.tag}
-            </span>
-
-            <h4 className="mt-2 text-xs font-bold leading-tight text-slate-900">
-              {config.banner.title}
-            </h4>
-
-            <p className="mt-1 text-[11px] leading-relaxed text-slate-500 line-clamp-2">
-              {config.banner.description}
-            </p>
-          </div>
-
-          {/* Imagem do Banner da Categoria */}
-          <div className="relative my-3 h-28 w-full overflow-hidden rounded-lg bg-slate-100 border border-slate-200/80 shadow-inner">
+        {/* Coluna 3: Card Promocional com Foto no Topo Preenchendo toda a Largura */}
+        <div className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-sm transition hover:shadow-md">
+          {/* Foto no topo preenchendo toda a largura da seção com cantos arredondados no topo */}
+          <div className="relative h-32 w-full overflow-hidden bg-slate-100">
             <Image
               alt={config.banner.title}
-              className="object-cover transition-transform duration-300 hover:scale-105"
+              className="object-cover transition-transform duration-500 hover:scale-105"
               fill
-              sizes="240px"
+              sizes="260px"
               src={config.banner.imageUrl}
             />
           </div>
 
-          {/* Botão de Ação */}
-          <Link
-            className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#004CB1] px-3 py-1.5 text-center text-xs font-bold text-white shadow-sm transition hover:bg-[#00357B] active:scale-98"
-            href={config.banner.ctaHref}
-            onClick={onClose}
-          >
-            <span>{config.banner.ctaLabel}</span>
-            <ChevronRight className="size-3.5" />
-          </Link>
+          {/* Conteúdo com espaçamento interno */}
+          <div className="flex flex-1 flex-col justify-between p-3.5">
+            <div>
+              <span className="inline-block rounded bg-blue-100 px-2 py-0.5 text-[9.5px] font-extrabold tracking-wider text-[#004CB1] uppercase">
+                {config.banner.tag}
+              </span>
+
+              <h4 className="mt-2 text-xs font-bold leading-tight text-slate-900">
+                {config.banner.title}
+              </h4>
+
+              <p className="mt-1 text-[11px] leading-relaxed text-slate-500 line-clamp-2">
+                {config.banner.description}
+              </p>
+            </div>
+
+            {/* Botão de Ação no Rodapé */}
+            <Link
+              className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#004CB1] px-3 py-2 text-center text-xs font-bold text-white shadow-sm transition hover:bg-[#00357B] active:scale-98"
+              href={config.banner.ctaHref}
+              onClick={onClose}
+            >
+              <span>{config.banner.ctaLabel}</span>
+              <ChevronRight className="size-3.5" />
+            </Link>
+          </div>
         </div>
       </div>
     </div>
