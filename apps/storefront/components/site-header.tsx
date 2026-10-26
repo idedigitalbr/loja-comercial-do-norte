@@ -25,6 +25,7 @@ import { useQuoteCart } from './quote-cart-provider';
 import { useUserLocation } from './location-provider';
 import { useFavorites } from './favorites-provider';
 import { useAuth } from './auth-provider';
+import { UserMenuDropdown } from './user-menu-dropdown';
 import { MegaMenu } from './mega-menu';
 import { CategoryMegaMenu, CATEGORY_MENUS_DATA } from './category-mega-menu';
 import type { ApiBrand, ApiCategory } from '@/lib/types';
@@ -199,15 +200,15 @@ export function SiteHeader({
             </div>
 
             {/* AÇÕES À DIREITA: FAVORITOS, MINHA COTAÇÃO (DRAWER) E MINHA CONTA */}
-            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-              {/* Favoritos (Acessível em mobile e desktop) */}
+            <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
+              {/* Favoritos (Fidelidade ao ícone Magalu) */}
               <Link
                 aria-label={favCount > 0 ? `Meus Favoritos (${favCount} itens)` : 'Meus Favoritos'}
-                className="relative flex flex-col items-center justify-center text-white/90 transition hover:text-white"
+                className="relative flex flex-col items-center justify-center text-white transition hover:opacity-90"
                 href="/favoritos"
               >
                 <div className="relative">
-                  <Heart className="size-5 sm:size-6" />
+                  <Heart className="size-6 stroke-[1.8]" />
                   {favCount > 0 && (
                     <span className="absolute -top-1.5 -right-2 flex size-4.5 items-center justify-center rounded-full bg-[#E2091E] font-black text-[10px] text-white shadow-sm ring-2 ring-[#004CB1]">
                       {favCount > 99 ? '99+' : favCount}
@@ -217,18 +218,22 @@ export function SiteHeader({
                 <span className="mt-0.5 hidden text-[10px] font-medium lg:block">Favoritos</span>
               </Link>
 
-              {/* Botão de Cotação com Badge Contador */}
+              {/* Botão de Cotação (Sacola com badge verde/vermelho idêntico à referência) */}
               <button
                 aria-label={`Ver lista de cotação com ${count} itens`}
-                className="relative flex flex-col items-center justify-center text-white/90 transition hover:text-white cursor-pointer"
+                className="relative flex flex-col items-center justify-center text-white transition hover:opacity-90 cursor-pointer"
                 onClick={openDrawer}
                 type="button"
               >
                 <div className="relative">
-                  <ShoppingBag className="size-5 sm:size-6" />
-                  {count > 0 && (
+                  <ShoppingBag className="size-6 stroke-[1.8]" />
+                  {count > 0 ? (
                     <span className="absolute -top-1.5 -right-2 flex size-4.5 items-center justify-center rounded-full bg-[#E2091E] font-black text-[10px] text-white shadow-sm ring-2 ring-[#004CB1]">
                       {count > 99 ? '99+' : count}
+                    </span>
+                  ) : (
+                    <span className="absolute -top-1.5 -right-2 flex size-4 items-center justify-center rounded-full bg-emerald-500 font-bold text-[9px] text-white shadow-xs ring-1 ring-[#004CB1]">
+                      0
                     </span>
                   )}
                 </div>
@@ -237,29 +242,8 @@ export function SiteHeader({
                 </span>
               </button>
 
-              {/* Minha Conta / Login (Fidelidade ao padrão oficial de Boas vindas) */}
-              <Link
-                aria-label={isAuthenticated ? 'Minha Conta' : 'Entre ou Crie sua Conta'}
-                className="flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-2.5 py-1 text-xs text-white transition hover:bg-white/15"
-                href={isAuthenticated ? '/conta' : '/login'}
-              >
-                <div className="flex size-7 items-center justify-center rounded-full border border-white/40 bg-white/10 text-white shrink-0">
-                  <User className="size-4" />
-                </div>
-                <div className="hidden text-left xl:block leading-tight">
-                  {isAuthenticated && user ? (
-                    <>
-                      <span className="block text-[10px] text-white/80">Olá, {user.firstName} :)</span>
-                      <span className="font-bold text-xs whitespace-nowrap">Minha Conta</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="block text-[10px] text-white/80">Boas vindas :)</span>
-                      <span className="font-bold text-xs whitespace-nowrap">Entre ou Cadastre-se</span>
-                    </>
-                  )}
-                </div>
-              </Link>
+              {/* Minha Conta / Login (Dropdown interativo com primeiro nome e badges de status) */}
+              <UserMenuDropdown />
             </div>
           </div>
         </div>
