@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import {
   BadRequestException,
   INestApplication,
+  RequestMethod,
   ValidationError,
   ValidationPipe,
 } from '@nestjs/common';
@@ -24,7 +25,12 @@ export function configureApp(app: INestApplication): INestApplication {
   httpServer.use('/storage/uploads', serveStatic(join(resolveApiStorageRoot(), 'uploads')));
   httpServer.use('/storage/uploads', serveStatic(join(resolveApiProjectRoot(), 'public/storage/uploads')));
   app.setGlobalPrefix('api/v1', {
-    exclude: ['admin', 'admin/(.*)', 'webhooks/mercado-pago', 'internal/cron/process'],
+    exclude: [
+      { path: 'admin', method: RequestMethod.GET },
+      { path: 'admin/assets/(.*)', method: RequestMethod.GET },
+      { path: 'webhooks/mercado-pago', method: RequestMethod.ALL },
+      { path: 'internal/cron/process', method: RequestMethod.ALL },
+    ],
   });
 
   const authorizedOrigins = new Set<string>([
