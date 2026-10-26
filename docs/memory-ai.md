@@ -293,3 +293,7 @@ Lacunas, defeitos e riscos dessa base **não são repetidos aqui**: estão em `r
 - [ ] **Headers de Segurança e CORS:** Revisar a lista de origens autorizadas (`APP_ORIGIN`, `ADMIN_ORIGIN`) nos cabeçalhos de resposta da API para bloquear requisições de origens desconhecidas.
 
 **Regra final:** implementação ainda em andamento. Nenhuma documentação anterior, prompt ou decisão revogada revoga as escolhas de **Next.js + NestJS + PostgreSQL + Prisma + Tailwind + shadcn/ui** estabelecidas em 24/10/2026.
+
+### Decisão de testes de banco — 26/10/2026
+
+A execução E2E da API deve usar banco descartável criado pelo runner `scripts/dev/run-api-e2e.mjs`, em PostgreSQL no loopback, sem herdar DATABASE_URL de produção. Migrations e seed automatizados ficam restritos a esse banco de teste; remoção só do banco UUID criado pela própria execução. Concorrência usa fixtures próprias. Idempotência concorrente de cotação precisa devolver o mesmo registro confirmado a todas as chamadas, preservando o escopo da chave; não basta haver uma única linha no banco se as outras chamadas falham. Formalizar migration já existente fisicamente no Neon exige inspeção somente de leitura e aprovação separada para aplicação.
