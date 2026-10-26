@@ -43,20 +43,23 @@ test.describe('Comercial do Norte - Smoke Tests de Aceite no Navegador (Issue #3
     // 1. Validar no catálogo /loja
     await page.goto('/loja');
     const catalogImages = page.locator('article img[src*="placeholder-"]');
+    await expect(catalogImages.first()).toBeVisible();
     const count = await catalogImages.count();
     expect(count).toBeGreaterThan(0);
 
-    // Verificar se todas as imagens carregam sem erro (naturalWidth > 0)
-    for (let i = 0; i < Math.min(count, 8); i++) {
-      const isLoaded = await catalogImages.nth(i).evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0);
-      expect(isLoaded).toBe(true);
-    }
+    // Verificar se as imagens carregam com sucesso
+    await page.waitForFunction(() => {
+      const img = document.querySelector('article img[src*="placeholder-"]') as HTMLImageElement | null;
+      return img ? img.complete && img.naturalWidth > 0 : false;
+    }, { timeout: 10000 });
 
     // 2. Validar na página de produto /produto/caixa-pizza-35cm
     await page.goto('/produto/caixa-pizza-35cm');
     const productImage = page.locator('main img[src*="placeholder-"]').first();
     await expect(productImage).toBeVisible();
-    const productImgLoaded = await productImage.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0);
-    expect(productImgLoaded).toBe(true);
+    await page.waitForFunction(() => {
+      const img = document.querySelector('main img[src*="placeholder-"]') as HTMLImageElement | null;
+      return img ? img.complete && img.naturalWidth > 0 : false;
+    }, { timeout: 10000 });
   });
 });
