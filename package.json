@@ -15,6 +15,8 @@
     "agents:schedule": "node scripts/agents/schedule-project.mjs",
     "test": "node scripts/check-workspace.mjs && turbo test",
     "test:e2e": "playwright test",
+    "test:e2e:isolated": "node e2e/run-isolated.mjs",
+    "test:e2e:safety": "node --test e2e/safety.test.mjs",
     "db:format": "prisma format",
     "db:validate": "prisma validate",
     "db:generate": "prisma generate",

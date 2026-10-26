@@ -85,5 +85,14 @@ jobs:
       - name: Testes E2E da API (jornada de cotação)
         run: pnpm --filter api test:e2e
 
+      - name: Guardas de destino do Playwright
+        run: pnpm test:e2e:safety
+
+      - name: Chromium para testes isolados
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Navegador com fixtures locais e sem banco externo
+        run: pnpm test:e2e:isolated
+
       - name: Build
         run: pnpm build
