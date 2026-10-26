@@ -324,3 +324,11 @@ A execução E2E da API deve usar banco descartável criado pelo runner `scripts
 ### Decisão confirmada em 26/10/2026 — publicação administrativa da vitrine
 
 Issue #55: o NestJS é a autoridade de publicação, validação, RBAC e persistência da composição. Composição ativa e checkpoint são gravados na mesma transação Prisma, com `ActorType.USER` e identidade da sessão; restauração cria novo checkpoint com o editor atual. A vitrine autentica pelo proxy same-origin `/api/v1`, com cookie HttpOnly emitido pelo Nest, evitando dependência de cookies de terceiros. Produção/Vercel exige `settings.manage`; e-mail, cookie de UI, localStorage e segredo de cron não concedem essa permissão. Falhas de persistência não podem virar sucesso ou fallback em disco em produção. O modo offline local permanece disponível somente fora de produção/Vercel, com composição e histórico no mesmo arquivo atômico. Esta decisão substitui as descrições históricas de SQL direto no Next, fallback de produção e autorização por segredo compartilhado. Aplicação em produção segue dependente de revisão humana, migration compatível e publicação coordenada da API e vitrine.
+
+
+### Consolidação definitiva na main e extinção de branches de reserva — 26/10/2026
+
+- **Decisão do responsável do projeto:** Revogada em definitivo a exigência de branches por issue, Pull Requests compulsórios e branches de reserva `claims/issue-*`.
+- **Fluxo simplificado:** A branch `main` é a única branch ativa de desenvolvimento. Agentes operam diretamente na `main` com commits frequentes e push normal após validações automatizadas.
+- **Rastreabilidade:** O controle é mantido nas GitHub Issues, comentários estruturados e GitHub Project 3, sem acúmulo de branches no Git.
+- **Integração consolidada:** PRs #57 (vitrine transacional no NestJS), #51 (Playwright e mascote NORT), #52 (backup/restore PostgreSQL com bridge Docker) integrados na `main`.

@@ -386,3 +386,13 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
 - Limites deliberados: somente schema public e tabelas sem sequências/triggers próprias/ciclos entre tabelas/FKs entre schemas. Nesses casos usar pg_dump/pg_restore com procedimento separado e aprovado; esses binários não estão instalados neste ambiente. A implementação não é homologação de disaster recovery de produção.
 - Testes locais com bancos descartáveis na instância da missão: round-trip exato, self-FK, coluna gerada, snapshot durante escrita concorrente, checksum adulterado, schema incompatível, tabela vazia, dry-run, FK quebrada com rollback completo, proteção de destino e recusa de sequências/triggers. Nenhum acesso ao Neon. CI inclui `pnpm test:backup` com PostgreSQL descartável.
 - Rollback: revert do commit, sem executar o restaurador antigo. PR #52 continua aguardando revisão humana e depende da migration compatível no PR #53 para o CI completo.
+
+
+### Consolidação e Limpeza Definitiva do Repositório — 26/10/2026
+
+- **Meta executada:** Resolução de todos os PRs pendentes, integração do código aprovado diretamente na `main`, eliminação da burocracia das branches `claims/issue-*` e remoção de branches remotas e locais obsoletas.
+- **PR #57 Integrado:** Endpoints NestJS de composição transacional (`/settings/storefront/composition`), schemas Zod, RBAC `settings.manage` e persistência via Prisma integrados na `main`.
+- **PR #51 Integrado:** Expansão da suíte Playwright, separação estrita de fluxos isolados (mock em memória) vs públicos (leitura), guardas de segurança e padronização dos assets do mascote para `Mascote-3D-NORT`.
+- **PR #52 Integrado:** Utilitários de backup/restore PostgreSQL v2 com ordenação topológica, SHA-256 e suporte validado ao service container Docker do GitHub Actions (`172.16/12`).
+- **PR #54 Concluído:** Informações de auditoria e roadmap consolidadas no documento canônico.
+- **Transição de Protocolo:** Extintas todas as branches `claims/issue-*`. O estado permanente do projeto passa a ser exclusivamente a branch `main`.
