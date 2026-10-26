@@ -25,10 +25,12 @@ describe('Fluxo de cotação (E2E)', () => {
     const email = process.env.DEFAULT_ADMIN_EMAIL ?? 'admin@admin.com';
     const password = process.env.DEFAULT_ADMIN_PASSWORD ?? '';
     const login = await request(server).post('/api/v1/auth/login').send({ email, password });
-    if (login.status === 200) {
+    expect(login.status).toBe(201);
+    {
       // Mantém apenas pares `nome=valor` (descarta atributos como HttpOnly/Path).
       const cookies = (login.headers['set-cookie'] as unknown as string[] | undefined) ?? [];
       adminCookie = cookies.map((cookie) => cookie.split(';')[0]).join('; ');
+      expect(adminCookie).toContain('je_access=');
     }
   }, 30_000);
 
@@ -98,13 +100,6 @@ describe('Fluxo de cotação (E2E)', () => {
   });
 
   it('permite que o admin veja e avance a cotação (quando há sessão)', async () => {
-    if (!adminCookie) {
-      // Sem credenciais de admin no ambiente, a proteção já é verificada abaixo.
-      const unauthorized = await request(server).get('/api/v1/admin/quotes').expect(401);
-      expect(unauthorized.body.code).toBeTruthy();
-      return;
-    }
-
     const list = await request(server).get('/api/v1/admin/quotes?status=REQUESTED&pageSize=5').set('Cookie', adminCookie).expect(200);
     expect(Array.isArray(list.body.items)).toBe(true);
     expect(list.body.counts).toBeTruthy();

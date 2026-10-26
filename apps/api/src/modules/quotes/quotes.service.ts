@@ -93,6 +93,9 @@ export class QuotesService {
 
     const quote = await this.prisma.$transaction(async (transaction) => {
       if (input.idempotencyKey) {
+        // Serialize concurrent retries before reading the key. The lock is released
+        // by PostgreSQL on commit/rollback, so every retry sees the confirmed quote.
+        await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${input.idempotencyKey}, 0))`;
         const existing = await transaction.idempotencyKey.findUnique({ where: { key: input.idempotencyKey } });
         assertIdempotencyScope(existing, scope);
         if (existing?.responseJson && typeof existing.responseJson === 'object' && 'quotePublicId' in existing.responseJson) {
