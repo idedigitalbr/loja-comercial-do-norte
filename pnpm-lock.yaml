@@ -228,6 +228,9 @@ importers:
       '@commerce/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@neondatabase/serverless':
+        specifier: ^1.2.0
+        version: 1.2.0
       lucide-react:
         specifier: ^0.468.0
         version: 0.468.0(react@19.3.1)
@@ -1180,6 +1183,10 @@ packages:
   '@neon/sdk@7.5.0':
     resolution: {integrity: sha512-0zc1SynODndBsO5I+IVXl+6GiJe5LTSomz5WU+161C7EJkkoWBpNyosR4BnYcxfL5kwfutZ44ba4fnxTiSvJEQ==}
     engines: {node: '>=20.19.0'}
+
+  '@neondatabase/serverless@1.2.0':
+    resolution: {integrity: sha512-tnaqgixUengZQNd9ZrS3ytQfamJzLKY8QxgqWQTNHHtB+KrFQWk77JTbbpg4RD+J3qE4eO2lVytvGDX5Kj6FdQ==}
+    engines: {node: '>=19.0.0'}
 
   '@nestjs/common@11.2.3':
     resolution: {integrity: sha512-obdauJXHfthhepbV+LpGe88OeBlR/Kw9lwjLo0Utzc//agoLXYb9DUGhPQWtm81IpBWMv+19eiwcve9MsBZwXA==}
@@ -4126,6 +4133,8 @@ snapshots:
 
   '@neon/sdk@7.5.0': {}
 
+  '@neondatabase/serverless@1.2.0': {}
+
   '@nestjs/common@11.2.3(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)':
     dependencies:
       file-type: 21.3.4
@@ -4707,6 +4716,14 @@ snapshots:
       '@vitest/utils': 3.2.7
       chai: 5.3.3
       tinyrainbow: 2.0.0
+
+  '@vitest/mocker@3.2.7(vite@7.3.6(@types/node@24.13.4)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13))':
+    dependencies:
+      '@vitest/spy': 3.2.7
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 7.3.6(@types/node@24.13.4)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)
 
   '@vitest/mocker@3.2.7(vite@7.3.6(@types/node@24.3.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13))':
     dependencies:
@@ -6441,7 +6458,7 @@ snapshots:
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.7
-      '@vitest/mocker': 3.2.7(vite@7.3.6(@types/node@24.3.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13))
+      '@vitest/mocker': 3.2.7(vite@7.3.6(@types/node@24.13.4)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13))
       '@vitest/pretty-format': 3.2.7
       '@vitest/runner': 3.2.7
       '@vitest/snapshot': 3.2.7

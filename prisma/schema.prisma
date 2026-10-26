@@ -959,6 +959,7 @@ model SiteConfiguration {
   instagramUrl String?  @db.VarChar(500)
   title        String?  @db.VarChar(180)
   description  String?  @db.Text
+  homeComposition Json?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

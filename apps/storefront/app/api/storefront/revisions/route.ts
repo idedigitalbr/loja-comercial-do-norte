@@ -1,42 +1,23 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 import {
   getStorefrontRevisions,
   restoreStorefrontRevision,
 } from '@/lib/storefront/composition-storage';
+import { verifyAdminAuthorization } from '@/lib/auth/admin-guard';
 
 export const dynamic = 'force-dynamic';
 
-async function checkIsAdmin(request: Request): Promise<boolean> {
-  const cookieStore = await cookies();
-  const userCookie = cookieStore.get('cn_user')?.value;
-
-  if (userCookie) {
-    try {
-      const user = JSON.parse(decodeURIComponent(userCookie));
-      if (user?.isAdmin || user?.roles?.includes('ADMIN') || user?.email === 'admin@admin.com') {
-        return true;
-      }
-    } catch {
-      //
-    }
-  }
-
-  const adminHeader = request.headers.get('x-admin-role');
-  if (adminHeader === 'ADMIN' || adminHeader === '1') {
-    return true;
-  }
-
-  return false;
-}
-
 export async function GET(request: Request) {
   try {
-    const isAdmin = await checkIsAdmin(request);
-    if (!isAdmin) {
+    const authResult = await verifyAdminAuthorization(request);
+    if (!authResult.isAdmin) {
       return NextResponse.json(
-        { success: false, error: 'Acesso negado ao histórico de revisões.' },
+        {
+          success: false,
+          error:
+            authResult.reason || 'Acesso negado ao histórico de revisões da vitrine.',
+        },
         { status: 403 }
       );
     }
@@ -56,10 +37,14 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const isAdmin = await checkIsAdmin(request);
-    if (!isAdmin) {
+    const authResult = await verifyAdminAuthorization(request);
+    if (!authResult.isAdmin) {
       return NextResponse.json(
-        { success: false, error: 'Apenas administradores podem restaurar revisões.' },
+        {
+          success: false,
+          error:
+            authResult.reason || 'Apenas administradores podem restaurar revisões.',
+        },
         { status: 403 }
       );
     }
@@ -84,7 +69,7 @@ export async function POST(request: Request) {
     try {
       revalidatePath('/');
     } catch {
-      //
+      // Ignora erro em ambiente de teste
     }
 
     return NextResponse.json({

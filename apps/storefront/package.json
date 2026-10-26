@@ -13,6 +13,7 @@
     "@commerce/api-client": "workspace:*",
     "@commerce/contracts": "workspace:*",
     "@commerce/ui": "workspace:*",
+    "@neondatabase/serverless": "^1.2.0",
     "lucide-react": "^0.468.0",
     "next": "^16.4.3",
     "react": "^19.3.1",

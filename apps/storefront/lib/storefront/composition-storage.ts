@@ -1,11 +1,26 @@
 import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
 import path from 'node:path';
+import { neon } from '@neondatabase/serverless';
 import { defaultHomeComposition } from './home-configuration';
 import type { PageComposition, StorefrontRevision } from './widget-types';
 
 let memoryCache: PageComposition | null = null;
 let revisionsMemoryCache: StorefrontRevision[] | null = null;
+
+function getDatabaseUrl(): string | null {
+  const url =
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL ||
+    process.env.DATABASE_URL_UNPOOLED ||
+    null;
+
+  // Se for URL local que requer porta direta inacessível em serverless, ou nula
+  if (!url || url.includes('127.0.0.1:55432') || url.includes('localhost:55432')) {
+    return null;
+  }
+  return url;
+}
 
 export function getCompositionFilePath(): string {
   const localPath = path.resolve(process.cwd(), 'data', 'home-composition.json');
@@ -38,6 +53,28 @@ export async function getStorefrontComposition(): Promise<PageComposition> {
     return memoryCache;
   }
 
+  // 1. Tenta recuperar do PostgreSQL Neon (Persistência em Produção / Vercel)
+  const dbUrl = getDatabaseUrl();
+  if (dbUrl) {
+    try {
+      const sql = neon(dbUrl);
+      const rows = await sql`SELECT "homeComposition" FROM "SiteConfiguration" WHERE id = 'default' LIMIT 1`;
+      const storedComp = rows[0]?.homeComposition as PageComposition | undefined;
+      if (
+        storedComp &&
+        storedComp.page === 'home' &&
+        Array.isArray(storedComp.widgets) &&
+        storedComp.widgets.length > 0
+      ) {
+        memoryCache = storedComp;
+        return storedComp;
+      }
+    } catch (err) {
+      console.warn('[storefront-composition] Neon indisponível, usando fallback local:', err);
+    }
+  }
+
+  // 2. Fallback de arquivo local (Desenvolvimento, CI e Mocks)
   try {
     const filePath = getCompositionFilePath();
     if (fsSync.existsSync(filePath)) {
@@ -54,7 +91,7 @@ export async function getStorefrontComposition(): Promise<PageComposition> {
       }
     }
   } catch (err) {
-    console.warn('[storefront-composition] Falha ao ler arquivo de composição:', err);
+    console.warn('[storefront-composition] Falha ao ler arquivo de composição local:', err);
   }
 
   return defaultHomeComposition;
@@ -65,6 +102,35 @@ export async function getStorefrontRevisions(): Promise<StorefrontRevision[]> {
     return revisionsMemoryCache;
   }
 
+  // 1. Tenta recuperar histórico de revisões do PostgreSQL Neon (AuditLog)
+  const dbUrl = getDatabaseUrl();
+  if (dbUrl) {
+    try {
+      const sql = neon(dbUrl);
+      const rows = await sql`
+        SELECT "id", "createdAt", "afterJson" 
+        FROM "AuditLog" 
+        WHERE "entityType" = 'StorefrontComposition' AND "entityId" = 'home' 
+        ORDER BY "createdAt" DESC 
+        LIMIT 50
+      `;
+
+      if (rows && rows.length > 0) {
+        const neonRevisions = rows
+          .map((r: any) => r.afterJson as StorefrontRevision)
+          .filter((rev) => rev && rev.composition);
+
+        if (neonRevisions.length > 0) {
+          revisionsMemoryCache = neonRevisions;
+          return neonRevisions;
+        }
+      }
+    } catch (err) {
+      console.warn('[storefront-composition] AuditLog Neon indisponível, usando fallback local:', err);
+    }
+  }
+
+  // 2. Fallback de histórico local em arquivo JSON
   try {
     const filePath = getRevisionsFilePath();
     if (fsSync.existsSync(filePath)) {
@@ -76,7 +142,7 @@ export async function getStorefrontRevisions(): Promise<StorefrontRevision[]> {
       }
     }
   } catch (err) {
-    console.warn('[storefront-composition] Falha ao ler histórico de revisões:', err);
+    console.warn('[storefront-composition] Falha ao ler histórico de revisões local:', err);
   }
 
   // Baseline oficial inicial se ainda não existirem revisões
@@ -98,18 +164,6 @@ export async function saveStorefrontComposition(
   composition: PageComposition,
   author?: { name?: string; email?: string; note?: string }
 ): Promise<StorefrontRevision> {
-  // 1. Grava a composição atual
-  const filePath = getCompositionFilePath();
-  const dir = path.dirname(filePath);
-  if (!fsSync.existsSync(dir)) {
-    await fs.mkdir(dir, { recursive: true });
-  }
-
-  await fs.writeFile(filePath, JSON.stringify(composition, null, 2), 'utf-8');
-  memoryCache = composition;
-
-  // 2. Grava o checkpoint / revisão histórica
-  const currentRevisions = await getStorefrontRevisions();
   const newRevision: StorefrontRevision = {
     id: `rev-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
     createdAt: new Date().toISOString(),
@@ -120,17 +174,55 @@ export async function saveStorefrontComposition(
     composition,
   };
 
-  // Mantém as últimas 50 revisões em ordem cronológica reversa
-  const updatedRevisions = [newRevision, ...currentRevisions].slice(0, 50);
-  const revisionsPath = getRevisionsFilePath();
-  const revDir = path.dirname(revisionsPath);
-  if (!fsSync.existsSync(revDir)) {
-    await fs.mkdir(revDir, { recursive: true });
+  // 1. Persistência no PostgreSQL Neon (se conectado)
+  const dbUrl = getDatabaseUrl();
+  let neonSuccess = false;
+  if (dbUrl) {
+    try {
+      const sql = neon(dbUrl);
+      const jsonStr = JSON.stringify(composition);
+      const revStr = JSON.stringify(newRevision);
+
+      // Atualiza composição ativa na SiteConfiguration
+      await sql`
+        UPDATE "SiteConfiguration" 
+        SET "homeComposition" = ${jsonStr}::jsonb, "updatedAt" = NOW() 
+        WHERE id = 'default'
+      `;
+
+      // Grava no AuditLog imutável
+      await sql`
+        INSERT INTO "AuditLog" 
+          ("id", "actorType", "actorId", "action", "entityType", "entityId", "afterJson", "createdAt")
+        VALUES 
+          (${newRevision.id}, 'ADMIN', ${newRevision.authorEmail}, 'UPDATE', 'StorefrontComposition', 'home', ${revStr}::jsonb, NOW())
+      `;
+
+      neonSuccess = true;
+    } catch (err) {
+      console.warn('[storefront-composition] Erro ao gravar no Neon PostgreSQL, usando fallback em disco:', err);
+    }
   }
 
-  await fs.writeFile(revisionsPath, JSON.stringify(updatedRevisions, null, 2), 'utf-8');
-  revisionsMemoryCache = updatedRevisions;
+  // 2. Persistência em arquivo local (quando sistema de arquivos permitir escrita)
+  try {
+    const filePath = getCompositionFilePath();
+    const dir = path.dirname(filePath);
+    if (!fsSync.existsSync(dir)) {
+      await fs.mkdir(dir, { recursive: true });
+    }
+    await fs.writeFile(filePath, JSON.stringify(composition, null, 2), 'utf-8');
 
+    const currentRevisions = await getStorefrontRevisions();
+    const updatedRevisions = [newRevision, ...currentRevisions.filter((r) => r.id !== newRevision.id)].slice(0, 50);
+    const revisionsPath = getRevisionsFilePath();
+    await fs.writeFile(revisionsPath, JSON.stringify(updatedRevisions, null, 2), 'utf-8');
+    revisionsMemoryCache = updatedRevisions;
+  } catch {
+    // Em ambientes serverless read-only da Vercel sem permissão de disco, a gravação em arquivo é silenciosa
+  }
+
+  memoryCache = composition;
   return newRevision;
 }
 

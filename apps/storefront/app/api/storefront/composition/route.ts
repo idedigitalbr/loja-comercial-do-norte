@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 import {
   getStorefrontComposition,
   saveStorefrontComposition,
 } from '@/lib/storefront/composition-storage';
+import { verifyAdminAuthorization } from '@/lib/auth/admin-guard';
 import type { PageComposition } from '@/lib/storefront/widget-types';
 
 export const dynamic = 'force-dynamic';
@@ -26,41 +26,16 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    // 1. Verificação de permissão Admin (somente administradores autenticados podem publicar)
-    const cookieStore = await cookies();
-    const userCookie = cookieStore.get('cn_user')?.value;
-    let isAdmin = false;
-    let authorName = 'Administrador';
-    let authorEmail = 'admin@admin.com';
+    // 1. Verificação de permissão Admin segura por ambiente
+    const authResult = await verifyAdminAuthorization(request);
 
-    if (userCookie) {
-      try {
-        const user = JSON.parse(decodeURIComponent(userCookie));
-        if (user?.isAdmin || user?.roles?.includes('ADMIN') || user?.email === 'admin@admin.com') {
-          isAdmin = true;
-          authorName = user.fullName || user.firstName || user.name || 'Administrador';
-          authorEmail = user.email || 'admin@admin.com';
-        }
-      } catch {
-        // Ignora erro de JSON
-      }
-    }
-
-    // Suporte a header para testes e chamadas de automação autenticadas
-    const adminHeader = request.headers.get('x-admin-role');
-    if (adminHeader === 'ADMIN' || adminHeader === '1') {
-      isAdmin = true;
-      const headerName = request.headers.get('x-admin-name');
-      const headerEmail = request.headers.get('x-admin-email');
-      if (headerName) authorName = headerName;
-      if (headerEmail) authorEmail = headerEmail;
-    }
-
-    if (!isAdmin) {
+    if (!authResult.isAdmin) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Acesso negado. Apenas administradores autenticados podem salvar a vitrine oficial.',
+          error:
+            authResult.reason ||
+            'Acesso negado. Apenas administradores autenticados podem salvar a vitrine oficial.',
         },
         { status: 403 }
       );
@@ -75,10 +50,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Persistência real em arquivo/servidor com geração de Revisão Histórica (Checkpoint)
+    // 3. Persistência real (Neon PostgreSQL em produção + fallback em disco local) com geração de Revisão
     const revision = await saveStorefrontComposition(body as PageComposition, {
-      name: authorName,
-      email: authorEmail,
+      name: authResult.authorName,
+      email: authResult.authorEmail,
       note: `Atualização de vitrine (${body.widgets.length} seções ativas)`,
     });
 
