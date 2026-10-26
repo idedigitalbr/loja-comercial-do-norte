@@ -27,16 +27,22 @@ export function configureApp(app: INestApplication): INestApplication {
     exclude: ['admin', 'admin/(.*)', 'webhooks/mercado-pago', 'internal/cron/process'],
   });
 
-  const rawOrigins = [process.env.APP_ORIGIN, process.env.ADMIN_ORIGIN]
-    .flatMap((orig) => (orig ? orig.split(',').map((o) => o.trim()) : []))
-    .filter(Boolean);
+  const authorizedOrigins = new Set<string>([
+    'https://loja-comercialdonorte.vercel.app',
+    'https://lojacomercialdonorte.vercel.app',
+    'https://admin-comercialdonorte.vercel.app',
+    ...[process.env.APP_ORIGIN, process.env.ADMIN_ORIGIN]
+      .flatMap((orig) => (orig ? orig.split(',').map((o) => o.trim()) : []))
+      .filter(Boolean),
+  ]);
 
   app.enableCors({
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       if (!origin) return callback(null, true);
-      if (rawOrigins.includes(origin)) return callback(null, true);
-      if (origin.endsWith('.vercel.app')) return callback(null, true);
-      if (origin.includes('localhost') || origin.includes('127.0.0.1')) return callback(null, true);
+      if (authorizedOrigins.has(origin)) return callback(null, true);
+      if (process.env.NODE_ENV !== 'production' && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+        return callback(null, true);
+      }
       return callback(null, false);
     },
     credentials: true,
