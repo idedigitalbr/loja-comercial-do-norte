@@ -22,6 +22,7 @@ import {
   X,
 } from 'lucide-react';
 import { useQuoteCart } from './quote-cart-provider';
+import { MegaMenu } from './mega-menu';
 import type { ApiBrand, ApiCategory } from '@/lib/types';
 
 type SiteHeaderProps = {
@@ -246,29 +247,9 @@ export function SiteHeader({
                   <ChevronDown className="size-3 text-white/70 transition-transform group-hover:rotate-180" />
                 </button>
 
-                {/* Dropdown de Categorias Principais */}
-                <div className="invisible absolute top-full left-0 z-50 w-64 rounded-b-xl border border-slate-200 bg-white py-2 text-slate-800 shadow-2xl opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
-                  <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                    Departamentos
-                  </div>
-                  {rootCategories.slice(0, 10).map((cat) => (
-                    <Link
-                      className="flex items-center justify-between px-3 py-2 text-xs font-medium hover:bg-slate-50 hover:text-[#004CB1] transition"
-                      href={`/categoria/${cat.slug}`}
-                      key={cat.id}
-                    >
-                      <span>{cat.name}</span>
-                      <ChevronRight className="size-3 text-slate-400" />
-                    </Link>
-                  ))}
-                  <div className="mt-1 border-t border-slate-100 pt-1">
-                    <Link
-                      className="block px-3 py-2 text-center text-xs font-bold text-[#004CB1] hover:underline"
-                      href="/loja"
-                    >
-                      Ver Todas as Categorias →
-                    </Link>
-                  </div>
+                {/* Mega Menu Flutuante Estilo shadcn / 21st.dev */}
+                <div className="invisible absolute top-full left-0 z-50 pt-2 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
+                  <MegaMenu categories={categories} whatsappPhone={whatsapp ?? undefined} />
                 </div>
               </div>
 
