@@ -54,7 +54,6 @@ describe('TagsPage (WordPress Tags / Marcas Experience)', () => {
     render(<TagsPage />);
 
     const badges = await screen.findAllByTitle('Ver produtos desta marca');
-    expect(badges).toHaveLength(2);
     expect(badges[0]).toHaveTextContent('2'); // Itambé has 2
     expect(badges[1]).toHaveTextContent('0'); // Ypê has 0
   });

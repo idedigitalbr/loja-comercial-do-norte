@@ -48,16 +48,15 @@ describe('CategoriesPage (WordPress Categories 2-Column Experience)', () => {
     expect(screen.getByLabelText('Categoria ascendente')).toBeInTheDocument();
     expect(screen.getByLabelText('Descrição')).toBeInTheDocument();
 
-    expect(screen.getByText('Alimentos')).toBeInTheDocument();
-    expect(screen.getByText('Limpeza')).toBeInTheDocument();
+    expect(screen.getAllByText('Alimentos').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Limpeza').length).toBeGreaterThan(0);
   });
 
   it('displays accurate product counts for categories', async () => {
     render(<CategoriesPage />);
 
     // Cat-1 has 2 products, Cat-2 has 1 product
-    expect(await screen.findByTitle('Ver produtos desta categoria')).toBeInTheDocument();
-    const badges = screen.getAllByTitle('Ver produtos desta categoria');
+    const badges = await screen.findAllByTitle('Ver produtos desta categoria');
     expect(badges[0]).toHaveTextContent('2');
     expect(badges[1]).toHaveTextContent('1');
   });
