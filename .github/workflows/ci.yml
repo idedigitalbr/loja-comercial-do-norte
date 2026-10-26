@@ -82,6 +82,11 @@ jobs:
       - name: Testes
         run: pnpm test
 
+      - name: Backup e restore em bancos descartaveis
+        env:
+          BACKUP_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+        run: pnpm test:backup
+
       - name: Testes E2E da API (jornada de cotação)
         run: pnpm --filter api test:e2e
 

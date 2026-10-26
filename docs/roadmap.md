@@ -313,3 +313,12 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
   - `pnpm --filter api exec vitest run src/modules/settings src/modules/notifications src/main.spec.ts`: **9 suítes / 25 testes unitários aprovados**.
   - `pnpm exec playwright test --list`: **3 smoke tests de navegador registrados e válidos**.
   - `pnpm agents:verify`: **47 itens, 42/42 dependências confirmadas, 0 erros no Project 3**.
+
+### Revisão de backup/recovery — 26/10/2026 — Issue #12 / PR #52
+
+- Corrigido o restaurador que executava TRUNCATE CASCADE e desativava constraints sem transação abrangente. Backup v2 usa snapshot REPEATABLE READ READ ONLY, metadados de schema/migrations, JSONB textual e SHA-256 de arquivo e tabelas. Valores bigint/numeric/binários/arrays/timestamps não passam por conversão numérica JavaScript.
+- Restore compara schema, migrations, contagens e conteúdo, mantém constraints ativas e executa limpeza/carga/verificação dentro de uma única transação SERIALIZABLE com locks explícitos. Inclui tabelas cujo backup está vazio. Qualquer falha reverte tudo. Imports não carregam credenciais nem conectam ao banco.
+- Uso explícito: `BACKUP_DATABASE_URL` para backup; `RESTORE_DATABASE_URL`, `--from DIRETORIO` e `--confirm-target HOST:PORT/BANCO` para restore. Restore é limitado a loopback e banco com segmento `test` ou `restore` no nome; também verifica endereço real do servidor e nome real do banco. Não existe override de produção. `--dry-run` verifica checksums e schema sem escrita. Backups v1 inseguros são recusados.
+- Limites deliberados: somente schema public e tabelas sem sequências/triggers próprias/ciclos entre tabelas/FKs entre schemas. Nesses casos usar pg_dump/pg_restore com procedimento separado e aprovado; esses binários não estão instalados neste ambiente. A implementação não é homologação de disaster recovery de produção.
+- Testes locais com bancos descartáveis na instância da missão: round-trip exato, self-FK, coluna gerada, snapshot durante escrita concorrente, checksum adulterado, schema incompatível, tabela vazia, dry-run, FK quebrada com rollback completo, proteção de destino e recusa de sequências/triggers. Nenhum acesso ao Neon. CI inclui `pnpm test:backup` com PostgreSQL descartável.
+- Rollback: revert do commit, sem executar o restaurador antigo. PR #52 continua aguardando revisão humana e depende da migration compatível no PR #53 para o CI completo.
