@@ -5,6 +5,8 @@
 
 ## 1. Estado confirmado nesta revisão
 
+- **26/10/2026 — Issue #61:** padronização dos títulos da vitrine (`h1` a `h6`) em Bold (700), por token compartilhado e regra global fora das layers do Tailwind. Inclui home, catálogo, conta, cotação e editor; mantém tamanhos, cores e demais textos. Branch `fix/issue-61-titulos-bold`. CSS compilado com Tailwind/PostCSS e validado em Chromium via Playwright: seis níveis em 700 nas larguras 375/1280 px, mesmo com classes legadas e responsivas; parágrafos em 400 e destaques fora de títulos em 800 preservados. `git diff --check` aprovado. Sem migration ou deploy. Rollback: reverter somente o commit desta Issue.
+
 - **Atualização de 25/10/2026:** main remota em `984079e`, com integração Next.js/PostgreSQL/coordenação no commit `018648f`. Checkout local atualizado de `c6977e0` para `984079e` por fast-forward, sem descarte de trabalho. As referências abaixo à main `564c9e3` e PR #37 pendente descrevem a revisão anterior, não o estado atual. A refatoração visual solicitada hoje ainda não começou.
 - Repositório oficial **privado**: [idedigitalbr/loja-comercial-do-norte](https://github.com/idedigitalbr/loja-comercial-do-norte). Branch de desenvolvimento `feat/stack-next-postgres` em `88c413c`; coordenação em `chore/multiagent-coordination`. Main em `564c9e3`; nenhuma integração/deploy autorizada nesta missão.
 - Código conferido: Next.js App Router na loja, NestJS como API única, admin React/Vite, Prisma/PostgreSQL com quatro migrations versionadas, cotação implementada e flags isolando módulos futuros. Padronização visual completa, Playwright e prontidão de produção ainda pendem.
