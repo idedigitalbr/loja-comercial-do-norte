@@ -1,6 +1,7 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -19,21 +20,23 @@ import { useQuoteCart } from '@/components/quote-cart-provider';
 import { AuthFlowCard } from '@/components/auth-flow-card';
 
 function AccountDashboard() {
+  const router = useRouter();
   const { user, isAuthenticated, logout, ready } = useAuth();
   const { count: favCount } = useFavorites();
   const { count: cartCount } = useQuoteCart();
 
-  if (!ready) {
+  useEffect(() => {
+    if (ready && !isAuthenticated) {
+      router.push('/login?redirect=/conta');
+    }
+  }, [ready, isAuthenticated, router]);
+
+  if (!ready || !isAuthenticated || !user) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center py-16 text-slate-400 text-sm">
         Carregando seus dados…
       </div>
     );
-  }
-
-  // Se NÃO estiver logado, exibe a página unificada de "Entre ou Crie sua Conta"
-  if (!isAuthenticated || !user) {
-    return <AuthFlowCard />;
   }
 
   return (

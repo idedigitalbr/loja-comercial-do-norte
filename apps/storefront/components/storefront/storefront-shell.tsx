@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import { ElementorEditorProvider, useElementor } from './editor/elementor-editor-context';
 import { ElementorTopBar } from './editor/elementor-top-bar';
 import { ElementorCanvas } from './editor/elementor-canvas';
@@ -66,6 +67,20 @@ export function StorefrontShell({
   children: React.ReactNode;
   footer: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isAuthPage = pathname === '/login' || pathname?.startsWith('/login/');
+
+  if (isAuthPage) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
+        {children}
+        <footer className="py-6 text-center text-xs text-slate-400 border-t border-slate-200 bg-white">
+          <p>© {new Date().getFullYear()} Comercial do Norte - Todos os direitos reservados. Belém/PA.</p>
+        </footer>
+      </div>
+    );
+  }
+
   return (
     <ElementorEditorProvider>
       <ElementorTopBar />
