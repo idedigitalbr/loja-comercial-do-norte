@@ -4,6 +4,14 @@ import { PrismaClient } from '@prisma/client';
 export const hash = value => createHash('sha256').update(value).digest('hex');
 export const quoteIdentifier = value => `"${String(value).replaceAll('"', '""')}"`;
 export const tableChecksum = rows => hash([...rows].sort().join('\n'));
+export function isAllowedRestoreServerAddress(address, environment = process.env) {
+  if (['127.0.0.1', '::1'].includes(address)) return true;
+  // GitHub Actions exposes its PostgreSQL service container through the private Docker bridge.
+  if (environment.GITHUB_ACTIONS !== 'true' || environment.BACKUP_TEST_ALLOW_DOCKER !== 'true') return false;
+  const octets = address?.split('.').map(Number);
+  return octets?.length === 4 && octets.every(octet => Number.isInteger(octet) && octet >= 0 && octet <= 255)
+    && octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31;
+}
 export function sortTablesTopologically(tables, foreignKeys) {
   const remaining = new Set(tables);
   const sorted = [];

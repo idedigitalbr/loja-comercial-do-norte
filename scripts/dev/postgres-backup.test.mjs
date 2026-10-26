@@ -7,8 +7,18 @@ import { randomUUID } from 'node:crypto';
 import { PrismaClient } from '@prisma/client';
 import { runBackup } from './postgres-backup.mjs';
 import { runRestore, validateBackup } from './postgres-restore.mjs';
-import { assertRestoreTarget, connectionIdentity, hash, quoteIdentifier, sortTablesTopologically, tableChecksum } from './postgres-backup-core.mjs';
+import { assertRestoreTarget, connectionIdentity, hash, isAllowedRestoreServerAddress, quoteIdentifier, sortTablesTopologically, tableChecksum } from './postgres-backup-core.mjs';
 
+test('permits only loopback restore servers unless GitHub Actions explicitly enables its Docker bridge', () => {
+ assert.equal(isAllowedRestoreServerAddress('127.0.0.1',{}),true);
+ assert.equal(isAllowedRestoreServerAddress('::1',{}),true);
+ const ci={GITHUB_ACTIONS:'true',BACKUP_TEST_ALLOW_DOCKER:'true'};
+ assert.equal(isAllowedRestoreServerAddress('172.16.0.1',ci),true);
+ assert.equal(isAllowedRestoreServerAddress('172.31.255.254',ci),true);
+ for(const address of ['172.15.255.255','172.32.0.1','10.0.0.1','192.168.1.1','8.8.8.8']) assert.equal(isAllowedRestoreServerAddress(address,ci),false);
+ assert.equal(isAllowedRestoreServerAddress('172.20.0.3',{GITHUB_ACTIONS:'true'}),false);
+ assert.equal(isAllowedRestoreServerAddress('172.20.0.3',{BACKUP_TEST_ALLOW_DOCKER:'true'}),false);
+});
 test('topological ordering deduplicates dependencies and permits self references', () => {
  assert.deepEqual(sortTablesTopologically(['child','parent','self'], [{fromTable:'child',toTable:'parent'},{fromTable:'child',toTable:'parent'},{fromTable:'self',toTable:'self'}]), ['parent','self','child']);
 });

@@ -2,7 +2,7 @@
 import { readFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { assertRestoreTarget, clientFor, inspectSchema, quoteIdentifier, tableChecksum, hash, readTable, transaction } from './postgres-backup-core.mjs';
+import { assertRestoreTarget, clientFor, inspectSchema, isAllowedRestoreServerAddress, quoteIdentifier, tableChecksum, hash, readTable, transaction } from './postgres-backup-core.mjs';
 
 export function validateBackup(manifest, dataText) {
   if (manifest?.version !== 2 || manifest.format !== 'postgres-jsonb-text') throw new Error('UNSUPPORTED_BACKUP_VERSION');
@@ -31,7 +31,7 @@ export async function runRestore({ connectionUrl = process.env.RESTORE_DATABASE_
   try {
     return await transaction(prisma, async tx => {
       const [server] = await tx.$queryRawUnsafe('SELECT current_database() AS name, host(inet_server_addr()) AS address');
-      if (server.name !== decodeURIComponent(new URL(connectionUrl).pathname.slice(1)) || !['127.0.0.1', '::1'].includes(server.address)) throw new Error('ACTUAL_DATABASE_IS_NOT_LOCAL_TEST_TARGET');
+      if (server.name !== decodeURIComponent(new URL(connectionUrl).pathname.slice(1)) || !isAllowedRestoreServerAddress(server.address)) throw new Error('ACTUAL_DATABASE_IS_NOT_LOCAL_TEST_TARGET');
       let schema = await inspectSchema(tx);
       if (!dryRun) {
         await tx.$executeRawUnsafe(`LOCK TABLE ${schema.tables.map(table => `public.${quoteIdentifier(table)}`).join(', ')} IN ACCESS EXCLUSIVE MODE`);
