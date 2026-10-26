@@ -1,141 +1,64 @@
 #!/usr/bin/env node
-/**
- * PostgreSQL Recovery / Restore Utility — Comercial do Norte (Issue #12)
- *
- * Restaura um backup em formato JSON/SQL para o banco de dados em ordem topológica,
- * com travas estritas contra restauração acidental em produção.
- *
- * Uso:
- *   node scripts/dev/postgres-restore.mjs [--from <dir>] [--dry-run] [--confirm-production]
- */
-
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
-import dotenv from 'dotenv';
-import { PrismaClient } from '@prisma/client';
-import { escapeSqlValue } from './postgres-backup.mjs';
+import { pathToFileURL } from 'node:url';
+import { assertRestoreTarget, clientFor, inspectSchema, quoteIdentifier, tableChecksum, hash, readTable, transaction } from './postgres-backup-core.mjs';
 
-const isNeon = process.argv.includes('--neon');
-const isDryRun = process.argv.includes('--dry-run');
-const hasConfirmProd = process.argv.includes('--confirm-production');
-const fromArgIndex = process.argv.indexOf('--from');
-const customFromDir = fromArgIndex !== -1 && process.argv[fromArgIndex + 1] ? process.argv[fromArgIndex + 1] : null;
-
-if (isNeon && existsSync('.env.neon')) {
-  dotenv.config({ path: '.env.neon', override: true });
-} else if (existsSync('.env')) {
-  dotenv.config({ path: '.env' });
-}
-
-const connectionUrl = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
-if (!connectionUrl) {
-  console.error('ERRO: Nenhuma connection string encontrada.');
-  process.exit(1);
-}
-
-export function isProductionDatabase(url) {
-  if (!url) return false;
-  return /neon\.tech|aws|sa-east-1|production/i.test(url) && !/localhost|127\.0\.0\.1/i.test(url);
-}
-
-export function findLatestBackupDir(baseDir = resolve(process.cwd(), 'backups')) {
-  if (!existsSync(baseDir)) return null;
-  const entries = readdirSync(baseDir)
-    .map((name) => join(baseDir, name))
-    .filter((fullPath) => statSync(fullPath).isDirectory() && existsSync(join(fullPath, 'manifest.json')));
-
-  if (entries.length === 0) return null;
-  entries.sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs);
-  return entries[0];
-}
-
-export async function runRestore(options = {}) {
-  const targetDir = customFromDir || options.fromDir || findLatestBackupDir();
-
-  if (!targetDir || !existsSync(targetDir)) {
-    console.error(`ERRO: Diretório de backup não encontrado (${targetDir ?? 'nenhum backup em ./backups/'}).`);
-    process.exit(1);
+export function validateBackup(manifest, dataText) {
+  if (manifest?.version !== 2 || manifest.format !== 'postgres-jsonb-text') throw new Error('UNSUPPORTED_BACKUP_VERSION');
+  if (hash(dataText) !== manifest.dataChecksum) throw new Error('BACKUP_FILE_CHECKSUM_MISMATCH');
+  const data = JSON.parse(dataText);
+  const names = manifest.tables?.map(table => table.table);
+  if (!names?.length || new Set(names).size !== names.length || manifest.tablesCount !== names.length || JSON.stringify([...names].sort()) !== JSON.stringify(Object.keys(data).sort()) || JSON.stringify([...manifest.topologicalOrder].sort()) !== JSON.stringify([...names].sort())) throw new Error('INVALID_BACKUP_MANIFEST');
+  if (hash(JSON.stringify(manifest.schema)) !== manifest.schemaFingerprint) throw new Error('SCHEMA_CHECKSUM_MISMATCH');
+  let count = 0;
+  for (const table of manifest.tables) {
+    const rows = data[table.table];
+    if (!Array.isArray(rows) || rows.some(row => typeof row !== 'string') || rows.length !== table.rowCount || tableChecksum(rows) !== table.checksum) throw new Error('BACKUP_TABLE_CHECKSUM_MISMATCH');
+    for (const row of rows) { const parsed = JSON.parse(row); if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('INVALID_BACKUP_ROW'); }
+    count += rows.length;
   }
-
-  const manifestPath = join(targetDir, 'manifest.json');
-  const dataPath = join(targetDir, 'data.json');
-
-  if (!existsSync(manifestPath) || !existsSync(dataPath)) {
-    console.error(`ERRO: Arquivos manifest.json e data.json obrigatórios não encontrados em ${targetDir}.`);
-    process.exit(1);
-  }
-
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
-  const data = JSON.parse(readFileSync(dataPath, 'utf8'));
-
-  // 1. Trava estrita de segurança de produção
-  if (isProductionDatabase(connectionUrl) && !hasConfirmProd && !options.confirmProduction) {
-    console.error('\n🛑 BLOQUEIO DE SEGURANÇA OPERACIONAL:');
-    console.error('   A URL de destino aponta para um banco de produção na nuvem (Neon/AWS).');
-    console.error('   Restaurações em produção exigem a flag explícita --confirm-production.');
-    console.error('   Para testes locais seguros, aponte DATABASE_URL para 127.0.0.1:55432.\n');
-    process.exit(1);
-  }
-
-  console.log(`[Restore PostgreSQL] Analisando backup de: ${targetDir}`);
-  console.log(`  - Criado em: ${manifest.createdAt}`);
-  console.log(`  - Tabelas: ${manifest.tablesCount}`);
-  console.log(`  - Total de registros: ${manifest.totalRows}`);
-
-  if (isDryRun || options.dryRun) {
-    console.log('\n[DRY-RUN] Simulação de restauração concluída:');
-    console.log(`  - Ordem topológica de inserção (${manifest.topologicalOrder.length} tabelas):`);
-    console.log(`    ${manifest.topologicalOrder.join(' -> ')}`);
-    console.log('  Nenhuma alteração foi realizada no banco.');
-    return { dryRun: true, manifest };
-  }
-
-  const prisma = new PrismaClient({
-    datasources: { db: { url: connectionUrl } },
-  });
-
+  if (count !== manifest.totalRows) throw new Error('BACKUP_ROW_COUNT_MISMATCH');
+  return data;
+}
+export async function runRestore({ connectionUrl = process.env.RESTORE_DATABASE_URL, fromDir, confirmTarget, dryRun = false } = {}) {
+  if (!connectionUrl || !fromDir) throw new Error('EXPLICIT_RESTORE_URL_AND_DIRECTORY_REQUIRED');
+  assertRestoreTarget(connectionUrl, confirmTarget, dryRun);
+  const directory = resolve(fromDir);
+  const manifest = JSON.parse(await readFile(join(directory, 'manifest.json'), 'utf8'));
+  const data = validateBackup(manifest, await readFile(join(directory, 'data.json'), 'utf8'));
+  const prisma = clientFor(connectionUrl);
   try {
-    console.log('\n[Restore PostgreSQL] Iniciando restauração transacional...');
-
-    // Desativa restrições de chave para evitar conflitos durante a carga
-    await prisma.$executeRawUnsafe("SET session_replication_role = 'replica';");
-
-    let restoredRows = 0;
-    for (const table of manifest.topologicalOrder) {
-      const rows = data[table] || [];
-      if (rows.length === 0) continue;
-
-      // Limpa dados anteriores da tabela de forma idempotente
-      await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${table}" CASCADE;`);
-
-      // Insere registros
-      const columns = Object.keys(rows[0]);
-      const quotedColumns = columns.map((col) => `"${col}"`).join(', ');
-
-      for (const row of rows) {
-        const values = columns.map((col) => escapeSqlValue(row[col])).join(', ');
-        await prisma.$executeRawUnsafe(`INSERT INTO "${table}" (${quotedColumns}) VALUES (${values});`);
+    return await transaction(prisma, async tx => {
+      const [server] = await tx.$queryRawUnsafe('SELECT current_database() AS name, host(inet_server_addr()) AS address');
+      if (server.name !== decodeURIComponent(new URL(connectionUrl).pathname.slice(1)) || !['127.0.0.1', '::1'].includes(server.address)) throw new Error('ACTUAL_DATABASE_IS_NOT_LOCAL_TEST_TARGET');
+      let schema = await inspectSchema(tx);
+      if (!dryRun) {
+        await tx.$executeRawUnsafe(`LOCK TABLE ${schema.tables.map(table => `public.${quoteIdentifier(table)}`).join(', ')} IN ACCESS EXCLUSIVE MODE`);
+        schema = await inspectSchema(tx);
       }
-
-      restoredRows += rows.length;
-    }
-
-    // Reativa restrições de integridade
-    await prisma.$executeRawUnsafe("SET session_replication_role = 'origin';");
-
-    console.log(`\n✅ Restauração concluída com sucesso!`);
-    console.log(`   - Registros restaurados: ${restoredRows}/${manifest.totalRows}`);
-
-    return { restoredRows, manifest };
-  } finally {
-    await prisma.$disconnect();
-  }
+      if (schema.fingerprint !== manifest.schemaFingerprint || JSON.stringify(schema.orderedTables) !== JSON.stringify(manifest.topologicalOrder)) throw new Error('TARGET_SCHEMA_OR_MIGRATION_MISMATCH');
+      if (dryRun) return { dryRun: true, manifest };
+      // No CASCADE, no disabled constraints, no table skipped because its backup is empty.
+      for (const table of [...schema.orderedTables].reverse()) await tx.$executeRawUnsafe(`DELETE FROM public.${quoteIdentifier(table)}`);
+      for (const table of schema.orderedTables) {
+        if (!data[table].length) continue;
+        const columns = schema.columns.filter(column => column.table === table && column.generated === 'NEVER').map(column => quoteIdentifier(column.name)).join(', ');
+        await tx.$executeRawUnsafe(`INSERT INTO public.${quoteIdentifier(table)} (${columns}) SELECT ${columns} FROM jsonb_populate_recordset(NULL::public.${quoteIdentifier(table)}, $1::jsonb)`, `[${data[table].join(',')}]`);
+      }
+      await tx.$executeRawUnsafe('SET CONSTRAINTS ALL IMMEDIATE');
+      for (const table of manifest.tables) {
+        const restored = await readTable(tx, table.table);
+        if (restored.length !== table.rowCount || tableChecksum(restored) !== table.checksum) throw new Error('RESTORED_CONTENT_MISMATCH');
+      }
+      return { restoredRows: manifest.totalRows, manifest };
+    }, dryRun);
+  } finally { await prisma.$disconnect(); }
 }
-
-// Execução direta via CLI
-if (process.argv[1]?.endsWith('postgres-restore.mjs')) {
-  runRestore().catch((error) => {
-    console.error('Falha ao restaurar banco:', error);
-    process.exit(1);
-  });
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  const args = process.argv.slice(2);
+  const value = flag => { const index = args.indexOf(flag); return index < 0 ? undefined : args[index + 1]; };
+  runRestore({ fromDir: value('--from'), confirmTarget: value('--confirm-target'), dryRun: args.includes('--dry-run') })
+    .then(result => console.log(JSON.stringify({ success: true, dryRun: result.dryRun ?? false, rows: result.restoredRows })))
+    .catch(error => { const reason = /^[A-Z_]+(?:: [a-zA-Z0-9_.:/-]+)?$/.test(error.message) ? error.message : error.code ?? 'DATABASE_ERROR'; console.error(`Restore falhou (${reason}). Nenhuma restauração parcial confirmada; a transação é revertida.`); process.exitCode = 1; });
 }
