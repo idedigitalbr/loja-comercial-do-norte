@@ -74,7 +74,8 @@ export function ContainedHeroWidget({
                       className={`block size-full object-cover object-center transition-all duration-300 ${
                         isEditMode ? 'group-hover/slide:grayscale group-hover/slide:brightness-40' : ''
                       }`}
-                      fetchPriority={index === 0 ? 'high' : 'auto'}
+                      decoding="async"
+                      fetchPriority="auto"
                       height={1056}
                       loading={index === 0 ? 'eager' : 'lazy'}
                       src={slide.imageUrl}
@@ -89,7 +90,8 @@ export function ContainedHeroWidget({
                       className={`block size-full object-cover object-center transition-all duration-300 ${
                         isEditMode ? 'group-hover/slide:grayscale group-hover/slide:brightness-40' : ''
                       }`}
-                      fetchPriority={index === 0 ? 'high' : 'auto'}
+                      decoding="async"
+                      fetchPriority="auto"
                       height={1056}
                       loading={index === 0 ? 'eager' : 'lazy'}
                       src={slide.imageUrl}

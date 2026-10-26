@@ -6,32 +6,57 @@ import type { ApiBrand, ApiCategory, ApiProduct, PublicQuote, SiteConfig } from 
  */
 export const API_URL = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:3000';
 
+/** Janelas de cache ISR (segundos) e tags de revalidação por domínio. */
+export const REVALIDATE_WINDOWS = {
+  SITE_CONFIG: 300,
+  TAXONOMY: 180,
+  CATALOG: 60,
+  OFFERS: 60,
+} as const;
+
+export const CACHE_TAGS = {
+  SITE_CONFIG: 'site-config',
+  PRODUCTS: 'catalog-products',
+  CATEGORIES: 'catalog-categories',
+  BRANDS: 'catalog-brands',
+  OFFERS: 'catalog-offers',
+} as const;
+
 /** Converte o caminho salvo no banco (`uploads/...`) na URL pública da API. */
 export function mediaUrl(path: string | null | undefined): string | null {
   if (!path) return null;
   return `${API_URL}/storage/${path.replace(/^\/+/, '')}`;
 }
 
-async function getJson<T>(path: string, revalidate = 60): Promise<T> {
+type FetchCacheOptions = {
+  revalidate?: number;
+  tags?: string[];
+};
+
+async function getJson<T>(path: string, options: FetchCacheOptions = {}): Promise<T> {
+  const { revalidate = REVALIDATE_WINDOWS.CATALOG, tags } = options;
   const response = await fetch(`${API_URL}/api/v1${path}`, {
     headers: { accept: 'application/json' },
-    next: { revalidate },
+    next: tags?.length ? { revalidate, tags } : { revalidate },
   });
   if (!response.ok) throw new Error(`API ${response.status} em ${path}`);
   return response.json() as Promise<T>;
 }
 
 /** Variante tolerante a falha: a página renderiza um estado vazio/aviso. */
-async function safeJson<T>(path: string, fallback: T, revalidate = 60): Promise<T> {
+async function safeJson<T>(path: string, fallback: T, options: FetchCacheOptions = {}): Promise<T> {
   try {
-    return await getJson<T>(path, revalidate);
+    return await getJson<T>(path, options);
   } catch {
     return fallback;
   }
 }
 
 export function getSiteConfig() {
-  return safeJson<SiteConfig | null>('/site/config', null, 300);
+  return safeJson<SiteConfig | null>('/site/config', null, {
+    revalidate: REVALIDATE_WINDOWS.SITE_CONFIG,
+    tags: [CACHE_TAGS.SITE_CONFIG],
+  });
 }
 
 export function getProducts(input: { search?: string; category?: string; brand?: string; limit?: number } = {}) {
@@ -39,7 +64,10 @@ export function getProducts(input: { search?: string; category?: string; brand?:
   if (input.search?.trim()) params.set('search', input.search.trim());
   if (input.category) params.set('category', input.category);
   if (input.brand) params.set('brand', input.brand);
-  return safeJson<ApiProduct[]>(`/catalog/products${params.size ? `?${params}` : ''}`, []);
+  return safeJson<ApiProduct[]>(`/catalog/products${params.size ? `?${params}` : ''}`, [], {
+    revalidate: REVALIDATE_WINDOWS.CATALOG,
+    tags: [CACHE_TAGS.PRODUCTS],
+  });
 }
 
 export type ProductPage = {
@@ -69,28 +97,43 @@ export function getProductsPage(input: {
   if (input.category) params.set('category', input.category);
   if (input.brand) params.set('brand', input.brand);
   if (input.sort) params.set('sort', input.sort);
-  return safeJson<ProductPage>(`/catalog/products/search?${params}`, emptyPage(page, pageSize));
+  return safeJson<ProductPage>(`/catalog/products/search?${params}`, emptyPage(page, pageSize), {
+    revalidate: REVALIDATE_WINDOWS.CATALOG,
+    tags: [CACHE_TAGS.PRODUCTS],
+  });
 }
 
 export async function getProduct(slug: string): Promise<ApiProduct | null> {
   try {
-    return await getJson<ApiProduct>(`/catalog/products/${encodeURIComponent(slug)}`);
+    return await getJson<ApiProduct>(`/catalog/products/${encodeURIComponent(slug)}`, {
+      revalidate: REVALIDATE_WINDOWS.CATALOG,
+      tags: [CACHE_TAGS.PRODUCTS, `product:${slug}`],
+    });
   } catch {
     return null;
   }
 }
 
 export async function getCategories(): Promise<ApiCategory[]> {
-  return safeJson<ApiCategory[]>('/catalog/categories', []);
+  return safeJson<ApiCategory[]>('/catalog/categories', [], {
+    revalidate: REVALIDATE_WINDOWS.TAXONOMY,
+    tags: [CACHE_TAGS.CATEGORIES],
+  });
 }
 
 export async function getBrands(): Promise<ApiBrand[]> {
-  return safeJson<ApiBrand[]>('/catalog/brands', []);
+  return safeJson<ApiBrand[]>('/catalog/brands', [], {
+    revalidate: REVALIDATE_WINDOWS.TAXONOMY,
+    tags: [CACHE_TAGS.BRANDS],
+  });
 }
 
 /** Ofertas reais (variante com preço "de/por"), sem inventar desconto. */
 export async function getOffers(limit = 8): Promise<ApiProduct[]> {
-  return safeJson<ApiProduct[]>(`/catalog/offers?limit=${limit}`, []);
+  return safeJson<ApiProduct[]>(`/catalog/offers?limit=${limit}`, [], {
+    revalidate: REVALIDATE_WINDOWS.OFFERS,
+    tags: [CACHE_TAGS.OFFERS, CACHE_TAGS.PRODUCTS],
+  });
 }
 
 export async function getQuote(publicId: string): Promise<PublicQuote | null> {

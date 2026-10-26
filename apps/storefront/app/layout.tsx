@@ -5,6 +5,7 @@ import { QuoteDrawer } from '@/components/quote-drawer';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { StorefrontShell } from '@/components/storefront/storefront-shell';
+import { WebVitalsReporter } from '@/components/web-vitals-reporter';
 import { getCategories, getBrands, getSiteConfig, mediaUrl } from '@/lib/api';
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           Pular para o conteúdo
         </a>
         <QuoteCartProvider>
+          <WebVitalsReporter />
           <StorefrontShell
             footer={<SiteFooter categories={categories} site={site} />}
             header={
