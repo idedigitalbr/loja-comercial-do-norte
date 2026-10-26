@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
+  async rewrites() {
+    return [{ source: '/api/v1/:path*', destination: `${api.origin}/api/v1/:path*` }];
+  },
   devIndicators: {
     position: 'bottom-right',
   },

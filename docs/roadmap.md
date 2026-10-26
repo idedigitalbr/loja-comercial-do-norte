@@ -313,3 +313,12 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
   - `pnpm --filter api exec vitest run src/modules/settings src/modules/notifications src/main.spec.ts`: **9 suítes / 25 testes unitários aprovados**.
   - `pnpm exec playwright test --list`: **3 smoke tests de navegador registrados e válidos**.
   - `pnpm agents:verify`: **47 itens, 42/42 dependências confirmadas, 0 erros no Project 3**.
+
+### Missão autônoma — 26/10/2026 — publicação da vitrine (Issue #55)
+
+- Base recuperada do GitHub: `main` em `594d311`; PRs #51–#54 abertos. Auditoria inicial do Project: 47 itens, 42/42 dependências, zero erros. Reservas históricas #42/#48 preservadas; alterações locais anteriores nos documentos e assets não pertencem a esta entrega.
+- Corrigido o contrato `{ user }` de `/auth/me`, exigindo `settings.manage`. Autenticação da vitrine usa `/api/v1` no mesmo domínio por proxy Next→Nest; privilégios não derivam de e-mail/localStorage em produção. Mocks e login offline permanecem em desenvolvimento local.
+- Publicação e restauração passam pelo NestJS, com transação Prisma para `SiteConfiguration.homeComposition` + `AuditLog`; autoria vem da sessão. Corrigido `ActorType`: `ADMIN` não existe no schema, o ator autenticado é `USER`. Next não consulta mais o banco. Falha de API/disco ou resposta malformada não confirma publicação. Histórico não usa cache de processo permanente.
+- Validação local: 71 testes da vitrine antes dos novos casos de auth/resposta malformada; 8 testes unitários da publicação; 6 testes HTTP com PostgreSQL real em schema aleatório na instância descartável `127.0.0.1:55439`, incluindo rollback após falha forçada de AuditLog, configuração ausente, RBAC e autoria da restauração. Lint 6/6, typecheck 6/6, build da API e carregamento do serviço compilado aprovados. Resultados finais e CI serão registrados no PR/sessão.
+- Dependência de integração: migration aditiva de `homeComposition` está no PR #53. CI antigo falha no seed com `P2022` antes dos testes; não repetir a migration em outro PR. Ordem de publicação após aprovação: schema compatível → API Nest com novos endpoints → storefront. Nenhuma migration/deploy/seed/restauração no Neon executada.
+- Rollback: reverter o commit da publicação em branch de revisão; preservar JSONB e AuditLog, sem remover a coluna ou histórico. Ativar ambos os serviços de forma coordenada; não publicar apenas o Next contra API antiga.

@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { API_URL } from '@/lib/api';
+function allowsLocalAuth() { return process.env.NODE_ENV !== 'production' && !process.env.NEXT_PUBLIC_VERCEL_ENV; }
 
 export type AuthUser = {
   id: string;
@@ -153,20 +153,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const stored = getStoredUser();
+    const stored = allowsLocalAuth() ? getStoredUser() : null;
     if (stored) {
       setUser(stored);
     }
     setReady(true);
 
-    function handleSync() {
-      const updated = getStoredUser();
-      setUser(updated);
+    let active = true;
+    async function handleSync() {
+      if (allowsLocalAuth()) { setUser(getStoredUser()); return; }
+      try {
+        const response = await fetch('/api/v1/auth/me', { credentials: 'include', cache: 'no-store' });
+        const data = response.ok ? await response.json() : null;
+        const authenticated = data?.user;
+        if (active) setUser(authenticated ? {
+          id: authenticated.id, email: authenticated.email,
+          firstName: authenticated.profile?.firstName ?? authenticated.email.split('@')[0],
+          fullName: authenticated.profile?.firstName ?? authenticated.email.split('@')[0],
+          roles: authenticated.roles,
+          isAdmin: authenticated.permissions?.includes('settings.manage') ?? false,
+        } : null);
+      } catch { if (active) setUser(null); }
     }
+    void handleSync();
 
     window.addEventListener('storage', handleSync);
     window.addEventListener('cn_auth_changed' as any, handleSync);
     return () => {
+      active = false;
       window.removeEventListener('storage', handleSync);
       window.removeEventListener('cn_auth_changed' as any, handleSync);
     };
@@ -194,7 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // 1. Tentar consultar a API oficial NestJS
     try {
-      const res = await fetch(`${API_URL}/api/v1/auth/check-email`, {
+      const res = await fetch(`/api/v1/auth/check-email`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email: normalized }),
@@ -229,7 +243,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Tentar login via API NestJS
       try {
-        const res = await fetch(`${API_URL}/api/v1/auth/login`, {
+        const res = await fetch(`/api/v1/auth/login`, {
           method: 'POST',
           credentials: 'include',
           headers: { 'content-type': 'application/json' },
@@ -241,11 +255,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               id: string;
               email: string;
               roles?: string[];
+              permissions?: string[];
               profile?: { firstName?: string; lastName?: string };
             };
           };
           const roles = data.user?.roles || [];
-          const isAdmin = roles.includes('ADMIN') || normalized === 'admin@admin.com';
+          const isAdmin = data.user?.permissions?.includes('settings.manage') ?? false;
           const firstName =
             data.user?.profile?.firstName ||
             (isAdmin ? 'Administrador' : normalized.split('@')[0]) ||
@@ -269,6 +284,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch {
         // Fallback para conta local quando API estiver indisponível
       }
+
+      if (!allowsLocalAuth()) return { ok: false, error: 'Não foi possível autenticar no servidor. Tente novamente.' };
 
       // Fallback local: verificar conta local
       const localAccounts = getStoredAccounts();
@@ -331,7 +348,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Tentar registro via API NestJS
       try {
-        const res = await fetch(`${API_URL}/api/v1/auth/register`, {
+        const res = await fetch(`/api/v1/auth/register`, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
@@ -343,11 +360,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
         if (res.ok) {
           // Após registro na API, efetuar login para emitir sessão
-          await fetch(`${API_URL}/api/v1/auth/login`, {
+          const loginResponse = await fetch(`/api/v1/auth/login`, {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
             body: JSON.stringify({ email: normalized, password: data.password }),
-          }).catch(() => null);
+          });
+          if (!loginResponse.ok) return { ok: false, error: 'Cadastro criado. Entre com sua senha para iniciar a sessão.' };
 
           const registeredUser: AuthUser = {
             id: `usr-${Date.now()}`,
@@ -356,7 +374,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             lastName,
             fullName: `${firstName} ${lastName}`.trim(),
           };
-          saveStoredAccount({
+          if (allowsLocalAuth()) saveStoredAccount({
             id: registeredUser.id,
             email: normalized,
             firstName,
@@ -372,6 +390,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch {
         // Fallback local caso a API esteja indisponível
       }
+
+      if (!allowsLocalAuth()) return { ok: false, error: 'Não foi possível registrar no servidor. Tente novamente.' };
 
       // Fallback local: registrar localmente
       const localAccounts = getStoredAccounts();
@@ -441,7 +461,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // 1. Tenta salvar via API NestJS se estiver acessível
       try {
-        await fetch(`${API_URL}/api/v1/account/profile`, {
+        await fetch(`/api/v1/account/profile`, {
           method: 'PATCH',
           headers: { 'content-type': 'application/json' },
           credentials: 'include',
@@ -500,7 +520,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // 1. Tentar alterar via API
       try {
-        const res = await fetch(`${API_URL}/api/v1/account/password`, {
+        const res = await fetch(`/api/v1/account/password`, {
           method: 'PATCH',
           headers: { 'content-type': 'application/json' },
           credentials: 'include',
@@ -539,7 +559,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await fetch(`${API_URL}/api/v1/auth/logout`, { method: 'POST' }).catch(() => null);
+      await fetch(`/api/v1/auth/logout`, { method: 'POST', credentials: 'include' }).catch(() => null);
     } catch {
       // Ignora falha de rede ao deslogar
     } finally {

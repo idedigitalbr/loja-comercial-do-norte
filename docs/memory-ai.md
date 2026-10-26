@@ -293,3 +293,7 @@ Lacunas, defeitos e riscos dessa base **não são repetidos aqui**: estão em `r
 - [ ] **Headers de Segurança e CORS:** Revisar a lista de origens autorizadas (`APP_ORIGIN`, `ADMIN_ORIGIN`) nos cabeçalhos de resposta da API para bloquear requisições de origens desconhecidas.
 
 **Regra final:** implementação ainda em andamento. Nenhuma documentação anterior, prompt ou decisão revogada revoga as escolhas de **Next.js + NestJS + PostgreSQL + Prisma + Tailwind + shadcn/ui** estabelecidas em 24/10/2026.
+
+### Decisão confirmada em 26/10/2026 — publicação administrativa da vitrine
+
+Issue #55: o NestJS é a autoridade de publicação, validação, RBAC e persistência da composição. Composição ativa e checkpoint são gravados na mesma transação Prisma, com `ActorType.USER` e identidade da sessão; restauração cria novo checkpoint com o editor atual. A vitrine autentica pelo proxy same-origin `/api/v1`, com cookie HttpOnly emitido pelo Nest, evitando dependência de cookies de terceiros. Produção/Vercel exige `settings.manage`; e-mail, cookie de UI, localStorage e segredo de cron não concedem essa permissão. Falhas de persistência não podem virar sucesso ou fallback em disco em produção. O modo offline local permanece disponível somente fora de produção/Vercel, com composição e histórico no mesmo arquivo atômico. Esta decisão substitui as descrições históricas de SQL direto no Next, fallback de produção e autorização por segredo compartilhado. Aplicação em produção segue dependente de revisão humana, migration compatível e publicação coordenada da API e vitrine.

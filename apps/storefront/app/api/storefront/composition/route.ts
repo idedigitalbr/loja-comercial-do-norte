@@ -7,6 +7,7 @@ import {
 import { verifyAdminAuthorization } from '@/lib/auth/admin-guard';
 import type { PageComposition } from '@/lib/storefront/widget-types';
 
+
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
@@ -26,6 +27,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    if (request.headers.get('origin') && request.headers.get('origin') !== new URL(request.url).origin) {
+      return NextResponse.json({ success: false, error: 'Origem não autorizada.' }, { status: 403 });
+    }
     // 1. Verificação de permissão Admin segura por ambiente
     const authResult = await verifyAdminAuthorization(request);
 
@@ -43,7 +47,7 @@ export async function POST(request: Request) {
 
     // 2. Validação da composição recebida
     const body = await request.json();
-    if (!body || !Array.isArray(body.widgets) || body.widgets.length === 0) {
+    if (!body || body.page !== 'home' || !Array.isArray(body.widgets) || body.widgets.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Composição de widgets inválida' },
         { status: 400 }
@@ -55,7 +59,7 @@ export async function POST(request: Request) {
       name: authResult.authorName,
       email: authResult.authorEmail,
       note: `Atualização de vitrine (${body.widgets.length} seções ativas)`,
-    });
+    }, authResult.headers);
 
     // 4. Revalida o cache ISR da página inicial no Next.js
     try {
@@ -78,7 +82,7 @@ export async function POST(request: Request) {
     });
   } catch (err: any) {
     return NextResponse.json(
-      { success: false, error: err?.message || 'Falha ao salvar no servidor' },
+      { success: false, error: 'Falha ao confirmar publicação no servidor. Tente novamente.' },
       { status: 500 }
     );
   }

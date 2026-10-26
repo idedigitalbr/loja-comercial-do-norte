@@ -1,4 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { saveStorefrontComposition } from '@/lib/storefront/composition-storage';
+import { defaultHomeComposition } from '@/lib/storefront/home-configuration';
 import { GET, POST } from './route';
 
 vi.mock('next/headers', () => ({
@@ -12,6 +17,18 @@ vi.mock('next/cache', () => ({
 }));
 
 describe('API Route /api/storefront/revisions', () => {
+  let directory: string;
+  beforeEach(async () => {
+    directory = await fs.mkdtemp(path.join(os.tmpdir(), 'cn-revisions-test-'));
+    vi.stubEnv('STOREFRONT_DATA_DIR', directory);
+    vi.stubEnv('NODE_ENV', 'test'); vi.stubEnv('VERCEL', '');
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    await saveStorefrontComposition(defaultHomeComposition);
+  });
+  afterEach(async () => {
+    vi.unstubAllGlobals(); vi.unstubAllEnvs();
+    await fs.rm(directory, { recursive: true, force: true });
+  });
   it('GET rejeita usuários não autorizados com 403', async () => {
     const request = new Request('http://localhost:3001/api/storefront/revisions');
     const res = await GET(request);
