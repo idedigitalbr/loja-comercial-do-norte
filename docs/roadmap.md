@@ -313,3 +313,39 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
   - `pnpm --filter api exec vitest run src/modules/settings src/modules/notifications src/main.spec.ts`: **9 suítes / 25 testes unitários aprovados**.
   - `pnpm exec playwright test --list`: **3 smoke tests de navegador registrados e válidos**.
   - `pnpm agents:verify`: **47 itens, 42/42 dependências confirmadas, 0 erros no Project 3**.
+
+### Checkpoint Auditoria Master, Suíte Playwright Completa e Concorrência/Backup PostgreSQL — 26/10/2026
+
+- **Auditoria Geral e Gestão Autônoma do Backlog (Antigravity):**
+  - Auditoria completa do monorepo, banco Neon, deploys Vercel e quadro [Project 3](https://github.com/orgs/idedigitalbr/projects/3).
+  - Reservas ativas de outros agentes integralmente respeitadas: Codex em #42 e #48; agente de CMS/editor visual em #35 intocado.
+- **Issue #32 (`E8`) — Aceite no Navegador Playwright Concluído e em Revisão:**
+  - Suíte expandida de 4 para 12 testes ponta a ponta cobrindo os fluxos prioritários:
+    1. *Homepage e Navegação*: Header em 3 barras, mascote 3D, skip link e banners.
+    2. *Catálogo, Busca e Filtros*: Listagem em `/loja`, paginação, pills de categoria e busca por termo (`e2e/catalog-and-search.e2e.ts`).
+    3. *Página de Produto e Cotação*: Detalhes, preço de referência, especificação, CTA exclusivo de cotação (sem compra online), Quote Drawer e envio real de cotação com captura de protocolo via API (`e2e/product-and-quote.e2e.ts`).
+    4. *Autenticação e Admin*: Login do cliente na vitrine e login com navegação nas seções do painel administrativo (`e2e/auth-and-admin.e2e.ts`).
+  - Padronização de assets do mascote para `Mascote-3D-NORT` corrigindo links em header, menu e faixas.
+  - Validação: **12/12 testes Playwright aprovados (14.8s)** executados contra o deploy oficial na Vercel.
+  - Sessão entregue: PR [#51](https://github.com/idedigitalbr/loja-comercial-do-norte/pull/51), commit `94cba9d`, status atualizado para *Em Revisão* e trava liberada.
+- **Issue #12 (`B7`) — Provisionamento, Backup e Recovery do PostgreSQL Concluído e em Revisão:**
+  - Utilitários `scripts/dev/postgres-backup.mjs` e `scripts/dev/postgres-restore.mjs` com ordenação topológica de tabelas (Kahn algorithm) para respeitar chaves estrangeiras.
+  - Geração de `manifest.json` com checksums SHA-256 e contagens de linhas por tabela, `data.json` estruturado e `dump.sql` idempotente.
+  - **Trava de segurança operacional**: detecção estrita de instâncias de produção da nuvem (Neon/AWS), bloqueando restauração sem a flag explícita `--confirm-production`.
+  - Validação: **9/9 testes automatizados aprovados** (`scripts/dev/postgres-backup.test.mjs`), testados em dry-run e contra banco ativo.
+  - Sessão entregue: PR [#52](https://github.com/idedigitalbr/loja-comercial-do-norte/pull/52), commit `6925902`, status atualizado para *Em Revisão* e trava liberada.
+- **Issue #11 (`B6`) — Concorrência e Travas Transacionais no PostgreSQL Concluído e em Revisão:**
+  - Suíte de integração `apps/api/src/modules/database/postgres-concurrency.e2e-spec.ts` validando:
+    1. Travas exclusivas de linha (`SELECT ... FOR UPDATE`) em saldo de estoque (`InventoryBalance`), prevenindo lost updates em operações concorrentes.
+    2. Contenção sob concorrência bloqueando decrementos acima do saldo disponível.
+    3. Idempotência transacional sob concorrência em `QuotesService.create` com protocolo único.
+    4. Atomicidade e Rollback completo de transações em caso de erro, garantindo zero linhas órfãs.
+  - Resolução de schema drift: criada a 5ª migration versionada `prisma/migrations/20261026190000_add_home_composition` alinhando a coluna `homeComposition` e eliminando falha 500 em `/api/v1/site/config`.
+  - Validação: **6/6 suítes e 20/20 testes E2E da API aprovados**.
+  - Sessão entregue: PR [#53](https://github.com/idedigitalbr/loja-comercial-do-norte/pull/53), commit `9f02273`, status atualizado para *Em Revisão* e trava liberada.
+- **Estado Consolidado das Pendências:**
+  - **Issue #24 (`D7`):** Bloqueada aguardando aceite e merge da Issue #12 (PR #52).
+  - **Issue #29 (`E5`):** Bloqueada aguardando dados cadastrais e marcas oficiais da Comercial do Norte.
+  - **Issue #33 (`F1`):** Bloqueada aguardando documentação oficial da API do ERP.
+  - **Issue #34 e #36:** Mantidas em Backlog (fase 2 / observabilidade após #24).
+  - **Project 3:** 47 itens, 42/42 dependências confirmadas, 0 erros no validador oficial.
