@@ -17,6 +17,9 @@ export type AuthUser = {
   firstName: string;
   lastName?: string;
   fullName: string;
+  phone?: string;
+  document?: string;
+  birthDate?: string;
   roles?: string[];
   isAdmin?: boolean;
 };
@@ -26,8 +29,21 @@ type LocalStoredAccount = {
   email: string;
   firstName: string;
   lastName?: string;
+  phone?: string;
+  document?: string;
+  birthDate?: string;
   passwordHash?: string;
   password?: string;
+};
+
+export type UpdateProfileInput = {
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  document?: string;
+  birthDate?: string;
 };
 
 type AuthContextValue = {
@@ -44,6 +60,11 @@ type AuthContextValue = {
     password: string;
     fullName: string;
   }) => Promise<{ ok: boolean; error?: string }>;
+  updateProfile: (data: UpdateProfileInput) => Promise<{ ok: boolean; error?: string }>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<{ ok: boolean; error?: string }>;
   logout: () => Promise<void>;
 };
 
@@ -59,6 +80,9 @@ const DEFAULT_PRESET_ACCOUNTS: LocalStoredAccount[] = [
     firstName: 'Victor',
     lastName: 'Williames',
     password: 'admin123456',
+    phone: '(91) 98344-0880',
+    document: '000.000.000-00',
+    birthDate: '1990-01-01',
   },
   {
     id: 'usr-cliente-1',
@@ -66,6 +90,9 @@ const DEFAULT_PRESET_ACCOUNTS: LocalStoredAccount[] = [
     firstName: 'Cliente',
     lastName: 'Comercial',
     password: 'cliente123456',
+    phone: '(91) 98344-0880',
+    document: '123.456.789-00',
+    birthDate: '1995-05-15',
   },
 ];
 
@@ -260,6 +287,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           firstName: matched.firstName,
           lastName: matched.lastName,
           fullName: `${matched.firstName} ${matched.lastName ?? ''}`.trim(),
+          phone: matched.phone || '(91) 98344-0880',
+          document: matched.document || '000.000.000-00',
+          birthDate: matched.birthDate,
           roles: isAdmin ? ['ADMIN'] : [],
           isAdmin,
         };
@@ -369,6 +399,144 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [saveUserSession],
   );
 
+  const updateProfile = useCallback(
+    async (data: UpdateProfileInput): Promise<{ ok: boolean; error?: string }> => {
+      const currentUser = getStoredUser() || user;
+      if (!currentUser) return { ok: false, error: 'Usuário não autenticado.' };
+
+      const trimmedFirst =
+        data.firstName !== undefined ? data.firstName.trim() : currentUser.firstName;
+      const trimmedLast =
+        data.lastName !== undefined ? data.lastName.trim() : (currentUser.lastName || '');
+      const fullName = (
+        data.fullName ||
+        `${trimmedFirst} ${trimmedLast}`.trim()
+      ).trim();
+      const email =
+        data.email !== undefined ? data.email.trim().toLowerCase() : currentUser.email;
+      const phone =
+        data.phone !== undefined ? data.phone.trim() : (currentUser.phone || '');
+      const document =
+        data.document !== undefined ? data.document.trim() : (currentUser.document || '');
+      const birthDate =
+        data.birthDate !== undefined ? data.birthDate.trim() : currentUser.birthDate;
+
+      if (!trimmedFirst) {
+        return { ok: false, error: 'O primeiro nome não pode ficar em branco.' };
+      }
+      if (email && !email.includes('@')) {
+        return { ok: false, error: 'Por favor, informe um e-mail válido.' };
+      }
+
+      const updatedUser: AuthUser = {
+        ...currentUser,
+        firstName: trimmedFirst,
+        lastName: trimmedLast,
+        fullName: fullName || trimmedFirst,
+        email,
+        phone,
+        document,
+        birthDate,
+      };
+
+      // 1. Tenta salvar via API NestJS se estiver acessível
+      try {
+        await fetch(`${API_URL}/api/v1/account/profile`, {
+          method: 'PATCH',
+          headers: { 'content-type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            firstName: trimmedFirst,
+            lastName: trimmedLast || 'Comercial',
+            phone: phone || null,
+          }),
+        }).catch(() => null);
+      } catch {
+        // Fallback local
+      }
+
+      // 2. Atualiza no armazenamento local de contas
+      try {
+        const localAccounts = getStoredAccounts();
+        const updatedAccounts = localAccounts.map((acc) => {
+          if (
+            acc.id === currentUser.id ||
+            acc.email.toLowerCase() === currentUser.email.toLowerCase()
+          ) {
+            return {
+              ...acc,
+              firstName: trimmedFirst,
+              lastName: trimmedLast,
+              email,
+              phone,
+              document,
+              birthDate,
+            };
+          }
+          return acc;
+        });
+        window.localStorage.setItem(LOCAL_ACCOUNTS_KEY, JSON.stringify(updatedAccounts));
+      } catch {
+        // Ignora falha de storage
+      }
+
+      // 3. Atualiza sessão ativa
+      saveUserSession(updatedUser);
+      return { ok: true };
+    },
+    [user, saveUserSession],
+  );
+
+  const changePassword = useCallback(
+    async (
+      currentPassword: string,
+      newPassword: string,
+    ): Promise<{ ok: boolean; error?: string }> => {
+      const currentUser = getStoredUser() || user;
+      if (!currentUser) return { ok: false, error: 'Usuário não autenticado.' };
+      if (!newPassword || newPassword.length < 8) {
+        return { ok: false, error: 'A nova senha deve ter no mínimo 8 caracteres.' };
+      }
+
+      // 1. Tentar alterar via API
+      try {
+        const res = await fetch(`${API_URL}/api/v1/account/password`, {
+          method: 'PATCH',
+          headers: { 'content-type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ currentPassword, newPassword }),
+        });
+        if (res.ok) return { ok: true };
+      } catch {
+        // Fallback local
+      }
+
+      // 2. Fallback em contas locais
+      const accounts = getStoredAccounts();
+      const matched = accounts.find(
+        (a) =>
+          a.id === currentUser.id ||
+          a.email.toLowerCase() === currentUser.email.toLowerCase(),
+      );
+      if (matched && matched.password && matched.password !== currentPassword) {
+        return { ok: false, error: 'A senha atual informada está incorreta.' };
+      }
+
+      const updated = accounts.map((a) => {
+        if (
+          a.id === currentUser.id ||
+          a.email.toLowerCase() === currentUser.email.toLowerCase()
+        ) {
+          return { ...a, password: newPassword };
+        }
+        return a;
+      });
+      window.localStorage.setItem(LOCAL_ACCOUNTS_KEY, JSON.stringify(updated));
+      return { ok: true };
+    },
+    [user],
+  );
+
   const logout = useCallback(async () => {
     try {
       await fetch(`${API_URL}/api/v1/auth/logout`, { method: 'POST' }).catch(() => null);
@@ -387,9 +555,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       checkEmail,
       login,
       register,
+      updateProfile,
+      changePassword,
       logout,
     }),
-    [user, ready, checkEmail, login, register, logout],
+    [user, ready, checkEmail, login, register, updateProfile, changePassword, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

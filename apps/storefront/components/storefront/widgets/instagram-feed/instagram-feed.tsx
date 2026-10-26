@@ -17,9 +17,19 @@ export function InstagramFeedWidget({
   items = [],
 }: InstagramFeedProps) {
   const { isEditing, previewMode } = useElementor();
-  const [activeIdx, setActiveIdx] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
 
   if (!items || items.length === 0) return null;
+
+  const itemsPerPage = 6;
+  const totalPages = Math.ceil(items.length / itemsPerPage);
+
+  const pages = [];
+  for (let i = 0; i < items.length; i += itemsPerPage) {
+    pages.push(items.slice(i, i + itemsPerPage));
+  }
+
+  const safeCurrentPage = Math.min(currentPage, Math.max(0, totalPages - 1));
 
   return (
     <section aria-label={title} className="cn-container py-4 sm:py-6">
@@ -47,95 +57,116 @@ export function InstagramFeedWidget({
           </Link>
         </div>
 
-        {/* Grid 6 Cards Verticais + Setas */}
+        {/* Carrossel de Cards Verticais por página */}
         <div className="relative">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 sm:gap-3.5">
-            {items.map((item, idx) => (
-              <div
-                className="group/img relative aspect-[9/16] w-full overflow-hidden rounded-xl bg-slate-900 shadow-xs"
-                key={item.id || idx}
-              >
-                <Link
-                  className="block size-full"
-                  href={item.linkUrl || handleUrl}
-                  onClick={(e) => {
-                    if (isEditing && !previewMode) e.preventDefault();
-                  }}
-                  rel="noopener noreferrer"
-                  target="_blank"
+          <div className="overflow-hidden">
+            <div
+              className="flex transition-transform duration-500 ease-in-out"
+              style={{ transform: `translateX(-${safeCurrentPage * 100}%)` }}
+            >
+              {pages.map((pageItems, pIdx) => (
+                <div
+                  className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 sm:gap-3.5 w-full shrink-0"
+                  key={pIdx}
                 >
-                  <Image
-                    alt={item.label}
-                    className={`size-full object-cover transition duration-500 ${
-                      isEditing && !previewMode
-                        ? 'group-hover/img:brightness-50 group-hover/img:grayscale'
-                        : 'group-hover/img:scale-105'
-                    }`}
-                    height={685}
-                    src={item.imageUrl}
-                    unoptimized
-                    width={384}
-                  />
-                  {/* Gradiente inferior + Selo Instagram */}
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center gap-1.5 bg-gradient-to-t from-black/80 via-black/35 to-transparent p-3 pt-8 text-white">
-                    <Instagram className="size-3.5 shrink-0 text-white" />
-                    <span className="truncate text-[11px] font-bold tracking-tight">
-                      {item.label}
-                    </span>
-                  </div>
-                </Link>
+                  {pageItems.map((item, idx) => {
+                    const globalIdx = pIdx * itemsPerPage + idx;
+                    return (
+                      <div
+                        className="group/img relative aspect-[9/16] w-full overflow-hidden rounded-xl bg-slate-900 shadow-xs"
+                        key={item.id || globalIdx}
+                      >
+                        <Link
+                          className="block size-full"
+                          href={item.linkUrl || handleUrl}
+                          onClick={(e) => {
+                            if (isEditing && !previewMode) e.preventDefault();
+                          }}
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          <Image
+                            alt={item.label}
+                            className={`size-full object-cover transition duration-500 ${
+                              isEditing && !previewMode
+                                ? 'group-hover/img:brightness-50 group-hover/img:grayscale'
+                                : 'group-hover/img:scale-105'
+                            }`}
+                            height={685}
+                            src={item.imageUrl}
+                            unoptimized
+                            width={384}
+                          />
+                          {/* Gradiente inferior + Selo Instagram */}
+                          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center gap-1.5 bg-gradient-to-t from-black/80 via-black/35 to-transparent p-3 pt-8 text-white">
+                            <Instagram className="size-3.5 shrink-0 text-white" />
+                            <span className="truncate text-[11px] font-bold tracking-tight">
+                              {item.label}
+                            </span>
+                          </div>
+                        </Link>
 
-                {widgetId ? (
-                  <InlineImageEditorOverlay
-                    canAdd={false}
-                    canRemove={false}
-                    currentLinkUrl={item.linkUrl}
-                    fieldPath={`items.${idx}.imageUrl`}
-                    linkFieldPath={`items.${idx}.linkUrl`}
-                    previewUrl={item.imageUrl}
-                    slideIndex={idx}
-                    title={`Instagram: ${item.label}`}
-                    widgetId={widgetId}
-                  />
-                ) : null}
-              </div>
-            ))}
+                        {widgetId ? (
+                          <InlineImageEditorOverlay
+                            canAdd={false}
+                            canRemove={false}
+                            currentLinkUrl={item.linkUrl}
+                            fieldPath={`items.${globalIdx}.imageUrl`}
+                            linkFieldPath={`items.${globalIdx}.linkUrl`}
+                            previewUrl={item.imageUrl}
+                            slideIndex={globalIdx}
+                            title={`Instagram: ${item.label}`}
+                            widgetId={widgetId}
+                          />
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
 
-          <button
-            aria-label="Instagram anterior"
-            className="absolute -left-3.5 top-1/2 z-10 hidden size-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-md transition hover:scale-105 sm:flex"
-            onClick={() => setActiveIdx((p) => (p - 1 + 4) % 4)}
-            type="button"
-          >
-            <ChevronLeft className="size-4.5" />
-          </button>
-          <button
-            aria-label="Próximo Instagram"
-            className="absolute -right-3.5 top-1/2 z-10 hidden size-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-md transition hover:scale-105 sm:flex"
-            onClick={() => setActiveIdx((p) => (p + 1) % 4)}
-            type="button"
-          >
-            <ChevronRight className="size-4.5" />
-          </button>
-        </div>
-
-        {/* Dots inferiores em pílula azul marinho (#101F3C) */}
-        <div className="mt-5 flex justify-center">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#101F3C] px-3 py-1.5 shadow-xs">
-            {[0, 1, 2, 3].map((dot) => (
+          {totalPages > 1 && (
+            <>
               <button
-                aria-label={`Página ${dot + 1}`}
-                className={`h-1.5 rounded-full transition-all ${
-                  activeIdx === dot ? 'w-5 bg-[#E2091E]' : 'w-1.5 bg-white/60'
-                }`}
-                key={dot}
-                onClick={() => setActiveIdx(dot)}
+                aria-label="Instagram anterior"
+                className="absolute -left-3.5 top-1/2 z-10 hidden size-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-md transition hover:scale-105 active:scale-95 sm:flex"
+                onClick={() => setCurrentPage((p) => (p - 1 + totalPages) % totalPages)}
                 type="button"
-              />
-            ))}
-          </div>
+              >
+                <ChevronLeft className="size-4.5" />
+              </button>
+              <button
+                aria-label="Próximo Instagram"
+                className="absolute -right-3.5 top-1/2 z-10 hidden size-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-md transition hover:scale-105 active:scale-95 sm:flex"
+                onClick={() => setCurrentPage((p) => (p + 1) % totalPages)}
+                type="button"
+              >
+                <ChevronRight className="size-4.5" />
+              </button>
+            </>
+          )}
         </div>
+
+        {/* Dots inferiores em pílula azul marinho (#101F3C) com quantidade real */}
+        {totalPages > 1 && (
+          <div className="mt-5 flex justify-center">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#101F3C] px-3 py-1.5 shadow-xs">
+              {Array.from({ length: totalPages }).map((_, dot) => (
+                <button
+                  aria-label={`Página ${dot + 1}`}
+                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                    safeCurrentPage === dot ? 'w-5 bg-[#E2091E]' : 'w-1.5 bg-white/60 hover:bg-white'
+                  }`}
+                  key={dot}
+                  onClick={() => setCurrentPage(dot)}
+                  type="button"
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

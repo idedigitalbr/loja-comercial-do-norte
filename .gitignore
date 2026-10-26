@@ -79,3 +79,7 @@ Thumbs.db
 
 # Arquivo de regras gerado dinamicamente pelo Next.js
 apps/storefront/AGENTS.md
+.neon
+
+.vercel
+.env*

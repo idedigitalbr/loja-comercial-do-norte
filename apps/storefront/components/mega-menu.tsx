@@ -171,7 +171,11 @@ export function MegaMenu({ categories = [], whatsappPhone = '5596981001897', onC
 
           {/* Imagem do Mascote James ou Loja */}
           <div className="relative my-3 flex items-center justify-center">
-            <div className="relative h-28 w-24">
+            <Link
+              aria-label="Ir para a Página Inicial da Comercial do Norte"
+              className="relative block h-28 w-24 cursor-pointer transition-transform hover:scale-105 active:scale-95"
+              href="/"
+            >
               <Image
                 alt="Mascote James 3D Comercial do Norte"
                 className="object-contain drop-shadow-md"
@@ -179,7 +183,7 @@ export function MegaMenu({ categories = [], whatsappPhone = '5596981001897', onC
                 sizes="96px"
                 src="/assets/imgs/Mascote-3D-James-em-pe/principais/1-james-3d-principal.png"
               />
-            </div>
+            </Link>
           </div>
 
           {/* Ação Inferior (CTA) */}

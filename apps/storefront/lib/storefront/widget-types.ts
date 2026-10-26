@@ -152,12 +152,14 @@ export interface QuoteStepItem {
 
 export interface QuoteStepsBannerProps {
   widgetId?: string;
-  eyebrow: string;
-  title: string;
-  steps: QuoteStepItem[];
-  mascotImageUrl: string;
-  rightArtworkImageUrl: string;
+  eyebrow?: string;
+  title?: string;
+  steps?: QuoteStepItem[];
+  mascotImageUrl?: string;
+  rightArtworkImageUrl?: string;
   ctaUrl?: string;
+  imageUrl?: string;
+  altText?: string;
 }
 export type QuoteStepsBannerWidgetConfig = BaseWidgetConfig<'quote-steps-banner', QuoteStepsBannerProps>;
 
@@ -166,7 +168,7 @@ export interface SegmentCardItem {
   prefix: string;
   title: string;
   description: string;
-  iconType: 'burger' | 'pizza' | 'bakery' | 'party';
+  iconType: 'burger' | 'pizza' | 'bakery' | 'party' | 'buffet' | 'confectionery' | 'icecream' | 'bar';
   imageUrl: string;
   linkUrl: string;
 }
@@ -189,12 +191,14 @@ export interface PromoStripBadge {
 export interface PromoStripProps {
   widgetId?: string;
   variant: 'offers-strip' | 'conditions-mascot' | 'whatsapp-group';
-  title: string;
+  title?: string;
   highlightText?: string;
   subtitle?: string;
   badges?: PromoStripBadge[];
   ctaLabel?: string;
   ctaUrl?: string;
+  imageUrl?: string;
+  altText?: string;
   mascotImageUrl?: string;
   rightImageUrl?: string;
 }

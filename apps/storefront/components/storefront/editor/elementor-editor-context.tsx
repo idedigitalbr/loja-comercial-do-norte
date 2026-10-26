@@ -11,7 +11,7 @@ import type {
   WidgetType,
 } from '@/lib/storefront/widget-types';
 
-const STORAGE_KEY = 'cdn_home_composition_v4';
+const STORAGE_KEY = 'cdn_home_composition_v6';
 
 export type ViewportMode = 'desktop' | 'tablet' | 'mobile';
 export type ElementorTab = 'content' | 'style' | 'advanced';
@@ -154,7 +154,7 @@ export function ElementorEditorProvider({
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed?.version >= 4 && parsed?.widgets && Array.isArray(parsed.widgets)) {
+        if (parsed?.version >= 6 && parsed?.widgets && Array.isArray(parsed.widgets)) {
           setComposition(parsed);
           setHistory([parsed]);
           setHistoryIndex(0);
@@ -176,6 +176,18 @@ export function ElementorEditorProvider({
           }
         })
         .catch(() => {});
+    }
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      if (
+        searchParams.get('editor') === '1' ||
+        searchParams.get('editor') === 'true' ||
+        searchParams.get('edit') === '1' ||
+        searchParams.get('edit') === 'true'
+      ) {
+        setIsEditing(true);
+        setPreviewMode(false);
+      }
     }
   }, []);
 

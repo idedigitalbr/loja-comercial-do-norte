@@ -2,37 +2,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Zap } from 'lucide-react';
 import { formatMoney } from '@/lib/format';
-import { mediaUrl } from '@/lib/api';
+import { resolveProductImage } from '@/lib/product-placeholders';
 import type { ApiProduct } from '@/lib/types';
-import { AddToQuoteButton } from './add-to-quote-button';
 import { FavoriteButton } from './favorite-button';
+import { ProductCardActions } from './product-card-actions';
 
-const FALLBACK_IMAGES = [
-  '/assets/home-ref/prod-copo-descartavel.jpg',
-  '/assets/home-ref/prod-prato-descartavel.jpg',
-  '/assets/home-ref/prod-sacola-plastica.jpg',
-  '/assets/home-ref/prod-papel-toalha.jpg',
-  '/assets/home-ref/prod-caixa-pizza.jpg',
-];
-
-function resolveProductImage(product: ApiProduct): string {
-  const rawPath = product.images[0]?.path ?? null;
-  if (rawPath && rawPath.startsWith('/assets/')) return rawPath;
-  const apiImg = mediaUrl(rawPath);
-  if (apiImg) return apiImg;
-
-  const slug = product.slug.toLowerCase();
-  if (slug.includes('pizza') || slug.includes('caixa')) return '/assets/home-ref/prod-caixa-pizza.jpg';
-  if (slug.includes('sacola') || slug.includes('saco')) return '/assets/home-ref/prod-sacola-plastica.jpg';
-  if (slug.includes('copo')) return '/assets/home-ref/prod-copo-descartavel.jpg';
-  if (slug.includes('papel') || slug.includes('toalha') || slug.includes('guardanapo')) return '/assets/home-ref/prod-papel-toalha.jpg';
-  if (slug.includes('prato') || slug.includes('marmita') || slug.includes('isopor')) return '/assets/home-ref/prod-prato-descartavel.jpg';
-
-  const hash = product.id.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-  return FALLBACK_IMAGES[hash % FALLBACK_IMAGES.length];
-}
-
-/** Card de produto com fidelidade 1:1 ao site-final.jpg e CTA de cotação (Fase 1). */
+/** Card de produto com fidelidade 1:1 ao design de referência e botões revelados no hover */
 export function ProductCard({
   product,
   flashBadge = false,
@@ -66,7 +41,7 @@ export function ProductCard({
         : 'Condição especial para atacado e comércio';
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[14px] border border-slate-200/90 bg-white shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-[#004CB1]/40 hover:shadow-[0_10px_24px_rgba(0,76,177,0.10)]">
+    <article className="group relative flex w-full self-start flex-col overflow-hidden rounded-[14px] border border-slate-200/90 bg-white shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#004CB1]/40 hover:shadow-[0_12px_28px_rgba(0,76,177,0.12)]">
       <Link
         className="relative block aspect-[4/3] overflow-hidden bg-white px-4 pb-3 pt-10"
         href={`/produto/${product.slug}`}
@@ -80,17 +55,17 @@ export function ProductCard({
               productSlug: product.slug,
               name: product.name,
               sku: variant?.sku,
-              imagePath: product.images[0]?.path ?? null,
+              imagePath: image,
               unitPriceCents: variant?.priceCents ?? 0,
               compareAtPriceCents: compareAt,
             }}
           />
         </div>
 
-        {/* Badges empilhados no canto superior esquerdo (idêntico ao site-final.jpg) */}
+        {/* Badges empilhados no canto superior esquerdo */}
         <div className="absolute left-3 top-2.5 z-10 flex flex-col items-start gap-1">
           {hasDiscount ? (
-            <span className="rounded-full bg-[#E2091E] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white shadow-xs">
+            <span className="rounded-full bg-[#E2091E] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white shadow-[0_2px_8px_rgba(226,9,30,0.35)]">
               {discountPercent}% OFF
             </span>
           ) : null}
@@ -103,8 +78,8 @@ export function ProductCard({
         </div>
 
         <Image
-          alt={product.images[0]?.altText ?? product.name}
-          className="size-full object-contain transition duration-300 group-hover:scale-105"
+          alt={`${product.name} (Imagem ilustrativa)`}
+          className="size-full object-contain p-2 transition duration-300 group-hover:scale-105"
           height={250}
           src={image}
           unoptimized
@@ -112,7 +87,7 @@ export function ProductCard({
         />
       </Link>
 
-      <div className="flex flex-1 flex-col border-t border-slate-100 px-3.5 pb-3.5 pt-3">
+      <div className="flex flex-col border-t border-slate-100 px-3.5 pb-3.5 pt-3">
         <Link
           className="line-clamp-2 min-h-[2.4rem] text-[12.5px] font-bold leading-snug text-slate-800 transition-colors hover:text-[#004CB1]"
           href={`/produto/${product.slug}`}
@@ -120,17 +95,18 @@ export function ProductCard({
           {product.name}
         </Link>
 
-        {/* 5 Estrelas abaixo do título (idêntico ao site-final.jpg) */}
+        {/* 5 Estrelas abaixo do título */}
         <div className="mt-1.5 flex items-center gap-1 text-[11px] text-slate-600">
           <div className="flex items-center gap-0.5 text-amber-400">
             {[0, 1, 2, 3, 4].map((s) => (
               <Star className="size-3 fill-amber-400 text-amber-400" key={s} />
             ))}
           </div>
-          <span className="font-semibold text-slate-600">4.8 (212)</span>
+          <span className="font-semibold text-slate-600">4.7 (129)</span>
         </div>
 
-        <div className="mt-auto pt-2">
+        {/* Preço e nota de atacado conectados às estrelas sem vazio */}
+        <div className="mt-2.5">
           {variant ? (
             <div>
               {hasDiscount && compareAt ? (
@@ -139,12 +115,12 @@ export function ProductCard({
                 </div>
               ) : null}
               <div className="mt-0.5 flex items-baseline gap-1">
-                <strong className="text-[18px] font-extrabold leading-none text-[#163264]">
+                <strong className="text-[19px] font-extrabold leading-none text-[#163264]">
                   {formatMoney(variant.priceCents)}
                 </strong>
                 <span className="text-[11px] font-normal text-slate-500">no pacote</span>
               </div>
-              <p className="mt-2 border-t border-slate-100 pt-2 text-[11px] leading-snug text-slate-500">
+              <p className="mt-1.5 text-[11px] leading-snug text-slate-500">
                 {footerNote}
               </p>
             </div>
@@ -152,21 +128,24 @@ export function ProductCard({
             <p className="text-xs text-muted">Consulte disponibilidade</p>
           )}
 
+          {/* Botões revelados apenas no hover (sem botões no repouso, aparecem de baixo pra cima empurrando suavemente) */}
           {variant ? (
-            <div className="mt-2.5">
-              <AddToQuoteButton
-                className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#004CB1] px-3 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-[#003882]"
-                item={{
-                  variantId: variant.id,
-                  productSlug: product.slug,
-                  name: product.name,
-                  sku: variant.sku,
-                  imagePath: product.images[0]?.path ?? null,
-                  unitPriceCents: variant.priceCents,
-                  quantity: 1,
-                }}
-                label="Adicionar à cotação"
-              />
+            <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-300 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100">
+              <div className="overflow-hidden">
+                <div className="pt-2.5 transition-transform duration-300 ease-out translate-y-3 group-hover:translate-y-0 group-focus-within:translate-y-0">
+                  <ProductCardActions
+                    item={{
+                      variantId: variant.id,
+                      productSlug: product.slug,
+                      name: product.name,
+                      sku: variant.sku,
+                      imagePath: image,
+                      unitPriceCents: variant.priceCents,
+                      quantity: 1,
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           ) : null}
         </div>

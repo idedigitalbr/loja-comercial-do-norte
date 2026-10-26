@@ -111,14 +111,15 @@ export function SiteHeader({
 
         {/* BARRA 02: PRINCIPAL AZUL (#004CB1) COM LOGO, MASCOTE JAMES 3D, BUSCA E COTAÇÃO */}
         <div className="relative bg-[#004CB1] px-3 py-2 text-white sm:px-4 sm:py-3 md:px-6">
-          {/* MASCOTE JAMES 3D OFICIAL (Vazando para cima sobre a barra vermelha) */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -top-4 left-3 z-30 hidden md:block lg:left-6"
+          {/* MASCOTE JAMES 3D OFICIAL (Vazando para cima sobre a barra vermelha - Clicável, redireciona para a vitrine inicial) */}
+          <Link
+            aria-label={`${siteName} - Ir para a Página Inicial`}
+            className="group/mascot absolute -top-4 left-3 z-30 hidden md:block lg:left-6 cursor-pointer"
+            href="/"
           >
-            <div className="relative h-[84px] w-[72px] lg:h-[92px] lg:w-[80px]">
+            <div className="relative h-[84px] w-[72px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 lg:h-[92px] lg:w-[80px]">
               <Image
-                alt="Mascote James 3D Comercial do Norte"
+                alt="Mascote James 3D Comercial do Norte - Ir para a Página Inicial"
                 className="drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)] object-contain object-bottom"
                 fill
                 priority
@@ -126,7 +127,7 @@ export function SiteHeader({
                 src="/assets/imgs/Mascote-3D-James-em-pe/principais/1-james-3d-principal.png"
               />
             </div>
-          </div>
+          </Link>
 
           <div className="cn-container flex items-center justify-between gap-3 md:gap-4">
             {/* LADO ESQUERDO: HAMBURGER (MOBILE) + LOGO BRANCA */}
@@ -154,7 +155,11 @@ export function SiteHeader({
                     fill
                     priority
                     sizes="(max-width: 640px) 150px, (max-width: 1024px) 170px, 190px"
-                    src={logoUrl || '/assets/Logos/logo-comercial-do-norte-branca.png'}
+                    src={
+                      logoUrl && !logoUrl.includes('seed-brand')
+                        ? logoUrl
+                        : '/assets/Logos/logo-comercial-do-norte-branca.png'
+                    }
                   />
                 </div>
               </Link>

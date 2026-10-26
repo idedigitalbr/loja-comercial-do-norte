@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Minus, Plus, ShoppingBasket, Trash2 } from 'lucide-react';
 import { WebSheet } from '@commerce/ui/web';
 import { formatMoney } from '@/lib/format';
-import { mediaUrl } from '@/lib/api';
+import { resolveProductImage } from '@/lib/product-placeholders';
 import { useQuoteCart } from './quote-cart-provider';
 
 /** Mini-carrinho acessível (sheet lateral) do carrinho de cotação. */
@@ -54,19 +54,18 @@ export function QuoteDrawer() {
       ) : (
         <ul className="divide-y divide-line px-4">
           {items.map((item) => {
-            const image = mediaUrl(item.imagePath);
+            const image = resolveProductImage(item.productSlug || item.variantId);
             return (
               <li className="flex gap-3 py-4" key={item.variantId}>
-                <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-soft">
-                  {image ? (
-                    <Image
-                      alt={item.name}
-                      className="size-full object-cover"
-                      height={64}
-                      src={image}
-                      width={64}
-                    />
-                  ) : null}
+                <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-100 bg-white p-1">
+                  <Image
+                    alt={`${item.name} (Imagem ilustrativa)`}
+                    className="size-full object-contain"
+                    height={64}
+                    src={image}
+                    unoptimized
+                    width={64}
+                  />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-ink">{item.name}</p>

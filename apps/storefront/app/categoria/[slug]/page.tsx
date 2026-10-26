@@ -56,7 +56,7 @@ export default async function CategoryPage({ params }: { params: Params }) {
       ) : null}
 
       {products.length ? (
-        <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 items-start">
           {products.map((product) => <ProductCard key={product.id} product={product} />)}
         </div>
       ) : (

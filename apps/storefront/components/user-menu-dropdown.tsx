@@ -189,22 +189,39 @@ export function UserMenuDropdown() {
             */}
             <div className="grid grid-cols-3 gap-1.5 px-0.5">
               {/* Badge 1: ADM EDITOR */}
-              <div className="flex items-center justify-center gap-1.5 rounded-full bg-[#E8F0FE] border border-blue-200/80 py-1.5 px-2 text-[10px] sm:text-[11px] font-bold text-[#1D4ED8] whitespace-nowrap shadow-2xs">
+              <a
+                className="flex items-center justify-center gap-1.5 rounded-full bg-[#E8F0FE] border border-blue-200/80 py-1.5 px-2 text-[10px] sm:text-[11px] font-bold text-[#1D4ED8] whitespace-nowrap shadow-2xs hover:bg-blue-100/90 transition cursor-pointer"
+                href={process.env.NEXT_PUBLIC_ADMIN_URL || 'http://localhost:5174/admin/'}
+                onClick={() => setOpen(false)}
+                rel="noreferrer"
+                target="_blank"
+                title="Acessar Painel Administrativo"
+              >
                 <Crown className="size-3.5 fill-[#1D4ED8] text-[#1D4ED8] shrink-0" />
                 <span className="whitespace-nowrap">ADM EDITOR</span>
-              </div>
+              </a>
 
               {/* Badge 2: CLIENTE OURO */}
-              <div className="flex items-center justify-center gap-1.5 rounded-full bg-[#FEF3C7] border border-amber-200/80 py-1.5 px-2 text-[10px] sm:text-[11px] font-bold text-[#B45309] whitespace-nowrap shadow-2xs">
+              <Link
+                className="flex items-center justify-center gap-1.5 rounded-full bg-[#FEF3C7] border border-amber-200/80 py-1.5 px-2 text-[10px] sm:text-[11px] font-bold text-[#B45309] whitespace-nowrap shadow-2xs hover:bg-amber-100/90 transition cursor-pointer"
+                href="/conta/fidelidade"
+                onClick={() => setOpen(false)}
+                title="Ver benefícios Cliente Ouro"
+              >
                 <Gem className="size-3.5 fill-[#B45309] text-[#B45309] shrink-0" />
                 <span className="whitespace-nowrap">CLIENTE OURO</span>
-              </div>
+              </Link>
 
               {/* Badge 3: 9.2100 PTS */}
-              <div className="flex items-center justify-center gap-1.5 rounded-full bg-[#F3E8FF] border border-purple-200/80 py-1.5 px-2 text-[10px] sm:text-[11px] font-bold text-[#7E22CE] whitespace-nowrap shadow-2xs">
+              <Link
+                className="flex items-center justify-center gap-1.5 rounded-full bg-[#F3E8FF] border border-purple-200/80 py-1.5 px-2 text-[10px] sm:text-[11px] font-bold text-[#7E22CE] whitespace-nowrap shadow-2xs hover:bg-purple-100/90 transition cursor-pointer"
+                href="/conta/fidelidade"
+                onClick={() => setOpen(false)}
+                title="Ver extrato de pontos fidelidade"
+              >
                 <Star className="size-3.5 fill-[#7E22CE] text-[#7E22CE] shrink-0" />
                 <span className="whitespace-nowrap">9.2100 PTS</span>
-              </div>
+              </Link>
             </div>
 
             {/* BLOCO 03: CARD BRANCO AGRUPADO COM 4 ITENS (DIVISORES FINOS E ÍCONES REDONDOS) */}
@@ -212,7 +229,7 @@ export function UserMenuDropdown() {
               {/* Meus pedidos */}
               <Link
                 className="flex items-center justify-between p-3.5 transition hover:bg-slate-50"
-                href="/compras"
+                href="/conta/pedidos"
                 onClick={() => setOpen(false)}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -227,12 +244,10 @@ export function UserMenuDropdown() {
               </Link>
 
               {/* Trocas e cancelamentos */}
-              <a
+              <Link
                 className="flex items-center justify-between p-3.5 transition hover:bg-slate-50"
-                href="https://wa.me/5591983440880?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20trocas%20ou%20cancelamento"
+                href="/conta/trocas"
                 onClick={() => setOpen(false)}
-                rel="noreferrer"
-                target="_blank"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#EBF3FF] text-[#0066FF]">
@@ -243,12 +258,12 @@ export function UserMenuDropdown() {
                   </span>
                 </div>
                 <ChevronRight className="size-4 text-slate-400 stroke-[2] shrink-0" />
-              </a>
+              </Link>
 
               {/* Dados pessoais */}
               <Link
                 className="flex items-center justify-between p-3.5 transition hover:bg-slate-50"
-                href="/conta"
+                href="/conta/dados-pessoais"
                 onClick={() => setOpen(false)}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -265,7 +280,7 @@ export function UserMenuDropdown() {
               {/* Alterar e-mail ou telefone */}
               <Link
                 className="flex items-center justify-between p-3.5 transition hover:bg-slate-50"
-                href="/conta"
+                href="/conta/contato"
                 onClick={() => setOpen(false)}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -281,12 +296,10 @@ export function UserMenuDropdown() {
             </div>
 
             {/* BLOCO 04: FALE COM LOJISTA (Card branco separado com ícone de mensagem) */}
-            <a
+            <Link
               className="flex items-center justify-between rounded-2xl bg-white p-3.5 shadow-2xs border border-slate-100/90 transition hover:bg-slate-50 hover:border-slate-200"
-              href="https://wa.me/5591983440880"
+              href="/conta/atendimento"
               onClick={() => setOpen(false)}
-              rel="noreferrer"
-              target="_blank"
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#EBF3FF] text-[#0066FF]">
@@ -297,7 +310,7 @@ export function UserMenuDropdown() {
                 </span>
               </div>
               <ChevronRight className="size-4 text-slate-400 stroke-[2] shrink-0" />
-            </a>
+            </Link>
 
             {/* BLOCO 05: BOTÃO SAIR (Fiel ao print: fundo branco, contorno azul #0066FF e ícone LogOut azul) */}
             <button

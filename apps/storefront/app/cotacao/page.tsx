@@ -19,6 +19,7 @@ import { useAuth } from '@/components/auth-provider';
 import { ShoppingBag } from 'lucide-react';
 import { API_URL, mediaUrl } from '@/lib/api';
 import { formatMoney } from '@/lib/format';
+import { resolveProductImage } from '@/lib/product-placeholders';
 
 type FieldErrors = Record<string, string[]>;
 
@@ -67,6 +68,32 @@ export default function QuoteFormPage() {
         setError('Resposta inesperada da API. Tente novamente.');
         return;
       }
+
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = window.localStorage.getItem('cn.user_quotes');
+          const existing = stored ? JSON.parse(stored) : [];
+          const newQuote = {
+            publicId: payload.publicId,
+            createdAt: new Date().toISOString(),
+            status: 'ANALYSIS',
+            statusLabel: 'Em Análise Comercial',
+            itemsCount: items.length,
+            subtotalCents,
+            items: items.map((i) => ({
+              variantId: i.variantId,
+              name: i.name,
+              productSlug: i.productSlug,
+              quantity: i.quantity,
+              unitPriceCents: i.unitPriceCents,
+            })),
+          };
+          window.localStorage.setItem('cn.user_quotes', JSON.stringify([newQuote, ...existing]));
+        } catch {
+          // Silencioso em caso de restrição de storage
+        }
+      }
+
       clear();
       router.push(`/cotacao/${payload.publicId}`);
     } catch {
@@ -209,11 +236,11 @@ export default function QuoteFormPage() {
           <h2 className="text-sm font-bold uppercase tracking-wide text-ink">Itens ({count})</h2>
           <ul className="mt-3 divide-y divide-line">
             {items.map((item) => {
-              const image = mediaUrl(item.imagePath);
+              const image = resolveProductImage(item.productSlug || item.variantId);
               return (
                 <li className="flex gap-3 py-3" key={item.variantId}>
-                  <div className="size-14 shrink-0 overflow-hidden rounded bg-surface-soft">
-                    {image ? <Image alt={item.name} className="size-full object-cover" height={56} src={image} width={56} /> : null}
+                  <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded border border-slate-100 bg-white p-1">
+                    <Image alt={`${item.name} (Imagem ilustrativa)`} className="size-full object-contain" height={56} src={image} unoptimized width={56} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-ink">{item.name}</p>

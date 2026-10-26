@@ -27,6 +27,39 @@
 
 **Consequência:** a base compila, passa em lint/typecheck/testes e builda no CI; localmente o sandbox bloqueia apenas esbuild/Prisma engine (registrado acima).
 
+### 1.2 Configuração e migração para Neon (PostgreSQL na nuvem) — 26/10/2026
+
+- **Projeto Neon oficial conectado:**
+  - Projeto: `DB-loja-comercial-norte` (`bitter-haze-15129381`)
+  - Organização: `org-wandering-union-17658713`
+  - Região: `aws-sa-east-1` (São Paulo)
+  - Branch ativa: `production` (`br-floral-grass-b6brkh2t`)
+  - Banco: `neondb`
+  - Plano: Free
+- **MCP Server oficial e Agent Skills:**
+  - Neon MCP Server configurado em `~/.gemini/config/mcp_config.json` e `~/.gemini/antigravity/mcp_config.json` com endpoint oficial `https://mcp.neon.tech/mcp`.
+  - Neon Agent Skills instaladas no workspace em `.agents/skills/`: `neon`, `neon-postgres`, `neon-postgres-branches`.
+- **Estratégia de ambientes e preservação do PostgreSQL local:**
+  - O banco local em `127.0.0.1:55432` permanece 100% ativo e preservado.
+  - `.env` mantém as credenciais de desenvolvimento local (`comercial_norte_dev`).
+  - `.env.neon` isolado (ignorado pelo Git) armazena as connection strings da branch `production`:
+    - `DATABASE_URL`: conexão com pooling para runtime de aplicações (`-pooler`).
+    - `DATABASE_URL_UNPOOLED`: conexão direta sem pooling para migrations e DDL.
+  - Arquivos de configuração de infraestrutura criados na raiz: `.neon` e `neon.ts` (`auth: false`).
+- **Migração de estrutura e dados:**
+  - 4/4 migrations do Prisma executadas com sucesso (`20261024170000_init_postgresql`, `20261024180000_site_configuration_default_name`, `20261024190000_add_quote_requests`, `20261024210000_category_hierarchy`).
+  - Total de 58 tabelas criadas no schema `public`.
+  - 100% dos dados migrados em ordem topológica de chave estrangeira (146 registros em 19 tabelas, incluindo os 12 produtos cadastrados, variantes, categorias, imagens, usuários, permissões e banners).
+  - Verificação comparativa local vs Neon: 19/19 tabelas populadas com contagens idênticas.
+- **Runbook operacional para agentes e Antigravity:**
+  - *Inspecionar via MCP*: `Neon.list_projects`, `Neon.list_branches`, `Neon.get_database_tables`, `Neon.run_sql`.
+  - *Consultar dados via CLI*: `neon db query "SELECT count(*) FROM \"Product\";"`
+  - *Migrations seguras*: utilizar sempre a connection string direta (`DATABASE_URL_UNPOOLED`). Exemplo: `$env:DATABASE_URL = $unpooled; pnpm db:migrate:deploy`.
+  - *Backup/dump*: gerar via Prisma/script de exportação para JSON/SQL em diretório seguro e gitignored.
+- **Evidência de Build e Testes:**
+  - `pnpm build`: 6/6 pacotes concluídos com sucesso (Next.js 16.4.3 Turbopack, Vite admin e NestJS API).
+  - Testes com API NestJS conectada ao Neon: rotas `/api/v1/catalog/products` e `/api/v1/catalog/categories` validadas com retorno íntegro.
+
 ### Fonte única dos arquivos de memória
 
 `docs/memory-ai.md` = decisões e fatos duradouros.

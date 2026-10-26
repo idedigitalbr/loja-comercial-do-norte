@@ -32,7 +32,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b2', name: 'Copobras', slug: 'copobras' },
     categories: [{ category: { id: 'c2', name: 'Embalagens', slug: 'embalagens' } }],
-    images: [{ id: 'img2', path: '/assets/home-ref/prod-prato-descartavel.jpg', altText: 'Marmita de Isopor 900ml', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img2', path: '/assets/produtos/marmita-900ml.jpg', altText: 'Marmita de Isopor 900ml', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-2', publicId: 'v-fallback-2', sku: 'MARM-900', priceCents: 2990, compareAtPriceCents: 4150, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -44,7 +44,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b3', name: 'NortePlast', slug: 'norteplast' },
     categories: [{ category: { id: 'c3', name: 'Sacos & Sacolas', slug: 'sacos-e-sacolas' } }],
-    images: [{ id: 'img3', path: '/assets/home-ref/prod-sacola-plastica.jpg', altText: 'Sacola Plástica 50x60', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img3', path: '/assets/produtos/sacola-50x60.jpg', altText: 'Sacola Plástica 50x60', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-3', publicId: 'v-fallback-3', sku: 'SAC-50X60', priceCents: 6990, compareAtPriceCents: 8990, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -56,7 +56,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b4', name: 'Mili Profissional', slug: 'mili' },
     categories: [{ category: { id: 'c4', name: 'Limpeza Profissional', slug: 'limpeza-profissional' } }],
-    images: [{ id: 'img4', path: '/assets/home-ref/prod-papel-toalha.jpg', altText: 'Papel Toalha Interfolhado', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img4', path: '/assets/produtos/papel-toalha.jpg', altText: 'Papel Toalha Interfolhado', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-4', publicId: 'v-fallback-4', sku: 'PAPEL-1000', priceCents: 1999, compareAtPriceCents: 2440, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -68,8 +68,128 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b5', name: 'Comercial do Norte', slug: 'comercial-do-norte' },
     categories: [{ category: { id: 'c2', name: 'Embalagens', slug: 'embalagens' } }],
-    images: [{ id: 'img5', path: '/assets/home-ref/prod-caixa-pizza.jpg', altText: 'Caixa de Pizza 35cm', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img5', path: '/assets/produtos/caixa-pizza-35cm.jpg', altText: 'Caixa de Pizza 35cm', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-5', publicId: 'v-fallback-5', sku: 'CX-PIZZA-35', priceCents: 2723, compareAtPriceCents: 3890, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
+  },
+  {
+    id: 'fallback-prod-6',
+    publicId: 'fallback-prod-6',
+    name: 'Prato Descartável Fundo 18cm Branco — Pct 50 un.',
+    slug: 'prato-descartavel-fundo-18cm',
+    description: 'Ideal para refeições, caldos e eventos',
+    status: 'ACTIVE',
+    brand: { id: 'b1', name: 'Cristalcopo', slug: 'cristalcopo' },
+    categories: [{ category: { id: 'c1', name: 'Descartáveis', slug: 'descartaveis' } }],
+    images: [{ id: 'img6', path: '/assets/home-ref/prod-prato-descartavel.jpg', altText: 'Prato Descartável 18cm', isPrimary: true, sortOrder: 0, variantId: null }],
+    variants: [{ id: 'v-fallback-6', publicId: 'v-fallback-6', sku: 'PRATO-18', priceCents: 1450, compareAtPriceCents: 1990, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
+  },
+  {
+    id: 'fallback-prod-7',
+    publicId: 'fallback-prod-7',
+    name: 'Copo Descartável 200ml Água — Pct 100 un.',
+    slug: 'copo-descartavel-200ml-agua',
+    description: 'Uso comercial diário para água e café',
+    status: 'ACTIVE',
+    brand: { id: 'b2', name: 'Copobras', slug: 'copobras' },
+    categories: [{ category: { id: 'c1', name: 'Descartáveis', slug: 'descartaveis' } }],
+    images: [{ id: 'img7', path: '/assets/produtos/copo-200ml.png', altText: 'Copo Descartável 200ml', isPrimary: true, sortOrder: 0, variantId: null }],
+    variants: [{ id: 'v-fallback-7', publicId: 'v-fallback-7', sku: 'COPO-200ML', priceCents: 890, compareAtPriceCents: 1250, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
+  },
+  {
+    id: 'fallback-prod-8',
+    publicId: 'fallback-prod-8',
+    name: 'Detergente Líquido Neutro Concentrado 5L',
+    slug: 'detergente-liquido-neutro-5l',
+    description: 'Alto rendimento para cozinhas industriais',
+    status: 'ACTIVE',
+    brand: { id: 'b6', name: 'Limpeza Pro', slug: 'limpeza-pro' },
+    categories: [{ category: { id: 'c4', name: 'Limpeza', slug: 'limpeza' } }],
+    images: [{ id: 'img8', path: '/assets/produtos/detergente-5l.jpg', altText: 'Detergente 5L', isPrimary: true, sortOrder: 0, variantId: null }],
+    variants: [{ id: 'v-fallback-8', publicId: 'v-fallback-8', sku: 'DET-5L', priceCents: 3290, compareAtPriceCents: 4200, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
+  },
+  {
+    id: 'fallback-prod-9',
+    publicId: 'fallback-prod-9',
+    name: 'Marmita Térmica de Alumínio 750ml — Pct 50 un.',
+    slug: 'marmita-termica-aluminio-750ml',
+    description: 'Mantém o prato quente por mais tempo',
+    status: 'ACTIVE',
+    brand: { id: 'b7', name: 'Wyda', slug: 'wyda' },
+    categories: [{ category: { id: 'c2', name: 'Embalagens', slug: 'embalagens' } }],
+    images: [{ id: 'img9', path: '/assets/produtos/marmita-750ml.jpg', altText: 'Marmita Alumínio 750ml', isPrimary: true, sortOrder: 0, variantId: null }],
+    variants: [{ id: 'v-fallback-9', publicId: 'v-fallback-9', sku: 'MARM-ALUM-750', priceCents: 3850, compareAtPriceCents: 4890, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
+  },
+  {
+    id: 'fallback-prod-10',
+    publicId: 'fallback-prod-10',
+    name: 'Sacola Plástica Reforçada 38×48 — Pct 5kg',
+    slug: 'sacola-plastica-reforcada-38x48',
+    description: 'Tamanho padrão para padarias e mercadinhos',
+    status: 'ACTIVE',
+    brand: { id: 'b3', name: 'NortePlast', slug: 'norteplast' },
+    categories: [{ category: { id: 'c3', name: 'Sacos & Sacolas', slug: 'sacos-e-sacolas' } }],
+    images: [{ id: 'img10', path: '/assets/produtos/sacola-38x48.jpg', altText: 'Sacola Reforçada 38x48', isPrimary: true, sortOrder: 0, variantId: null }],
+    variants: [{ id: 'v-fallback-10', publicId: 'v-fallback-10', sku: 'SAC-38X48', priceCents: 5490, compareAtPriceCents: 6890, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
+  },
+  {
+    id: 'fallback-prod-11',
+    publicId: 'fallback-prod-11',
+    name: 'Caixa de Pizza Oitavada 25cm Brotinho — Pct 25 un.',
+    slug: 'caixa-pizza-oitavada-25cm',
+    description: 'Excelente para porções individuais e esfihas',
+    status: 'ACTIVE',
+    brand: { id: 'b5', name: 'Comercial do Norte', slug: 'comercial-do-norte' },
+    categories: [{ category: { id: 'c2', name: 'Embalagens', slug: 'embalagens' } }],
+    images: [{ id: 'img11', path: '/assets/produtos/caixa-pizza-25cm.jpg', altText: 'Caixa de Pizza 25cm', isPrimary: true, sortOrder: 0, variantId: null }],
+    variants: [{ id: 'v-fallback-11', publicId: 'v-fallback-11', sku: 'CX-PIZZA-25', priceCents: 2190, compareAtPriceCents: 2890, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
+  },
+  {
+    id: 'fallback-prod-12',
+    publicId: 'fallback-prod-12',
+    name: 'Copo Descartável Reforçado 300ml — Pct 100 un.',
+    slug: 'copo-descartavel-reforcado-300ml',
+    description: 'Para sucos, refrigerantes e chopp',
+    status: 'ACTIVE',
+    brand: { id: 'b2', name: 'Copobras', slug: 'copobras' },
+    categories: [{ category: { id: 'c1', name: 'Descartáveis', slug: 'descartaveis' } }],
+    images: [{ id: 'img12', path: '/assets/produtos/copo-300ml.png', altText: 'Copo Reforçado 300ml', isPrimary: true, sortOrder: 0, variantId: null }],
+    variants: [{ id: 'v-fallback-12', publicId: 'v-fallback-12', sku: 'COPO-REF-300', priceCents: 1590, compareAtPriceCents: 2100, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
+  },
+  {
+    id: 'fallback-prod-13',
+    publicId: 'fallback-prod-13',
+    name: 'Luva Nitrílica Sem Pó Azul — Cx 100 un.',
+    slug: 'luva-nitrilica-sem-po-azul',
+    description: 'Higiene e proteção profissional na manipulação',
+    status: 'ACTIVE',
+    brand: { id: 'b8', name: 'Supermax', slug: 'supermax' },
+    categories: [{ category: { id: 'c4', name: 'Limpeza & Higiene', slug: 'limpeza' } }],
+    images: [{ id: 'img13', path: '/assets/home-ref/s11-triple-03-luva-azul.jpg', altText: 'Luva Nitrílica Azul', isPrimary: true, sortOrder: 0, variantId: null }],
+    variants: [{ id: 'v-fallback-13', publicId: 'v-fallback-13', sku: 'LUV-NIT-AZUL', priceCents: 2710, compareAtPriceCents: 3590, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
+  },
+  {
+    id: 'fallback-prod-14',
+    publicId: 'fallback-prod-14',
+    name: 'Hamburgueira de Isopor Térmica — Pct 100 un.',
+    slug: 'hamburgueira-isopor-termica',
+    description: 'Mantém o lanche montado e aquecido',
+    status: 'ACTIVE',
+    brand: { id: 'b2', name: 'Copobras', slug: 'copobras' },
+    categories: [{ category: { id: 'c2', name: 'Embalagens', slug: 'embalagens' } }],
+    images: [{ id: 'img14', path: '/assets/home-ref/s11-triple-01-hamburgueira.jpg', altText: 'Hamburgueira Isopor', isPrimary: true, sortOrder: 0, variantId: null }],
+    variants: [{ id: 'v-fallback-14', publicId: 'v-fallback-14', sku: 'HAMB-ISOPOR', priceCents: 8595, compareAtPriceCents: 10400, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
+  },
+  {
+    id: 'fallback-prod-15',
+    publicId: 'fallback-prod-15',
+    name: 'Luva Nitrílica Sem Pó Vermelho — Cx 100 un.',
+    slug: 'luva-nitrilica-sem-po-vermelho',
+    description: 'Resistência química e mecânica certificada',
+    status: 'ACTIVE',
+    brand: { id: 'b8', name: 'Supermax', slug: 'supermax' },
+    categories: [{ category: { id: 'c4', name: 'Limpeza & Higiene', slug: 'limpeza' } }],
+    images: [{ id: 'img15', path: '/assets/home-ref/s11-triple-02-luva-vermelho.jpg', altText: 'Luva Nitrílica Vermelho', isPrimary: true, sortOrder: 0, variantId: null }],
+    variants: [{ id: 'v-fallback-15', publicId: 'v-fallback-15', sku: 'LUV-NIT-VERM', priceCents: 2710, compareAtPriceCents: 3590, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
 ];
 
@@ -96,11 +216,20 @@ export function ProductCarouselWidget({
 
   const baseList = rawItems.length > 0 ? rawItems : FALLBACK_CATALOG_PRODUCTS;
   const targetCount = limit ?? (variant === 'split-banner' ? 3 : 5);
+  const totalPages = Math.max(1, Math.ceil(baseList.length / targetCount));
+  const safePage = Math.min(page, totalPages - 1);
 
-  const displayItems: ApiProduct[] = [];
-  for (let i = 0; i < targetCount; i++) {
-    const item = baseList[(i + page) % baseList.length];
-    if (item) displayItems.push(item);
+  // Paginação real sem repetir itens na mesma página
+  const startIndex = safePage * targetCount;
+  const displayItems = baseList.slice(startIndex, startIndex + targetCount);
+
+  // Se a última página tiver menos itens que o target, preenche de forma cíclica para manter o layout
+  if (displayItems.length < targetCount && baseList.length >= targetCount) {
+    const diff = targetCount - displayItems.length;
+    for (let i = 0; i < diff; i++) {
+      const extraItem = baseList[i % baseList.length];
+      if (extraItem) displayItems.push(extraItem);
+    }
   }
 
   const renderEditableTitle = () =>
@@ -138,21 +267,24 @@ export function ProductCarouselWidget({
       </h2>
     );
 
-  const renderDarkNavyPaginationPill = () => (
-    <div className="inline-flex items-center gap-1.5 rounded-full bg-[#101F3C] px-3 py-1.5">
-      {[0, 1, 2, 3, 4, 5].map((dotIdx) => (
-        <button
-          aria-label={`Página ${dotIdx + 1}`}
-          className={`h-1.5 rounded-full transition-all ${
-            (page + 4) % 6 === dotIdx ? 'w-4 bg-[#E2091E]' : 'w-1.5 bg-white/40 hover:bg-white/70'
-          }`}
-          key={dotIdx}
-          onClick={() => setPage(dotIdx)}
-          type="button"
-        />
-      ))}
-    </div>
-  );
+  const renderDarkNavyPaginationPill = () => {
+    if (totalPages <= 1) return null;
+    return (
+      <div className="inline-flex items-center gap-1.5 rounded-full bg-[#101F3C] px-3 py-1.5">
+        {Array.from({ length: totalPages }).map((_, dotIdx) => (
+          <button
+            aria-label={`Página ${dotIdx + 1}`}
+            className={`h-1.5 rounded-full transition-all cursor-pointer ${
+              safePage === dotIdx ? 'w-4 bg-[#E2091E]' : 'w-1.5 bg-white/40 hover:bg-white/70'
+            }`}
+            key={dotIdx}
+            onClick={() => setPage(dotIdx)}
+            type="button"
+          />
+        ))}
+      </div>
+    );
+  };
 
   if (variant === 'split-banner') {
     const banner = sideBanner ?? {
@@ -247,25 +379,37 @@ export function ProductCarouselWidget({
               {renderDarkNavyPaginationPill()}
             </div>
 
-            <div className="relative flex-1">
-              <div className="grid h-full grid-cols-1 gap-3.5 sm:grid-cols-3">
+            <div className="relative">
+              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3 items-start">
                 {displayItems.map((product, idx) => (
                   <ProductCard
                     flashBadge={idx % 2 === 0}
-                    key={`${product.id}-${idx}`}
+                    key={`${product.id}-${safePage}-${idx}`}
                     product={product}
                   />
                 ))}
               </div>
 
-              <button
-                aria-label="Próximo"
-                className="absolute -right-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex"
-                onClick={() => setPage((p) => (p + 1) % 6)}
-                type="button"
-              >
-                <ChevronRight className="size-5" />
-              </button>
+              {totalPages > 1 && (
+                <>
+                  <button
+                    aria-label="Anterior"
+                    className="absolute -left-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                    onClick={() => setPage((p) => (p - 1 + totalPages) % totalPages)}
+                    type="button"
+                  >
+                    <ChevronLeft className="size-5" />
+                  </button>
+                  <button
+                    aria-label="Próximo"
+                    className="absolute -right-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                    onClick={() => setPage((p) => (p + 1) % totalPages)}
+                    type="button"
+                  >
+                    <ChevronRight className="size-5" />
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -293,32 +437,36 @@ export function ProductCarouselWidget({
         </div>
 
         <div className="relative">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:gap-3.5">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:gap-3.5 items-start">
             {displayItems.map((product, idx) => (
               <ProductCard
                 flashBadge={idx === 0 || idx === 2}
-                key={`${product.id}-${idx}`}
+                key={`${product.id}-${safePage}-${idx}`}
                 product={product}
               />
             ))}
           </div>
 
-          <button
-            aria-label="Anterior"
-            className="absolute -left-3.5 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex"
-            onClick={() => setPage((p) => (p - 1 + 6) % 6)}
-            type="button"
-          >
-            <ChevronLeft className="size-5" />
-          </button>
-          <button
-            aria-label="Próximo"
-            className="absolute -right-3.5 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex"
-            onClick={() => setPage((p) => (p + 1) % 6)}
-            type="button"
-          >
-            <ChevronRight className="size-5" />
-          </button>
+          {totalPages > 1 && (
+            <>
+              <button
+                aria-label="Anterior"
+                className="absolute -left-3.5 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                onClick={() => setPage((p) => (p - 1 + totalPages) % totalPages)}
+                type="button"
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+              <button
+                aria-label="Próximo"
+                className="absolute -right-3.5 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                onClick={() => setPage((p) => (p + 1) % totalPages)}
+                type="button"
+              >
+                <ChevronRight className="size-5" />
+              </button>
+            </>
+          )}
         </div>
       </div>
     </section>

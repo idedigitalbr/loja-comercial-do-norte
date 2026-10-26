@@ -16,35 +16,7 @@ import { useFavorites } from '@/components/favorites-provider';
 import { useQuoteCart } from '@/components/quote-cart-provider';
 import { useAuth } from '@/components/auth-provider';
 import { formatMoney } from '@/lib/format';
-import { mediaUrl } from '@/lib/api';
-
-const FALLBACK_IMAGES = [
-  '/assets/home-ref/prod-copo-descartavel.jpg',
-  '/assets/home-ref/prod-prato-descartavel.jpg',
-  '/assets/home-ref/prod-sacola-plastica.jpg',
-  '/assets/home-ref/prod-papel-toalha.jpg',
-  '/assets/home-ref/prod-caixa-pizza.jpg',
-];
-
-function resolveFavImage(imagePath: string | null | undefined, slug: string): string {
-  if (imagePath && imagePath.startsWith('/assets/')) return imagePath;
-  const apiImg = mediaUrl(imagePath);
-  if (apiImg) return apiImg;
-
-  const s = slug.toLowerCase();
-  if (s.includes('pizza') || s.includes('caixa')) return '/assets/home-ref/prod-caixa-pizza.jpg';
-  if (s.includes('sacola') || s.includes('saco')) return '/assets/home-ref/prod-sacola-plastica.jpg';
-  if (s.includes('copo')) return '/assets/home-ref/prod-copo-descartavel.jpg';
-  if (s.includes('papel') || s.includes('toalha') || s.includes('guardanapo')) {
-    return '/assets/home-ref/prod-papel-toalha.jpg';
-  }
-  if (s.includes('prato') || s.includes('marmita') || s.includes('isopor')) {
-    return '/assets/home-ref/prod-prato-descartavel.jpg';
-  }
-
-  const hash = slug.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-  return FALLBACK_IMAGES[hash % FALLBACK_IMAGES.length] ?? FALLBACK_IMAGES[0]!;
-}
+import { resolveProductImage } from '@/lib/product-placeholders';
 
 export default function FavoritosPage() {
   const { favorites, count, remove, clear, ready } = useFavorites();
@@ -248,7 +220,7 @@ export default function FavoritosPage() {
                 {/* Grade de Produtos Favoritados */}
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
                   {favorites.map((item) => {
-                    const image = resolveFavImage(item.imagePath, item.productSlug);
+                    const image = resolveProductImage(item.productSlug || item.id);
                     return (
                       <article
                         className="group flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs transition hover:-translate-y-0.5 hover:border-[#004CB1]/40 hover:shadow-md"
@@ -272,7 +244,7 @@ export default function FavoritosPage() {
                             href={`/produto/${item.productSlug}`}
                           >
                             <Image
-                              alt={item.name}
+                              alt={`${item.name} (Imagem ilustrativa)`}
                               className="size-full object-contain p-2 transition duration-200 group-hover:scale-105"
                               fill
                               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"

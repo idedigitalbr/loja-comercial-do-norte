@@ -14,35 +14,7 @@ import {
 import { useQuoteCart } from '@/components/quote-cart-provider';
 import { useAuth } from '@/components/auth-provider';
 import { formatMoney } from '@/lib/format';
-import { mediaUrl } from '@/lib/api';
-
-const FALLBACK_IMAGES = [
-  '/assets/home-ref/prod-copo-descartavel.jpg',
-  '/assets/home-ref/prod-prato-descartavel.jpg',
-  '/assets/home-ref/prod-sacola-plastica.jpg',
-  '/assets/home-ref/prod-papel-toalha.jpg',
-  '/assets/home-ref/prod-caixa-pizza.jpg',
-];
-
-function resolveImg(path: string | null | undefined, slug: string): string {
-  if (path && path.startsWith('/assets/')) return path;
-  const apiImg = mediaUrl(path);
-  if (apiImg) return apiImg;
-
-  const s = slug.toLowerCase();
-  if (s.includes('pizza') || s.includes('caixa')) return '/assets/home-ref/prod-caixa-pizza.jpg';
-  if (s.includes('sacola') || s.includes('saco')) return '/assets/home-ref/prod-sacola-plastica.jpg';
-  if (s.includes('copo')) return '/assets/home-ref/prod-copo-descartavel.jpg';
-  if (s.includes('papel') || s.includes('toalha') || s.includes('guardanapo')) {
-    return '/assets/home-ref/prod-papel-toalha.jpg';
-  }
-  if (s.includes('prato') || s.includes('marmita') || s.includes('isopor')) {
-    return '/assets/home-ref/prod-prato-descartavel.jpg';
-  }
-
-  const hash = slug.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-  return FALLBACK_IMAGES[hash % FALLBACK_IMAGES.length] ?? FALLBACK_IMAGES[0]!;
-}
+import { resolveProductImage } from '@/lib/product-placeholders';
 
 export default function ComprasPage() {
   const { items, count, subtotalCents, updateQuantity, remove, clear, ready } = useQuoteCart();
@@ -150,12 +122,12 @@ export default function ComprasPage() {
 
               <div className="mt-4 divide-y divide-slate-100">
                 {items.map((item) => {
-                  const image = resolveImg(item.imagePath, item.productSlug);
+                  const image = resolveProductImage(item.productSlug || item.variantId);
                   return (
                     <div className="flex gap-4 py-4" key={item.variantId}>
-                      <div className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-slate-50 border border-slate-100">
+                      <div className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-white border border-slate-100">
                         <Image
-                          alt={item.name}
+                          alt={`${item.name} (Imagem ilustrativa)`}
                           className="size-full object-contain p-1"
                           fill
                           sizes="80px"

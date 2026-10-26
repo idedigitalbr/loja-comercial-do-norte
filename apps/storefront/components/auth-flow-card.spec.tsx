@@ -29,6 +29,8 @@ describe('AuthFlowCard', () => {
   const mockCheckEmail = vi.fn().mockResolvedValue({ exists: true });
   const mockLogin = vi.fn().mockResolvedValue({ ok: true, isAdmin: false });
   const mockRegister = vi.fn().mockResolvedValue({ ok: true });
+  const mockUpdateProfile = vi.fn().mockResolvedValue({ ok: true });
+  const mockChangePassword = vi.fn().mockResolvedValue({ ok: true });
   const mockLogout = vi.fn().mockResolvedValue(undefined);
 
   beforeEach(() => {
@@ -39,6 +41,8 @@ describe('AuthFlowCard', () => {
       checkEmail: mockCheckEmail,
       login: mockLogin,
       register: mockRegister,
+      updateProfile: mockUpdateProfile,
+      changePassword: mockChangePassword,
       logout: mockLogout,
     });
   });

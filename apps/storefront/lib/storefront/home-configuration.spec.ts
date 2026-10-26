@@ -48,7 +48,7 @@ describe('defaultHomeComposition (19 seções site-final + S0/S20)', () => {
     expect(json).toContain('OFERTAS IMPERDÍVEIS');
     expect(json).toContain('Nossos Eventos');
     expect(json).toContain('CONDIÇÕES ESPECIAIS');
-    expect(json).toContain('Explica aí comercial');
+    expect(json).toContain('Explica Aí Nort');
     expect(json).toContain('A Loja no Instagram');
     expect(json).toContain('Exclusivas do WhatsApp');
     expect(json).toContain('O que nossos clientes dizem no Google.');

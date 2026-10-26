@@ -6,6 +6,7 @@ import { CheckCircle2 } from 'lucide-react';
 import { WebAlert, WebBadge, WebCard } from '@commerce/ui/web';
 import { getQuote, mediaUrl } from '@/lib/api';
 import { formatDate, formatMoney } from '@/lib/format';
+import { resolveProductImage } from '@/lib/product-placeholders';
 import { QUOTE_STATUS_LABELS } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -64,13 +65,11 @@ export default async function QuoteConfirmationPage({ params }: { params: Params
           <h2 className="mt-6 text-sm font-bold uppercase tracking-wide text-ink">Itens solicitados</h2>
           <ul className="mt-2 divide-y divide-line">
             {quote.items.map((item) => {
-              const image = mediaUrl(item.imagePath);
+              const image = resolveProductImage(item.productSlug || item.sku);
               return (
                 <li className="flex items-center gap-3 py-3" key={`${item.sku}-${item.productSlug}`}>
-                  <div className="size-12 shrink-0 overflow-hidden rounded bg-surface-soft">
-                    {image ? (
-                      <Image alt={item.productName} className="size-full object-cover" height={48} src={image} width={48} />
-                    ) : null}
+                  <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded border border-slate-100 bg-white p-1">
+                    <Image alt={`${item.productName} (Imagem ilustrativa)`} className="size-full object-contain" height={48} src={image} unoptimized width={48} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <Link className="truncate text-sm font-semibold text-ink hover:text-brand" href={`/produto/${item.productSlug}`}>

@@ -28,7 +28,7 @@ const widgetLabels: Record<string, string> = {
   'segments-carousel': 'Carrossel de Segmentos de Negócio',
   'promo-strip': 'Faixa Promocional / WhatsApp',
   'events-carousel': 'Carrossel Nossos Eventos',
-  'video-articles-carousel': 'Explica Aí Comercial (Vídeos/Dicas)',
+  'video-articles-carousel': 'Explica Aí Nort (Vídeos/Dicas)',
   'instagram-feed': 'Feed A Loja no Instagram',
   'testimonials-grid': 'Avaliações no Google (Depoimentos)',
   'store-locations-map': 'Unidades e Mapa Interativo',

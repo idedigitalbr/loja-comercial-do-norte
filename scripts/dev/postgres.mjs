@@ -9,6 +9,7 @@
 // uso exclusivo local. Em CI/producao use um PostgreSQL gerenciado.
 import { spawnSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, openSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 
 const root = process.cwd();
@@ -29,7 +30,23 @@ if (!platformDir) {
   process.exit(1);
 }
 
-const binDir = path.join(root, 'node_modules', '@embedded-postgres', platformDir, 'native', 'bin');
+function resolveBinDir() {
+  const directPath = path.join(root, 'node_modules', '@embedded-postgres', platformDir, 'native', 'bin');
+  if (existsSync(directPath)) return directPath;
+  try {
+    const reqRoot = createRequire(import.meta.url);
+    const embeddedPkg = reqRoot.resolve('embedded-postgres');
+    const reqEmbedded = createRequire(embeddedPkg);
+    const entry = reqEmbedded.resolve(`@embedded-postgres/${platformDir}`);
+    const resolvedPath = path.resolve(path.dirname(entry), '..', 'native', 'bin');
+    if (existsSync(resolvedPath)) return resolvedPath;
+  } catch {
+    // fallback
+  }
+  return directPath;
+}
+
+const binDir = resolveBinDir();
 const binary = (name) => path.join(binDir, process.platform === 'win32' ? `${name}.exe` : name);
 
 if (!existsSync(binDir)) {

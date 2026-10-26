@@ -1,0 +1,11 @@
+.postgres-data
+REFERENCIA
+.agents
+e2e
+.next
+**/.next
+apps/storefront/.next
+apps/admin/dist
+apps/api/dist
+.turbo
+**/.turbo

@@ -83,7 +83,7 @@ const availableNewWidgets: Array<{
   },
   {
     type: 'video-articles-carousel',
-    title: 'Explica Aí Comercial',
+    title: 'Explica Aí Nort',
     desc: 'Dicas em vídeos e artigos para o negócio',
     icon: Tv,
   },

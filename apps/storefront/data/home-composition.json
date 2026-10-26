@@ -1,6 +1,6 @@
 {
   "page": "home",
-  "version": 4,
+  "version": 6,
   "widgets": [
     {
       "id": "s01-hero-full-width",
@@ -36,6 +36,22 @@
             "linkUrl": "/loja?q=festa",
             "altText": "Artigos de Festa e Confeitaria Comercial do Norte",
             "backgroundColor": "#00357B"
+          },
+          {
+            "id": "slide-topo-4",
+            "title": "Descartáveis no Atacado — Fardos Fechados com Menor Preço",
+            "imageUrl": "/assets/S1-banners-topo-hero/Gemini_Generated_Image_nmv06jnmv06jnmv0.jpg",
+            "linkUrl": "/categoria/descartaveis",
+            "altText": "Descartáveis no Atacado no Comercial do Norte",
+            "backgroundColor": "#002B66"
+          },
+          {
+            "id": "slide-topo-5",
+            "title": "Limpeza Profissional e Higienização Comercial",
+            "imageUrl": "/assets/S1-banners-topo-hero/Gemini_Generated_Image_u1xlqu1xlqu1xlqu.jpg",
+            "linkUrl": "/categoria/limpeza",
+            "altText": "Limpeza e Higienização no Comercial do Norte",
+            "backgroundColor": "#004CB1"
           }
         ]
       }
@@ -64,6 +80,20 @@
             "imageUrl": "/assets/Pagina/S1 TOPO HERO/topo-banners-ML/D_NQ_2X_690577-MLA118270011000_102026-OO.webp",
             "linkUrl": "/cotacao",
             "altText": "Ofertas Especiais Comercial do Norte"
+          },
+          {
+            "id": "contained-slide-3",
+            "title": "Linha Kraft & Embalagens Sustentáveis para Delivery",
+            "imageUrl": "/assets/Pagina/S1 TOPO HERO/topo-banners-ML/D_NQ_2X_977867-MLA118147004068_102026-OO.webp",
+            "linkUrl": "/loja?q=kraft",
+            "altText": "Linha Kraft e Embalagens Sustentáveis Comercial do Norte"
+          },
+          {
+            "id": "contained-slide-4",
+            "title": "Embalagens Térmicas para Marmitex e Lanches",
+            "imageUrl": "/assets/home-ref/s04-side-banner-feirante.jpg",
+            "linkUrl": "/loja?q=termica",
+            "altText": "Embalagens Térmicas para Delivery Comercial do Norte"
           }
         ]
       }
@@ -80,52 +110,52 @@
         "maxItems": 8,
         "customItems": [
           {
-            "id": "cat-embalagens",
-            "label": "Embalagens",
-            "imageUrl": "/assets/categorias/cat-embalagens.jpg",
-            "linkUrl": "/categoria/embalagens"
-          },
-          {
-            "id": "cat-descartaveis",
-            "label": "Descartáveis",
-            "imageUrl": "/assets/categorias/cat-descartaveis.jpg",
-            "linkUrl": "/categoria/descartaveis"
-          },
-          {
-            "id": "cat-limpeza",
-            "label": "Limpeza",
-            "imageUrl": "/assets/categorias/cat-limpeza.jpg",
-            "linkUrl": "/categoria/limpeza"
-          },
-          {
-            "id": "cat-sacolas",
-            "label": "Sacos e Sacolas",
-            "imageUrl": "/assets/categorias/cat-sacolas.jpg",
-            "linkUrl": "/loja?q=sacolas"
-          },
-          {
-            "id": "cat-festas",
-            "label": "Festas & Eventos",
-            "imageUrl": "/assets/categorias/cat-festas.jpg",
-            "linkUrl": "/categoria/artigos-festa"
-          },
-          {
-            "id": "cat-confeitaria",
-            "label": "Confeitaria",
-            "imageUrl": "/assets/categorias/cat-confeitaria.jpg",
-            "linkUrl": "/categoria/confeitaria"
-          },
-          {
-            "id": "cat-foodservice",
-            "label": "Food Service",
-            "imageUrl": "/assets/categorias/cat-foodservice.jpg",
-            "linkUrl": "/loja?q=marmita"
-          },
-          {
             "id": "cat-ofertas",
-            "label": "Ofertas de Atacado",
-            "imageUrl": "/assets/categorias/cat-ofertas.jpg",
+            "label": "Ofertas Relâmpago",
+            "imageUrl": "/assets/categorias/magalu-ofertas.png",
             "linkUrl": "/loja?oferta=1"
+          },
+          {
+            "id": "cat-internacional",
+            "label": "Internacional",
+            "imageUrl": "/assets/categorias/magalu-internacional.png",
+            "linkUrl": "/loja"
+          },
+          {
+            "id": "cat-casa",
+            "label": "Casa",
+            "imageUrl": "/assets/categorias/magalu-casa.png",
+            "linkUrl": "/loja?q=casa"
+          },
+          {
+            "id": "cat-ferramentas",
+            "label": "Ferramentas",
+            "imageUrl": "/assets/categorias/magalu-ferramentas.png",
+            "linkUrl": "/loja?q=ferramentas"
+          },
+          {
+            "id": "cat-eletroportateis",
+            "label": "Eletroportáteis",
+            "imageUrl": "/assets/categorias/magalu-eletroportateis.png",
+            "linkUrl": "/loja?q=eletro"
+          },
+          {
+            "id": "cat-brinquedos",
+            "label": "Brinquedos",
+            "imageUrl": "/assets/categorias/magalu-brinquedos.png",
+            "linkUrl": "/loja?q=brinquedos"
+          },
+          {
+            "id": "cat-automotivo",
+            "label": "Automotivo",
+            "imageUrl": "/assets/categorias/magalu-automotivo.png",
+            "linkUrl": "/loja?q=automotivo"
+          },
+          {
+            "id": "cat-utilidades",
+            "label": "Utilidades Domésticas",
+            "imageUrl": "/assets/categorias/magalu-utilidades.png",
+            "linkUrl": "/loja?q=utilidades"
           }
         ]
       }
@@ -179,6 +209,27 @@
             "imageUrl": "/assets/home-ref/s05-triple-03-sacolas.jpg",
             "linkUrl": "/loja?q=sacolas",
             "altText": "Sacos e Sacolas até 25% OFF Comercial do Norte"
+          },
+          {
+            "id": "s05-b4",
+            "title": "Confeitaria e Doces até 20% OFF",
+            "imageUrl": "/assets/home-ref/s05-triple-04-confeitaria.jpg",
+            "linkUrl": "/categoria/confeitaria",
+            "altText": "Confeitaria e Doces até 20% OFF no Comercial do Norte"
+          },
+          {
+            "id": "s05-b5",
+            "title": "Embalagens para Marmitas e Delivery",
+            "imageUrl": "/assets/home-ref/s11-triple-01-hamburgueira.jpg",
+            "linkUrl": "/categoria/embalagens",
+            "altText": "Embalagens para Marmitas e Delivery no Comercial do Norte"
+          },
+          {
+            "id": "s05-b6",
+            "title": "Copos e Pratos Descartáveis no Atacado",
+            "imageUrl": "/assets/home-ref/s02-contained-feirante.jpg",
+            "linkUrl": "/categoria/descartaveis",
+            "altText": "Copos e Pratos Descartáveis no Comercial do Norte"
           }
         ]
       }
@@ -202,33 +253,10 @@
       "enabled": true,
       "order": 7,
       "props": {
-        "eyebrow": "Saiba",
         "title": "Como funciona a cotação online",
-        "mascotImageUrl": "/assets/imgs/Mascote-3D-James-em-pe/outros/james-09-celular.png",
-        "rightArtworkImageUrl": "/assets/home-ref/s07-quote-right-mockup.jpg",
+        "imageUrl": "/assets/banners/s07-banner-como-funciona-cotacao.png",
         "ctaUrl": "/cotacao",
-        "steps": [
-          {
-            "stepNumber": 1,
-            "title": "Adicione os produtos",
-            "description": "Escolha os itens e quantidades no catálogo."
-          },
-          {
-            "stepNumber": 2,
-            "title": "Envie a sua lista",
-            "description": "Encaminhe sua cotação em poucos cliques."
-          },
-          {
-            "stepNumber": 3,
-            "title": "Receba sua proposta",
-            "description": "Nossa equipe retorna rápido pelo WhatsApp."
-          },
-          {
-            "stepNumber": 4,
-            "title": "Finalize seu pedido",
-            "description": "Confirme condições, entrega ou retirada na loja."
-          }
-        ]
+        "altText": "Como funciona a cotação online no Comercial do Norte"
       }
     },
     {
@@ -277,6 +305,42 @@
             "iconType": "party",
             "imageUrl": "/assets/home-ref/s08-segment-04-festas.jpg",
             "linkUrl": "/loja?q=festa"
+          },
+          {
+            "id": "seg-buffet",
+            "prefix": "Para seu",
+            "title": "Restaurante & Buffet",
+            "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
+            "iconType": "buffet",
+            "imageUrl": "/assets/home-ref/s08-segment-05-buffet.jpg",
+            "linkUrl": "/loja?q=buffet"
+          },
+          {
+            "id": "seg-confeitaria",
+            "prefix": "Para sua",
+            "title": "Confeitaria & Bolos",
+            "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
+            "iconType": "confectionery",
+            "imageUrl": "/assets/home-ref/s08-segment-06-confeitaria.jpg",
+            "linkUrl": "/categoria/confeitaria"
+          },
+          {
+            "id": "seg-sorveteria",
+            "prefix": "Para sua",
+            "title": "Sorveteria & Açaí",
+            "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
+            "iconType": "icecream",
+            "imageUrl": "/assets/home-ref/s15-video-03-copos-acai.jpg",
+            "linkUrl": "/loja?q=acai"
+          },
+          {
+            "id": "seg-bar",
+            "prefix": "Para seu",
+            "title": "Bar & Distribuidora",
+            "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
+            "iconType": "bar",
+            "imageUrl": "/assets/home-ref/s15-video-02-sustentaveis.jpg",
+            "linkUrl": "/loja?q=bar"
           }
         ]
       }
@@ -290,20 +354,9 @@
         "variant": "offers-strip",
         "highlightText": "OFERTAS IMPERDÍVEIS",
         "title": "em embalagens, descartáveis e utilidades",
-        "badges": [
-          {
-            "label": "Menor preço",
-            "icon": "tag"
-          },
-          {
-            "label": "Variedade",
-            "icon": "grid"
-          },
-          {
-            "label": "Pelo WhatsApp",
-            "icon": "whatsapp"
-          }
-        ]
+        "imageUrl": "/assets/banners/s09-banner-ofertas-imperdiveis.png",
+        "ctaUrl": "/loja?oferta=1",
+        "altText": "OFERTAS IMPERDÍVEIS em embalagens, descartáveis e utilidades"
       }
     },
     {
@@ -347,6 +400,27 @@
             "imageUrl": "/assets/home-ref/s11-triple-03-luva-azul.jpg",
             "linkUrl": "/loja?oferta=1",
             "altText": "Semana do Feirante Luva Nitrílica Azul R$ 27,10"
+          },
+          {
+            "id": "s11-b4",
+            "title": "Filme PVC e Bobinas Térmicas",
+            "imageUrl": "/assets/home-ref/s05-triple-01-limpeza.jpg",
+            "linkUrl": "/loja?q=filme-pvc",
+            "altText": "Filme PVC e Bobinas Térmicas no Comercial do Norte"
+          },
+          {
+            "id": "s11-b5",
+            "title": "Papel Toalha Interfolhado e Higiene",
+            "imageUrl": "/assets/home-ref/s05-triple-04-confeitaria.jpg",
+            "linkUrl": "/loja?q=papel-toalha",
+            "altText": "Papel Toalha e Higiene Profissional Comercial do Norte"
+          },
+          {
+            "id": "s11-b6",
+            "title": "Sacolas Kraft Reforçadas para Delivery",
+            "imageUrl": "/assets/home-ref/s05-triple-03-sacolas.jpg",
+            "linkUrl": "/loja?q=kraft",
+            "altText": "Sacolas Kraft Reforçadas Comercial do Norte"
           }
         ]
       }
@@ -377,14 +451,38 @@
           },
           {
             "id": "ev-3",
-            "title": "Encontro de Empreendedores — Uma História de Sucesso",
-            "imageUrl": "/assets/home-ref/s12-event-03-empreendedores-2.jpg",
+            "title": "Workshop de Confeitaria Profissional — Decoração com Chantilly e Bicos",
+            "imageUrl": "/assets/home-ref/s12-event-03-workshop-confeitaria.jpg",
             "linkUrl": "/loja"
           },
           {
             "id": "ev-4",
             "title": "Sábado Croquete de Charque — Pará Trigo 2026",
             "imageUrl": "/assets/home-ref/s12-event-04-croquete.jpg",
+            "linkUrl": "/loja"
+          },
+          {
+            "id": "ev-5",
+            "title": "Feirão de Food Service Belém 2026 — Embalagens e Inovações",
+            "imageUrl": "/assets/home-ref/s08-segment-05-buffet.jpg",
+            "linkUrl": "/loja"
+          },
+          {
+            "id": "ev-6",
+            "title": "Curso Prático de Hambúrguer Artesanal — Montagem e Embalagem Delivery",
+            "imageUrl": "/assets/home-ref/s08-segment-01-lanchonete.jpg",
+            "linkUrl": "/loja"
+          },
+          {
+            "id": "ev-7",
+            "title": "Inauguração Novo Espaço Atacado — Loja Jurunas",
+            "imageUrl": "/assets/Fotografias/loja-comercial-do-norte-jurunas.png",
+            "linkUrl": "/loja"
+          },
+          {
+            "id": "ev-8",
+            "title": "Festival da Confeitaria Paraense — Degustações e Aulas Show",
+            "imageUrl": "/assets/home-ref/s08-segment-06-confeitaria.jpg",
             "linkUrl": "/loja"
           }
         ]
@@ -399,25 +497,9 @@
         "variant": "conditions-mascot",
         "highlightText": "CONDIÇÕES ESPECIAIS",
         "title": "para o seu negócio",
-        "mascotImageUrl": "/assets/imgs/Mascote-3D-James-em-pe/principais/james-11-piscando.png",
-        "badges": [
-          {
-            "label": "Desconto por volume",
-            "icon": "percent"
-          },
-          {
-            "label": "Atendimento no WhatsApp",
-            "icon": "whatsapp"
-          },
-          {
-            "label": "Reposição programada",
-            "icon": "clock"
-          },
-          {
-            "label": "Retirada ou entrega em Belém",
-            "icon": "truck"
-          }
-        ]
+        "imageUrl": "/assets/banners/s13-banner-condicoes-especiais.png",
+        "ctaUrl": "/cotacao",
+        "altText": "CONDIÇÕES ESPECIAIS para o seu negócio"
       }
     },
     {
@@ -439,7 +521,7 @@
       "enabled": true,
       "order": 15,
       "props": {
-        "title": "Explica aí comercial",
+        "title": "Explica Aí Nort",
         "subtitle": "Dicas em vídeos e artigos para você usar no seu negócio.",
         "viewAllLabel": "Ver todos",
         "viewAllUrl": "/loja",
@@ -463,18 +545,50 @@
           {
             "id": "vid-2",
             "tags": [
-              "P/ DELIVERY",
-              "GUIA PRÁTICO"
+              "SUSTENTABILIDADE",
+              "BRANDING"
             ],
-            "title": "Como escolher a caixa de pizza certa",
+            "title": "Embalagens sustentáveis e kraft no delivery",
             "paragraphs": [
-              "Na hora de montar ou escalar uma pizzaria, a embalagem faz toda a diferença na temperatura, apresentação e segurança da entrega.",
-              "Veja como comparar tamanhos (25cm, 30cm, 35cm e 40cm), gramatura do papelão ondulado e modelos oitavados para evitar que a tampa afunde no transporte.",
-              "Economize comprando em fardos fechados com condição especial de atacado no Comercial do Norte."
+              "Como substituir o plástico por linhas kraft e biodegradáveis sem perder a resistência e agregando valor percebido ao seu produto.",
+              "Dicas práticas para personalizar com carimbos e fitas adesivas de alta performance para aumentar a fidelidade do cliente.",
+              "Conheça a linha completa de sacolas kraft, marmitas ecológicas e canudos biodegradáveis pronta entrega."
             ],
             "ctaLabel": "Ver Completo",
-            "ctaUrl": "/loja?q=pizza",
-            "imageUrl": "/assets/home-ref/s15-video-pizza-woman.jpg"
+            "ctaUrl": "/loja?q=kraft",
+            "imageUrl": "/assets/home-ref/s15-video-02-sustentaveis.jpg"
+          },
+          {
+            "id": "vid-3",
+            "tags": [
+              "FOOD SERVICE",
+              "AÇAI & BEBIDAS"
+            ],
+            "title": "Guia de copos e tampas para açaí e cafeterias",
+            "paragraphs": [
+              "Qual a tampa ideal para o seu delivery? Entenda a diferença entre tampa bolha com furo, tampa reta sem furo e tampas herméticas.",
+              "Como evitar vazamentos no transporte de açaí com caldas e copos de café gelado com chantilly volumoso.",
+              "Tamanhos mais vendidos (300ml, 500ml e 700ml) com preços de atacado imbatíveis."
+            ],
+            "ctaLabel": "Ver Completo",
+            "ctaUrl": "/loja?q=copo",
+            "imageUrl": "/assets/home-ref/s15-video-03-copos-acai.jpg"
+          },
+          {
+            "id": "vid-4",
+            "tags": [
+              "CONFEITARIA",
+              "VITRINE & VENDAS"
+            ],
+            "title": "Embalagens vitrine para valorizar bolos e doces",
+            "paragraphs": [
+              "O cliente come com os olhos! Aprenda a escolher caixas com visor de acetato transparente e berços anti-impacto para brigadeiros.",
+              "Como manter doces finos e tortas inteiros e impecáveis durante o transporte do cliente ou motoboy.",
+              "Compre direto da fábrica no Comercial do Norte com retirada rápida ou entrega em Belém."
+            ],
+            "ctaLabel": "Ver Completo",
+            "ctaUrl": "/categoria/confeitaria",
+            "imageUrl": "/assets/home-ref/s08-segment-06-confeitaria.jpg"
           }
         ]
       }
@@ -524,6 +638,42 @@
             "id": "ig-6",
             "label": "Vale-Compras",
             "imageUrl": "/assets/home-ref/s16-insta-06-vale-compras.jpg",
+            "linkUrl": "https://www.instagram.com/comercialdonorte"
+          },
+          {
+            "id": "ig-7",
+            "label": "Loja Jurunas",
+            "imageUrl": "/assets/Fotografias/loja-comercial-fachada.webp",
+            "linkUrl": "https://www.instagram.com/comercialdonorte"
+          },
+          {
+            "id": "ig-8",
+            "label": "Linha Kraft",
+            "imageUrl": "/assets/home-ref/s15-video-02-sustentaveis.jpg",
+            "linkUrl": "https://www.instagram.com/comercialdonorte"
+          },
+          {
+            "id": "ig-9",
+            "label": "Confeitaria",
+            "imageUrl": "/assets/home-ref/s12-event-03-workshop-confeitaria.jpg",
+            "linkUrl": "https://www.instagram.com/comercialdonorte"
+          },
+          {
+            "id": "ig-10",
+            "label": "Delivery Pizza",
+            "imageUrl": "/assets/home-ref/s15-video-pizza-woman.jpg",
+            "linkUrl": "https://www.instagram.com/comercialdonorte"
+          },
+          {
+            "id": "ig-11",
+            "label": "Artigos Festa",
+            "imageUrl": "/assets/home-ref/s08-segment-04-festas.jpg",
+            "linkUrl": "https://www.instagram.com/comercialdonorte"
+          },
+          {
+            "id": "ig-12",
+            "label": "Preço Atacado",
+            "imageUrl": "/assets/home-ref/s05-triple-04-confeitaria.jpg",
             "linkUrl": "https://www.instagram.com/comercialdonorte"
           }
         ]

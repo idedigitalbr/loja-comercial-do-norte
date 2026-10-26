@@ -7,6 +7,7 @@ import { WebBadge, WebCard } from '@commerce/ui/web';
 import { AddToQuoteButton } from '@/components/add-to-quote-button';
 import { ProductCard } from '@/components/product-card';
 import { getProduct, getProducts, mediaUrl } from '@/lib/api';
+import { resolveProductImage } from '@/lib/product-placeholders';
 import { formatMoney } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     openGraph: {
       title: product.name,
       description,
-      images: product.images[0] ? [mediaUrl(product.images[0].path) ?? ''] : [],
+      images: [resolveProductImage(product)],
       type: 'website',
     },
   };
@@ -37,7 +38,7 @@ export default async function ProductPage({ params }: { params: Params }) {
   if (!product) notFound();
 
   const variant = product.variants[0];
-  const image = mediaUrl(product.images[0]?.path ?? null);
+  const image = resolveProductImage(product);
   const category = product.categories[0]?.category;
   const compareAt = variant?.compareAtPriceCents ?? null;
   const hasDiscount = Boolean(compareAt && variant && compareAt > variant.priceCents);
@@ -62,21 +63,21 @@ export default async function ProductPage({ params }: { params: Params }) {
 
       <div className="mt-4 grid gap-8 md:grid-cols-2">
         <div className="overflow-hidden rounded-card border border-line bg-surface">
-          <div className="aspect-square bg-surface-soft">
-            {image ? (
-              <Image
-                alt={product.images[0]?.altText ?? product.name}
-                className="size-full object-cover"
-                height={960}
-                priority
-                sizes="(max-width: 768px) 100vw, 50vw"
-                src={image}
-                width={960}
-              />
-            ) : (
-              <span className="flex size-full items-center justify-center text-sm text-muted">Imagem em preparação</span>
-            )}
+          <div className="flex aspect-square items-center justify-center bg-white p-6">
+            <Image
+              alt={`${product.name} (Imagem ilustrativa)`}
+              className="size-full object-contain transition duration-300"
+              height={960}
+              priority
+              sizes="(max-width: 768px) 100vw, 50vw"
+              src={image}
+              unoptimized
+              width={960}
+            />
           </div>
+          <p className="border-t border-line/60 bg-surface-soft/60 py-2 text-center text-xs text-muted">
+            Imagem ilustrativa de demonstração
+          </p>
         </div>
 
         <div>
@@ -104,7 +105,7 @@ export default async function ProductPage({ params }: { params: Params }) {
                       productSlug: product.slug,
                       name: product.name,
                       sku: variant.sku,
-                      imagePath: product.images[0]?.path ?? null,
+                      imagePath: image,
                       unitPriceCents: variant.priceCents,
                       quantity: 1,
                     }}
