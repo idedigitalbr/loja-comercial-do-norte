@@ -1,56 +1,24 @@
-import { test, expect } from '@playwright/test';
-
-test.describe('Comercial do Norte - Catálogo, Busca e Filtros de Categoria (Issue #32)', () => {
-  test('Listagem completa de produtos em /loja exibe grade e total de itens', async ({ page }) => {
-    const response = await page.goto('/loja');
-    expect(response?.status()).toBe(200);
-
-    // Título do catálogo
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(/catálogo/i);
-
-    // Grade de produtos
-    const productCards = page.locator('article');
-    await expect(productCards.first()).toBeVisible({ timeout: 10000 });
-    const count = await productCards.count();
-    expect(count).toBeGreaterThan(0);
-
-    // Cada card deve possuir botão "Adicionar à cotação"
-    const firstCard = productCards.first();
-    await expect(firstCard.getByRole('button', { name: /adicionar à cotação/i })).toBeVisible();
-  });
-
-  test('Filtros de categoria por pílulas filtram os produtos corretamente', async ({ page }) => {
-    await page.goto('/loja');
-
-    // Identificar botões/links de filtro de categoria
-    const categoryPills = page.locator('a.rounded-pill');
-    await expect(categoryPills.first()).toBeVisible();
-
-    // Clicar na primeira categoria específica disponível (se houver mais de uma pill)
-    const pillsCount = await categoryPills.count();
-    if (pillsCount > 1) {
-      const secondPill = categoryPills.nth(1);
-      const categoryName = (await secondPill.textContent())?.trim();
-      await secondPill.click();
-
-      await page.waitForURL(/categoria=/);
-      if (categoryName) {
-        await expect(page.getByRole('heading', { level: 1 })).toContainText(new RegExp(categoryName, 'i'));
-      }
-    }
-  });
-
-  test('Busca de produtos por termo exibe resultados correspondentes', async ({ page }) => {
-    await page.goto('/loja');
-
-    const searchInput = page.locator('input#catalog-search, input[name="q"]').first();
-    await expect(searchInput).toBeVisible();
-
-    // Buscar termo "pizza"
-    await searchInput.fill('pizza');
-    await page.keyboard.press('Enter');
-
-    await page.waitForURL(/q=pizza/);
-    await expect(page.locator('body')).toContainText(/pizza/i);
-  });
+import { test, expect } from './fixtures';
+test('catalog renders the fixture product with a quote CTA',async({page})=>{
+ expect((await page.goto('/loja'))?.status()).toBe(200);
+ await expect(page.getByRole('heading',{level:1})).toContainText(/catálogo/i);
+ const card=page.locator('article').first();
+ await expect(card).toContainText('Caixa de Pizza Fixture');
+ await expect(card.getByRole('button',{name:/adicionar à cotação/i})).toBeVisible();
+});
+test('category filter changes the URL and selected heading',async({page})=>{
+ await page.goto('/loja');
+ await page.locator('a[href*="categoria=embalagens-teste"]').click();
+ await expect(page).toHaveURL(/categoria=embalagens-teste/);
+ await expect(page.getByRole('heading',{level:1})).toHaveText('Embalagens de Teste');
+});
+test('search submits a query and shows an explicit empty result for unknown terms',async({page})=>{
+ await page.goto('/loja');
+ await page.locator('#catalog-search').fill('pizza');
+ await page.locator('#catalog-search').press('Enter');
+ await expect(page).toHaveURL(/q=pizza/);
+ await expect(page.locator('article').first()).toContainText('Caixa de Pizza Fixture');
+ await page.locator('#catalog-search').fill('unmatched-fixture-query');
+ await page.locator('#catalog-search').press('Enter');
+ await expect(page.getByText(/nenhum produto/i).first()).toBeVisible();
 });

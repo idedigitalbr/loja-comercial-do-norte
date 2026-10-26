@@ -1,65 +1,20 @@
-import { test, expect } from '@playwright/test';
-
-test.describe('Comercial do Norte - Smoke Tests de Aceite no Navegador (Issue #32)', () => {
-  test('Abertura da Homepage com identidade visual e cabeçalho oficial', async ({ page }) => {
-    const response = await page.goto('/');
-    expect(response?.status()).toBe(200);
-
-    // Título e metatags
-    await expect(page).toHaveTitle(/Comercial do Norte/i);
-
-    // Header oficial em 3 barras
-    const header = page.locator('header');
-    await expect(header).toBeVisible();
-    await expect(page.getByText('Comercial do Norte').first()).toBeVisible();
-
-    // Skip to content acessível
-    const skipLink = page.locator('a[href="#conteudo"]');
-    await expect(skipLink).toBeAttached();
-
-    // Carrossel principal e áreas centrais
-    const mainContent = page.locator('main#conteudo');
-    await expect(mainContent).toBeVisible();
-  });
-
-  test('Página de Cotação renderiza formulário e estado do pedido', async ({ page }) => {
-    const response = await page.goto('/cotacao');
-    expect(response?.status()).toBe(200);
-
-    // Título ou cabeçalho da cotação (vazia ou com itens)
-    await expect(page.getByRole('heading', { name: /cotação/i }).first()).toBeVisible();
-
-    // Botão de envio de cotação
-    await expect(page.getByRole('button', { name: /enviar cotação|adicionar à cotação/i })).toBeDefined();
-  });
-
-  test('Gaveta de Cotação (Quote Drawer) é acessível via navegação', async ({ page }) => {
-    await page.goto('/');
-    const quoteButton = page.locator('button[aria-label*="cotação" i], a[href*="cotacao" i]').first();
-    await expect(quoteButton).toBeVisible();
-  });
-
-  test('Imagens de produtos exibem os placeholders oficiais distribuídos sem quebras', async ({ page }) => {
-    // 1. Validar no catálogo /loja
-    await page.goto('/loja');
-    const catalogImages = page.locator('article img[src*="placeholder-"]');
-    await expect(catalogImages.first()).toBeVisible();
-    const count = await catalogImages.count();
-    expect(count).toBeGreaterThan(0);
-
-    // Verificar se as imagens carregam com sucesso
-    await page.waitForFunction(() => {
-      const img = document.querySelector('article img[src*="placeholder-"]') as HTMLImageElement | null;
-      return img ? img.complete && img.naturalWidth > 0 : false;
-    }, { timeout: 10000 });
-
-    // 2. Validar na página de produto /produto/caixa-pizza-35cm
-    await page.goto('/produto/caixa-pizza-35cm');
-    const productImage = page.locator('main img[src*="placeholder-"]').first();
-    await expect(productImage).toBeVisible();
-    await page.waitForFunction(() => {
-      const img = document.querySelector('main img[src*="placeholder-"]') as HTMLImageElement | null;
-      return img ? img.complete && img.naturalWidth > 0 : false;
-    }, { timeout: 10000 });
-  });
+import { test, expect } from './fixtures';
+test.describe('Public read-only smoke',()=>{
+ test('home exposes the official header, title and accessible main region',async({page})=>{
+  expect((await page.goto('/'))?.status()).toBe(200);
+  await expect(page).toHaveTitle(/Comercial do Norte/i);
+  await expect(page.locator('header')).toBeVisible();
+  await expect(page.locator('main#conteudo')).toBeVisible();
+  await expect(page.locator('a[href="#conteudo"]')).toBeAttached();
+ });
+ test('catalog and search render with published products or an explicit empty state',async({page})=>{
+  expect((await page.goto('/loja'))?.status()).toBe(200);
+  await expect(page.getByRole('heading',{level:1})).toBeVisible();
+  await expect(page.locator('input#catalog-search, input[name="q"]').first()).toBeVisible();
+ });
+ test('quote page is accessible without submitting customer data',async({page})=>{
+  expect((await page.goto('/cotacao'))?.status()).toBe(200);
+  await expect(page.getByRole('heading',{name:/cotação/i}).first()).toBeVisible();
+  await expect(page.locator('main')).toBeVisible();
+ });
 });

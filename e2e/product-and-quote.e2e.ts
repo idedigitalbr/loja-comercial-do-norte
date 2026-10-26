@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 test.describe('Comercial do Norte - Fluxo de Produto e Cotação (Issue #32)', () => {
   test('Página de produto renderiza detalhes, especificações e CTA de cotação', async ({ page }) => {
@@ -51,14 +51,14 @@ test.describe('Comercial do Norte - Fluxo de Produto e Cotação (Issue #32)', (
     // 4. Preenche formulário de cotação
     const nameInput = page.locator('input[name="customerName"]');
     await expect(nameInput).toBeVisible();
-    await nameInput.fill('Pizzaria Belém Gourmet (Teste E2E)');
+    await nameInput.fill('Cliente E2E Isolado');
 
     const phoneInput = page.locator('input[name="customerPhone"]');
-    await phoneInput.fill('91983440880');
+    await phoneInput.fill('91900007777');
 
     const companyInput = page.locator('input[name="companyName"]');
     if (await companyInput.isVisible()) {
-      await companyInput.fill('Pizzaria Belém ME');
+      await companyInput.fill('Empresa Fixture');
     }
 
     const notesInput = page.locator('textarea[name="notes"]');
@@ -75,4 +75,17 @@ test.describe('Comercial do Norte - Fluxo de Produto e Cotação (Issue #32)', (
     await expect(page.getByRole('heading', { name: /cotação enviada com sucesso/i })).toBeVisible();
     await expect(page.getByText(/protocolo/i).first()).toBeVisible();
   });
+});
+
+test('API failure keeps the quote draft and displays an error instead of success',async({page})=>{
+ await page.goto('/produto/caixa-pizza-35cm');
+ await page.getByRole('button',{name:/adicionar à cotação/i}).first().click();
+ await page.goto('/cotacao');
+ await page.locator('input[name="customerName"]').fill('Cliente E2E Isolado');
+ await page.locator('input[name="customerPhone"]').fill('91900007777');
+ await page.route('**/api/v1/quotes',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:{message:'Falha de API simulada'}})}));
+ await page.getByRole('button',{name:/enviar cotação/i}).click();
+ await expect(page.getByRole('alert')).toContainText('Falha de API simulada');
+ await expect(page).toHaveURL(/\/cotacao$/);
+ await expect(page.getByText(/Caixa de Pizza Fixture/i).first()).toBeVisible();
 });
