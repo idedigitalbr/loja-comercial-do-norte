@@ -80,6 +80,9 @@ jobs:
       - name: Typecheck do seed e scripts
         run: pnpm typecheck:seed
 
+      - name: Testes de segurança do runner PostgreSQL
+        run: node --test scripts/dev/run-api-e2e.spec.mjs
+
       - name: Testes
         run: pnpm test
 
