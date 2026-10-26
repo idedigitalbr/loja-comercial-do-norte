@@ -15,6 +15,8 @@ import {
   WebTextarea,
 } from '@commerce/ui/web';
 import { useQuoteCart } from '@/components/quote-cart-provider';
+import { useAuth } from '@/components/auth-provider';
+import { ShoppingBag } from 'lucide-react';
 import { API_URL, mediaUrl } from '@/lib/api';
 import { formatMoney } from '@/lib/format';
 
@@ -23,6 +25,7 @@ type FieldErrors = Record<string, string[]>;
 export default function QuoteFormPage() {
   const { items, subtotalCents, count, updateQuantity, remove, clear, ready } = useQuoteCart();
   const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -78,16 +81,33 @@ export default function QuoteFormPage() {
   if (!items.length) {
     return (
       <div className="cn-container py-16">
-        <WebEmptyState
-          action={
-            <Link className="inline-block rounded-pill bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-hover" href="/loja">
+        <div className="mx-auto max-w-xl text-center">
+          <div className="relative mb-6 mx-auto flex size-20 items-center justify-center rounded-full bg-blue-50">
+            <ShoppingBag className="size-10 text-[#004CB1]" />
+          </div>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-[#1D2433]">Sua cotação está vazia</h2>
+          <p className="mt-2 text-sm text-slate-500">
+            {isAuthenticated
+              ? 'Adicione produtos do catálogo para montar sua lista de cotação.'
+              : 'Entre na sua conta para consultar cotações anteriores ou explore nosso catálogo.'}
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            {!isAuthenticated && (
+              <Link
+                className="inline-block rounded-lg bg-[#004CB1] px-6 py-2.5 text-sm font-bold text-white shadow-xs hover:bg-[#003882] transition"
+                href="/login"
+              >
+                Entrar
+              </Link>
+            )}
+            <Link
+              className="inline-block rounded-lg border border-slate-300 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+              href="/loja"
+            >
               Ver catálogo
             </Link>
-          }
-          className="mx-auto max-w-xl"
-          description="Adicione produtos do catálogo para montar sua lista."
-          title="Sua cotação está vazia"
-        />
+          </div>
+        </div>
       </div>
     );
   }
@@ -113,6 +133,7 @@ export default function QuoteFormPage() {
                   id="customerName"
                   invalid={Boolean(fieldErrors.customerName)}
                   name="customerName"
+                  defaultValue={user?.fullName || ""}
                   required
                 />
               </WebField>

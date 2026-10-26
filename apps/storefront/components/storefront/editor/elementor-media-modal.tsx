@@ -13,6 +13,54 @@ import {
 
 export const availableMediaLibrary = [
   {
+    id: 'cat-icon-embalagens',
+    name: 'Ícone — Embalagens',
+    category: 'Ícones de Categorias',
+    url: '/assets/categorias/cat-embalagens.jpg',
+  },
+  {
+    id: 'cat-icon-descartaveis',
+    name: 'Ícone — Descartáveis',
+    category: 'Ícones de Categorias',
+    url: '/assets/categorias/cat-descartaveis.jpg',
+  },
+  {
+    id: 'cat-icon-limpeza',
+    name: 'Ícone — Limpeza Profissional',
+    category: 'Ícones de Categorias',
+    url: '/assets/categorias/cat-limpeza.jpg',
+  },
+  {
+    id: 'cat-icon-sacolas',
+    name: 'Ícone — Sacos e Sacolas',
+    category: 'Ícones de Categorias',
+    url: '/assets/categorias/cat-sacolas.jpg',
+  },
+  {
+    id: 'cat-icon-festas',
+    name: 'Ícone — Festas & Eventos',
+    category: 'Ícones de Categorias',
+    url: '/assets/categorias/cat-festas.jpg',
+  },
+  {
+    id: 'cat-icon-confeitaria',
+    name: 'Ícone — Confeitaria',
+    category: 'Ícones de Categorias',
+    url: '/assets/categorias/cat-confeitaria.jpg',
+  },
+  {
+    id: 'cat-icon-foodservice',
+    name: 'Ícone — Food Service',
+    category: 'Ícones de Categorias',
+    url: '/assets/categorias/cat-foodservice.jpg',
+  },
+  {
+    id: 'cat-icon-ofertas',
+    name: 'Ícone — Ofertas de Atacado',
+    category: 'Ícones de Categorias',
+    url: '/assets/categorias/cat-ofertas.jpg',
+  },
+  {
     id: 'ref-s01-pizzaria',
     name: 'Hero Full — Tudo para sua Pizzaria (Oficial)',
     category: 'Referência Oficial',

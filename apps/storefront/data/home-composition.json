@@ -1,6 +1,6 @@
 {
   "page": "home",
-  "version": 3,
+  "version": 4,
   "widgets": [
     {
       "id": "s01-hero-full-width",
@@ -80,52 +80,52 @@
         "maxItems": 8,
         "customItems": [
           {
-            "id": "cat-icon-1",
-            "label": "Ofertas Relâmpago",
-            "imageUrl": "/assets/home-ref/s03-icon-01-ofertas.jpg",
+            "id": "cat-embalagens",
+            "label": "Embalagens",
+            "imageUrl": "/assets/categorias/cat-embalagens.jpg",
+            "linkUrl": "/categoria/embalagens"
+          },
+          {
+            "id": "cat-descartaveis",
+            "label": "Descartáveis",
+            "imageUrl": "/assets/categorias/cat-descartaveis.jpg",
+            "linkUrl": "/categoria/descartaveis"
+          },
+          {
+            "id": "cat-limpeza",
+            "label": "Limpeza",
+            "imageUrl": "/assets/categorias/cat-limpeza.jpg",
+            "linkUrl": "/categoria/limpeza"
+          },
+          {
+            "id": "cat-sacolas",
+            "label": "Sacos e Sacolas",
+            "imageUrl": "/assets/categorias/cat-sacolas.jpg",
+            "linkUrl": "/loja?q=sacolas"
+          },
+          {
+            "id": "cat-festas",
+            "label": "Festas & Eventos",
+            "imageUrl": "/assets/categorias/cat-festas.jpg",
+            "linkUrl": "/categoria/artigos-festa"
+          },
+          {
+            "id": "cat-confeitaria",
+            "label": "Confeitaria",
+            "imageUrl": "/assets/categorias/cat-confeitaria.jpg",
+            "linkUrl": "/categoria/confeitaria"
+          },
+          {
+            "id": "cat-foodservice",
+            "label": "Food Service",
+            "imageUrl": "/assets/categorias/cat-foodservice.jpg",
+            "linkUrl": "/loja?q=marmita"
+          },
+          {
+            "id": "cat-ofertas",
+            "label": "Ofertas de Atacado",
+            "imageUrl": "/assets/categorias/cat-ofertas.jpg",
             "linkUrl": "/loja?oferta=1"
-          },
-          {
-            "id": "cat-icon-2",
-            "label": "Internacional",
-            "imageUrl": "/assets/home-ref/s03-icon-02-internacional.jpg",
-            "linkUrl": "/loja"
-          },
-          {
-            "id": "cat-icon-3",
-            "label": "Casa",
-            "imageUrl": "/assets/home-ref/s03-icon-03-casa.jpg",
-            "linkUrl": "/loja?q=casa"
-          },
-          {
-            "id": "cat-icon-4",
-            "label": "Ferramentas",
-            "imageUrl": "/assets/home-ref/s03-icon-04-ferramentas.jpg",
-            "linkUrl": "/loja"
-          },
-          {
-            "id": "cat-icon-5",
-            "label": "Eletroportáteis",
-            "imageUrl": "/assets/home-ref/s03-icon-05-eletroportateis.jpg",
-            "linkUrl": "/loja"
-          },
-          {
-            "id": "cat-icon-6",
-            "label": "Brinquedos",
-            "imageUrl": "/assets/home-ref/s03-icon-06-brinquedos.jpg",
-            "linkUrl": "/loja?q=festa"
-          },
-          {
-            "id": "cat-icon-7",
-            "label": "Automotivo",
-            "imageUrl": "/assets/home-ref/s03-icon-07-automotivo.jpg",
-            "linkUrl": "/loja"
-          },
-          {
-            "id": "cat-icon-8",
-            "label": "Utilidades Domésticas",
-            "imageUrl": "/assets/home-ref/s03-icon-08-utilidades.jpg",
-            "linkUrl": "/loja?q=utilidades"
           }
         ]
       }
