@@ -5,6 +5,8 @@
 
 ## 1. Estado confirmado nesta revisão
 
+- **26/10/2026 — integração direta da Issue #61 autorizada no chat:** commit de tipografia `79d43a0` reaplicado sobre a `main` remota (`594d311`), sem incorporar a antiga base do PR #63. O responsável dispensou PRs e revisão por PR; orientação registrada em `memory-ai.md`. Envio direto sem force; PR #63 será encerrado. As falhas de testes da API observadas na CI anterior não pertencem à tipografia. Nenhuma migration ou comando de deploy executado.
+
 - **26/10/2026 — Issue #61:** padronização dos títulos da vitrine (`h1` a `h6`) em Bold (700), por token compartilhado e regra global fora das layers do Tailwind. Inclui home, catálogo, conta, cotação e editor; mantém tamanhos, cores e demais textos. Branch `fix/issue-61-titulos-bold`. CSS compilado com Tailwind/PostCSS e validado em Chromium via Playwright: seis níveis em 700 nas larguras 375/1280 px, mesmo com classes legadas e responsivas; parágrafos em 400 e destaques fora de títulos em 800 preservados. `git diff --check` aprovado. Sem migration ou deploy. Rollback: reverter somente o commit desta Issue.
 
 - **Atualização de 25/10/2026:** main remota em `984079e`, com integração Next.js/PostgreSQL/coordenação no commit `018648f`. Checkout local atualizado de `c6977e0` para `984079e` por fast-forward, sem descarte de trabalho. As referências abaixo à main `564c9e3` e PR #37 pendente descrevem a revisão anterior, não o estado atual. A refatoração visual solicitada hoje ainda não começou.
