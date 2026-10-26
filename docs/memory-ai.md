@@ -293,3 +293,9 @@ Lacunas, defeitos e riscos dessa base **não são repetidos aqui**: estão em `r
 - [ ] **Headers de Segurança e CORS:** Revisar a lista de origens autorizadas (`APP_ORIGIN`, `ADMIN_ORIGIN`) nos cabeçalhos de resposta da API para bloquear requisições de origens desconhecidas.
 
 **Regra final:** implementação ainda em andamento. Nenhuma documentação anterior, prompt ou decisão revogada revoga as escolhas de **Next.js + NestJS + PostgreSQL + Prisma + Tailwind + shadcn/ui** estabelecidas em 24/10/2026.
+
+### Login único da vitrine — decisão de 26/10/2026 (Issue #56)
+
+- O responsável definiu `/login` do storefront como única tela de login, inclusive para administradores. O painel Vite não deve apresentar formulário de credenciais próprio.
+- O painel consulta a sessão no NestJS: sessão administrativa válida abre o dashboard; sessão ausente/expirada redireciona ao storefront; cliente autenticado recebe acesso restrito; falha de rede permite nova tentativa sem conceder acesso.
+- `VITE_STOREFRONT_URL` define a origem de login em hospedagem separada. Em desenvolvimento, admin 5174 usa storefront 3001. A autenticação/publicação da Issue #55 permanece independente.

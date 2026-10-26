@@ -313,3 +313,10 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
   - `pnpm --filter api exec vitest run src/modules/settings src/modules/notifications src/main.spec.ts`: **9 suítes / 25 testes unitários aprovados**.
   - `pnpm exec playwright test --list`: **3 smoke tests de navegador registrados e válidos**.
   - `pnpm agents:verify`: **47 itens, 42/42 dependências confirmadas, 0 erros no Project 3**.
+
+### Login único no storefront — 26/10/2026 (Issue #56)
+
+- Removido o formulário duplicado de `apps/admin/src/features/auth/login-page.tsx`; acesso ao painel consulta a sessão oficial e encaminha sessão ausente para `/login` do storefront.
+- Validação local no checkout de desenvolvimento: 11 suítes / 31 testes do admin aprovados; TypeScript e ESLint dos dois arquivos alterados aprovados. Sem validação de login real: API local na porta 3000 indisponível. CI e aceite humano pendentes.
+- Alteração isolada em `fix/issue-56-login-unico`, com cópia dos dois arquivos aplicada ao servidor local para acompanhamento. Arquivos da Issue #55 preservados. Sem migration, deploy ou merge.
+- Rollback: reverter o commit desta Issue restaura o formulário anterior; nenhuma alteração de banco ou contrato de autenticação.
