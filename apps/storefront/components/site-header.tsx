@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useQuoteCart } from './quote-cart-provider';
 import { MegaMenu } from './mega-menu';
+import { CategoryMegaMenu, CATEGORY_MENUS_DATA } from './category-mega-menu';
 import type { ApiBrand, ApiCategory } from '@/lib/types';
 
 type SiteHeaderProps = {
@@ -254,9 +255,10 @@ export function SiteHeader({
               </div>
 
               {/* Links Rápidos em Destaque (site-final) */}
-              <div className="flex items-center gap-0.5 pl-1">
+              <div className="flex items-center gap-1 pl-1">
+                {/* Ofertas do Dia */}
                 <Link
-                  className="flex items-center gap-1.5 rounded-sm px-2.5 py-2 text-white/95 hover:bg-white/10 hover:text-white transition"
+                  className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-white/95 hover:bg-white/10 hover:text-white transition"
                   href="/loja?oferta=1"
                 >
                   <Sparkles className="size-3.5 text-amber-300" />
@@ -266,50 +268,79 @@ export function SiteHeader({
                   </span>
                 </Link>
 
-                <Link
-                  className="rounded-sm px-2.5 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
-                  href="/loja?q=embalagens"
-                >
-                  Embalagens
-                </Link>
+                {/* Mega Menu: Embalagens (Estilo Magalu) */}
+                <div className="group/cat relative">
+                  <Link
+                    className="flex items-center gap-1 rounded-full px-2.5 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white"
+                    href="/categoria/embalagens"
+                  >
+                    <span>Embalagens</span>
+                    <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
+                  </Link>
+                  <div className="invisible absolute top-full left-0 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
+                    <CategoryMegaMenu config={CATEGORY_MENUS_DATA.embalagens} />
+                  </div>
+                </div>
 
-                <Link
-                  className="rounded-sm px-2.5 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
-                  href="/loja?q=descartaveis"
-                >
-                  Descartáveis
-                </Link>
+                {/* Mega Menu: Descartáveis (Estilo Magalu) */}
+                <div className="group/cat relative">
+                  <Link
+                    className="flex items-center gap-1 rounded-full px-2.5 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white"
+                    href="/categoria/descartaveis"
+                  >
+                    <span>Descartáveis</span>
+                    <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
+                  </Link>
+                  <div className="invisible absolute top-full -left-20 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
+                    <CategoryMegaMenu config={CATEGORY_MENUS_DATA.descartaveis} />
+                  </div>
+                </div>
 
-                <Link
-                  className="rounded-sm px-2.5 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
-                  href="/loja?q=festa"
-                >
-                  Artigos para Festa
-                </Link>
+                {/* Mega Menu: Artigos para Festa (Estilo Magalu) */}
+                <div className="group/cat relative">
+                  <Link
+                    className="flex items-center gap-1 rounded-full px-2.5 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white"
+                    href="/categoria/artigos-festa"
+                  >
+                    <span>Artigos para Festa</span>
+                    <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
+                  </Link>
+                  <div className="invisible absolute top-full -left-36 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
+                    <CategoryMegaMenu config={CATEGORY_MENUS_DATA.festa} />
+                  </div>
+                </div>
 
-                <Link
-                  className="hidden xl:inline-block rounded-sm px-2.5 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
-                  href="/loja?q=confeitaria"
-                >
-                  Doces &amp; Confeitaria
-                </Link>
+                {/* Mega Menu: Doces & Confeitaria (Estilo Magalu) */}
+                <div className="group/cat relative hidden xl:block">
+                  <Link
+                    className="flex items-center gap-1 rounded-full px-2.5 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white"
+                    href="/categoria/confeitaria"
+                  >
+                    <span>Doces &amp; Confeitaria</span>
+                    <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
+                  </Link>
+                  <div className="invisible absolute top-full -left-48 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
+                    <CategoryMegaMenu config={CATEGORY_MENUS_DATA.confeitaria} />
+                  </div>
+                </div>
 
-                <Link
-                  className="hidden lg:inline-block rounded-sm px-2.5 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
-                  href="/loja?q=sacolas"
-                >
-                  Sacos &amp; Sacolas
-                </Link>
+                {/* Mega Menu: Limpeza Profissional (Estilo Magalu) */}
+                <div className="group/cat relative hidden lg:block">
+                  <Link
+                    className="flex items-center gap-1 rounded-full px-2.5 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white"
+                    href="/categoria/limpeza"
+                  >
+                    <span>Limpeza Profissional</span>
+                    <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
+                  </Link>
+                  <div className="invisible absolute top-full right-0 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
+                    <CategoryMegaMenu align="right" config={CATEGORY_MENUS_DATA.limpeza} />
+                  </div>
+                </div>
 
+                {/* Mais Vendidos */}
                 <Link
-                  className="hidden xl:inline-block rounded-sm px-2.5 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
-                  href="/loja?q=limpeza"
-                >
-                  Limpeza Profissional
-                </Link>
-
-                <Link
-                  className="rounded-sm px-2.5 py-2 text-white/90 hover:bg-white/10 hover:text-white transition"
+                  className="rounded-full px-2.5 py-1 text-white/90 hover:bg-white/10 hover:text-white transition"
                   href="/loja"
                 >
                   Mais Vendidos
