@@ -1,19 +1,19 @@
 /* ─────────────────────────────────────────────────────────────
    INTERFACE ANIMADA DO WHATSAPP DENTRO DO SMARTPHONE (S23 STYLE)
-   Comercial do Norte — Componente Interativo de Alta Fidelidade
+   Comercial do Norte — Versão 100% Nítida, Estável e Compatível
    ───────────────────────────────────────────────────────────── */
 
-/* Container Físico do Smartphone (Modo Standalone) */
+/* Container Físico do Smartphone (Samsung Galaxy S23 Style) */
 .wpp-phone-container {
   position: relative;
   display: block;
-  width: 290px;
+  width: 285px;
   max-width: 100%;
-  height: 470px;
+  height: 460px;
   margin: 0 auto;
-  border-radius: 40px 40px 0 0;
+  border-radius: 38px 38px 0 0;
   background: #111215;
-  box-shadow: 0 0 0 8px #222328, 0 0 0 10px #35363c, 0 -4px 30px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 0 7px #1f2026, 0 0 0 9px #303138, 0 -8px 32px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
@@ -23,21 +23,8 @@
 }
 
 .wpp-phone-container:hover {
-  box-shadow: 0 0 0 8px #2a2c33, 0 0 0 10px #3e4047, 0 -6px 36px rgba(0, 0, 0, 0.7);
-}
-
-/* Modo Overlay: Encaixe perfeito sobre a imagem de mockup/composição */
-.wpp-phone-container.mode-overlay {
-  position: absolute;
-  top: 7.2%;
-  left: 1.5%;
-  width: 49.6%;
-  height: 92.8%;
-  margin: 0;
-  border-radius: 36px 36px 0 0;
-  box-shadow: none;
-  background: #0a0b0e;
-  cursor: pointer;
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 7px #25272e, 0 0 0 9px #3b3d45, 0 -10px 40px rgba(0, 0, 0, 0.6);
 }
 
 /* Display Físico do Smartphone */
@@ -47,13 +34,10 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #0a0b0e;
-  container-type: inline-size;
+  background: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  transform: translateZ(0);
-  -webkit-mask-image: -webkit-radial-gradient(white, black);
   line-height: normal;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 /* Câmera Frontal Punch-Hole S23 */
@@ -62,19 +46,19 @@
   top: 7px;
   left: 50%;
   transform: translateX(-50%);
-  width: 11px;
-  height: 11px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: #000000;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22), inset 0 0 2px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 0 2px rgba(255, 255, 255, 0.35);
   z-index: 100;
   pointer-events: none;
 }
 .wpp-s23-camera::after {
   content: "";
   position: absolute;
-  top: 3px;
-  left: 3px;
+  top: 2.5px;
+  left: 2.5px;
   width: 4px;
   height: 4px;
   border-radius: 50%;
@@ -87,9 +71,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 7.5% 3px;
+  padding: 4px 18px 3px;
   color: #ffffff;
-  font-size: clamp(9px, 2.9cqi, 12px);
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: -0.01em;
   pointer-events: none;
@@ -104,7 +88,7 @@
 }
 .wpp-status-icons svg {
   display: block;
-  width: clamp(11px, 3.6cqi, 15px);
+  width: 13px;
   height: auto;
   fill: currentColor;
 }
@@ -133,13 +117,13 @@
   inset: 0;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(circle at 80% 25%, rgba(0, 76, 177, 0.35) 0%, transparent 60%),
-              radial-gradient(circle at 15% 85%, rgba(226, 9, 30, 0.25) 0%, transparent 65%),
-              #08090c;
-  padding-top: 18%;
-  padding-left: 6%;
-  padding-right: 6%;
-  transition: opacity 0.35s ease, transform 0.35s ease;
+  background: radial-gradient(circle at 80% 20%, rgba(0, 76, 177, 0.5) 0%, transparent 60%),
+              radial-gradient(circle at 20% 80%, rgba(226, 9, 30, 0.35) 0%, transparent 65%),
+              #0a0c12;
+  padding-top: 55px;
+  padding-left: 18px;
+  padding-right: 18px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
   z-index: 10;
 }
 .wpp-scene-drawer.is-hidden {
@@ -150,18 +134,18 @@
 
 .wpp-drawer-widget {
   text-align: center;
-  margin-bottom: 9%;
+  margin-bottom: 24px;
 }
 .wpp-drawer-widget-date {
-  font-size: clamp(8px, 2.9cqi, 11px);
+  font-size: 10px;
   color: #60a5fa;
   text-transform: uppercase;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  margin-bottom: 3px;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
 }
 .wpp-drawer-widget-clock {
-  font-size: clamp(22px, 10cqi, 36px);
+  font-size: 32px;
   font-weight: 300;
   color: #ffffff;
   letter-spacing: -0.03em;
@@ -171,7 +155,7 @@
 .wpp-apps-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: clamp(8px, 3cqi, 14px);
+  gap: 10px;
   align-items: start;
 }
 .wpp-app-item {
@@ -184,9 +168,9 @@
 }
 .wpp-app-icon-wrapper {
   position: relative;
-  width: clamp(38px, 14cqi, 52px);
-  height: clamp(38px, 14cqi, 52px);
-  border-radius: clamp(10px, 3.6cqi, 14px);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -195,7 +179,7 @@
 }
 .wpp-app-label {
   margin-top: 6px;
-  font-size: clamp(7.5px, 2.7cqi, 10px);
+  font-size: 9.5px;
   color: #ffffff;
   font-weight: 500;
   white-space: nowrap;
@@ -235,11 +219,11 @@
   right: -4px;
   background: #E2091E;
   color: #ffffff;
-  font-size: clamp(7px, 2.6cqi, 9.5px);
+  font-size: 8.5px;
   font-weight: 700;
   border-radius: 999px;
-  min-width: 17px;
-  height: 17px;
+  min-width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -281,7 +265,7 @@
   padding-top: 4px;
 }
 .wpp-list-header-content {
-  padding: clamp(4px, 1.8cqi, 7px) 4.5% clamp(4px, 1.8cqi, 7px);
+  padding: 6px 14px 6px;
 }
 .wpp-list-header-top {
   display: flex;
@@ -290,7 +274,7 @@
   margin-bottom: 7px;
 }
 .wpp-list-title {
-  font-size: clamp(13px, 4.6cqi, 17px);
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
@@ -300,14 +284,14 @@
   align-items: center;
 }
 .wpp-list-actions svg {
-  width: clamp(12px, 4.2cqi, 16px);
-  height: clamp(12px, 4.2cqi, 16px);
+  width: 14px;
+  height: 14px;
   fill: currentColor;
 }
 .wpp-list-tabs {
   display: flex;
   gap: 14px;
-  font-size: clamp(8px, 3cqi, 11px);
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.75);
@@ -326,8 +310,8 @@
 .wpp-chat-item {
   display: flex;
   align-items: center;
-  padding: clamp(9px, 3cqi, 13px) 4.5%;
-  gap: clamp(8px, 3cqi, 12px);
+  padding: 10px 14px;
+  gap: 10px;
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   transition: background 0.2s ease;
@@ -337,8 +321,8 @@
 }
 .wpp-chat-item-avatar {
   position: relative;
-  width: clamp(34px, 11.5cqi, 44px);
-  height: clamp(34px, 11.5cqi, 44px);
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   overflow: hidden;
   background: #002D72;
@@ -360,7 +344,7 @@
   margin-bottom: 3px;
 }
 .wpp-chat-item-name {
-  font-size: clamp(11.5px, 4cqi, 15px);
+  font-size: 13.5px;
   font-weight: 700;
   color: #111b21;
   display: flex;
@@ -374,12 +358,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: clamp(11px, 3.6cqi, 14px);
-  height: clamp(11px, 3.6cqi, 14px);
+  width: 13px;
+  height: 13px;
   flex-shrink: 0;
 }
 .wpp-chat-item-time {
-  font-size: clamp(8px, 2.7cqi, 10.5px);
+  font-size: 9.5px;
   color: #25d366;
   font-weight: 600;
 }
@@ -389,7 +373,7 @@
   align-items: center;
 }
 .wpp-chat-item-msg {
-  font-size: clamp(9px, 3.2cqi, 12px);
+  font-size: 11px;
   color: #667781;
   white-space: nowrap;
   overflow: hidden;
@@ -399,7 +383,7 @@
 .wpp-chat-item-unread {
   background: #25d366;
   color: #ffffff;
-  font-size: clamp(7.5px, 2.6cqi, 9.5px);
+  font-size: 8.5px;
   font-weight: 700;
   border-radius: 999px;
   min-width: 16px;
@@ -443,8 +427,8 @@
 .wpp-chat-nav {
   display: flex;
   align-items: center;
-  padding: 4px 4% 9px;
-  gap: clamp(5px, 2cqi, 9px);
+  padding: 4px 12px 8px;
+  gap: 8px;
 }
 .wpp-nav-back {
   display: flex;
@@ -452,12 +436,12 @@
   color: #ffffff;
 }
 .wpp-nav-back svg {
-  width: clamp(16px, 4.8cqi, 21px);
-  height: clamp(16px, 4.8cqi, 21px);
+  width: 18px;
+  height: 18px;
 }
 .wpp-nav-avatar {
-  width: clamp(32px, 10cqi, 42px);
-  height: clamp(32px, 10cqi, 42px);
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   overflow: hidden;
   background: #002D72;
@@ -474,7 +458,7 @@
   line-height: 1.2;
 }
 .wpp-nav-name {
-  font-size: clamp(13px, 4.4cqi, 17px);
+  font-size: 14px;
   font-weight: 700;
   color: #ffffff;
   display: flex;
@@ -485,7 +469,7 @@
   text-overflow: ellipsis;
 }
 .wpp-nav-status {
-  font-size: clamp(8px, 2.7cqi, 11px);
+  font-size: 10px;
   color: rgba(255, 255, 255, 0.85);
   display: block;
   transition: color 0.2s ease;
@@ -497,24 +481,24 @@
 .wpp-nav-actions {
   display: flex;
   align-items: center;
-  gap: clamp(8px, 2.8cqi, 13px);
+  gap: 10px;
   color: #ffffff;
 }
 .wpp-nav-actions svg {
-  width: clamp(14px, 4.4cqi, 18px);
-  height: clamp(14px, 4.4cqi, 18px);
+  width: 16px;
+  height: 16px;
   fill: currentColor;
 }
 
 /* Área de Conversa com Textura WhatsApp */
 .wpp-chat-content {
   flex: 1;
-  padding: clamp(12px, 3.8cqi, 18px) 4.5% clamp(14px, 4cqi, 20px);
+  padding: 14px 12px 14px;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: clamp(10px, 3.2cqi, 14px);
+  gap: 10px;
   background-color: #efeae2;
   background-image: radial-gradient(#d3c9bf 1px, transparent 1px);
   background-size: 16px 16px;
@@ -546,7 +530,7 @@
   background: #ffffff;
   color: #111b21;
   border-top-left-radius: 2px;
-  padding: clamp(9px, 2.8cqi, 13px) clamp(12px, 3.6cqi, 16px) clamp(7px, 2.2cqi, 10px);
+  padding: 10px 12px 7px;
 }
 .wpp-msg.received::before {
   content: "";
@@ -566,7 +550,7 @@
   background: #d9fdd3;
   color: #111b21;
   border-top-right-radius: 2px;
-  padding: clamp(8px, 2.6cqi, 12px) clamp(12px, 3.6cqi, 16px) clamp(7px, 2.2cqi, 10px);
+  padding: 9px 12px 7px;
 }
 .wpp-msg.sent::after {
   content: "";
@@ -583,18 +567,18 @@
 /* Textos dentro do balão */
 .wpp-msg-title {
   font-weight: 700;
-  font-size: clamp(14px, 4.6cqi, 18.5px);
+  font-size: 15px;
   line-height: 1.25;
   color: #111b21;
   margin-bottom: 3px;
 }
 .wpp-msg-text {
-  font-size: clamp(12.5px, 4cqi, 16px);
+  font-size: 13px;
   line-height: 1.35;
   color: #111b21;
 }
 .wpp-msg.sent .wpp-msg-text {
-  font-size: clamp(13.5px, 4.3cqi, 17px);
+  font-size: 13.5px;
   font-weight: 500;
 }
 .wpp-msg-meta {
@@ -602,15 +586,15 @@
   align-items: center;
   justify-content: flex-end;
   gap: 3px;
-  font-size: clamp(8.5px, 2.7cqi, 11px);
+  font-size: 9.5px;
   color: #667781;
   margin-top: 3px;
   float: right;
   margin-left: 8px;
 }
 .wpp-checks svg {
-  width: clamp(12px, 3.8cqi, 15px);
-  height: clamp(8px, 2.6cqi, 10px);
+  width: 13px;
+  height: 9px;
 }
 .wpp-checks.is-blue svg path {
   stroke: #53bdeb;
@@ -620,7 +604,7 @@
    CARD DE CONVITE DO GRUPO WHATSAPP (ÚLTIMA MENSAGEM)
    ───────────────────────────────────────────────────────────── */
 .wpp-msg.wpp-msg-invite {
-  max-width: 88%;
+  max-width: 90%;
   padding: 5px 5px 0 5px;
   background: #ffffff;
   border-radius: 9px;
@@ -641,15 +625,15 @@
 .wpp-invite-preview {
   display: flex;
   align-items: center;
-  gap: clamp(7px, 2.2cqi, 11px);
+  gap: 8px;
   background: #f0f2f5;
   border-radius: 7px;
-  padding: clamp(6px, 2cqi, 9px);
+  padding: 7px;
 }
 
 .wpp-invite-avatar {
-  width: clamp(32px, 10cqi, 40px);
-  height: clamp(32px, 10cqi, 40px);
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   overflow: hidden;
   background: #002D72;
@@ -669,7 +653,7 @@
 }
 
 .wpp-invite-group-name {
-  font-size: clamp(10px, 3.2cqi, 13px);
+  font-size: 11px;
   font-weight: 700;
   color: #111b21;
   text-transform: uppercase;
@@ -680,13 +664,13 @@
 }
 
 .wpp-invite-group-desc {
-  font-size: clamp(7.5px, 2.5cqi, 10px);
+  font-size: 8.5px;
   color: #667781;
   margin-top: 1px;
 }
 
 .wpp-invite-group-url {
-  font-size: clamp(7.5px, 2.4cqi, 9.5px);
+  font-size: 8px;
   color: #00a884;
   white-space: nowrap;
   overflow: hidden;
@@ -704,7 +688,7 @@
 }
 
 .wpp-invite-link-text {
-  font-size: clamp(8.5px, 2.7cqi, 11px);
+  font-size: 9.5px;
   color: #027eb5;
   text-decoration: underline;
   white-space: nowrap;
@@ -719,10 +703,10 @@
   align-items: center;
   justify-content: center;
   gap: 5px;
-  padding: clamp(7px, 2.2cqi, 9px) 6px;
+  padding: 8px 6px;
   border-top: 1px solid rgba(0, 0, 0, 0.07);
   color: #00a884;
-  font-size: clamp(10.5px, 3.3cqi, 13.5px);
+  font-size: 12px;
   font-weight: 700;
   background: transparent;
   transition: background 0.15s ease, color 0.15s ease;
@@ -733,8 +717,8 @@
   color: #008069;
 }
 .wpp-invite-action-btn svg {
-  width: clamp(10px, 3.2cqi, 13px);
-  height: clamp(10px, 3.2cqi, 13px);
+  width: 12px;
+  height: 12px;
   stroke: currentColor;
   transition: transform 0.2s ease;
 }
@@ -784,8 +768,8 @@
 .wpp-chat-bottom {
   display: flex;
   align-items: center;
-  padding: clamp(6px, 2cqi, 10px) 4%;
-  gap: clamp(6px, 2.2cqi, 10px);
+  padding: 8px 10px;
+  gap: 8px;
   background: #efeae2;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
   flex-shrink: 0;
@@ -796,7 +780,7 @@
   border-radius: 24px;
   display: flex;
   align-items: center;
-  padding: clamp(5px, 1.8cqi, 8px) clamp(10px, 3cqi, 14px);
+  padding: 6px 12px;
   gap: 8px;
   box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.08);
 }
@@ -806,12 +790,12 @@
   align-items: center;
 }
 .wpp-bottom-icon svg {
-  width: clamp(14px, 4.4cqi, 19px);
-  height: clamp(14px, 4.4cqi, 19px);
+  width: 16px;
+  height: 16px;
 }
 .wpp-bottom-input-text {
   flex: 1;
-  font-size: clamp(12px, 3.8cqi, 15.5px);
+  font-size: 13.5px;
   color: #111b21;
   white-space: nowrap;
   overflow: hidden;
@@ -824,8 +808,8 @@
   color: #8696a0;
 }
 .wpp-bottom-btn {
-  width: clamp(32px, 9.5cqi, 40px);
-  height: clamp(32px, 9.5cqi, 40px);
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: #00a884;
   color: #ffffff;
@@ -838,8 +822,8 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 .wpp-bottom-btn svg {
-  width: clamp(15px, 4.6cqi, 19px);
-  height: clamp(15px, 4.6cqi, 19px);
+  width: 17px;
+  height: 17px;
   fill: currentColor;
   margin-left: 2px;
 }
@@ -851,41 +835,21 @@
 /* ─────────────────────────────────────────────────────────────
    RESPONSIVIDADE: COMPORTAMENTO EM NOTEBOOKS E MOBILE
    ───────────────────────────────────────────────────────────── */
-@media (min-width: 901px) and (max-width: 1120px) {
-  .wpp-phone-container:not(.mode-overlay) {
+@media (max-width: 900px) {
+  .wpp-phone-container {
     width: 275px;
     height: 440px;
-    border-radius: 38px 38px 0 0;
-  }
-}
-
-@media (max-width: 900px) {
-  .wpp-phone-container:not(.mode-overlay) {
-    width: 100%;
-    max-width: min(280px, calc(100% - 24px));
-    height: 460px;
-    margin: 0 auto;
     border-radius: 36px 36px 0 0;
-    box-shadow: 0 0 0 6px #222328, 0 0 0 8px #35363c, 0 -4px 20px rgba(0, 0, 0, 0.6);
-    box-sizing: border-box;
+    box-shadow: 0 0 0 6px #1f2026, 0 0 0 8px #303138, 0 -6px 24px rgba(0, 0, 0, 0.5);
   }
 }
 
 @media (max-width: 480px) {
-  .wpp-phone-container:not(.mode-overlay) {
+  .wpp-phone-container {
     max-width: min(260px, calc(100% - 20px));
-    height: 430px;
-    border-radius: 34px 34px 0 0;
-    box-shadow: 0 0 0 5px #222328, 0 0 0 7px #35363c, 0 -4px 18px rgba(0, 0, 0, 0.55);
-  }
-}
-
-@media (max-width: 360px) {
-  .wpp-phone-container:not(.mode-overlay) {
-    max-width: min(230px, calc(100% - 16px));
-    height: 385px;
-    border-radius: 30px 30px 0 0;
-    box-shadow: 0 0 0 4px #222328, 0 0 0 6px #35363c, 0 -3px 15px rgba(0, 0, 0, 0.5);
+    height: 420px;
+    border-radius: 32px 32px 0 0;
+    box-shadow: 0 0 0 5px #1f2026, 0 0 0 7px #303138, 0 -4px 18px rgba(0, 0, 0, 0.45);
   }
 }
 

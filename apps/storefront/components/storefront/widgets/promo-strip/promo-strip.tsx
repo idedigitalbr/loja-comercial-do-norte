@@ -193,13 +193,13 @@ export function PromoStripWidget({
   // Variante 3: Seção 17 — Entre em nosso Grupo de ofertas Exclusivas do WhatsApp
   return (
     <section aria-label={title || 'Grupo de WhatsApp'} className="cn-container py-4 sm:py-6">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#002D72] via-[#00449E] to-[#002D72] shadow-[0_8px_32px_rgba(0,45,114,0.25)] border border-white/10">
+      <div className="relative overflow-hidden rounded-2xl bg-[#00449E] shadow-[0_8px_32px_rgba(0,45,114,0.22)]">
         <div className="grid grid-cols-1 items-center lg:grid-cols-12">
-          {/* Arte Mascote + Ícones 3D à esquerda */}
-          <div className="group/img relative hidden h-full min-h-[300px] overflow-hidden lg:col-span-4 lg:block">
+          {/* Arte Mascote James à esquerda */}
+          <div className="group/img relative hidden h-full min-h-[340px] overflow-hidden lg:col-span-4 lg:block">
             <Image
               alt="Mascote Comercial do Norte WhatsApp"
-              className="size-full object-cover object-center"
+              className="size-full object-cover object-bottom"
               height={420}
               src={mascotImageUrl}
               unoptimized
@@ -284,43 +284,15 @@ export function PromoStripWidget({
             <div className="mt-6 flex justify-center lg:hidden">
               <WhatsappPhoneAnimation
                 ctaUrl={ctaUrl || 'https://wa.me/5591983440880'}
-                mode="standalone"
               />
             </div>
           </div>
 
-          {/* Arte Mockup Celular WhatsApp à direita (Desktop) com o Smartphone Funcional Sobreposto */}
-          <div className="group/img relative hidden h-full min-h-[360px] overflow-hidden lg:col-span-4 lg:block">
-            <div className="relative h-full w-full">
-              <Image
-                alt="Grupo de Ofertas WhatsApp Comercial do Norte"
-                className="size-full object-cover object-center"
-                height={655}
-                src={rightImageUrl}
-                unoptimized
-                width={760}
-              />
-
-              {/* Smartphone Animado e Funcional perfeitamente encaixado sobre a arte */}
-              <WhatsappPhoneAnimation
-                ctaUrl={ctaUrl || 'https://wa.me/5591983440880'}
-                mode="overlay"
-              />
-
-              {widgetId ? (
-                <InlineImageEditorOverlay
-                  canAdd={false}
-                  canRemove={false}
-                  currentLinkUrl={ctaUrl}
-                  fieldPath="rightImageUrl"
-                  linkFieldPath="ctaUrl"
-                  previewUrl={rightImageUrl}
-                  slideIndex={0}
-                  title="Arte Direita Grupo WhatsApp"
-                  widgetId={widgetId}
-                />
-              ) : null}
-            </div>
+          {/* Smartphone Animado à direita (Desktop) em fundo azul limpo */}
+          <div className="relative hidden h-full min-h-[460px] items-end justify-center pt-6 lg:col-span-4 lg:flex">
+            <WhatsappPhoneAnimation
+              ctaUrl={ctaUrl || 'https://wa.me/5591983440880'}
+            />
           </div>
         </div>
       </div>
