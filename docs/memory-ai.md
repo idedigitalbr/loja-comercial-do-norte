@@ -308,3 +308,11 @@ Lacunas, defeitos e riscos dessa base **não são repetidos aqui**: estão em `r
 
 - O responsável determinou integração direta na `main` para os ajustes solicitados, sem abrir PRs nem aguardar revisão de PR. Esta instrução explícita substitui a exigência anterior de PR para essas entregas. Preservar commits isolados, validações, reservas e push sem force; não presumir autorização de migrations ou deploy manual.
 - A correção de login único da Issue #56 foi autorizada para integração direta. Validação real local: API NestJS e PostgreSQL existentes ligados, painel sem sessão redirecionou para `/login`, entrada pela conta ADMIN de desenvolvimento reconhecida pela API e dashboard aberto com a mesma sessão. Sem seed ou migration.
+
+### Refinamento aprovado como direção visual — 26/10/2026 — Issue #60
+
+- Explica Aí Nort: título principal acima do subtítulo, peso bold 700; pills rosa claro/vermelho, títulos azuis, três frases curtas por card e CTA contornado. Carrossel contínuo com parte do próximo card visível, degradê vermelho à direita e navegação por setas/toque/teclado.
+- Quatro imagens editoriais sintéticas para pizza, kraft, copos e doces, com uniforme azul, enquadramento e luz quente consistentes. São ilustrações dos temas, sem identificação como clientes/equipe reais. Assets dedicados em `apps/storefront/public/assets/explica-ai/`, sem substituir fotos compartilhadas por outras seções.
+- Composição padrão e JSON local atualizados; composições previamente publicadas pela API ou salvas no editor preservam seus dados e precisam de atualização/publicação administrativa para receber os novos textos e caminhos. Nenhuma gravação no banco ou publicação executada nesta tarefa.
+
+- Atualização expressa do responsável em 26/10/2026: integrar esta alteração diretamente na main, sem exigir revisão de PR. Aplicação isolada do commit visual sobre origin/main; demais trabalhos pendentes não integram esta entrega. Esta autorização substitui a exigência anterior de PR para esta entrega.
