@@ -1,202 +1,60 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
-import { useElementor } from '@/components/storefront/editor/elementor-editor-context';
 import { InlineImageEditorOverlay } from '@/components/storefront/editor/inline-image-editor-overlay';
 import type { VideoArticlesCarouselProps } from '@/lib/storefront/widget-types';
 
-export function VideoArticlesCarouselWidget({
-  widgetId,
-  title = 'Explica Aí Nort',
-  subtitle = 'Dicas em vídeos e artigos para você usar no seu negócio.',
-  viewAllLabel = 'Ver todos',
-  viewAllUrl = '/loja',
-  items = [],
-}: VideoArticlesCarouselProps) {
-  const { isEditing, previewMode } = useElementor();
-  const [currentPage, setCurrentPage] = useState(0);
-
-  if (!items || items.length === 0) return null;
-
-  const itemsPerPage = 2;
-  const totalPages = Math.ceil(items.length / itemsPerPage);
-
-  const pages = [];
-  for (let i = 0; i < items.length; i += itemsPerPage) {
-    pages.push(items.slice(i, i + itemsPerPage));
+export function VideoArticlesCarouselWidget({ widgetId, title = 'Explica Aí Nort', subtitle = 'Dicas em vídeos e artigos para você usar no seu negócio.', viewAllLabel = 'Ver todos', viewAllUrl = '/loja', items = [] }: VideoArticlesCarouselProps) {
+  const track = useRef<HTMLDivElement>(null);
+  const [edges, setEdges] = useState({ start: true, end: false });
+  if (!items.length) return null;
+  function move(direction: number) {
+    const element = track.current;
+    if (!element) return;
+    const card = element.firstElementChild as HTMLElement | null;
+    element.scrollBy({ left: direction * ((card?.offsetWidth ?? element.clientWidth) + 24), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
   }
-
-  const safeCurrentPage = Math.min(currentPage, Math.max(0, totalPages - 1));
-
   return (
     <section aria-label={title} className="cn-container py-4 sm:py-6">
-      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#A50010] via-[#88000D] to-[#5E0008] p-6 shadow-xl sm:p-9">
-        {/* Header */}
-        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <div className="relative isolate overflow-hidden rounded-3xl bg-[#b40016] py-7 sm:py-10">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_10%_0%,#ef002b_0%,transparent_55%),linear-gradient(135deg,transparent_55%,#e60024_55%,#990010_85%)]" />
+        <div className="mb-7 flex flex-wrap items-center justify-between gap-4 px-5 sm:px-8">
           <div>
-            <p className="text-base font-medium text-red-100 sm:text-lg">
-              {title}
-            </p>
-            <h2 className="mt-0.5 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
-              {subtitle}
-            </h2>
-            <div className="mt-2.5 h-1 w-28 rounded-full bg-[#004CB1]" />
+            <h2 className="text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">{title}</h2>
+            <p className="mt-1 text-base leading-snug text-[#ff8d98] sm:text-xl lg:text-2xl">{subtitle}</p>
+            <div aria-hidden="true" className="mt-4 h-1.5 w-36 bg-[#004cb1] sm:w-48" />
           </div>
-
-          <Link
-            className="inline-flex items-center gap-1.5 self-start rounded-xl border border-white/35 bg-white/10 px-4 py-2 text-xs font-bold text-white transition hover:bg-white/20 sm:self-auto"
-            href={viewAllUrl}
-          >
-            <span>{viewAllLabel}</span>
-            <ChevronRight className="size-4" />
-          </Link>
+          <Link className="inline-flex items-center gap-1 text-sm font-bold text-white underline-offset-4 hover:underline" href={viewAllUrl}>{viewAllLabel}<ChevronRight aria-hidden="true" className="size-4" /></Link>
         </div>
-
-        {/* Carrossel de Cards Horizontais (2 colunas iguais por página) */}
         <div className="relative">
-          <div className="overflow-hidden">
-            <div
-              className="flex transition-transform duration-500 ease-in-out"
-              style={{ transform: `translateX(-${safeCurrentPage * 100}%)` }}
-            >
-              {pages.map((pageItems, pIdx) => (
-                <div
-                  className="grid grid-cols-1 gap-5 lg:grid-cols-2 w-full shrink-0"
-                  key={pIdx}
-                >
-                  {pageItems.map((item, idx) => {
-                    const globalIdx = pIdx * itemsPerPage + idx;
-                    return (
-                      <div
-                        className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-lg sm:flex-row"
-                        key={item.id || globalIdx}
-                      >
-                        {/* Coluna Foto com Play Button */}
-                        <div className="group/img relative shrink-0 overflow-hidden bg-slate-900 sm:w-[44%]">
-                          <Image
-                            alt={item.title}
-                            className={`h-full min-h-[260px] w-full object-cover transition duration-500 ${
-                              isEditing && !previewMode
-                                ? 'group-hover/img:brightness-50 group-hover/img:grayscale'
-                                : 'group-hover/img:scale-105'
-                            }`}
-                            height={665}
-                            src={item.imageUrl}
-                            unoptimized
-                            width={495}
-                          />
-                          {/* Botão Play Vermelho Central */}
-                          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/15">
-                            <span className="flex size-13 items-center justify-center rounded-full bg-[#E2091E] text-white shadow-xl ring-4 ring-white/30">
-                              <Play className="ml-0.5 size-6 fill-white" />
-                            </span>
-                          </div>
-
-                          {widgetId ? (
-                            <InlineImageEditorOverlay
-                              canAdd={false}
-                              canRemove={false}
-                              currentLinkUrl={item.ctaUrl}
-                              fieldPath={`items.${globalIdx}.imageUrl`}
-                              linkFieldPath={`items.${globalIdx}.ctaUrl`}
-                              previewUrl={item.imageUrl}
-                              slideIndex={globalIdx}
-                              title={`Vídeo/Artigo: ${item.title}`}
-                              widgetId={widgetId}
-                            />
-                          ) : null}
-                        </div>
-
-                        {/* Coluna Conteúdo */}
-                        <div className="flex flex-1 flex-col justify-between p-5 sm:p-6">
-                          <div>
-                            <div className="mb-2.5 flex flex-wrap gap-1.5">
-                              {item.tags.map((tag, tIdx) => (
-                                <span
-                                  className={`rounded px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white ${
-                                    tIdx === 0 ? 'bg-[#E2091E]' : 'bg-[#004CB1]'
-                                  }`}
-                                  key={tIdx}
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-
-                            <h3 className="text-lg font-extrabold leading-snug text-[#0B1E3F] sm:text-xl">
-                              {item.title}
-                            </h3>
-
-                            <div className="mt-3 divide-y divide-slate-200/80 text-[11px] leading-relaxed text-slate-600">
-                              {item.paragraphs.map((p, pIdx) => (
-                                <p className="py-2 first:pt-0 last:pb-0" key={pIdx}>
-                                  {p}
-                                </p>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="mt-4 pt-2">
-                            <Link
-                              className="inline-flex items-center gap-1 rounded-lg border border-[#E2091E]/50 bg-white px-4 py-1.5 text-xs font-bold text-[#E2091E] transition hover:bg-red-50"
-                              href={item.ctaUrl || '/loja'}
-                            >
-                              <span>{item.ctaLabel || 'Ver Completo'}</span>
-                              <ChevronRight className="size-3.5" />
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+          <div ref={track} aria-label="Dicas e artigos" className="no-scrollbar flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-4 sm:px-8" onScroll={(event) => { const element = event.currentTarget; setEdges({ start: element.scrollLeft <= 2, end: element.scrollLeft + element.clientWidth >= element.scrollWidth - 2 }); }} tabIndex={0}>
+            {items.map((item, index) => (
+              <article key={item.id} className="relative flex w-[94%] shrink-0 snap-start scroll-ml-5 flex-col rounded-[22px] bg-white p-2 shadow-[-9px_9px_0_#ff0750] sm:w-[82%] sm:scroll-ml-8 sm:flex-row lg:w-[45%]">
+                <div className="group relative aspect-[4/3] shrink-0 overflow-hidden rounded-[18px] bg-slate-100 sm:aspect-auto sm:w-[51%]">
+                  <Image alt={item.title} className="h-full w-full object-cover object-top sm:absolute sm:inset-0" height={960} width={720} sizes="(min-width: 1024px) 25vw, (min-width: 640px) 42vw, 90vw" src={item.imageUrl} />
+                  <Link href={item.ctaUrl || '/loja'} aria-label={`Ver completo: ${item.title}`} className="absolute inset-0 flex items-center justify-center bg-black/5"><span className="flex size-16 items-center justify-center rounded-full bg-[#ff102b] text-white shadow-lg transition-transform group-hover:scale-105 sm:size-20"><Play aria-hidden="true" className="ml-1 size-8 fill-current" /></span></Link>
+                  {widgetId ? <InlineImageEditorOverlay canAdd={false} canRemove={false} currentLinkUrl={item.ctaUrl} fieldPath={`items.${index}.imageUrl`} linkFieldPath={`items.${index}.ctaUrl`} previewUrl={item.imageUrl} slideIndex={index} title={`Vídeo/Artigo: ${item.title}`} widgetId={widgetId} /> : null}
                 </div>
-              ))}
-            </div>
+                <div className="flex min-w-0 flex-1 flex-col justify-center px-4 py-6 sm:min-h-[360px] sm:px-5 sm:py-8 xl:min-h-[400px] xl:px-7">
+                  <div className="mb-3 flex flex-wrap gap-1.5">{item.tags.map((tag) => <span key={tag} className="rounded-full bg-[#ffdade] px-2.5 py-1 text-[10px] font-bold uppercase leading-none text-[#e2091e]">{tag}</span>)}</div>
+                  <h3 className="text-xl font-bold leading-[1.12] tracking-tight text-[#0b234b]">{item.title}</h3>
+                  <div className="mt-3 space-y-3 text-sm leading-snug text-[#63718a]">{item.paragraphs.map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph}</p>)}</div>
+                  <Link className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ff1633] px-2 py-2 text-sm font-bold text-[#e2091e] transition-colors hover:bg-red-50" href={item.ctaUrl || '/loja'}>{item.ctaLabel || 'Ver Completo'}<ChevronRight aria-hidden="true" className="size-4" /></Link>
+                </div>
+              </article>
+            ))}
           </div>
-
-          {totalPages > 1 && (
-            <>
-              <button
-                aria-label="Anterior"
-                className="absolute -left-4 top-1/2 z-10 hidden size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white text-[#E2091E] shadow-lg transition hover:scale-105 active:scale-95 sm:flex"
-                onClick={() => setCurrentPage((p) => (p - 1 + totalPages) % totalPages)}
-                type="button"
-              >
-                <ChevronLeft className="size-5" />
-              </button>
-              <button
-                aria-label="Próximo"
-                className="absolute -right-4 top-1/2 z-10 hidden size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white text-[#E2091E] shadow-lg transition hover:scale-105 active:scale-95 sm:flex"
-                onClick={() => setCurrentPage((p) => (p + 1) % totalPages)}
-                type="button"
-              >
-                <ChevronRight className="size-5" />
-              </button>
-            </>
-          )}
-
-          {totalPages > 1 && (
-            <div className="mt-6 flex justify-center">
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-[#101F3C] px-3.5 py-1.5 shadow-sm">
-                {Array.from({ length: totalPages }).map((_, dot) => (
-                  <button
-                    aria-label={`Dica ${dot + 1}`}
-                    className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                      safeCurrentPage === dot ? 'w-5 bg-[#E2091E]' : 'w-1.5 bg-white/40 hover:bg-white/70'
-                    }`}
-                    key={dot}
-                    onClick={() => setCurrentPage(dot)}
-                    type="button"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+          {items.length > 1 && <>
+            <div aria-hidden="true" className={`pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#b40016] to-transparent transition-opacity sm:w-[18%] ${edges.end ? 'opacity-0' : 'opacity-100'}`} />
+            <button aria-label="Dica anterior" disabled={edges.start} onClick={() => move(-1)} type="button" className="absolute left-2 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[#e2091e] shadow-lg disabled:hidden sm:left-4 sm:size-14"><ChevronLeft aria-hidden="true" /></button>
+            <button aria-label="Próxima dica" disabled={edges.end} onClick={() => move(1)} type="button" className="absolute right-3 top-1/2 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[#e2091e] shadow-lg disabled:hidden sm:right-5 sm:size-16"><ChevronRight aria-hidden="true" className="size-7" /></button>
+          </>}
         </div>
       </div>
     </section>
   );
 }
+
