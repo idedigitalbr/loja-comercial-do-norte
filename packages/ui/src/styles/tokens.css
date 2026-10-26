@@ -34,6 +34,7 @@
   --cn-danger: #b42318;
 
   /* Tipografia */
+  --cn-font-weight-heading: 700;
   --cn-font-sans: 'Lufga', 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --cn-font-size-xs: 0.75rem;
   --cn-font-size-sm: 0.875rem;

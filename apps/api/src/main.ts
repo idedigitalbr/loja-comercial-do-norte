@@ -46,8 +46,11 @@ export function configureApp(app: INestApplication): INestApplication {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       if (!origin) return callback(null, true);
       if (authorizedOrigins.has(origin)) return callback(null, true);
-      if (process.env.NODE_ENV !== 'production' && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
-        return callback(null, true);
+      if (process.env.NODE_ENV !== 'production' && process.env.VERCEL !== '1') {
+        try {
+          const local = new URL(origin);
+          if (['http:', 'https:'].includes(local.protocol) && ['localhost', '127.0.0.1', '[::1]'].includes(local.hostname)) return callback(null, true);
+        } catch { /* Malformed origins are refused. */ }
       }
       return callback(null, false);
     },
@@ -61,7 +64,7 @@ export function configureApp(app: INestApplication): INestApplication {
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
-        imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+        imgSrc: ["'self'", 'data:', 'blob:'],
         frameSrc: ["'self'", 'https://www.youtube.com', 'https://www.youtube-nocookie.com'],
       },
     },

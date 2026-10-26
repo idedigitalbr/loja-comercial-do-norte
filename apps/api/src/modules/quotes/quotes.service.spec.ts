@@ -10,6 +10,7 @@ function buildService(options: { variants?: unknown[]; existingKey?: unknown } =
   }];
 
   const transaction = {
+    $executeRaw: vi.fn().mockResolvedValue(1),
     idempotencyKey: {
       findUnique: vi.fn().mockResolvedValue(options.existingKey ?? null),
       create: vi.fn().mockResolvedValue({}),

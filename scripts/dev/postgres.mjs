@@ -8,7 +8,7 @@
 // O cluster fica em .postgres-data (ignorado pelo Git) com autenticacao trust:
 // uso exclusivo local. Em CI/producao use um PostgreSQL gerenciado.
 import { spawnSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, openSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, openSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
@@ -55,7 +55,7 @@ if (!existsSync(binDir)) {
 }
 
 function run(name, args) {
-  const result = spawnSync(binary(name), args, { stdio: 'inherit' });
+  const result = spawnSync(binary(name), args, { stdio: 'inherit', windowsHide: true });
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
@@ -71,10 +71,16 @@ function initialize() {
 
 function start() {
   initialize();
+  const status = spawnSync(binary('pg_ctl'), ['-D', dataDir, 'status'], { stdio: 'ignore', windowsHide: true });
+  if (status.status === 0) {
+    console.log(`PostgreSQL ja esta em execucao (${dataDir}).`);
+    return;
+  }
   // `postgres` roda em foreground; aqui ele vira processo destacado com log em arquivo.
   const log = openSync(logFile, 'a');
   const child = spawn(binary('postgres'), ['-D', dataDir, '-p', port, '-c', 'listen_addresses=127.0.0.1'], {
-    detached: true,
+    detached: process.platform !== 'win32',
+    windowsHide: true,
     stdio: ['ignore', log, log],
   });
   child.unref();
@@ -87,18 +93,7 @@ function stop() {
     console.log('Nenhum servidor local em execucao.');
     return;
   }
-  const pid = Number(readFileSync(pidFile, 'utf8').split('\n')[0]);
-  if (!Number.isInteger(pid)) {
-    console.error('postmaster.pid invalido.');
-    process.exit(1);
-  }
-  try {
-    process.kill(pid);
-    console.log(`Servidor ${pid} encerrado.`);
-  } catch (error) {
-    console.error(`Nao foi possivel encerrar o servidor ${pid}: ${error.message}`);
-    process.exit(1);
-  }
+  run('pg_ctl', ['-D', dataDir, 'stop', '-m', 'fast', '-t', '15']);
 }
 
 if (action === 'init') initialize();
