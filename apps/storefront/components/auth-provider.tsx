@@ -47,15 +47,35 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 const AUTH_USER_KEY = 'cn.auth_user.v1';
 const LOCAL_ACCOUNTS_KEY = 'cn.auth_accounts.v1';
 
+const DEFAULT_PRESET_ACCOUNTS: LocalStoredAccount[] = [
+  {
+    id: 'usr-admin-1',
+    email: 'admin@admin.com',
+    firstName: 'Victor',
+    lastName: 'Williames',
+    password: 'admin123456',
+  },
+  {
+    id: 'usr-cliente-1',
+    email: 'cliente@demo.com',
+    firstName: 'Cliente',
+    lastName: 'Comercial',
+    password: 'cliente123456',
+  },
+];
+
 function getStoredAccounts(): LocalStoredAccount[] {
-  if (typeof window === 'undefined') return [];
+  if (typeof window === 'undefined') return DEFAULT_PRESET_ACCOUNTS;
   try {
     const raw = window.localStorage.getItem(LOCAL_ACCOUNTS_KEY);
-    if (!raw) return [];
+    if (!raw) return DEFAULT_PRESET_ACCOUNTS;
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return DEFAULT_PRESET_ACCOUNTS;
+    const emails = new Set(parsed.map((a: LocalStoredAccount) => a.email.toLowerCase()));
+    const missingPresets = DEFAULT_PRESET_ACCOUNTS.filter((p) => !emails.has(p.email.toLowerCase()));
+    return [...parsed, ...missingPresets];
   } catch {
-    return [];
+    return DEFAULT_PRESET_ACCOUNTS;
   }
 }
 
