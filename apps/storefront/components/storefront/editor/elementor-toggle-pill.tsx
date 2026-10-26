@@ -1,38 +1,53 @@
 'use client';
 
-import React from 'react';
-import { Edit3, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { Edit3 } from 'lucide-react';
 import { useElementor } from './elementor-editor-context';
 
 export function ElementorTogglePill() {
   const { isEditing, setIsEditing, setPreviewMode } = useElementor();
+  const [isHovered, setIsHovered] = useState(false);
 
   if (isEditing) return null;
 
   return (
-    <div className="fixed bottom-6 left-6 z-[999] animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <aside
+      aria-label="Controle de edição da página"
+      className="fixed bottom-0 left-0 z-[999] flex items-end min-w-[72px] min-h-[48px] p-2 pb-2 pl-2 group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Botão compacto "Editar Página" - sutil e discreto, só surge ao encostar o mouse no canto inferior esquerdo */}
       <button
-        aria-label="Abrir Editor Elementor"
-        className="group flex cursor-pointer items-center gap-2.5 rounded-full bg-[#161719] py-2 pr-4 pl-2 text-white shadow-2xl ring-2 ring-white/10 transition-all duration-200 hover:scale-105 hover:bg-[#8C1D40] hover:ring-[#8C1D40]/50"
+        aria-label="Editar Página"
+        className={`flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-900/90 py-1.5 px-3 text-xs font-semibold text-white shadow-xl ring-1 ring-white/15 backdrop-blur-md transition-all duration-200 hover:bg-[#004CB1] hover:ring-[#004CB1]/50 active:scale-95 ${
+          isHovered
+            ? 'opacity-100 translate-x-0 pointer-events-auto'
+            : 'opacity-0 -translate-x-4 pointer-events-none group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto'
+        }`}
         onClick={() => {
           setIsEditing(true);
           setPreviewMode(false);
         }}
-        title="Personalizar vitrine com o Editor Visual Elementor"
+        title="Editar Página com o editor visual"
         type="button"
       >
-        {/* Logo Círculo 'E' */}
-        <div className="flex size-7 items-center justify-center rounded-full bg-[#E2091E] font-black text-xs text-white shadow-sm transition-transform group-hover:rotate-12">
+        {/* Ícone sutil 'E' */}
+        <div className="flex size-4 items-center justify-center rounded-full bg-[#E2091E] font-black text-[9px] text-white shrink-0">
           <span>E</span>
         </div>
 
-        <div className="flex flex-col text-left">
-          <span className="text-xs font-bold leading-tight tracking-wide">Editar com Elementor</span>
-          <span className="text-[10px] text-white/60 group-hover:text-white/90">Personalizar Vitrine</span>
-        </div>
-
-        <Edit3 className="ml-1 size-3.5 text-white/50 group-hover:text-white" />
+        <span className="tracking-wide">Editar Página</span>
+        <Edit3 className="size-3 text-white/70 ml-0.5 shrink-0" />
       </button>
-    </div>
+
+      {/* Marcador ultra discreto no cantinho encostado quando o mouse não está na área */}
+      {!isHovered && (
+        <div
+          aria-hidden="true"
+          className="size-2 rounded-full bg-slate-400/20 group-hover:hidden transition-all ml-1 mb-1 pointer-events-none"
+        />
+      )}
+    </aside>
   );
 }

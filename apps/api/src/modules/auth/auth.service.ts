@@ -111,6 +111,15 @@ export class AuthService {
     return this.issueSession(user);
   }
 
+  async checkEmailExists(email: string): Promise<boolean> {
+    const normalized = email.trim().toLowerCase();
+    const user = await this.prisma.user.findUnique({
+      where: { email: normalized },
+      select: { id: true },
+    });
+    return Boolean(user);
+  }
+
   async refresh(refreshToken: string): Promise<AuthSessionResult> {
     const session = await this.findSessionByRefreshToken(refreshToken);
     if (!session) {

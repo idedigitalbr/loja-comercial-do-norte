@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { AuthProvider } from '@/components/auth-provider';
+import { FavoritesProvider } from '@/components/favorites-provider';
 import { LocationProvider } from '@/components/location-provider';
 import { PostalCodeModal } from '@/components/postal-code-modal';
 import { QuoteCartProvider } from '@/components/quote-cart-provider';
@@ -26,28 +28,32 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <a className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-ink" href="#conteudo">
           Pular para o conteúdo
         </a>
-        <LocationProvider>
-          <QuoteCartProvider>
-            <WebVitalsReporter />
-            <StorefrontShell
-              footer={<SiteFooter categories={categories} site={site} />}
-              header={
-                <SiteHeader
-                  brands={brands}
-                  categories={categories}
-                  logoUrl={mediaUrl(site?.logoPath ?? null)}
-                  phone={site?.phone ?? null}
-                  siteName={site?.siteName ?? 'Comercial do Norte'}
-                  whatsapp={site?.whatsapp ?? null}
-                />
-              }
-            >
-              <main id="conteudo">{children}</main>
-              <QuoteDrawer />
-              <PostalCodeModal />
-            </StorefrontShell>
-          </QuoteCartProvider>
-        </LocationProvider>
+        <AuthProvider>
+          <FavoritesProvider>
+            <LocationProvider>
+              <QuoteCartProvider>
+                <WebVitalsReporter />
+                <StorefrontShell
+                  footer={<SiteFooter categories={categories} site={site} />}
+                  header={
+                    <SiteHeader
+                      brands={brands}
+                      categories={categories}
+                      logoUrl={mediaUrl(site?.logoPath ?? null)}
+                      phone={site?.phone ?? null}
+                      siteName={site?.siteName ?? 'Comercial do Norte'}
+                      whatsapp={site?.whatsapp ?? null}
+                    />
+                  }
+                >
+                  <main id="conteudo">{children}</main>
+                  <QuoteDrawer />
+                  <PostalCodeModal />
+                </StorefrontShell>
+              </QuoteCartProvider>
+            </LocationProvider>
+          </FavoritesProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { useQuoteCart } from './quote-cart-provider';
 import { useUserLocation } from './location-provider';
+import { useFavorites } from './favorites-provider';
+import { useAuth } from './auth-provider';
 import { MegaMenu } from './mega-menu';
 import { CategoryMegaMenu, CATEGORY_MENUS_DATA } from './category-mega-menu';
 import type { ApiBrand, ApiCategory } from '@/lib/types';
@@ -47,6 +49,8 @@ export function SiteHeader({
   const router = useRouter();
   const { count, openDrawer } = useQuoteCart();
   const { location, openModal } = useUserLocation();
+  const { count: favCount } = useFavorites();
+  const { user, isAuthenticated } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
 
@@ -196,14 +200,21 @@ export function SiteHeader({
 
             {/* AÇÕES À DIREITA: FAVORITOS, MINHA COTAÇÃO (DRAWER) E MINHA CONTA */}
             <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-              {/* Favoritos */}
+              {/* Favoritos (Acessível em mobile e desktop) */}
               <Link
-                aria-label="Meus Favoritos"
-                className="hidden flex-col items-center justify-center text-white/90 transition hover:text-white lg:flex"
+                aria-label={favCount > 0 ? `Meus Favoritos (${favCount} itens)` : 'Meus Favoritos'}
+                className="relative flex flex-col items-center justify-center text-white/90 transition hover:text-white"
                 href="/favoritos"
               >
-                <Heart className="size-5" />
-                <span className="mt-0.5 text-[10px] font-medium">Favoritos</span>
+                <div className="relative">
+                  <Heart className="size-5 sm:size-6" />
+                  {favCount > 0 && (
+                    <span className="absolute -top-1.5 -right-2 flex size-4.5 items-center justify-center rounded-full bg-[#E2091E] font-black text-[10px] text-white shadow-sm ring-2 ring-[#004CB1]">
+                      {favCount > 99 ? '99+' : favCount}
+                    </span>
+                  )}
+                </div>
+                <span className="mt-0.5 hidden text-[10px] font-medium lg:block">Favoritos</span>
               </Link>
 
               {/* Botão de Cotação com Badge Contador */}
@@ -221,21 +232,32 @@ export function SiteHeader({
                     </span>
                   )}
                 </div>
-                <span className="mt-0.5 hidden text-[10px] font-medium sm:block">
+                <span className="mt-0.5 hidden text-[10px] font-medium lg:block">
                   Minha Cotação
                 </span>
               </button>
 
-              {/* Minha Conta / Login */}
+              {/* Minha Conta / Login (Fidelidade ao padrão oficial de Boas vindas) */}
               <Link
-                aria-label="Minha Conta ou Fazer Login"
-                className="flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/5 px-2.5 py-1.5 text-xs text-white transition hover:bg-white/15"
-                href="/conta"
+                aria-label={isAuthenticated ? 'Minha Conta' : 'Entre ou Crie sua Conta'}
+                className="flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-2.5 py-1 text-xs text-white transition hover:bg-white/15"
+                href={isAuthenticated ? '/conta' : '/login'}
               >
-                <User className="size-4.5" />
+                <div className="flex size-7 items-center justify-center rounded-full border border-white/40 bg-white/10 text-white shrink-0">
+                  <User className="size-4" />
+                </div>
                 <div className="hidden text-left xl:block leading-tight">
-                  <span className="block text-[10px] text-white/70">Entre</span>
-                  <span className="font-bold">ou Cotar</span>
+                  {isAuthenticated && user ? (
+                    <>
+                      <span className="block text-[10px] text-white/80">Olá, {user.firstName} :)</span>
+                      <span className="font-bold text-xs whitespace-nowrap">Minha Conta</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="block text-[10px] text-white/80">Boas vindas :)</span>
+                      <span className="font-bold text-xs whitespace-nowrap">Entre ou Cadastre-se</span>
+                    </>
+                  )}
                 </div>
               </Link>
             </div>
@@ -411,6 +433,40 @@ export function SiteHeader({
               </button>
             </div>
 
+            {/* Saudação de Usuário no Mobile (Boas vindas / Minha Conta) */}
+            <div className="p-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#004CB1] text-white font-bold text-xs">
+                  {isAuthenticated && user ? user.firstName.charAt(0).toUpperCase() : <User className="size-4" />}
+                </div>
+                <div className="min-w-0 leading-tight">
+                  {isAuthenticated && user ? (
+                    <>
+                      <span className="block text-[11px] text-slate-500">Olá, {user.firstName} :)</span>
+                      <Link
+                        href="/conta"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="text-xs font-bold text-[#004CB1] hover:underline"
+                      >
+                        Minha Conta
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <span className="block text-[11px] text-slate-500">Boas vindas :)</span>
+                      <Link
+                        href="/login"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="text-xs font-bold text-[#004CB1] hover:underline"
+                      >
+                        Entre ou Cadastre-se
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Card de Região/CEP Mobile Interativo */}
             <div className="m-4 mb-2 rounded-xl border border-blue-100 bg-blue-50/70 p-3">
               <div className="flex items-center justify-between gap-2">
@@ -478,12 +534,19 @@ export function SiteHeader({
                     <span>Ofertas do Dia</span>
                   </Link>
                   <Link
-                    className="flex items-center gap-2 py-1.5 text-slate-700"
+                    className="flex items-center justify-between py-1.5 text-slate-700"
                     href="/favoritos"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Heart className="size-4 text-slate-500" />
-                    <span>Meus Favoritos</span>
+                    <div className="flex items-center gap-2">
+                      <Heart className="size-4 text-slate-500" />
+                      <span>Meus Favoritos</span>
+                    </div>
+                    {favCount > 0 && (
+                      <span className="rounded-full bg-[#E2091E] px-2 py-0.5 text-[10px] font-black text-white">
+                        {favCount}
+                      </span>
+                    )}
                   </Link>
                   <Link
                     className="flex items-center gap-2 py-1.5 text-slate-700"

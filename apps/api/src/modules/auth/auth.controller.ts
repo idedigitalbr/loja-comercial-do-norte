@@ -22,6 +22,11 @@ class LoginDto {
   password!: string;
 }
 
+class CheckEmailDto {
+  @IsEmail()
+  email!: string;
+}
+
 class RegisterDto {
   @IsEmail()
   email!: string;
@@ -46,6 +51,12 @@ type RequestWithCookies = Request & {
 @Controller('auth')
 export class AuthController {
   constructor(@Inject(AuthService) private readonly authService: AuthService) {}
+
+  @Post('check-email')
+  async checkEmail(@Body() body: CheckEmailDto) {
+    const exists = await this.authService.checkEmailExists(body.email);
+    return { exists };
+  }
 
   @Post('login')
   async login(@Body() body: LoginDto, @Res({ passthrough: true }) response: Response) {

@@ -5,6 +5,7 @@ import { formatMoney } from '@/lib/format';
 import { mediaUrl } from '@/lib/api';
 import type { ApiProduct } from '@/lib/types';
 import { AddToQuoteButton } from './add-to-quote-button';
+import { FavoriteButton } from './favorite-button';
 
 const FALLBACK_IMAGES = [
   '/assets/home-ref/prod-copo-descartavel.jpg',
@@ -70,6 +71,22 @@ export function ProductCard({
         className="relative block aspect-[4/3] overflow-hidden bg-white px-4 pb-3 pt-10"
         href={`/produto/${product.slug}`}
       >
+        {/* Botão de Favoritar no Canto Superior Direito */}
+        <div className="absolute right-2.5 top-2.5 z-20">
+          <FavoriteButton
+            item={{
+              id: product.id,
+              variantId: variant?.id,
+              productSlug: product.slug,
+              name: product.name,
+              sku: variant?.sku,
+              imagePath: product.images[0]?.path ?? null,
+              unitPriceCents: variant?.priceCents ?? 0,
+              compareAtPriceCents: compareAt,
+            }}
+          />
+        </div>
+
         {/* Badges empilhados no canto superior esquerdo (idêntico ao site-final.jpg) */}
         <div className="absolute left-3 top-2.5 z-10 flex flex-col items-start gap-1">
           {hasDiscount ? (

@@ -56,7 +56,7 @@ export const CATEGORY_MENUS_DATA: Record<string, CategoryMenuConfig> = {
       tag: 'ATACADO & DELIVERY',
       title: 'Embalagens Térmicas para Restaurantes e Delivery',
       description: 'Caixas master com desconto progressivo para compras no atacado em Belém.',
-      imageUrl: '/assets/produtos/caixa-pizza-35cm.jpg',
+      imageUrl: '/assets/categorias/cat-embalagens.jpg',
       ctaLabel: 'Ver Embalagens',
       ctaHref: '/categoria/embalagens',
     },
@@ -92,7 +92,7 @@ export const CATEGORY_MENUS_DATA: Record<string, CategoryMenuConfig> = {
       tag: 'DESCARTÁVEIS',
       title: 'Copos e Pratos Descartáveis por Caixa Fechada',
       description: 'Abasteça lanchonetes, eventos e hospitais com entrega expressa.',
-      imageUrl: '/assets/produtos/copo-200ml.png',
+      imageUrl: '/assets/categorias/cat-descartaveis.jpg',
       ctaLabel: 'Ver Descartáveis',
       ctaHref: '/categoria/descartaveis',
     },
@@ -128,7 +128,7 @@ export const CATEGORY_MENUS_DATA: Record<string, CategoryMenuConfig> = {
       tag: 'FESTAS & EVENTOS',
       title: 'Decoração e Descartáveis para Festas & Eventos',
       description: 'Variedade completa para aniversários, casamentos e confraternizações.',
-      imageUrl: '/assets/produtos/extra-1.png',
+      imageUrl: '/assets/categorias/cat-festas.jpg',
       ctaLabel: 'Ver Festas & Eventos',
       ctaHref: '/categoria/artigos-festa',
     },
@@ -164,7 +164,7 @@ export const CATEGORY_MENUS_DATA: Record<string, CategoryMenuConfig> = {
       tag: 'DOCES & CONFEITARIA',
       title: 'Embalagens Premium para Bolos e Doces Gourmet',
       description: 'Valorize seu produto final com tampas cristalinas e caixas estruturadas.',
-      imageUrl: '/assets/produtos/extra-3.jpg',
+      imageUrl: '/assets/categorias/cat-confeitaria.jpg',
       ctaLabel: 'Ver Doces & Confeitaria',
       ctaHref: '/categoria/confeitaria',
     },
@@ -200,7 +200,7 @@ export const CATEGORY_MENUS_DATA: Record<string, CategoryMenuConfig> = {
       tag: 'LIMPEZA PROFISSIONAL',
       title: 'Galões de 5L e Linha Institucional com Alto Rendimento',
       description: 'Ideal para condomínios, clínicas, escolas e restaurantes.',
-      imageUrl: '/assets/produtos/detergente-5l.jpg',
+      imageUrl: '/assets/categorias/cat-limpeza.jpg',
       ctaLabel: 'Ver Limpeza Profissional',
       ctaHref: '/categoria/limpeza',
     },
@@ -308,13 +308,13 @@ export function CategoryMegaMenu({ config, onClose, align = 'left' }: CategoryMe
             </p>
           </div>
 
-          {/* Imagem do Produto/Banner */}
-          <div className="relative my-3 h-28 w-full overflow-hidden rounded-lg bg-white border border-slate-100">
+          {/* Imagem do Banner da Categoria */}
+          <div className="relative my-3 h-28 w-full overflow-hidden rounded-lg bg-slate-100 border border-slate-200/80 shadow-inner">
             <Image
               alt={config.banner.title}
-              className="object-contain p-2"
+              className="object-cover transition-transform duration-300 hover:scale-105"
               fill
-              sizes="200px"
+              sizes="240px"
               src={config.banner.imageUrl}
             />
           </div>
