@@ -570,7 +570,7 @@ export const availableMediaSections: MediaSectionGroup[] = [
         id: 'mascote-james',
         name: 'Mascote 3D James Principal Oficial',
         category: 'Mascote',
-        url: '/assets/imgs/Mascote-3D-James-em-pe/principais/1-james-3d-principal.png',
+        url: '/assets/imgs/Mascote-3D-NORT/principais/nort-01-principal.png',
         sectionId: 'branding-mascote',
         sectionTitle: 'Branding & Identidade',
         slideLabel: 'Mascote 3D',
