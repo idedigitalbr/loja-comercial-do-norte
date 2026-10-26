@@ -138,6 +138,8 @@ docs/
 
 ## 3. Identidade visual e UX oficiais
 
+- **Decisão do responsável em 26/10/2026 (Issue #61):** todos os títulos da vitrine (`h1` a `h6`) usam **Bold (700)**, centralizado no token `--cn-font-weight-heading` e aplicado no CSS global. A regra prevalece sobre as classes legadas de peso; tamanhos e cores são preservados.
+
 **Fonte oficial:** `site-comercial-do-norte-html-referencia/DESIGN-comercial-do-norte.md`, com `index.html`, prévia de design system e `assets/`. Reutilizar a composição e os ativos já aprovados; não substituir por referência visual da +B Farma nem pelo visual preto/dourado da Jonas & Elivaldo.
 
 ### Requisito vigente de vitrine modular — 25/10/2026
