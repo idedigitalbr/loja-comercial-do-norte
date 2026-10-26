@@ -31,6 +31,7 @@ jobs:
           --health-retries 10
 
     env:
+      API_TEST_ALLOW_DOCKER: 'true'
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/comercial_norte_test?schema=public
       COOKIE_SECRET: ci-cookie-secret-com-no-minimo-16-chars
       CRON_SECRET: ci-cron-secret-com-no-minimo-16-chars
@@ -87,3 +88,4 @@ jobs:
 
       - name: Build
         run: pnpm build
+

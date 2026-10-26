@@ -8,6 +8,18 @@ import { PrismaClient } from '@prisma/client';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const require = createRequire(import.meta.url);
+const LOOPBACK_ADDRESSES = new Set(['127.0.0.1', '::1']);
+
+export function isAllowedTestServerAddress(address, environment = process.env) {
+  if (LOOPBACK_ADDRESSES.has(address)) return true;
+  // GitHub-hosted runners publish their PostgreSQL service on runner loopback,
+  // while PostgreSQL reports its address from the private Docker bridge.
+  if (environment.GITHUB_ACTIONS !== 'true' || environment.API_TEST_ALLOW_DOCKER !== 'true') return false;
+  const octets = address?.split('.').map(Number);
+  return octets?.length === 4 && octets.every((octet) => Number.isInteger(octet) && octet >= 0 && octet <= 255)
+    && octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31;
+}
+
 export function assertLocalTestAdminUrl(value) {
   const url = new URL(value);
   if (!['postgres:', 'postgresql:'].includes(url.protocol) || !['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)) throw new Error('API test admin must use PostgreSQL on loopback');
@@ -21,7 +33,7 @@ export async function withApiTestDatabase(callback, adminUrl = process.env.API_T
   let created = false;
   try {
     const [server] = await admin.$queryRawUnsafe('SELECT host(inet_server_addr()) AS address');
-    if (!['127.0.0.1', '::1'].includes(server.address)) throw new Error('API tests require an actual local PostgreSQL server');
+    if (!isAllowedTestServerAddress(server.address)) throw new Error('API tests require an actual local PostgreSQL server');
     await admin.$executeRawUnsafe(`CREATE DATABASE "${name}"`);
     created = true;
     url.pathname = '/' + name;
@@ -56,3 +68,4 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     run(vitest, ['run', '--config', unit ? 'vitest.config.ts' : 'vitest.e2e.config.ts', ...args.filter(arg => arg !== '--unit')], join(root, 'apps/api'));
   }).catch(error => { console.error(error.message); process.exitCode = 1; });
 }
+
