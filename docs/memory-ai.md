@@ -7,6 +7,8 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **Orientação explícita do responsável em 26/10/2026:** entregar as alterações diretamente na `main`, sem abrir PR nem aguardar revisão de PR. Esta orientação substitui a exigência anterior de entrega por PR. Preservar isolamento do escopo, validações, reservas e push sem force; não incluir alterações de outras tarefas.
+
 1. **Decisões explícitas mais recentes do responsável pelo projeto**, registradas neste documento, prevalecem sobre propostas, prompts, planos e decisões técnicas anteriores.
 2. **Código da branch realmente inspecionada** determina o que existe e funciona no repositório; memória de produto não deve ser interpretada como funcionalidade já implementada.
 3. A referência **visual** oficial é `site-comercial-do-norte-html-referencia/`, especialmente `DESIGN-comercial-do-norte.md`, imagens e páginas HTML. Ela é um ativo a reutilizar, não motivo para reconstrução visual livre.
@@ -137,6 +139,8 @@ docs/
 - O importador WooCommerce existente é **referência conceitual** de idempotência e reconciliação — não é dependência nem especificação do ERP.
 
 ## 3. Identidade visual e UX oficiais
+
+- **Decisão do responsável em 26/10/2026 (Issue #61):** todos os títulos da vitrine (`h1` a `h6`) usam **Bold (700)**, centralizado no token `--cn-font-weight-heading` e aplicado no CSS global. A regra prevalece sobre as classes legadas de peso; tamanhos e cores são preservados.
 
 **Fonte oficial:** `site-comercial-do-norte-html-referencia/DESIGN-comercial-do-norte.md`, com `index.html`, prévia de design system e `assets/`. Reutilizar a composição e os ativos já aprovados; não substituir por referência visual da +B Farma nem pelo visual preto/dourado da Jonas & Elivaldo.
 
@@ -294,7 +298,25 @@ Lacunas, defeitos e riscos dessa base **não são repetidos aqui**: estão em `r
 
 **Regra final:** implementação ainda em andamento. Nenhuma documentação anterior, prompt ou decisão revogada revoga as escolhas de **Next.js + NestJS + PostgreSQL + Prisma + Tailwind + shadcn/ui** estabelecidas em 24/10/2026.
 
+### Login único da vitrine — decisão de 26/10/2026 (Issue #56)
+
+- O responsável definiu `/login` do storefront como única tela de login, inclusive para administradores. O painel Vite não deve apresentar formulário de credenciais próprio.
+- O painel consulta a sessão no NestJS: sessão administrativa válida abre o dashboard; sessão ausente/expirada redireciona ao storefront; cliente autenticado recebe acesso restrito; falha de rede permite nova tentativa sem conceder acesso.
+- `VITE_STOREFRONT_URL` define a origem de login em hospedagem separada. Em desenvolvimento, admin 5174 usa storefront 3001. A autenticação/publicação da Issue #55 permanece independente.
+
+### Fluxo de entrega autorizado pelo responsável — 26/10/2026
+
+- O responsável determinou integração direta na `main` para os ajustes solicitados, sem abrir PRs nem aguardar revisão de PR. Esta instrução explícita substitui a exigência anterior de PR para essas entregas. Preservar commits isolados, validações, reservas e push sem force; não presumir autorização de migrations ou deploy manual.
+- A correção de login único da Issue #56 foi autorizada para integração direta. Validação real local: API NestJS e PostgreSQL existentes ligados, painel sem sessão redirecionou para `/login`, entrada pela conta ADMIN de desenvolvimento reconhecida pela API e dashboard aberto com a mesma sessão. Sem seed ou migration.
+
+### Refinamento aprovado como direção visual — 26/10/2026 — Issue #60
+
+- Explica Aí Nort: título principal acima do subtítulo, peso bold 700; pills rosa claro/vermelho, títulos azuis, três frases curtas por card e CTA contornado. Carrossel contínuo com parte do próximo card visível, degradê vermelho à direita e navegação por setas/toque/teclado.
+- Quatro imagens editoriais sintéticas para pizza, kraft, copos e doces, com uniforme azul, enquadramento e luz quente consistentes. São ilustrações dos temas, sem identificação como clientes/equipe reais. Assets dedicados em `apps/storefront/public/assets/explica-ai/`, sem substituir fotos compartilhadas por outras seções.
+- Composição padrão e JSON local atualizados; composições previamente publicadas pela API ou salvas no editor preservam seus dados e precisam de atualização/publicação administrativa para receber os novos textos e caminhos. Nenhuma gravação no banco ou publicação executada nesta tarefa.
+
+- Atualização expressa do responsável em 26/10/2026: integrar esta alteração diretamente na main, sem exigir revisão de PR. Aplicação isolada do commit visual sobre origin/main; demais trabalhos pendentes não integram esta entrega. Esta autorização substitui a exigência anterior de PR para esta entrega.
+
 ### Decisão de testes de banco — 26/10/2026
 
 A execução E2E da API deve usar banco descartável criado pelo runner `scripts/dev/run-api-e2e.mjs`, em PostgreSQL acessado por URL de loopback, sem herdar DATABASE_URL de produção. Migrations e seed automatizados ficam restritos a esse banco de teste; remoção só do banco UUID criado pela própria execução. No GitHub Actions, a conexão publicada em loopback chega a um service container cujo `inet_server_addr()` usa a faixa Docker privada `172.16/12`; essa exceção só é aceita com `GITHUB_ACTIONS=true` e `API_TEST_ALLOW_DOCKER=true`, repassados pelo Turborepo. A URL continua estritamente loopback e outras redes privadas/públicas são recusadas. Concorrência usa fixtures próprias. Idempotência concorrente de cotação precisa devolver o mesmo registro confirmado a todas as chamadas, preservando o escopo da chave; não basta haver uma única linha no banco se as outras chamadas falham. Formalizar migration já existente fisicamente no Neon exige inspeção somente de leitura e aprovação separada para aplicação.
-

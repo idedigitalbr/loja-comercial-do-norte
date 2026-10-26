@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ChevronRight, MessageCircle } from 'lucide-react';
+import { ChevronRight, ImageIcon, MessageCircle } from 'lucide-react';
 import { WhatsappPhoneAnimation } from './whatsapp-phone-animation';
 import { useElementor } from '@/components/storefront/editor/elementor-editor-context';
 import { InlineImageEditorOverlay } from '@/components/storefront/editor/inline-image-editor-overlay';
@@ -27,27 +27,37 @@ export function PromoStripWidget({
 
   // Variante 1: Seção 09 — Faixa OFERTAS IMPERDÍVEIS (Banner em imagem com upload e link)
   if (variant === 'offers-strip') {
-    const effectiveImageUrl = imageUrl || '/assets/banners/s09-banner-ofertas-imperdiveis.png';
+    // A arte antiga contém margens dentro do arquivo; fica como placeholder até a troca.
+    const effectiveImageUrl = imageUrl === '/assets/banners/s09-banner-ofertas-imperdiveis.png'
+      ? undefined
+      : imageUrl;
     const effectiveAlt = altText || title || highlightText || 'OFERTAS IMPERDÍVEIS em embalagens, descartáveis e utilidades';
 
-    const bannerImage = (
+    const bannerImage = effectiveImageUrl ? (
       <Image
         alt={effectiveAlt}
         className={`size-full object-cover transition duration-300 ${
           isEditing && !previewMode ? 'group-hover/img:brightness-50 group-hover/img:grayscale' : 'hover:opacity-95'
         }`}
-        height={100}
-        priority={false}
+        fill
+        sizes="(max-width: 1536px) 100vw, 1536px"
         src={effectiveImageUrl}
         unoptimized
-        width={1200}
       />
+    ) : (
+      <div
+        aria-label="Banner sem imagem"
+        className="flex size-full items-center justify-center bg-slate-200 text-slate-400"
+        role="img"
+      >
+        <ImageIcon aria-hidden="true" className="size-9 sm:size-11" strokeWidth={1.5} />
+      </div>
     );
 
     return (
       <section aria-label={effectiveAlt} className="w-full bg-[#001F4D] py-3 sm:py-4">
         <div className="cn-container">
-          <div className="group/img relative overflow-hidden rounded-2xl shadow-lg border border-white/10">
+          <div className="group/img relative aspect-[12/1] min-h-24 w-full overflow-hidden rounded-2xl bg-slate-200 sm:min-h-28">
             {ctaUrl ? (
               <Link
                 className="block size-full"

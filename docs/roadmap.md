@@ -5,6 +5,10 @@
 
 ## 1. Estado confirmado nesta revisão
 
+- **26/10/2026 — integração direta da Issue #61 autorizada no chat:** commit de tipografia `79d43a0` reaplicado sobre a `main` remota (`594d311`), sem incorporar a antiga base do PR #63. O responsável dispensou PRs e revisão por PR; orientação registrada em `memory-ai.md`. Envio direto sem force; PR #63 será encerrado. As falhas de testes da API observadas na CI anterior não pertencem à tipografia. Nenhuma migration ou comando de deploy executado.
+
+- **26/10/2026 — Issue #61:** padronização dos títulos da vitrine (`h1` a `h6`) em Bold (700), por token compartilhado e regra global fora das layers do Tailwind. Inclui home, catálogo, conta, cotação e editor; mantém tamanhos, cores e demais textos. Branch `fix/issue-61-titulos-bold`. CSS compilado com Tailwind/PostCSS e validado em Chromium via Playwright: seis níveis em 700 nas larguras 375/1280 px, mesmo com classes legadas e responsivas; parágrafos em 400 e destaques fora de títulos em 800 preservados. `git diff --check` aprovado. Sem migration ou deploy. Rollback: reverter somente o commit desta Issue.
+
 - **Atualização de 25/10/2026:** main remota em `984079e`, com integração Next.js/PostgreSQL/coordenação no commit `018648f`. Checkout local atualizado de `c6977e0` para `984079e` por fast-forward, sem descarte de trabalho. As referências abaixo à main `564c9e3` e PR #37 pendente descrevem a revisão anterior, não o estado atual. A refatoração visual solicitada hoje ainda não começou.
 - Repositório oficial **privado**: [idedigitalbr/loja-comercial-do-norte](https://github.com/idedigitalbr/loja-comercial-do-norte). Branch de desenvolvimento `feat/stack-next-postgres` em `88c413c`; coordenação em `chore/multiagent-coordination`. Main em `564c9e3`; nenhuma integração/deploy autorizada nesta missão.
 - Código conferido: Next.js App Router na loja, NestJS como API única, admin React/Vite, Prisma/PostgreSQL com quatro migrations versionadas, cotação implementada e flags isolando módulos futuros. Padronização visual completa, Playwright e prontidão de produção ainda pendem.
@@ -314,6 +318,31 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
   - `pnpm exec playwright test --list`: **3 smoke tests de navegador registrados e válidos**.
   - `pnpm agents:verify`: **47 itens, 42/42 dependências confirmadas, 0 erros no Project 3**.
 
+### Login único no storefront — 26/10/2026 (Issue #56)
+
+- Removido o formulário duplicado de `apps/admin/src/features/auth/login-page.tsx`; acesso ao painel consulta a sessão oficial e encaminha sessão ausente para `/login` do storefront.
+- Validação local no checkout de desenvolvimento: 11 suítes / 31 testes do admin aprovados; TypeScript e ESLint dos dois arquivos alterados aprovados. Sem validação de login real: API local na porta 3000 indisponível. CI e aceite humano pendentes.
+- Alteração isolada em `fix/issue-56-login-unico`, com cópia dos dois arquivos aplicada ao servidor local para acompanhamento. Arquivos da Issue #55 preservados. Sem migration, deploy ou merge.
+- Rollback: reverter o commit desta Issue restaura o formulário anterior; nenhuma alteração de banco ou contrato de autenticação.
+
+### Entrega direta do login único autorizada — 26/10/2026
+
+- Responsável dispensou revisão do PR #59 e autorizou envio direto da correção à `main`. Código isolado em `3b3f852`; o commit deste registro atualiza o fluxo para os próximos ajustes solicitados.
+- Login validado no navegador com API NestJS e PostgreSQL locais: sem sessão redireciona para `/login`; login ADMIN de desenvolvimento compartilha sessão com o painel e abre dashboard. Nenhum seed/migration/deploy manual executado.
+- CI do PR falhou no seed com P2022 (`SiteConfiguration.homeComposition` ausente na base), antes de executar testes. A entrega não altera schema nem migrations; falha registrada separadamente das 31 verificações unitárias locais aprovadas e do teste real de login.
+
+### Refinamento Explica Aí Nort — 26/10/2026 — Issue #60
+
+- Branch isolada `fix/explica-ai-nort`, derivada de `fix/issue-55-publicacao-vitrine` em `7df1fef`; sessão `888b39ab-0053-4079-a413-968158c881e5`, executor `codex-will`. Alterações concorrentes no checkout principal preservadas.
+- Widget S15 com hierarquia solicitada, bold 700, pills rosas, três frases curtas, cards com borda/sombra rosa e continuidade sob degradê vermelho. Mantidos os controles de mídia do editor e os destinos existentes dos CTAs.
+- Quatro fotos geradas com ferramenta nativa image_gen e convertidas para WebP 720×960 (63–80 KB cada). Prompt comum: fotografia editorial realista para tutorial brasileiro de embalagens, retrato 3:4, profissional com polo azul-marinho e avental escuro, cenário gastronômico desfocado, madeira e detalhe vermelho, iluminação quente suave, sem textos/logos/ícones. Variações: mulher com três caixas de pizza; homem com sacola e recipiente kraft; mulher com copos de açaí e café; confeiteira com caixa kraft com visor e doces.
+- Validação local: typecheck e lint aprovados; 18 suítes / 76 testes aprovados. Navegador Playwright em 1440px e 390px: título 48px/700 no desktop, avanço de 550px confirmado e capturas inspecionadas. Turbopack recusou dependências em junction fora do worktree; conferência realizada com Webpack, sem alterar a configuração do produto. Home tem overflow horizontal global em 390px; a seção capturada permanece contida.
+- API/CI: não executados como evidência desta alteração visual. Sem migrations/deploy. A publicação de composições existentes continua pendente de edição administrativa; histórico de revisões não foi reescrito. Rollback: reverter o commit visual, sem tocar em dados publicados.
+- Tokens/custo/tempo ativo: Não disponível.
+
+- Atualização expressa do responsável em 26/10/2026: integrar esta alteração diretamente na main, sem exigir revisão de PR. Aplicação isolada do commit visual sobre origin/main; demais trabalhos pendentes não integram esta entrega. Esta autorização substitui a exigência anterior de PR para esta entrega.
+- Integração direta revalidada sobre a main atual: lint e typecheck aprovados, 17 suítes / 60 testes aprovados. O resultado anterior de 76 testes refere-se à base isolada original; a integração não inclui os commits pendentes de autenticação/publicação. Sessão de integração: a523e399-1469-4281-a5f0-7053d1e806a4.
+
 ### PostgreSQL e idempotência — 26/10/2026 — Issue #11 / PR #53
 
 - Reproduzida corrida real: três chamadas simultâneas de cotação com a mesma chave produziam rejeições P2002; o teste antigo aceitava apenas um sucesso e ocultava a falha. Corrigido com advisory lock transacional por chave antes de consultá-la. Todas as chamadas agora retornam a mesma cotação, sem reserva de estoque nem duplicação de registros.
@@ -332,4 +361,3 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
 - O job do GitHub Actions usa PostgreSQL como service container. O runner conectava pela URL `127.0.0.1`, mas a API de teste recusava o endereço privado informado pelo servidor. A primeira exceção não chegou às tarefas porque Turbo filtrou as variáveis; os logs e os commits intermediários registram essa tentativa e sua falha.
 - A correção exige `GITHUB_ACTIONS=true` e `API_TEST_ALLOW_DOCKER=true`, aceita somente IPv4 em `172.16/12` para o endereço do servidor e mantém a URL do administrador restrita ao loopback. Ambas as variáveis são explicitamente repassadas no `globalPassThroughEnv`; o workflow executa 3 testes de segurança antes da suíte.
 - CI do commit `ed7ac68` aprovado no run `40406122873`: guard 3/3, `pnpm test` (API 145/145, seis tarefas), API E2E PostgreSQL 21/21, lint/typecheck/seed e build seis tarefas. O build registrou avisos do fallback Neon e rotas estáticas lentas, mas concluiu com sucesso. Nenhuma escrita no Neon. PR #53 aguarda revisão humana.
-
