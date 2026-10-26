@@ -230,8 +230,20 @@ export function CategoryMegaMenu({ config, onClose, align = 'left' }: CategoryMe
       className={`w-[780px] max-w-[calc(100vw-32px)] rounded-2xl border border-slate-200/95 bg-white p-5 text-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.18)] ring-1 ring-black/5 animate-in fade-in-0 zoom-in-95 duration-150 ${alignmentClass}`}
     >
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        {/* Colunas 1 e 2: Lista de Subcategorias Estilo Magalu com setinhas ">" */}
-        <div className="col-span-2 flex flex-col justify-between">
+                {/* Colunas 1 e 2: Lista de Subcategorias com Link Principal no Topo */}
+        <div className="col-span-2 flex flex-col">
+          {/* Link Principal no Topo: "Tudo de [Categoria] →" */}
+          <div className="mb-3 border-b border-slate-100 pb-2.5">
+            <Link
+              className="group flex items-center justify-between rounded-xl bg-slate-50/90 px-3.5 py-2.5 text-xs font-bold text-slate-900 transition hover:bg-blue-50 hover:text-[#004CB1]"
+              href={config.allHref}
+              onClick={onClose}
+            >
+              <span>{config.allLabel}</span>
+              <ArrowRight className="size-4 text-slate-400 transition-transform group-hover:translate-x-1 group-hover:text-[#004CB1]" />
+            </Link>
+          </div>
+
           <div className="grid grid-cols-2 gap-x-4 gap-y-1">
             {/* Coluna 1 */}
             <div className="flex flex-col space-y-0.5">
@@ -278,18 +290,7 @@ export function CategoryMegaMenu({ config, onClose, align = 'left' }: CategoryMe
             </div>
           </div>
 
-          {/* Link Principal no Rodapé: "Tudo de [Categoria] >" */}
-          <div className="mt-3 border-t border-slate-100 pt-2.5">
-            <Link
-              className="group flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs font-bold text-slate-900 transition hover:bg-blue-50 hover:text-[#004CB1]"
-              href={config.allHref}
-              onClick={onClose}
-            >
-              <span>{config.allLabel}</span>
-              <ArrowRight className="size-4 text-slate-400 transition-transform group-hover:translate-x-1 group-hover:text-[#004CB1]" />
-            </Link>
           </div>
-        </div>
 
         {/* Coluna 3: Card Promocional com Banner da Categoria */}
         <div className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-slate-100 bg-gradient-to-b from-slate-50 to-white p-4 shadow-sm">
