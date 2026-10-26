@@ -147,20 +147,24 @@ export function AuthFlowCard() {
   }
 
   return (
-    <div className="relative min-h-[90vh] bg-slate-50 flex flex-col justify-start">
+    <div className="relative min-h-[90vh] bg-[#F4F7FB] flex flex-col justify-start pb-16 overflow-hidden">
       {/* 
-        FAIXA SUPERIOR EM GRADIENTE CONFORME INSTRUÇÃO OFICIAL:
-        "so que a logo fica no centro la em cima e em vez de amarelo é azul 80% e 20% do lado direito vermelho"
+        BACKGROUND AO FUNDO (80% AZUL E 20% VERMELHO):
+        Permanece atrás de tudo (z-0)
       */}
       <div
-        className="relative w-full pb-20 pt-8 px-4 text-white shadow-md"
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-[260px] sm:h-[300px] z-0 pointer-events-none"
         style={{
           background:
             'linear-gradient(90deg, #004CB1 0%, #004CB1 80%, #E2091E 80%, #E2091E 100%)',
         }}
-      >
+      />
+
+      {/* CONTEÚDO PRINCIPAL (Z-INDEX 10, TOTALMENTE À FRENTE DO BACKGROUND) */}
+      <div className="relative z-10 flex flex-col items-center justify-start w-full px-4">
         {/* LOGO NO CENTRO LÁ EM CIMA */}
-        <div className="flex flex-col items-center justify-center">
+        <div className="pt-8 sm:pt-10 flex flex-col items-center justify-center">
           <Link
             aria-label="Comercial do Norte - Página Inicial"
             className="transition hover:opacity-95"
@@ -180,19 +184,17 @@ export function AuthFlowCard() {
         </div>
 
         {/* CHAMADA PRINCIPAL: "Entre ou Crie sua Conta" */}
-        <div className="mt-6 text-center">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight drop-shadow-xs">
+        <div className="mt-5 text-center text-white">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight drop-shadow-xs">
             Entre ou Crie sua Conta
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-white/90">
             Acesse suas cotações, favoritos e compras rápidas no atacado e varejo
           </p>
         </div>
-      </div>
 
-      {/* CARD FLUTUANTE CENTRAL (Fidelidade ao design do Mercado Livre solicitado) */}
-      <div className="cn-container -mt-10 px-4 mb-16 flex-1 flex flex-col items-center justify-start">
-        <div className="w-full max-w-md rounded-2xl bg-white p-6 sm:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-slate-100">
+        {/* CARD CENTRAL BEM À FRENTE COM SOMBRA DESTACADA */}
+        <div className="mt-6 w-full max-w-md rounded-3xl bg-white p-6 sm:p-8 shadow-[0_20px_60px_rgba(0,0,0,0.16),0_4px_16px_rgba(0,0,0,0.06)] border border-slate-100">
           {/* AVISO DO BOTÃO GOOGLE */}
           {googleNotice && (
             <div className="mb-4 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900 flex items-start gap-2 animate-in fade-in">
