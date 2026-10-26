@@ -8,6 +8,7 @@ import {
 import { AuthService } from '../auth.service';
 
 type RequestWithAuth = {
+  headers?: Record<string, string | string[] | undefined>;
   cookies?: Record<string, string | undefined>;
   user?: unknown;
 };
@@ -19,11 +20,16 @@ export class SessionGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithAuth>();
     const cookieValue = request.cookies?.je_access;
-    if (!cookieValue) {
+    const authHeader = typeof request.headers?.authorization === 'string'
+      ? request.headers.authorization
+      : undefined;
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
+    const token = cookieValue || bearerToken;
+    if (!token) {
       throw new UnauthorizedException('AUTHENTICATION_REQUIRED');
     }
 
-    request.user = await this.authService.validateAccessToken(cookieValue);
+    request.user = await this.authService.validateAccessToken(token);
     return true;
   }
 }

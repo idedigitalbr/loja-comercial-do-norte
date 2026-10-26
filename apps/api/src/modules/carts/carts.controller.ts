@@ -43,11 +43,12 @@ export class CartsController {
   @Post()
   async create(@Res({ passthrough: true }) response: Response) {
     const cart = await this.cartsService.createAnonymousCart();
+    const isProduction = process.env.NODE_ENV === 'production';
     response.cookie('je_cart', cart.anonymousToken, {
       signed: true,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isProduction,
+      sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
       path: '/',
     });
     return { publicId: cart.publicId };

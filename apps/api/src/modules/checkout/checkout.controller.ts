@@ -32,7 +32,14 @@ export class CheckoutController {
   @Post('prepare')
   async prepare(@Body() body: PrepareCheckoutDto, @Headers('idempotency-key') idempotencyKey: string, @Req() request: Request & { user?: AuthenticatedUser }, @Res({ passthrough: true }) response: Response) {
     const prepared = await this.checkoutService.prepare({ ...body, userId: request.user?.id }, idempotencyKey);
-    response.cookie('je_checkout', prepared.orderPublicId, { signed: true, httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+    const isProduction = process.env.NODE_ENV === 'production';
+    response.cookie('je_checkout', prepared.orderPublicId, {
+      signed: true,
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
+      path: '/',
+    });
     return prepared;
   }
 

@@ -60,6 +60,37 @@
   - `pnpm build`: 6/6 pacotes concluídos com sucesso (Next.js 16.4.3 Turbopack, Vite admin e NestJS API).
   - Testes com API NestJS conectada ao Neon: rotas `/api/v1/catalog/products` e `/api/v1/catalog/categories` validadas com retorno íntegro.
 
+### 1.3 Padronização de Projetos e Tríade de Domínios na Vercel — 26/10/2026
+
+- **Eliminação de dependência local (Cloudflare Tunnel descontinuado):**
+  - O Cloudflare Tunnel (`trycloudflare.com`) e o processo local do NestJS foram totalmente desativados.
+  - A API NestJS 11 foi configurada e publicada diretamente na infraestrutura de Vercel Functions (Fluid Compute).
+- **Padronização Oficial dos Projetos na Organização Vercel `idedigital`:**
+  - `storefront` ➔ **`loja-home-front`** (Root: `apps/storefront`, ID: `prj_dHScON9vNIIz4wPczBxJaUpcdd7Q`)
+  - `comercial-api` ➔ **`loja-api`** (Root: `apps/api`, ID: `prj_gShEQGImTlH46o0iJ6v59lmWPSXB`)
+  - `comercial-admin` ➔ **`loja-admin`** (Root: `apps/admin`, ID: `prj_28rMmBH5umS0lC0evpyPVapmS3o2`)
+- **Tríade Padronizada de Domínios de Produção:**
+  - 🛒 **Vitrine (`loja-home-front`)**: `https://loja-comercialdonorte.vercel.app` (mantido `https://lojacomercialdonorte.vercel.app` como alias)
+  - ⚙️ **Admin (`loja-admin`)**: `https://admin-comercialdonorte.vercel.app`
+  - 🔌 **API (`loja-api`)**: `https://api-comercialdonorte.vercel.app` (mantido `https://lojacomercialdonorte-api.vercel.app` como alias)
+- **Diagnóstico e Correções Técnicas Aplicadas:**
+  - `apps/api/src/main.ts`: exportação de `export default async function handler(req, res)` utilizando caching de `app.init()` no Express para o runner serverless da Vercel. Preservado `bootstrap()` com `require.main === module` para desenvolvimento local.
+  - Vercel preset da API: atualizado para `nestjs`.
+  - Prisma Client: scripts `"build"` e `"vercel-build"` em `apps/api/package.json` geram o cliente Prisma e copiam `public/` para `dist/public`.
+  - CORS e Cookies Cross-Domain: implementada resolução dinâmica de CORS para `*.vercel.app` e origens configuradas (`APP_ORIGIN`, `ADMIN_ORIGIN`). Cookies configurados com `sameSite: 'none'` e `secure: true`.
+  - `apps/admin/vite.config.ts`: `base` ajustado para `process.env.VITE_BASE ?? '/'`.
+  - `apps/admin/vercel.json`: configurado com rewrites de proxy `/api/(.*)` para `https://api-comercialdonorte.vercel.app/api/$1` e fallback SPA `/(.*)` para `/index.html`.
+  - Vínculos locais `.vercel/project.json` atualizados em `apps/storefront`, `apps/admin`, `apps/api` e raiz.
+- **Evidências de Validação Pública (HTTP 200 em todos os serviços):**
+  - `GET https://loja-comercialdonorte.vercel.app` ➔ `HTTP 200` (Vitrine SSR conectada à API oficial).
+  - `GET https://loja-comercialdonorte.vercel.app/loja` ➔ `HTTP 200` (Catálogo com produtos do Neon).
+  - `GET https://admin-comercialdonorte.vercel.app` ➔ `HTTP 200` (Painel Vite online com assets `/assets/index-*.js`).
+  - `GET https://admin-comercialdonorte.vercel.app/api/v1/health` ➔ `HTTP 200` (Proxy rewrite para backend funcionando).
+  - `GET https://api-comercialdonorte.vercel.app/api/v1/health` ➔ `HTTP 200` (`status: ok, database: up`).
+  - `GET https://api-comercialdonorte.vercel.app/api/v1/catalog/products` ➔ `HTTP 200` (10 produtos retornados em tempo real do Neon PostgreSQL).
+- **Autonomia da Máquina Local:**
+  - Processos locais terminados. A loja, a API e o admin operam de forma 100% autônoma e em alta disponibilidade na nuvem (Vercel + Neon).
+
 ### Fonte única dos arquivos de memória
 
 `docs/memory-ai.md` = decisões e fatos duradouros.

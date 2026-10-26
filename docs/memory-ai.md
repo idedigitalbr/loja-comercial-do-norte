@@ -24,9 +24,9 @@
 
 | Camada | Decidido | Implementado hoje | Pendente |
 |---|---|---|---|
-| Storefront | Next.js App Router + TypeScript | **Next.js 16.4.3** em `apps/storefront` (App Router) consumindo a API REST | estado vazio/erros de rede, E2E Playwright, design da referência (fase C/D5) |
-| API | NestJS, fonte única da regra de negócio | NestJS 11 + Express 5 | manter e evoluir |
-| Banco | PostgreSQL (Neon na nuvem + Embedded local) | PostgreSQL 18 no Neon (AWS sa-east-1, São Paulo), migrations e dados migrados | Vercel conectar variáveis de ambiente (GOAL 02) |
+| Storefront | Next.js App Router + TypeScript | **Next.js 16.4.3** em `apps/storefront` publicado na Vercel (`loja-comercialdonorte.vercel.app`) consumindo a API REST oficial | estado vazio/erros de rede, E2E Playwright, design da referência (fase C/D5) |
+| API | NestJS, fonte única da regra de negócio | **NestJS 11 + Express 5** hospedado em Vercel Functions (`api-comercialdonorte.vercel.app`) | manter e evoluir |
+| Banco | PostgreSQL (Neon na nuvem + Embedded local) | **PostgreSQL 18 no Neon** (AWS sa-east-1, São Paulo), conectado à API NestJS na Vercel | manter e monitorar |
 | ORM | Prisma | Prisma 6 | revisar schema e histórico de migrations |
 | UI | Tailwind CSS + shadcn/ui + `packages/ui` | CSS manual extenso + `packages/ui` parcial | padronizar (fase C) |
 | Ícones | Lucide | Lucide | manter |

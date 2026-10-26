@@ -8,5 +8,10 @@ export function resolveApiProjectRoot(workingDirectory = process.cwd()): string 
 }
 
 export function resolveApiStorageRoot(workingDirectory = process.cwd()): string {
-  return join(resolveApiProjectRoot(workingDirectory), 'storage');
+  const projectRoot = resolveApiProjectRoot(workingDirectory);
+  const directStorage = join(projectRoot, 'storage');
+  if (existsSync(directStorage)) return directStorage;
+  const publicStorage = join(projectRoot, 'public', 'storage');
+  if (existsSync(publicStorage)) return publicStorage;
+  return directStorage;
 }

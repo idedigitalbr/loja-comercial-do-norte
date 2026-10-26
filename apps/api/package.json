@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch src/main.ts",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "prisma generate --schema=../../prisma/schema.prisma && tsc -p tsconfig.build.json && node -e \"const fs=require('fs'); if(fs.existsSync('public')) fs.cpSync('public', 'dist/public', {recursive: true});\"",
+    "vercel-build": "prisma generate --schema=../../prisma/schema.prisma && tsc -p tsconfig.build.json && node -e \"const fs=require('fs'); if(fs.existsSync('public')) fs.cpSync('public', 'dist/public', {recursive: true});\"",
     "lint": "eslint src",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests",
@@ -37,6 +38,7 @@
     "@types/node": "^24.3.1",
     "@types/supertest": "^7.2.1",
     "eslint": "^9.35.0",
+    "prisma": "^6.16.0",
     "supertest": "^7.2.2",
     "tsx": "^4.19.2",
     "typescript": "^5.9.2",

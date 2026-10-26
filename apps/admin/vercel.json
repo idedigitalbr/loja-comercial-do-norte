@@ -1,0 +1,18 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://api-comercialdonorte.vercel.app/api/$1"
+    },
+    {
+      "source": "/storage/(.*)",
+      "destination": "https://api-comercialdonorte.vercel.app/storage/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
