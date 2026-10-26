@@ -228,3 +228,24 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
   - `pnpm lint`: **6/6 pacotes aprovados**.
   - `pnpm --filter storefront test`: **2 suítes / 6 testes aprovados**.
   - Sem quebras nas integrações existentes de API NestJS ou cotação.
+
+### Checkpoint Conclusão de Issues e Integração Direta na Main — 26/10/2026
+
+- **Integração na `main` autorizada pelo responsável:** Commit `7ab82e2` aplicado diretamente na branch padrão `main` do repositório remoto [idedigitalbr/loja-comercial-do-norte](https://github.com/idedigitalbr/loja-comercial-do-norte).
+- **Issues do Project 3 Concluídas e Auditadas:**
+  - **Issue #14 (`C2`):** Primitivos compartilhados (`cn`, `WebButton`, `WebBadge`, `WebEmptyState`) em `@commerce/ui/web` com 11/11 testes unitários (commit `6fec0f7`).
+  - **Issue #15 (`C3`):** Inventário completo de componentes acessíveis WCAG 2.2 AA (`WebField`, `WebInput`, `WebTextarea`, `WebSelect`, `WebCard`, `WebAlert`, `WebSkeleton`, `WebSheet`) com 16/16 testes (commit `0129118`).
+  - **Issue #16 (`C4`):** Design System oficial Comercial do Norte aplicado no painel administrativo (`apps/admin/src/styles.css`), substituindo o dourado legado pelos tokens oficiais azul `#264887` e marinho `#13213b` (commit `2ce186b`).
+  - **Issue #17 (`C5`):** Remoção total de branding herdado (*"Jonas & Elivaldo"*) e atalhos legados de WooCommerce/Pix na API e no Admin (commit `593bb6c`). **Etapa 3 atingiu 100% de conclusão (5/5 tarefas concluídas)**.
+  - **Issue #21 (`D4`):** Performance, cache ISR com tags semânticas (`site-config`, `catalog-products`, `catalog-categories`, `catalog-brands`, `catalog-offers`), imagens responsivas AVIF/WebP e observador de Core Web Vitals (commit `bfeb6fd`).
+  - **Issue #22 (`D5`):** Fidelidade visual completa das seções S01 a S19 da homepage com testes de configuração (commit `b1b06cc`).
+  - **Issue #30 (`E6`):** Catálogo, rotas dinâmicas de categoria e produto com similares/descontos e fluxo oficial de cotação (commit `61f9a3b`).
+  - **Issue #32 (`E8`):** Smoke tests de aceite no navegador com Playwright (`playwright.config.ts`, `e2e/smoke.e2e.ts`) cobrindo abertura da home, cabeçalho, gaveta de cotação e formulário acessível (commit `7ab82e2`).
+- **Validação consolidada do monorepo:**
+  - `pnpm typecheck`: **6/6 tarefas aprovadas** (FULL TURBO).
+  - `pnpm lint`: **6/6 tarefas aprovadas** (FULL TURBO).
+  - `pnpm --filter storefront test`: **3 suítes / 10 testes aprovados**.
+  - `pnpm --filter admin test`: **8 suítes / 18 testes aprovados**.
+  - `pnpm --filter api exec vitest run src/modules/settings src/modules/notifications src/main.spec.ts`: **9 suítes / 25 testes unitários aprovados**.
+  - `pnpm exec playwright test --list`: **3 smoke tests de navegador registrados e válidos**.
+  - `pnpm agents:verify`: **47 itens, 42/42 dependências confirmadas, 0 erros no Project 3**.
