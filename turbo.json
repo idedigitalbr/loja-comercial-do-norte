@@ -1,5 +1,6 @@
 {
   "$schema": "https://turborepo.com/schema.json",
+  "globalPassThroughEnv": ["API_TEST_ADMIN_URL", "COMPOSITION_TEST_DATABASE_URL"],
   "globalEnv": [
     "NODE_ENV",
     "DATABASE_URL",
@@ -37,6 +38,10 @@
     },
     "test": {
       "dependsOn": ["^test"]
+    },
+    "api#test": {
+      "dependsOn": ["^test"],
+      "cache": false
     }
   }
 }

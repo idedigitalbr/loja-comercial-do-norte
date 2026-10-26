@@ -7,8 +7,8 @@
     "vercel-build": "prisma generate --schema=../../prisma/schema.prisma && tsc -p tsconfig.build.json && node -e \"const fs=require('fs'); if(fs.existsSync('public')) fs.cpSync('public', 'dist/public', {recursive: true});\"",
     "lint": "eslint src",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --passWithNoTests",
-    "test:e2e": "vitest run --passWithNoTests --config vitest.e2e.config.ts"
+    "test": "node ../../scripts/dev/run-api-e2e.mjs --unit",
+    "test:e2e": "node ../../scripts/dev/run-api-e2e.mjs"
   },
   "dependencies": {
     "@commerce/contracts": "workspace:*",
