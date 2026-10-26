@@ -20,7 +20,7 @@ export function PromoStripWidget({
   ctaUrl,
   imageUrl,
   altText,
-  mascotImageUrl = '/assets/imgs/Mascote-3D-James-em-pe/principais/james-11-piscando.png',
+  mascotImageUrl = '/assets/imgs/Mascote-3D-NORT/principais/nort-11-piscando.png',
   rightImageUrl = '/assets/home-ref/s17-whatsapp-phones.jpg',
 }: PromoStripProps) {
   const { isEditing, previewMode } = useElementor();

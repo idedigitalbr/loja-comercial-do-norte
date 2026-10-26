@@ -76,7 +76,7 @@ export function SiteHeader({
         {/* BARRA 01: FAIXA SUPERIOR VERMELHA DE BENEFÍCIOS (FIGMA OFICIAL) */}
         <div className="bg-[#E2091E] px-3 py-1.5 text-white sm:px-4 md:px-6">
           <div className="cn-container flex items-center justify-between text-[11px] sm:text-xs">
-            {/* Benefícios (Esquerda) com recuo para não sobrepor o Mascote James em desktop */}
+            {/* Benefícios (Esquerda) com recuo para não sobrepor o Mascote NORT em desktop */}
             <div className="no-scrollbar flex items-center gap-2 overflow-x-auto py-0.5 pl-0 font-medium sm:gap-4 md:pl-[88px] lg:gap-5 lg:pl-[92px]">
               <div className="flex items-center gap-1.5 whitespace-nowrap text-white">
                 <Truck aria-hidden className="size-3.5 flex-shrink-0" />
@@ -109,9 +109,9 @@ export function SiteHeader({
           </div>
         </div>
 
-        {/* BARRA 02: PRINCIPAL AZUL (#004CB1) COM LOGO, MASCOTE JAMES 3D, BUSCA E COTAÇÃO */}
+        {/* BARRA 02: PRINCIPAL AZUL (#004CB1) COM LOGO, MASCOTE NORT 3D, BUSCA E COTAÇÃO */}
         <div className="relative bg-[#004CB1] px-3 py-2 text-white sm:px-4 sm:py-3 md:px-6">
-          {/* MASCOTE JAMES 3D OFICIAL (Vazando para cima sobre a barra vermelha - Clicável, redireciona para a vitrine inicial) */}
+          {/* MASCOTE NORT 3D OFICIAL (Vazando para cima sobre a barra vermelha - Clicável, redireciona para a vitrine inicial) */}
           <Link
             aria-label={`${siteName} - Ir para a Página Inicial`}
             className="group/mascot absolute -top-4 left-3 z-30 hidden md:block lg:left-6 cursor-pointer"
@@ -119,12 +119,12 @@ export function SiteHeader({
           >
             <div className="relative h-[84px] w-[72px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 lg:h-[92px] lg:w-[80px]">
               <Image
-                alt="Mascote James 3D Comercial do Norte - Ir para a Página Inicial"
+                alt="Mascote NORT 3D Comercial do Norte - Ir para a Página Inicial"
                 className="drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)] object-contain object-bottom"
                 fill
                 priority
                 sizes="80px"
-                src="/assets/imgs/Mascote-3D-James-em-pe/principais/1-james-3d-principal.png"
+                src="/assets/imgs/Mascote-3D-NORT/principais/nort-01-principal.png"
               />
             </div>
           </Link>
