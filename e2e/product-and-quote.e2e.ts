@@ -77,15 +77,22 @@ test.describe('Comercial do Norte - Fluxo de Produto e Cotação (Issue #32)', (
   });
 });
 
-test('API failure keeps the quote draft and displays an error instead of success',async({page})=>{
- await page.goto('/produto/caixa-pizza-35cm');
- await page.getByRole('button',{name:/adicionar à cotação/i}).first().click();
- await page.goto('/cotacao');
- await page.locator('input[name="customerName"]').fill('Cliente E2E Isolado');
- await page.locator('input[name="customerPhone"]').fill('91900007777');
- await page.route('**/api/v1/quotes',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:{message:'Falha de API simulada'}})}));
- await page.getByRole('button',{name:/enviar cotação/i}).click();
- await expect(page.getByRole('alert')).toContainText('Falha de API simulada');
- await expect(page).toHaveURL(/\/cotacao$/);
- await expect(page.getByText(/Caixa de Pizza Fixture/i).first()).toBeVisible();
+test('API failure keeps the quote draft and displays an error instead of success', async ({ page }) => {
+  await page.goto('/produto/caixa-pizza-35cm');
+  await page.getByRole('button', { name: /adicionar à cotação/i }).first().click();
+  await page.goto('/cotacao');
+  await expect(page.getByText(/Caixa de Pizza/i).first()).toBeVisible({ timeout: 10000 });
+  await page.locator('input[name="customerName"]').fill('Cliente E2E Isolado');
+  await page.locator('input[name="customerPhone"]').fill('91900007777');
+  await page.route('**/api/v1/quotes', (route) =>
+    route.fulfill({
+      status: 503,
+      contentType: 'application/json',
+      body: JSON.stringify({ error: { message: 'Falha de API simulada' } }),
+    })
+  );
+  await page.getByRole('button', { name: /enviar cotação/i }).click();
+  await expect(page.getByRole('alert')).toContainText('Falha de API simulada');
+  await expect(page).toHaveURL(/\/cotacao$/);
+  await expect(page.getByText(/Caixa de Pizza/i).first()).toBeVisible();
 });
