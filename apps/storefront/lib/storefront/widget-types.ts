@@ -114,7 +114,7 @@ export interface CategoryGridProps {
   title: string;
   subtitle?: string;
   viewAllLink?: string;
-  columns?: 2 | 3 | 4 | 6 | 8;
+  columns?: 2 | 3 | 4 | 6 | 7 | 8;
   maxItems?: number;
   customItems?: CategoryIconItem[];
 }

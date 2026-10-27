@@ -152,63 +152,57 @@ export const defaultHomeComposition: PageComposition = {
       props: {
         variant: "icons-bar",
         title: "Categorias em Destaque",
-        columns: 8,
-        maxItems: 8,
+        columns: 7,
+        maxItems: 7,
         customItems: [
           {
-            id: "cat-ofertas",
-            label: "Ofertas Relâmpago",
+            id: 'cat-ofertas',
+            label: 'Ofertas do Dia',
             imageUrl:
-              "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-ofertas.jpg",
-            linkUrl: "/loja?oferta=1",
+              '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/01-ofertas-do-dia.png',
+            linkUrl: '/loja?oferta=1',
           },
           {
-            id: "cat-internacional",
-            label: "Internacional",
+            id: 'cat-embalagens',
+            label: 'Embalagens',
             imageUrl:
-              "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-sacolas.jpg",
-            linkUrl: "/loja",
+              '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/02-embalagens.png',
+            linkUrl: '/categoria/embalagens',
           },
           {
-            id: "cat-casa",
-            label: "Casa",
+            id: 'cat-descartaveis',
+            label: 'Descartáveis',
             imageUrl:
-              "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-embalagens.jpg",
-            linkUrl: "/loja?q=casa",
+              '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/03-descartaveis.png',
+            linkUrl: '/categoria/descartaveis',
           },
           {
-            id: "cat-ferramentas",
-            label: "Ferramentas",
+            id: 'cat-artigos-festa',
+            label: 'Artigos para Festa',
             imageUrl:
-              "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-descartaveis.jpg",
-            linkUrl: "/loja?q=ferramentas",
+              '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/04-artigos-para-festa.png',
+            linkUrl: '/categoria/artigos-festa',
           },
           {
-            id: "cat-eletroportateis",
-            label: "Eletroportáteis",
-            imageUrl: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-festas.jpg",
-            linkUrl: "/loja?q=eletro",
+            id: 'cat-confeitaria',
+            label: 'Doces e Confeitaria',
+            imageUrl:
+              '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/05-doces-e-confeitaria.png',
+            linkUrl: '/categoria/confeitaria',
           },
           {
-            id: "cat-brinquedos",
-            label: "Brinquedos",
+            id: 'cat-limpeza',
+            label: 'Limpeza Profissional',
             imageUrl:
-              "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-confeitaria.jpg",
-            linkUrl: "/loja?q=brinquedos",
+              '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/06-limpeza-profissional.png',
+            linkUrl: '/categoria/limpeza',
           },
           {
-            id: "cat-automotivo",
-            label: "Automotivo",
+            id: 'cat-mais-vendidos',
+            label: 'Mais Vendidos',
             imageUrl:
-              "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-limpeza.jpg",
-            linkUrl: "/loja?q=automotivo",
-          },
-          {
-            id: "cat-utilidades",
-            label: "Utilidades Domésticas",
-            imageUrl:
-              "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-foodservice.jpg",
-            linkUrl: "/loja?q=utilidades",
+              '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/07-mais-vendidos.png',
+            linkUrl: '/loja?ordenar=mais-vendidos',
           },
         ],
       },
@@ -315,27 +309,12 @@ export const defaultHomeComposition: PageComposition = {
       },
     },
 
-    // 07 — SEÇÃO BANNER LARGURA TOTAL (COMO FUNCIONA A COTAÇÃO ONLINE)
-    {
-      id: "s07-como-funciona-cotacao",
-      type: "quote-steps-banner",
-      enabled: true,
-      order: 7,
-      props: {
-        title: "Como funciona a cotação online",
-        imageUrl:
-          "/assets/HOME Vitrine/S7-BANNER-Cotacao/S7-BANNER-Cotacao.webp",
-        ctaUrl: "/cotacao",
-        altText: "Como funciona a cotação online no Comercial do Norte",
-      },
-    },
-
     // 08 — SEÇÃO CARROSSEL DE CARDS FUNDO ESCURO (TUDO PARA TODOS OS NEGÓCIOS / SEGMENTOS)
     {
       id: "s08-segmentos-negocios",
       type: "segments-carousel",
       enabled: true,
-      order: 8,
+      order: 7,
       props: {
         title: "Tudo para todos os negócios",
         subtitle: "Para todos os tamanhos!",
@@ -439,7 +418,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s09-faixa-ofertas-imperdiveis",
       type: "promo-strip",
       enabled: true,
-      order: 9,
+      order: 8,
       props: {
         variant: "offers-strip",
         highlightText: "OFERTAS IMPERDÍVEIS",
@@ -456,7 +435,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s10-para-voce-1",
       type: "product-carousel",
       enabled: true,
-      order: 10,
+      order: 9,
       props: {
         variant: "standard-5col",
         title: "Para você",
@@ -471,7 +450,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s11-triple-banners-2",
       type: "banner-grid",
       enabled: true,
-      order: 11,
+      order: 10,
       props: {
         columns: 3,
         banners: [
@@ -532,7 +511,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s12-nossos-eventos",
       type: "events-carousel",
       enabled: true,
-      order: 12,
+      order: 11,
       props: {
         title: "Nossos Eventos",
         subtitle: "Tudo que acontece no Comercial do Norte",
@@ -608,7 +587,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s14-para-voce-2",
       type: "product-carousel",
       enabled: true,
-      order: 13,
+      order: 12,
       props: {
         variant: "standard-5col",
         title: "Para você",
@@ -623,7 +602,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s15-explica-ai-comercial",
       type: "video-articles-carousel",
       enabled: true,
-      order: 14,
+      order: 13,
       props: {
         title: "Explica Aí Nort",
         subtitle: "Dicas em vídeos e artigos para você usar no seu negócio.",
@@ -691,7 +670,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s16-instagram-feed",
       type: "instagram-feed",
       enabled: true,
-      order: 15,
+      order: 14,
       props: {
         title: "A Loja no Instagram",
         subtitle:
@@ -791,7 +770,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s17-grupo-whatsapp",
       type: "promo-strip",
       enabled: true,
-      order: 16,
+      order: 15,
       props: {
         variant: "whatsapp-group",
         title: "Entre em nosso Grupo de ofertas",
@@ -812,7 +791,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s18-avaliacoes-google",
       type: "testimonials-grid",
       enabled: true,
-      order: 17,
+      order: 16,
       props: {
         eyebrow: "AVALIAÇÕES NO GOOGLE",
         title: "O que nossos clientes dizem no Google.",
@@ -928,7 +907,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s19-unidades-mapa",
       type: "store-locations-map",
       enabled: true,
-      order: 18,
+      order: 17,
       props: {
         title: "Encontre nossas unidades",
         subtitle: "Lojas mais perto de você",

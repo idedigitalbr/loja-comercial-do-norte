@@ -9,14 +9,48 @@ import type { CategoryGridProps, CategoryIconItem, WidgetContextData } from '@/l
 import type { ApiCategory } from '@/lib/types';
 
 const DEFAULT_ICON_ITEMS: CategoryIconItem[] = [
-  { id: 'cat-ofertas', label: 'Ofertas Relâmpago', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-ofertas.jpg', linkUrl: '/loja?oferta=1' },
-  { id: 'cat-internacional', label: 'Internacional', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-sacolas.jpg', linkUrl: '/loja' },
-  { id: 'cat-casa', label: 'Casa', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-embalagens.jpg', linkUrl: '/loja?q=casa' },
-  { id: 'cat-ferramentas', label: 'Ferramentas', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-descartaveis.jpg', linkUrl: '/loja?q=ferramentas' },
-  { id: 'cat-eletroportateis', label: 'Eletroportáteis', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-festas.jpg', linkUrl: '/loja?q=eletro' },
-  { id: 'cat-brinquedos', label: 'Brinquedos', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-confeitaria.jpg', linkUrl: '/loja?q=brinquedos' },
-  { id: 'cat-automotivo', label: 'Automotivo', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-limpeza.jpg', linkUrl: '/loja?q=automotivo' },
-  { id: 'cat-utilidades', label: 'Utilidades Domésticas', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-foodservice.jpg', linkUrl: '/loja?q=utilidades' },
+  {
+    id: 'cat-ofertas',
+    label: 'Ofertas do Dia',
+    imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/01-ofertas-do-dia.png',
+    linkUrl: '/loja?oferta=1',
+  },
+  {
+    id: 'cat-embalagens',
+    label: 'Embalagens',
+    imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/02-embalagens.png',
+    linkUrl: '/categoria/embalagens',
+  },
+  {
+    id: 'cat-descartaveis',
+    label: 'Descartáveis',
+    imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/03-descartaveis.png',
+    linkUrl: '/categoria/descartaveis',
+  },
+  {
+    id: 'cat-artigos-festa',
+    label: 'Artigos para Festa',
+    imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/04-artigos-para-festa.png',
+    linkUrl: '/categoria/artigos-festa',
+  },
+  {
+    id: 'cat-confeitaria',
+    label: 'Doces e Confeitaria',
+    imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/05-doces-e-confeitaria.png',
+    linkUrl: '/categoria/confeitaria',
+  },
+  {
+    id: 'cat-limpeza',
+    label: 'Limpeza Profissional',
+    imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/06-limpeza-profissional.png',
+    linkUrl: '/categoria/limpeza',
+  },
+  {
+    id: 'cat-mais-vendidos',
+    label: 'Mais Vendidos',
+    imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/07-mais-vendidos.png',
+    linkUrl: '/loja?ordenar=mais-vendidos',
+  },
 ];
 
 export function CategoryGridWidget({
@@ -38,7 +72,7 @@ export function CategoryGridWidget({
 
     return (
       <section aria-label={title || 'Atalhos de categorias'} className="cn-container py-3 sm:py-4">
-        <div className="grid grid-cols-4 gap-3 sm:grid-cols-8 sm:gap-4">
+        <div className={`grid grid-cols-4 gap-3 ${items.length === 7 ? "sm:grid-cols-7" : "sm:grid-cols-8"} sm:gap-4`}>
           {items.map((item, idx) => (
             <div className="group relative flex flex-col items-center text-center" key={item.id}>
               <div className="relative size-[64px] overflow-hidden rounded-2xl bg-white shadow-xs transition duration-200 group-hover:-translate-y-1 group-hover:shadow-md sm:size-[74px]">
@@ -105,6 +139,7 @@ export function CategoryGridWidget({
     3: 'grid-cols-2 sm:grid-cols-3',
     4: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4',
     6: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-6',
+    7: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-7',
     8: 'grid-cols-2 sm:grid-cols-4 md:grid-cols-8',
   }[columns];
 
