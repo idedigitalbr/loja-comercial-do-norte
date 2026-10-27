@@ -6,14 +6,20 @@ type ProductQuery = {
   search?: string;
   brandId?: string;
   categoryId?: string;
+  segmentId?: string;
+  tagId?: string;
   brand?: string;
   category?: string;
+  segment?: string;
+  tag?: string;
 };
 
 type SearchQuery = {
   search?: string;
   brand?: string;
   category?: string;
+  segment?: string;
+  tag?: string;
   page?: string;
   pageSize?: string;
   sort?: string;
@@ -38,6 +44,8 @@ export class CatalogController {
       search: query.search,
       brand: query.brand,
       category: query.category,
+      segment: query.segment,
+      tag: query.tag,
       page: query.page ? Number(query.page) : undefined,
       pageSize: query.pageSize ? Number(query.pageSize) : undefined,
       sort: query.sort === 'name_asc' ? 'name_asc' : 'newest',
@@ -52,6 +60,16 @@ export class CatalogController {
   @Get('brands')
   listBrands() {
     return this.catalogService.listBrands();
+  }
+
+  @Get('segments')
+  listSegments() {
+    return this.catalogService.listSegments();
+  }
+
+  @Get('tags')
+  listTags() {
+    return this.catalogService.listTags();
   }
 
   /** Ofertas com preço "de/por" vindo da variante (S3). */

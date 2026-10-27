@@ -36,7 +36,7 @@ export function VideoArticlesCarouselWidget({
     const element = track.current;
     if (!element) return;
     const card = element.firstElementChild as HTMLElement | null;
-    const scrollStep = card ? card.offsetWidth + 14 : 310;
+    const scrollStep = card ? card.offsetWidth + 16 : 320;
     element.scrollBy({
       left: direction * scrollStep,
       behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
@@ -45,7 +45,7 @@ export function VideoArticlesCarouselWidget({
 
   return (
     <section aria-label={title} className="cn-container py-4 sm:py-6">
-      <div className="relative isolate overflow-hidden rounded-[24px] sm:rounded-[32px] bg-[#cb001c] p-4 sm:p-6 lg:p-7 shadow-lg lg:h-[350px] xl:h-[365px] flex flex-col justify-between">
+      <div className="relative isolate overflow-hidden rounded-[26px] sm:rounded-[32px] bg-[#cb001c] p-5 sm:p-7 lg:p-0 shadow-lg lg:h-[340px] xl:h-[355px]">
         {/* Background geométrico abstrato oficial */}
         <Image
           src={bgImageUrl}
@@ -55,8 +55,8 @@ export function VideoArticlesCarouselWidget({
           className="pointer-events-none select-none object-cover object-center -z-10"
         />
 
-        {/* Top bar / Header links */}
-        <div className="flex items-center justify-between mb-2 lg:mb-0 lg:absolute lg:top-5 lg:right-7 xl:right-9 z-20">
+        {/* Top right: Ver todos > */}
+        <div className="flex items-center justify-between mb-3 lg:mb-0 lg:absolute lg:top-5 lg:right-8 xl:right-10 z-20">
           <div className="lg:hidden" />
           <Link
             href={viewAllUrl}
@@ -67,17 +67,17 @@ export function VideoArticlesCarouselWidget({
           </Link>
         </div>
 
-        {/* Coluna Esquerda: Título Oficial + Subtítulo */}
-        <div className="z-10 max-w-[240px] sm:max-w-[270px] lg:max-w-[250px] xl:max-w-[280px] lg:pt-2">
-          <h2 className="text-2xl sm:text-3xl lg:text-[34px] xl:text-[38px] font-black text-white leading-[1.04] tracking-tight">
+        {/* Coluna Esquerda: Título Oficial + Subtítulo Perfeitamente Diagramado */}
+        <div className="z-10 max-w-[240px] sm:max-w-[270px] lg:max-w-[245px] xl:max-w-[270px] lg:absolute lg:left-8 xl:left-11 lg:top-1/2 lg:-translate-y-1/2">
+          <h2 className="text-2xl sm:text-3xl lg:text-[34px] xl:text-[38px] font-black text-white leading-[1.03] tracking-tight">
             {isExplicaAi ? (
               <>
                 <span className="block">Explica Aí</span>
-                <span className="flex items-center gap-2 mt-0.5">
+                <span className="flex items-center gap-2.5 mt-0.5">
                   <span>Nort!</span>
                   <span
                     aria-hidden="true"
-                    className="inline-flex size-7 lg:size-8 items-center justify-center rounded-full border-2 border-white/70 text-white bg-transparent shadow-sm shrink-0"
+                    className="inline-flex size-7 lg:size-8 items-center justify-center rounded-full border-2 border-white/60 bg-white/20 text-white shadow-sm shrink-0"
                   >
                     <Play className="size-3.5 lg:size-4 fill-white ml-0.5" />
                   </span>
@@ -88,22 +88,23 @@ export function VideoArticlesCarouselWidget({
                 <span>{title}</span>
                 <span
                   aria-hidden="true"
-                  className="inline-flex size-7 lg:size-8 items-center justify-center rounded-full border-2 border-white/70 text-white bg-transparent shadow-sm shrink-0"
+                  className="inline-flex size-7 lg:size-8 items-center justify-center rounded-full border-2 border-white/60 bg-white/20 text-white shadow-sm shrink-0"
                 >
                   <Play className="size-3.5 lg:size-4 fill-white ml-0.5" />
                 </span>
               </span>
             )}
           </h2>
-          <p className="mt-2.5 text-xs sm:text-sm lg:text-[13px] xl:text-sm leading-relaxed text-white/90 font-normal">
-            {subtitle}
-          </p>
+          <div className="mt-3.5 text-xs sm:text-sm lg:text-[13px] xl:text-[14px] leading-snug text-white/90 font-normal">
+            <p className="block">Dicas em vídeos e artigos</p>
+            <p className="block">para você usar no seu negócio.</p>
+          </div>
         </div>
 
         {/* Mascote 3D (Boneco com balão de fala 'O que você quer aprender hoje?') */}
         <div
           aria-hidden="true"
-          className="hidden lg:block absolute bottom-0 left-[200px] lg:left-[215px] xl:left-[240px] 2xl:left-[265px] h-[92%] xl:h-[96%] w-[250px] lg:w-[270px] xl:w-[295px] 2xl:w-[315px] z-10 pointer-events-none select-none"
+          className="hidden lg:block absolute bottom-0 left-[18%] lg:left-[19%] xl:left-[21%] h-[96%] w-[25%] max-w-[290px] min-w-[240px] z-10 pointer-events-none select-none"
         >
           <Image
             src={mascotImageUrl}
@@ -127,22 +128,22 @@ export function VideoArticlesCarouselWidget({
           />
         </div>
 
-        {/* Carrossel de Cards à Direita */}
-        <div className="relative mt-4 lg:mt-0 lg:absolute lg:top-[66px] lg:bottom-4 lg:right-6 xl:right-8 lg:left-[435px] xl:left-[480px] 2xl:left-[520px] flex items-center z-10">
+        {/* Carrossel de Cards à Direita (Top alinhado abaixo do balão de fala) */}
+        <div className="relative mt-4 lg:mt-0 lg:absolute lg:top-[74px] xl:top-[78px] lg:bottom-4 lg:left-[42%] xl:left-[42.5%] lg:right-7 xl:right-9 flex items-center z-10">
           <div
             ref={track}
             aria-label="Dicas e artigos"
             onScroll={handleScroll}
             tabIndex={0}
-            className="no-scrollbar flex w-full snap-x snap-mandatory gap-3.5 overflow-x-auto py-2 px-1 focus:outline-none"
+            className="no-scrollbar flex w-full snap-x snap-mandatory gap-3.5 overflow-x-auto py-1 px-1 focus:outline-none"
           >
             {items.map((item, index) => (
               <article
                 key={item.id}
-                className="group relative flex w-[88%] sm:w-[58%] lg:w-[calc(50%-7px)] shrink-0 snap-start flex-row items-stretch rounded-[20px] bg-white p-2 shadow-md transition-shadow hover:shadow-lg h-[190px] lg:h-[200px] xl:h-[210px]"
+                className="group relative flex w-[88%] sm:w-[58%] lg:w-[calc(50%-7px)] shrink-0 snap-start flex-row items-stretch rounded-[20px] bg-white p-2 shadow-md transition-shadow hover:shadow-lg h-[200px] lg:h-[212px] xl:h-[224px]"
               >
                 {/* Coluna 1: Foto com Botão Play */}
-                <div className="relative w-[46%] shrink-0 overflow-hidden rounded-[14px] bg-slate-100">
+                <div className="relative w-[47%] shrink-0 overflow-hidden rounded-[14px] bg-slate-100">
                   <Image
                     src={item.imageUrl}
                     alt={item.title}
@@ -175,30 +176,28 @@ export function VideoArticlesCarouselWidget({
                 </div>
 
                 {/* Coluna 2: Conteúdo (Tags, Título, Tópicos, CTA) */}
-                <div className="flex min-w-0 flex-1 flex-col justify-between py-1 pl-2.5 pr-1.5">
+                <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5 pl-3 pr-1.5">
                   {/* Topo: Tags e Título */}
                   <div>
                     <div className="mb-1 flex flex-wrap gap-1">
                       {item.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="rounded-full bg-[#fde8eb] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#d6112c] leading-none"
+                          className="rounded-full bg-[#fde8ea] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#d6112c] leading-none"
                         >
                           {tag}
                         </span>
                       ))}
                     </div>
-                    <h3 className="line-clamp-2 text-xs sm:text-[13px] xl:text-sm font-bold leading-snug text-[#0c2340]">
+                    <h3 className="line-clamp-2 text-xs sm:text-[13px] xl:text-[14px] font-bold leading-snug text-[#0c2340]">
                       {item.title}
                     </h3>
                   </div>
 
-                  {/* Meio: Tópicos explicativos */}
-                  <div className="my-auto space-y-0.5 py-1 text-[10px] sm:text-[11px] leading-tight text-[#55667e]">
+                  {/* Meio: Tópicos explicativos sem truncamento */}
+                  <div className="my-auto py-1 space-y-0.5 text-[10px] sm:text-[10.5px] xl:text-[11px] leading-[1.3] text-[#55667e]">
                     {item.paragraphs.map((paragraph, pIdx) => (
-                      <p key={pIdx} className="line-clamp-1">
-                        {paragraph}
-                      </p>
+                      <p key={pIdx}>{paragraph}</p>
                     ))}
                   </div>
 

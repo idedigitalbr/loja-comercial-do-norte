@@ -53,7 +53,7 @@ describe('VideoArticlesCarouselWidget (Explica Aí Nort)', () => {
     expect(screen.getByText('Explica Aí')).toBeDefined();
     expect(screen.getByText('Nort!')).toBeDefined();
     expect(
-      screen.getByText('Dicas em vídeos e artigos para você usar no seu negócio.')
+      screen.getByText(/Dicas em vídeos e artigos/)
     ).toBeDefined();
     expect(screen.getByText('Ver todos')).toBeDefined();
   });

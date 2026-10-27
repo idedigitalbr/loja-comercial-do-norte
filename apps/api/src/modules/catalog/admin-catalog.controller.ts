@@ -64,6 +64,16 @@ class ProductInputDto {
 
   @IsOptional()
   @IsArray()
+  @IsString({ each: true })
+  segmentIds?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tagIds?: string[];
+
+  @IsOptional()
+  @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ProductVariantInputDto)
   variants?: ProductVariantInputDto[];

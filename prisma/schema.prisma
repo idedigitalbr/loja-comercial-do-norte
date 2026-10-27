@@ -399,6 +399,8 @@ model Product {
   images             ProductImage[]
   favorites          CustomerFavorite[]
   categories         ProductCategory[]
+  segments           ProductSegment[]
+  tags               ProductTag[]
   promotionScopes    PromotionScope[]
   couponProductRules CouponProductRule[]
 
@@ -416,6 +418,61 @@ model ProductCategory {
 
   @@id([productId, categoryId])
   @@index([categoryId])
+}
+
+model Segment {
+  id           String           @id @default(cuid())
+  publicId     String           @unique @default(cuid())
+  legacySource String?          @db.VarChar(80)
+  legacyId     String?          @db.VarChar(191)
+  name         String           @unique @db.VarChar(160)
+  slug         String           @unique @db.VarChar(191)
+  description  String?          @db.Text
+  imagePath    String?          @db.VarChar(500)
+  status       RecordStatus     @default(ACTIVE)
+  sortOrder    Int              @default(0)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  products     ProductSegment[]
+
+  @@unique([legacySource, legacyId])
+  @@index([status, sortOrder])
+}
+
+model ProductSegment {
+  productId String
+  segmentId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  segment   Segment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+
+  @@id([productId, segmentId])
+  @@index([segmentId])
+}
+
+model Tag {
+  id           String       @id @default(cuid())
+  publicId     String       @unique @default(cuid())
+  legacySource String?      @db.VarChar(80)
+  legacyId     String?      @db.VarChar(191)
+  name         String       @unique @db.VarChar(160)
+  slug         String       @unique @db.VarChar(191)
+  status       RecordStatus @default(ACTIVE)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  products     ProductTag[]
+
+  @@unique([legacySource, legacyId])
+  @@index([status, name])
+}
+
+model ProductTag {
+  productId String
+  tagId     String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([productId, tagId])
+  @@index([tagId])
 }
 
 model ProductVariant {
@@ -949,19 +1006,19 @@ model ScheduledJob {
 }
 
 model SiteConfiguration {
-  id           String   @id @default("default")
-  siteName     String   @default("Comercial do Norte") @db.VarChar(160)
-  logoPath     String?  @db.VarChar(500)
-  faviconPath  String?  @db.VarChar(500)
-  address      String?  @db.VarChar(255)
-  phone        String?  @db.VarChar(40)
-  whatsapp     String?  @db.VarChar(40)
-  instagramUrl String?  @db.VarChar(500)
-  title        String?  @db.VarChar(180)
-  description  String?  @db.Text
+  id              String   @id @default("default")
+  siteName        String   @default("Comercial do Norte") @db.VarChar(160)
+  logoPath        String?  @db.VarChar(500)
+  faviconPath     String?  @db.VarChar(500)
+  address         String?  @db.VarChar(255)
+  phone           String?  @db.VarChar(40)
+  whatsapp        String?  @db.VarChar(40)
+  instagramUrl    String?  @db.VarChar(500)
+  title           String?  @db.VarChar(180)
+  description     String?  @db.Text
   homeComposition Json?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model SiteBanner {
@@ -1100,27 +1157,27 @@ model ReportExport {
 /// Solicitacao de cotacao feita pelo site. Nao cobra, nao reserva estoque e
 /// nao gera pedido: apenas registra a intencao e avisa a equipe comercial.
 model Quote {
-  id            String      @id @default(cuid())
-  publicId      String      @unique @default(cuid())
-  status        QuoteStatus @default(REQUESTED)
-  customerName  String      @db.VarChar(160)
-  customerPhone String      @db.VarChar(40)
-  customerEmail String?     @db.VarChar(191)
-  companyName   String?     @db.VarChar(160)
-  document      String?     @db.VarChar(30)
-  notes         String?     @db.Text
-  origin        String      @default("site") @db.VarChar(40)
-  itemsCount    Int         @default(0)
-  subtotalCents Int         @default(0)
+  id            String       @id @default(cuid())
+  publicId      String       @unique @default(cuid())
+  status        QuoteStatus  @default(REQUESTED)
+  customerName  String       @db.VarChar(160)
+  customerPhone String       @db.VarChar(40)
+  customerEmail String?      @db.VarChar(191)
+  companyName   String?      @db.VarChar(160)
+  document      String?      @db.VarChar(30)
+  notes         String?      @db.Text
+  origin        String       @default("site") @db.VarChar(40)
+  itemsCount    Int          @default(0)
+  subtotalCents Int          @default(0)
   userId        String?
   assignedToId  String?
   expiresAt     DateTime?
   answeredAt    DateTime?
   closedAt      DateTime?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  user          User?       @relation("QuoteRequester", fields: [userId], references: [id], onDelete: SetNull)
-  assignedTo    User?       @relation("QuoteAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  user          User?        @relation("QuoteRequester", fields: [userId], references: [id], onDelete: SetNull)
+  assignedTo    User?        @relation("QuoteAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
   items         QuoteItem[]
   events        QuoteEvent[]
 

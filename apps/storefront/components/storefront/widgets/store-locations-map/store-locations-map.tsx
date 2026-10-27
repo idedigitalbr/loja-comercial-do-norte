@@ -1,9 +1,98 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { Clock, ExternalLink, MapPin, Navigation, Phone, Search, Star } from 'lucide-react';
 import type { StoreLocationsMapProps } from '@/lib/storefront/widget-types';
+
+function parseHoursRange(text?: string) {
+  if (!text) return null;
+  const clean = text.trim();
+
+  // Pattern A: "06h30 às 18h00" or "07:00 às 18:00"
+  const rangeMatch = clean.match(/(\d{1,2})(?:[h:](\d{2}))?\s*(?:às|as|-|a)\s*(\d{1,2})(?:[h:](\d{2}))?/i);
+  if (rangeMatch) {
+    const startH = parseInt(rangeMatch[1], 10);
+    const startM = parseInt(rangeMatch[2] || '0', 10);
+    const endH = parseInt(rangeMatch[3], 10);
+    const endM = parseInt(rangeMatch[4] || '0', 10);
+    return {
+      startMins: startH * 60 + startM,
+      endMins: endH * 60 + endM,
+    };
+  }
+
+  // Pattern B: "Fecha às 18:00"
+  const closeMatch = clean.match(/fecha(?:ndo)?\s*(?:às|as)?\s*(\d{1,2})(?:[h:](\d{2}))?/i);
+  if (closeMatch) {
+    const endH = parseInt(closeMatch[1], 10);
+    const endM = parseInt(closeMatch[2] || '0', 10);
+    return {
+      startMins: 7 * 60 + 30,
+      endMins: endH * 60 + endM,
+    };
+  }
+
+  return null;
+}
+
+function getBelemTime(date: Date) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Belem',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false,
+      weekday: 'short',
+    }).formatToParts(date);
+
+    let hour = 0;
+    let minute = 0;
+    let weekday = '';
+    for (const p of parts) {
+      if (p.type === 'hour') hour = parseInt(p.value, 10);
+      if (p.type === 'minute') minute = parseInt(p.value, 10);
+      if (p.type === 'weekday') weekday = p.value;
+    }
+
+    const weekdayMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+    const dayOfWeek = weekdayMap[weekday] ?? date.getDay();
+    const currentMins = hour * 60 + minute;
+
+    return { hour, minute, dayOfWeek, currentMins };
+  } catch {
+    return {
+      hour: date.getHours(),
+      minute: date.getMinutes(),
+      dayOfWeek: date.getDay(),
+      currentMins: date.getHours() * 60 + date.getMinutes(),
+    };
+  }
+}
+
+export function isStoreOpenNow(
+  loc: { hoursWeekdays?: string; hoursSaturday?: string; badge?: string },
+  referenceDate = new Date(),
+) {
+  const { currentMins, dayOfWeek } = getBelemTime(referenceDate);
+
+  let schedule = loc.hoursWeekdays || '';
+  if (dayOfWeek === 6 && loc.hoursSaturday) {
+    schedule = loc.hoursSaturday;
+  } else if (dayOfWeek === 0) {
+    // Domingo após as 12h00 todas as unidades estão fechadas
+    if (currentMins >= 12 * 60) {
+      return false;
+    }
+  }
+
+  const range = parseHoursRange(schedule);
+  if (!range) {
+    return (loc.badge || '').toLowerCase().includes('aberto');
+  }
+
+  return currentMins >= range.startMins && currentMins < range.endMins;
+}
 
 function getStoreTitles(loc: { id: string; name: string; eyebrow?: string; displayTitle?: string }) {
   const isMatriz =
@@ -35,6 +124,14 @@ export function StoreLocationsMapWidget({
 }: StoreLocationsMapProps) {
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string>(locations[0]?.id ?? '');
+  const [currentDate, setCurrentDate] = useState<Date>(() => new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDate(new Date());
+    }, 30_000);
+    return () => clearInterval(timer);
+  }, []);
 
   const filteredLocations = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -165,7 +262,10 @@ export function StoreLocationsMapWidget({
                 {filteredLocations.length > 0 ? (
                   filteredLocations.map((loc) => {
                     const isSelected = activeLocation?.id === loc.id;
-                    const isAberto = (loc.badge || '').toLowerCase().includes('aberto');
+                    const isAberto = loc.badge
+                      ? loc.badge.toLowerCase().includes('aberto')
+                      : isStoreOpenNow(loc, currentDate);
+                    const statusLabel = isAberto ? 'Aberto' : 'Fechado';
 
                     return (
                       <div
@@ -230,10 +330,10 @@ export function StoreLocationsMapWidget({
                           </div>
 
                           <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px]">
-                            <span className="inline-flex items-center gap-1 text-zinc-300">
-                              <Clock className={`size-3 ${isAberto ? 'text-emerald-400' : 'text-rose-400'}`} />
+                            <span className="inline-flex items-center gap-1.5 text-zinc-300">
+                              <Clock className={`size-3.5 ${isAberto ? 'text-emerald-400' : 'text-rose-400'}`} />
                               <strong className={isAberto ? 'font-semibold text-emerald-400' : 'font-semibold text-rose-400'}>
-                                {loc.badge || (isAberto ? 'Aberto' : 'Fechado')}
+                                {loc.badge || statusLabel}
                               </strong>
                               <span className="text-zinc-400">· {loc.hoursWeekdays}</span>
                             </span>

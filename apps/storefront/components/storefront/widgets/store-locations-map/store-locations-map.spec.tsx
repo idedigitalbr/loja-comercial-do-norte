@@ -4,7 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
-import { StoreLocationsMapWidget } from './store-locations-map';
+import { StoreLocationsMapWidget, isStoreOpenNow } from './store-locations-map';
 import type { StoreLocationItem } from '@/lib/storefront/widget-types';
 
 const mockLocations: StoreLocationItem[] = [
@@ -135,10 +135,21 @@ describe('StoreLocationsMapWidget', () => {
     expect(html).not.toContain('yellow');
   });
 
-  it('exibe badge "Aberto" em verde e "Fechado" em vermelho', () => {
+  it('exibe badge "Aberto" em verde e "Fechado" em vermelho dinamicamente', () => {
+    const customLocations: StoreLocationItem[] = [
+      {
+        ...mockLocations[0],
+        hoursWeekdays: '00h00 às 23h59', // Sempre aberto
+      },
+      {
+        ...mockLocations[1],
+        hoursWeekdays: '01h00 às 02h00', // Fechado agora
+      },
+    ];
+
     render(
       <StoreLocationsMapWidget
-        locations={mockLocations}
+        locations={customLocations}
         mapEmbedUrl="https://www.google.com/maps?q=Belem&output=embed"
         searchPlaceholder="Buscar unidade"
         subtitle="Lojas mais perto de você"
@@ -151,5 +162,13 @@ describe('StoreLocationsMapWidget', () => {
 
     const fechadoElement = screen.getAllByText('Fechado')[0];
     expect(fechadoElement.className).toContain('text-rose-400');
+  });
+
+  it('detecta corretamente loja fechada após as 18h00', () => {
+    const nightDate = new Date('2026-10-27T19:30:00-03:00');
+    expect(isStoreOpenNow({ hoursWeekdays: '06h30 às 18h00' }, nightDate)).toBe(false);
+    expect(isStoreOpenNow({ hoursWeekdays: '07h00 às 18h00' }, nightDate)).toBe(false);
+    expect(isStoreOpenNow({ hoursWeekdays: '07h00 às 19h00' }, nightDate)).toBe(false);
+    expect(isStoreOpenNow({ hoursWeekdays: '07h00 às 21h00' }, nightDate)).toBe(true);
   });
 });
