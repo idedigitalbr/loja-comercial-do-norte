@@ -86,6 +86,8 @@ export function getProductsPage(input: {
   search?: string;
   category?: string;
   brand?: string;
+  segment?: string;
+  tag?: string;
   page?: number;
   pageSize?: number;
   sort?: 'newest' | 'name_asc';
@@ -96,6 +98,8 @@ export function getProductsPage(input: {
   if (input.search?.trim()) params.set('search', input.search.trim());
   if (input.category) params.set('category', input.category);
   if (input.brand) params.set('brand', input.brand);
+  if (input.segment) params.set('segment', input.segment);
+  if (input.tag) params.set('tag', input.tag);
   if (input.sort) params.set('sort', input.sort);
   return safeJson<ProductPage>(`/catalog/products/search?${params}`, emptyPage(page, pageSize), {
     revalidate: REVALIDATE_WINDOWS.CATALOG,
@@ -147,4 +151,20 @@ export async function getQuote(publicId: string): Promise<PublicQuote | null> {
   } catch {
     return null;
   }
+}
+
+export type ApiSegment = { id: string; name: string; slug: string; description?: string | null; imagePath?: string | null };
+export async function getSegments(): Promise<ApiSegment[]> {
+  return safeJson<ApiSegment[]>('/catalog/segments', [], {
+    revalidate: REVALIDATE_WINDOWS.TAXONOMY,
+    tags: [CACHE_TAGS.CATEGORIES],
+  });
+}
+
+export type ApiTag = { id: string; name: string; slug: string };
+export async function getTags(): Promise<ApiTag[]> {
+  return safeJson<ApiTag[]>('/catalog/tags', [], {
+    revalidate: REVALIDATE_WINDOWS.TAXONOMY,
+    tags: [CACHE_TAGS.CATEGORIES],
+  });
 }

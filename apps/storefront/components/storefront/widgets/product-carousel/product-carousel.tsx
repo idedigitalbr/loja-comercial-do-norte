@@ -300,7 +300,7 @@ export function ProductCarouselWidget({
       <section aria-label={title} className="cn-container py-3 sm:py-4">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           {/* Card Esquerdo: Banner Vertical */}
-          <div className="flex flex-col rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.04)] lg:col-span-4">
+          <div className="flex flex-col min-h-0 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.04)] lg:col-span-4">
             <div className="mb-3 flex flex-wrap items-baseline justify-between gap-1">
               <div className="flex items-baseline gap-2">
                 <span className="text-[19px] font-extrabold text-slate-900">{banner.title}</span>
@@ -313,10 +313,10 @@ export function ProductCarouselWidget({
               ) : null}
             </div>
 
-            <div className="group/img relative flex-1 overflow-hidden rounded-xl bg-[#002B66]">
+            <div className="group/img relative flex-1 min-h-[260px] sm:min-h-[320px] lg:min-h-0 overflow-hidden rounded-xl bg-[#002B66]">
               {banner.linkUrl ? (
                 <Link
-                  className="block size-full"
+                  className="relative block size-full"
                   href={banner.linkUrl}
                   onClick={(e) => {
                     if (isEditing && !previewMode) e.preventDefault();
@@ -324,25 +324,25 @@ export function ProductCarouselWidget({
                 >
                   <Image
                     alt={banner.altText ?? banner.title}
-                    className={`h-full w-full object-cover transition duration-500 ${
+                    className={`object-cover transition duration-500 ${
                       isEditing && !previewMode
                         ? 'group-hover/img:brightness-50 group-hover/img:grayscale'
                         : 'group-hover/img:scale-[1.02]'
                     }`}
-                    height={905}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 33vw"
                     src={banner.imageUrl}
                     unoptimized
-                    width={670}
                   />
                 </Link>
               ) : (
                 <Image
                   alt={banner.altText ?? banner.title}
-                  className="h-full w-full object-cover"
-                  height={905}
+                  className="object-cover"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 33vw"
                   src={banner.imageUrl}
                   unoptimized
-                  width={670}
                 />
               )}
 

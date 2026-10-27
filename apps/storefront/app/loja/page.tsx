@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { cn, WebBadge, WebButton, WebEmptyState } from '@commerce/ui/web';
 import { ProductCard } from '@/components/product-card';
-import { getCategories, getProductsPage } from '@/lib/api';
+import { getCategories, getProductsPage, getSegments } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,24 +12,28 @@ export const metadata: Metadata = {
   alternates: { canonical: '/loja' },
 };
 
-type SearchParams = Promise<{ q?: string; categoria?: string; pagina?: string; ordem?: string }>;
+type SearchParams = Promise<{ q?: string; categoria?: string; segmento?: string; tag?: string; pagina?: string; ordem?: string }>;
 
 const PAGE_SIZE = 12;
 
 export default async function CatalogPage({ searchParams }: { searchParams: SearchParams }) {
-  const { q, categoria, pagina, ordem } = await searchParams;
+  const { q, categoria, segmento, tag, pagina, ordem } = await searchParams;
   const page = Math.max(1, Number.parseInt(pagina ?? '1', 10) || 1);
   const sort = ordem === 'nome' ? 'name_asc' : 'newest';
-  const [result, categories] = await Promise.all([
-    getProductsPage({ search: q, category: categoria, page, pageSize: PAGE_SIZE, sort }),
+  const [result, categories, segments] = await Promise.all([
+    getProductsPage({ search: q, category: categoria, segment: segmento, tag, page, pageSize: PAGE_SIZE, sort }),
     getCategories(),
+    getSegments(),
   ]);
   const activeCategory = categories.find((category) => category.slug === categoria);
+  const activeSegment = segments.find((seg) => seg.slug === segmento);
 
   const buildHref = (overrides: { pagina?: number; ordem?: string }) => {
     const params = new URLSearchParams();
     if (q) params.set('q', q);
     if (categoria) params.set('categoria', categoria);
+    if (segmento) params.set('segmento', segmento);
+    if (tag) params.set('tag', tag);
     const nextOrder = overrides.ordem ?? ordem;
     if (nextOrder === 'nome') params.set('ordem', 'nome');
     const nextPage = overrides.pagina ?? 1;
@@ -44,12 +48,12 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
         <Link className="hover:text-brand" href="/">Início</Link>
         <span aria-hidden> / </span>
         <span className="text-ink">Catálogo</span>
-        {activeCategory ? <><span aria-hidden> / </span><span className="text-ink">{activeCategory.name}</span></> : null}
+        {activeSegment ? <><span aria-hidden> / </span><span className="text-ink">{activeSegment.name}</span></> : activeCategory ? <><span aria-hidden> / </span><span className="text-ink">{activeCategory.name}</span></> : tag ? <><span aria-hidden> / </span><span className="text-ink">#{tag}</span></> : null}
       </nav>
 
       <header className="mt-3 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-ink">{activeCategory ? activeCategory.name : 'Catálogo completo'}</h1>
+          <h1 className="text-2xl font-extrabold text-ink">{activeSegment ? `Segmento: ${activeSegment.name}` : activeCategory ? activeCategory.name : tag ? `Tag: #${tag}` : 'Catálogo completo'}</h1>
           <p className="text-sm text-muted">
             {result.total} produto(s) publicado(s){q ? ` para “${q}”` : ''} · página {result.page} de {result.totalPages}
           </p>

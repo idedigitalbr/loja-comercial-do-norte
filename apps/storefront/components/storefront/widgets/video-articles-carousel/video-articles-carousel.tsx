@@ -14,7 +14,7 @@ export function VideoArticlesCarouselWidget({
   viewAllLabel = 'Ver todos',
   viewAllUrl = '/loja',
   mascotImageUrl = '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-Boneco3D-explica-ai-nort-trimmed.webp',
-  bgImageUrl = '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-bg-fundo-vermelho-geometrico-abstrato.webp',
+  bgImageUrl = '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-bg-fundo-vermelho-geometrico-abstrato-hd.png',
   items = [],
 }: VideoArticlesCarouselProps) {
   const track = useRef<HTMLDivElement>(null);
