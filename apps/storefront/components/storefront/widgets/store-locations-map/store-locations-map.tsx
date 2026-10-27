@@ -139,8 +139,8 @@ export function StoreLocationsMapWidget({
                 </button>
               </div>
 
-              {/* Lista de Unidades com Scrollbar Dark Suave */}
-              <div className="flex max-h-[580px] flex-col gap-3 overflow-y-auto pr-1.5">
+              {/* Lista de Unidades com Scrollbar Dark Minimalista */}
+              <div className="custom-scrollbar flex max-h-[580px] flex-col gap-3 overflow-y-auto pr-2 [scrollbar-color:rgba(255,255,255,0.2)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 hover:[&::-webkit-scrollbar-thumb]:bg-white/35 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
                 {filteredLocations.length > 0 ? (
                   filteredLocations.map((loc) => {
                     const isSelected = activeLocation?.id === loc.id;
