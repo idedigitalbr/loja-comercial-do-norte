@@ -286,6 +286,8 @@ export type TestimonialsGridWidgetConfig = BaseWidgetConfig<'testimonials-grid',
 export interface StoreLocationItem {
   id: string;
   name: string;
+  eyebrow?: string;
+  displayTitle?: string;
   subtitle?: string;
   ratingText?: string;
   imageUrl?: string;

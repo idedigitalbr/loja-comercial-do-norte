@@ -11,6 +11,8 @@ const mockLocations: StoreLocationItem[] = [
   {
     id: 'loja-jurunas',
     name: 'Comercial do Norte — Jurunas',
+    eyebrow: 'Comercial do Norte',
+    displayTitle: 'Jurunas',
     subtitle: 'Loja de Embalagens e Descartáveis',
     ratingText: '4,8 (1.240)',
     imageUrl: '/assets/loja-jurunas.webp',
@@ -25,8 +27,28 @@ const mockLocations: StoreLocationItem[] = [
     mapEmbedUrl: 'https://www.google.com/maps?q=Comercial+do+Norte+Jurunas&output=embed',
   },
   {
+    id: 'loja-sao-bras',
+    name: 'Comercial do Norte — Matriz São Brás',
+    eyebrow: 'Comercial do Norte (Matriz)',
+    displayTitle: 'São Brás',
+    subtitle: 'Embalagens e Descartáveis',
+    ratingText: '4,8 (950)',
+    imageUrl: '/assets/loja-sao-bras.webp',
+    badge: 'Aberto',
+    isFeatured: false,
+    address: 'Av. Rômulo Maiorana, 115 — São Brás, Belém - PA',
+    hoursWeekdays: '06h30 às 18h00',
+    hoursSaturday: 'Sáb: 06h30 às 12h30',
+    phone: '(91) 4042-0513',
+    whatsappUrl: 'https://wa.me/5591983440880',
+    mapQueryUrl: 'https://www.google.com/maps/search/?api=1&query=Comercial+do+Norte+Sao+Bras',
+    mapEmbedUrl: 'https://www.google.com/maps?q=Comercial+do+Norte+Sao+Bras&output=embed',
+  },
+  {
     id: 'loja-pedreira',
     name: 'Comercial do Norte — Pedreira',
+    eyebrow: 'Comercial do Norte',
+    displayTitle: 'Pedreira',
     subtitle: 'Loja de Embalagens e Artigos para Festa',
     ratingText: '4,9 (890)',
     imageUrl: '/assets/loja-pedreira.webp',
@@ -60,7 +82,7 @@ describe('StoreLocationsMapWidget', () => {
     expect(iframe?.getAttribute('src')).toBe('https://www.google.com/maps?q=Comercial+do+Norte+Jurunas&output=embed');
 
     // Click on Pedreira
-    const pedreiraCard = screen.getByText('Comercial do Norte — Pedreira');
+    const pedreiraCard = screen.getByText('Pedreira');
     fireEvent.click(pedreiraCard);
 
     // After click, iframe should update to Pedreira
@@ -70,6 +92,31 @@ describe('StoreLocationsMapWidget', () => {
     // "Como chegar" button should update to Pedreira URL
     const directionsLink = screen.getByTitle('Abrir rota no Google Maps');
     expect(directionsLink.getAttribute('href')).toBe('https://www.google.com/maps/search/?api=1&query=Comercial+do+Norte+Pedreira+Belem');
+  });
+
+  it('exibe eyebrow "Comercial do Norte" e nome limpo do local como título sem subtítulo descritivo', () => {
+    render(
+      <StoreLocationsMapWidget
+        locations={mockLocations}
+        mapEmbedUrl="https://www.google.com/maps?q=Belem&output=embed"
+        searchPlaceholder="Buscar unidade"
+        subtitle="Lojas mais perto de você"
+        title="Encontre nossas unidades"
+      />,
+    );
+
+    // Eyebrows
+    expect(screen.getAllByText('Comercial do Norte').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Comercial do Norte (Matriz)')[0]).not.toBeNull();
+
+    // Main location titles
+    expect(screen.getAllByText('Jurunas').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('São Brás').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Pedreira').length).toBeGreaterThanOrEqual(1);
+
+    // Redundant subtitles must NOT be rendered
+    expect(screen.queryByText('Loja de Embalagens e Descartáveis')).toBeNull();
+    expect(screen.queryByText('Loja de Embalagens e Artigos para Festa')).toBeNull();
   });
 
   it('não possui classes amarelas (amber) na identidade visual dark mode', () => {

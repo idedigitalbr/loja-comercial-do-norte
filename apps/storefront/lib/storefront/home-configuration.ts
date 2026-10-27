@@ -898,7 +898,8 @@ export const defaultHomeComposition: PageComposition = {
           {
                     id: "loja-jurunas",
                     name: "Comercial do Norte — Jurunas (Bernardo Sayão)",
-                    subtitle: "Loja de Embalagens e Descartáveis",
+                    eyebrow: "Comercial do Norte",
+                    displayTitle: "Jurunas",
                     ratingText: "4,8 (1.240)",
                     imageUrl: "/assets/HOME Vitrine/S0-FOOTER/loja-comercial-do-norte-jurunas.webp",
                     badge: "Aberto",
@@ -916,7 +917,8 @@ export const defaultHomeComposition: PageComposition = {
           {
                     id: "loja-sao-bras",
                     name: "Comercial do Norte — Matriz São Brás",
-                    subtitle: "Embalagens, Descartáveis e Artigos para Festas (antiga Dosplásticos)",
+                    eyebrow: "Comercial do Norte (Matriz)",
+                    displayTitle: "São Brás",
                     ratingText: "4,8 (950)",
                     imageUrl: "/assets/HOME Vitrine/S0-FOOTER/loja-comercial-fachada.webp",
                     badge: "Aberto",
@@ -934,7 +936,8 @@ export const defaultHomeComposition: PageComposition = {
           {
                     id: "loja-pedreira-mauriti",
                     name: "Comercial do Norte — Filial Mauriti Pedreira",
-                    subtitle: "Loja de Embalagens, Confeitaria e Descartáveis",
+                    eyebrow: "Comercial do Norte",
+                    displayTitle: "Pedreira (Mauriti)",
                     ratingText: "4,9 (890)",
                     imageUrl: "/assets/HOME Vitrine/S0-FOOTER/loja-comercial-fachada.webp",
                     badge: "Aberto",
@@ -952,7 +955,8 @@ export const defaultHomeComposition: PageComposition = {
           {
                     id: "loja-guama",
                     name: "Comercial do Norte — Filial Guamá",
-                    subtitle: "Embalagens, Festas e Limpeza no Varejo e Atacado",
+                    eyebrow: "Comercial do Norte",
+                    displayTitle: "Guamá",
                     ratingText: "4,8 (720)",
                     imageUrl: "/assets/HOME Vitrine/S0-FOOTER/loja-comercial-do-norte-jurunas.webp",
                     badge: "Aberto",
@@ -970,7 +974,8 @@ export const defaultHomeComposition: PageComposition = {
           {
                     id: "loja-atacado-delivery",
                     name: "Comercial do Norte — Vendas Internet & Delivery",
-                    subtitle: "Central de Cotação, Televendas e Entrega Belém/RMB",
+                    eyebrow: "Comercial do Norte",
+                    displayTitle: "Vendas Online & Delivery",
                     ratingText: "4,9 (640)",
                     imageUrl: "/assets/HOME Vitrine/S0-FOOTER/loja-comercial-do-norte-jurunas.webp",
                     badge: "Aberto",
@@ -988,7 +993,8 @@ export const defaultHomeComposition: PageComposition = {
           {
                     id: "loja-cidade-nova",
                     name: "Comercial do Norte — Filial Cidade Nova",
-                    subtitle: "Embalagens e Descartáveis em Ananindeua",
+                    eyebrow: "Comercial do Norte",
+                    displayTitle: "Cidade Nova",
                     ratingText: "4,8 (510)",
                     imageUrl: "/assets/HOME Vitrine/S0-FOOTER/loja-comercial-fachada.webp",
                     badge: "Aberto",

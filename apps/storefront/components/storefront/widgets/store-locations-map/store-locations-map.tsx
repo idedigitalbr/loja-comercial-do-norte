@@ -5,6 +5,27 @@ import Image from 'next/image';
 import { Clock, ExternalLink, MapPin, Navigation, Phone, Search, Star } from 'lucide-react';
 import type { StoreLocationsMapProps } from '@/lib/storefront/widget-types';
 
+function getStoreTitles(loc: { id: string; name: string; eyebrow?: string; displayTitle?: string }) {
+  const isMatriz =
+    loc.id === 'loja-sao-bras' ||
+    loc.name.toLowerCase().includes('matriz') ||
+    Boolean(loc.eyebrow && loc.eyebrow.toLowerCase().includes('matriz'));
+
+  const eyebrow = loc.eyebrow || (isMatriz ? 'Comercial do Norte (Matriz)' : 'Comercial do Norte');
+
+  let title = loc.displayTitle || '';
+  if (!title) {
+    if (loc.name.includes('—')) {
+      title = loc.name.split('—')[1].trim();
+      title = title.replace(/^Matriz\s+/i, '').replace(/^Filial\s+/i, '').trim();
+    } else {
+      title = loc.name.replace(/^Comercial\s+do\s+Norte\s*[-–—]?\s*/i, '').trim() || loc.name;
+    }
+  }
+
+  return { eyebrow, title };
+}
+
 export function StoreLocationsMapWidget({
   title = 'Encontre nossas unidades',
   subtitle = 'Lojas mais perto de você',
@@ -180,21 +201,27 @@ export function StoreLocationsMapWidget({
                         {/* Dados da Unidade à Direita */}
                         <div className="flex min-w-0 flex-1 flex-col justify-between">
                           <div>
-                            <div className="flex items-start justify-between gap-2">
-                              <h3 className="truncate text-sm font-extrabold tracking-tight text-white">
-                                {loc.name}
-                              </h3>
-                              {loc.ratingText && (
-                                <span className="inline-flex shrink-0 items-center gap-1 text-[11px] font-medium text-zinc-300">
-                                  <Star className="size-3 fill-zinc-400 text-zinc-400" />
-                                  <span>{loc.ratingText}</span>
-                                </span>
-                              )}
-                            </div>
-
-                            <p className="mt-0.5 line-clamp-1 text-[11px] font-normal text-zinc-400">
-                              {loc.subtitle || 'Loja de Embalagens e Descartáveis'}
-                            </p>
+                            {(() => {
+                              const { eyebrow, title: storeTitle } = getStoreTitles(loc);
+                              return (
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0 flex-1">
+                                    <span className="block text-[11px] font-medium tracking-wide text-zinc-400">
+                                      {eyebrow}
+                                    </span>
+                                    <h3 className="truncate text-sm font-extrabold tracking-tight text-white sm:text-base">
+                                      {storeTitle}
+                                    </h3>
+                                  </div>
+                                  {loc.ratingText && (
+                                    <span className="inline-flex shrink-0 items-center gap-1 pt-0.5 text-[11px] font-medium text-zinc-300">
+                                      <Star className="size-3 fill-zinc-400 text-zinc-400" />
+                                      <span>{loc.ratingText}</span>
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })()}
 
                             <p className="mt-1 line-clamp-1 text-[11px] text-zinc-400">
                               <MapPin className="mr-1 inline size-3 text-zinc-400" />
