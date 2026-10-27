@@ -389,7 +389,7 @@ export function ElementorEditorProvider({
           const newSlide: HeroSlide = {
             id: `slide-${Date.now()}`,
             title: `Novo Slide ${currentSlides.length + 1}`,
-            imageUrl: '/assets/home-ref/s01-hero-pizzaria.jpg',
+            imageUrl: '/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (1).webp',
             linkUrl: '/loja',
             altText: 'Banner Comercial do Norte',
             backgroundColor: '#022B76',
@@ -404,7 +404,7 @@ export function ElementorEditorProvider({
           const newSlide: ContainedHeroSlide = {
             id: `slide-c-${Date.now()}`,
             title: `Nova Oferta ${currentSlides.length + 1}`,
-            imageUrl: '/assets/home-ref/s02-contained-feirante.jpg',
+            imageUrl: '/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_k93f3kk93f3kk93f.jpg',
             linkUrl: '/loja',
             altText: 'Campanha Comercial do Norte',
           };

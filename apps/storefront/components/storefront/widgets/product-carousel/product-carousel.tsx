@@ -20,7 +20,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b1', name: 'Cristalcopo', slug: 'cristalcopo' },
     categories: [{ category: { id: 'c1', name: 'Descartáveis', slug: 'descartaveis' } }],
-    images: [{ id: 'img1', path: '/assets/home-ref/prod-copo-descartavel.jpg', altText: 'Copo Descartável 300ml', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img1', path: '/assets/PRODUTOS/produtos-imgs/copo-300ml.png', altText: 'Copo Descartável 300ml', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-1', publicId: 'v-fallback-1', sku: 'COPO-300ML', priceCents: 1229, compareAtPriceCents: 1890, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -32,7 +32,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b2', name: 'Copobras', slug: 'copobras' },
     categories: [{ category: { id: 'c2', name: 'Embalagens', slug: 'embalagens' } }],
-    images: [{ id: 'img2', path: '/assets/produtos/marmita-900ml.jpg', altText: 'Marmita de Isopor 900ml', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img2', path: '/assets/PRODUTOS/produtos-imgs/marmita-900ml.jpg', altText: 'Marmita de Isopor 900ml', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-2', publicId: 'v-fallback-2', sku: 'MARM-900', priceCents: 2990, compareAtPriceCents: 4150, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -44,7 +44,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b3', name: 'NortePlast', slug: 'norteplast' },
     categories: [{ category: { id: 'c3', name: 'Sacos & Sacolas', slug: 'sacos-e-sacolas' } }],
-    images: [{ id: 'img3', path: '/assets/produtos/sacola-50x60.jpg', altText: 'Sacola Plástica 50x60', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img3', path: '/assets/PRODUTOS/produtos-imgs/sacola-50x60.jpg', altText: 'Sacola Plástica 50x60', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-3', publicId: 'v-fallback-3', sku: 'SAC-50X60', priceCents: 6990, compareAtPriceCents: 8990, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -56,7 +56,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b4', name: 'Mili Profissional', slug: 'mili' },
     categories: [{ category: { id: 'c4', name: 'Limpeza Profissional', slug: 'limpeza-profissional' } }],
-    images: [{ id: 'img4', path: '/assets/produtos/papel-toalha.jpg', altText: 'Papel Toalha Interfolhado', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img4', path: '/assets/PRODUTOS/produtos-imgs/papel-toalha.jpg', altText: 'Papel Toalha Interfolhado', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-4', publicId: 'v-fallback-4', sku: 'PAPEL-1000', priceCents: 1999, compareAtPriceCents: 2440, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -68,7 +68,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b5', name: 'Comercial do Norte', slug: 'comercial-do-norte' },
     categories: [{ category: { id: 'c2', name: 'Embalagens', slug: 'embalagens' } }],
-    images: [{ id: 'img5', path: '/assets/produtos/caixa-pizza-35cm.jpg', altText: 'Caixa de Pizza 35cm', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img5', path: '/assets/PRODUTOS/produtos-imgs/caixa-pizza-35cm.jpg', altText: 'Caixa de Pizza 35cm', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-5', publicId: 'v-fallback-5', sku: 'CX-PIZZA-35', priceCents: 2723, compareAtPriceCents: 3890, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -80,7 +80,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b1', name: 'Cristalcopo', slug: 'cristalcopo' },
     categories: [{ category: { id: 'c1', name: 'Descartáveis', slug: 'descartaveis' } }],
-    images: [{ id: 'img6', path: '/assets/home-ref/prod-prato-descartavel.jpg', altText: 'Prato Descartável 18cm', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img6', path: '/assets/PRODUTOS/produtos-imgs/copo-200ml.png', altText: 'Prato Descartável 18cm', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-6', publicId: 'v-fallback-6', sku: 'PRATO-18', priceCents: 1450, compareAtPriceCents: 1990, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -92,7 +92,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b2', name: 'Copobras', slug: 'copobras' },
     categories: [{ category: { id: 'c1', name: 'Descartáveis', slug: 'descartaveis' } }],
-    images: [{ id: 'img7', path: '/assets/produtos/copo-200ml.png', altText: 'Copo Descartável 200ml', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img7', path: '/assets/PRODUTOS/produtos-imgs/copo-200ml.png', altText: 'Copo Descartável 200ml', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-7', publicId: 'v-fallback-7', sku: 'COPO-200ML', priceCents: 890, compareAtPriceCents: 1250, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -104,7 +104,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b6', name: 'Limpeza Pro', slug: 'limpeza-pro' },
     categories: [{ category: { id: 'c4', name: 'Limpeza', slug: 'limpeza' } }],
-    images: [{ id: 'img8', path: '/assets/produtos/detergente-5l.jpg', altText: 'Detergente 5L', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img8', path: '/assets/PRODUTOS/produtos-imgs/detergente-5l.jpg', altText: 'Detergente 5L', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-8', publicId: 'v-fallback-8', sku: 'DET-5L', priceCents: 3290, compareAtPriceCents: 4200, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -116,7 +116,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b7', name: 'Wyda', slug: 'wyda' },
     categories: [{ category: { id: 'c2', name: 'Embalagens', slug: 'embalagens' } }],
-    images: [{ id: 'img9', path: '/assets/produtos/marmita-750ml.jpg', altText: 'Marmita Alumínio 750ml', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img9', path: '/assets/PRODUTOS/produtos-imgs/marmita-750ml.jpg', altText: 'Marmita Alumínio 750ml', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-9', publicId: 'v-fallback-9', sku: 'MARM-ALUM-750', priceCents: 3850, compareAtPriceCents: 4890, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -128,7 +128,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b3', name: 'NortePlast', slug: 'norteplast' },
     categories: [{ category: { id: 'c3', name: 'Sacos & Sacolas', slug: 'sacos-e-sacolas' } }],
-    images: [{ id: 'img10', path: '/assets/produtos/sacola-38x48.jpg', altText: 'Sacola Reforçada 38x48', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img10', path: '/assets/PRODUTOS/produtos-imgs/sacola-38x48.jpg', altText: 'Sacola Reforçada 38x48', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-10', publicId: 'v-fallback-10', sku: 'SAC-38X48', priceCents: 5490, compareAtPriceCents: 6890, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -140,7 +140,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b5', name: 'Comercial do Norte', slug: 'comercial-do-norte' },
     categories: [{ category: { id: 'c2', name: 'Embalagens', slug: 'embalagens' } }],
-    images: [{ id: 'img11', path: '/assets/produtos/caixa-pizza-25cm.jpg', altText: 'Caixa de Pizza 25cm', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img11', path: '/assets/PRODUTOS/produtos-imgs/caixa-pizza-25cm.jpg', altText: 'Caixa de Pizza 25cm', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-11', publicId: 'v-fallback-11', sku: 'CX-PIZZA-25', priceCents: 2190, compareAtPriceCents: 2890, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -152,7 +152,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b2', name: 'Copobras', slug: 'copobras' },
     categories: [{ category: { id: 'c1', name: 'Descartáveis', slug: 'descartaveis' } }],
-    images: [{ id: 'img12', path: '/assets/produtos/copo-300ml.png', altText: 'Copo Reforçado 300ml', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img12', path: '/assets/PRODUTOS/produtos-imgs/copo-300ml.png', altText: 'Copo Reforçado 300ml', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-12', publicId: 'v-fallback-12', sku: 'COPO-REF-300', priceCents: 1590, compareAtPriceCents: 2100, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -164,7 +164,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b8', name: 'Supermax', slug: 'supermax' },
     categories: [{ category: { id: 'c4', name: 'Limpeza & Higiene', slug: 'limpeza' } }],
-    images: [{ id: 'img13', path: '/assets/home-ref/s11-triple-03-luva-azul.jpg', altText: 'Luva Nitrílica Azul', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img13', path: '/assets/PRODUTOS/produtos-imgs/detergente-5l.jpg', altText: 'Luva Nitrílica Azul', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-13', publicId: 'v-fallback-13', sku: 'LUV-NIT-AZUL', priceCents: 2710, compareAtPriceCents: 3590, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -176,7 +176,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b2', name: 'Copobras', slug: 'copobras' },
     categories: [{ category: { id: 'c2', name: 'Embalagens', slug: 'embalagens' } }],
-    images: [{ id: 'img14', path: '/assets/home-ref/s11-triple-01-hamburgueira.jpg', altText: 'Hamburgueira Isopor', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img14', path: '/assets/PRODUTOS/produtos-imgs/marmita-750ml.jpg', altText: 'Hamburgueira Isopor', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-14', publicId: 'v-fallback-14', sku: 'HAMB-ISOPOR', priceCents: 8595, compareAtPriceCents: 10400, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
   {
@@ -188,7 +188,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     status: 'ACTIVE',
     brand: { id: 'b8', name: 'Supermax', slug: 'supermax' },
     categories: [{ category: { id: 'c4', name: 'Limpeza & Higiene', slug: 'limpeza' } }],
-    images: [{ id: 'img15', path: '/assets/home-ref/s11-triple-02-luva-vermelho.jpg', altText: 'Luva Nitrílica Vermelho', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img15', path: '/assets/PRODUTOS/produtos-imgs/marmita-900ml.jpg', altText: 'Luva Nitrílica Vermelho', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-15', publicId: 'v-fallback-15', sku: 'LUV-NIT-VERM', priceCents: 2710, compareAtPriceCents: 3590, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
 ];
@@ -291,7 +291,7 @@ export function ProductCarouselWidget({
       title: 'Ofertas',
       subtitle: 'Mês de Outubro',
       tag: 'Semana do Feirante',
-      imageUrl: '/assets/home-ref/s04-side-banner-feirante.jpg',
+      imageUrl: '/assets/HOME Vitrine/S4-CARD-ESQ-Promocional/S4-CARD-ESQ-Promocional.webp',
       linkUrl: '/loja?oferta=1',
       altText: 'Semana do Feirante Comercial do Norte',
     };

@@ -181,7 +181,7 @@ export function MegaMenu({ categories = [], whatsappPhone = '5596981001897', onC
                 className="object-contain drop-shadow-md"
                 fill
                 sizes="96px"
-                src="/assets/imgs/Mascote-3D-NORT/principais/nort-01-principal.png"
+                src="/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-01-principal.png"
               />
             </Link>
           </div>

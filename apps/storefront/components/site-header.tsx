@@ -124,7 +124,7 @@ export function SiteHeader({
                 fill
                 priority
                 sizes="80px"
-                src="/assets/imgs/Mascote-3D-NORT/principais/nort-01-principal.png"
+                src="/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-01-principal.png"
               />
             </div>
           </Link>
@@ -158,7 +158,7 @@ export function SiteHeader({
                     src={
                       logoUrl && !logoUrl.includes('seed-brand')
                         ? logoUrl
-                        : '/assets/Logos/logo-comercial-do-norte-branca.png'
+                        : '/logo-comercial-do-norte-branca.png'
                     }
                   />
                 </div>

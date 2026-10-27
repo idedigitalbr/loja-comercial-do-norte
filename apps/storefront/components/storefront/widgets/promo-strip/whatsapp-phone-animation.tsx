@@ -360,7 +360,7 @@ export function WhatsappPhoneAnimation({
                       alt="Comercial do Norte"
                       className="size-full object-cover"
                       height={44}
-                      src="/assets/Logos/logo-comercial-do-norte-quadrada.png"
+                      src="/logo-comercial-do-norte-quadrada.png"
                       unoptimized
                       width={44}
                     />
@@ -484,7 +484,7 @@ export function WhatsappPhoneAnimation({
                       alt="Comercial do Norte"
                       className="size-full object-cover"
                       height={38}
-                      src="/assets/Logos/logo-comercial-do-norte-quadrada.png"
+                      src="/logo-comercial-do-norte-quadrada.png"
                       unoptimized
                       width={38}
                     />
@@ -571,7 +571,7 @@ export function WhatsappPhoneAnimation({
                       alt="Comercial do Norte"
                       className="size-full object-cover"
                       height={36}
-                      src="/assets/Logos/logo-comercial-do-norte-quadrada.png"
+                      src="/logo-comercial-do-norte-quadrada.png"
                       unoptimized
                       width={36}
                     />
@@ -649,7 +649,7 @@ export function WhatsappPhoneAnimation({
                                 alt="Comercial do Norte"
                                 className="size-full object-cover"
                                 height={34}
-                                src="/assets/Logos/logo-comercial-do-norte-quadrada.png"
+                                src="/logo-comercial-do-norte-quadrada.png"
                                 unoptimized
                                 width={34}
                               />

@@ -10,13 +10,13 @@ import type { QuoteStepsBannerProps } from '@/lib/storefront/widget-types';
 export function QuoteStepsBannerWidget({
   widgetId,
   title = 'Como funciona a cotação online',
-  imageUrl = '/assets/banners/s07-banner-como-funciona-cotacao.png',
+  imageUrl = '/assets/HOME Vitrine/S7-BANNER-Cotacao/S7-BANNER-Cotacao.webp',
   ctaUrl = '/cotacao',
   altText = 'Como funciona a cotação online no Comercial do Norte',
 }: QuoteStepsBannerProps) {
   const { isEditing, previewMode } = useElementor();
 
-  const effectiveImageUrl = imageUrl || '/assets/banners/s07-banner-como-funciona-cotacao.png';
+  const effectiveImageUrl = imageUrl || '/assets/HOME Vitrine/S7-BANNER-Cotacao/S7-BANNER-Cotacao.webp';
   const effectiveAltText = altText || title || 'Como funciona a cotação online';
 
   const imageElement = (

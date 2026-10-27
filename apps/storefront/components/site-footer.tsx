@@ -19,7 +19,7 @@ export function SiteFooter({ site }: SiteFooterProps) {
               alt={site?.siteName ?? 'Comercial do Norte'}
               className="h-12 w-auto object-contain sm:h-14"
               height={60}
-              src="/assets/Logos/logo-comercial-do-norte-branca.png"
+              src="/logo-comercial-do-norte-branca.png"
               unoptimized
               width={210}
             />
@@ -74,7 +74,7 @@ export function SiteFooter({ site }: SiteFooterProps) {
               alt="idedigital"
               className="h-4 w-auto object-contain"
               height={20}
-              src="/assets/Logos/logo-idedigital.png"
+              src="/logo-idedigital.png"
               unoptimized
               width={80}
             />

@@ -388,7 +388,7 @@ export function AuthFlowCard() {
                 fill
                 priority
                 sizes="260px"
-                src="/assets/Logos/logo-comercial-do-norte-branca.png"
+                src="/logo-comercial-do-norte-branca.png"
               />
             </div>
           </Link>

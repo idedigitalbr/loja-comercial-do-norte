@@ -41,8 +41,8 @@ describe('defaultHomeComposition (19 seções site-final + S0/S20)', () => {
 
   it('valida fidelidade visual das seções S01–S19 (assets locais sem hotlinks e textos oficiais)', () => {
     const json = JSON.stringify(defaultHomeComposition);
-    expect(json).toContain('/assets/home-ref/s01-hero-pizzaria.jpg');
-    expect(json).toContain('/assets/home-ref/s02-contained-feirante.jpg');
+    expect(json).toContain('/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (1).webp');
+    expect(json).toContain('/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_k93f3kk93f3kk93f.jpg');
     expect(json).toContain('Como funciona a cotação online');
     expect(json).toContain('Tudo para todos os negócios');
     expect(json).toContain('OFERTAS IMPERDÍVEIS');

@@ -14,7 +14,7 @@ export function EventsCarouselWidget({
   subtitle = 'Tudo que acontece no Comercial do Norte',
   ctaLabel = 'Ver todos os eventos',
   ctaUrl = '/loja',
-  topThumbUrl = '/assets/home-ref/s12-event-top-thumb.jpg',
+  topThumbUrl = '/assets/PRODUTOS/placeholders/placeholder-1.png',
   items = [],
 }: EventsCarouselProps) {
   const { isEditing, previewMode } = useElementor();

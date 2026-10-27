@@ -28,7 +28,7 @@ describe('ProductCard', () => {
     categoryId: 'cat-embalagens',
     brandId: 'brand-1',
     status: 'ACTIVE',
-    images: [{ id: 'img-1', path: '/assets/home-ref/prod-sacola-plastica.jpg', altText: 'Sacola', isPrimary: true, sortOrder: 0, variantId: null }],
+    images: [{ id: 'img-1', path: '/assets/PRODUTOS/produtos-imgs/sacola-50x60.jpg', altText: 'Sacola', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [
       {
         id: 'var-1',

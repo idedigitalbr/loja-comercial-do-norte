@@ -79,7 +79,7 @@ export function StoreLocationsMapWidget({
                         alt={loc.name}
                         className="size-full object-cover"
                         height={140}
-                        src={loc.imageUrl || '/assets/Fotografias/loja-comercial-do-norte-jurunas.webp'}
+                        src={loc.imageUrl || '/assets/HOME Vitrine/S0-FOOTER/loja-comercial-do-norte-jurunas.webp'}
                         unoptimized
                         width={140}
                       />

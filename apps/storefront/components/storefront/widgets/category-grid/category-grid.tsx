@@ -9,14 +9,14 @@ import type { CategoryGridProps, CategoryIconItem, WidgetContextData } from '@/l
 import type { ApiCategory } from '@/lib/types';
 
 const DEFAULT_ICON_ITEMS: CategoryIconItem[] = [
-  { id: 'cat-ofertas', label: 'Ofertas Relâmpago', imageUrl: '/assets/categorias/magalu-ofertas.png', linkUrl: '/loja?oferta=1' },
-  { id: 'cat-internacional', label: 'Internacional', imageUrl: '/assets/categorias/magalu-internacional.png', linkUrl: '/loja' },
-  { id: 'cat-casa', label: 'Casa', imageUrl: '/assets/categorias/magalu-casa.png', linkUrl: '/loja?q=casa' },
-  { id: 'cat-ferramentas', label: 'Ferramentas', imageUrl: '/assets/categorias/magalu-ferramentas.png', linkUrl: '/loja?q=ferramentas' },
-  { id: 'cat-eletroportateis', label: 'Eletroportáteis', imageUrl: '/assets/categorias/magalu-eletroportateis.png', linkUrl: '/loja?q=eletro' },
-  { id: 'cat-brinquedos', label: 'Brinquedos', imageUrl: '/assets/categorias/magalu-brinquedos.png', linkUrl: '/loja?q=brinquedos' },
-  { id: 'cat-automotivo', label: 'Automotivo', imageUrl: '/assets/categorias/magalu-automotivo.png', linkUrl: '/loja?q=automotivo' },
-  { id: 'cat-utilidades', label: 'Utilidades Domésticas', imageUrl: '/assets/categorias/magalu-utilidades.png', linkUrl: '/loja?q=utilidades' },
+  { id: 'cat-ofertas', label: 'Ofertas Relâmpago', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-ofertas.jpg', linkUrl: '/loja?oferta=1' },
+  { id: 'cat-internacional', label: 'Internacional', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-sacolas.jpg', linkUrl: '/loja' },
+  { id: 'cat-casa', label: 'Casa', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-embalagens.jpg', linkUrl: '/loja?q=casa' },
+  { id: 'cat-ferramentas', label: 'Ferramentas', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-descartaveis.jpg', linkUrl: '/loja?q=ferramentas' },
+  { id: 'cat-eletroportateis', label: 'Eletroportáteis', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-festas.jpg', linkUrl: '/loja?q=eletro' },
+  { id: 'cat-brinquedos', label: 'Brinquedos', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-confeitaria.jpg', linkUrl: '/loja?q=brinquedos' },
+  { id: 'cat-automotivo', label: 'Automotivo', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-limpeza.jpg', linkUrl: '/loja?q=automotivo' },
+  { id: 'cat-utilidades', label: 'Utilidades Domésticas', imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-foodservice.jpg', linkUrl: '/loja?q=utilidades' },
 ];
 
 export function CategoryGridWidget({

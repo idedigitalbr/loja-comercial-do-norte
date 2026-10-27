@@ -20,15 +20,15 @@ export function PromoStripWidget({
   ctaUrl,
   imageUrl,
   altText,
-  mascotImageUrl = '/assets/imgs/Mascote-3D-NORT/principais/nort-11-piscando.png',
-  rightImageUrl = '/assets/home-ref/s17-whatsapp-phones.jpg',
+  mascotImageUrl = '/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-11-piscando.png',
+  rightImageUrl = '/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-09-celular.png',
 }: PromoStripProps) {
   const { isEditing, previewMode } = useElementor();
 
   // Variante 1: Seção 09 — Faixa OFERTAS IMPERDÍVEIS (Banner em imagem com upload e link)
   if (variant === 'offers-strip') {
     // A arte antiga contém margens dentro do arquivo; fica como placeholder até a troca.
-    const effectiveImageUrl = imageUrl === '/assets/banners/s09-banner-ofertas-imperdiveis.png'
+    const effectiveImageUrl = imageUrl === '/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp'
       ? undefined
       : imageUrl;
     const effectiveAlt = altText || title || highlightText || 'OFERTAS IMPERDÍVEIS em embalagens, descartáveis e utilidades';
@@ -94,7 +94,7 @@ export function PromoStripWidget({
 
   // Variante 2: Seção 13 — CONDIÇÕES ESPECIAIS para o seu negócio (Banner em imagem com upload e link)
   if (variant === 'conditions-mascot') {
-    const effectiveImageUrl = imageUrl || '/assets/banners/s13-banner-condicoes-especiais.png';
+    const effectiveImageUrl = imageUrl || '/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp';
     const effectiveAlt = altText || title || highlightText || 'CONDIÇÕES ESPECIAIS para o seu negócio';
 
     const bannerImage = (
