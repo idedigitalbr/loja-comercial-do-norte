@@ -136,14 +136,15 @@ describe('StoreLocationsMapWidget', () => {
   });
 
   it('exibe badge "Aberto" em verde e "Fechado" em vermelho dinamicamente', () => {
+    const dayDate = new Date('2026-10-27T10:00:00-03:00'); // Terça-feira 10h00
     const customLocations: StoreLocationItem[] = [
       {
         ...mockLocations[0],
-        hoursWeekdays: '00h00 às 23h59', // Sempre aberto
+        hoursWeekdays: '08h00 às 18h00', // Aberto às 10h00
       },
       {
         ...mockLocations[1],
-        hoursWeekdays: '01h00 às 02h00', // Fechado agora
+        hoursWeekdays: '14h00 às 18h00', // Fechado às 10h00
       },
     ];
 
@@ -151,6 +152,7 @@ describe('StoreLocationsMapWidget', () => {
       <StoreLocationsMapWidget
         locations={customLocations}
         mapEmbedUrl="https://www.google.com/maps?q=Belem&output=embed"
+        referenceDate={dayDate}
         searchPlaceholder="Buscar unidade"
         subtitle="Lojas mais perto de você"
         title="Encontre nossas unidades"

@@ -9,6 +9,14 @@ function parseHoursRange(text?: string) {
   if (!text) return null;
   const clean = text.trim();
 
+  // Pattern 24h
+  if (/24\s*h/i.test(clean)) {
+    return {
+      startMins: 0,
+      endMins: 24 * 60,
+    };
+  }
+
   // Pattern A: "06h30 às 18h00" or "07:00 às 18:00"
   const rangeMatch = clean.match(/(\d{1,2})(?:[h:](\d{2}))?\s*(?:às|as|-|a)\s*(\d{1,2})(?:[h:](\d{2}))?/i);
   if (rangeMatch) {
@@ -16,9 +24,10 @@ function parseHoursRange(text?: string) {
     const startM = parseInt(rangeMatch[2] || '0', 10);
     const endH = parseInt(rangeMatch[3], 10);
     const endM = parseInt(rangeMatch[4] || '0', 10);
+    const endMins = (endH === 23 && endM === 59) || endH === 24 ? 24 * 60 : endH * 60 + endM;
     return {
       startMins: startH * 60 + startM,
-      endMins: endH * 60 + endM,
+      endMins,
     };
   }
 
@@ -33,6 +42,17 @@ function parseHoursRange(text?: string) {
     };
   }
 
+  // Pattern C: "Abre às 08:00"
+  const openMatch = clean.match(/abre\s*(?:às|as)?\s*(\d{1,2})(?:[h:](\d{2}))?/i);
+  if (openMatch) {
+    const startH = parseInt(openMatch[1], 10);
+    const startM = parseInt(openMatch[2] || '0', 10);
+    return {
+      startMins: startH * 60 + startM,
+      endMins: 18 * 60,
+    };
+  }
+
   return null;
 }
 
@@ -42,6 +62,7 @@ function getBelemTime(date: Date) {
       timeZone: 'America/Belem',
       hour: 'numeric',
       minute: 'numeric',
+      hourCycle: 'h23',
       hour12: false,
       weekday: 'short',
     }).formatToParts(date);
@@ -54,6 +75,8 @@ function getBelemTime(date: Date) {
       if (p.type === 'minute') minute = parseInt(p.value, 10);
       if (p.type === 'weekday') weekday = p.value;
     }
+
+    if (hour === 24) hour = 0;
 
     const weekdayMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
     const dayOfWeek = weekdayMap[weekday] ?? date.getDay();
@@ -71,24 +94,27 @@ function getBelemTime(date: Date) {
 }
 
 export function isStoreOpenNow(
-  loc: { hoursWeekdays?: string; hoursSaturday?: string; badge?: string },
+  loc: { hoursWeekdays?: string; hoursSaturday?: string; hoursSunday?: string; badge?: string },
   referenceDate = new Date(),
 ) {
   const { currentMins, dayOfWeek } = getBelemTime(referenceDate);
 
-  let schedule = loc.hoursWeekdays || '';
-  if (dayOfWeek === 6 && loc.hoursSaturday) {
-    schedule = loc.hoursSaturday;
-  } else if (dayOfWeek === 0) {
-    // Domingo após as 12h00 todas as unidades estão fechadas
-    if (currentMins >= 12 * 60) {
+  let schedule = '';
+  if (dayOfWeek === 0) {
+    if (loc.hoursSunday) {
+      schedule = loc.hoursSunday;
+    } else {
       return false;
     }
+  } else if (dayOfWeek === 6) {
+    schedule = loc.hoursSaturday || loc.hoursWeekdays || '';
+  } else {
+    schedule = loc.hoursWeekdays || '';
   }
 
   const range = parseHoursRange(schedule);
   if (!range) {
-    return (loc.badge || '').toLowerCase().includes('aberto');
+    return false;
   }
 
   return currentMins >= range.startMins && currentMins < range.endMins;
@@ -121,17 +147,22 @@ export function StoreLocationsMapWidget({
   searchPlaceholder = 'Buscar unidade ou endereço',
   mapEmbedUrl = 'https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d63816.8266816748!2d-48.4901799!3d-1.4450205!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1sComercial%20do%20Norte%20Belem%20PA!5e0!3m2!1spt-BR!2sbr!4v1710000000000!5m2!1spt-BR!2sbr',
   locations = [],
+  referenceDate: customReferenceDate,
 }: StoreLocationsMapProps) {
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string>(locations[0]?.id ?? '');
-  const [currentDate, setCurrentDate] = useState<Date>(() => new Date());
+  const [currentDate, setCurrentDate] = useState<Date>(() => customReferenceDate || new Date());
 
   useEffect(() => {
+    if (customReferenceDate) {
+      setCurrentDate(customReferenceDate);
+      return;
+    }
     const timer = setInterval(() => {
       setCurrentDate(new Date());
     }, 30_000);
     return () => clearInterval(timer);
-  }, []);
+  }, [customReferenceDate]);
 
   const filteredLocations = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -262,9 +293,7 @@ export function StoreLocationsMapWidget({
                 {filteredLocations.length > 0 ? (
                   filteredLocations.map((loc) => {
                     const isSelected = activeLocation?.id === loc.id;
-                    const isAberto = loc.badge
-                      ? loc.badge.toLowerCase().includes('aberto')
-                      : isStoreOpenNow(loc, currentDate);
+                    const isAberto = isStoreOpenNow(loc, currentDate);
                     const statusLabel = isAberto ? 'Aberto' : 'Fechado';
 
                     return (
@@ -333,7 +362,7 @@ export function StoreLocationsMapWidget({
                             <span className="inline-flex items-center gap-1.5 text-zinc-300">
                               <Clock className={`size-3.5 ${isAberto ? 'text-emerald-400' : 'text-rose-400'}`} />
                               <strong className={isAberto ? 'font-semibold text-emerald-400' : 'font-semibold text-rose-400'}>
-                                {loc.badge || statusLabel}
+                                {statusLabel}
                               </strong>
                               <span className="text-zinc-400">· {loc.hoursWeekdays}</span>
                             </span>

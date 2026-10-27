@@ -44,7 +44,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Artigos para Festas, Confeitaria e Eventos",
             imageUrl:
               "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (3x).webp",
-            linkUrl: "/loja?q=festa",
+            linkUrl: "/loja?segmento=loja-de-festas",
             altText: "Artigos de Festa e Confeitaria Comercial do Norte",
             backgroundColor: "#00357B",
           },
@@ -270,7 +270,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Confeitaria e Doces até 20% OFF",
             imageUrl:
               "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/4-mini-card-azul.png.webp",
-            linkUrl: "/categoria/confeitaria",
+            linkUrl: "/loja?segmento=confeitaria-bolos",
             altText: "Confeitaria e Doces até 20% OFF no Comercial do Norte",
           },
           {
@@ -330,7 +330,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "burger",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-01-lanchonete.jpg",
-            linkUrl: "/loja?q=lanchonete",
+            linkUrl: "/loja?segmento=lanchonete",
           },
           {
             id: "seg-pizzaria",
@@ -341,7 +341,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "pizza",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-02-pizzaria.jpg",
-            linkUrl: "/loja?q=pizza",
+            linkUrl: "/loja?segmento=pizzaria",
           },
           {
             id: "seg-padaria",
@@ -352,7 +352,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "bakery",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-03-padaria.jpg",
-            linkUrl: "/loja?q=padaria",
+            linkUrl: "/loja?segmento=padaria",
           },
           {
             id: "seg-festas",
@@ -374,7 +374,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "buffet",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-05-buffet.jpg",
-            linkUrl: "/loja?q=buffet",
+            linkUrl: "/loja?segmento=restaurante-buffet",
           },
           {
             id: "seg-confeitaria",
@@ -396,7 +396,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "icecream",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-07-acai.jpg",
-            linkUrl: "/loja?q=acai",
+            linkUrl: "/loja?segmento=sorveteria-acai",
           },
           {
             id: "seg-bar",
@@ -407,7 +407,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "bar",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-08-sustentaveis.jpg",
-            linkUrl: "/loja?q=bar",
+            linkUrl: "/loja?segmento=bar-distribuidora",
           },
         ],
       },
@@ -607,7 +607,7 @@ export const defaultHomeComposition: PageComposition = {
         viewAllLabel: "Ver todos",
         viewAllUrl: "/loja",
         mascotImageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-Boneco3D-explica-ai-nort-trimmed.webp",
-        bgImageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-bg-fundo-vermelho-geometrico-abstrato.webp",
+        bgImageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-bg-fundo-vermelho-geometrico-abstrato-hd.png",
         items: [
           {
             id: "vid-2",
@@ -905,7 +905,7 @@ export const defaultHomeComposition: PageComposition = {
                     badge: "Aberto",
                     isFeatured: true,
                     address: "Av. Bernardo Sayão, 2450 — Jurunas, Belém - PA",
-                    hoursWeekdays: "Fecha às 18:00",
+                    hoursWeekdays: "07h30 às 18h00",
                     hoursSaturday: "Sáb: 07h30 às 14h00",
                     phone: "(91) 98344-0880",
                     whatsappUrl: "https://wa.me/5591983440880",

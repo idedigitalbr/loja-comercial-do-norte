@@ -515,7 +515,7 @@
         "viewAllLabel": "Ver todos",
         "viewAllUrl": "/loja",
         "mascotImageUrl": "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-Boneco3D-explica-ai-nort-trimmed.webp",
-        "bgImageUrl": "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-bg-fundo-vermelho-geometrico-abstrato.webp",
+        "bgImageUrl": "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-bg-fundo-vermelho-geometrico-abstrato-hd.png",
         "items": [
           {
             "id": "vid-2",
@@ -805,7 +805,7 @@
             "badge": "Aberto",
             "isFeatured": true,
             "address": "Av. Bernardo Sayão, 2450 — Jurunas, Belém - PA",
-            "hoursWeekdays": "Fecha às 18:00",
+            "hoursWeekdays": "07h30 às 18h00",
             "hoursSaturday": "Sáb: 07h30 às 14h00",
             "phone": "(91) 98344-0880",
             "whatsappUrl": "https://wa.me/5591983440880",

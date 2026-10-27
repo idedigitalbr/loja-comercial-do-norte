@@ -311,6 +311,7 @@ export interface StoreLocationsMapProps {
   searchPlaceholder: string;
   mapEmbedUrl: string;
   locations: StoreLocationItem[];
+  referenceDate?: Date;
 }
 export type StoreLocationsMapWidgetConfig = BaseWidgetConfig<'store-locations-map', StoreLocationsMapProps>;
 
