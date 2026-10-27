@@ -73,7 +73,7 @@ export function SegmentsCarouselWidget({
         <div className="relative bg-gradient-to-r from-[#002868] via-[#003E99] to-[#002B66] px-6 pb-36 pt-7 sm:px-10 sm:pt-9">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div>
-              <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+              <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
                 {title}
               </h2>
               <p className="mt-1 text-lg font-medium text-blue-100 sm:text-xl">
@@ -159,7 +159,7 @@ export function SegmentsCarouselWidget({
                               <span className="block text-[11px] font-medium text-slate-400">
                                 {item.prefix}
                               </span>
-                              <h3 className="text-xl font-extrabold leading-tight tracking-tight text-[#002868]">
+                              <h3 className="text-xl font-bold leading-tight tracking-tight text-[#002868]">
                                 {item.title}
                               </h3>
                             </div>
