@@ -172,7 +172,7 @@ docs/
       - `05` `banner-grid` (3 banners triplos: *Limpeza*, *Feirante*, *Sacos e Sacolas*)
       - `06` `product-carousel` (`variant: 'standard-5col'` — *Mais vendidos* com 5 colunas)
       - `07` `quote-steps-banner` (*Saiba / Como funciona a cotação online* — Mascote 3D James + 4 cards numerados com ícones azuis e setas vermelhas + arte direita; removido da vitrine inicial da Home a pedido do usuário, preservado no catálogo do Elementor)
-      - `08` `segments-carousel` (*Tudo para todos os negócios / Para todos os tamanhos!* — 4 cards escuros com foto superior editável e ícone circular vermelho)
+      - `08` `segments-carousel` (*Tudo para todos os negócios / Para todos os tamanhos!* — 4 cards brancos com foto superior editável e ícone circular vermelho sobre container com fundo unificado azul escuro com gradiente oficial, sem corte branco inferior)
       - `09` `promo-strip` (`variant: 'offers-strip'` — *OFERTAS IMPERDÍVEIS* em imagem oficial `/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp` e link para `/loja?oferta=1`)
       - `10` `product-carousel` (`variant: 'standard-5col'` — *Para você* com 5 colunas)
       - `11` `banner-grid` (3 banners triplos: *Hamburgueira*, *Luva Vermelho*, *Luva Azul*)
