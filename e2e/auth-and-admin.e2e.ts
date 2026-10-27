@@ -18,18 +18,18 @@ test('admin requires a session, persists login and logs out against an isolated 
     await expect(page.getByText(/verificação de segurança concluída/i)).toBeVisible({ timeout: 5000 });
   }
 
-  // Avança para a etapa de senha
-  await page.getByRole('button', { name: /continuar/i }).click();
+  // Avança para a etapa de senha (usando regex exata para não colidir com "Continuar com o Google")
+  await page.getByRole('button', { name: /^continuar$/i }).click();
 
   // Preenche a senha
   const passwordInput = page.locator('input[type="password"]');
   await expect(passwordInput).toBeVisible({ timeout: 10000 });
   await passwordInput.fill('IsolatedTest!2026');
 
-  // Submete o login e aguarda resposta
+  // Submete o login e aguarda resposta da API de autenticação
   await Promise.all([
     page.waitForResponse((res) => res.url().includes('/api/v1/auth/login') && (res.status() === 200 || res.status() === 201)),
-    page.getByRole('button', { name: /entrar/i }).click(),
+    page.getByRole('button', { name: /^entrar$/i }).click(),
   ]);
 
   await page.goto(ADMIN_URL);
