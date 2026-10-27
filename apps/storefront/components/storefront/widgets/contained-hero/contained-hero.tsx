@@ -151,30 +151,23 @@ export function ContainedHeroWidget({
           </>
         ) : null}
 
-        {/* Indicadores / Bolinhas com Logo Comercial no Ponto Ativo */}
+        {/* Pontos de Paginação com Pílula Ativa (Padrão Canônico) */}
         {showDots && slides.length > 1 ? (
           <div className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 backdrop-blur-md sm:bottom-4">
             {slides.map((slide, index) => {
               const isActive = index === currentIndex;
               return (
                 <button
-                  aria-label={`Ir para a campanha ${index + 1}`}
-                  className={`transition-all duration-300 cursor-pointer ${
+                  aria-label={`Ir para o slide ${index + 1}`}
+                  className={`h-2 rounded-full transition-all duration-300 focus:outline-none cursor-pointer ${
                     isActive
-                      ? "flex items-center gap-1 rounded-full bg-[#E2091E] px-2 py-0.5 text-[10px] font-bold text-white"
-                      : "size-2 rounded-full bg-white/50 hover:bg-white/80"
+                      ? "w-6 bg-[#E2091E] shadow-md"
+                      : "w-2 bg-white/50 hover:bg-white/80"
                   }`}
                   key={slide.id}
                   onClick={() => setCurrentIndex(index)}
                   type="button"
-                >
-                  {isActive ? (
-                    <>
-                      <span className="size-1.5 rounded-full bg-white" />
-                      <span className="hidden sm:inline">comercial</span>
-                    </>
-                  ) : null}
-                </button>
+                />
               );
             })}
           </div>
