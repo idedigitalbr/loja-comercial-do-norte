@@ -38,9 +38,9 @@ const DEFAULT_MEGA_MENU_GROUPS: MegaMenuGroup[] = [
     title: 'EMBALAGENS & FOOD SERVICE',
     subtitle: 'Soluções térmicas, delivery e transporte seguro.',
     items: [
-      { name: 'Caixas de Pizza & Salgados', href: '/loja?q=pizza', icon: Box },
+      { name: 'Caixas de Pizza & Salgados', href: '/segmento/pizzaria', icon: Box },
       { name: 'Marmitas & Potes Térmicos', href: '/loja?q=marmita', icon: Package },
-      { name: 'Bandejas & Embalagens Kraft', href: '/loja?q=kraft', icon: Layers },
+      { name: 'Bandejas & Embalagens Kraft', href: '/tag/kraft', icon: Layers },
       { name: 'Sacos, Sacolas & Bobinas', href: '/loja?q=sacolas', icon: ShoppingBag, badge: 'ATACADO' },
     ],
   },
@@ -51,7 +51,7 @@ const DEFAULT_MEGA_MENU_GROUPS: MegaMenuGroup[] = [
       { name: 'Copos Plásticos & Térmicos', href: '/loja?q=copo', icon: Coffee },
       { name: 'Pratos, Garfos & Facas', href: '/loja?q=talheres', icon: Utensils },
       { name: 'Guardanapos & Canudos Bio', href: '/loja?q=guardanapo', icon: ShieldCheck },
-      { name: 'Artigos para Festas & Eventos', href: '/loja?q=festa', icon: Sparkles, badge: 'NOVO' },
+      { name: 'Artigos para Festas & Eventos', href: '/segmento/loja-de-festas', icon: Sparkles, badge: 'NOVO' },
     ],
   },
   {
@@ -61,7 +61,7 @@ const DEFAULT_MEGA_MENU_GROUPS: MegaMenuGroup[] = [
       { name: 'Detergentes & Desinfetantes 5L', href: '/loja?q=detergente', icon: Wrench },
       { name: 'Papel Toalha & Dispenser', href: '/loja?q=papel-toalha', icon: Store },
       { name: 'Sacos de Lixo Reforçados', href: '/loja?q=lixo', icon: Truck },
-      { name: 'Doces, Coberturas & Formas', href: '/loja?q=confeitaria', icon: Tag },
+      { name: 'Doces, Coberturas & Formas', href: '/segmento/confeitaria-bolos', icon: Tag },
     ],
   },
 ];

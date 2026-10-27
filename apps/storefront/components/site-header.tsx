@@ -74,8 +74,8 @@ export function SiteHeader({
         className="relative w-full shadow-md z-30 bg-[#004CB1]"
       >
         {/* BARRA 01: FAIXA SUPERIOR VERMELHA DE BENEFÍCIOS (FIGMA OFICIAL) */}
-        <div className="bg-[#E2091E] py-1 sm:py-1.5 text-white">
-          <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between text-[11px] sm:text-xs">
+        <div className="bg-[#E2091E] py-1 sm:py-1.5 text-white w-full">
+          <div className="w-full px-3 sm:px-4 md:px-6 flex items-center justify-between text-[11px] sm:text-xs">
             {/* Benefícios (Esquerda) com recuo para não sobrepor o Mascote NORT em desktop */}
             <div className="no-scrollbar flex items-center gap-2 overflow-x-auto py-0.5 pl-0 font-medium sm:gap-4 md:pl-[70px] lg:gap-5 lg:pl-[74px]">
               <div className="flex items-center gap-1.5 whitespace-nowrap text-white">
@@ -110,12 +110,12 @@ export function SiteHeader({
         </div>
 
         {/* BARRA 02: PRINCIPAL AZUL (#004CB1) COM LOGO, MASCOTE NORT 3D, BUSCA E COTAÇÃO */}
-        <div className="relative bg-[#004CB1] text-white min-h-[68px] sm:min-h-[72px] flex items-center">
-          <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 relative flex items-center justify-between gap-3 md:gap-4 py-2.5 sm:py-3 md:py-3.5">
+        <div className="relative bg-[#004CB1] text-white min-h-[68px] sm:min-h-[72px] flex items-center w-full">
+          <div className="w-full px-3 sm:px-4 md:px-6 relative flex items-center justify-between gap-3 md:gap-4 py-2.5 sm:py-3 md:py-3.5">
             {/* MASCOTE NORT 3D OFICIAL (Ancorado na base da Barra 02 sem invadir a Barra 03, subindo até quase o teto da Barra 01) */}
             <Link
               aria-label={`${siteName} - Ir para a Página Inicial`}
-              className="group/mascot absolute bottom-0 left-3 sm:left-6 z-30 hidden md:block cursor-pointer"
+              className="group/mascot absolute bottom-0 left-3 md:left-6 z-30 hidden md:block cursor-pointer"
               href="/"
             >
               <div className="relative h-[98px] w-[74px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 sm:h-[100px] sm:w-[75px] lg:h-[104px] lg:w-[78px]">
@@ -293,9 +293,9 @@ export function SiteHeader({
         </div>
 
         {/* BARRA 03: SUBNORMAL AZUL ESCURO (#00357B) - DEPARTAMENTOS E CATEGORIAS */}
-        <div className="hidden border-t border-white/10 bg-[#00357B] font-semibold text-white md:block">
-          <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between flex-nowrap py-1 text-[10.5px] lg:text-[11.5px] xl:text-[12px]">
-            {/* 1. Menu Departamentos (Dropdown) */}
+        <div className="hidden border-t border-white/10 bg-[#00357B] font-semibold text-white md:block w-full">
+          <div className="w-full px-2 sm:px-3 md:px-4 lg:px-6 flex items-center justify-between flex-nowrap py-1 text-[10.5px] lg:text-[11.5px] xl:text-[12px]">
+            {/* 1. Menu Departamentos (Dropdown) - Encostado na margem esquerda */}
             <div className="group relative shrink-0">
               <button
                 className="flex items-center gap-1.5 py-1 px-1.5 sm:px-2 text-white hover:bg-white/10 rounded-sm transition cursor-pointer whitespace-nowrap font-bold"
