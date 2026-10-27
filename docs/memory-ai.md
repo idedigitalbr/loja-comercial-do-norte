@@ -181,7 +181,7 @@ docs/
       - `14` `product-carousel` (`variant: 'standard-5col'` — *Para você* com 5 colunas)
       - `15` `video-articles-carousel` (*Explica aí comercial* — bloco bordô com 2 cards horizontais de vídeo/artigo *Como escolher a caixa de pizza certa*)
       - `16` `instagram-feed` (*A Loja no Instagram* — `@comercialdonorte` com 6 cards verticais editáveis)
-      - `17` `promo-strip` (`variant: 'whatsapp-group'` — *Entre em nosso Grupo de ofertas Exclusivas do WhatsApp*)
+      - `17` `promo-strip` (`variant: 'whatsapp-group'` — *Entre em nosso Grupo de ofertas Exclusivas do WhatsApp*; temporariamente isolado na rota dedicada `/secaoCotacaoWPP` a pedido do usuário para customização e ajustes)
       - `18` `testimonials-grid` (*AVALIAÇÕES NO GOOGLE — O que nossos clientes dizem no Google.* — 10 cards 5 estrelas em grid 5×2)
       - `19` `store-locations-map` (*Encontre nossas unidades / Lojas mais perto de você* — busca na coluna esquerda + 3 cards escuros com foto da fachada + Google Maps)
       - `20` `SiteFooter` (Logo branca centralizada, redes sociais Instagram/TikTok/Facebook e barra azul `#1D3B78`)

@@ -669,26 +669,10 @@
       }
     },
     {
-      "id": "s17-grupo-whatsapp",
-      "type": "promo-strip",
-      "enabled": true,
-      "order": 15,
-      "props": {
-        "variant": "whatsapp-group",
-        "title": "Entre em nosso Grupo de ofertas",
-        "highlightText": "Exclusivas do WhatsApp",
-        "subtitle": "Receba promoções relâmpago, lotes especiais para atacado e novidades direto no seu celular.",
-        "ctaLabel": "Participar do Grupo WhatsApp",
-        "ctaUrl": "https://wa.me/5591983440880",
-        "mascotImageUrl": "/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-11-piscando.png",
-        "rightImageUrl": "/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-09-celular.png"
-      }
-    },
-    {
       "id": "s18-avaliacoes-google",
       "type": "testimonials-grid",
       "enabled": true,
-      "order": 16,
+      "order": 15,
       "props": {
         "eyebrow": "AVALIAÇÕES NO GOOGLE",
         "title": "O que nossos clientes dizem no Google.",
@@ -802,7 +786,7 @@
       "id": "s19-unidades-mapa",
       "type": "store-locations-map",
       "enabled": true,
-      "order": 17,
+      "order": 16,
       "props": {
         "title": "Encontre nossas unidades",
         "subtitle": "Lojas mais perto de você",

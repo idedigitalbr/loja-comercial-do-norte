@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { defaultHomeComposition } from './home-configuration';
 
-describe('defaultHomeComposition (17 seções site-final + S0/S20)', () => {
-  it('possui exatamente 17 seções de widgets habilitadas em ordem sequencial de 1 a 17', () => {
+describe('defaultHomeComposition (16 seções site-final + S0/S20)', () => {
+  it('possui exatamente 16 seções de widgets habilitadas em ordem sequencial de 1 a 16', () => {
     expect(defaultHomeComposition.page).toBe('home');
     expect(defaultHomeComposition.version).toBeGreaterThanOrEqual(2);
-    expect(defaultHomeComposition.widgets).toHaveLength(17);
+    expect(defaultHomeComposition.widgets).toHaveLength(16);
 
     defaultHomeComposition.widgets.forEach((widget, idx) => {
       expect(widget.enabled).toBe(true);
@@ -31,7 +31,6 @@ describe('defaultHomeComposition (17 seções site-final + S0/S20)', () => {
       'product-carousel',
       'video-articles-carousel',
       'instagram-feed',
-      'promo-strip',
       'testimonials-grid',
       'store-locations-map',
     ]);
@@ -46,7 +45,6 @@ describe('defaultHomeComposition (17 seções site-final + S0/S20)', () => {
     expect(json).toContain('Nossos Eventos');
     expect(json).toContain('Explica Aí Nort');
     expect(json).toContain('A Loja no Instagram');
-    expect(json).toContain('Exclusivas do WhatsApp');
     expect(json).toContain('O que nossos clientes dizem no Google.');
     expect(json).toContain('Encontre nossas unidades');
   });
