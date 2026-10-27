@@ -1,19 +1,20 @@
 /**
  * Placeholders temporários padronizados para todos os produtos do catálogo (Fase 1).
- * Quatro imagens oficiais disponíveis em /assets/placeholders/:
+ * Quatro imagens oficiais disponíveis em /assets/PRODUTOS/placeholders/:
  * - placeholder-1.png
  * - placeholder-2.png
  * - placeholder-3.png
  * - placeholder-4.png
  */
 export const PRODUCT_PLACEHOLDER_IMAGES = [
-  '/assets/placeholders/placeholder-1.png',
-  '/assets/placeholders/placeholder-2.png',
-  '/assets/placeholders/placeholder-3.png',
-  '/assets/placeholders/placeholder-4.png',
+  "/assets/PRODUTOS/placeholders/placeholder-1.png",
+  "/assets/PRODUTOS/placeholders/placeholder-2.png",
+  "/assets/PRODUTOS/placeholders/placeholder-3.png",
+  "/assets/PRODUTOS/placeholders/placeholder-4.png",
 ] as const;
 
-export type ProductPlaceholderImage = (typeof PRODUCT_PLACEHOLDER_IMAGES)[number];
+export type ProductPlaceholderImage =
+  (typeof PRODUCT_PLACEHOLDER_IMAGES)[number];
 
 /**
  * Retorna de forma determinística um dos 4 placeholders temporários padronizados.
@@ -33,11 +34,11 @@ export function getProductPlaceholderImage(
     return PRODUCT_PLACEHOLDER_IMAGES[0];
   }
 
-  let key = '';
-  if (typeof productOrKey === 'string') {
+  let key = "";
+  if (typeof productOrKey === "string") {
     key = productOrKey.toLowerCase().trim();
   } else {
-    key = (productOrKey.slug || productOrKey.id || '').toLowerCase().trim();
+    key = (productOrKey.slug || productOrKey.id || "").toLowerCase().trim();
   }
 
   if (!key) {

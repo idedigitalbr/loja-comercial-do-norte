@@ -68,6 +68,13 @@
         "overlapTop": true,
         "slides": [
           {
+            "id": "contained-slide-para-trigo",
+            "title": "Para Trigo 2026 — Domingo das 14h às 16h",
+            "imageUrl": "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_m54tnlm54tnlm54t.jpg",
+            "linkUrl": "/cotacao",
+            "altText": "Para Trigo 2026 Domingo 14h às 16h Comercial do Norte"
+          },
+          {
             "id": "contained-slide-feirante",
             "title": "Semana do Feirante — Copo Descartável 180ml Cristalcopo",
             "imageUrl": "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_k93f3kk93f3kk93f.jpg",
@@ -75,25 +82,39 @@
             "altText": "Semana do Feirante Comercial do Norte — Copo Descartável 180ml Cristalcopo"
           },
           {
-            "id": "contained-slide-2",
-            "title": "Ofertas de Atacado em Sacolas e Descartáveis",
-            "imageUrl": "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_m54tnlm54tnlm54t.jpg",
-            "linkUrl": "/cotacao",
-            "altText": "Ofertas Especiais Comercial do Norte"
+            "id": "contained-slide-outlet",
+            "title": "Mega Outlet de Embalagens e Descartáveis",
+            "imageUrl": "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_k46c0pk46c0pk46c.jpg",
+            "linkUrl": "/loja?oferta=1",
+            "altText": "Mega Outlet Comercial do Norte"
           },
           {
-            "id": "contained-slide-3",
+            "id": "contained-slide-kraft",
             "title": "Linha Kraft & Embalagens Sustentáveis para Delivery",
             "imageUrl": "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_nmv06jnmv06jnmv0.jpg",
             "linkUrl": "/loja?q=kraft",
             "altText": "Linha Kraft e Embalagens Sustentáveis Comercial do Norte"
           },
           {
-            "id": "contained-slide-4",
-            "title": "Embalagens Térmicas para Marmitex e Lanches",
-            "imageUrl": "/assets/HOME Vitrine/S4-CARD-ESQ-Promocional/S4-CARD-ESQ-Promocional.webp",
-            "linkUrl": "/loja?q=termica",
-            "altText": "Embalagens Térmicas para Delivery Comercial do Norte"
+            "id": "contained-slide-luvas",
+            "title": "Higiene e Proteção — Luvas e Descartáveis",
+            "imageUrl": "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_x5pilwx5pilwx5pi.jpg",
+            "linkUrl": "/loja?q=luva",
+            "altText": "Semana do Feirante Luvas Nitrílicas Comercial do Norte"
+          },
+          {
+            "id": "contained-slide-relampago",
+            "title": "Últimas 24 Horas de Ofertas Especiais",
+            "imageUrl": "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_yr0ncxyr0ncxyr0n (1).jpg",
+            "linkUrl": "/loja?oferta=1",
+            "altText": "Ofertas Relâmpago 24h Comercial do Norte"
+          },
+          {
+            "id": "contained-slide-lojas",
+            "title": "Visite Nossas Lojas Físicas — Bernardo Sayão e Jurunas",
+            "imageUrl": "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_u1xlqu1xlqu1xlqu.jpg",
+            "linkUrl": "/loja",
+            "altText": "Fachada Comercial do Norte — Belém PA"
           }
         ]
       }

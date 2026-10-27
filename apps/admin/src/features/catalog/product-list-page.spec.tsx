@@ -20,7 +20,7 @@ const mockProducts = [
         inventoryBalance: { physicalQuantity: 15, reservedQuantity: 0 },
       },
     ],
-    images: [{ path: '/assets/placeholders/placeholder-1.png', isPrimary: true }],
+    images: [{ path: '/assets/PRODUTOS/placeholders/placeholder-1.png', isPrimary: true }],
   },
   {
     id: 'prod-2',

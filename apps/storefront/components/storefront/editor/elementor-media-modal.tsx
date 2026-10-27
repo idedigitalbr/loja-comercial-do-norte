@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   Check,
   CheckCheck,
@@ -17,7 +17,7 @@ import {
   Sparkles,
   UploadCloud,
   X,
-} from 'lucide-react';
+} from "lucide-react";
 
 export interface MediaLibraryItem {
   id: string;
@@ -40,560 +40,560 @@ export interface MediaSectionGroup {
 
 export const availableMediaSections: MediaSectionGroup[] = [
   {
-    id: 's01-hero-full-width',
-    title: 'SEÇÃO S1 — TOPO HERO CARROSSEL (LARGURA TOTAL)',
-    subtitle: 'Banners panorâmicos de abertura da Home',
-    badge: 'Hero Full',
+    id: "s01-hero-full-width",
+    title: "SEÇÃO S1 — TOPO HERO CARROSSEL (LARGURA TOTAL)",
+    subtitle: "Banners panorâmicos de abertura da Home",
+    badge: "Hero Full",
     items: [
       {
-        id: 'ref-s01-pizzaria',
-        name: 'Tudo para sua Pizzaria — Do Preparo à Entrega',
-        category: 'Topo Hero Full',
-        url: '/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (1).webp',
-        sectionId: 's01-hero-full-width',
-        sectionTitle: 'S1 Topo Hero Largura Total',
-        slideLabel: 'Banner 1',
+        id: "ref-s01-pizzaria",
+        name: "Tudo para sua Pizzaria — Do Preparo à Entrega",
+        category: "Topo Hero Full",
+        url: "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (1).webp",
+        sectionId: "s01-hero-full-width",
+        sectionTitle: "S1 Topo Hero Largura Total",
+        slideLabel: "Banner 1",
       },
       {
-        id: 'gemini-verao',
-        name: 'Embalagens para Delivery, Pizzarias e Restaurantes',
-        category: 'Topo Hero Full',
-        url: '/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (2).webp',
-        sectionId: 's01-hero-full-width',
-        sectionTitle: 'S1 Topo Hero Largura Total',
-        slideLabel: 'Banner 2',
+        id: "gemini-verao",
+        name: "Embalagens para Delivery, Pizzarias e Restaurantes",
+        category: "Topo Hero Full",
+        url: "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (2).webp",
+        sectionId: "s01-hero-full-width",
+        sectionTitle: "S1 Topo Hero Largura Total",
+        slideLabel: "Banner 2",
       },
       {
-        id: 'gemini-paratrigp',
-        name: 'Artigos para Festas, Confeitaria e Eventos',
-        category: 'Topo Hero Full',
-        url: '/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (3x).webp',
-        sectionId: 's01-hero-full-width',
-        sectionTitle: 'S1 Topo Hero Largura Total',
-        slideLabel: 'Banner 3',
+        id: "gemini-paratrigp",
+        name: "Artigos para Festas, Confeitaria e Eventos",
+        category: "Topo Hero Full",
+        url: "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (3x).webp",
+        sectionId: "s01-hero-full-width",
+        sectionTitle: "S1 Topo Hero Largura Total",
+        slideLabel: "Banner 3",
       },
       {
-        id: 'gemini-faltam3dias',
-        name: 'Descartáveis no Atacado — Fardos Fechados com Menor Preço',
-        category: 'Topo Hero Full',
-        url: '/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (4).webp',
-        sectionId: 's01-hero-full-width',
-        sectionTitle: 'S1 Topo Hero Largura Total',
-        slideLabel: 'Banner 4',
+        id: "gemini-faltam3dias",
+        name: "Descartáveis no Atacado — Fardos Fechados com Menor Preço",
+        category: "Topo Hero Full",
+        url: "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (4).webp",
+        sectionId: "s01-hero-full-width",
+        sectionTitle: "S1 Topo Hero Largura Total",
+        slideLabel: "Banner 4",
       },
       {
-        id: 'gemini-fachada',
-        name: 'Limpeza Profissional e Higienização Comercial',
-        category: 'Topo Hero Full',
-        url: '/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (5).webp',
-        sectionId: 's01-hero-full-width',
-        sectionTitle: 'S1 Topo Hero Largura Total',
-        slideLabel: 'Banner 5',
+        id: "gemini-fachada",
+        name: "Limpeza Profissional e Higienização Comercial",
+        category: "Topo Hero Full",
+        url: "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (5).webp",
+        sectionId: "s01-hero-full-width",
+        sectionTitle: "S1 Topo Hero Largura Total",
+        slideLabel: "Banner 5",
       },
       {
-        id: 'ml-intelbras',
-        name: 'Semana Intelbras no seu ritmo (Verde ML)',
-        category: 'Topo Mercado Livre',
-        url: '/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_nmv06jnmv06jnmv0.jpg',
-        sectionId: 's01-hero-full-width',
-        sectionTitle: 'S1 Topo Hero Largura Total',
-        slideLabel: 'Banner Extra 1',
+        id: "ml-intelbras",
+        name: "Semana Intelbras no seu ritmo (Verde ML)",
+        category: "Topo Mercado Livre",
+        url: "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_nmv06jnmv06jnmv0.jpg",
+        sectionId: "s01-hero-full-width",
+        sectionTitle: "S1 Topo Hero Largura Total",
+        slideLabel: "Banner Extra 1",
       },
       {
-        id: 'ml-super-ofertas',
-        name: 'Super Ofertas Comercial do Norte (Azul ML)',
-        category: 'Topo Mercado Livre',
-        url: '/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_m54tnlm54tnlm54t.jpg',
-        sectionId: 's01-hero-full-width',
-        sectionTitle: 'S1 Topo Hero Largura Total',
-        slideLabel: 'Banner Extra 2',
+        id: "ml-super-ofertas",
+        name: "Super Ofertas Comercial do Norte (Azul ML)",
+        category: "Topo Mercado Livre",
+        url: "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_m54tnlm54tnlm54t.jpg",
+        sectionId: "s01-hero-full-width",
+        sectionTitle: "S1 Topo Hero Largura Total",
+        slideLabel: "Banner Extra 2",
       },
       {
-        id: 'gemini-copo',
-        name: 'Super Oferta Copo Descartável Cristalcopo',
-        category: 'Campanhas',
-        url: '/assets/S1-banners-topo-hero/Gemini_Generated_Image_x5pilwx5pilwx5pi.jpg',
-        sectionId: 's01-hero-full-width',
-        sectionTitle: 'S1 Topo Hero Largura Total',
-        slideLabel: 'Banner Extra 3',
+        id: "gemini-copo",
+        name: "Super Oferta Copo Descartável Cristalcopo",
+        category: "Campanhas",
+        url: "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_x5pilwx5pilwx5pi.jpg",
+        sectionId: "s01-hero-full-width",
+        sectionTitle: "S1 Topo Hero Largura Total",
+        slideLabel: "Banner Extra 3",
       },
       {
-        id: 'gemini-outlet',
-        name: 'Mega Descontos e Outlet das Embalagens',
-        category: 'Campanhas',
-        url: '/assets/S1-banners-topo-hero/Gemini_Generated_Image_k46c0pk46c0pk46c.jpg',
-        sectionId: 's01-hero-full-width',
-        sectionTitle: 'S1 Topo Hero Largura Total',
-        slideLabel: 'Banner Extra 4',
+        id: "gemini-outlet",
+        name: "Mega Descontos e Outlet das Embalagens",
+        category: "Campanhas",
+        url: "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_k46c0pk46c0pk46c.jpg",
+        sectionId: "s01-hero-full-width",
+        sectionTitle: "S1 Topo Hero Largura Total",
+        slideLabel: "Banner Extra 4",
       },
     ],
   },
   {
-    id: 's02-contained-hero',
-    title: 'SEÇÃO S2 — TOPO HERO CARROSSEL CONTIDO (PADRÃO)',
-    subtitle: 'Banners no grid central com cantos arredondados',
-    badge: 'Hero Contido',
+    id: "s02-contained-hero",
+    title: "SEÇÃO S2 — TOPO HERO CARROSSEL CONTIDO (PADRÃO)",
+    subtitle: "Banners no grid central com cantos arredondados",
+    badge: "Hero Contido",
     items: [
       {
-        id: 'ref-s02-feirante',
-        name: 'Semana do Feirante — Copo Descartável 180ml Cristalcopo',
-        category: 'Referência Oficial',
-        url: '/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_k93f3kk93f3kk93f.jpg',
-        sectionId: 's02-contained-hero',
-        sectionTitle: 'S2 Hero Contido Padrão',
-        slideLabel: 'Slide 1',
+        id: "ref-s02-feirante",
+        name: "Semana do Feirante — Copo Descartável 180ml Cristalcopo",
+        category: "Referência Oficial",
+        url: "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_k93f3kk93f3kk93f.jpg",
+        sectionId: "s02-contained-hero",
+        sectionTitle: "S2 Hero Contido Padrão",
+        slideLabel: "Slide 1",
       },
       {
-        id: 'contained-slide-2',
-        name: 'Ofertas de Atacado em Sacolas e Descartáveis',
-        category: 'Topo Mercado Livre',
-        url: '/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_m54tnlm54tnlm54t.jpg',
-        sectionId: 's02-contained-hero',
-        sectionTitle: 'S2 Hero Contido Padrão',
-        slideLabel: 'Slide 2',
+        id: "contained-slide-2",
+        name: "Ofertas de Atacado em Sacolas e Descartáveis",
+        category: "Topo Mercado Livre",
+        url: "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_m54tnlm54tnlm54t.jpg",
+        sectionId: "s02-contained-hero",
+        sectionTitle: "S2 Hero Contido Padrão",
+        slideLabel: "Slide 2",
       },
       {
-        id: 'contained-slide-3',
-        name: 'Linha Kraft & Embalagens Sustentáveis para Delivery',
-        category: 'Topo Mercado Livre',
-        url: '/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_nmv06jnmv06jnmv0.jpg',
-        sectionId: 's02-contained-hero',
-        sectionTitle: 'S2 Hero Contido Padrão',
-        slideLabel: 'Slide 3',
+        id: "contained-slide-3",
+        name: "Linha Kraft & Embalagens Sustentáveis para Delivery",
+        category: "Topo Mercado Livre",
+        url: "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_nmv06jnmv06jnmv0.jpg",
+        sectionId: "s02-contained-hero",
+        sectionTitle: "S2 Hero Contido Padrão",
+        slideLabel: "Slide 3",
       },
       {
-        id: 'contained-slide-4',
-        name: 'Embalagens Térmicas para Marmitex e Lanches',
-        category: 'Referência Oficial',
-        url: '/assets/HOME Vitrine/S4-CARD-ESQ-Promocional/S4-CARD-ESQ-Promocional.webp',
-        sectionId: 's02-contained-hero',
-        sectionTitle: 'S2 Hero Contido Padrão',
-        slideLabel: 'Slide 4',
+        id: "contained-slide-4",
+        name: "Embalagens Térmicas para Marmitex e Lanches",
+        category: "Referência Oficial",
+        url: "/assets/HOME Vitrine/S4-CARD-ESQ-Promocional/S4-CARD-ESQ-Promocional.webp",
+        sectionId: "s02-contained-hero",
+        sectionTitle: "S2 Hero Contido Padrão",
+        slideLabel: "Slide 4",
       },
     ],
   },
   {
-    id: 's03-category-icons',
-    title: 'SEÇÃO S3 — ÍCONES DE CATEGORIAS E DEPARTAMENTOS',
-    subtitle: 'Atalhos circulares e cards de departamentos rápidos',
-    badge: 'Ícones',
+    id: "s03-category-icons",
+    title: "SEÇÃO S3 — ÍCONES DE CATEGORIAS E DEPARTAMENTOS",
+    subtitle: "Atalhos circulares e cards de departamentos rápidos",
+    badge: "Ícones",
     items: [
       {
-        id: 'magalu-icon-ofertas',
-        name: 'Magalu — Ofertas Relâmpago',
-        category: 'Ícones Magalu',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-ofertas.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Ícone 1',
+        id: "magalu-icon-ofertas",
+        name: "Magalu — Ofertas Relâmpago",
+        category: "Ícones Magalu",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-ofertas.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Ícone 1",
         isIcon: true,
       },
       {
-        id: 'magalu-icon-internacional',
-        name: 'Magalu — Internacional',
-        category: 'Ícones Magalu',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-sacolas.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Ícone 2',
+        id: "magalu-icon-internacional",
+        name: "Magalu — Internacional",
+        category: "Ícones Magalu",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-sacolas.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Ícone 2",
         isIcon: true,
       },
       {
-        id: 'magalu-icon-casa',
-        name: 'Magalu — Casa',
-        category: 'Ícones Magalu',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-embalagens.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Ícone 3',
+        id: "magalu-icon-casa",
+        name: "Magalu — Casa",
+        category: "Ícones Magalu",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-embalagens.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Ícone 3",
         isIcon: true,
       },
       {
-        id: 'magalu-icon-ferramentas',
-        name: 'Magalu — Ferramentas',
-        category: 'Ícones Magalu',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-descartaveis.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Ícone 4',
+        id: "magalu-icon-ferramentas",
+        name: "Magalu — Ferramentas",
+        category: "Ícones Magalu",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-descartaveis.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Ícone 4",
         isIcon: true,
       },
       {
-        id: 'magalu-icon-eletroportateis',
-        name: 'Magalu — Eletroportáteis',
-        category: 'Ícones Magalu',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-festas.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Ícone 5',
+        id: "magalu-icon-eletroportateis",
+        name: "Magalu — Eletroportáteis",
+        category: "Ícones Magalu",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-festas.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Ícone 5",
         isIcon: true,
       },
       {
-        id: 'magalu-icon-brinquedos',
-        name: 'Magalu — Brinquedos',
-        category: 'Ícones Magalu',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-confeitaria.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Ícone 6',
+        id: "magalu-icon-brinquedos",
+        name: "Magalu — Brinquedos",
+        category: "Ícones Magalu",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-confeitaria.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Ícone 6",
         isIcon: true,
       },
       {
-        id: 'magalu-icon-automotivo',
-        name: 'Magalu — Automotivo',
-        category: 'Ícones Magalu',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-limpeza.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Ícone 7',
+        id: "magalu-icon-automotivo",
+        name: "Magalu — Automotivo",
+        category: "Ícones Magalu",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-limpeza.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Ícone 7",
         isIcon: true,
       },
       {
-        id: 'magalu-icon-utilidades',
-        name: 'Magalu — Utilidades Domésticas',
-        category: 'Ícones Magalu',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-foodservice.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Ícone 8',
+        id: "magalu-icon-utilidades",
+        name: "Magalu — Utilidades Domésticas",
+        category: "Ícones Magalu",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-foodservice.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Ícone 8",
         isIcon: true,
       },
       {
-        id: 'cat-icon-embalagens',
-        name: 'Ícone — Embalagens',
-        category: 'Ícones de Categorias',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-embalagens.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Cat 1',
+        id: "cat-icon-embalagens",
+        name: "Ícone — Embalagens",
+        category: "Ícones de Categorias",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-embalagens.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Cat 1",
         isIcon: true,
       },
       {
-        id: 'cat-icon-descartaveis',
-        name: 'Ícone — Descartáveis',
-        category: 'Ícones de Categorias',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-descartaveis.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Cat 2',
+        id: "cat-icon-descartaveis",
+        name: "Ícone — Descartáveis",
+        category: "Ícones de Categorias",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-descartaveis.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Cat 2",
         isIcon: true,
       },
       {
-        id: 'cat-icon-limpeza',
-        name: 'Ícone — Limpeza Profissional',
-        category: 'Ícones de Categorias',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-limpeza.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Cat 3',
+        id: "cat-icon-limpeza",
+        name: "Ícone — Limpeza Profissional",
+        category: "Ícones de Categorias",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-limpeza.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Cat 3",
         isIcon: true,
       },
       {
-        id: 'cat-icon-sacolas',
-        name: 'Ícone — Sacos e Sacolas',
-        category: 'Ícones de Categorias',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-sacolas.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Cat 4',
+        id: "cat-icon-sacolas",
+        name: "Ícone — Sacos e Sacolas",
+        category: "Ícones de Categorias",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-sacolas.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Cat 4",
         isIcon: true,
       },
       {
-        id: 'cat-icon-festas',
-        name: 'Ícone — Festas & Eventos',
-        category: 'Ícones de Categorias',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-festas.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Cat 5',
+        id: "cat-icon-festas",
+        name: "Ícone — Festas & Eventos",
+        category: "Ícones de Categorias",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-festas.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Cat 5",
         isIcon: true,
       },
       {
-        id: 'cat-icon-confeitaria',
-        name: 'Ícone — Confeitaria',
-        category: 'Ícones de Categorias',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-confeitaria.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Cat 6',
+        id: "cat-icon-confeitaria",
+        name: "Ícone — Confeitaria",
+        category: "Ícones de Categorias",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-confeitaria.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Cat 6",
         isIcon: true,
       },
       {
-        id: 'cat-icon-foodservice',
-        name: 'Ícone — Food Service',
-        category: 'Ícones de Categorias',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-foodservice.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Cat 7',
+        id: "cat-icon-foodservice",
+        name: "Ícone — Food Service",
+        category: "Ícones de Categorias",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-foodservice.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Cat 7",
         isIcon: true,
       },
       {
-        id: 'cat-icon-ofertas',
-        name: 'Ícone — Ofertas de Atacado',
-        category: 'Ícones de Categorias',
-        url: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-ofertas.jpg',
-        sectionId: 's03-category-icons',
-        sectionTitle: 'S3 Ícones Categorias',
-        slideLabel: 'Cat 8',
+        id: "cat-icon-ofertas",
+        name: "Ícone — Ofertas de Atacado",
+        category: "Ícones de Categorias",
+        url: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-ofertas.jpg",
+        sectionId: "s03-category-icons",
+        sectionTitle: "S3 Ícones Categorias",
+        slideLabel: "Cat 8",
         isIcon: true,
       },
     ],
   },
   {
-    id: 's04-s05-banners-triplos',
-    title: 'SEÇÃO S4 / S5 — BANNERS TRIPLOS PROMOCIONAIS & FEIRANTE',
-    subtitle: 'Grades triplas de campanhas e ofertas promocionais',
-    badge: 'Banners Triplos',
+    id: "s04-s05-banners-triplos",
+    title: "SEÇÃO S4 / S5 — BANNERS TRIPLOS PROMOCIONAIS & FEIRANTE",
+    subtitle: "Grades triplas de campanhas e ofertas promocionais",
+    badge: "Banners Triplos",
     items: [
       {
-        id: 'ref-s04-side',
-        name: 'Banner Vertical — Semana do Feirante Luva Nitrílica',
-        category: 'Referência Oficial',
-        url: '/assets/HOME Vitrine/S4-CARD-ESQ-Promocional/S4-CARD-ESQ-Promocional.webp',
-        sectionId: 's04-s05-banners-triplos',
-        sectionTitle: 'S4/S5 Banners Triplos',
-        slideLabel: 'Banner Lateral',
+        id: "ref-s04-side",
+        name: "Banner Vertical — Semana do Feirante Luva Nitrílica",
+        category: "Referência Oficial",
+        url: "/assets/HOME Vitrine/S4-CARD-ESQ-Promocional/S4-CARD-ESQ-Promocional.webp",
+        sectionId: "s04-s05-banners-triplos",
+        sectionTitle: "S4/S5 Banners Triplos",
+        slideLabel: "Banner Lateral",
       },
       {
-        id: 'ref-s05-limpeza',
-        name: 'Banner Triplo — Produtos de Limpeza até 30% OFF',
-        category: 'Banners Triplos',
-        url: '/assets/HOME Vitrine/S5-MINICARDS-Carrossel/1-mini-card-azul.png.webp',
-        sectionId: 's04-s05-banners-triplos',
-        sectionTitle: 'S4/S5 Banners Triplos',
-        slideLabel: 'Banner 1',
+        id: "ref-s05-limpeza",
+        name: "Banner Triplo — Produtos de Limpeza até 30% OFF",
+        category: "Banners Triplos",
+        url: "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/1-mini-card-azul.png.webp",
+        sectionId: "s04-s05-banners-triplos",
+        sectionTitle: "S4/S5 Banners Triplos",
+        slideLabel: "Banner 1",
       },
       {
-        id: 'ref-s05-feirante',
-        name: 'Banner Triplo — Semana do Feirante Luva Nitrílica',
-        category: 'Banners Triplos',
-        url: '/assets/HOME Vitrine/S5-MINICARDS-Carrossel/2-mini-card-red.png.webp',
-        sectionId: 's04-s05-banners-triplos',
-        sectionTitle: 'S4/S5 Banners Triplos',
-        slideLabel: 'Banner 2',
+        id: "ref-s05-feirante",
+        name: "Banner Triplo — Semana do Feirante Luva Nitrílica",
+        category: "Banners Triplos",
+        url: "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/2-mini-card-red.png.webp",
+        sectionId: "s04-s05-banners-triplos",
+        sectionTitle: "S4/S5 Banners Triplos",
+        slideLabel: "Banner 2",
       },
       {
-        id: 'ref-s05-sacolas',
-        name: 'Banner Triplo — Sacos e Sacolas até 25% OFF',
-        category: 'Banners Triplos',
-        url: '/assets/HOME Vitrine/S5-MINICARDS-Carrossel/3-mini-card-azul-.png.webp',
-        sectionId: 's04-s05-banners-triplos',
-        sectionTitle: 'S4/S5 Banners Triplos',
-        slideLabel: 'Banner 3',
+        id: "ref-s05-sacolas",
+        name: "Banner Triplo — Sacos e Sacolas até 25% OFF",
+        category: "Banners Triplos",
+        url: "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/3-mini-card-azul-.png.webp",
+        sectionId: "s04-s05-banners-triplos",
+        sectionTitle: "S4/S5 Banners Triplos",
+        slideLabel: "Banner 3",
       },
       {
-        id: 'ref-s05-confeitaria',
-        name: 'Banner Triplo — Confeitaria e Doces até 20% OFF',
-        category: 'Banners Triplos',
-        url: '/assets/HOME Vitrine/S5-MINICARDS-Carrossel/4-mini-card-azul.png.webp',
-        sectionId: 's04-s05-banners-triplos',
-        sectionTitle: 'S4/S5 Banners Triplos',
-        slideLabel: 'Banner 4',
+        id: "ref-s05-confeitaria",
+        name: "Banner Triplo — Confeitaria e Doces até 20% OFF",
+        category: "Banners Triplos",
+        url: "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/4-mini-card-azul.png.webp",
+        sectionId: "s04-s05-banners-triplos",
+        sectionTitle: "S4/S5 Banners Triplos",
+        slideLabel: "Banner 4",
       },
     ],
   },
   {
-    id: 's07-s09-s13-institucionais',
-    title: 'SEÇÃO S7 / S9 / S13 — FAIXAS & BANNERS INSTITUCIONAIS',
-    subtitle: 'Banners informativos de cotação e condições especiais',
-    badge: 'Institucional',
+    id: "s07-s09-s13-institucionais",
+    title: "SEÇÃO S7 / S9 / S13 — FAIXAS & BANNERS INSTITUCIONAIS",
+    subtitle: "Banners informativos de cotação e condições especiais",
+    badge: "Institucional",
     items: [
       {
-        id: 's07-cotacao',
-        name: 'Faixa S7 — Como funciona a cotação online',
-        category: 'Institucional',
-        url: '/assets/HOME Vitrine/S7-BANNER-Cotacao/S7-BANNER-Cotacao.webp',
-        sectionId: 's07-s09-s13-institucionais',
-        sectionTitle: 'Faixas Institucionais',
-        slideLabel: 'Faixa S7',
+        id: "s07-cotacao",
+        name: "Faixa S7 — Como funciona a cotação online",
+        category: "Institucional",
+        url: "/assets/HOME Vitrine/S7-BANNER-Cotacao/S7-BANNER-Cotacao.webp",
+        sectionId: "s07-s09-s13-institucionais",
+        sectionTitle: "Faixas Institucionais",
+        slideLabel: "Faixa S7",
       },
       {
-        id: 's09-ofertas',
-        name: 'Faixa S9 — Ofertas Imperdíveis em Embalagens',
-        category: 'Institucional',
-        url: '/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp',
-        sectionId: 's07-s09-s13-institucionais',
-        sectionTitle: 'Faixas Institucionais',
-        slideLabel: 'Faixa S9',
+        id: "s09-ofertas",
+        name: "Faixa S9 — Ofertas Imperdíveis em Embalagens",
+        category: "Institucional",
+        url: "/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp",
+        sectionId: "s07-s09-s13-institucionais",
+        sectionTitle: "Faixas Institucionais",
+        slideLabel: "Faixa S9",
       },
       {
-        id: 's13-condicoes',
-        name: 'Faixa S13 — Condições Especiais no Atacado',
-        category: 'Institucional',
-        url: '/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp',
-        sectionId: 's07-s09-s13-institucionais',
-        sectionTitle: 'Faixas Institucionais',
-        slideLabel: 'Faixa S13',
+        id: "s13-condicoes",
+        name: "Faixa S13 — Condições Especiais no Atacado",
+        category: "Institucional",
+        url: "/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp",
+        sectionId: "s07-s09-s13-institucionais",
+        sectionTitle: "Faixas Institucionais",
+        slideLabel: "Faixa S13",
       },
     ],
   },
   {
-    id: 's08-segmentos-negocios',
-    title: 'SEÇÃO S8 — SEGMENTOS DE NEGÓCIOS (TUDO PARA SEU RAMO)',
-    subtitle: 'Carrossel de ramos de atividade comercial e estabelecimentos',
-    badge: 'Segmentos',
+    id: "s08-segmentos-negocios",
+    title: "SEÇÃO S8 — SEGMENTOS DE NEGÓCIOS (TUDO PARA SEU RAMO)",
+    subtitle: "Carrossel de ramos de atividade comercial e estabelecimentos",
+    badge: "Segmentos",
     items: [
       {
-        id: 'ref-s08-lanchonete',
-        name: 'Segmento 1 — Para sua Lanchonete',
-        category: 'Segmentos',
-        url: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-01-lanchonete.jpg',
-        sectionId: 's08-segmentos-negocios',
-        sectionTitle: 'S8 Segmentos',
-        slideLabel: 'Ramo 1',
+        id: "ref-s08-lanchonete",
+        name: "Segmento 1 — Para sua Lanchonete",
+        category: "Segmentos",
+        url: "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-01-lanchonete.jpg",
+        sectionId: "s08-segmentos-negocios",
+        sectionTitle: "S8 Segmentos",
+        slideLabel: "Ramo 1",
       },
       {
-        id: 'ref-s08-pizzaria',
-        name: 'Segmento 2 — Para sua Pizzaria',
-        category: 'Segmentos',
-        url: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-02-pizzaria.jpg',
-        sectionId: 's08-segmentos-negocios',
-        sectionTitle: 'S8 Segmentos',
-        slideLabel: 'Ramo 2',
+        id: "ref-s08-pizzaria",
+        name: "Segmento 2 — Para sua Pizzaria",
+        category: "Segmentos",
+        url: "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-02-pizzaria.jpg",
+        sectionId: "s08-segmentos-negocios",
+        sectionTitle: "S8 Segmentos",
+        slideLabel: "Ramo 2",
       },
       {
-        id: 'ref-s08-padaria',
-        name: 'Segmento 3 — Para sua Padaria',
-        category: 'Segmentos',
-        url: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-03-padaria.jpg',
-        sectionId: 's08-segmentos-negocios',
-        sectionTitle: 'S8 Segmentos',
-        slideLabel: 'Ramo 3',
+        id: "ref-s08-padaria",
+        name: "Segmento 3 — Para sua Padaria",
+        category: "Segmentos",
+        url: "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-03-padaria.jpg",
+        sectionId: "s08-segmentos-negocios",
+        sectionTitle: "S8 Segmentos",
+        slideLabel: "Ramo 3",
       },
       {
-        id: 'ref-s08-festas',
-        name: 'Segmento 4 — Para sua Loja de Festas',
-        category: 'Segmentos',
-        url: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-04-festas.jpg',
-        sectionId: 's08-segmentos-negocios',
-        sectionTitle: 'S8 Segmentos',
-        slideLabel: 'Ramo 4',
+        id: "ref-s08-festas",
+        name: "Segmento 4 — Para sua Loja de Festas",
+        category: "Segmentos",
+        url: "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-04-festas.jpg",
+        sectionId: "s08-segmentos-negocios",
+        sectionTitle: "S8 Segmentos",
+        slideLabel: "Ramo 4",
       },
       {
-        id: 'ref-s08-buffet',
-        name: 'Segmento 5 — Para seu Restaurante & Buffet',
-        category: 'Segmentos',
-        url: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-05-buffet.jpg',
-        sectionId: 's08-segmentos-negocios',
-        sectionTitle: 'S8 Segmentos',
-        slideLabel: 'Ramo 5',
+        id: "ref-s08-buffet",
+        name: "Segmento 5 — Para seu Restaurante & Buffet",
+        category: "Segmentos",
+        url: "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-05-buffet.jpg",
+        sectionId: "s08-segmentos-negocios",
+        sectionTitle: "S8 Segmentos",
+        slideLabel: "Ramo 5",
       },
       {
-        id: 'ref-s08-confeitaria',
-        name: 'Segmento 6 — Para sua Confeitaria & Bolos',
-        category: 'Segmentos',
-        url: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-06-confeitaria.jpg',
-        sectionId: 's08-segmentos-negocios',
-        sectionTitle: 'S8 Segmentos',
-        slideLabel: 'Ramo 6',
+        id: "ref-s08-confeitaria",
+        name: "Segmento 6 — Para sua Confeitaria & Bolos",
+        category: "Segmentos",
+        url: "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-06-confeitaria.jpg",
+        sectionId: "s08-segmentos-negocios",
+        sectionTitle: "S8 Segmentos",
+        slideLabel: "Ramo 6",
       },
     ],
   },
   {
-    id: 's11-triple-banners-2',
-    title: 'SEÇÃO S11 — BANNERS TRIPLOS DE OFERTAS & PREÇOS',
-    subtitle: 'Hamburgueiras, luvas nitrílicas e descartáveis de alta saída',
-    badge: 'Preço & Oferta',
+    id: "s11-triple-banners-2",
+    title: "SEÇÃO S11 — BANNERS TRIPLOS DE OFERTAS & PREÇOS",
+    subtitle: "Hamburgueiras, luvas nitrílicas e descartáveis de alta saída",
+    badge: "Preço & Oferta",
     items: [
       {
-        id: 'ref-s11-hamburgueira',
-        name: 'Oferta 1 — Hamburgueira Isopor R$ 85,95',
-        category: 'Banners Triplos',
-        url: '/assets/HOME Vitrine/S11-MINICARDS-Carrossel/5-mini-ard-azul.png.webp',
-        sectionId: 's11-triple-banners-2',
-        sectionTitle: 'S11 Ofertas e Preços',
-        slideLabel: 'Oferta 1',
+        id: "ref-s11-hamburgueira",
+        name: "Oferta 1 — Hamburgueira Isopor R$ 85,95",
+        category: "Banners Triplos",
+        url: "/assets/HOME Vitrine/S11-MINICARDS-Carrossel/5-mini-ard-azul.png.webp",
+        sectionId: "s11-triple-banners-2",
+        sectionTitle: "S11 Ofertas e Preços",
+        slideLabel: "Oferta 1",
       },
       {
-        id: 'ref-s11-luva-vermelho',
-        name: 'Oferta 2 — Luva Nitrílica Vermelho R$ 27,10',
-        category: 'Banners Triplos',
-        url: '/assets/HOME Vitrine/S11-MINICARDS-Carrossel/6-mini-card-red.png.webp',
-        sectionId: 's11-triple-banners-2',
-        sectionTitle: 'S11 Ofertas e Preços',
-        slideLabel: 'Oferta 2',
+        id: "ref-s11-luva-vermelho",
+        name: "Oferta 2 — Luva Nitrílica Vermelho R$ 27,10",
+        category: "Banners Triplos",
+        url: "/assets/HOME Vitrine/S11-MINICARDS-Carrossel/6-mini-card-red.png.webp",
+        sectionId: "s11-triple-banners-2",
+        sectionTitle: "S11 Ofertas e Preços",
+        slideLabel: "Oferta 2",
       },
       {
-        id: 'ref-s11-luva-azul',
-        name: 'Oferta 3 — Luva Nitrílica Azul R$ 27,10',
-        category: 'Banners Triplos',
-        url: '/assets/HOME Vitrine/S11-MINICARDS-Carrossel/7-mini-card-azul.png.webp',
-        sectionId: 's11-triple-banners-2',
-        sectionTitle: 'S11 Ofertas e Preços',
-        slideLabel: 'Oferta 3',
+        id: "ref-s11-luva-azul",
+        name: "Oferta 3 — Luva Nitrílica Azul R$ 27,10",
+        category: "Banners Triplos",
+        url: "/assets/HOME Vitrine/S11-MINICARDS-Carrossel/7-mini-card-azul.png.webp",
+        sectionId: "s11-triple-banners-2",
+        sectionTitle: "S11 Ofertas e Preços",
+        slideLabel: "Oferta 3",
       },
     ],
   },
   {
-    id: 's12-nossos-eventos',
-    title: 'SEÇÃO S12 — NOSSOS EVENTOS & WORKSHOPS',
-    subtitle: 'Encontros de empreendedores, workshops e inaugurações',
-    badge: 'Eventos',
+    id: "s12-nossos-eventos",
+    title: "SEÇÃO S12 — NOSSOS EVENTOS & WORKSHOPS",
+    subtitle: "Encontros de empreendedores, workshops e inaugurações",
+    badge: "Eventos",
     items: [
       {
-        id: 'ref-s12-ev1',
-        name: 'Evento 1 — Encontro James Holanda Empreendedores',
-        category: 'Eventos',
-        url: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-01-lanchonete.jpg',
-        sectionId: 's12-nossos-eventos',
-        sectionTitle: 'S12 Eventos',
-        slideLabel: 'Evento 1',
+        id: "ref-s12-ev1",
+        name: "Evento 1 — Encontro James Holanda Empreendedores",
+        category: "Eventos",
+        url: "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-01-lanchonete.jpg",
+        sectionId: "s12-nossos-eventos",
+        sectionTitle: "S12 Eventos",
+        slideLabel: "Evento 1",
       },
       {
-        id: 'ref-s12-ev2',
-        name: 'Evento 2 — Grande Reinauguração Loja Pedreira',
-        category: 'Eventos',
-        url: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-02-pizzaria.jpg',
-        sectionId: 's12-nossos-eventos',
-        sectionTitle: 'S12 Eventos',
-        slideLabel: 'Evento 2',
+        id: "ref-s12-ev2",
+        name: "Evento 2 — Grande Reinauguração Loja Pedreira",
+        category: "Eventos",
+        url: "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-02-pizzaria.jpg",
+        sectionId: "s12-nossos-eventos",
+        sectionTitle: "S12 Eventos",
+        slideLabel: "Evento 2",
       },
       {
-        id: 'ref-s12-ev4',
-        name: 'Evento 3 — Sábado Croquete de Charque Pará Trigo',
-        category: 'Eventos',
-        url: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-03-padaria.jpg',
-        sectionId: 's12-nossos-eventos',
-        sectionTitle: 'S12 Eventos',
-        slideLabel: 'Evento 3',
+        id: "ref-s12-ev4",
+        name: "Evento 3 — Sábado Croquete de Charque Pará Trigo",
+        category: "Eventos",
+        url: "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-03-padaria.jpg",
+        sectionId: "s12-nossos-eventos",
+        sectionTitle: "S12 Eventos",
+        slideLabel: "Evento 3",
       },
     ],
   },
   {
-    id: 'branding-mascote',
-    title: 'BRANDING, FACHADA & MASCOTE 3D JAMES',
-    subtitle: 'Identidade visual, fachada de lojas e o mascote oficial',
-    badge: 'Branding',
+    id: "branding-mascote",
+    title: "BRANDING, FACHADA & MASCOTE 3D JAMES",
+    subtitle: "Identidade visual, fachada de lojas e o mascote oficial",
+    badge: "Branding",
     items: [
       {
-        id: 'mascote-james',
-        name: 'Mascote 3D James Principal Oficial',
-        category: 'Mascote',
-        url: '/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-01-principal.png',
-        sectionId: 'branding-mascote',
-        sectionTitle: 'Branding & Identidade',
-        slideLabel: 'Mascote 3D',
+        id: "mascote-james",
+        name: "Mascote 3D James Principal Oficial",
+        category: "Mascote",
+        url: "/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-01-principal.png",
+        sectionId: "branding-mascote",
+        sectionTitle: "Branding & Identidade",
+        slideLabel: "Mascote 3D",
         isIcon: true,
       },
       {
-        id: 'logo-branca',
-        name: 'Logo Oficial Comercial do Norte Branca',
-        category: 'Branding',
-        url: '/logo-comercial-do-norte-branca.png',
-        sectionId: 'branding-mascote',
-        sectionTitle: 'Branding & Identidade',
-        slideLabel: 'Logo Branca',
+        id: "logo-branca",
+        name: "Logo Oficial Comercial do Norte Branca",
+        category: "Branding",
+        url: "/logo-comercial-do-norte-branca.png",
+        sectionId: "branding-mascote",
+        sectionTitle: "Branding & Identidade",
+        slideLabel: "Logo Branca",
         isIcon: true,
       },
       {
-        id: 'gemini-fachada-brand',
-        name: 'Fachada Comercial do Norte — Tudo para quem faz o melhor',
-        category: 'Institucional',
-        url: '/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (5).webp',
-        sectionId: 'branding-mascote',
-        sectionTitle: 'Branding & Identidade',
-        slideLabel: 'Fachada',
+        id: "gemini-fachada-brand",
+        name: "Fachada Comercial do Norte — Tudo para quem faz o melhor",
+        category: "Institucional",
+        url: "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (5).webp",
+        sectionId: "branding-mascote",
+        sectionTitle: "Branding & Identidade",
+        slideLabel: "Fachada",
       },
     ],
   },
@@ -602,8 +602,10 @@ export const availableMediaSections: MediaSectionGroup[] = [
 // Gera a lista unificada flat preservando retrocompatibilidade total
 export const availableMediaLibrary: MediaLibraryItem[] = Array.from(
   new Map(
-    availableMediaSections.flatMap((s) => s.items).map((item) => [item.url, item])
-  ).values()
+    availableMediaSections
+      .flatMap((s) => s.items)
+      .map((item) => [item.url, item]),
+  ).values(),
 );
 
 interface ElementorMediaModalProps {
@@ -621,15 +623,17 @@ export function ElementorMediaModal({
   onSelectImage,
   currentImageUrl,
   slideTitle,
-  title = 'Selecionar ou Enviar Imagem do Banner',
+  title = "Selecionar ou Enviar Imagem do Banner",
 }: ElementorMediaModalProps) {
   // A PRIMEIRA ABA É O UPLOAD conforme pedido do usuário!
-  const [activeTab, setActiveTab] = useState<'upload' | 'library'>('upload');
-  const [viewMode, setViewMode] = useState<'sections' | 'all'>('sections');
-  const [sortOrder, setSortOrder] = useState<'recent' | 'name'>('recent');
-  const [selectedCategory, setSelectedCategory] = useState<string>('Todas');
-  const [selectedUrl, setSelectedUrl] = useState<string>(currentImageUrl || availableMediaLibrary[0]?.url || '');
-  const [search, setSearch] = useState('');
+  const [activeTab, setActiveTab] = useState<"upload" | "library">("upload");
+  const [viewMode, setViewMode] = useState<"sections" | "all">("sections");
+  const [sortOrder, setSortOrder] = useState<"recent" | "name">("recent");
+  const [selectedCategory, setSelectedCategory] = useState<string>("Todas");
+  const [selectedUrl, setSelectedUrl] = useState<string>(
+    currentImageUrl || availableMediaLibrary[0]?.url || "",
+  );
+  const [search, setSearch] = useState("");
   const [copiedUrl, setCopiedUrl] = useState(false);
 
   // Upload e URL Externa states
@@ -638,15 +642,19 @@ export function ElementorMediaModal({
     name: string;
     sizeFormatted: string;
   } | null>(null);
-  const [customUrl, setCustomUrl] = useState('');
-  const [selectedSource, setSelectedSource] = useState<'file' | 'url' | null>(null);
+  const [customUrl, setCustomUrl] = useState("");
+  const [selectedSource, setSelectedSource] = useState<"file" | "url" | null>(
+    null,
+  );
   const [isDragging, setIsDragging] = useState(false);
 
   // Sanfona / Accordion das seções (expand/collapse)
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    's01-hero-full-width': true,
-    's02-contained-hero': true,
-    's04-s05-banners-triplos': true,
+  const [expandedSections, setExpandedSections] = useState<
+    Record<string, boolean>
+  >({
+    "s01-hero-full-width": true,
+    "s02-contained-hero": true,
+    "s04-s05-banners-triplos": true,
   });
 
   const fileRef = useRef<HTMLInputElement>(null);
@@ -668,19 +676,19 @@ export function ElementorMediaModal({
       if (!items) return;
 
       for (let i = 0; i < items.length; i++) {
-        if (items[i].type.startsWith('image/')) {
+        if (items[i].type.startsWith("image/")) {
           const file = items[i].getAsFile();
           if (file) {
             loadFile(file);
-            setActiveTab('upload');
+            setActiveTab("upload");
             break;
           }
         }
       }
     };
 
-    window.addEventListener('paste', handlePaste);
-    return () => window.removeEventListener('paste', handlePaste);
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -688,7 +696,8 @@ export function ElementorMediaModal({
   const loadFile = (file: File) => {
     const sizeKB = (file.size / 1024).toFixed(1);
     const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-    const sizeFormatted = file.size > 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
+    const sizeFormatted =
+      file.size > 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -699,7 +708,7 @@ export function ElementorMediaModal({
           name: file.name,
           sizeFormatted,
         });
-        setSelectedSource('file');
+        setSelectedSource("file");
       }
     };
     reader.readAsDataURL(file);
@@ -729,7 +738,7 @@ export function ElementorMediaModal({
     e.stopPropagation();
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       loadFile(file);
     }
   };
@@ -786,7 +795,7 @@ export function ElementorMediaModal({
   // Lista plana para a visualização "Todas as Imagens"
   const flatItems = availableMediaLibrary
     .filter((item) => {
-      if (selectedCategory !== 'Todas' && item.category !== selectedCategory) {
+      if (selectedCategory !== "Todas" && item.category !== selectedCategory) {
         return false;
       }
       if (!cleanSearch) return true;
@@ -798,29 +807,34 @@ export function ElementorMediaModal({
       );
     })
     .sort((a, b) => {
-      if (sortOrder === 'name') {
+      if (sortOrder === "name") {
         return a.name.localeCompare(b.name);
       }
       return 0; // ordem original (data/id crescente)
     });
 
   // Categorias únicas para as pílulas de filtro
-  const categoriesList = ['Todas', ...Array.from(new Set(availableMediaLibrary.map((m) => m.category)))];
+  const categoriesList = [
+    "Todas",
+    ...Array.from(new Set(availableMediaLibrary.map((m) => m.category))),
+  ];
 
   // Item selecionado atual na biblioteca
   const selectedItem =
     availableMediaLibrary.find((m) => m.url === selectedUrl) ||
-    availableMediaSections.flatMap((s) => s.items).find((m) => m.url === selectedUrl);
+    availableMediaSections
+      .flatMap((s) => s.items)
+      .find((m) => m.url === selectedUrl);
 
   const handleConfirm = () => {
-    if (activeTab === 'upload') {
-      if (selectedSource === 'file' && uploadedFile) {
+    if (activeTab === "upload") {
+      if (selectedSource === "file" && uploadedFile) {
         onSelectImage(uploadedFile.dataUrl, uploadedFile.name);
         onClose();
         return;
       }
-      if (selectedSource === 'url' && customUrl.trim()) {
-        onSelectImage(customUrl.trim(), 'Imagem Externa');
+      if (selectedSource === "url" && customUrl.trim()) {
+        onSelectImage(customUrl.trim(), "Imagem Externa");
         onClose();
         return;
       }
@@ -830,11 +844,11 @@ export function ElementorMediaModal({
         return;
       }
       if (customUrl.trim()) {
-        onSelectImage(customUrl.trim(), 'Imagem Externa');
+        onSelectImage(customUrl.trim(), "Imagem Externa");
         onClose();
         return;
       }
-    } else if (activeTab === 'library' && selectedUrl) {
+    } else if (activeTab === "library" && selectedUrl) {
       onSelectImage(selectedUrl, selectedItem?.name);
       onClose();
     }
@@ -849,9 +863,7 @@ export function ElementorMediaModal({
 
   // Verifica se o botão confirmar está habilitado
   const isConfirmDisabled =
-    activeTab === 'upload'
-      ? !uploadedFile && !customUrl.trim()
-      : !selectedUrl;
+    activeTab === "upload" ? !uploadedFile && !customUrl.trim() : !selectedUrl;
 
   return (
     <div
@@ -878,8 +890,12 @@ export function ElementorMediaModal({
               <ImageIcon className="size-4" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold tracking-wide text-white">{title}</h2>
-              <span className="text-[10px] text-zinc-400 block sm:hidden">Toque para selecionar ou carregar</span>
+              <h2 className="text-sm font-semibold tracking-wide text-white">
+                {title}
+              </h2>
+              <span className="text-[10px] text-zinc-400 block sm:hidden">
+                Toque para selecionar ou carregar
+              </span>
             </div>
           </div>
 
@@ -898,11 +914,11 @@ export function ElementorMediaModal({
           {/* ABA 1: FAZER UPLOAD (COM URL EXTERNA INTEGRADA EMBAIXO) */}
           <button
             className={`flex items-center gap-2 border-b-2 py-3 px-4 cursor-pointer transition ${
-              activeTab === 'upload'
-                ? 'border-emerald-400 text-white font-semibold bg-emerald-500/5'
-                : 'border-transparent text-zinc-400 hover:text-zinc-200'
+              activeTab === "upload"
+                ? "border-emerald-400 text-white font-semibold bg-emerald-500/5"
+                : "border-transparent text-zinc-400 hover:text-zinc-200"
             }`}
-            onClick={() => setActiveTab('upload')}
+            onClick={() => setActiveTab("upload")}
             type="button"
           >
             <UploadCloud className="size-4 text-emerald-400" />
@@ -915,11 +931,11 @@ export function ElementorMediaModal({
           {/* ABA 2: BIBLIOTECA DA LOJA (COM SANFONA POR SEÇÕES E THUMBS CORRIGIDAS) */}
           <button
             className={`flex items-center gap-2 border-b-2 py-3 px-4 cursor-pointer transition ${
-              activeTab === 'library'
-                ? 'border-sky-400 text-white font-semibold bg-sky-500/5'
-                : 'border-transparent text-zinc-400 hover:text-zinc-200'
+              activeTab === "library"
+                ? "border-sky-400 text-white font-semibold bg-sky-500/5"
+                : "border-transparent text-zinc-400 hover:text-zinc-200"
             }`}
-            onClick={() => setActiveTab('library')}
+            onClick={() => setActiveTab("library")}
             type="button"
           >
             <FolderOpen className="size-4 text-sky-400" />
@@ -934,11 +950,18 @@ export function ElementorMediaModal({
               {currentImageUrl ? (
                 <div className="size-8 shrink-0 overflow-hidden rounded-md border border-zinc-800 bg-black">
                   {/* eslint-disable-next-js/next/no-img-element */}
-                  <img alt={slideTitle || ''} className="size-full object-cover" src={currentImageUrl} />
+                  <img
+                    alt={slideTitle || ""}
+                    className="size-full object-cover"
+                    src={currentImageUrl}
+                  />
                 </div>
               ) : null}
               <span className="truncate text-zinc-400">
-                Item atual sendo alterado: <strong className="text-white">{slideTitle || 'Slide do Banner'}</strong>
+                Item atual sendo alterado:{" "}
+                <strong className="text-white">
+                  {slideTitle || "Slide do Banner"}
+                </strong>
               </span>
             </div>
             {currentImageUrl ? (
@@ -954,7 +977,7 @@ export function ElementorMediaModal({
           {/* ============================================================== */}
           {/* ABA 1: UPLOAD DO COMPUTADOR + URL EXTERNA LOGO ABAIXO           */}
           {/* ============================================================== */}
-          {activeTab === 'upload' && (
+          {activeTab === "upload" && (
             <div className="flex flex-1 overflow-y-auto p-4 sm:p-8">
               <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
                 {/* 1. Upload do Computador */}
@@ -964,15 +987,17 @@ export function ElementorMediaModal({
                       <UploadCloud className="size-4 text-emerald-400" />
                       Fazer Upload do Computador
                     </label>
-                    <span className="text-[11px] text-zinc-500">PNG, JPG, WebP, GIF ou SVG</span>
+                    <span className="text-[11px] text-zinc-500">
+                      PNG, JPG, WebP, GIF ou SVG
+                    </span>
                   </div>
 
                   {!uploadedFile ? (
                     <div
                       className={`group flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 transition select-none ${
                         isDragging
-                          ? 'border-emerald-400 bg-emerald-950/20'
-                          : 'border-zinc-700 bg-zinc-900/30 hover:border-emerald-400/80 hover:bg-zinc-900/60'
+                          ? "border-emerald-400 bg-emerald-950/20"
+                          : "border-zinc-700 bg-zinc-900/30 hover:border-emerald-400/80 hover:bg-zinc-900/60"
                       }`}
                       onClick={() => fileRef.current?.click()}
                       onDragLeave={handleDragLeave}
@@ -983,7 +1008,9 @@ export function ElementorMediaModal({
                         <UploadCloud className="size-7" />
                       </div>
                       <h3 className="text-sm font-semibold text-white mb-1">
-                        {isDragging ? 'Solte a imagem aqui...' : 'Arraste e solte uma imagem aqui'}
+                        {isDragging
+                          ? "Solte a imagem aqui..."
+                          : "Arraste e solte uma imagem aqui"}
                       </h3>
                       <p className="text-xs text-zinc-400 text-center mb-4">
                         ou clique no botão para procurar no seu computador
@@ -999,7 +1026,10 @@ export function ElementorMediaModal({
                         Escolher Arquivo do Computador
                       </button>
                       <span className="mt-3 text-[11px] text-zinc-500">
-                        Também aceita colar diretamente com <kbd className="rounded bg-zinc-800 px-1 py-0.5 text-zinc-300">Ctrl+V</kbd>
+                        Também aceita colar diretamente com{" "}
+                        <kbd className="rounded bg-zinc-800 px-1 py-0.5 text-zinc-300">
+                          Ctrl+V
+                        </kbd>
                       </span>
                     </div>
                   ) : (
@@ -1026,7 +1056,8 @@ export function ElementorMediaModal({
                             className="text-xs font-medium text-rose-400 hover:underline cursor-pointer"
                             onClick={() => {
                               setUploadedFile(null);
-                              if (selectedSource === 'file') setSelectedSource(null);
+                              if (selectedSource === "file")
+                                setSelectedSource(null);
                             }}
                             type="button"
                           >
@@ -1045,9 +1076,15 @@ export function ElementorMediaModal({
                           />
                         </div>
                         <div className="flex flex-col gap-1 text-xs text-zinc-300 w-full min-w-0">
-                          <span className="font-semibold text-white truncate">{uploadedFile.name}</span>
-                          <span className="text-zinc-400 text-[11px]">Tamanho: {uploadedFile.sizeFormatted}</span>
-                          <span className="text-emerald-400 text-[11px] font-medium">✓ Carregado com sucesso</span>
+                          <span className="font-semibold text-white truncate">
+                            {uploadedFile.name}
+                          </span>
+                          <span className="text-zinc-400 text-[11px]">
+                            Tamanho: {uploadedFile.sizeFormatted}
+                          </span>
+                          <span className="text-emerald-400 text-[11px] font-medium">
+                            ✓ Carregado com sucesso
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -1069,7 +1106,9 @@ export function ElementorMediaModal({
                       <LinkIcon className="size-4 text-sky-400" />
                       URL Externa da Imagem (Web)
                     </label>
-                    <span className="text-[11px] text-zinc-500">Cole o link direto da imagem</span>
+                    <span className="text-[11px] text-zinc-500">
+                      Cole o link direto da imagem
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/80 px-3.5 py-2.5 focus-within:border-sky-400 transition">
@@ -1078,7 +1117,7 @@ export function ElementorMediaModal({
                       className="w-full bg-transparent text-xs text-white placeholder-zinc-500 outline-none"
                       onChange={(e) => {
                         setCustomUrl(e.target.value);
-                        if (e.target.value.trim()) setSelectedSource('url');
+                        if (e.target.value.trim()) setSelectedSource("url");
                       }}
                       placeholder="https://suaimagem.com/banner-promocional.jpg"
                       type="url"
@@ -1088,8 +1127,8 @@ export function ElementorMediaModal({
                       <button
                         className="text-zinc-500 hover:text-white text-xs cursor-pointer"
                         onClick={() => {
-                          setCustomUrl('');
-                          if (selectedSource === 'url') setSelectedSource(null);
+                          setCustomUrl("");
+                          if (selectedSource === "url") setSelectedSource(null);
                         }}
                         type="button"
                       >
@@ -1115,12 +1154,17 @@ export function ElementorMediaModal({
                           alt="Pré-visualização da URL"
                           className="absolute inset-0 size-full object-contain"
                           onError={(e) => {
-                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.style.display = "none";
                             const parent = e.currentTarget.parentElement;
-                            if (parent && !parent.querySelector('.url-error-badge')) {
-                              const badge = document.createElement('div');
-                              badge.className = 'url-error-badge flex h-full w-full flex-col items-center justify-center p-4 text-center text-xs text-rose-400';
-                              badge.innerHTML = '<span class="font-bold mb-1">Aviso: Imagem não encontrada</span><span>Verifique se o link é público e direto.</span>';
+                            if (
+                              parent &&
+                              !parent.querySelector(".url-error-badge")
+                            ) {
+                              const badge = document.createElement("div");
+                              badge.className =
+                                "url-error-badge flex h-full w-full flex-col items-center justify-center p-4 text-center text-xs text-rose-400";
+                              badge.innerHTML =
+                                '<span class="font-bold mb-1">Aviso: Imagem não encontrada</span><span>Verifique se o link é público e direto.</span>';
                               parent.appendChild(badge);
                             }
                           }}
@@ -1137,7 +1181,7 @@ export function ElementorMediaModal({
           {/* ============================================================== */}
           {/* ABA 2: BIBLIOTECA DA LOJA (COM SANFONA DE SEÇÕES E THUMBS FIXAS) */}
           {/* ============================================================== */}
-          {activeTab === 'library' && (
+          {activeTab === "library" && (
             <>
               <div className="flex flex-1 flex-col overflow-hidden p-4 sm:p-6">
                 {/* BARRA SUPERIOR DE BUSCA E VISÕES */}
@@ -1156,7 +1200,7 @@ export function ElementorMediaModal({
                       {search && (
                         <button
                           className="text-zinc-500 hover:text-white text-xs cursor-pointer"
-                          onClick={() => setSearch('')}
+                          onClick={() => setSearch("")}
                           type="button"
                         >
                           Limpar
@@ -1168,11 +1212,11 @@ export function ElementorMediaModal({
                     <div className="flex items-center gap-1 self-end sm:self-auto rounded-xl bg-zinc-900/90 p-1 border border-zinc-800 select-none text-xs">
                       <button
                         className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium transition cursor-pointer ${
-                          viewMode === 'sections'
-                            ? 'bg-sky-500 text-zinc-950 font-bold shadow-xs'
-                            : 'text-zinc-400 hover:text-white'
+                          viewMode === "sections"
+                            ? "bg-sky-500 text-zinc-950 font-bold shadow-xs"
+                            : "text-zinc-400 hover:text-white"
                         }`}
-                        onClick={() => setViewMode('sections')}
+                        onClick={() => setViewMode("sections")}
                         title="Ver organizado por seções da Home com sanfona"
                         type="button"
                       >
@@ -1182,11 +1226,11 @@ export function ElementorMediaModal({
 
                       <button
                         className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium transition cursor-pointer ${
-                          viewMode === 'all'
-                            ? 'bg-sky-500 text-zinc-950 font-bold shadow-xs'
-                            : 'text-zinc-400 hover:text-white'
+                          viewMode === "all"
+                            ? "bg-sky-500 text-zinc-950 font-bold shadow-xs"
+                            : "text-zinc-400 hover:text-white"
                         }`}
-                        onClick={() => setViewMode('all')}
+                        onClick={() => setViewMode("all")}
                         title="Ver todas as imagens em grade corrida"
                         type="button"
                       >
@@ -1197,7 +1241,7 @@ export function ElementorMediaModal({
                   </div>
 
                   {/* Controles contextuais da visão */}
-                  {viewMode === 'sections' ? (
+                  {viewMode === "sections" ? (
                     <div className="flex items-center justify-between text-xs text-zinc-400 border-b border-zinc-800/60 pb-2">
                       <span className="text-[11px] text-zinc-400">
                         {filteredSections.length} seções encontradas na Home
@@ -1228,8 +1272,8 @@ export function ElementorMediaModal({
                           <button
                             className={`rounded-lg px-2.5 py-1 transition cursor-pointer ${
                               selectedCategory === cat
-                                ? 'bg-sky-500/20 text-sky-300 font-semibold border border-sky-500/40'
-                                : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'
+                                ? "bg-sky-500/20 text-sky-300 font-semibold border border-sky-500/40"
+                                : "bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800"
                             }`}
                             key={cat}
                             onClick={() => setSelectedCategory(cat)}
@@ -1245,7 +1289,9 @@ export function ElementorMediaModal({
                         <span>Ordenar:</span>
                         <select
                           className="rounded-lg bg-zinc-900 border border-zinc-800 px-2 py-1 text-white outline-none cursor-pointer"
-                          onChange={(e) => setSortOrder(e.target.value as 'recent' | 'name')}
+                          onChange={(e) =>
+                            setSortOrder(e.target.value as "recent" | "name")
+                          }
                           value={sortOrder}
                         >
                           <option value="recent">Data / Ordem padrão</option>
@@ -1259,7 +1305,7 @@ export function ElementorMediaModal({
                 {/* CONTEÚDO SCROLLÁVEL DA BIBLIOTECA */}
                 <div className="flex-1 overflow-y-auto pr-1">
                   {/* VISÃO 1: SANFONA POR SEÇÕES (PEDIDO DO USUÁRIO) */}
-                  {viewMode === 'sections' && (
+                  {viewMode === "sections" && (
                     <div className="flex flex-col gap-3 pb-6">
                       {filteredSections.map((section) => {
                         const isExpanded = !!expandedSections[section.id];
@@ -1280,7 +1326,7 @@ export function ElementorMediaModal({
                                 <div className="flex size-7 items-center justify-center rounded-lg bg-zinc-800 text-sky-400 shrink-0">
                                   <ChevronDown
                                     className={`size-4 transition-transform duration-200 ${
-                                      isExpanded ? 'rotate-0' : '-rotate-90'
+                                      isExpanded ? "rotate-0" : "-rotate-90"
                                     }`}
                                   />
                                 </div>
@@ -1293,13 +1339,18 @@ export function ElementorMediaModal({
                                       {section.badge}
                                     </span>
                                   </div>
-                                  <p className="text-[11px] text-zinc-400 truncate">{section.subtitle}</p>
+                                  <p className="text-[11px] text-zinc-400 truncate">
+                                    {section.subtitle}
+                                  </p>
                                 </div>
                               </div>
 
                               <div className="flex items-center gap-2 shrink-0 ml-2">
                                 <span className="rounded-full bg-zinc-800/90 px-2.5 py-1 text-[11px] font-medium text-zinc-300">
-                                  {section.items.length} {section.items.length === 1 ? 'banner' : 'banners'}
+                                  {section.items.length}{" "}
+                                  {section.items.length === 1
+                                    ? "banner"
+                                    : "banners"}
                                 </span>
                               </div>
                             </button>
@@ -1315,8 +1366,8 @@ export function ElementorMediaModal({
                                       <div
                                         className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border transition shadow-sm ${
                                           isSelected
-                                            ? 'border-sky-400 ring-2 ring-sky-500/40 bg-zinc-900'
-                                            : 'border-zinc-800 hover:border-zinc-600 bg-zinc-900/60'
+                                            ? "border-sky-400 ring-2 ring-sky-500/40 bg-zinc-900"
+                                            : "border-zinc-800 hover:border-zinc-600 bg-zinc-900/60"
                                         }`}
                                         key={item.id}
                                         onClick={() => setSelectedUrl(item.url)}
@@ -1328,11 +1379,15 @@ export function ElementorMediaModal({
                                           <img
                                             alt={item.name}
                                             className={`absolute inset-0 size-full transition-transform duration-200 group-hover:scale-105 ${
-                                              item.isIcon ? 'object-contain p-2.5' : 'object-cover'
+                                              item.isIcon
+                                                ? "object-contain p-2.5"
+                                                : "object-cover"
                                             }`}
                                             loading="lazy"
                                             onError={(e) => {
-                                              e.currentTarget.classList.add('opacity-40');
+                                              e.currentTarget.classList.add(
+                                                "opacity-40",
+                                              );
                                             }}
                                             src={item.url}
                                           />
@@ -1374,15 +1429,19 @@ export function ElementorMediaModal({
                       {filteredSections.length === 0 && (
                         <div className="flex flex-col items-center justify-center p-12 text-center text-zinc-500">
                           <Search className="size-8 text-zinc-600 mb-2" />
-                          <p className="text-sm font-semibold text-zinc-300">Nenhum banner encontrado</p>
-                          <p className="text-xs text-zinc-500">Tente buscar por outro termo ou limpe o filtro.</p>
+                          <p className="text-sm font-semibold text-zinc-300">
+                            Nenhum banner encontrado
+                          </p>
+                          <p className="text-xs text-zinc-500">
+                            Tente buscar por outro termo ou limpe o filtro.
+                          </p>
                         </div>
                       )}
                     </div>
                   )}
 
                   {/* VISÃO 2: TODAS AS IMAGENS EM GRADE */}
-                  {viewMode === 'all' && (
+                  {viewMode === "all" && (
                     <div className="grid grid-cols-2 gap-3 pb-6 sm:grid-cols-3 md:grid-cols-4">
                       {flatItems.map((item) => {
                         const isSelected = selectedUrl === item.url;
@@ -1391,8 +1450,8 @@ export function ElementorMediaModal({
                           <div
                             className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border transition shadow-sm ${
                               isSelected
-                                ? 'border-sky-400 ring-2 ring-sky-500/40 bg-zinc-900'
-                                : 'border-zinc-800 hover:border-zinc-600 bg-zinc-900/60'
+                                ? "border-sky-400 ring-2 ring-sky-500/40 bg-zinc-900"
+                                : "border-zinc-800 hover:border-zinc-600 bg-zinc-900/60"
                             }`}
                             key={item.id}
                             onClick={() => setSelectedUrl(item.url)}
@@ -1403,7 +1462,9 @@ export function ElementorMediaModal({
                               <img
                                 alt={item.name}
                                 className={`absolute inset-0 size-full transition-transform duration-200 group-hover:scale-105 ${
-                                  item.isIcon ? 'object-contain p-2.5' : 'object-cover'
+                                  item.isIcon
+                                    ? "object-contain p-2.5"
+                                    : "object-cover"
                                 }`}
                                 loading="lazy"
                                 src={item.url}
@@ -1429,8 +1490,12 @@ export function ElementorMediaModal({
                       {flatItems.length === 0 && (
                         <div className="col-span-full flex flex-col items-center justify-center p-12 text-center text-zinc-500">
                           <Search className="size-8 text-zinc-600 mb-2" />
-                          <p className="text-sm font-semibold text-zinc-300">Nenhum banner encontrado</p>
-                          <p className="text-xs text-zinc-500">Tente buscar por outro termo ou limpe o filtro.</p>
+                          <p className="text-sm font-semibold text-zinc-300">
+                            Nenhum banner encontrado
+                          </p>
+                          <p className="text-xs text-zinc-500">
+                            Tente buscar por outro termo ou limpe o filtro.
+                          </p>
                         </div>
                       )}
                     </div>
@@ -1443,7 +1508,9 @@ export function ElementorMediaModal({
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-3 flex items-center justify-between">
                   <span>Detalhes do Banner</span>
                   {selectedItem && (
-                    <span className="text-[10px] text-sky-400 font-mono">ID: {selectedItem.id}</span>
+                    <span className="text-[10px] text-sky-400 font-mono">
+                      ID: {selectedItem.id}
+                    </span>
                   )}
                 </span>
 
@@ -1454,7 +1521,9 @@ export function ElementorMediaModal({
                       <img
                         alt={selectedItem.name}
                         className={`absolute inset-0 size-full ${
-                          selectedItem.isIcon ? 'object-contain p-3' : 'object-cover'
+                          selectedItem.isIcon
+                            ? "object-contain p-3"
+                            : "object-cover"
                         }`}
                         src={selectedItem.url}
                       />
@@ -1481,7 +1550,9 @@ export function ElementorMediaModal({
                           Caminho da Imagem:
                         </span>
                         <div className="flex items-center justify-between rounded-lg bg-zinc-900 border border-zinc-800 p-2 text-[10px] text-zinc-400 font-mono break-all">
-                          <span className="truncate pr-1">{selectedItem.url}</span>
+                          <span className="truncate pr-1">
+                            {selectedItem.url}
+                          </span>
                           <button
                             aria-label="Copiar link"
                             className="shrink-0 text-zinc-400 hover:text-white transition cursor-pointer"
@@ -1521,11 +1592,12 @@ export function ElementorMediaModal({
         {/* 5. RODAPÉ SHADCN DARK */}
         <div className="flex h-16 items-center justify-between border-t border-zinc-800/80 bg-zinc-950 px-5 sm:px-6 select-none shrink-0">
           <div className="text-xs text-zinc-400 truncate pr-3">
-            {activeTab === 'upload' ? (
+            {activeTab === "upload" ? (
               uploadedFile ? (
                 <span className="text-emerald-400 font-medium flex items-center gap-1.5">
                   <Check className="size-3.5" />
-                  Upload pronto: <strong className="text-white">{uploadedFile.name}</strong>
+                  Upload pronto:{" "}
+                  <strong className="text-white">{uploadedFile.name}</strong>
                 </span>
               ) : customUrl.trim() ? (
                 <span className="text-sky-400 font-medium flex items-center gap-1.5">
@@ -1537,7 +1609,8 @@ export function ElementorMediaModal({
               )
             ) : selectedItem ? (
               <span>
-                Selecionado: <strong className="text-white">{selectedItem.name}</strong>
+                Selecionado:{" "}
+                <strong className="text-white">{selectedItem.name}</strong>
               </span>
             ) : (
               <span>Escolha um banner na biblioteca</span>
@@ -1555,8 +1628,8 @@ export function ElementorMediaModal({
             <button
               className={`flex items-center gap-2 rounded-xl px-5 py-2 text-xs font-bold transition shadow-md ${
                 isConfirmDisabled
-                  ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed opacity-60'
-                  : 'bg-white text-zinc-950 hover:bg-zinc-200 cursor-pointer'
+                  ? "bg-zinc-800 text-zinc-500 cursor-not-allowed opacity-60"
+                  : "bg-white text-zinc-950 hover:bg-zinc-200 cursor-pointer"
               }`}
               disabled={isConfirmDisabled}
               onClick={handleConfirm}

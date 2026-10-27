@@ -890,7 +890,7 @@ export function ProductListPage({
                             alt={product.name}
                             onError={(e) => {
                               e.currentTarget.onerror = null;
-                              e.currentTarget.src = '/assets/placeholders/placeholder-1.png';
+                              e.currentTarget.src = '/assets/PRODUTOS/placeholders/placeholder-1.png';
                             }}
                           />
                         ) : (

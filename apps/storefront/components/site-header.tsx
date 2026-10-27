@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ChevronDown,
   ChevronRight,
@@ -20,15 +20,15 @@ import {
   Truck,
   User,
   X,
-} from 'lucide-react';
-import { useQuoteCart } from './quote-cart-provider';
-import { useUserLocation } from './location-provider';
-import { useFavorites } from './favorites-provider';
-import { useAuth } from './auth-provider';
-import { UserMenuDropdown } from './user-menu-dropdown';
-import { MegaMenu } from './mega-menu';
-import { CategoryMegaMenu, CATEGORY_MENUS_DATA } from './category-mega-menu';
-import type { ApiBrand, ApiCategory } from '@/lib/types';
+} from "lucide-react";
+import { useQuoteCart } from "./quote-cart-provider";
+import { useUserLocation } from "./location-provider";
+import { useFavorites } from "./favorites-provider";
+import { useAuth } from "./auth-provider";
+import { UserMenuDropdown } from "./user-menu-dropdown";
+import { MegaMenu } from "./mega-menu";
+import { CategoryMegaMenu, CATEGORY_MENUS_DATA } from "./category-mega-menu";
+import type { ApiBrand, ApiCategory } from "@/lib/types";
 
 type SiteHeaderProps = {
   siteName: string;
@@ -53,19 +53,19 @@ export function SiteHeader({
   const { count: favCount } = useFavorites();
   const { user, isAuthenticated } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
 
   function submitSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const term = query.trim();
-    router.push(term ? `/loja?q=${encodeURIComponent(term)}` : '/loja');
+    router.push(term ? `/loja?q=${encodeURIComponent(term)}` : "/loja");
     setMobileMenuOpen(false);
   }
 
   const rootCategories = categories.filter((c) => !c.parentId);
-  const activeWhatsapp = whatsapp || '5591983440880';
-  const whatsappDigits = activeWhatsapp.replace(/\D+/g, '');
-  const whatsappDisplay = phone || '(91) 98344-0880';
+  const activeWhatsapp = whatsapp || "5591983440880";
+  const whatsappDigits = activeWhatsapp.replace(/\D+/g, "");
+  const whatsappDisplay = phone || "(91) 98344-0880";
 
   return (
     <>
@@ -73,11 +73,28 @@ export function SiteHeader({
         id="siteHeader"
         className="relative w-full shadow-md z-30 bg-[#004CB1]"
       >
+        {/* MASCOTE NORT 3D OFICIAL (Sobreposto às 3 barras do cabeçalho, alinhado à base sem vazar da seção) */}
+        <Link
+          aria-label={`${siteName} - Ir para a Página Inicial`}
+          className="group/mascot absolute bottom-0 left-3 z-40 hidden md:block lg:left-6 cursor-pointer"
+          href="/"
+        >
+          <div className="relative h-[134px] w-[96px] lg:h-[144px] lg:w-[105px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95">
+            <Image
+              alt="Mascote NORT 3D Comercial do Norte - Ir para a Página Inicial"
+              className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)] object-contain object-bottom"
+              fill
+              priority
+              sizes="105px"
+              src="/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-01-principal.png"
+            />
+          </div>
+        </Link>
         {/* BARRA 01: FAIXA SUPERIOR VERMELHA DE BENEFÍCIOS (FIGMA OFICIAL) */}
         <div className="bg-[#E2091E] px-3 py-1.5 text-white sm:px-4 md:px-6">
           <div className="cn-container flex items-center justify-between text-[11px] sm:text-xs">
             {/* Benefícios (Esquerda) com recuo para não sobrepor o Mascote NORT em desktop */}
-            <div className="no-scrollbar flex items-center gap-2 overflow-x-auto py-0.5 pl-0 font-medium sm:gap-4 md:pl-[88px] lg:gap-5 lg:pl-[92px]">
+            <div className="no-scrollbar flex items-center gap-2 overflow-x-auto py-0.5 pl-0 font-medium sm:gap-4 md:pl-[96px] lg:gap-5 lg:pl-[108px]">
               <div className="flex items-center gap-1.5 whitespace-nowrap text-white">
                 <Truck aria-hidden className="size-3.5 flex-shrink-0" />
                 <span>Entrega em Belém e Região Metropolitana</span>
@@ -111,27 +128,9 @@ export function SiteHeader({
 
         {/* BARRA 02: PRINCIPAL AZUL (#004CB1) COM LOGO, MASCOTE NORT 3D, BUSCA E COTAÇÃO */}
         <div className="relative bg-[#004CB1] px-3 py-2 text-white sm:px-4 sm:py-3 md:px-6">
-          {/* MASCOTE NORT 3D OFICIAL (Vazando para cima sobre a barra vermelha - Clicável, redireciona para a vitrine inicial) */}
-          <Link
-            aria-label={`${siteName} - Ir para a Página Inicial`}
-            className="group/mascot absolute -top-4 left-3 z-30 hidden md:block lg:left-6 cursor-pointer"
-            href="/"
-          >
-            <div className="relative h-[84px] w-[72px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 lg:h-[92px] lg:w-[80px]">
-              <Image
-                alt="Mascote NORT 3D Comercial do Norte - Ir para a Página Inicial"
-                className="drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)] object-contain object-bottom"
-                fill
-                priority
-                sizes="80px"
-                src="/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-01-principal.png"
-              />
-            </div>
-          </Link>
-
           <div className="cn-container flex items-center justify-between gap-3 md:gap-4">
             {/* LADO ESQUERDO: HAMBURGER (MOBILE) + LOGO BRANCA */}
-            <div className="flex items-center gap-2 sm:gap-3 md:pl-[84px] lg:pl-[88px]">
+            <div className="flex items-center gap-2 sm:gap-3 md:pl-[96px] lg:pl-[108px]">
               {/* Botão Menu Hamburger Mobile */}
               <button
                 aria-label="Abrir menu principal"
@@ -156,9 +155,9 @@ export function SiteHeader({
                     priority
                     sizes="(max-width: 640px) 150px, (max-width: 1024px) 170px, 190px"
                     src={
-                      logoUrl && !logoUrl.includes('seed-brand')
+                      logoUrl && !logoUrl.includes("seed-brand")
                         ? logoUrl
-                        : '/logo-comercial-do-norte-branca.png'
+                        : "/logo-comercial-do-norte-branca.png"
                     }
                   />
                 </div>
@@ -175,9 +174,13 @@ export function SiteHeader({
             >
               <MapPin className="size-4 shrink-0 text-amber-300 transition-transform group-hover:scale-110" />
               <div className="leading-tight min-w-0 max-w-[170px]">
-                <span className="block text-[10px] text-white/75 font-medium">Enviar para</span>
+                <span className="block text-[10px] text-white/75 font-medium">
+                  Enviar para
+                </span>
                 <div className="flex items-center gap-1">
-                  <span className="font-bold truncate text-white">{location.shortLabel}</span>
+                  <span className="font-bold truncate text-white">
+                    {location.shortLabel}
+                  </span>
                   <ChevronDown className="size-3 text-white/70 transition-transform group-hover:translate-y-0.5 shrink-0" />
                 </div>
               </div>
@@ -185,7 +188,10 @@ export function SiteHeader({
 
             {/* BARRA DE BUSCA CENTRAL COM BOTÃO CIRCULAR AZUL */}
             <div className="flex-1 max-w-2xl">
-              <form className="relative flex items-center w-full" onSubmit={submitSearch}>
+              <form
+                className="relative flex items-center w-full"
+                onSubmit={submitSearch}
+              >
                 <input
                   aria-label="Buscar produtos, categorias ou marcas"
                   className="w-full rounded-full bg-white py-2.5 pr-12 pl-4 text-xs sm:text-sm text-slate-800 placeholder-slate-400 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#00357B] transition-all"
@@ -208,7 +214,11 @@ export function SiteHeader({
             <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
               {/* Favoritos (Fidelidade ao ícone Magalu) */}
               <Link
-                aria-label={favCount > 0 ? `Meus Favoritos (${favCount} itens)` : 'Meus Favoritos'}
+                aria-label={
+                  favCount > 0
+                    ? `Meus Favoritos (${favCount} itens)`
+                    : "Meus Favoritos"
+                }
                 className="relative flex flex-col items-center justify-center text-white transition hover:opacity-90"
                 href="/favoritos"
               >
@@ -216,11 +226,13 @@ export function SiteHeader({
                   <Heart className="size-6 stroke-[1.8]" />
                   {favCount > 0 && (
                     <span className="absolute -top-1.5 -right-2 flex size-4.5 items-center justify-center rounded-full bg-[#E2091E] font-black text-[10px] text-white shadow-sm ring-2 ring-[#004CB1]">
-                      {favCount > 99 ? '99+' : favCount}
+                      {favCount > 99 ? "99+" : favCount}
                     </span>
                   )}
                 </div>
-                <span className="mt-0.5 hidden text-[10px] font-medium lg:block">Favoritos</span>
+                <span className="mt-0.5 hidden text-[10px] font-medium lg:block">
+                  Favoritos
+                </span>
               </Link>
 
               {/* Botão de Cotação (Sacola com badge verde/vermelho idêntico à referência) */}
@@ -234,7 +246,7 @@ export function SiteHeader({
                   <ShoppingBag className="size-6 stroke-[1.8]" />
                   {count > 0 ? (
                     <span className="absolute -top-1.5 -right-2 flex size-4.5 items-center justify-center rounded-full bg-[#E2091E] font-black text-[10px] text-white shadow-sm ring-2 ring-[#004CB1]">
-                      {count > 99 ? '99+' : count}
+                      {count > 99 ? "99+" : count}
                     </span>
                   ) : (
                     <span className="absolute -top-1.5 -right-2 flex size-4 items-center justify-center rounded-full bg-emerald-500 font-bold text-[9px] text-white shadow-xs ring-1 ring-[#004CB1]">
@@ -264,8 +276,10 @@ export function SiteHeader({
           >
             <MapPin className="size-3.5 shrink-0 text-amber-300" />
             <span className="truncate text-[11px]">
-              Enviar para:{' '}
-              <strong className="underline decoration-white/40 font-semibold">{location.shortLabel}</strong>
+              Enviar para:{" "}
+              <strong className="underline decoration-white/40 font-semibold">
+                {location.shortLabel}
+              </strong>
             </span>
             <ChevronDown className="size-3 opacity-75 shrink-0" />
           </button>
@@ -282,7 +296,7 @@ export function SiteHeader({
         <div className="hidden border-t border-white/10 bg-[#00357B] px-3 text-xs font-semibold text-white md:block md:px-6">
           <div className="cn-container flex items-center justify-between">
             {/* Menu Departamentos (Dropdown) */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 md:pl-[96px] lg:pl-[108px]">
               <div className="group relative">
                 <button
                   className="flex items-center gap-2 py-2.5 pr-4 pl-2 text-white hover:bg-white/10 rounded-sm transition cursor-pointer"
@@ -297,7 +311,10 @@ export function SiteHeader({
 
                 {/* Mega Menu Flutuante Estilo shadcn / 21st.dev */}
                 <div className="invisible absolute top-full left-0 z-50 pt-2 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
-                  <MegaMenu categories={categories} whatsappPhone={whatsapp ?? undefined} />
+                  <MegaMenu
+                    categories={categories}
+                    whatsappPhone={whatsapp ?? undefined}
+                  />
                 </div>
               </div>
 
@@ -339,7 +356,9 @@ export function SiteHeader({
                     <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
                   </Link>
                   <div className="invisible absolute top-full -left-20 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
-                    <CategoryMegaMenu config={CATEGORY_MENUS_DATA.descartaveis} />
+                    <CategoryMegaMenu
+                      config={CATEGORY_MENUS_DATA.descartaveis}
+                    />
                   </div>
                 </div>
 
@@ -367,7 +386,9 @@ export function SiteHeader({
                     <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
                   </Link>
                   <div className="invisible absolute top-full -left-48 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
-                    <CategoryMegaMenu config={CATEGORY_MENUS_DATA.confeitaria} />
+                    <CategoryMegaMenu
+                      config={CATEGORY_MENUS_DATA.confeitaria}
+                    />
                   </div>
                 </div>
 
@@ -381,7 +402,10 @@ export function SiteHeader({
                     <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
                   </Link>
                   <div className="invisible absolute top-full right-0 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
-                    <CategoryMegaMenu align="right" config={CATEGORY_MENUS_DATA.limpeza} />
+                    <CategoryMegaMenu
+                      align="right"
+                      config={CATEGORY_MENUS_DATA.limpeza}
+                    />
                   </div>
                 </div>
 
@@ -426,12 +450,18 @@ export function SiteHeader({
             <div className="p-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#004CB1] text-white font-bold text-xs">
-                  {isAuthenticated && user ? user.firstName.charAt(0).toUpperCase() : <User className="size-4" />}
+                  {isAuthenticated && user ? (
+                    user.firstName.charAt(0).toUpperCase()
+                  ) : (
+                    <User className="size-4" />
+                  )}
                 </div>
                 <div className="min-w-0 leading-tight">
                   {isAuthenticated && user ? (
                     <>
-                      <span className="block text-[11px] text-slate-500">Olá, {user.firstName} :)</span>
+                      <span className="block text-[11px] text-slate-500">
+                        Olá, {user.firstName} :)
+                      </span>
                       <Link
                         href="/conta"
                         onClick={() => setMobileMenuOpen(false)}
@@ -442,7 +472,9 @@ export function SiteHeader({
                     </>
                   ) : (
                     <>
-                      <span className="block text-[11px] text-slate-500">Boas vindas :)</span>
+                      <span className="block text-[11px] text-slate-500">
+                        Boas vindas :)
+                      </span>
                       <Link
                         href="/login"
                         onClick={() => setMobileMenuOpen(false)}
