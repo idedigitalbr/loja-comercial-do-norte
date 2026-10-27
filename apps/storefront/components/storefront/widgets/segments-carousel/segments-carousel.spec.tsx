@@ -22,7 +22,7 @@ const mockItems: SegmentCardItem[] = [
     prefix: 'Para seu',
     title: 'Restaurante & Buffet',
     description: 'Marmitas térmicas, travessas de alumínio e talheres descartáveis.',
-    imageUrl: '/assets/HOME Vitrine/S8-SEGMENTOS/1-restaurante.webp',
+    imageUrl: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-05-buffet.jpg',
     linkUrl: '/loja?segmento=restaurante',
     iconType: 'buffet',
   },
@@ -31,7 +31,7 @@ const mockItems: SegmentCardItem[] = [
     prefix: 'Para sua',
     title: 'Confeitaria & Bolos',
     description: 'Bases para bolos, caixas vitrine, forminhas para doces.',
-    imageUrl: '/assets/HOME Vitrine/S8-SEGMENTOS/2-confeitaria.webp',
+    imageUrl: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-06-confeitaria.jpg',
     linkUrl: '/loja?segmento=confeitaria',
     iconType: 'confectionery',
   },
@@ -40,7 +40,7 @@ const mockItems: SegmentCardItem[] = [
     prefix: 'Para sua',
     title: 'Sorveteria & Açaí',
     description: 'Potes térmicos, copos transparentes com tampa bolha.',
-    imageUrl: '/assets/HOME Vitrine/S8-SEGMENTOS/3-sorveteria.webp',
+    imageUrl: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-07-acai.jpg',
     linkUrl: '/loja?segmento=sorveteria',
     iconType: 'icecream',
   },
@@ -49,14 +49,14 @@ const mockItems: SegmentCardItem[] = [
     prefix: 'Para seu',
     title: 'Bar & Distribuidora',
     description: 'Copos chopp e cerveja descartáveis, petisqueiras.',
-    imageUrl: '/assets/HOME Vitrine/S8-SEGMENTOS/4-bar.webp',
+    imageUrl: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-08-sustentaveis.jpg',
     linkUrl: '/loja?segmento=bar',
     iconType: 'bar',
   },
 ];
 
 describe('SegmentsCarouselWidget', () => {
-  it('renderiza o container com fundo unificado azul escuro sem corte branco inferior', () => {
+  it('renderiza o topo em azul escuro e a base transparente sem fundo branco', () => {
     const { container } = render(
       <SegmentsCarouselWidget
         title="Tudo para todos os negócios"
@@ -70,19 +70,23 @@ describe('SegmentsCarouselWidget', () => {
     const section = screen.getByRole('region', { name: 'Tudo para todos os negócios' });
     expect(section).toBeDefined();
 
-    // O container principal deve ter o gradiente azul unificado e NÃO bg-white
-    const mainBox = section.querySelector('.rounded-\\[24px\\]');
-    expect(mainBox).not.toBeNull();
-    expect(mainBox?.className).toContain('bg-gradient-to-r');
-    expect(mainBox?.className).toContain('from-[#002868]');
-    expect(mainBox?.className).not.toContain('bg-white');
+    // O container externo deve ser transparente e NÃO ter bg-white
+    const outerBox = section.querySelector('.bg-transparent');
+    expect(outerBox).not.toBeNull();
+    expect(outerBox?.className).not.toContain('bg-white');
 
-    // Não deve existir a divisão com pb-36 e -mt-28
-    expect(container.querySelector('.pb-36')).toBeNull();
-    expect(container.querySelector('.-mt-28')).toBeNull();
+    // O topo deve ter o fundo azul com gradiente oficial
+    const blueHeader = section.querySelector('.rounded-\\[24px\\]');
+    expect(blueHeader).not.toBeNull();
+    expect(blueHeader?.className).toContain('bg-gradient-to-r');
+    expect(blueHeader?.className).toContain('from-[#002868]');
+
+    // Os cards sobrepõem o topo azul com -mt-28
+    const carouselWrapper = container.querySelector('.-mt-28');
+    expect(carouselWrapper).not.toBeNull();
   });
 
-  it('renderiza os cards com fundo branco para contraste máximo sobre o fundo azul', () => {
+  it('renderiza os cards com fundo branco para contraste sobre a base transparente', () => {
     render(
       <SegmentsCarouselWidget
         title="Tudo para todos os negócios"
@@ -98,7 +102,7 @@ describe('SegmentsCarouselWidget', () => {
     expect(screen.getByText('Sorveteria & Açaí')).toBeDefined();
     expect(screen.getByText('Bar & Distribuidora')).toBeDefined();
 
-    // Cada card deve ter bg-white
+    // Cada card possui bg-white
     const cards = document.querySelectorAll('.group.flex.flex-col');
     expect(cards.length).toBe(4);
     cards.forEach((card) => {
