@@ -394,7 +394,7 @@ export function ProductCarouselWidget({
                 <>
                   <button
                     aria-label="Anterior"
-                    className="absolute -left-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                    className="absolute -left-3 top-1/2 z-40 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
                     onClick={() => setPage((p) => (p - 1 + totalPages) % totalPages)}
                     type="button"
                   >
@@ -402,7 +402,7 @@ export function ProductCarouselWidget({
                   </button>
                   <button
                     aria-label="Próximo"
-                    className="absolute -right-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                    className="absolute -right-3 top-1/2 z-40 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
                     onClick={() => setPage((p) => (p + 1) % totalPages)}
                     type="button"
                   >
@@ -451,7 +451,7 @@ export function ProductCarouselWidget({
             <>
               <button
                 aria-label="Anterior"
-                className="absolute -left-3.5 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                className="absolute -left-3.5 top-1/2 z-40 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
                 onClick={() => setPage((p) => (p - 1 + totalPages) % totalPages)}
                 type="button"
               >
@@ -459,7 +459,7 @@ export function ProductCarouselWidget({
               </button>
               <button
                 aria-label="Próximo"
-                className="absolute -right-3.5 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                className="absolute -right-3.5 top-1/2 z-40 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
                 onClick={() => setPage((p) => (p + 1) % totalPages)}
                 type="button"
               >

@@ -40,10 +40,18 @@ export function ProductCard({
         ? `A partir de 20 pct: ${formatMoney(wholesalePriceCents)} no atacado`
         : 'Condição especial para atacado e comércio';
 
+  const hasActions = Boolean(variant);
+
   return (
-    <article className="group relative flex w-full self-start flex-col overflow-hidden rounded-[14px] border border-slate-200/90 bg-white shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#004CB1]/40 hover:shadow-[0_12px_28px_rgba(0,76,177,0.12)]">
+    <article
+      className={`group relative flex w-full self-start flex-col rounded-[14px] border border-slate-200/90 bg-white shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition-all duration-200 hover:z-30 hover:-translate-y-0.5 hover:border-[#004CB1]/40 hover:shadow-[0_14px_30px_rgba(0,76,177,0.15)] focus-within:z-30 focus-within:border-[#004CB1]/40 ${
+        hasActions
+          ? 'hover:rounded-b-none hover:border-b-transparent focus-within:rounded-b-none focus-within:border-b-transparent'
+          : ''
+      }`}
+    >
       <Link
-        className="relative block aspect-[4/3] overflow-hidden bg-white px-4 pb-3 pt-10"
+        className="relative block aspect-[4/3] overflow-hidden rounded-t-[14px] bg-white px-4 pb-3 pt-10"
         href={`/produto/${product.slug}`}
       >
         {/* Botão de Favoritar no Canto Superior Direito */}
@@ -120,36 +128,32 @@ export function ProductCard({
                 </strong>
                 <span className="text-[11px] font-normal text-slate-500">no pacote</span>
               </div>
-              <p className="mt-1.5 text-[11px] leading-snug text-slate-500">
+              <p className="mt-1.5 min-h-[2rem] line-clamp-2 text-[11px] leading-snug text-slate-500">
                 {footerNote}
               </p>
             </div>
           ) : (
             <p className="text-xs text-muted">Consulte disponibilidade</p>
           )}
-
-          {/* Botões revelados apenas no hover (sem botões no repouso, aparecem de baixo pra cima empurrando suavemente) */}
-          {variant ? (
-            <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-300 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100">
-              <div className="overflow-hidden">
-                <div className="pt-2.5 transition-transform duration-300 ease-out translate-y-3 group-hover:translate-y-0 group-focus-within:translate-y-0">
-                  <ProductCardActions
-                    item={{
-                      variantId: variant.id,
-                      productSlug: product.slug,
-                      name: product.name,
-                      sku: variant.sku,
-                      imagePath: image,
-                      unitPriceCents: variant.priceCents,
-                      quantity: 1,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          ) : null}
         </div>
       </div>
+
+      {/* Botões revelados apenas no hover em painel flutuante absoluto (não expande o container pai nem causa layout shift nas outras seções) */}
+      {variant ? (
+        <div className="pointer-events-none absolute left-[-1px] right-[-1px] top-[calc(100%-1px)] z-30 opacity-0 translate-y-1 transition-all duration-200 ease-out group-hover:pointer-events-auto group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-focus-within:translate-y-0 rounded-b-[14px] border-x border-b border-[#004CB1]/40 bg-white px-3.5 pb-3.5 pt-1 shadow-[0_14px_30px_rgba(0,76,177,0.15)]">
+          <ProductCardActions
+            item={{
+              variantId: variant.id,
+              productSlug: product.slug,
+              name: product.name,
+              sku: variant.sku,
+              imagePath: image,
+              unitPriceCents: variant.priceCents,
+              quantity: 1,
+            }}
+          />
+        </div>
+      ) : null}
     </article>
   );
 }
