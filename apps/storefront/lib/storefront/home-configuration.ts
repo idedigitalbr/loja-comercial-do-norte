@@ -606,20 +606,9 @@ export const defaultHomeComposition: PageComposition = {
         subtitle: "Dicas em vídeos e artigos para você usar no seu negócio.",
         viewAllLabel: "Ver todos",
         viewAllUrl: "/loja",
+        mascotImageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-Boneco3D-explica-ai-nort-trimmed.webp",
+        bgImageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-bg-fundo-vermelho-geometrico-abstrato.webp",
         items: [
-          {
-            id: "vid-1",
-            tags: ["P/ DELIVERY", "GUIA PRÁTICO"],
-            title: "Como escolher a caixa de pizza certa",
-            paragraphs: [
-              "Dicas práticas para proteger melhor o seu delivery.",
-              "Escolha o tamanho certo para sua pizza.",
-              "Cuide da apresentação até a entrega.",
-            ],
-            ctaLabel: "Ver Completo",
-            ctaUrl: "/loja?q=pizza",
-            imageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/pizza.webp",
-          },
           {
             id: "vid-2",
             tags: ["DELIVERY", "LINHA KRAFT"],
@@ -645,6 +634,19 @@ export const defaultHomeComposition: PageComposition = {
             ctaLabel: "Ver Completo",
             ctaUrl: "/loja?q=copo",
             imageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/copos.webp",
+          },
+          {
+            id: "vid-1",
+            tags: ["P/ DELIVERY", "GUIA PRÁTICO"],
+            title: "Como escolher a caixa de pizza certa",
+            paragraphs: [
+              "Dicas práticas para proteger melhor o seu delivery.",
+              "Escolha o tamanho certo para sua pizza.",
+              "Cuide da apresentação até a entrega.",
+            ],
+            ctaLabel: "Ver Completo",
+            ctaUrl: "/loja?q=pizza",
+            imageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/pizza.webp",
           },
           {
             id: "vid-4",

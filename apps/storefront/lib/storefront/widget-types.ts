@@ -240,6 +240,8 @@ export interface VideoArticlesCarouselProps {
   viewAllLabel: string;
   viewAllUrl: string;
   items: VideoArticleItem[];
+  mascotImageUrl?: string;
+  bgImageUrl?: string;
 }
 export type VideoArticlesCarouselWidgetConfig = BaseWidgetConfig<'video-articles-carousel', VideoArticlesCarouselProps>;
 
