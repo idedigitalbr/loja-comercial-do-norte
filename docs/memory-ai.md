@@ -183,7 +183,7 @@ docs/
       - `16` `instagram-feed` (*A Loja no Instagram* — `@comercialdonorte` com 6 cards verticais editáveis com imagens oficiais de `public/assets/HOME Vitrine/S15-INSTAGRAM/`)
       - `17` `promo-strip` (`variant: 'whatsapp-group'` — *Entre em nosso Grupo de ofertas Exclusivas do WhatsApp*; temporariamente isolado na rota dedicada `/secaoCotacaoWPP` a pedido do usuário para customização e ajustes)
       - `18` `testimonials-grid` (*AVALIAÇÕES NO GOOGLE — O que nossos clientes dizem no Google.* — 10 cards 5 estrelas em grid 5×2)
-      - `19` `store-locations-map` (*Encontre nossas unidades / Lojas mais perto de você* — busca na coluna esquerda + 3 cards escuros com foto da fachada + Google Maps)
+      - `19` `store-locations-map` (*Encontre nossas unidades / Lojas mais perto de você* — busca na coluna esquerda + 6 unidades da rede com links oficiais do Google Maps e scroll escuro + mapa interativo dinâmico)
       - `20` `SiteFooter` (Logo branca centralizada, redes sociais Instagram/TikTok/Facebook e barra azul `#1D3B78`)
   - **Validação:** `pnpm typecheck` 6/6 aprovados, `pnpm lint` 6/6 aprovados e `pnpm --filter storefront test` aprovados no monorepo.
 
