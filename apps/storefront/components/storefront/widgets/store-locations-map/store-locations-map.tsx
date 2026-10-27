@@ -115,7 +115,7 @@ export function StoreLocationsMapWidget({
           </div>
 
           {/* Grid: Coluna Esquerda (Busca + Cards) e Coluna Direita (Mapa) */}
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 lg:items-stretch">
             {/* Coluna Esquerda: Busca + Cards de Unidades em Dark Mode Limpo */}
             <div className="flex flex-col gap-3 lg:col-span-5">
               {/* Barra de Busca no Topo da Coluna Esquerda */}
@@ -139,112 +139,114 @@ export function StoreLocationsMapWidget({
                 </button>
               </div>
 
-              {/* Lista de Unidades */}
-              {filteredLocations.length > 0 ? (
-                filteredLocations.map((loc) => {
-                  const isSelected = activeLocation?.id === loc.id;
-                  const isAberto = (loc.badge || '').toLowerCase().includes('aberto');
+              {/* Lista de Unidades com Scrollbar Dark Suave */}
+              <div className="flex max-h-[580px] flex-col gap-3 overflow-y-auto pr-1.5">
+                {filteredLocations.length > 0 ? (
+                  filteredLocations.map((loc) => {
+                    const isSelected = activeLocation?.id === loc.id;
+                    const isAberto = (loc.badge || '').toLowerCase().includes('aberto');
 
-                  return (
-                    <div
-                      aria-pressed={isSelected}
-                      className={`flex cursor-pointer gap-3.5 rounded-2xl border p-3.5 transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-white/40 ${
-                        isSelected
-                          ? 'border-zinc-400/80 bg-[#171A24] text-white shadow-xl ring-1 ring-white/15'
-                          : 'border-white/10 bg-[#12141B] text-zinc-300 hover:border-white/25 hover:bg-[#151822]'
-                      }`}
-                      key={loc.id}
-                      onClick={() => setSelectedId(loc.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          setSelectedId(loc.id);
-                        }
-                      }}
-                      role="button"
-                      tabIndex={0}
-                    >
-                      {/* Miniatura da Fachada da Loja à Esquerda */}
-                      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-zinc-900">
-                        <Image
-                          alt={loc.name}
-                          className="size-full object-cover"
-                          height={140}
-                          src={loc.imageUrl || '/assets/HOME Vitrine/S0-FOOTER/loja-comercial-do-norte-jurunas.webp'}
-                          unoptimized
-                          width={140}
-                        />
-                      </div>
+                    return (
+                      <div
+                        aria-pressed={isSelected}
+                        className={`flex cursor-pointer gap-3.5 rounded-2xl border p-3.5 transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-white/40 ${
+                          isSelected
+                            ? 'border-zinc-400/80 bg-[#171A24] text-white shadow-xl ring-1 ring-white/15'
+                            : 'border-white/10 bg-[#12141B] text-zinc-300 hover:border-white/25 hover:bg-[#151822]'
+                        }`}
+                        key={loc.id}
+                        onClick={() => setSelectedId(loc.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setSelectedId(loc.id);
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                      >
+                        {/* Miniatura da Fachada da Loja à Esquerda */}
+                        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-zinc-900">
+                          <Image
+                            alt={loc.name}
+                            className="size-full object-cover"
+                            height={140}
+                            src={loc.imageUrl || '/assets/HOME Vitrine/S0-FOOTER/loja-comercial-do-norte-jurunas.webp'}
+                            unoptimized
+                            width={140}
+                          />
+                        </div>
 
-                      {/* Dados da Unidade à Direita */}
-                      <div className="flex min-w-0 flex-1 flex-col justify-between">
-                        <div>
-                          <div className="flex items-start justify-between gap-2">
-                            <h3 className="truncate text-sm font-extrabold tracking-tight text-white">
-                              {loc.name}
-                            </h3>
-                            {loc.ratingText && (
-                              <span className="inline-flex shrink-0 items-center gap-1 text-[11px] font-medium text-zinc-300">
-                                <Star className="size-3 fill-zinc-400 text-zinc-400" />
-                                <span>{loc.ratingText}</span>
-                              </span>
-                            )}
+                        {/* Dados da Unidade à Direita */}
+                        <div className="flex min-w-0 flex-1 flex-col justify-between">
+                          <div>
+                            <div className="flex items-start justify-between gap-2">
+                              <h3 className="truncate text-sm font-extrabold tracking-tight text-white">
+                                {loc.name}
+                              </h3>
+                              {loc.ratingText && (
+                                <span className="inline-flex shrink-0 items-center gap-1 text-[11px] font-medium text-zinc-300">
+                                  <Star className="size-3 fill-zinc-400 text-zinc-400" />
+                                  <span>{loc.ratingText}</span>
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="mt-0.5 line-clamp-1 text-[11px] font-normal text-zinc-400">
+                              {loc.subtitle || 'Loja de Embalagens e Descartáveis'}
+                            </p>
+
+                            <p className="mt-1 line-clamp-1 text-[11px] text-zinc-400">
+                              <MapPin className="mr-1 inline size-3 text-zinc-400" />
+                              {loc.address}
+                            </p>
                           </div>
 
-                          <p className="mt-0.5 text-[11px] font-normal text-zinc-400">
-                            {loc.subtitle || 'Loja de Embalagens e Descartáveis'}
-                          </p>
+                          <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                            <span className="inline-flex items-center gap-1 text-zinc-300">
+                              <Clock className={`size-3 ${isAberto ? 'text-emerald-400' : 'text-rose-400'}`} />
+                              <strong className={isAberto ? 'font-semibold text-emerald-400' : 'font-semibold text-rose-400'}>
+                                {loc.badge || (isAberto ? 'Aberto' : 'Fechado')}
+                              </strong>
+                              <span className="text-zinc-400">· {loc.hoursWeekdays}</span>
+                            </span>
 
-                          <p className="mt-1 line-clamp-1 text-[11px] text-zinc-400">
-                            <MapPin className="mr-1 inline size-3 text-zinc-400" />
-                            {loc.address}
-                          </p>
-                        </div>
-
-                        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px]">
-                          <span className="inline-flex items-center gap-1 text-zinc-300">
-                            <Clock className={`size-3 ${isAberto ? 'text-emerald-400' : 'text-rose-400'}`} />
-                            <strong className={isAberto ? 'font-semibold text-emerald-400' : 'font-semibold text-rose-400'}>
-                              {loc.badge || (isAberto ? 'Aberto' : 'Fechado')}
-                            </strong>
-                            <span className="text-zinc-400">· {loc.hoursWeekdays}</span>
-                          </span>
-
-                          {loc.phone && (
-                            <a
-                              className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-300 transition-colors hover:text-white hover:underline"
-                              href={loc.whatsappUrl || `https://wa.me/55${loc.phone.replace(/\D/g, '')}`}
-                              onClick={(e) => e.stopPropagation()}
-                              rel="noopener noreferrer"
-                              target="_blank"
-                            >
-                              <Phone className="size-3 text-zinc-400" />
-                              <span>{loc.phone}</span>
-                            </a>
-                          )}
+                            {loc.phone && (
+                              <a
+                                className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-300 transition-colors hover:text-white hover:underline"
+                                href={loc.whatsappUrl || `https://wa.me/55${loc.phone.replace(/\D/g, '')}`}
+                                onClick={(e) => e.stopPropagation()}
+                                rel="noopener noreferrer"
+                                target="_blank"
+                              >
+                                <Phone className="size-3 text-zinc-400" />
+                                <span>{loc.phone}</span>
+                              </a>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-[#12141B] p-8 text-center">
-                  <Search className="mb-2 size-6 text-zinc-500" />
-                  <p className="text-sm font-semibold text-zinc-200">Nenhuma unidade encontrada</p>
-                  <p className="mt-1 text-xs text-zinc-400">Tente buscar por outro bairro ou endereço</p>
-                  <button
-                    className="mt-3 inline-flex items-center rounded-lg border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/20"
-                    onClick={() => setQuery('')}
-                    type="button"
-                  >
-                    Limpar busca
-                  </button>
-                </div>
-              )}
+                    );
+                  })
+                ) : (
+                  <div className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-[#12141B] p-8 text-center">
+                    <Search className="mb-2 size-6 text-zinc-500" />
+                    <p className="text-sm font-semibold text-zinc-200">Nenhuma unidade encontrada</p>
+                    <p className="mt-1 text-xs text-zinc-400">Tente buscar por outro bairro ou endereço</p>
+                    <button
+                      className="mt-3 inline-flex items-center rounded-lg border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/20"
+                      onClick={() => setQuery('')}
+                      type="button"
+                    >
+                      Limpar busca
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Coluna Direita: Mapa Google Embed Interativo */}
-            <div className="relative min-h-[410px] overflow-hidden rounded-2xl border border-white/15 bg-[#12141B] shadow-2xl lg:col-span-7">
+            <div className="relative min-h-[440px] lg:min-h-[635px] h-full overflow-hidden rounded-2xl border border-white/15 bg-[#12141B] shadow-2xl lg:col-span-7">
               {/* Botão de Atalho para Abrir a Rota Direta no Google Maps */}
               <a
                 className="absolute right-3.5 top-3.5 z-10 inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-[#0B0C10]/90 px-3 py-1.5 text-xs font-semibold text-white shadow-xl backdrop-blur-md transition hover:border-white/40 hover:bg-[#14161D]"
@@ -261,7 +263,7 @@ export function StoreLocationsMapWidget({
               {/* Iframe Interativo do Mapa que Atualiza ao Selecionar Unidade */}
               <iframe
                 allowFullScreen
-                className="size-full min-h-[420px] border-0"
+                className="size-full min-h-[440px] lg:min-h-[635px] border-0"
                 key={activeLocation?.id || 'default-map'}
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
