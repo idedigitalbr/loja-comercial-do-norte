@@ -295,6 +295,7 @@ export interface StoreLocationItem {
   phone: string;
   whatsappUrl: string;
   mapQueryUrl: string;
+  mapEmbedUrl?: string;
   lat?: number;
   lng?: number;
 }

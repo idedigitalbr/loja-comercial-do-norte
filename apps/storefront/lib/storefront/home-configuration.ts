@@ -517,20 +517,19 @@ export const defaultHomeComposition: PageComposition = {
         subtitle: "Tudo que acontece no Comercial do Norte",
         ctaLabel: "Ver todos os eventos",
         ctaUrl: "/loja",
-        topThumbUrl: "/assets/PRODUTOS/placeholders/placeholder-1.png",
         items: [
           {
             id: "ev-1",
             title: "Encontro de Empreendedores — James Holanda",
             imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-01-lanchonete.jpg",
+              "/assets/HOME Vitrine/S12-EVENTOS/s12-event-01-empreendedores.jpg",
             linkUrl: "/loja",
           },
           {
             id: "ev-2",
             title: "Grande Reinauguração Loja Pedreira",
             imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-02-pizzaria.jpg",
+              "/assets/HOME Vitrine/S12-EVENTOS/s12-event-02-reinauguracao.jpg",
             linkUrl: "/loja",
           },
           {
@@ -538,44 +537,43 @@ export const defaultHomeComposition: PageComposition = {
             title:
               "Workshop de Confeitaria Profissional — Decoração com Chantilly e Bicos",
             imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-06-confeitaria.jpg",
+              "/assets/HOME Vitrine/S12-EVENTOS/s12-event-03-workshop-confeitaria.jpg",
             linkUrl: "/loja",
           },
           {
             id: "ev-4",
             title: "Sábado Croquete de Charque — Pará Trigo 2026",
             imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-03-padaria.jpg",
+              "/assets/HOME Vitrine/S12-EVENTOS/s12-event-04-croquete.jpg",
             linkUrl: "/loja",
           },
           {
             id: "ev-5",
-            title: "Feirão de Food Service Belém 2026 — Embalagens e Inovações",
+            title: "Encontro de Empreendedores — James Holanda",
             imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-05-buffet.jpg",
+              "/assets/HOME Vitrine/S12-EVENTOS/s12-event-01-empreendedores.jpg",
             linkUrl: "/loja",
           },
           {
             id: "ev-6",
-            title:
-              "Curso Prático de Hambúrguer Artesanal — Montagem e Embalagem Delivery",
+            title: "Grande Reinauguração Loja Pedreira",
             imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-01-lanchonete.jpg",
+              "/assets/HOME Vitrine/S12-EVENTOS/s12-event-02-reinauguracao.jpg",
             linkUrl: "/loja",
           },
           {
             id: "ev-7",
-            title: "Inauguração Novo Espaço Atacado — Loja Jurunas",
+            title:
+              "Workshop de Confeitaria Profissional — Decoração com Chantilly e Bicos",
             imageUrl:
-              "/assets/HOME Vitrine/S0-FOOTER/loja-comercial-do-norte-jurunas.png",
+              "/assets/HOME Vitrine/S12-EVENTOS/s12-event-03-workshop-confeitaria.jpg",
             linkUrl: "/loja",
           },
           {
             id: "ev-8",
-            title:
-              "Festival da Confeitaria Paraense — Degustações e Aulas Show",
+            title: "Sábado Croquete de Charque — Pará Trigo 2026",
             imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-06-confeitaria.jpg",
+              "/assets/HOME Vitrine/S12-EVENTOS/s12-event-04-croquete.jpg",
             linkUrl: "/loja",
           },
         ],
@@ -682,83 +680,84 @@ export const defaultHomeComposition: PageComposition = {
             id: "ig-1",
             label: "Dia do Cliente",
             imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-01-lanchonete.jpg",
+              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-01-dia-cliente.jpg",
             linkUrl: "https://www.instagram.com/comercialdonorte",
           },
           {
             id: "ig-2",
             label: "No Balcão",
             imageUrl:
-              "/assets/HOME Vitrine/S0-FOOTER/loja-comercial-do-norte-jurunas.webp",
+              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-02-no-balcao.jpg",
             linkUrl: "https://www.instagram.com/comercialdonorte",
           },
           {
             id: "ig-3",
             label: "14 Anos de Loja",
             imageUrl:
-              "/assets/HOME Vitrine/S0-FOOTER/loja-comercial-fachada.webp",
+              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-03-14-anos.jpg",
             linkUrl: "https://www.instagram.com/comercialdonorte",
           },
           {
             id: "ig-4",
             label: "Nossa Equipe",
             imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-04-festas.jpg",
+              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-04-equipe.jpg",
             linkUrl: "https://www.instagram.com/comercialdonorte",
           },
           {
             id: "ig-5",
             label: "Promoções",
             imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-05-buffet.jpg",
+              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-05-promocoes.jpg",
             linkUrl: "https://www.instagram.com/comercialdonorte",
           },
           {
             id: "ig-6",
             label: "Vale-Compras",
             imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-07-acai.jpg",
+              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-06-vale-compras.jpg",
             linkUrl: "https://www.instagram.com/comercialdonorte",
           },
           {
             id: "ig-7",
-            label: "Loja Jurunas",
+            label: "Dia do Cliente",
             imageUrl:
-              "/assets/HOME Vitrine/S0-FOOTER/loja-comercial-fachada.webp",
+              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-01-dia-cliente.jpg",
             linkUrl: "https://www.instagram.com/comercialdonorte",
           },
           {
             id: "ig-8",
-            label: "Linha Kraft",
+            label: "No Balcão",
             imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-08-sustentaveis.jpg",
+              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-02-no-balcao.jpg",
             linkUrl: "https://www.instagram.com/comercialdonorte",
           },
           {
             id: "ig-9",
-            label: "Confeitaria",
+            label: "14 Anos de Loja",
             imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-06-confeitaria.jpg",
+              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-03-14-anos.jpg",
             linkUrl: "https://www.instagram.com/comercialdonorte",
           },
           {
             id: "ig-10",
-            label: "Delivery Pizza",
-            imageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/pizza.webp",
+            label: "Nossa Equipe",
+            imageUrl:
+              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-04-equipe.jpg",
             linkUrl: "https://www.instagram.com/comercialdonorte",
           },
           {
             id: "ig-11",
-            label: "Artigos Festa",
+            label: "Promoções",
             imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-04-festas.jpg",
+              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-05-promocoes.jpg",
             linkUrl: "https://www.instagram.com/comercialdonorte",
           },
           {
             id: "ig-12",
-            label: "Preço Atacado",
+            label: "Vale-Compras",
             imageUrl:
-              "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/4-mini-card-azul.png.webp",
+              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-06-vale-compras.jpg",
             linkUrl: "https://www.instagram.com/comercialdonorte",
           },
         ],
@@ -910,6 +909,10 @@ export const defaultHomeComposition: PageComposition = {
             whatsappUrl: "https://wa.me/5591983440880",
             mapQueryUrl:
               "https://www.google.com/maps/search/?api=1&query=Comercial+do+Norte+Bernardo+Sayao+Belem",
+            mapEmbedUrl:
+              "https://www.google.com/maps?q=Comercial+do+Norte+Av.+Bernardo+Say%C3%A3o+2450+Jurunas+Bel%C3%A9m+PA&output=embed",
+            lat: -1.4646,
+            lng: -48.4902,
           },
           {
             id: "loja-pedreira",
@@ -927,6 +930,10 @@ export const defaultHomeComposition: PageComposition = {
             whatsappUrl: "https://wa.me/5591983440880",
             mapQueryUrl:
               "https://www.google.com/maps/search/?api=1&query=Comercial+do+Norte+Pedreira+Belem",
+            mapEmbedUrl:
+              "https://www.google.com/maps?q=Comercial+do+Norte+Av.+Pedro+Miranda+1180+Pedreira+Bel%C3%A9m+PA&output=embed",
+            lat: -1.4312,
+            lng: -48.4682,
           },
           {
             id: "loja-atacado",
@@ -944,6 +951,10 @@ export const defaultHomeComposition: PageComposition = {
             whatsappUrl: "https://wa.me/5591983440880",
             mapQueryUrl:
               "https://www.google.com/maps/search/?api=1&query=Comercial+do+Norte+Belem+PA",
+            mapEmbedUrl:
+              "https://www.google.com/maps?q=Comercial+do+Norte+Belem+PA&output=embed",
+            lat: -1.455,
+            lng: -48.48,
           },
         ],
       },

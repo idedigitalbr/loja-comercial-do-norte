@@ -43,8 +43,10 @@ describe('defaultHomeComposition (16 seções site-final + S0/S20)', () => {
     expect(json).toContain('Tudo para todos os negócios');
     expect(json).toContain('OFERTAS IMPERDÍVEIS');
     expect(json).toContain('Nossos Eventos');
+    expect(json).toContain('/assets/HOME Vitrine/S12-EVENTOS/s12-event-01-empreendedores.jpg');
     expect(json).toContain('Explica Aí Nort');
     expect(json).toContain('A Loja no Instagram');
+    expect(json).toContain('/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-02-no-balcao.jpg');
     expect(json).toContain('O que nossos clientes dizem no Google.');
     expect(json).toContain('Encontre nossas unidades');
   });

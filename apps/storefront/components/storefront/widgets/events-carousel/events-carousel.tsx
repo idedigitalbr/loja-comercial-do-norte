@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useElementor } from '@/components/storefront/editor/elementor-editor-context';
 import { InlineImageEditorOverlay } from '@/components/storefront/editor/inline-image-editor-overlay';
 import type { EventsCarouselProps } from '@/lib/storefront/widget-types';
@@ -12,9 +12,6 @@ export function EventsCarouselWidget({
   widgetId,
   title = 'Nossos Eventos',
   subtitle = 'Tudo que acontece no Comercial do Norte',
-  ctaLabel = 'Ver todos os eventos',
-  ctaUrl = '/loja',
-  topThumbUrl = '/assets/PRODUTOS/placeholders/placeholder-1.png',
   items = [],
 }: EventsCarouselProps) {
   const { isEditing, previewMode } = useElementor();
@@ -38,38 +35,15 @@ export function EventsCarouselWidget({
       className="w-full bg-[#060709] bg-[linear-gradient(to_right,#ffffff06_1px,transparent_1px),linear-gradient(to_bottom,#ffffff06_1px,transparent_1px)] bg-[size:36px_36px] py-10 sm:py-14"
     >
       <div className="cn-container">
-        {/* Header escuro com barra vermelha à esquerda e banner largo do palco + botão à direita */}
-        <div className="mb-8 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
-          <div>
-            <p className="text-lg font-medium text-slate-300 sm:text-xl">
-              {title}
-            </p>
-            <h2 className="mt-0.5 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
-              {subtitle}
-            </h2>
-            <div className="mt-2.5 h-1 w-28 rounded-full bg-[#E2091E]" />
-          </div>
-
-          <div className="relative flex h-24 w-full max-w-[540px] items-center justify-end overflow-hidden rounded-2xl border border-white/15 bg-zinc-900 px-5 shadow-lg">
-            {topThumbUrl ? (
-              <Image
-                alt="Eventos Comercial do Norte"
-                className="pointer-events-none absolute inset-0 size-full object-cover opacity-85"
-                height={270}
-                src={topThumbUrl}
-                unoptimized
-                width={1080}
-              />
-            ) : null}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/20 via-black/35 to-black/75" />
-            <Link
-              className="relative z-10 inline-flex items-center gap-2 rounded-xl border border-white/35 bg-black/55 px-4 py-2.5 text-xs font-bold text-white backdrop-blur-xs transition hover:bg-black/80 sm:text-sm"
-              href={ctaUrl}
-            >
-              <span>{ctaLabel}</span>
-              <ArrowRight className="size-4" />
-            </Link>
-          </div>
+        {/* Header escuro com barra vermelha à esquerda */}
+        <div className="mb-8">
+          <p className="text-lg font-medium text-slate-300 sm:text-xl">
+            {title}
+          </p>
+          <h2 className="mt-0.5 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+            {subtitle}
+          </h2>
+          <div className="mt-2.5 h-1 w-28 rounded-full bg-[#E2091E]" />
         </div>
 
         {/* Carrossel de 4 Cartazes Verticais por página */}
