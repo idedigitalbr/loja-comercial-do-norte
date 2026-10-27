@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { InlineImageEditorOverlay } from '@/components/storefront/editor/inline-image-editor-overlay';
-import { useElementor } from '@/components/storefront/editor/elementor-editor-context';
-import type { ContainedHeroProps } from '@/lib/storefront/widget-types';
+import React, { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { InlineImageEditorOverlay } from "@/components/storefront/editor/inline-image-editor-overlay";
+import { useElementor } from "@/components/storefront/editor/elementor-editor-context";
+import type { ContainedHeroProps } from "@/lib/storefront/widget-types";
 
 export function ContainedHeroWidget({
   widgetId,
@@ -41,8 +41,10 @@ export function ContainedHeroWidget({
 
   return (
     <div
-      className={`cn-container relative z-20 pb-6 sm:pb-8 md:pb-10 ${
-        overlapTop ? '-mt-8 sm:-mt-12 md:-mt-16 lg:-mt-20' : ''
+      className={`cn-container relative z-20 ${
+        overlapTop
+          ? "-mt-8 sm:-mt-12 md:-mt-16 lg:-mt-20 pb-6 sm:pb-8 md:pb-10"
+          : "py-4 sm:py-6 md:py-8"
       }`}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
@@ -56,12 +58,14 @@ export function ContainedHeroWidget({
                 aria-hidden={!isActive}
                 className={`group/slide absolute inset-0 transition-all duration-700 ease-in-out ${
                   isActive
-                    ? 'scale-100 opacity-100 z-10 pointer-events-auto'
-                    : 'scale-105 opacity-0 z-0 pointer-events-none'
+                    ? "scale-100 opacity-100 z-10 pointer-events-auto"
+                    : "scale-105 opacity-0 z-0 pointer-events-none"
                 }`}
                 key={slide.id}
               >
-                {slide.linkUrl && slide.linkUrl.trim() !== '' && slide.linkUrl !== '#' ? (
+                {slide.linkUrl &&
+                slide.linkUrl.trim() !== "" &&
+                slide.linkUrl !== "#" ? (
                   <Link
                     aria-label={slide.title}
                     className="block size-full focus:outline-none cursor-pointer"
@@ -72,12 +76,14 @@ export function ContainedHeroWidget({
                     <img
                       alt={slide.altText}
                       className={`block size-full object-cover object-center transition-all duration-300 ${
-                        isEditMode ? 'group-hover/slide:grayscale group-hover/slide:brightness-40' : ''
+                        isEditMode
+                          ? "group-hover/slide:grayscale group-hover/slide:brightness-40"
+                          : ""
                       }`}
                       decoding="async"
                       fetchPriority="auto"
                       height={1056}
-                      loading={index === 0 ? 'eager' : 'lazy'}
+                      loading={index === 0 ? "eager" : "lazy"}
                       src={slide.imageUrl}
                       width={4064}
                     />
@@ -88,12 +94,14 @@ export function ContainedHeroWidget({
                     <img
                       alt={slide.altText}
                       className={`block size-full object-cover object-center transition-all duration-300 ${
-                        isEditMode ? 'group-hover/slide:grayscale group-hover/slide:brightness-40' : ''
+                        isEditMode
+                          ? "group-hover/slide:grayscale group-hover/slide:brightness-40"
+                          : ""
                       }`}
                       decoding="async"
                       fetchPriority="auto"
                       height={1056}
-                      loading={index === 0 ? 'eager' : 'lazy'}
+                      loading={index === 0 ? "eager" : "lazy"}
                       src={slide.imageUrl}
                       width={4064}
                     />
@@ -107,7 +115,7 @@ export function ContainedHeroWidget({
                     currentLinkUrl={slide.linkUrl}
                     slideId={slide.id}
                     title={slide.title}
-                    widgetId={widgetId || 'hero-secundario-contido'}
+                    widgetId={widgetId || "hero-secundario-contido"}
                   />
                 )}
               </div>
@@ -124,7 +132,10 @@ export function ContainedHeroWidget({
               onClick={prevSlide}
               type="button"
             >
-              <ChevronLeft aria-hidden className="size-4 stroke-[2.5] sm:size-5" />
+              <ChevronLeft
+                aria-hidden
+                className="size-4 stroke-[2.5] sm:size-5"
+              />
             </button>
             <button
               aria-label="Próximo slide de campanha"
@@ -132,7 +143,10 @@ export function ContainedHeroWidget({
               onClick={nextSlide}
               type="button"
             >
-              <ChevronRight aria-hidden className="size-4 stroke-[2.5] sm:size-5" />
+              <ChevronRight
+                aria-hidden
+                className="size-4 stroke-[2.5] sm:size-5"
+              />
             </button>
           </>
         ) : null}
@@ -147,8 +161,8 @@ export function ContainedHeroWidget({
                   aria-label={`Ir para a campanha ${index + 1}`}
                   className={`transition-all duration-300 cursor-pointer ${
                     isActive
-                      ? 'flex items-center gap-1 rounded-full bg-[#E2091E] px-2 py-0.5 text-[10px] font-bold text-white'
-                      : 'size-2 rounded-full bg-white/50 hover:bg-white/80'
+                      ? "flex items-center gap-1 rounded-full bg-[#E2091E] px-2 py-0.5 text-[10px] font-bold text-white"
+                      : "size-2 rounded-full bg-white/50 hover:bg-white/80"
                   }`}
                   key={slide.id}
                   onClick={() => setCurrentIndex(index)}

@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { InlineImageEditorOverlay } from '@/components/storefront/editor/inline-image-editor-overlay';
-import { useElementor } from '@/components/storefront/editor/elementor-editor-context';
-import type { HeroCarouselProps } from '@/lib/storefront/widget-types';
+import React, { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { InlineImageEditorOverlay } from "@/components/storefront/editor/inline-image-editor-overlay";
+import { useElementor } from "@/components/storefront/editor/elementor-editor-context";
+import type { HeroCarouselProps } from "@/lib/storefront/widget-types";
 
 export function HeroCarouselWidget({
   widgetId,
@@ -48,7 +48,9 @@ export function HeroCarouselWidget({
     >
       <div
         className="relative w-full overflow-hidden"
-        style={{ backgroundColor: slides[currentIndex]?.backgroundColor ?? '#028F34' }}
+        style={{
+          backgroundColor: slides[currentIndex]?.backgroundColor ?? "#028F34",
+        }}
       >
         <div className="relative w-full h-[180px] sm:h-[240px] md:h-[280px] lg:h-[300px] xl:h-[340px]">
           {slides.map((slide, index) => {
@@ -57,11 +59,15 @@ export function HeroCarouselWidget({
               <div
                 aria-hidden={!isActive}
                 className={`group/slide absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                  isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
+                  isActive
+                    ? "opacity-100 z-10 pointer-events-auto"
+                    : "opacity-0 z-0 pointer-events-none"
                 }`}
                 key={slide.id}
               >
-                {slide.linkUrl && slide.linkUrl.trim() !== '' && slide.linkUrl !== '#' ? (
+                {slide.linkUrl &&
+                slide.linkUrl.trim() !== "" &&
+                slide.linkUrl !== "#" ? (
                   <Link
                     aria-label={slide.title}
                     className="block size-full focus:outline-none cursor-pointer"
@@ -72,11 +78,13 @@ export function HeroCarouselWidget({
                     <img
                       alt={slide.altText}
                       className={`block size-full object-cover object-center transition-all duration-300 ${
-                        isEditMode ? 'group-hover/slide:grayscale group-hover/slide:brightness-40' : ''
+                        isEditMode
+                          ? "group-hover/slide:grayscale group-hover/slide:brightness-40"
+                          : ""
                       }`}
-                      fetchPriority={index === 0 ? 'high' : 'auto'}
+                      fetchPriority={index === 0 ? "high" : "auto"}
                       height={500}
-                      loading={index === 0 ? 'eager' : 'lazy'}
+                      loading={index === 0 ? "eager" : "lazy"}
                       src={slide.imageUrl}
                       width={1920}
                     />
@@ -87,11 +95,13 @@ export function HeroCarouselWidget({
                     <img
                       alt={slide.altText}
                       className={`block size-full object-cover object-center transition-all duration-300 ${
-                        isEditMode ? 'group-hover/slide:grayscale group-hover/slide:brightness-40' : ''
+                        isEditMode
+                          ? "group-hover/slide:grayscale group-hover/slide:brightness-40"
+                          : ""
                       }`}
-                      fetchPriority={index === 0 ? 'high' : 'auto'}
+                      fetchPriority={index === 0 ? "high" : "auto"}
                       height={500}
-                      loading={index === 0 ? 'eager' : 'lazy'}
+                      loading={index === 0 ? "eager" : "lazy"}
                       src={slide.imageUrl}
                       width={1920}
                     />
@@ -105,7 +115,7 @@ export function HeroCarouselWidget({
                     currentLinkUrl={slide.linkUrl}
                     slideId={slide.id}
                     title={slide.title}
-                    widgetId={widgetId || 'ml-hero-superior'}
+                    widgetId={widgetId || "ml-hero-superior"}
                   />
                 )}
               </div>
@@ -122,7 +132,10 @@ export function HeroCarouselWidget({
               onClick={prevSlide}
               type="button"
             >
-              <ChevronLeft aria-hidden className="size-5 stroke-[2.5] sm:size-6" />
+              <ChevronLeft
+                aria-hidden
+                className="size-5 stroke-[2.5] sm:size-6"
+              />
             </button>
             <button
               aria-label="Próximo slide"
@@ -130,21 +143,26 @@ export function HeroCarouselWidget({
               onClick={nextSlide}
               type="button"
             >
-              <ChevronRight aria-hidden className="size-5 stroke-[2.5] sm:size-6" />
+              <ChevronRight
+                aria-hidden
+                className="size-5 stroke-[2.5] sm:size-6"
+              />
             </button>
           </>
         ) : null}
 
         {/* Pontos de Paginação com Pílula Ativa */}
         {showDots && slides.length > 1 ? (
-          <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 sm:bottom-8">
+          <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-black/40 px-3 py-1.5 backdrop-blur-xs sm:bottom-6">
             {slides.map((slide, index) => {
               const isActive = index === currentIndex;
               return (
                 <button
                   aria-label={`Ir para o slide ${index + 1}`}
                   className={`h-2 rounded-full transition-all duration-300 focus:outline-none cursor-pointer ${
-                    isActive ? 'w-6 bg-white shadow-md' : 'w-2 bg-white/50 hover:bg-white/80'
+                    isActive
+                      ? "w-6 bg-white shadow-md"
+                      : "w-2 bg-white/50 hover:bg-white/80"
                   }`}
                   key={slide.id}
                   onClick={() => setCurrentIndex(index)}

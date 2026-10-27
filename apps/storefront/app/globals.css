@@ -1,6 +1,6 @@
-@import 'tailwindcss';
-@import '@commerce/ui/styles/tokens.css';
-@import '../components/storefront/widgets/promo-strip/whatsapp-phone-animation.css';
+@import "tailwindcss";
+@import "@commerce/ui/styles/tokens.css";
+@import "../components/storefront/widgets/promo-strip/whatsapp-phone-animation.css";
 
 /*
  * Mapeia os tokens oficiais (packages/ui/src/styles/tokens.css) para os
@@ -37,6 +37,11 @@
 
 :root {
   color-scheme: light;
+}
+
+html,
+body {
+  overflow-x: clip;
 }
 
 body {

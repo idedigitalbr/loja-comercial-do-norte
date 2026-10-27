@@ -18,17 +18,16 @@ export const defaultHomeComposition: PageComposition = {
         autoplayIntervalMs: 5500,
         showArrows: true,
         showDots: true,
-        bottomGradient: true,
+        bottomGradient: false,
         slides: [
           {
-            id: "slide-pizzaria-main",
-            title: "Tudo para sua Pizzaria — Do Preparo à Entrega",
+            id: "slide-festa-main",
+            title: "A Festa Começa Aqui — Detalhes que Fazem a Diferença",
             imageUrl:
               "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (1).webp",
-            linkUrl: "/loja?q=pizza",
-            altText:
-              "Tudo para sua Pizzaria — Caixas de Pizza, Embalagens e Descartáveis no Comercial do Norte",
-            backgroundColor: "#022B76",
+            linkUrl: "/categoria/festas",
+            altText: "A Festa Começa Aqui — Comercial do Norte",
+            backgroundColor: "#E2091E",
           },
           {
             id: "slide-topo-2",
@@ -81,16 +80,8 @@ export const defaultHomeComposition: PageComposition = {
         autoplayIntervalMs: 6000,
         showArrows: true,
         showDots: true,
-        overlapTop: true,
+        overlapTop: false,
         slides: [
-          {
-            id: "contained-slide-para-trigo",
-            title: "Para Trigo 2026 — Domingo das 14h às 16h",
-            imageUrl:
-              "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_m54tnlm54tnlm54t.jpg",
-            linkUrl: "/cotacao",
-            altText: "Para Trigo 2026 Domingo 14h às 16h Comercial do Norte",
-          },
           {
             id: "contained-slide-feirante",
             title: "Semana do Feirante — Copo Descartável 180ml Cristalcopo",
@@ -99,6 +90,14 @@ export const defaultHomeComposition: PageComposition = {
             linkUrl: "/loja?q=copo",
             altText:
               "Semana do Feirante Comercial do Norte — Copo Descartável 180ml Cristalcopo",
+          },
+          {
+            id: "contained-slide-para-trigo",
+            title: "Para Trigo 2026 — Domingo das 14h às 16h",
+            imageUrl:
+              "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_m54tnlm54tnlm54t.jpg",
+            linkUrl: "/cotacao",
+            altText: "Para Trigo 2026 Domingo 14h às 16h Comercial do Norte",
           },
           {
             id: "contained-slide-outlet",

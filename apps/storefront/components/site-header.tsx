@@ -73,28 +73,11 @@ export function SiteHeader({
         id="siteHeader"
         className="relative w-full shadow-md z-30 bg-[#004CB1]"
       >
-        {/* MASCOTE NORT 3D OFICIAL (Sobreposto às 3 barras do cabeçalho, alinhado à base sem vazar da seção) */}
-        <Link
-          aria-label={`${siteName} - Ir para a Página Inicial`}
-          className="group/mascot absolute bottom-0 left-3 z-40 hidden md:block lg:left-6 cursor-pointer"
-          href="/"
-        >
-          <div className="relative h-[134px] w-[96px] lg:h-[144px] lg:w-[105px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95">
-            <Image
-              alt="Mascote NORT 3D Comercial do Norte - Ir para a Página Inicial"
-              className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)] object-contain object-bottom"
-              fill
-              priority
-              sizes="105px"
-              src="/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-01-principal.png"
-            />
-          </div>
-        </Link>
         {/* BARRA 01: FAIXA SUPERIOR VERMELHA DE BENEFÍCIOS (FIGMA OFICIAL) */}
         <div className="bg-[#E2091E] px-3 py-1.5 text-white sm:px-4 md:px-6">
           <div className="cn-container flex items-center justify-between text-[11px] sm:text-xs">
             {/* Benefícios (Esquerda) com recuo para não sobrepor o Mascote NORT em desktop */}
-            <div className="no-scrollbar flex items-center gap-2 overflow-x-auto py-0.5 pl-0 font-medium sm:gap-4 md:pl-[96px] lg:gap-5 lg:pl-[108px]">
+            <div className="no-scrollbar flex items-center gap-2 overflow-x-auto py-0.5 pl-0 font-medium sm:gap-4 md:pl-[82px] lg:gap-5 lg:pl-[90px]">
               <div className="flex items-center gap-1.5 whitespace-nowrap text-white">
                 <Truck aria-hidden className="size-3.5 flex-shrink-0" />
                 <span>Entrega em Belém e Região Metropolitana</span>
@@ -128,9 +111,26 @@ export function SiteHeader({
 
         {/* BARRA 02: PRINCIPAL AZUL (#004CB1) COM LOGO, MASCOTE NORT 3D, BUSCA E COTAÇÃO */}
         <div className="relative bg-[#004CB1] px-3 py-2 text-white sm:px-4 sm:py-3 md:px-6">
+          {/* MASCOTE NORT 3D OFICIAL (Ancorado na base da Barra 02 e vazando sobre a faixa vermelha) */}
+          <Link
+            aria-label={`${siteName} - Ir para a Página Inicial`}
+            className="group/mascot absolute bottom-0 left-2 z-30 hidden md:block lg:left-4 cursor-pointer"
+            href="/"
+          >
+            <div className="relative h-[98px] w-[78px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 lg:h-[106px] lg:w-[84px]">
+              <Image
+                alt="Mascote NORT 3D Comercial do Norte - Ir para a Página Inicial"
+                className="drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)] object-contain object-bottom"
+                fill
+                priority
+                sizes="84px"
+                src="/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-01-principal.png"
+              />
+            </div>
+          </Link>
           <div className="cn-container flex items-center justify-between gap-3 md:gap-4">
             {/* LADO ESQUERDO: HAMBURGER (MOBILE) + LOGO BRANCA */}
-            <div className="flex items-center gap-2 sm:gap-3 md:pl-[96px] lg:pl-[108px]">
+            <div className="flex items-center gap-2 sm:gap-3 md:pl-[82px] lg:pl-[90px]">
               {/* Botão Menu Hamburger Mobile */}
               <button
                 aria-label="Abrir menu principal"
@@ -294,9 +294,9 @@ export function SiteHeader({
 
         {/* BARRA 03: SUBNORMAL AZUL ESCURO (#00357B) - DEPARTAMENTOS E CATEGORIAS */}
         <div className="hidden border-t border-white/10 bg-[#00357B] px-3 text-xs font-semibold text-white md:block md:px-6">
-          <div className="cn-container flex items-center justify-between">
+          <div className="cn-container flex items-center justify-between overflow-x-clip">
             {/* Menu Departamentos (Dropdown) */}
-            <div className="flex items-center gap-1 md:pl-[96px] lg:pl-[108px]">
+            <div className="flex items-center gap-0.5 lg:gap-1 xl:gap-1.5">
               <div className="group relative">
                 <button
                   className="flex items-center gap-2 py-2.5 pr-4 pl-2 text-white hover:bg-white/10 rounded-sm transition cursor-pointer"
@@ -390,6 +390,17 @@ export function SiteHeader({
                       config={CATEGORY_MENUS_DATA.confeitaria}
                     />
                   </div>
+                </div>
+
+                {/* Mega Menu: Sacos & Sacolas (Estilo Magalu) */}
+                <div className="group/cat relative hidden lg:block">
+                  <Link
+                    className="flex items-center gap-1 rounded-full px-2 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap text-[11.5px] lg:text-xs"
+                    href="/loja?q=sacola"
+                  >
+                    <span>Sacos &amp; Sacolas</span>
+                    <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
+                  </Link>
                 </div>
 
                 {/* Mega Menu: Limpeza Profissional (Estilo Magalu) */}
