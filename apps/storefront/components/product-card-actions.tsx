@@ -45,7 +45,7 @@ export function ProductCardActions({
     <div className="flex w-full flex-col gap-1.5">
       {/* Botão 1: Cotar agora (Equivalente a Comprar Agora - Ação Principal em Destaque) */}
       <button
-        className="inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-[#004CB1] px-3 py-2 text-xs font-bold text-white shadow-xs transition duration-150 hover:bg-[#003882] active:scale-[0.98]"
+        className="inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-[#004CB1] px-3 py-1.5 text-xs font-bold text-white shadow-xs transition duration-150 hover:bg-[#003882] active:scale-[0.98]"
         onClick={handleInstantQuote}
         title="Cotar agora (ir direto para a cotação)"
         type="button"

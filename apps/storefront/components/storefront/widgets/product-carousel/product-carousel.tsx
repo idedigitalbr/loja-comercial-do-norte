@@ -364,7 +364,7 @@ export function ProductCarouselWidget({
 
           {/* Card Direito: Carrossel 3 Produtos em Promoção */}
           <div className="relative flex flex-col rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.04)] sm:p-5 lg:col-span-8">
-            <div className="mb-4 sm:mb-5 flex items-center justify-between gap-2">
+            <div className="mb-5 sm:mb-6 flex items-center justify-between gap-2">
               <div className="flex items-baseline gap-2.5">
                 {renderEditableTitle()}
                 <Link
@@ -421,7 +421,7 @@ export function ProductCarouselWidget({
   return (
     <section aria-label={title} className="cn-container py-3 sm:py-4">
       <div className="relative rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.04)] sm:p-5">
-        <div className="mb-4 sm:mb-5 flex items-center justify-between gap-2">
+        <div className="mb-5 sm:mb-6 flex items-center justify-between gap-2">
           <div className="flex items-baseline gap-2.5">
             {renderEditableTitle()}
             <Link
