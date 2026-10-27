@@ -117,7 +117,7 @@ export function SiteHeader({
             className="group/mascot absolute bottom-0 left-2 z-30 hidden md:block lg:left-3 cursor-pointer"
             href="/"
           >
-            <div className="relative h-[90px] w-[72px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 sm:h-[92px] sm:w-[74px] lg:h-[94px] lg:w-[76px]">
+            <div className="relative h-[98px] w-[78px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 sm:h-[100px] sm:w-[80px] lg:h-[102px] lg:w-[82px]">
               <Image
                 alt="Mascote NORT 3D Comercial do Norte - Ir para a Página Inicial"
                 className="drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)] object-contain object-bottom"
@@ -289,13 +289,13 @@ export function SiteHeader({
         </div>
 
         {/* BARRA 03: SUBNORMAL AZUL ESCURO (#00357B) - DEPARTAMENTOS E CATEGORIAS */}
-        <div className="hidden border-t border-white/10 bg-[#00357B] px-3 text-xs font-semibold text-white md:block md:px-6">
-          <div className="cn-container flex items-center justify-between overflow-x-clip">
+        <div className="hidden border-t border-white/10 bg-[#00357B] text-xs font-semibold text-white md:block">
+          <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 flex items-center justify-between overflow-x-clip flex-nowrap">
             {/* Menu Departamentos (Dropdown) */}
-            <div className="flex items-center gap-0.5 lg:gap-1 xl:gap-1.5">
+            <div className="flex items-center gap-0.5 lg:gap-1 flex-nowrap w-full justify-between">
               <div className="group relative">
                 <button
-                  className="flex items-center gap-2 py-2.5 pr-4 pl-2 text-white hover:bg-white/10 rounded-sm transition cursor-pointer whitespace-nowrap text-[12px] font-semibold"
+                  className="flex items-center gap-1.5 py-2 px-2 text-white hover:bg-white/10 rounded-sm transition cursor-pointer whitespace-nowrap text-[11px] lg:text-[11.5px] xl:text-[12px] font-semibold shrink-0"
                   type="button"
                 >
                   <Menu className="size-4" />
@@ -315,7 +315,7 @@ export function SiteHeader({
               </div>
 
               {/* Links Rápidos em Destaque (site-final) */}
-              <div className="flex items-center gap-1 pl-1">
+              <div className="flex items-center gap-0.5 sm:gap-1 flex-nowrap shrink-0 text-[11px] lg:text-[11.5px] xl:text-[12px]">
                 {/* Ofertas do Dia */}
                 <span className="inline-block h-4 w-px bg-white/25 mx-1" />
                 <Link
@@ -331,7 +331,7 @@ export function SiteHeader({
                 {/* Mega Menu: Embalagens (Estilo Magalu) */}
                 <div className="group/cat relative">
                   <Link
-                    className="flex items-center gap-1 rounded-full px-2.5 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white"
+                    className="flex items-center gap-1 rounded-full px-1.5 sm:px-2 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
                     href="/categoria/embalagens"
                   >
                     <span>Embalagens</span>
@@ -345,7 +345,7 @@ export function SiteHeader({
                 {/* Mega Menu: Descartáveis (Estilo Magalu) */}
                 <div className="group/cat relative">
                   <Link
-                    className="flex items-center gap-1 rounded-full px-2.5 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white"
+                    className="flex items-center gap-1 rounded-full px-1.5 sm:px-2 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
                     href="/categoria/descartaveis"
                   >
                     <span>Descartáveis</span>
@@ -361,7 +361,7 @@ export function SiteHeader({
                 {/* Mega Menu: Artigos para Festa (Estilo Magalu) */}
                 <div className="group/cat relative">
                   <Link
-                    className="flex items-center gap-1 rounded-full px-2.5 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white"
+                    className="flex items-center gap-1 rounded-full px-1.5 sm:px-2 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
                     href="/categoria/artigos-festa"
                   >
                     <span>Artigos para Festa</span>
@@ -373,9 +373,9 @@ export function SiteHeader({
                 </div>
 
                 {/* Mega Menu: Doces & Confeitaria (Estilo Magalu) */}
-                <div className="group/cat relative hidden xl:block">
+                <div className="group/cat relative hidden md:block">
                   <Link
-                    className="flex items-center gap-1 rounded-full px-2.5 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white"
+                    className="flex items-center gap-1 rounded-full px-1.5 sm:px-2 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
                     href="/categoria/confeitaria"
                   >
                     <span>Doces &amp; Confeitaria</span>
@@ -389,9 +389,9 @@ export function SiteHeader({
                 </div>
 
                 {/* Mega Menu: Sacos & Sacolas (Estilo Magalu) */}
-                <div className="group/cat relative hidden lg:block">
+                <div className="group/cat relative hidden md:block">
                   <Link
-                    className="flex items-center gap-1 rounded-full px-2 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap text-[11.5px] lg:text-xs"
+                    className="flex items-center gap-1 rounded-full px-1.5 sm:px-2 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap text-[11px] lg:text-[11.5px] xl:text-[12px]"
                     href="/loja?q=sacola"
                   >
                     <span>Sacos &amp; Sacolas</span>
@@ -400,9 +400,9 @@ export function SiteHeader({
                 </div>
 
                 {/* Mega Menu: Limpeza Profissional (Estilo Magalu) */}
-                <div className="group/cat relative hidden lg:block">
+                <div className="group/cat relative hidden md:block">
                   <Link
-                    className="flex items-center gap-1 rounded-full px-2.5 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white"
+                    className="flex items-center gap-1 rounded-full px-1.5 sm:px-2 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white"
                     href="/categoria/limpeza"
                   >
                     <span>Limpeza Profissional</span>
