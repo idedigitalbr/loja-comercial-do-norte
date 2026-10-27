@@ -97,27 +97,27 @@ export function SiteHeader({
             {/* WhatsApp Vendas (Direita) */}
             <div className="flex items-center gap-2 whitespace-nowrap pl-2">
               <a
-                className="flex items-center gap-1.5 font-bold text-white transition hover:text-amber-200"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#B80617] hover:bg-[#9E0514] px-3 py-0.5 font-bold text-white transition text-[11px]"
                 href={`https://wa.me/${whatsappDigits}`}
                 rel="noreferrer"
                 target="_blank"
               >
                 <Phone aria-hidden className="size-3 flex-shrink-0" />
-                <span>{whatsappDisplay} - WhatsApp Vendas</span>
+                <span>{whatsappDisplay} • WhatsApp Vendas</span>
               </a>
             </div>
           </div>
         </div>
 
         {/* BARRA 02: PRINCIPAL AZUL (#004CB1) COM LOGO, MASCOTE NORT 3D, BUSCA E COTAÇÃO */}
-        <div className="relative bg-[#004CB1] px-3 py-2 text-white sm:px-4 sm:py-3 md:px-6">
+        <div className="relative bg-[#004CB1] px-3 py-2.5 text-white sm:px-4 sm:py-3 md:px-6">
           {/* MASCOTE NORT 3D OFICIAL (Ancorado na base da Barra 02 e vazando sobre a faixa vermelha) */}
           <Link
             aria-label={`${siteName} - Ir para a Página Inicial`}
             className="group/mascot absolute bottom-0 left-2 z-30 hidden md:block lg:left-4 cursor-pointer"
             href="/"
           >
-            <div className="relative h-[98px] w-[78px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 lg:h-[106px] lg:w-[84px]">
+            <div className="relative h-[98px] w-[78px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 lg:h-[102px] lg:w-[82px]">
               <Image
                 alt="Mascote NORT 3D Comercial do Norte - Ir para a Página Inicial"
                 className="drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)] object-contain object-bottom"
@@ -147,18 +147,14 @@ export function SiteHeader({
                 className="flex items-center"
                 href="/"
               >
-                <div className="relative h-9 w-[150px] sm:h-11 sm:w-[170px] lg:h-12 lg:w-[190px]">
+                <div className="relative h-10 w-[170px] sm:h-11 sm:w-[190px] lg:h-12 lg:w-[210px]">
                   <Image
                     alt={siteName}
                     className="object-contain object-left"
                     fill
                     priority
-                    sizes="(max-width: 640px) 150px, (max-width: 1024px) 170px, 190px"
-                    src={
-                      logoUrl && !logoUrl.includes("seed-brand")
-                        ? logoUrl
-                        : "/logo-comercial-do-norte-branca.png"
-                    }
+                    sizes="(max-width: 640px) 170px, (max-width: 1024px) 190px, 210px"
+                    src="/logo-comercial-do-norte-branca.png"
                   />
                 </div>
               </Link>
@@ -168,17 +164,17 @@ export function SiteHeader({
             <button
               aria-haspopup="dialog"
               aria-label={`Enviar para ${location.shortLabel}. Clique para alterar CEP ou endereço.`}
-              className="hidden items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 px-3 py-1.5 text-xs text-white xl:flex transition cursor-pointer text-left group shadow-xs"
+              className="hidden items-center gap-2 px-2 py-1 text-xs text-white xl:flex transition cursor-pointer text-left hover:opacity-90 shrink-0 group"
               onClick={openModal}
               type="button"
             >
               <MapPin className="size-4 shrink-0 text-amber-300 transition-transform group-hover:scale-110" />
-              <div className="leading-tight min-w-0 max-w-[170px]">
-                <span className="block text-[10px] text-white/75 font-medium">
+              <div className="leading-tight">
+                <span className="block text-[10.5px] text-white/80 font-normal">
                   Enviar para
                 </span>
                 <div className="flex items-center gap-1">
-                  <span className="font-bold truncate text-white">
+                  <span className="font-bold truncate text-white max-w-[145px]">
                     {location.shortLabel}
                   </span>
                   <ChevronDown className="size-3 text-white/70 transition-transform group-hover:translate-y-0.5 shrink-0" />
@@ -187,14 +183,14 @@ export function SiteHeader({
             </button>
 
             {/* BARRA DE BUSCA CENTRAL COM BOTÃO CIRCULAR AZUL */}
-            <div className="flex-1 max-w-2xl">
+            <div className="flex-1 max-w-2xl xl:max-w-3xl">
               <form
                 className="relative flex items-center w-full"
                 onSubmit={submitSearch}
               >
                 <input
                   aria-label="Buscar produtos, categorias ou marcas"
-                  className="w-full rounded-full bg-white py-2.5 pr-12 pl-4 text-xs sm:text-sm text-slate-800 placeholder-slate-400 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#00357B] transition-all"
+                  className="w-full rounded-full bg-white py-2.5 sm:py-3 pr-14 pl-5 text-xs sm:text-sm text-slate-800 placeholder-slate-400 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#00357B] transition-all"
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Buscar embalagens, copos descartáveis, caixas de pizza, sacolas..."
                   type="search"
@@ -202,10 +198,10 @@ export function SiteHeader({
                 />
                 <button
                   aria-label="Pesquisar"
-                  className="absolute right-1.5 flex size-8 cursor-pointer items-center justify-center rounded-full bg-[#004CB1] text-white transition hover:bg-[#00357B] hover:scale-105 active:scale-95 shadow-sm"
+                  className="absolute right-1.5 flex size-9 cursor-pointer items-center justify-center rounded-full bg-[#004CB1] text-white transition hover:bg-[#00357B] hover:scale-105 active:scale-95 shadow-sm"
                   type="submit"
                 >
-                  <Search className="size-4 stroke-[2.4]" />
+                  <Search className="size-4 stroke-[2.5]" />
                 </button>
               </form>
             </div>
@@ -299,7 +295,7 @@ export function SiteHeader({
             <div className="flex items-center gap-0.5 lg:gap-1 xl:gap-1.5">
               <div className="group relative">
                 <button
-                  className="flex items-center gap-2 py-2.5 pr-4 pl-2 text-white hover:bg-white/10 rounded-sm transition cursor-pointer"
+                  className="flex items-center gap-2 py-2.5 pr-4 pl-2 text-white hover:bg-white/10 rounded-sm transition cursor-pointer whitespace-nowrap text-[12px] font-semibold"
                   type="button"
                 >
                   <Menu className="size-4" />
@@ -321,11 +317,11 @@ export function SiteHeader({
               {/* Links Rápidos em Destaque (site-final) */}
               <div className="flex items-center gap-1 pl-1">
                 {/* Ofertas do Dia */}
+                <span className="inline-block h-4 w-px bg-white/25 mx-1" />
                 <Link
-                  className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-white/95 hover:bg-white/10 hover:text-white transition"
+                  className="flex items-center gap-1.5 rounded-full px-2 py-1 text-white/95 hover:bg-white/10 hover:text-white transition whitespace-nowrap text-[12px] font-semibold"
                   href="/loja?oferta=1"
                 >
-                  <Sparkles className="size-3.5 text-amber-300" />
                   <span>Ofertas do Dia</span>
                   <span className="rounded bg-[#E2091E] px-1.5 py-0.2 text-[9px] font-black uppercase text-white">
                     NOVO

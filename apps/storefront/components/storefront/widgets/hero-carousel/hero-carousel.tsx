@@ -47,12 +47,12 @@ export function HeroCarouselWidget({
       onMouseLeave={() => setIsPaused(false)}
     >
       <div
-        className="relative w-full overflow-hidden"
+        className="relative w-full overflow-hidden rounded-b-[28px] sm:rounded-b-[36px] md:rounded-b-[44px] shadow-md"
         style={{
           backgroundColor: slides[currentIndex]?.backgroundColor ?? "#028F34",
         }}
       >
-        <div className="relative w-full h-[180px] sm:h-[240px] md:h-[280px] lg:h-[300px] xl:h-[340px]">
+        <div className="relative w-full h-[200px] sm:h-[260px] md:h-[320px] lg:h-[360px] xl:h-[400px]">
           {slides.map((slide, index) => {
             const isActive = index === currentIndex;
             return (
@@ -161,7 +161,7 @@ export function HeroCarouselWidget({
                   aria-label={`Ir para o slide ${index + 1}`}
                   className={`h-2 rounded-full transition-all duration-300 focus:outline-none cursor-pointer ${
                     isActive
-                      ? "w-6 bg-white shadow-md"
+                      ? "w-6 bg-[#E2091E] shadow-md"
                       : "w-2 bg-white/50 hover:bg-white/80"
                   }`}
                   key={slide.id}
