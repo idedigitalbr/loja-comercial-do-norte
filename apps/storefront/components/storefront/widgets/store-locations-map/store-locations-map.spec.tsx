@@ -1,0 +1,108 @@
+/**
+ * @vitest-environment jsdom
+ */
+import { describe, expect, it } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+import { StoreLocationsMapWidget } from './store-locations-map';
+import type { StoreLocationItem } from '@/lib/storefront/widget-types';
+
+const mockLocations: StoreLocationItem[] = [
+  {
+    id: 'loja-jurunas',
+    name: 'Comercial do Norte — Jurunas',
+    subtitle: 'Loja de Embalagens e Descartáveis',
+    ratingText: '4,8 (1.240)',
+    imageUrl: '/assets/loja-jurunas.webp',
+    badge: 'Aberto',
+    isFeatured: true,
+    address: 'Av. Bernardo Sayão, 2450 — Jurunas, Belém - PA',
+    hoursWeekdays: 'Fecha às 18:00',
+    hoursSaturday: 'Sáb: 07h30 às 14h00',
+    phone: '(91) 98344-0880',
+    whatsappUrl: 'https://wa.me/5591983440880',
+    mapQueryUrl: 'https://www.google.com/maps/search/?api=1&query=Comercial+do+Norte+Bernardo+Sayao+Belem',
+    mapEmbedUrl: 'https://www.google.com/maps?q=Comercial+do+Norte+Jurunas&output=embed',
+  },
+  {
+    id: 'loja-pedreira',
+    name: 'Comercial do Norte — Pedreira',
+    subtitle: 'Loja de Embalagens e Artigos para Festa',
+    ratingText: '4,9 (890)',
+    imageUrl: '/assets/loja-pedreira.webp',
+    badge: 'Fechado',
+    isFeatured: false,
+    address: 'Av. Pedro Miranda, 1180 — Pedreira, Belém - PA',
+    hoursWeekdays: 'Abre às 08:00',
+    hoursSaturday: 'Sáb: 08h00 às 13h00',
+    phone: '(91) 98344-0880',
+    whatsappUrl: 'https://wa.me/5591983440880',
+    mapQueryUrl: 'https://www.google.com/maps/search/?api=1&query=Comercial+do+Norte+Pedreira+Belem',
+    mapEmbedUrl: 'https://www.google.com/maps?q=Comercial+do+Norte+Pedreira&output=embed',
+  },
+];
+
+describe('StoreLocationsMapWidget', () => {
+  it('renderiza as lojas e atualiza o mapa ao clicar em outra unidade', () => {
+    const { container } = render(
+      <StoreLocationsMapWidget
+        locations={mockLocations}
+        mapEmbedUrl="https://www.google.com/maps?q=Belem&output=embed"
+        searchPlaceholder="Buscar unidade"
+        subtitle="Lojas mais perto de você"
+        title="Encontre nossas unidades"
+      />,
+    );
+
+    // Initial check: iframe should point to Jurunas
+    const iframe = container.querySelector('iframe');
+    expect(iframe).not.toBeNull();
+    expect(iframe?.getAttribute('src')).toBe('https://www.google.com/maps?q=Comercial+do+Norte+Jurunas&output=embed');
+
+    // Click on Pedreira
+    const pedreiraCard = screen.getByText('Comercial do Norte — Pedreira');
+    fireEvent.click(pedreiraCard);
+
+    // After click, iframe should update to Pedreira
+    const updatedIframe = container.querySelector('iframe');
+    expect(updatedIframe?.getAttribute('src')).toBe('https://www.google.com/maps?q=Comercial+do+Norte+Pedreira&output=embed');
+
+    // "Como chegar" button should update to Pedreira URL
+    const directionsLink = screen.getByTitle('Abrir rota no Google Maps');
+    expect(directionsLink.getAttribute('href')).toBe('https://www.google.com/maps/search/?api=1&query=Comercial+do+Norte+Pedreira+Belem');
+  });
+
+  it('não possui classes amarelas (amber) na identidade visual dark mode', () => {
+    const { container } = render(
+      <StoreLocationsMapWidget
+        locations={mockLocations}
+        mapEmbedUrl="https://www.google.com/maps?q=Belem&output=embed"
+        searchPlaceholder="Buscar unidade"
+        subtitle="Lojas mais perto de você"
+        title="Encontre nossas unidades"
+      />,
+    );
+
+    const html = container.innerHTML;
+    expect(html).not.toContain('amber');
+    expect(html).not.toContain('yellow');
+  });
+
+  it('exibe badge "Aberto" em verde e "Fechado" em vermelho', () => {
+    render(
+      <StoreLocationsMapWidget
+        locations={mockLocations}
+        mapEmbedUrl="https://www.google.com/maps?q=Belem&output=embed"
+        searchPlaceholder="Buscar unidade"
+        subtitle="Lojas mais perto de você"
+        title="Encontre nossas unidades"
+      />,
+    );
+
+    const abertoElement = screen.getAllByText('Aberto')[0];
+    expect(abertoElement.className).toContain('text-emerald-400');
+
+    const fechadoElement = screen.getAllByText('Fechado')[0];
+    expect(fechadoElement.className).toContain('text-rose-400');
+  });
+});
