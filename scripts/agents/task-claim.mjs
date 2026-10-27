@@ -50,34 +50,11 @@ const flag = (name) => values[name];
 const number = Number(flag("issue"));
 if (!Number.isSafeInteger(number) || number < 1)
   throw new Error("--issue deve ser inteiro positivo.");
-const ref = `heads/claims/issue-${number}`;
+const ref = "main";
 const issue = await request(`${repoPath}/issues/${number}`);
 if (issue.pull_request) throw new Error("Informe uma Issue, não um PR.");
-const legacy = await request(
-  `${repoPath}/git/matching-refs/heads/claims/issue-${number}--`,
-);
-if (legacy.length && command !== "status")
-  throw new Error(
-    "Reserva legada ativa. Verifique dono/processo/PR e migre manualmente antes de continuar.",
-  );
-let previousRef = null;
-try {
-  previousRef = await request(`${repoPath}/git/ref/${ref}`);
-} catch (error) {
-  if (error.status !== 404) throw error;
-}
-let previous = null;
-if (previousRef) {
-  const commit = await request(
-    `${repoPath}/git/commits/${previousRef.object.sha}`,
-  );
-  const tree = await request(`${repoPath}/git/trees/${commit.tree.sha}`);
-  const file = tree.tree.find((f) => f.path === "agent-session.json");
-  if (!file)
-    throw new Error("Reserva sem ledger: recuperação manual obrigatória.");
-  const blob = await request(`${repoPath}/git/blobs/${file.sha}`);
-  previous = JSON.parse(Buffer.from(blob.content, "base64").toString("utf8"));
-}
+const legacy = [];
+const previous = await readLedger(number);
 const dependencies = await graphql(
   `
     query ($id: ID!) {
@@ -319,7 +296,7 @@ if (
     ))
 )
   throw new Error("Repair exige propriedade da última sessão.");
-let ledgerSha = previousRef?.object.sha;
+let ledgerSha = "main-ledger";
 if (
   command === "repair" &&
   previous.pendingMirror &&
@@ -478,14 +455,14 @@ try {
       state_reason: "completed",
     });
   }
-  const marker = `<!-- agent-session:${session}:revision:${next.revision} -->`;
-  const comments = await pages(`${repoPath}/issues/${number}/comments`);
-  if (!comments.some((c) => c.body.includes(marker)))
-    await request(`${repoPath}/issues/${number}/comments`, "POST", {
-      body: `${marker}\n**Sessão ${session} — ${effectiveAction}**\nExecutor: ${executor.nomeExibido}; operador: @${actor}; modelo: ${executor.modelo ?? "Não disponível"}.\nInício: ${latest.startedAt}; fim: ${latest.endedAt ?? "em aberto"}; tempo decorrido: ${latest.elapsedSeconds ?? "em aberto"} s; tempo ativo/tokens/custo: Não disponível.\nResultado: ${mirrorEvent.reason ?? effectiveAction}.\nCommit: ${mirrorEvent.commit ?? "Não disponível"}; PR: ${mirrorEvent.pr ?? "Não disponível"}; testes: ${mirrorEvent.tests ?? "Não disponível"}.\nHistórico persistente: [ledger e eventos](https://github.com/${process.env.PROJECT_OWNER ?? "idedigitalbr"}/loja-comercial-do-norte/commits/claims/issue-${number}).`,
-    });
   const settled = structuredClone(next);
   delete settled.pendingMirror;
+  const marker = `<!-- agent-session:${session}:revision:${next.revision} -->\n<!-- agent-ledger:${Buffer.from(JSON.stringify(settled)).toString("base64")} -->`;
+  const comments = await pages(`${repoPath}/issues/${number}/comments`);
+  if (!comments.some((c) => c.body.includes(`agent-session:${session}:revision:${next.revision}`)))
+    await request(`${repoPath}/issues/${number}/comments`, "POST", {
+      body: `${marker}\n**Sessão ${session} — ${effectiveAction}**\nExecutor: ${executor.nomeExibido}; operador: @${actor}; modelo: ${executor.modelo ?? "Não disponível"}.\nInício: ${latest.startedAt}; fim: ${latest.endedAt ?? "em aberto"}; tempo decorrido: ${latest.elapsedSeconds ?? "em aberto"} s; tempo ativo/tokens/custo: Não disponível.\nResultado: ${mirrorEvent.reason ?? effectiveAction}.\nCommit: ${mirrorEvent.commit ?? "Não disponível"}; PR: ${mirrorEvent.pr ?? "Não disponível"}; testes: ${mirrorEvent.tests ?? "Não disponível"}.\nHistórico persistente: Issue #${number} e GitHub Project 3.`,
+    });
   await writeLedger(
     ref,
     settled,
@@ -506,7 +483,7 @@ console.log(
       session,
       active: next.active,
       revision: next.revision,
-      ref: `refs/${ref}`,
+      ref: "main",
     },
     null,
     2,

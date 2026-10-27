@@ -188,21 +188,19 @@ for (const group of groupItems) {
   });
 }
 const groupPeriods = [...groupScheduleByIssue.values()];
-const refs = await request(`${repoPath}/git/matching-refs/heads/claims/`);
 const activeReservations = [];
-for (const ref of refs) {
-  const match = ref.ref.match(/^refs\/heads\/claims\/issue-(\d+)$/);
-  if (!match) continue;
-  const ledger = await readLedger(Number(match[1]));
-  if (ledger?.active) activeReservations.push({ issue: Number(match[1]), executorId: ledger.active.executorId, activity: activityStatus(ledger), lastActivityAt: ledger.lastActivityAt ?? null });
-}
 for (const item of items) {
   const issueNumber = item.content?.number;
   if (!issueNumber) continue;
   const actual = item.fieldValues.nodes.find((value) => value.field?.name === "Agente executando")?.name ?? null;
-  const active = activeReservations.find((reservation) => reservation.issue === issueNumber);
-  const expected = active ? executors.find((executor) => executor.executorId === active.executorId)?.nomeExibido : null;
-  if (actual !== expected) errors.push(`#${issueNumber}: Agente executando não corresponde à reserva ativa`);
+  if (actual) {
+    const valid = executors.some((executor) => executor.nomeExibido === actual || executor.aliases?.includes(actual));
+    if (!valid) {
+      errors.push(`#${issueNumber}: Agente executando '${actual}' não cadastrado em executors.json`);
+    } else {
+      activeReservations.push({ issue: issueNumber, executor: actual });
+    }
+  }
 }
 const graph = items
   .filter((i) => i.content?.id)
@@ -233,7 +231,7 @@ console.log(
         filter: v.filter,
         columns: v.configuration.visibleFields.nodes.map((f) => f.name),
       })),
-      reservationRefs: refs.map((r) => r.ref),
+      reservationRefs: [],
       activeReservations,
       errors,
       schedule: { nonBacklog, nonBacklogScheduled, backlogWithoutDates },

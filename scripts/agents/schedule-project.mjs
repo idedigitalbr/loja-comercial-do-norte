@@ -36,12 +36,7 @@ const isGroup = (item) => isEtapa(item) || isSprint(item);
 const plannedTarget = new Map();
 const priorityOffset = [0, 2, 5, 10, 14];
 const notes = new Map();
-const reservationRefs = await request(`${repoPath}/git/matching-refs/heads/claims/`);
 const ledgerByIssue = new Map();
-for (const ref of reservationRefs) {
-  const match = ref.ref.match(/^refs\/heads\/claims\/issue-(\d+)$/);
-  if (match) ledgerByIssue.set(Number(match[1]), await readLedger(Number(match[1])));
-}
 
 const taskItems = items.filter((item) => item.content?.number && isTask(item));
 taskItems.sort((left, right) => priorityRank(left) - priorityRank(right) || sprintRank(left) - sprintRank(right) || left.content.number - right.content.number);

@@ -51,17 +51,9 @@ if (!item) throw new Error("Issue fora do Project oficial.");
 // Active lease on another branch takes precedence over stale PR events.
 let ledger = null;
 try {
-  const ref = await request(
-    `${repoPath}/git/ref/heads/claims/issue-${issue.number}`,
-  );
-  const commit = await request(`${repoPath}/git/commits/${ref.object.sha}`);
-  const tree = await request(`${repoPath}/git/trees/${commit.tree.sha}`);
-  const blob = await request(
-    `${repoPath}/git/blobs/${tree.tree.find((f) => f.path === "agent-session.json").sha}`,
-  );
-  ledger = JSON.parse(Buffer.from(blob.content, "base64").toString("utf8"));
-} catch (error) {
-  if (error.status !== 404) throw error;
+  ledger = await readLedger(issue.number);
+} catch {
+  // ignore
 }
 const branch = ledger?.active ? ledger.sessions.at(-1).branch : null;
 if (branch && branch !== pr.head.ref)

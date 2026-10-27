@@ -92,7 +92,7 @@ test('API failure keeps the quote draft and displays an error instead of success
     })
   );
   await page.getByRole('button', { name: /enviar cotação/i }).click();
-  await expect(page.getByRole('alert')).toContainText('Falha de API simulada');
+  await expect(page.getByRole('alert').filter({ hasText: 'Falha de API simulada' })).toBeVisible();
   await expect(page).toHaveURL(/\/cotacao$/);
   await expect(page.getByText(/Caixa de Pizza/i).first()).toBeVisible();
 });

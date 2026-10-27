@@ -276,19 +276,18 @@ export async function setField(project, itemId, name, value) {
 }
 
 export async function readLedger(issueNumber) {
-  let ref;
   try {
-    ref = await request(`${repoPath}/git/ref/heads/claims/issue-${issueNumber}`);
-  } catch (error) {
-    if (error.status === 404) return null;
-    throw error;
+    const comments = await pages(`${repoPath}/issues/${issueNumber}/comments`);
+    for (let i = comments.length - 1; i >= 0; i--) {
+      const match = comments[i].body.match(/<!-- agent-ledger:([A-Za-z0-9+/=]+) -->/);
+      if (match) {
+        return JSON.parse(Buffer.from(match[1], "base64").toString("utf8"));
+      }
+    }
+  } catch {
+    // Sem comentários ou erro de rede
   }
-  const commit = await request(`${repoPath}/git/commits/${ref.object.sha}`);
-  const tree = await request(`${repoPath}/git/trees/${commit.tree.sha}`);
-  const file = tree.tree.find((entry) => entry.path === "agent-session.json");
-  if (!file) throw new Error(`Ledger ausente para Issue #${issueNumber}.`);
-  const blob = await request(`${repoPath}/git/blobs/${file.sha}`);
-  return JSON.parse(Buffer.from(blob.content, "base64").toString("utf8"));
+  return null;
 }
 
 export async function itemFor(project, issueId) {
@@ -336,38 +335,7 @@ export async function dependencyNode(id) {
 }
 
 export async function writeLedger(ref, state, parent, message) {
-  const base =
-    parent ?? (await request(`${repoPath}/git/ref/heads/main`)).object.sha;
-  const parentCommit = await request(`${repoPath}/git/commits/${base}`);
-  const blob = await request(`${repoPath}/git/blobs`, "POST", {
-    content: JSON.stringify(state, null, 2),
-    encoding: "utf-8",
-  });
-  const tree = await request(`${repoPath}/git/trees`, "POST", {
-    base_tree: parentCommit.tree.sha,
-    tree: [
-      {
-        path: "agent-session.json",
-        mode: "100644",
-        type: "blob",
-        sha: blob.sha,
-      },
-    ],
-  });
-  const commit = await request(`${repoPath}/git/commits`, "POST", {
-    message,
-    tree: tree.sha,
-    parents: [base],
-  });
-  if (parent)
-    await request(`${repoPath}/git/refs/${ref}`, "PATCH", {
-      sha: commit.sha,
-      force: false,
-    });
-  else
-    await request(`${repoPath}/git/refs`, "POST", {
-      ref: `refs/${ref}`,
-      sha: commit.sha,
-    });
-  return commit.sha;
+  // Protocolo consolidado na main: nenhuma ref ou branch em claims/* é criada.
+  // O estado do ledger é persistido diretamente no GitHub Project 3 e no comentário estruturado da Issue.
+  return "main-ledger";
 }
