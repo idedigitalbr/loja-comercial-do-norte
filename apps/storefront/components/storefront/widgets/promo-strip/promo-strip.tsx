@@ -52,37 +52,39 @@ export function PromoStripWidget({
     );
 
     return (
-      <section aria-label={effectiveAlt} className="w-full bg-[#001F4D] py-3 sm:py-4">
-        <div className="cn-container">
-          <div className="group/img relative aspect-[1920/170] min-h-[56px] w-full overflow-hidden rounded-2xl bg-slate-200 sm:min-h-24">
-            {ctaUrl ? (
-              <Link
-                className="block size-full"
-                href={ctaUrl}
-                onClick={(e) => {
-                  if (isEditing && !previewMode) e.preventDefault();
-                }}
-              >
-                {bannerImage}
-              </Link>
-            ) : (
-              bannerImage
-            )}
+      <section aria-label={effectiveAlt} className="w-full py-2.5 sm:py-3.5">
+        <div className="w-full overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[36px] bg-[#001F4D] py-3 sm:py-4 shadow-md">
+          <div className="cn-container">
+            <div className="group/img relative aspect-[1920/170] min-h-[56px] w-full overflow-hidden rounded-xl sm:rounded-2xl bg-slate-200 sm:min-h-24">
+              {ctaUrl ? (
+                <Link
+                  className="block size-full"
+                  href={ctaUrl}
+                  onClick={(e) => {
+                    if (isEditing && !previewMode) e.preventDefault();
+                  }}
+                >
+                  {bannerImage}
+                </Link>
+              ) : (
+                bannerImage
+              )}
 
-            {widgetId ? (
-              <InlineImageEditorOverlay
-                canAdd={false}
-                canRemove={false}
-                currentImageUrl={effectiveImageUrl}
-                currentLinkUrl={ctaUrl}
-                fieldPath="imageUrl"
-                linkFieldPath="ctaUrl"
-                previewUrl={effectiveImageUrl}
-                slideIndex={0}
-                title={title || highlightText || 'Faixa Ofertas Imperdíveis'}
-                widgetId={widgetId}
-              />
-            ) : null}
+              {widgetId ? (
+                <InlineImageEditorOverlay
+                  canAdd={false}
+                  canRemove={false}
+                  currentImageUrl={effectiveImageUrl}
+                  currentLinkUrl={ctaUrl}
+                  fieldPath="imageUrl"
+                  linkFieldPath="ctaUrl"
+                  previewUrl={effectiveImageUrl}
+                  slideIndex={0}
+                  title={title || highlightText || 'Faixa Ofertas Imperdíveis'}
+                  widgetId={widgetId}
+                />
+              ) : null}
+            </div>
           </div>
         </div>
       </section>

@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { cn, WebBadge, WebButton, WebEmptyState } from '@commerce/ui/web';
+import { cn, WebButton, WebEmptyState } from '@commerce/ui/web';
 import { ProductCard } from '@/components/product-card';
-import { getCategories, getProductsPage, getSegments } from '@/lib/api';
+import { getCategories, getProductsPage, getSegments, getTags } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,27 +20,36 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
   const { q, categoria, segmento, tag, pagina, ordem } = await searchParams;
   const page = Math.max(1, Number.parseInt(pagina ?? '1', 10) || 1);
   const sort = ordem === 'nome' ? 'name_asc' : 'newest';
-  const [result, categories, segments] = await Promise.all([
+  const [result, categories, segments, tags] = await Promise.all([
     getProductsPage({ search: q, category: categoria, segment: segmento, tag, page, pageSize: PAGE_SIZE, sort }),
     getCategories(),
     getSegments(),
+    getTags(),
   ]);
   const activeCategory = categories.find((category) => category.slug === categoria);
   const activeSegment = segments.find((seg) => seg.slug === segmento);
 
-  const buildHref = (overrides: { pagina?: number; ordem?: string }) => {
+  const buildHref = (overrides: { pagina?: number; ordem?: string; q?: string; categoria?: string; segmento?: string; tag?: string }) => {
     const params = new URLSearchParams();
-    if (q) params.set('q', q);
-    if (categoria) params.set('categoria', categoria);
-    if (segmento) params.set('segmento', segmento);
-    if (tag) params.set('tag', tag);
-    const nextOrder = overrides.ordem ?? ordem;
+    const nextQ = 'q' in overrides ? overrides.q : q;
+    const nextCat = 'categoria' in overrides ? overrides.categoria : categoria;
+    const nextSeg = 'segmento' in overrides ? overrides.segmento : segmento;
+    const nextTag = 'tag' in overrides ? overrides.tag : tag;
+    const nextOrder = 'ordem' in overrides ? overrides.ordem : ordem;
+    const nextPage = 'pagina' in overrides ? overrides.pagina : 1;
+
+    if (nextQ) params.set('q', nextQ);
+    if (nextCat) params.set('categoria', nextCat);
+    if (nextSeg) params.set('segmento', nextSeg);
+    if (nextTag) params.set('tag', nextTag);
     if (nextOrder === 'nome') params.set('ordem', 'nome');
-    const nextPage = overrides.pagina ?? 1;
-    if (nextPage > 1) params.set('pagina', String(nextPage));
+    if (nextPage && nextPage > 1) params.set('pagina', String(nextPage));
+
     const query = params.toString();
     return query ? `/loja?${query}` : '/loja';
   };
+
+  const hasActiveFilters = Boolean(q || categoria || segmento || tag);
 
   return (
     <div className="cn-container py-8">
@@ -53,7 +62,9 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
 
       <header className="mt-3 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-ink">{activeSegment ? `Segmento: ${activeSegment.name}` : activeCategory ? activeCategory.name : tag ? `Tag: #${tag}` : 'Catálogo completo'}</h1>
+          <h1 className="text-2xl font-extrabold text-ink">
+            {activeSegment ? `Segmento: ${activeSegment.name}` : activeCategory ? activeCategory.name : tag ? `Tag: #${tag}` : 'Catálogo completo'}
+          </h1>
           <p className="text-sm text-muted">
             {result.total} produto(s) publicado(s){q ? ` para “${q}”` : ''} · página {result.page} de {result.totalPages}
           </p>
@@ -69,29 +80,73 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
             type="search"
           />
           {categoria ? <input name="categoria" type="hidden" value={categoria} /> : null}
+          {segmento ? <input name="segmento" type="hidden" value={segmento} /> : null}
+          {tag ? <input name="tag" type="hidden" value={tag} /> : null}
           <WebButton size="md" type="submit" variant="primary">Buscar</WebButton>
         </form>
       </header>
 
+      {/* Faixa de Filtros Ativos com botão de remoção */}
+      {hasActiveFilters ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-200/80 px-3 py-2 rounded-xl text-xs">
+          <span className="font-bold text-slate-700">Filtros ativos:</span>
+          {q ? (
+            <Link
+              href={buildHref({ q: undefined })}
+              className="inline-flex items-center gap-1.5 bg-white border border-slate-300 px-2.5 py-1 rounded-pill font-medium text-slate-800 hover:border-red-500 hover:text-red-600 transition"
+              title="Remover termo de busca"
+            >
+              Busca: “{q}” <span className="font-bold text-slate-400">×</span>
+            </Link>
+          ) : null}
+          {activeCategory ? (
+            <Link
+              href={buildHref({ categoria: undefined })}
+              className="inline-flex items-center gap-1.5 bg-white border border-slate-300 px-2.5 py-1 rounded-pill font-medium text-slate-800 hover:border-red-500 hover:text-red-600 transition"
+              title="Remover filtro de categoria"
+            >
+              Categoria: {activeCategory.name} <span className="font-bold text-slate-400">×</span>
+            </Link>
+          ) : null}
+          {activeSegment ? (
+            <Link
+              href={buildHref({ segmento: undefined })}
+              className="inline-flex items-center gap-1.5 bg-white border border-slate-300 px-2.5 py-1 rounded-pill font-medium text-slate-800 hover:border-red-500 hover:text-red-600 transition"
+              title="Remover filtro de segmento"
+            >
+              Segmento: {activeSegment.name} <span className="font-bold text-slate-400">×</span>
+            </Link>
+          ) : null}
+          {tag ? (
+            <Link
+              href={buildHref({ tag: undefined })}
+              className="inline-flex items-center gap-1.5 bg-white border border-slate-300 px-2.5 py-1 rounded-pill font-medium text-slate-800 hover:border-red-500 hover:text-red-600 transition"
+              title="Remover filtro de tag"
+            >
+              Tag: #{tag} <span className="font-bold text-slate-400">×</span>
+            </Link>
+          ) : null}
+          <Link href="/loja" className="ml-auto text-xs text-brand font-semibold hover:underline">
+            Limpar todos os filtros
+          </Link>
+        </div>
+      ) : null}
+
+      {/* Linha 1: Categorias Principais */}
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <Link className={cn('rounded-pill border px-3 py-1.5 text-xs font-semibold', !activeCategory ? 'border-brand bg-brand text-white' : 'border-line bg-surface text-ink hover:border-brand')} href={buildHref({})}>
+        <span className="text-xs font-bold text-slate-600 mr-1">Categorias:</span>
+        <Link className={cn('rounded-pill border px-3 py-1.5 text-xs font-semibold transition', !activeCategory && !activeSegment && !tag ? 'border-brand bg-brand text-white' : 'border-line bg-surface text-ink hover:border-brand')} href="/loja">
           Todas
         </Link>
         {categories.map((category) => (
           <Link
-            className={cn('rounded-pill border px-3 py-1.5 text-xs font-semibold', activeCategory?.slug === category.slug ? 'border-brand bg-brand text-white' : 'border-line bg-surface text-ink hover:border-brand')}
-            href={(() => {
-              const params = new URLSearchParams();
-              if (q) params.set('q', q);
-              params.set('categoria', category.slug);
-              return `/loja?${params}`;
-            })()}
+            className={cn('rounded-pill border px-3 py-1.5 text-xs font-semibold transition', activeCategory?.slug === category.slug ? 'border-brand bg-brand text-white' : 'border-line bg-surface text-ink hover:border-brand')}
+            href={`/categoria/${category.slug}`}
             key={category.id}
           >
             {category.name}
           </Link>
         ))}
-        {q ? <WebBadge tone="brand">Filtro: {q}</WebBadge> : null}
         <span className="ml-auto flex items-center gap-2 text-xs text-muted">
           Ordenar:
           <Link className={cn('rounded-pill border px-3 py-1.5 font-semibold', sort === 'newest' ? 'border-brand text-brand' : 'border-line text-ink hover:border-brand')} href={buildHref({ ordem: 'novidades' })}>Novidades</Link>
@@ -99,6 +154,49 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
         </span>
       </div>
 
+      {/* Linha 2: Compre por Segmento */}
+      {segments.length ? (
+        <div className="mt-2.5 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-bold text-slate-600 mr-1">Segmentos:</span>
+          {segments.map((seg) => (
+            <Link
+              className={cn(
+                'rounded-pill border px-3 py-1 text-xs font-medium transition',
+                activeSegment?.slug === seg.slug
+                  ? 'border-brand bg-brand text-white font-semibold shadow-sm'
+                  : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-brand hover:text-brand'
+              )}
+              href={`/segmento/${seg.slug}`}
+              key={seg.id}
+            >
+              {seg.name}
+            </Link>
+          ))}
+        </div>
+      ) : null}
+
+      {/* Linha 3: Tags do Produto */}
+      {tags.length ? (
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <span className="text-xs font-bold text-slate-600 mr-1">Tags:</span>
+          {tags.map((t) => (
+            <Link
+              className={cn(
+                'rounded-pill border px-2.5 py-0.5 text-xs transition',
+                tag === t.slug
+                  ? 'border-brand bg-brand text-white font-semibold shadow-sm'
+                  : 'border-slate-200/80 bg-white text-slate-600 hover:border-brand hover:text-brand'
+              )}
+              href={`/tag/${t.slug}`}
+              key={t.id}
+            >
+              #{t.name}
+            </Link>
+          ))}
+        </div>
+      ) : null}
+
+      {/* Grid de Produtos */}
       {result.items.length ? (
         <>
           <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 items-start">
@@ -134,12 +232,12 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
         <WebEmptyState
           action={
             <Link className="inline-block rounded-pill bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-hover" href="/loja">
-              Ver tudo
+              Ver catálogo completo
             </Link>
           }
           className="mt-8"
-          description="Ajuste a busca ou volte para todas as categorias."
-          title="Nenhum produto encontrado"
+          description="Tente outros termos de busca ou explore as categorias acima."
+          title="Nenhum produto encontrado."
         />
       )}
     </div>

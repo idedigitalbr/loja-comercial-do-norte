@@ -332,3 +332,14 @@ Issue #55: o NestJS é a autoridade de publicação, validação, RBAC e persist
 - **Fluxo simplificado:** A branch `main` é a única branch ativa de desenvolvimento. Agentes operam diretamente na `main` com commits frequentes e push normal após validações automatizadas.
 - **Rastreabilidade:** O controle é mantido nas GitHub Issues, comentários estruturados e GitHub Project 3, sem acúmulo de branches no Git.
 - **Integração consolidada:** PRs #57 (vitrine transacional no NestJS), #51 (Playwright e mascote NORT), #52 (backup/restore PostgreSQL com bridge Docker) integrados na `main`.
+
+
+### Decisão de Taxonomia e URLs Canônicas de Segmentos e Tags — 27/10/2026
+
+- **Separação de Papéis na Taxonomia:**
+  - O produto pode pertencer a uma hierarquia de Categoria/Subcategoria, ter uma única Marca de fabricante, múltiplos Segmentos de Atendimento (ex: um produto que atende Pizzarias e Hamburguerias simultaneamente) e múltiplas Tags Livres (ex: `kraft`, `biodegradavel`).
+  - O Segmento possui papel de destaque comercial e visual: gera cards temáticos na vitrine e rotas canônicas de primeiro nível `/segmento/[slug]` (ex: `/segmento/pizzaria`), em paridade com `/categoria/[slug]`.
+  - As Tags Livres atendem filtros transversais do catálogo e contam com páginas dedicadas em `/tag/[slug]`.
+  - A rota geral `/loja` apoia a exploração combinada por meio de badges de filtros ativos com remoção individual (`×`) de busca textual, categoria, segmento ou tag.
+- **Persistência e Seed:**
+  - `prisma/seed-catalog.ts` inclui a criação idempotente dos 8 segmentos de demonstração e das 7 tags canônicas, associando-os aos produtos padrão do catálogo.

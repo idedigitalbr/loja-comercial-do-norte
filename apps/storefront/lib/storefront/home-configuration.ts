@@ -44,7 +44,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Artigos para Festas, Confeitaria e Eventos",
             imageUrl:
               "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (3x).webp",
-            linkUrl: "/loja?segmento=loja-de-festas",
+            linkUrl: "/segmento/loja-de-festas",
             altText: "Artigos de Festa e Confeitaria Comercial do Norte",
             backgroundColor: "#00357B",
           },
@@ -188,7 +188,7 @@ export const defaultHomeComposition: PageComposition = {
             label: 'Doces e Confeitaria',
             imageUrl:
               '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/05-doces-e-confeitaria.png',
-            linkUrl: '/categoria/confeitaria',
+            linkUrl: "/segmento/confeitaria-bolos",
           },
           {
             id: 'cat-limpeza',
@@ -270,7 +270,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Confeitaria e Doces até 20% OFF",
             imageUrl:
               "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/4-mini-card-azul.png.webp",
-            linkUrl: "/loja?segmento=confeitaria-bolos",
+            linkUrl: "/segmento/confeitaria-bolos",
             altText: "Confeitaria e Doces até 20% OFF no Comercial do Norte",
           },
           {
@@ -330,7 +330,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "burger",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-01-lanchonete.jpg",
-            linkUrl: "/loja?segmento=lanchonete",
+            linkUrl: "/segmento/lanchonete",
           },
           {
             id: "seg-pizzaria",
@@ -341,7 +341,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "pizza",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-02-pizzaria.jpg",
-            linkUrl: "/loja?segmento=pizzaria",
+            linkUrl: "/segmento/pizzaria",
           },
           {
             id: "seg-padaria",
@@ -352,7 +352,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "bakery",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-03-padaria.jpg",
-            linkUrl: "/loja?segmento=padaria",
+            linkUrl: "/segmento/padaria",
           },
           {
             id: "seg-festas",
@@ -363,7 +363,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "party",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-04-festas.jpg",
-            linkUrl: "/loja?q=festa",
+            linkUrl: "/segmento/loja-de-festas",
           },
           {
             id: "seg-buffet",
@@ -374,7 +374,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "buffet",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-05-buffet.jpg",
-            linkUrl: "/loja?segmento=restaurante-buffet",
+            linkUrl: "/segmento/restaurante-buffet",
           },
           {
             id: "seg-confeitaria",
@@ -385,7 +385,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "confectionery",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-06-confeitaria.jpg",
-            linkUrl: "/categoria/confeitaria",
+            linkUrl: "/segmento/confeitaria-bolos",
           },
           {
             id: "seg-sorveteria",
@@ -396,7 +396,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "icecream",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-07-acai.jpg",
-            linkUrl: "/loja?segmento=sorveteria-acai",
+            linkUrl: "/segmento/sorveteria-acai",
           },
           {
             id: "seg-bar",
@@ -407,7 +407,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "bar",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-08-sustentaveis.jpg",
-            linkUrl: "/loja?segmento=bar-distribuidora",
+            linkUrl: "/segmento/bar-distribuidora",
           },
         ],
       },

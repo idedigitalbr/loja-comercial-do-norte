@@ -38,11 +38,95 @@ const categories: readonly DemoCategory[] = [
 
 const brands = [{ name: 'Marca Exemplo', slug: 'marca-exemplo' }] as const;
 
+type DemoSegment = {
+  name: string;
+  slug: string;
+  description: string;
+  imagePath: string;
+  sortOrder: number;
+};
+
+const segments: readonly DemoSegment[] = [
+  {
+    name: 'Lanchonetes & Hamburguerias',
+    slug: 'lanchonete',
+    description: 'Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.',
+    imagePath: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-01-lanchonete.jpg',
+    sortOrder: 1,
+  },
+  {
+    name: 'Pizzarias & Esfiharias',
+    slug: 'pizzaria',
+    description: 'Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.',
+    imagePath: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-02-pizzaria.jpg',
+    sortOrder: 2,
+  },
+  {
+    name: 'Padarias & Confeitarias',
+    slug: 'padaria',
+    description: 'Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.',
+    imagePath: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-03-padaria.jpg',
+    sortOrder: 3,
+  },
+  {
+    name: 'Festas & Eventos',
+    slug: 'loja-de-festas',
+    description: 'Copos personalizados, pratos, talheres, forminhas decorativas, guardanapos e velas.',
+    imagePath: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-04-festas.jpg',
+    sortOrder: 4,
+  },
+  {
+    name: 'Restaurantes & Buffets',
+    slug: 'restaurante-buffet',
+    description: 'Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.',
+    imagePath: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-05-buffet.jpg',
+    sortOrder: 5,
+  },
+  {
+    name: 'Doces & Confeitaria Caseira',
+    slug: 'confeitaria-bolos',
+    description: 'Embalagens articuladas para fatias, formas forneáveis, sacos para confeitar e fitas de cetim.',
+    imagePath: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-06-confeitaria.jpg',
+    sortOrder: 6,
+  },
+  {
+    name: 'Sorveterias & Açaís',
+    slug: 'sorveteria-acai',
+    description: 'Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.',
+    imagePath: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-07-acai.jpg',
+    sortOrder: 7,
+  },
+  {
+    name: 'Bares & Distribuidoras',
+    slug: 'bar-distribuidora',
+    description: 'Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.',
+    imagePath: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-08-sustentaveis.jpg',
+    sortOrder: 8,
+  },
+];
+
+type DemoTag = {
+  name: string;
+  slug: string;
+};
+
+const tags: readonly DemoTag[] = [
+  { name: 'Biodegradável', slug: 'biodegradavel' },
+  { name: 'Térmico', slug: 'termico' },
+  { name: 'Kraft', slug: 'kraft' },
+  { name: 'Reforçado', slug: 'reforcado' },
+  { name: 'Descartável', slug: 'descartavel' },
+  { name: 'Transparente', slug: 'transparente' },
+  { name: 'Vai ao Micro-ondas', slug: 'vai-ao-micro-ondas' },
+];
+
 type DemoProduct = {
   slug: string;
   name: string;
   description: string;
   categorySlug: string;
+  segmentSlugs?: string[];
+  tagSlugs?: string[];
   sku: string;
   priceCents: number;
   compareAtPriceCents?: number;
@@ -59,75 +143,75 @@ export const demoProducts: readonly DemoProduct[] = [
   {
     slug: 'copo-descartavel-300ml', name: 'Copo Descartável Transparente 300 ml',
     description: 'Pacote com 100 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'copos', sku: 'DEMO-COP-300', priceCents: 890, compareAtPriceCents: 1090,
+    categorySlug: 'copos', segmentSlugs: ['lanchonete', 'bar-distribuidora', 'loja-de-festas'], tagSlugs: ['descartavel', 'transparente'], sku: 'DEMO-COP-300', priceCents: 890, compareAtPriceCents: 1090,
     weightGrams: 1200, widthMm: 300, heightMm: 400, lengthMm: 300, physicalQuantity: 180, status: 'ACTIVE',
   },
   {
     slug: 'prato-descartavel-21cm', name: 'Prato Descartável Branco 21 cm',
     description: 'Pacote com 50 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'pratos', sku: 'DEMO-PRA-021', priceCents: 1250,
+    categorySlug: 'pratos', segmentSlugs: ['loja-de-festas', 'restaurante-buffet'], tagSlugs: ['descartavel'], sku: 'DEMO-PRA-021', priceCents: 1250,
     weightGrams: 900, widthMm: 210, heightMm: 120, lengthMm: 210, physicalQuantity: 140, status: 'ACTIVE',
   },
   {
     slug: 'guardanapo-papel-24x24', name: 'Guardanapo de Papel 24 x 24 cm',
     description: 'Pacote com 50 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'artigos-para-festa', sku: 'DEMO-GUA-2424', priceCents: 650,
+    categorySlug: 'artigos-para-festa', segmentSlugs: ['lanchonete', 'pizzaria', 'restaurante-buffet'], tagSlugs: ['biodegradavel'], sku: 'DEMO-GUA-2424', priceCents: 650,
     weightGrams: 500, widthMm: 240, heightMm: 80, lengthMm: 240, physicalQuantity: 220, status: 'ACTIVE',
   },
   {
     slug: 'caixa-pizza-35cm', name: 'Caixa de Pizza 35 cm',
     description: 'Caixa de papelão para pizza, 100 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'caixas-e-bandejas', sku: 'DEMO-CAI-035', priceCents: 390, compareAtPriceCents: 450,
+    categorySlug: 'caixas-e-bandejas', segmentSlugs: ['pizzaria'], tagSlugs: ['kraft', 'termico'], sku: 'DEMO-CAI-035', priceCents: 390, compareAtPriceCents: 450,
     weightGrams: 400, widthMm: 350, heightMm: 40, lengthMm: 350, physicalQuantity: 300, status: 'ACTIVE',
   },
   {
     slug: 'bandeja-isopor-n2', name: 'Bandeja de Isopor nº 2',
     description: 'Bandeja para frios e carnes, 100 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'caixas-e-bandejas', sku: 'DEMO-BAN-002', priceCents: 990,
+    categorySlug: 'caixas-e-bandejas', segmentSlugs: ['padaria', 'restaurante-buffet'], tagSlugs: ['termico', 'descartavel'], sku: 'DEMO-BAN-002', priceCents: 990,
     weightGrams: 300, widthMm: 250, heightMm: 30, lengthMm: 200, physicalQuantity: 160, status: 'ACTIVE',
   },
   {
     slug: 'sacola-plastica-40x50', name: 'Sacola Plástica Reforçada 40 x 50 cm',
     description: 'Fardo com 1 kg de sacolas. Produto de demonstração do catálogo.',
-    categorySlug: 'sacos-e-sacolas', sku: 'DEMO-SAC-4050', priceCents: 1590,
+    categorySlug: 'sacos-e-sacolas', segmentSlugs: ['lanchonete', 'pizzaria', 'padaria', 'bar-distribuidora'], tagSlugs: ['reforcado'], sku: 'DEMO-SAC-4050', priceCents: 1590,
     weightGrams: 1500, widthMm: 400, heightMm: 60, lengthMm: 500, physicalQuantity: 90, status: 'ACTIVE',
   },
   {
     slug: 'velas-aniversario-coloridas', name: 'Velas de Aniversário Coloridas',
     description: 'Cartela com 12 velas. Produto de demonstração do catálogo.',
-    categorySlug: 'velas-e-suprimentos', sku: 'DEMO-VEL-0012', priceCents: 420,
+    categorySlug: 'velas-e-suprimentos', segmentSlugs: ['loja-de-festas', 'confeitaria-bolos'], sku: 'DEMO-VEL-0012', priceCents: 420,
     weightGrams: 120, widthMm: 150, heightMm: 20, lengthMm: 100, physicalQuantity: 75, status: 'ACTIVE',
   },
   {
     slug: 'forminha-docinho-n5', name: 'Forminha de Docinho nº 5',
     description: 'Pacote com 100 forminhas. Produto de demonstração do catálogo.',
-    categorySlug: 'doces-e-bomboniere', sku: 'DEMO-FOR-005', priceCents: 730,
+    categorySlug: 'doces-e-bomboniere', segmentSlugs: ['confeitaria-bolos', 'loja-de-festas'], tagSlugs: ['descartavel'], sku: 'DEMO-FOR-005', priceCents: 730,
     weightGrams: 200, widthMm: 200, heightMm: 60, lengthMm: 150, physicalQuantity: 210, status: 'ACTIVE',
   },
   {
     slug: 'detergente-neutro-5l', name: 'Detergente Neutro 5 L',
     description: 'Galão de 5 litros. Produto de demonstração do catálogo.',
-    categorySlug: 'produtos-de-limpeza', sku: 'DEMO-DET-005L', priceCents: 2490, compareAtPriceCents: 2790,
+    categorySlug: 'produtos-de-limpeza', segmentSlugs: ['restaurante-buffet', 'padaria', 'lanchonete'], tagSlugs: ['reforcado'], sku: 'DEMO-DET-005L', priceCents: 2490, compareAtPriceCents: 2790,
     weightGrams: 5200, widthMm: 200, heightMm: 300, lengthMm: 150, physicalQuantity: 60, status: 'ACTIVE',
   },
   {
     slug: 'leite-condensado-395g', name: 'Leite Condensado 395 g',
     description: 'Lata de 395 g. Produto de demonstração do catálogo.',
-    categorySlug: 'mercearia', sku: 'DEMO-LEI-395', priceCents: 749,
+    categorySlug: 'mercearia', segmentSlugs: ['confeitaria-bolos', 'padaria'], sku: 'DEMO-LEI-395', priceCents: 749,
     weightGrams: 400, widthMm: 80, heightMm: 110, lengthMm: 80, physicalQuantity: 320, status: 'ACTIVE',
   },
   {
     // DRAFT: falta comprimento, então a publicação deve falhar com PRODUCT_INCOMPLETE.
     slug: 'filme-pvc-30cm', name: 'Filme PVC 30 cm x 30 m',
     description: 'Rolo de filme PVC. Produto de demonstração aguardando dados completos.',
-    categorySlug: 'filme-e-aluminio', sku: 'DEMO-FIL-030', priceCents: 1890,
+    categorySlug: 'filme-e-aluminio', segmentSlugs: ['padaria', 'restaurante-buffet'], tagSlugs: ['transparente'], sku: 'DEMO-FIL-030', priceCents: 1890,
     weightGrams: 350, widthMm: 300, heightMm: 100, physicalQuantity: 45, status: 'DRAFT',
   },
   {
     // DRAFT completo: publicar deve funcionar assim que o marketing decidir.
     slug: 'queijo-mussarela-fatiado-1kg', name: 'Queijo Mussarela Fatiado 1 kg',
     description: 'Pacote de 1 kg. Produto de demonstração pronto para publicação.',
-    categorySlug: 'frios-e-laticinios', sku: 'DEMO-QUE-001', priceCents: 3990,
+    categorySlug: 'frios-e-laticinios', segmentSlugs: ['pizzaria', 'lanchonete', 'padaria'], tagSlugs: ['reforcado'], sku: 'DEMO-QUE-001', priceCents: 3990,
     weightGrams: 1000, widthMm: 250, heightMm: 60, lengthMm: 200, physicalQuantity: 25, status: 'DRAFT',
   },
 ] as const;
@@ -228,6 +312,47 @@ export async function seedCatalog(prisma: PrismaClient): Promise<{ categories: n
     brandIdBySlug.set(brand.slug, row.id);
   }
 
+  const segmentIdBySlug = new Map<string, string>();
+  for (const segment of segments) {
+    const row = await prisma.segment.upsert({
+      where: { slug: segment.slug },
+      update: {
+        name: segment.name,
+        description: segment.description,
+        imagePath: segment.imagePath,
+        sortOrder: segment.sortOrder,
+        status: 'ACTIVE',
+      },
+      create: {
+        name: segment.name,
+        slug: segment.slug,
+        description: segment.description,
+        imagePath: segment.imagePath,
+        sortOrder: segment.sortOrder,
+        status: 'ACTIVE',
+        legacySource: DEMO_SOURCE,
+        legacyId: segment.slug,
+      },
+    });
+    segmentIdBySlug.set(segment.slug, row.id);
+  }
+
+  const tagIdBySlug = new Map<string, string>();
+  for (const tag of tags) {
+    const row = await prisma.tag.upsert({
+      where: { slug: tag.slug },
+      update: { name: tag.name, status: 'ACTIVE' },
+      create: {
+        name: tag.name,
+        slug: tag.slug,
+        status: 'ACTIVE',
+        legacySource: DEMO_SOURCE,
+        legacyId: tag.slug,
+      },
+    });
+    tagIdBySlug.set(tag.slug, row.id);
+  }
+
   for (const product of demoProducts) {
     const imagePath = `uploads/seed-${product.slug}/960.webp`;
     const productRow = await prisma.product.upsert({
@@ -300,6 +425,30 @@ export async function seedCatalog(prisma: PrismaClient): Promise<{ categories: n
         sortOrder: 0,
       },
     });
+
+    if (product.segmentSlugs && product.segmentSlugs.length > 0) {
+      await prisma.productSegment.deleteMany({ where: { productId: productRow.id } });
+      for (const segSlug of product.segmentSlugs) {
+        const segId = segmentIdBySlug.get(segSlug);
+        if (segId) {
+          await prisma.productSegment.create({
+            data: { productId: productRow.id, segmentId: segId },
+          });
+        }
+      }
+    }
+
+    if (product.tagSlugs && product.tagSlugs.length > 0) {
+      await prisma.productTag.deleteMany({ where: { productId: productRow.id } });
+      for (const tSlug of product.tagSlugs) {
+        const tId = tagIdBySlug.get(tSlug);
+        if (tId) {
+          await prisma.productTag.create({
+            data: { productId: productRow.id, tagId: tId },
+          });
+        }
+      }
+    }
   }
 
   return { categories: categories.length, products: demoProducts.length };

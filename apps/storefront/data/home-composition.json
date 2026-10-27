@@ -17,7 +17,7 @@
             "id": "slide-pizzaria-main",
             "title": "Tudo para sua Pizzaria — Do Preparo à Entrega",
             "imageUrl": "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (1).webp",
-            "linkUrl": "/loja?q=pizza",
+            "linkUrl": "/segmento/pizzaria",
             "altText": "Tudo para sua Pizzaria — Caixas de Pizza, Embalagens e Descartáveis no Comercial do Norte",
             "backgroundColor": "#E2091E"
           },
@@ -33,7 +33,7 @@
             "id": "slide-topo-3",
             "title": "Artigos para Festas, Confeitaria e Eventos",
             "imageUrl": "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (3x).webp",
-            "linkUrl": "/loja?q=festa",
+            "linkUrl": "/segmento/loja-de-festas",
             "altText": "Artigos de Festa e Confeitaria Comercial do Norte",
             "backgroundColor": "#00357B"
           },
@@ -158,7 +158,7 @@
             "id": "cat-confeitaria",
             "label": "Doces e Confeitaria",
             "imageUrl": "/assets/HOME Vitrine/S3-CARDS-Categorias/3d/05-doces-e-confeitaria.png",
-            "linkUrl": "/categoria/confeitaria"
+            "linkUrl": "/segmento/confeitaria-bolos"
           },
           {
             "id": "cat-limpeza",
@@ -280,7 +280,7 @@
             "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
             "iconType": "burger",
             "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-01-lanchonete.jpg",
-            "linkUrl": "/loja?q=lanchonete"
+            "linkUrl": "/segmento/lanchonete"
           },
           {
             "id": "seg-pizzaria",
@@ -289,7 +289,7 @@
             "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
             "iconType": "pizza",
             "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-02-pizzaria.jpg",
-            "linkUrl": "/loja?q=pizza"
+            "linkUrl": "/segmento/pizzaria"
           },
           {
             "id": "seg-padaria",
@@ -298,7 +298,7 @@
             "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
             "iconType": "bakery",
             "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-03-padaria.jpg",
-            "linkUrl": "/loja?q=padaria"
+            "linkUrl": "/segmento/padaria"
           },
           {
             "id": "seg-festas",
@@ -316,7 +316,7 @@
             "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
             "iconType": "buffet",
             "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-05-buffet.jpg",
-            "linkUrl": "/loja?q=buffet"
+            "linkUrl": "/segmento/restaurante-buffet"
           },
           {
             "id": "seg-confeitaria",
@@ -334,7 +334,7 @@
             "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
             "iconType": "icecream",
             "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-07-acai.jpg",
-            "linkUrl": "/loja?q=acai"
+            "linkUrl": "/segmento/sorveteria-acai"
           },
           {
             "id": "seg-bar",
@@ -343,7 +343,7 @@
             "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
             "iconType": "bar",
             "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-08-sustentaveis.jpg",
-            "linkUrl": "/loja?q=bar"
+            "linkUrl": "/segmento/bar-distribuidora"
           }
         ]
       }

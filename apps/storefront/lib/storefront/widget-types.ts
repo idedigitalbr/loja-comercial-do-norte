@@ -177,8 +177,8 @@ export interface SegmentsCarouselProps {
   widgetId?: string;
   title: string;
   subtitle: string;
-  ctaLabel: string;
-  ctaUrl: string;
+  ctaLabel?: string;
+  ctaUrl?: string;
   items: SegmentCardItem[];
 }
 export type SegmentsCarouselWidgetConfig = BaseWidgetConfig<'segments-carousel', SegmentsCarouselProps>;
@@ -215,8 +215,8 @@ export interface EventsCarouselProps {
   widgetId?: string;
   title: string;
   subtitle: string;
-  ctaLabel: string;
-  ctaUrl: string;
+  ctaLabel?: string;
+  ctaUrl?: string;
   topThumbUrl?: string;
   items: EventPosterItem[];
 }

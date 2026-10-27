@@ -396,3 +396,18 @@ Execução encerrada para conservar a franquia. Código e scripts recuperados pr
 - **PR #52 Integrado:** Utilitários de backup/restore PostgreSQL v2 com ordenação topológica, SHA-256 e suporte validado ao service container Docker do GitHub Actions (`172.16/12`).
 - **PR #54 Concluído:** Informações de auditoria e roadmap consolidadas no documento canônico.
 - **Transição de Protocolo:** Extintas todas as branches `claims/issue-*`. O estado permanente do projeto passa a ser exclusivamente a branch `main`.
+
+
+### Taxonomia E-Commerce (Segmentos & Tags) e Navegação Canônica — 27/10/2026
+
+- **Modelagem e Banco de Dados:** Criadas as tabelas `Segment`, `ProductSegment`, `Tag`, `ProductTag` via migration aditiva `20261027200000_add_segments_and_tags`.
+- **Diferenciação Canônica:**
+  - *Categorias & Subcategorias*: Estrutura hierárquica do produto via `parentId` (`/categoria/[slug]`).
+  - *Marca*: Relação 1:N com fabricante responsável.
+  - *Segmentos de Atendimento*: Relação N:N para ramos de negócio (Pizzaria, Lanchonete, Padaria, Restaurante/Buffet, etc.) alimentando o carrossel da home e a navegação dedicada em `/segmento/[slug]`.
+  - *Tags Livres*: Relação N:N para características transversais e atributos funcionais (Kraft, Biodegradável, Térmico, Reforçado, etc.) com rotas em `/tag/[slug]`.
+- **Storefront & Experiência de Navegação:**
+  - Criadas páginas dedicadas `/segmento/[slug]` e `/tag/[slug]` com breadcrumb, hero semântico e grid de produtos.
+  - Atualizada a página geral `/loja` com barra de filtros ativos contendo botões `×` de remoção individual e links diretos para categorias, segmentos e tags.
+  - Links da vitrine principal em `home-composition.json`, `home-configuration.ts` e mega-menu padronizados para as URLs canônicas `/segmento/...` em vez de query strings genéricas.
+- **Validação Local:** 100% dos testes aprovados em `storefront` (88/88), `api` (157/157) e `admin` (31/31); typecheck monorepo sem erros em todos os pacotes.

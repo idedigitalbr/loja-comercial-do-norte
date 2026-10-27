@@ -59,11 +59,13 @@ export function getSiteConfig() {
   });
 }
 
-export function getProducts(input: { search?: string; category?: string; brand?: string; limit?: number } = {}) {
+export function getProducts(input: { search?: string; category?: string; brand?: string; segment?: string; tag?: string; limit?: number } = {}) {
   const params = new URLSearchParams();
   if (input.search?.trim()) params.set('search', input.search.trim());
   if (input.category) params.set('category', input.category);
   if (input.brand) params.set('brand', input.brand);
+  if (input.segment) params.set('segment', input.segment);
+  if (input.tag) params.set('tag', input.tag);
   return safeJson<ApiProduct[]>(`/catalog/products${params.size ? `?${params}` : ''}`, [], {
     revalidate: REVALIDATE_WINDOWS.CATALOG,
     tags: [CACHE_TAGS.PRODUCTS],
