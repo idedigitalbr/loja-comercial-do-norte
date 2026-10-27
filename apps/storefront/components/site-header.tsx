@@ -110,27 +110,28 @@ export function SiteHeader({
         </div>
 
         {/* BARRA 02: PRINCIPAL AZUL (#004CB1) COM LOGO, MASCOTE NORT 3D, BUSCA E COTAÇÃO */}
-        <div className="relative bg-[#004CB1] py-2.5 sm:py-3 md:py-3.5 text-white min-h-[68px] sm:min-h-[72px] flex items-center">
-          {/* MASCOTE NORT 3D OFICIAL (Ancorado na base da Barra 02 e vazando sobre a faixa vermelha) */}
-          <Link
-            aria-label={`${siteName} - Ir para a Página Inicial`}
-            className="group/mascot absolute bottom-0 left-2 z-30 hidden md:block lg:left-3 cursor-pointer"
-            href="/"
-          >
-            <div className="relative h-[92px] w-[74px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 sm:h-[94px] sm:w-[75px] lg:h-[96px] lg:w-[76px]">
-              <Image
-                alt="Mascote NORT 3D Comercial do Norte - Ir para a Página Inicial"
-                className="drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)] object-contain object-bottom"
-                fill
-                priority
-                sizes="80px"
-                src="/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-01-principal.png"
-              />
-            </div>
-          </Link>
-          <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between gap-3 md:gap-4">
+        <div className="relative bg-[#004CB1] text-white min-h-[68px] sm:min-h-[72px] flex items-center">
+          <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 relative flex items-center justify-between gap-3 md:gap-4 py-2.5 sm:py-3 md:py-3.5">
+            {/* MASCOTE NORT 3D OFICIAL (Ancorado na base da Barra 02 e vazando sobre a faixa vermelha) */}
+            <Link
+              aria-label={`${siteName} - Ir para a Página Inicial`}
+              className="group/mascot absolute -bottom-3.5 left-3 sm:left-6 z-30 hidden md:block cursor-pointer"
+              href="/"
+            >
+              <div className="relative h-[92px] w-[74px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 sm:h-[94px] sm:w-[75px] lg:h-[96px] lg:w-[76px]">
+                <Image
+                  alt="Mascote NORT 3D Comercial do Norte - Ir para a Página Inicial"
+                  className="drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)] object-contain object-bottom"
+                  fill
+                  priority
+                  sizes="80px"
+                  src="/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-01-principal.png"
+                />
+              </div>
+            </Link>
+
             {/* LADO ESQUERDO: HAMBURGER (MOBILE) + LOGO COM C VERMELHO E TEXTO BRANCO */}
-            <div className="flex items-center gap-2 sm:gap-3 md:pl-[66px] lg:pl-[70px]">
+            <div className="flex items-center gap-2 sm:gap-3 md:pl-[88px] lg:pl-[92px]">
               {/* Botão Menu Hamburger Mobile */}
               <button
                 aria-label="Abrir menu principal"
@@ -144,7 +145,7 @@ export function SiteHeader({
               {/* Logo Oficial com Centro Vermelho e Texto Branco */}
               <Link
                 aria-label={`${siteName} - Página Inicial`}
-                className="flex items-center"
+                className="flex items-center shrink-0"
                 href="/"
               >
                 <div className="relative h-10 w-[170px] sm:h-11 sm:w-[185px] lg:h-11.5 lg:w-[195px]">
@@ -158,6 +159,9 @@ export function SiteHeader({
                   />
                 </div>
               </Link>
+
+              {/* Divisor vertical sutil entre Logo e Localização (fidelidade Anexo 2) */}
+              <span className="hidden h-6 w-px bg-white/20 lg:inline-block shrink-0 mx-1" />
             </div>
 
             {/* SELETOR DE CEP / LOCALIZAÇÃO INTERATIVO (ESTILO MAGALU) */}
@@ -168,7 +172,7 @@ export function SiteHeader({
               onClick={openModal}
               type="button"
             >
-              <MapPin className="size-4 shrink-0 text-amber-300 transition-transform group-hover:scale-110" />
+              <MapPin className="size-4 shrink-0 text-white transition-transform group-hover:scale-110" />
               <div className="leading-tight">
                 <span className="block text-[10.5px] text-white/80 font-normal">
                   Enviar para
@@ -289,12 +293,12 @@ export function SiteHeader({
         </div>
 
         {/* BARRA 03: SUBNORMAL AZUL ESCURO (#00357B) - DEPARTAMENTOS E CATEGORIAS */}
-        <div className="hidden border-t border-white/10 bg-[#00357B] text-xs font-semibold text-white md:block">
-          <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between overflow-x-clip flex-nowrap py-1 text-[11px] lg:text-[11.5px] xl:text-[12px]">
+        <div className="hidden border-t border-white/10 bg-[#00357B] font-semibold text-white md:block">
+          <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between flex-nowrap py-1 text-[10.5px] lg:text-[11.5px] xl:text-[12px]">
             {/* 1. Menu Departamentos (Dropdown) */}
             <div className="group relative shrink-0">
               <button
-                className="flex items-center gap-1.5 py-1.5 px-2 text-white hover:bg-white/10 rounded-sm transition cursor-pointer whitespace-nowrap font-bold"
+                className="flex items-center gap-1.5 py-1 px-1.5 sm:px-2 text-white hover:bg-white/10 rounded-sm transition cursor-pointer whitespace-nowrap font-bold"
                 type="button"
               >
                 <Menu className="size-4" />
@@ -314,17 +318,17 @@ export function SiteHeader({
             </div>
 
             {/* Divisor vertical */}
-            <span className="inline-block h-4 w-px bg-white/25 shrink-0 mx-1 lg:mx-2" />
+            <span className="inline-block h-4 w-px bg-white/25 shrink-0 mx-1 sm:mx-1.5 lg:mx-2" />
 
             {/* 2. Menu de Categorias distribuído por TODA a largura da barra */}
-            <div className="flex-1 flex items-center justify-between gap-1 sm:gap-1.5 lg:gap-2 flex-nowrap pl-1 sm:pl-2">
+            <div className="flex-1 flex items-center justify-between min-w-0 flex-nowrap pl-1 sm:pl-2">
               {/* Ofertas do Dia */}
               <Link
-                className="flex items-center gap-1 rounded-full px-2 py-1 text-white hover:bg-white/10 transition whitespace-nowrap shrink-0"
+                className="flex items-center gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition whitespace-nowrap shrink-0"
                 href="/loja?oferta=1"
               >
                 <span>Ofertas do Dia</span>
-                <span className="rounded bg-[#E2091E] px-1.5 py-0.5 text-[9px] font-black uppercase text-white leading-none">
+                <span className="rounded-full bg-[#E2091E] px-1.5 py-0.5 text-[8.5px] font-black uppercase text-white leading-none">
                   NOVO
                 </span>
               </Link>
@@ -332,11 +336,11 @@ export function SiteHeader({
               {/* Mega Menu: Embalagens (Estilo Magalu) */}
               <div className="group/cat relative shrink-0">
                 <Link
-                  className="flex items-center gap-1 rounded-full px-2 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
+                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
                   href="/categoria/embalagens"
                 >
                   <span>Embalagens</span>
-                  <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
+                  <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
                 </Link>
                 <div className="invisible absolute top-full left-0 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
                   <CategoryMegaMenu config={CATEGORY_MENUS_DATA.embalagens} />
@@ -346,11 +350,11 @@ export function SiteHeader({
               {/* Mega Menu: Descartáveis (Estilo Magalu) */}
               <div className="group/cat relative shrink-0">
                 <Link
-                  className="flex items-center gap-1 rounded-full px-2 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
+                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
                   href="/categoria/descartaveis"
                 >
                   <span>Descartáveis</span>
-                  <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
+                  <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
                 </Link>
                 <div className="invisible absolute top-full -left-20 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
                   <CategoryMegaMenu
@@ -362,11 +366,11 @@ export function SiteHeader({
               {/* Mega Menu: Artigos para Festa (Estilo Magalu) */}
               <div className="group/cat relative shrink-0">
                 <Link
-                  className="flex items-center gap-1 rounded-full px-2 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
+                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
                   href="/categoria/artigos-festa"
                 >
                   <span>Artigos para Festa</span>
-                  <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
+                  <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
                 </Link>
                 <div className="invisible absolute top-full -left-36 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
                   <CategoryMegaMenu config={CATEGORY_MENUS_DATA.festa} />
@@ -374,13 +378,13 @@ export function SiteHeader({
               </div>
 
               {/* Mega Menu: Doces & Confeitaria (Estilo Magalu) */}
-              <div className="group/cat relative shrink-0 hidden md:block">
+              <div className="group/cat relative shrink-0">
                 <Link
-                  className="flex items-center gap-1 rounded-full px-2 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
+                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
                   href="/categoria/confeitaria"
                 >
                   <span>Doces &amp; Confeitaria</span>
-                  <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
+                  <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
                 </Link>
                 <div className="invisible absolute top-full -left-48 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
                   <CategoryMegaMenu
@@ -390,24 +394,24 @@ export function SiteHeader({
               </div>
 
               {/* Mega Menu: Sacos & Sacolas (Estilo Magalu) */}
-              <div className="group/cat relative shrink-0 hidden md:block">
+              <div className="group/cat relative shrink-0">
                 <Link
-                  className="flex items-center gap-1 rounded-full px-2 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
+                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
                   href="/loja?q=sacola"
                 >
                   <span>Sacos &amp; Sacolas</span>
-                  <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
+                  <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
                 </Link>
               </div>
 
               {/* Mega Menu: Limpeza Profissional (Estilo Magalu) */}
-              <div className="group/cat relative shrink-0 hidden md:block">
+              <div className="group/cat relative shrink-0">
                 <Link
-                  className="flex items-center gap-1 rounded-full px-2 py-1 text-white/90 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
+                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
                   href="/categoria/limpeza"
                 >
                   <span>Limpeza Profissional</span>
-                  <ChevronDown className="size-3 text-white/60 transition-transform duration-150 group-hover/cat:rotate-180" />
+                  <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
                 </Link>
                 <div className="invisible absolute top-full right-0 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
                   <CategoryMegaMenu
@@ -419,7 +423,7 @@ export function SiteHeader({
 
               {/* Mais Vendidos */}
               <Link
-                className="rounded-full px-2.5 py-1 text-white/90 hover:bg-white/10 hover:text-white transition whitespace-nowrap shrink-0"
+                className="rounded-full px-2 py-0.5 sm:px-2.5 sm:py-1 text-white/95 hover:bg-white/10 hover:text-white transition whitespace-nowrap shrink-0"
                 href="/loja"
               >
                 Mais Vendidos

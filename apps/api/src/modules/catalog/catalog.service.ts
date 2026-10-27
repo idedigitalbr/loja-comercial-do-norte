@@ -8,6 +8,8 @@ export type CreateProductInput = {
   description?: string;
   brandId?: string;
   categoryIds?: string[];
+  segmentIds?: string[];
+  tagIds?: string[];
   variants?: ProductVariantInput[];
   images?: ProductImageInput[];
 };
@@ -64,6 +66,8 @@ export class ProductIncompleteError extends BadRequestException {
 const productRelations = {
   brand: { include: { parent: true } },
   categories: { include: { category: true } },
+  segments: { include: { segment: true } },
+  tags: { include: { tag: true } },
   variants: { include: { images: true, inventoryBalance: true } },
   images: { orderBy: { sortOrder: 'asc' as const } },
 } as const;
@@ -79,6 +83,12 @@ export class CatalogService {
         slug: normalizeProductSlug(input.slug || input.name),
         description: input.description,
         brandId: input.brandId,
+        segments: input.segmentIds?.length
+          ? { create: input.segmentIds.map((segmentId) => ({ segmentId })) }
+          : undefined,
+        tags: input.tagIds?.length
+          ? { create: input.tagIds.map((tagId) => ({ tagId })) }
+          : undefined,
         categories: input.categoryIds?.length
           ? { create: input.categoryIds.map((categoryId) => ({ categoryId })) }
           : undefined,
@@ -115,6 +125,12 @@ export class CatalogService {
           ...(input.slug !== undefined ? { slug: input.slug } : {}),
           ...(input.description !== undefined ? { description: input.description } : {}),
           ...(input.brandId !== undefined ? { brandId: input.brandId || null } : {}),
+          ...(input.segmentIds !== undefined
+            ? { segments: { deleteMany: {}, create: input.segmentIds.map((segmentId) => ({ segmentId })) } }
+            : {}),
+          ...(input.tagIds !== undefined
+            ? { tags: { deleteMany: {}, create: input.tagIds.map((tagId) => ({ tagId })) } }
+            : {}),
           ...(input.categoryIds !== undefined
             ? { categories: { deleteMany: {}, create: input.categoryIds.map((categoryId) => ({ categoryId })) } }
             : {}),
@@ -303,6 +319,10 @@ export class CatalogService {
     search?: string;
     brandId?: string;
     categoryId?: string;
+    segmentId?: string;
+    tagId?: string;
+    segment?: string;
+    tag?: string;
     brand?: string;
     category?: string;
     status?: RecordStatus | null;
@@ -340,6 +360,8 @@ export class CatalogService {
     search?: string;
     brand?: string;
     category?: string;
+    segment?: string;
+    tag?: string;
     page?: number;
     pageSize?: number;
     sort?: 'newest' | 'name_asc';
@@ -368,30 +390,44 @@ export class CatalogService {
     search?: string;
     brandId?: string;
     categoryId?: string;
+    segmentId?: string;
+    tagId?: string;
     brand?: string;
     category?: string;
+    segment?: string;
+    tag?: string;
     status?: RecordStatus | null;
   }): Promise<Prisma.ProductWhereInput> {
-    const [brand, category] = await Promise.all([
+    const [brand, category, segment, tag] = await Promise.all([
       input.brand || input.brandId
         ? this.prisma.brand.findUnique({ where: input.brandId ? { id: input.brandId } : { slug: input.brand }, select: { id: true, children: { select: { id: true } } } })
         : null,
       input.category && !input.categoryId
         ? this.prisma.category.findUnique({ where: { slug: input.category }, select: { id: true } })
         : null,
+      input.segment && !input.segmentId
+        ? this.prisma.segment.findUnique({ where: { slug: input.segment }, select: { id: true } })
+        : null,
+      input.tag && !input.tagId
+        ? this.prisma.tag.findUnique({ where: { slug: input.tag }, select: { id: true } })
+        : null,
     ]);
     const resolvedBrandIds = brand ? [brand.id, ...(brand.children?.map((child) => child.id) ?? [])] : input.brand || input.brandId ? ['__unknown_brand__'] : [];
     const categoryId = input.categoryId ?? (input.category ? category?.id : undefined);
-    // Categoria pai inclui as subcategorias (começo de hierarquia, E2).
     const resolvedCategoryIds = categoryId
       ? await this.categoryIdsWithDescendants(categoryId)
       : input.category || input.categoryId
         ? ['__unknown_category__']
         : [];
+    const resolvedSegmentId = input.segmentId ?? (input.segment ? segment?.id : undefined);
+    const resolvedTagId = input.tagId ?? (input.tag ? tag?.id : undefined);
+
     return {
       ...(input.status === undefined ? { status: RecordStatus.ACTIVE } : input.status ? { status: input.status } : {}),
       ...(resolvedBrandIds.length === 1 ? { brandId: resolvedBrandIds[0] } : resolvedBrandIds.length > 1 ? { brandId: { in: resolvedBrandIds } } : {}),
       ...(resolvedCategoryIds.length ? { categories: { some: { categoryId: { in: resolvedCategoryIds } } } } : {}),
+      ...(resolvedSegmentId ? { segments: { some: { segmentId: resolvedSegmentId } } } : (input.segment || input.segmentId) ? { segments: { some: { segmentId: '__unknown_segment__' } } } : {}),
+      ...(resolvedTagId ? { tags: { some: { tagId: resolvedTagId } } } : (input.tag || input.tagId) ? { tags: { some: { tagId: '__unknown_tag__' } } } : {}),
       ...(input.search?.trim()
         ? {
             OR: [
@@ -469,6 +505,118 @@ export class CatalogService {
         },
       },
     });
+  }
+
+  // --- SEGMENTS ---
+  listSegments(status: RecordStatus | null = RecordStatus.ACTIVE) {
+    return this.prisma.segment.findMany({
+      where: status ? { status } : {},
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+      include: {
+        _count: { select: { products: true } },
+      },
+    });
+  }
+
+  async getSegmentById(id: string) {
+    const segment = await this.prisma.segment.findUnique({
+      where: { id },
+      include: {
+        products: {
+          include: {
+            product: {
+              include: productRelations,
+            },
+          },
+        },
+        _count: { select: { products: true } },
+      },
+    });
+    if (!segment) throw new NotFoundException('SEGMENT_NOT_FOUND');
+    return segment;
+  }
+
+  createSegment(input: TaxonomyInput) {
+    return this.prisma.segment.create({
+      data: {
+        name: input.name,
+        slug: input.slug || toSlug(input.name),
+        description: input.description,
+        imagePath: input.imagePath,
+        sortOrder: input.sortOrder ?? 0,
+      },
+    });
+  }
+
+  updateSegment(id: string, input: TaxonomyUpdateInput) {
+    return this.prisma.segment.update({
+      where: { id },
+      data: {
+        ...(input.name !== undefined ? { name: input.name } : {}),
+        ...(input.slug !== undefined ? { slug: input.slug } : {}),
+        ...(input.description !== undefined ? { description: input.description } : {}),
+        ...(input.imagePath !== undefined ? { imagePath: input.imagePath || null } : {}),
+        ...(input.sortOrder !== undefined ? { sortOrder: input.sortOrder } : {}),
+        ...(input.status !== undefined ? { status: input.status } : {}),
+      },
+    });
+  }
+
+  archiveSegment(id: string) {
+    return this.prisma.segment.update({ where: { id }, data: { status: RecordStatus.ARCHIVED } });
+  }
+
+  // --- TAGS ---
+  listTags(status: RecordStatus | null = RecordStatus.ACTIVE) {
+    return this.prisma.tag.findMany({
+      where: status ? { status } : {},
+      orderBy: { name: 'asc' },
+      include: {
+        _count: { select: { products: true } },
+      },
+    });
+  }
+
+  async getTagById(id: string) {
+    const tag = await this.prisma.tag.findUnique({
+      where: { id },
+      include: {
+        products: {
+          include: {
+            product: {
+              include: productRelations,
+            },
+          },
+        },
+        _count: { select: { products: true } },
+      },
+    });
+    if (!tag) throw new NotFoundException('TAG_NOT_FOUND');
+    return tag;
+  }
+
+  createTag(input: TaxonomyInput) {
+    return this.prisma.tag.create({
+      data: {
+        name: input.name,
+        slug: input.slug || toSlug(input.name),
+      },
+    });
+  }
+
+  updateTag(id: string, input: TaxonomyUpdateInput) {
+    return this.prisma.tag.update({
+      where: { id },
+      data: {
+        ...(input.name !== undefined ? { name: input.name } : {}),
+        ...(input.slug !== undefined ? { slug: input.slug } : {}),
+        ...(input.status !== undefined ? { status: input.status } : {}),
+      },
+    });
+  }
+
+  archiveTag(id: string) {
+    return this.prisma.tag.update({ where: { id }, data: { status: RecordStatus.ARCHIVED } });
   }
 
   private async assertProduct(id: string): Promise<void> {
