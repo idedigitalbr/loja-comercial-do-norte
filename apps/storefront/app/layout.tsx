@@ -29,8 +29,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const site = config?.site ?? null;
 
   return (
-    <html lang="pt-BR">
-      <body className="min-h-screen antialiased bg-white">
+    <html lang="pt-BR" suppressHydrationWarning>
+      <body className="min-h-screen antialiased bg-white" suppressHydrationWarning>
         <a className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-ink" href="#conteudo">
           Pular para o conteúdo
         </a>
