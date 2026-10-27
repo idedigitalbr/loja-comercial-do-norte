@@ -74,10 +74,10 @@ export function SiteHeader({
         className="relative w-full shadow-md z-30 bg-[#004CB1]"
       >
         {/* BARRA 01: FAIXA SUPERIOR VERMELHA DE BENEFÍCIOS (FIGMA OFICIAL) */}
-        <div className="bg-[#E2091E] px-3 py-1.5 text-white sm:px-4 md:px-6">
-          <div className="cn-container flex items-center justify-between text-[11px] sm:text-xs">
+        <div className="bg-[#E2091E] py-1 sm:py-1.5 text-white">
+          <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between text-[11px] sm:text-xs">
             {/* Benefícios (Esquerda) com recuo para não sobrepor o Mascote NORT em desktop */}
-            <div className="no-scrollbar flex items-center gap-2 overflow-x-auto py-0.5 pl-0 font-medium sm:gap-4 md:pl-[82px] lg:gap-5 lg:pl-[90px]">
+            <div className="no-scrollbar flex items-center gap-2 overflow-x-auto py-0.5 pl-0 font-medium sm:gap-4 md:pl-[70px] lg:gap-5 lg:pl-[74px]">
               <div className="flex items-center gap-1.5 whitespace-nowrap text-white">
                 <Truck aria-hidden className="size-3.5 flex-shrink-0" />
                 <span>Entrega em Belém e Região Metropolitana</span>
@@ -110,14 +110,14 @@ export function SiteHeader({
         </div>
 
         {/* BARRA 02: PRINCIPAL AZUL (#004CB1) COM LOGO, MASCOTE NORT 3D, BUSCA E COTAÇÃO */}
-        <div className="relative bg-[#004CB1] px-3 py-3 text-white sm:px-4 sm:py-3.5 md:px-6 min-h-[68px] sm:min-h-[72px] flex items-center">
+        <div className="relative bg-[#004CB1] py-2.5 sm:py-3 md:py-3.5 text-white min-h-[68px] sm:min-h-[72px] flex items-center">
           {/* MASCOTE NORT 3D OFICIAL (Ancorado na base da Barra 02 e vazando sobre a faixa vermelha) */}
           <Link
             aria-label={`${siteName} - Ir para a Página Inicial`}
             className="group/mascot absolute bottom-0 left-2 z-30 hidden md:block lg:left-3 cursor-pointer"
             href="/"
           >
-            <div className="relative h-[94px] w-[75px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 sm:h-[96px] sm:w-[76px] lg:h-[98px] lg:w-[78px]">
+            <div className="relative h-[92px] w-[74px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 sm:h-[94px] sm:w-[75px] lg:h-[96px] lg:w-[76px]">
               <Image
                 alt="Mascote NORT 3D Comercial do Norte - Ir para a Página Inicial"
                 className="drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)] object-contain object-bottom"
@@ -128,9 +128,9 @@ export function SiteHeader({
               />
             </div>
           </Link>
-          <div className="cn-container w-full flex items-center justify-between gap-3 md:gap-4">
+          <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between gap-3 md:gap-4">
             {/* LADO ESQUERDO: HAMBURGER (MOBILE) + LOGO COM C VERMELHO E TEXTO BRANCO */}
-            <div className="flex items-center gap-2 sm:gap-3 md:pl-[84px] lg:pl-[88px]">
+            <div className="flex items-center gap-2 sm:gap-3 md:pl-[66px] lg:pl-[70px]">
               {/* Botão Menu Hamburger Mobile */}
               <button
                 aria-label="Abrir menu principal"
