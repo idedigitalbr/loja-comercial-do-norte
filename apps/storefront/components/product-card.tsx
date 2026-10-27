@@ -44,7 +44,7 @@ export function ProductCard({
 
   return (
     <article
-      className={`group relative flex w-full self-start flex-col rounded-[14px] border border-slate-200/90 bg-white shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition-all duration-200 hover:z-30 hover:-translate-y-0.5 hover:border-[#004CB1]/40 hover:shadow-[0_14px_30px_rgba(0,76,177,0.15)] focus-within:z-30 focus-within:border-[#004CB1]/40 ${
+      className={`group relative flex w-full self-start flex-col rounded-[14px] border border-slate-200/90 bg-white shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition-all duration-300 ease-out hover:z-40 hover:-translate-y-7 sm:hover:-translate-y-8 hover:scale-[1.025] sm:hover:scale-[1.03] hover:border-[#004CB1]/40 hover:shadow-[0_20px_40px_rgba(0,76,177,0.18)] focus-within:z-40 focus-within:border-[#004CB1]/40 ${
         hasActions
           ? 'hover:rounded-b-none hover:border-b-transparent focus-within:rounded-b-none focus-within:border-b-transparent'
           : ''
@@ -140,7 +140,7 @@ export function ProductCard({
 
       {/* Botões revelados apenas no hover em painel flutuante absoluto (não expande o container pai nem causa layout shift nas outras seções) */}
       {variant ? (
-        <div className="pointer-events-none absolute left-[-1px] right-[-1px] top-[calc(100%-1px)] z-30 opacity-0 translate-y-1 transition-all duration-200 ease-out group-hover:pointer-events-auto group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-focus-within:translate-y-0 rounded-b-[14px] border-x border-b border-[#004CB1]/40 bg-white px-3.5 pb-3.5 pt-1 shadow-[0_14px_30px_rgba(0,76,177,0.15)]">
+        <div className="pointer-events-none absolute left-[-1px] right-[-1px] top-[calc(100%-1px)] z-40 opacity-0 translate-y-1 transition-all duration-200 ease-out group-hover:pointer-events-auto group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-focus-within:translate-y-0 rounded-b-[14px] border-x border-b border-[#004CB1]/40 bg-white px-3.5 pb-3.5 pt-1 shadow-[0_20px_40px_rgba(0,76,177,0.18)]">
           <ProductCardActions
             item={{
               variantId: variant.id,

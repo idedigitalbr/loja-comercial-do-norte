@@ -364,7 +364,7 @@ export function ProductCarouselWidget({
 
           {/* Card Direito: Carrossel 3 Produtos em Promoção */}
           <div className="relative flex flex-col rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.04)] sm:p-5 lg:col-span-8">
-            <div className="mb-4 flex items-center justify-between gap-2">
+            <div className="mb-4 sm:mb-5 flex items-center justify-between gap-2">
               <div className="flex items-baseline gap-2.5">
                 {renderEditableTitle()}
                 <Link
@@ -394,7 +394,7 @@ export function ProductCarouselWidget({
                 <>
                   <button
                     aria-label="Anterior"
-                    className="absolute -left-3 top-1/2 z-40 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                    className="absolute -left-3 top-1/2 z-50 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
                     onClick={() => setPage((p) => (p - 1 + totalPages) % totalPages)}
                     type="button"
                   >
@@ -402,7 +402,7 @@ export function ProductCarouselWidget({
                   </button>
                   <button
                     aria-label="Próximo"
-                    className="absolute -right-3 top-1/2 z-40 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                    className="absolute -right-3 top-1/2 z-50 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
                     onClick={() => setPage((p) => (p + 1) % totalPages)}
                     type="button"
                   >
@@ -421,7 +421,7 @@ export function ProductCarouselWidget({
   return (
     <section aria-label={title} className="cn-container py-3 sm:py-4">
       <div className="relative rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.04)] sm:p-5">
-        <div className="mb-4 flex items-center justify-between gap-2">
+        <div className="mb-4 sm:mb-5 flex items-center justify-between gap-2">
           <div className="flex items-baseline gap-2.5">
             {renderEditableTitle()}
             <Link
@@ -451,7 +451,7 @@ export function ProductCarouselWidget({
             <>
               <button
                 aria-label="Anterior"
-                className="absolute -left-3.5 top-1/2 z-40 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                className="absolute -left-3.5 top-1/2 z-50 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
                 onClick={() => setPage((p) => (p - 1 + totalPages) % totalPages)}
                 type="button"
               >
@@ -459,7 +459,7 @@ export function ProductCarouselWidget({
               </button>
               <button
                 aria-label="Próximo"
-                className="absolute -right-3.5 top-1/2 z-40 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                className="absolute -right-3.5 top-1/2 z-50 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
                 onClick={() => setPage((p) => (p + 1) % totalPages)}
                 type="button"
               >
