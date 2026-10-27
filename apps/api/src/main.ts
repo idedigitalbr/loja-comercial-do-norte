@@ -61,9 +61,13 @@ export function configureApp(app: INestApplication): INestApplication {
   });
 
   app.use(cookieParser(process.env.COOKIE_SECRET));
+  const isDev = process.env.NODE_ENV !== 'production';
+
   app.use(helmet({
+    hsts: isDev ? false : undefined,
     contentSecurityPolicy: {
       directives: {
+        ...(isDev ? { upgradeInsecureRequests: null } : {}),
         imgSrc: ["'self'", 'data:', 'blob:'],
         frameSrc: ["'self'", 'https://www.youtube.com', 'https://www.youtube-nocookie.com'],
       },
