@@ -112,26 +112,26 @@ export function SiteHeader({
         {/* BARRA 02: PRINCIPAL AZUL (#004CB1) COM LOGO, MASCOTE NORT 3D, BUSCA E COTAÇÃO */}
         <div className="relative bg-[#004CB1] text-white min-h-[68px] sm:min-h-[72px] flex items-center">
           <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 relative flex items-center justify-between gap-3 md:gap-4 py-2.5 sm:py-3 md:py-3.5">
-            {/* MASCOTE NORT 3D OFICIAL (Ancorado na base da Barra 02 e vazando sobre a faixa vermelha) */}
+            {/* MASCOTE NORT 3D OFICIAL (Ancorado na base da Barra 02 sem invadir a Barra 03, subindo até quase o teto da Barra 01) */}
             <Link
               aria-label={`${siteName} - Ir para a Página Inicial`}
-              className="group/mascot absolute -bottom-3.5 left-3 sm:left-6 z-30 hidden md:block cursor-pointer"
+              className="group/mascot absolute bottom-0 left-3 sm:left-6 z-30 hidden md:block cursor-pointer"
               href="/"
             >
-              <div className="relative h-[92px] w-[74px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 sm:h-[94px] sm:w-[75px] lg:h-[96px] lg:w-[76px]">
+              <div className="relative h-[98px] w-[74px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 sm:h-[100px] sm:w-[75px] lg:h-[104px] lg:w-[78px]">
                 <Image
                   alt="Mascote NORT 3D Comercial do Norte - Ir para a Página Inicial"
                   className="drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)] object-contain object-bottom"
                   fill
                   priority
-                  sizes="80px"
+                  sizes="85px"
                   src="/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-01-principal.png"
                 />
               </div>
             </Link>
 
             {/* LADO ESQUERDO: HAMBURGER (MOBILE) + LOGO COM C VERMELHO E TEXTO BRANCO */}
-            <div className="flex items-center gap-2 sm:gap-3 md:pl-[88px] lg:pl-[92px]">
+            <div className="flex items-center gap-2 sm:gap-3 md:pl-[88px] lg:pl-[94px]">
               {/* Botão Menu Hamburger Mobile */}
               <button
                 aria-label="Abrir menu principal"
