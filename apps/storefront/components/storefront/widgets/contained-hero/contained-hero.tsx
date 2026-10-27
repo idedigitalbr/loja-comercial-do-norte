@@ -44,13 +44,13 @@ export function ContainedHeroWidget({
       className={`cn-container relative z-20 ${
         overlapTop
           ? "-mt-8 sm:-mt-12 md:-mt-16 lg:-mt-20 pb-6 sm:pb-8 md:pb-10"
-          : "py-6 sm:py-8 md:py-10"
+          : "py-5 sm:py-6 md:py-8"
       }`}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
       <div className="group relative w-full overflow-hidden rounded-2xl border border-white/25 bg-[#122347] shadow-2xl md:rounded-3xl">
-        <div className="relative aspect-[2.4/1] min-h-[180px] w-full sm:aspect-[2.8/1] md:aspect-[3.2/1] md:min-h-[260px] lg:aspect-[3.6/1] lg:min-h-[320px] lg:max-h-[460px]">
+        <div className="relative aspect-[2.5/1] min-h-[180px] w-full sm:aspect-[2.7/1] md:aspect-[2.9/1] md:min-h-[240px] lg:aspect-[2.95/1] lg:min-h-[290px] lg:max-h-[420px]">
           {slides.map((slide, index) => {
             const isActive = index === currentIndex;
             return (

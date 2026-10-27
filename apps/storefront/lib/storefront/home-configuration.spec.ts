@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { defaultHomeComposition } from './home-configuration';
 
-describe('defaultHomeComposition (19 seções site-final + S0/S20)', () => {
-  it('possui exatamente 19 seções de widgets habilitadas em ordem sequencial de 1 a 19', () => {
+describe('defaultHomeComposition (18 seções site-final + S0/S20)', () => {
+  it('possui exatamente 18 seções de widgets habilitadas em ordem sequencial de 1 a 18', () => {
     expect(defaultHomeComposition.page).toBe('home');
     expect(defaultHomeComposition.version).toBeGreaterThanOrEqual(2);
-    expect(defaultHomeComposition.widgets).toHaveLength(19);
+    expect(defaultHomeComposition.widgets).toHaveLength(18);
 
     defaultHomeComposition.widgets.forEach((widget, idx) => {
       expect(widget.enabled).toBe(true);
@@ -29,7 +29,6 @@ describe('defaultHomeComposition (19 seções site-final + S0/S20)', () => {
       'product-carousel',
       'banner-grid',
       'events-carousel',
-      'promo-strip',
       'product-carousel',
       'video-articles-carousel',
       'instagram-feed',
@@ -47,7 +46,6 @@ describe('defaultHomeComposition (19 seções site-final + S0/S20)', () => {
     expect(json).toContain('Tudo para todos os negócios');
     expect(json).toContain('OFERTAS IMPERDÍVEIS');
     expect(json).toContain('Nossos Eventos');
-    expect(json).toContain('CONDIÇÕES ESPECIAIS');
     expect(json).toContain('Explica Aí Nort');
     expect(json).toContain('A Loja no Instagram');
     expect(json).toContain('Exclusivas do WhatsApp');

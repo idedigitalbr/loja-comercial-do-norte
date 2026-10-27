@@ -52,7 +52,7 @@ export function HeroCarouselWidget({
           backgroundColor: slides[currentIndex]?.backgroundColor ?? "#028F34",
         }}
       >
-        <div className="relative w-full h-[200px] sm:h-[260px] md:h-[320px] lg:h-[360px] xl:h-[400px]">
+        <div className="relative w-full h-[180px] sm:h-[210px] md:h-[236px] lg:h-[240px] xl:h-[280px]">
           {slides.map((slide, index) => {
             const isActive = index === currentIndex;
             return (

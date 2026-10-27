@@ -510,24 +510,10 @@
       }
     },
     {
-      "id": "s13-condicoes-especiais",
-      "type": "promo-strip",
-      "enabled": true,
-      "order": 13,
-      "props": {
-        "variant": "conditions-mascot",
-        "highlightText": "CONDIÇÕES ESPECIAIS",
-        "title": "para o seu negócio",
-        "imageUrl": "/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp",
-        "ctaUrl": "/cotacao",
-        "altText": "CONDIÇÕES ESPECIAIS para o seu negócio"
-      }
-    },
-    {
       "id": "s14-para-voce-2",
       "type": "product-carousel",
       "enabled": true,
-      "order": 14,
+      "order": 13,
       "props": {
         "variant": "standard-5col",
         "title": "Para você",
@@ -540,7 +526,7 @@
       "id": "s15-explica-ai-comercial",
       "type": "video-articles-carousel",
       "enabled": true,
-      "order": 15,
+      "order": 14,
       "props": {
         "title": "Explica Aí Nort",
         "subtitle": "Dicas em vídeos e artigos para você usar no seu negócio.",
@@ -618,7 +604,7 @@
       "id": "s16-instagram-feed",
       "type": "instagram-feed",
       "enabled": true,
-      "order": 16,
+      "order": 15,
       "props": {
         "title": "A Loja no Instagram",
         "subtitle": "Acompanhe bastidores, lançamentos e ações especiais nas nossas lojas físicas",
@@ -704,7 +690,7 @@
       "id": "s17-grupo-whatsapp",
       "type": "promo-strip",
       "enabled": true,
-      "order": 17,
+      "order": 16,
       "props": {
         "variant": "whatsapp-group",
         "title": "Entre em nosso Grupo de ofertas",
@@ -720,7 +706,7 @@
       "id": "s18-avaliacoes-google",
       "type": "testimonials-grid",
       "enabled": true,
-      "order": 18,
+      "order": 17,
       "props": {
         "eyebrow": "AVALIAÇÕES NO GOOGLE",
         "title": "O que nossos clientes dizem no Google.",
@@ -834,7 +820,7 @@
       "id": "s19-unidades-mapa",
       "type": "store-locations-map",
       "enabled": true,
-      "order": 19,
+      "order": 18,
       "props": {
         "title": "Encontre nossas unidades",
         "subtitle": "Lojas mais perto de você",

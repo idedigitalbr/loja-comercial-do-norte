@@ -59,7 +59,7 @@ export function UserMenuDropdown() {
     return (
       <Link
         aria-label="Entre ou Cadastre-se"
-        className="flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-2.5 py-1 text-xs text-white transition hover:bg-white/15"
+        className="flex items-center gap-2 rounded-full border border-white/30 bg-white/5 px-3 py-1 text-xs text-white transition hover:bg-white/15"
         href="/login"
       >
         <div className="flex size-7 items-center justify-center rounded-full border border-white/60 bg-white/10 text-white shrink-0">

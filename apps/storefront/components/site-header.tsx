@@ -110,27 +110,27 @@ export function SiteHeader({
         </div>
 
         {/* BARRA 02: PRINCIPAL AZUL (#004CB1) COM LOGO, MASCOTE NORT 3D, BUSCA E COTAÇÃO */}
-        <div className="relative bg-[#004CB1] px-3 py-2.5 text-white sm:px-4 sm:py-3 md:px-6">
+        <div className="relative bg-[#004CB1] px-3 py-3 text-white sm:px-4 sm:py-3.5 md:px-6 min-h-[68px] sm:min-h-[72px] flex items-center">
           {/* MASCOTE NORT 3D OFICIAL (Ancorado na base da Barra 02 e vazando sobre a faixa vermelha) */}
           <Link
             aria-label={`${siteName} - Ir para a Página Inicial`}
-            className="group/mascot absolute bottom-0 left-2 z-30 hidden md:block lg:left-4 cursor-pointer"
+            className="group/mascot absolute bottom-0 left-2 z-30 hidden md:block lg:left-3 cursor-pointer"
             href="/"
           >
-            <div className="relative h-[98px] w-[78px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 lg:h-[102px] lg:w-[82px]">
+            <div className="relative h-[90px] w-[72px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 sm:h-[92px] sm:w-[74px] lg:h-[94px] lg:w-[76px]">
               <Image
                 alt="Mascote NORT 3D Comercial do Norte - Ir para a Página Inicial"
                 className="drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)] object-contain object-bottom"
                 fill
                 priority
-                sizes="84px"
+                sizes="80px"
                 src="/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-01-principal.png"
               />
             </div>
           </Link>
-          <div className="cn-container flex items-center justify-between gap-3 md:gap-4">
-            {/* LADO ESQUERDO: HAMBURGER (MOBILE) + LOGO BRANCA */}
-            <div className="flex items-center gap-2 sm:gap-3 md:pl-[82px] lg:pl-[90px]">
+          <div className="cn-container w-full flex items-center justify-between gap-3 md:gap-4">
+            {/* LADO ESQUERDO: HAMBURGER (MOBILE) + LOGO COM C VERMELHO E TEXTO BRANCO */}
+            <div className="flex items-center gap-2 sm:gap-3 md:pl-[76px] lg:pl-[80px]">
               {/* Botão Menu Hamburger Mobile */}
               <button
                 aria-label="Abrir menu principal"
@@ -141,20 +141,20 @@ export function SiteHeader({
                 <Menu className="size-6" />
               </button>
 
-              {/* Logo Oficial Branca */}
+              {/* Logo Oficial com Centro Vermelho e Texto Branco */}
               <Link
                 aria-label={`${siteName} - Página Inicial`}
                 className="flex items-center"
                 href="/"
               >
-                <div className="relative h-10 w-[170px] sm:h-11 sm:w-[190px] lg:h-12 lg:w-[210px]">
+                <div className="relative h-10 w-[170px] sm:h-11 sm:w-[185px] lg:h-11.5 lg:w-[195px]">
                   <Image
                     alt={siteName}
                     className="object-contain object-left"
                     fill
                     priority
-                    sizes="(max-width: 640px) 170px, (max-width: 1024px) 190px, 210px"
-                    src="/logo-comercial-do-norte-branca.png"
+                    sizes="(max-width: 640px) 170px, (max-width: 1024px) 185px, 195px"
+                    src="/logo-comercial-do-norte-header.png"
                   />
                 </div>
               </Link>
@@ -164,7 +164,7 @@ export function SiteHeader({
             <button
               aria-haspopup="dialog"
               aria-label={`Enviar para ${location.shortLabel}. Clique para alterar CEP ou endereço.`}
-              className="hidden items-center gap-2 px-2 py-1 text-xs text-white xl:flex transition cursor-pointer text-left hover:opacity-90 shrink-0 group"
+              className="hidden items-center gap-2 px-2 py-1 text-xs text-white lg:flex transition cursor-pointer text-left hover:opacity-90 shrink-0 group"
               onClick={openModal}
               type="button"
             >
@@ -262,7 +262,7 @@ export function SiteHeader({
         </div>
 
         {/* BARRA MOBILE/TABLET: LOCALIZAÇÃO & CEP COMPACTO (ESTILO MAGALU) */}
-        <div className="flex xl:hidden items-center justify-between border-t border-white/10 bg-[#00357B]/90 px-3 py-1.5 text-xs text-white">
+        <div className="flex lg:hidden items-center justify-between border-t border-white/10 bg-[#00357B]/90 px-3 py-1.5 text-xs text-white">
           <button
             aria-haspopup="dialog"
             aria-label={`Enviar para: ${location.shortLabel}. Clique para alterar.`}

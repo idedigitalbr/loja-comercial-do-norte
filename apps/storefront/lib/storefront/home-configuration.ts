@@ -1,7 +1,7 @@
 import type { PageComposition } from "./widget-types";
 
 /**
- * Configuração padrão completa da Homepage do Comercial do Norte (19 seções de widgets + Rodapé S20).
+ * Configuração padrão completa da Homepage do Comercial do Norte (18 seções de widgets + Rodapé S20).
  * Reconstruída em fidelidade 1:1 com REFERENCIA/site-final.jpg e REFERENCIA/wireframe.png.
  */
 export const defaultHomeComposition: PageComposition = {
@@ -603,29 +603,12 @@ export const defaultHomeComposition: PageComposition = {
       },
     },
 
-    // 13 — SEÇÃO BANNER HORIZONTAL (CONDIÇÕES ESPECIAIS PARA O SEU NEGÓCIO)
-    {
-      id: "s13-condicoes-especiais",
-      type: "promo-strip",
-      enabled: true,
-      order: 13,
-      props: {
-        variant: "conditions-mascot",
-        highlightText: "CONDIÇÕES ESPECIAIS",
-        title: "para o seu negócio",
-        imageUrl:
-          "/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp",
-        ctaUrl: "/cotacao",
-        altText: "CONDIÇÕES ESPECIAIS para o seu negócio",
-      },
-    },
-
     // 14 — SEÇÃO CARROSSEL DE PRODUTOS (PARA VOCÊ - 5 COLUNAS)
     {
       id: "s14-para-voce-2",
       type: "product-carousel",
       enabled: true,
-      order: 14,
+      order: 13,
       props: {
         variant: "standard-5col",
         title: "Para você",
@@ -640,7 +623,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s15-explica-ai-comercial",
       type: "video-articles-carousel",
       enabled: true,
-      order: 15,
+      order: 14,
       props: {
         title: "Explica Aí Nort",
         subtitle: "Dicas em vídeos e artigos para você usar no seu negócio.",
@@ -708,7 +691,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s16-instagram-feed",
       type: "instagram-feed",
       enabled: true,
-      order: 16,
+      order: 15,
       props: {
         title: "A Loja no Instagram",
         subtitle:
@@ -808,7 +791,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s17-grupo-whatsapp",
       type: "promo-strip",
       enabled: true,
-      order: 17,
+      order: 16,
       props: {
         variant: "whatsapp-group",
         title: "Entre em nosso Grupo de ofertas",
@@ -829,7 +812,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s18-avaliacoes-google",
       type: "testimonials-grid",
       enabled: true,
-      order: 18,
+      order: 17,
       props: {
         eyebrow: "AVALIAÇÕES NO GOOGLE",
         title: "O que nossos clientes dizem no Google.",
@@ -945,7 +928,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s19-unidades-mapa",
       type: "store-locations-map",
       enabled: true,
-      order: 19,
+      order: 18,
       props: {
         title: "Encontre nossas unidades",
         subtitle: "Lojas mais perto de você",

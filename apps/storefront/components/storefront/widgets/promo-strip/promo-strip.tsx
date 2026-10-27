@@ -27,10 +27,7 @@ export function PromoStripWidget({
 
   // Variante 1: Seção 09 — Faixa OFERTAS IMPERDÍVEIS (Banner em imagem com upload e link)
   if (variant === 'offers-strip') {
-    // A arte antiga contém margens dentro do arquivo; fica como placeholder até a troca.
-    const effectiveImageUrl = imageUrl === '/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp'
-      ? undefined
-      : imageUrl;
+    const effectiveImageUrl = imageUrl || '/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp';
     const effectiveAlt = altText || title || highlightText || 'OFERTAS IMPERDÍVEIS em embalagens, descartáveis e utilidades';
 
     const bannerImage = effectiveImageUrl ? (
@@ -57,7 +54,7 @@ export function PromoStripWidget({
     return (
       <section aria-label={effectiveAlt} className="w-full bg-[#001F4D] py-3 sm:py-4">
         <div className="cn-container">
-          <div className="group/img relative aspect-[12/1] min-h-24 w-full overflow-hidden rounded-2xl bg-slate-200 sm:min-h-28">
+          <div className="group/img relative aspect-[1920/170] min-h-[56px] w-full overflow-hidden rounded-2xl bg-slate-200 sm:min-h-24">
             {ctaUrl ? (
               <Link
                 className="block size-full"
