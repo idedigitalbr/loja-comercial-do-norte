@@ -20,6 +20,7 @@ const DEFAULT_PIZZA_POST = {
   videoDuration: '5 min',
   authorName: 'Comercial do Norte',
   badges: ['PIZZARIAS', 'TRANSPORTE SEGURO'],
+  status: 'ACTIVE',
   publishedAt: '2026-10-27T10:00:00.000Z',
   views: 12500,
   conceptTag: 'Conceito 7',
