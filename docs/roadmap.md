@@ -5,6 +5,16 @@
 
 ## 1. Estado confirmado nesta revisão
 
+- **28/10/2026 — CMS de Posts e Eventos & Taxonomia WooCommerce (Segmentos e Tags):**
+  - **Entrega oficial direta na `main` (`58b6e76`):**
+    - **Área Editorial / Posts (`/post` e `/post/[slug]`):** Vitrine institucional com "Explica Aí Nort!", player de vídeo, filtros por categorias de conteúdo, badges temáticas, contagem de views e CTAs contextuais de cotação.
+    - **Área de Eventos e Workshops (`/evento` e `/evento/[slug]`):** Grid vertical com proporção de cartaz 9:16 (anexo oficial), metadados de data/horário/local, instrutor e botão de inscrição/contato direto para WhatsApp.
+    - **Painel Administrativo WordPress CMS (`apps/admin`):** Menus laterais e rotas para `Posts` (Todos, Adicionar Novo, Categorias) e `Eventos` (Todos, Adicionar Novo) com layout idêntico ao WordPress (tabelas com status views, ações no hover, editor de 2 colunas e gestão hierárquica de categorias).
+    - **Arquitetura de Segmentos e Tags:** URLs canônicas `/segmento/[slug]` (ex: `/segmento/pizzaria`), `/marca/[slug]` e filtros avançados no catálogo conforme padrão WooCommerce/distribuidora.
+    - **Backend e Banco:** Prisma models `PostCategory`, `Post`, `Event` com migration aditiva `20261027210000_add_posts_and_events`, seed com 4 posts, 4 eventos e 3 categorias de demonstração, e módulo NestJS `content` com rate-limit e permissões administrativas.
+    - **Qualidade e Validação:** `pnpm typecheck` 100% verde nos 8 pacotes do monorepo; 163 testes na API (67 suítes), 88 testes no Storefront (23 suítes) e 31 testes no Admin (11 suítes) todos aprovados.
+
+
 - **26/10/2026 — integração direta da Issue #61 autorizada no chat:** commit de tipografia `79d43a0` reaplicado sobre a `main` remota (`594d311`), sem incorporar a antiga base do PR #63. O responsável dispensou PRs e revisão por PR; orientação registrada em `memory-ai.md`. Envio direto sem force; PR #63 será encerrado. As falhas de testes da API observadas na CI anterior não pertencem à tipografia. Nenhuma migration ou comando de deploy executado.
 
 - **26/10/2026 — Issue #61:** padronização dos títulos da vitrine (`h1` a `h6`) em Bold (700), por token compartilhado e regra global fora das layers do Tailwind. Inclui home, catálogo, conta, cotação e editor; mantém tamanhos, cores e demais textos. Branch `fix/issue-61-titulos-bold`. CSS compilado com Tailwind/PostCSS e validado em Chromium via Playwright: seis níveis em 700 nas larguras 375/1280 px, mesmo com classes legadas e responsivas; parágrafos em 400 e destaques fora de títulos em 800 preservados. `git diff --check` aprovado. Sem migration ou deploy. Rollback: reverter somente o commit desta Issue.

@@ -7,6 +7,9 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **28/10/2026 — CMS de Posts e Eventos & Taxonomia WooCommerce:** integrado diretamente na `main` com arquitetura completa (PostgreSQL + NestJS + Storefront Next.js + Admin React). Suporte a `/post`, `/evento`, `/segmento`, `/marca` e submenus administrativos de Posts e Eventos.
+
+
 - **Orientação explícita do responsável em 26/10/2026:** entregar as alterações diretamente na `main`, sem abrir PR nem aguardar revisão de PR. Esta orientação substitui a exigência anterior de entrega por PR. Preservar isolamento do escopo, validações, reservas e push sem force; não incluir alterações de outras tarefas.
 
 1. **Decisões explícitas mais recentes do responsável pelo projeto**, registradas neste documento, prevalecem sobre propostas, prompts, planos e decisões técnicas anteriores.
