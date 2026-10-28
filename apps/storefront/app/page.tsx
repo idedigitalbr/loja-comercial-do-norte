@@ -9,7 +9,7 @@ export default async function HomePage() {
     getSiteConfig(),
     getCategories(),
     getBrands(),
-    getOffers(8),
+    getOffers(12),
     getProducts(),
     getStorefrontComposition(),
   ]);

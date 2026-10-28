@@ -12,6 +12,18 @@ import type { ApiProduct } from '@/lib/types';
 
 const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
   {
+    id: 'fallback-prod-sacola-40x50',
+    publicId: 'fallback-prod-sacola-40x50',
+    name: 'Sacola Plástica Reforçada 40 x 50 cm',
+    slug: 'sacola-plastica-40x50',
+    description: 'Fardo com 1 kg de sacolas. Produto de demonstração do catálogo.',
+    status: 'ACTIVE',
+    brand: { id: 'b3', name: 'NortePlast', slug: 'norteplast' },
+    categories: [{ category: { id: 'c3', name: 'Sacos & Sacolas', slug: 'sacos-e-sacolas' } }],
+    images: [{ id: 'img-sacola-40x50', path: '/assets/PRODUTOS/produtos-imgs/sacola-50x60.jpg', altText: 'Sacola Plástica Reforçada 40 x 50 cm', isPrimary: true, sortOrder: 0, variantId: null }],
+    variants: [{ id: 'v-fallback-sacola-40x50', publicId: 'v-fallback-sacola-40x50', sku: 'DEMO-SAC-4050', priceCents: 1590, compareAtPriceCents: 2035, weightGrams: 1500, widthMm: 400, heightMm: 60, lengthMm: 500, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
+  },
+  {
     id: 'fallback-prod-1',
     publicId: 'fallback-prod-1',
     name: 'Copo Descartável Transparente 300ml — Pct 100 un.',
@@ -47,6 +59,7 @@ const FALLBACK_CATALOG_PRODUCTS: ApiProduct[] = [
     images: [{ id: 'img3', path: '/assets/PRODUTOS/produtos-imgs/sacola-50x60.jpg', altText: 'Sacola Plástica 50x60', isPrimary: true, sortOrder: 0, variantId: null }],
     variants: [{ id: 'v-fallback-3', publicId: 'v-fallback-3', sku: 'SAC-50X60', priceCents: 6990, compareAtPriceCents: 8990, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK', status: 'ACTIVE' }],
   },
+
   {
     id: 'fallback-prod-4',
     publicId: 'fallback-prod-4',
@@ -206,15 +219,59 @@ export function ProductCarouselWidget({
   const { isEditing, previewMode, updateWidgetProps } = useElementor();
   const [editingTitle, setEditingTitle] = useState(false);
   const [page, setPage] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
-  const rawItems =
-    source === 'offers'
-      ? contextData?.offers && contextData.offers.length > 0
-        ? contextData.offers
-        : contextData?.products ?? []
-      : contextData?.products ?? [];
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
 
-  const baseList = rawItems.length > 0 ? rawItems : FALLBACK_CATALOG_PRODUCTS;
+  const handleTouchEnd = (e: React.TouchEvent, totalPages: number) => {
+    if (touchStartX === null) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (diff > 45) {
+      setPage((p) => (p + 1) % totalPages);
+    } else if (diff < -45) {
+      setPage((p) => (p - 1 + totalPages) % totalPages);
+    }
+    setTouchStartX(null);
+  };
+
+  // Para vitrines de ofertas (source === 'offers'), prioriza as ofertas com desconto real
+  // e complementa com produtos do catálogo e fallback para garantir que o carrossel tenha
+  // sempre pelo menos 2 páginas navegáveis (mínimo de 6 produtos no split-banner).
+  let baseList: ApiProduct[] = [];
+  if (source === 'offers') {
+    const offers = contextData?.offers ?? [];
+    const catalog = contextData?.products ?? [];
+    const merged: ApiProduct[] = [...offers];
+    const seenSlugs = new Set(
+      offers.map((p) => p.slug || p.id || p.publicId).filter(Boolean),
+    );
+
+    for (const p of catalog) {
+      const key = p.slug || p.id || p.publicId;
+      if (key && !seenSlugs.has(key)) {
+        seenSlugs.add(key);
+        merged.push(p);
+      }
+    }
+
+    if (merged.length < (variant === 'split-banner' ? 6 : 10)) {
+      for (const p of FALLBACK_CATALOG_PRODUCTS) {
+        const key = p.slug || p.id || p.publicId;
+        if (key && !seenSlugs.has(key)) {
+          seenSlugs.add(key);
+          merged.push(p);
+        }
+      }
+    }
+
+    // No split-banner (3 cards por página), mantém 6 produtos (2 páginas), garantindo carrossel com indicador de 2 pílulas
+    baseList = variant === 'split-banner' ? merged.slice(0, 6) : merged;
+  } else {
+    const catalog = contextData?.products ?? [];
+    baseList = catalog.length > 0 ? catalog : FALLBACK_CATALOG_PRODUCTS;
+  }
   const targetCount = limit ?? (variant === 'split-banner' ? 3 : 5);
   const totalPages = Math.max(1, Math.ceil(baseList.length / targetCount));
   const safePage = Math.min(page, totalPages - 1);
@@ -379,8 +436,15 @@ export function ProductCarouselWidget({
               {renderDarkNavyPaginationPill()}
             </div>
 
-            <div className="relative">
-              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3 items-start">
+            <div
+              className="relative"
+              onTouchEnd={(e) => handleTouchEnd(e, totalPages)}
+              onTouchStart={handleTouchStart}
+            >
+              <div
+                className="grid grid-cols-1 gap-3.5 sm:grid-cols-3 items-start transition-opacity duration-300"
+                key={safePage}
+              >
                 {displayItems.map((product, idx) => (
                   <ProductCard
                     flashBadge={idx % 2 === 0}
@@ -394,7 +458,9 @@ export function ProductCarouselWidget({
                 <>
                   <button
                     aria-label="Anterior"
-                    className="absolute -left-3 top-1/2 z-50 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                    className={`absolute -left-3 top-1/2 z-20 size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 cursor-pointer ${
+                      safePage === 0 ? 'hidden' : 'flex'
+                    }`}
                     onClick={() => setPage((p) => (p - 1 + totalPages) % totalPages)}
                     type="button"
                   >
@@ -402,7 +468,7 @@ export function ProductCarouselWidget({
                   </button>
                   <button
                     aria-label="Próximo"
-                    className="absolute -right-3 top-1/2 z-50 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                    className="absolute -right-3 top-1/2 z-20 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 cursor-pointer"
                     onClick={() => setPage((p) => (p + 1) % totalPages)}
                     type="button"
                   >
@@ -436,8 +502,15 @@ export function ProductCarouselWidget({
           {renderDarkNavyPaginationPill()}
         </div>
 
-        <div className="relative">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:gap-3.5 items-start">
+        <div
+          className="relative"
+          onTouchEnd={(e) => handleTouchEnd(e, totalPages)}
+          onTouchStart={handleTouchStart}
+        >
+          <div
+            className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:gap-3.5 items-start transition-opacity duration-300"
+            key={safePage}
+          >
             {displayItems.map((product, idx) => (
               <ProductCard
                 flashBadge={idx === 0 || idx === 2}
@@ -451,7 +524,9 @@ export function ProductCarouselWidget({
             <>
               <button
                 aria-label="Anterior"
-                className="absolute -left-3.5 top-1/2 z-50 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                className={`absolute -left-3.5 top-1/2 z-20 size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 cursor-pointer ${
+                  safePage === 0 ? 'hidden' : 'flex'
+                }`}
                 onClick={() => setPage((p) => (p - 1 + totalPages) % totalPages)}
                 type="button"
               >
@@ -459,7 +534,7 @@ export function ProductCarouselWidget({
               </button>
               <button
                 aria-label="Próximo"
-                className="absolute -right-3.5 top-1/2 z-50 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 sm:flex cursor-pointer"
+                className="absolute -right-3.5 top-1/2 z-20 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-[#E2091E] shadow-lg transition hover:scale-105 hover:bg-slate-50 cursor-pointer"
                 onClick={() => setPage((p) => (p + 1) % totalPages)}
                 type="button"
               >

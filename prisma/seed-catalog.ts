@@ -167,13 +167,13 @@ export const demoProducts: readonly DemoProduct[] = [
   {
     slug: 'bandeja-isopor-n2', name: 'Bandeja de Isopor nº 2',
     description: 'Bandeja para frios e carnes, 100 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'caixas-e-bandejas', segmentSlugs: ['padaria', 'restaurante-buffet'], tagSlugs: ['termico', 'descartavel'], sku: 'DEMO-BAN-002', priceCents: 990,
+    categorySlug: 'caixas-e-bandejas', segmentSlugs: ['padaria', 'restaurante-buffet'], tagSlugs: ['termico', 'descartavel'], sku: 'DEMO-BAN-002', priceCents: 990, compareAtPriceCents: 1290,
     weightGrams: 300, widthMm: 250, heightMm: 30, lengthMm: 200, physicalQuantity: 160, status: 'ACTIVE',
   },
   {
     slug: 'sacola-plastica-40x50', name: 'Sacola Plástica Reforçada 40 x 50 cm',
     description: 'Fardo com 1 kg de sacolas. Produto de demonstração do catálogo.',
-    categorySlug: 'sacos-e-sacolas', segmentSlugs: ['lanchonete', 'pizzaria', 'padaria', 'bar-distribuidora'], tagSlugs: ['reforcado'], sku: 'DEMO-SAC-4050', priceCents: 1590,
+    categorySlug: 'sacos-e-sacolas', segmentSlugs: ['lanchonete', 'pizzaria', 'padaria', 'bar-distribuidora'], tagSlugs: ['reforcado'], sku: 'DEMO-SAC-4050', priceCents: 1590, compareAtPriceCents: 2035,
     weightGrams: 1500, widthMm: 400, heightMm: 60, lengthMm: 500, physicalQuantity: 90, status: 'ACTIVE',
   },
   {
@@ -277,6 +277,199 @@ async function writeBrandLogo(): Promise<void> {
 }
 
 export const DEMO_LOGO_PATH = 'uploads/seed-brand/logo.webp';
+
+
+const demoPostCategories = [
+  { name: 'Embalagens & Delivery', slug: 'embalagens-delivery', description: 'Dicas sobre caixas, sacolas e potes térmicos para transporte seguro.' },
+  { name: 'Food Service & Bebidas', slug: 'food-service-bebidas', description: 'Soluções em copos, tampas e descartáveis para atendimento ágil.' },
+  { name: 'Confeitaria & Festas', slug: 'confeitaria-festas', description: 'Técnicas de decoração, formas e embalagens para doces e bolos.' },
+];
+
+const demoPosts = [
+  {
+    title: 'Embalagens kraft para o seu delivery',
+    slug: 'embalagens-kraft-para-o-seu-delivery',
+    excerpt: 'Mais praticidade com embalagens kraft. Combine formato e resistência. Valorize a apresentação do seu delivery.',
+    content: '<p>As embalagens de papel kraft revolucionaram o delivery de comida e fast-food. Além do apelo ecológico e sustentável que os clientes valorizam, o papel kraft possui excelente resistência mecânica e respirabilidade, mantendo alimentos fritos crocantes por muito mais tempo.</p><h3>Vantagens para o seu negócio:</h3><ul><li><strong>Apresentação premium:</strong> visual artesanal que eleva o valor percebido do seu prato.</li><li><strong>Resistência a gordura:</strong> opções com barreira antigordura para hambúrgueres e batatas.</li><li><strong>Sustentabilidade:</strong> material 100% biodegradável e reciclável.</li></ul><p>Confira a linha completa de sacolas, caixas e barcas kraft disponíveis a pronta entrega na Comercial do Norte.</p>',
+    coverUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/kraft.webp',
+    categorySlug: 'embalagens-delivery',
+    badges: ['DELIVERY', 'LINHA KRAFT'],
+  },
+  {
+    title: 'Copos e tampas para açaí e café',
+    slug: 'copos-e-tampas-para-acai-e-cafe',
+    excerpt: 'O copo certo faz a diferença. Combine a tampa com sua bebida. Evite vazamentos no transporte.',
+    content: '<p>Escolher a combinação ideal de copo e tampa é fundamental para evitar vazamentos no transporte e garantir a melhor experiência para o seu cliente, seja servindo um café bem quente ou um açaí gelado com complementos.</p><h3>Dicas práticas do Nort:</h3><ul><li><strong>Tampa Bolha para Açaí:</strong> permite adicionar frutas, granola e camadas generosas sem amassar a cobertura.</li><li><strong>Tampa Bico para Café e Bebidas Quentes:</strong> mantém a temperatura por mais tempo e permite consumo durante o trajeto sem respingos.</li><li><strong>Copo Térmico vs Copo Cristal PP:</strong> use copos térmicos para cafés e caldos; para açaí e vitaminas, prefira os copos ultra transparentes para destacar as camadas.</li></ul>',
+    coverUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/copos.webp',
+    categorySlug: 'food-service-bebidas',
+    badges: ['AÇAÍ & CAFÉ', 'GUIA PRÁTICO'],
+  },
+  {
+    title: 'Caixas de pizza: formatos e respiros que preservam a massa',
+    slug: 'caixas-de-pizza-formatos-e-respiros',
+    excerpt: 'Tudo sobre caixas oitavadas e quadradas, respiros térmicos e lacres invioláveis para sua pizzaria.',
+    content: '<p>A caixa de pizza não é apenas uma embalagem: é a extensão da qualidade da sua cozinha até a casa do cliente. O acúmulo de vapor pode deixar a massa borrachuda e estragar a crocância.</p><h3>O que observar na escolha da caixa:</h3><ul><li><strong>Respiros de ar:</strong> garantem a saída controlada de vapor sem esfriar a pizza.</li><li><strong>Oitavadas vs Quadradas:</strong> as caixas oitavadas evitam que a pizza deslize dentro da caixa durante a moto-entrega.</li><li><strong>Lacre de segurança:</strong> obrigatório e indispensável para transmitir confiança ao cliente final.</li></ul>',
+    coverUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/pizza.webp',
+    categorySlug: 'embalagens-delivery',
+    badges: ['PIZZARIAS', 'TRANSPORTE SEGURO'],
+  },
+  {
+    title: 'Decoração de doces e bolos com chantilly profissional',
+    slug: 'decoracao-de-doces-e-bolos-com-chantilly',
+    excerpt: 'Dicas práticas de confeitaria caseira para encantar clientes e aumentar suas vendas de doces.',
+    content: '<p>A confeitaria profissional exige domínio de ponto, temperatura e uso correto dos bicos de confeitar. Com as técnicas certas, você valoriza seus bolos de festa e sobremesas para vitrine.</p><h3>Principais recomendações:</h3><ul><li><strong>Ponto Chantininho:</strong> a mistura com leite em pó proporciona mais estabilidade em climas quentes como o Norte do Brasil.</li><li><strong>Bicos 1M e 2D:</strong> os clássicos para rosetas perfeitas e acabamentos elegantes.</li><li><strong>Embalagens altas com trava:</strong> garantem que o topo decorado chegue intacto até a festa do cliente.</li></ul>',
+    coverUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/doces.webp',
+    categorySlug: 'confeitaria-festas',
+    badges: ['CONFEITARIA', 'DOCES & BOLOS'],
+  },
+];
+
+const demoEvents = [
+  {
+    title: 'Encontro de Empreendedores — Uma História de Sucesso',
+    slug: 'encontro-de-empreendedores-james-holanda',
+    subtitle: 'James Holanda — CEO e Fundador da Comercial do Norte',
+    description: 'Venha conhecer a trajetória inspiradora do fundador da Comercial do Norte, compartilhando estratégias de negócios, resiliência, liderança e gestão no mercado de distribuição e embalagens da região Norte.',
+    posterUrl: '/assets/HOME Vitrine/S12-EVENTOS/s12-event-01-empreendedores.jpg',
+    eventDateText: '31 de Agosto',
+    eventTime: '19h30',
+    location: 'Igreja Nova Terra',
+    locationAddress: 'Belém/PA',
+    instructor: 'James Holanda',
+    badge: 'PALESTRA',
+    ctaLabel: 'Garantir Vaga',
+    ctaUrl: 'https://wa.me/5591983440880?text=Ol%C3%A1!+Gostaria+de+participar+do+Encontro+de+Empreendedores+com+James+Holanda',
+    sortOrder: 1,
+  },
+  {
+    title: 'Grande Reinauguração Loja Pedreira',
+    slug: 'grande-reinauguracao-loja-pedreira',
+    subtitle: 'Onde tem Comercial do Norte você vende muito mais',
+    description: 'Reinauguração oficial da nossa mega loja no bairro da Pedreira! Novo layout moderno, espaço ampliado, promoções exclusivas de reinauguração e café da manhã especial para clientes e parceiros.',
+    posterUrl: '/assets/HOME Vitrine/S12-EVENTOS/s12-event-02-reinauguracao.jpg',
+    eventDateText: '03 de Julho',
+    eventTime: '08h',
+    location: 'Loja Pedreira',
+    locationAddress: 'Travessa Mauriti, entre Pedro Miranda e Antônio Everdosa — Pedreira, Belém/PA',
+    badge: 'REINAUGURAÇÃO',
+    ctaLabel: 'Ver Como Chegar',
+    ctaUrl: 'https://wa.me/5591983440880?text=Ol%C3%A1!+Quero+mais+informa%C3%A7%C3%B5es+sobre+a+reinaugura%C3%A7%C3%A3o+da+Loja+Pedreira',
+    sortOrder: 2,
+  },
+  {
+    title: 'Workshop de Confeitaria Profissional: Decoração com Chantilly e Bicos',
+    slug: 'workshop-confeitaria-profissional-chantilly-bicos',
+    subtitle: 'Aprenda técnicas exclusivas com um especialista em confeitaria',
+    description: 'Treinamento prático voltado para boleiras, confeiteiras e pequenos produtores. Conteúdo aborda: ponto correto do chantilly, técnicas de bicos russos e perlê, trabalho com chantininho, nivelamento de bolos e decorações modernas.',
+    posterUrl: '/assets/HOME Vitrine/S12-EVENTOS/s12-event-03-workshop-confeitaria.jpg',
+    eventDateText: 'Em breve',
+    eventTime: '14h às 18h',
+    location: 'Centro Técnico Comercial do Norte',
+    locationAddress: 'Belém/PA',
+    instructor: 'Mestre Doceiro',
+    badge: 'WORKSHOP',
+    ctaLabel: 'Inscreva-se Já!',
+    ctaUrl: 'https://wa.me/5591983440880?text=Ol%C3%A1!+Gostaria+de+me+inscrever+no+Workshop+de+Confeitaria+com+Chantilly+e+Bicos',
+    sortOrder: 3,
+  },
+  {
+    title: 'Croquete de Charque com Maionese de Chicória — Pará Trigo 2026',
+    slug: 'sabado-croquete-de-charque-para-trigo',
+    subtitle: 'Aula-show gastronômica regional no Stand Comercial do Norte',
+    description: 'Aprenda o passo a passo completo da receita consagrada de croquete de charque com toque regional de maionese de chicória. Aula prática demonstrativa ministrada pela instrutora Thais Reis, com degustação ao final.',
+    posterUrl: '/assets/HOME Vitrine/S12-EVENTOS/s12-event-04-croquete.jpg',
+    eventDateText: '03/10 (Sábado)',
+    eventTime: '17h',
+    location: 'Hangar Centro de Convenções',
+    locationAddress: 'Stand Comercial do Norte — Feira Pará Trigo, Belém/PA',
+    instructor: 'Thais Reis',
+    badge: 'AULA-SHOW',
+    ctaLabel: 'Confirmar Presença',
+    ctaUrl: 'https://wa.me/5591983440880?text=Ol%C3%A1!+Gostaria+de+confirmar+presen%C3%A7a+na+aula-show+Croquete+de+Charque+no+Hangar',
+    sortOrder: 4,
+  },
+];
+
+async function seedCmsContent(prisma: PrismaClient): Promise<void> {
+  const postCatIdBySlug = new Map<string, string>();
+  for (const cat of demoPostCategories) {
+    const row = await prisma.postCategory.upsert({
+      where: { slug: cat.slug },
+      update: { name: cat.name, description: cat.description, status: 'ACTIVE' },
+      create: { name: cat.name, slug: cat.slug, description: cat.description, status: 'ACTIVE', legacySource: DEMO_SOURCE, legacyId: cat.slug },
+    });
+    postCatIdBySlug.set(cat.slug, row.id);
+  }
+
+  for (const post of demoPosts) {
+    const categoryId = postCatIdBySlug.get(post.categorySlug);
+    await prisma.post.upsert({
+      where: { slug: post.slug },
+      update: {
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
+        coverUrl: post.coverUrl,
+        badges: post.badges,
+        categoryId: categoryId || null,
+        status: 'ACTIVE',
+      },
+      create: {
+        title: post.title,
+        slug: post.slug,
+        excerpt: post.excerpt,
+        content: post.content,
+        coverUrl: post.coverUrl,
+        badges: post.badges,
+        categoryId: categoryId || null,
+        status: 'ACTIVE',
+        legacySource: DEMO_SOURCE,
+        legacyId: post.slug,
+      },
+    });
+  }
+
+  for (const event of demoEvents) {
+    await prisma.event.upsert({
+      where: { slug: event.slug },
+      update: {
+        title: event.title,
+        subtitle: event.subtitle,
+        description: event.description,
+        posterUrl: event.posterUrl,
+        eventDateText: event.eventDateText,
+        eventTime: event.eventTime,
+        location: event.location,
+        locationAddress: event.locationAddress,
+        instructor: event.instructor,
+        badge: event.badge,
+        ctaLabel: event.ctaLabel,
+        ctaUrl: event.ctaUrl,
+        sortOrder: event.sortOrder,
+        status: 'ACTIVE',
+      },
+      create: {
+        title: event.title,
+        slug: event.slug,
+        subtitle: event.subtitle,
+        description: event.description,
+        posterUrl: event.posterUrl,
+        eventDateText: event.eventDateText,
+        eventTime: event.eventTime,
+        location: event.location,
+        locationAddress: event.locationAddress,
+        instructor: event.instructor,
+        badge: event.badge,
+        ctaLabel: event.ctaLabel,
+        ctaUrl: event.ctaUrl,
+        sortOrder: event.sortOrder,
+        status: 'ACTIVE',
+        legacySource: DEMO_SOURCE,
+        legacyId: event.slug,
+      },
+    });
+  }
+}
 
 export async function seedCatalog(prisma: PrismaClient): Promise<{ categories: number; products: number }> {
   await seedDemoMedia();
@@ -450,6 +643,8 @@ export async function seedCatalog(prisma: PrismaClient): Promise<{ categories: n
       }
     }
   }
+
+  await seedCmsContent(prisma);
 
   return { categories: categories.length, products: demoProducts.length };
 }
