@@ -207,41 +207,43 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
         {/* 2. Hero Banner: Explica Aí Nort (Card Vermelho Compacto & Pixel-Perfect) */}
         <section
           aria-label="Destaque em Vídeo"
-          className="relative rounded-[22px] sm:rounded-[26px] bg-gradient-to-r from-[#d3121e] via-[#c40817] to-[#aa0010] px-4 sm:px-6 md:px-8 text-white shadow-lg h-[200px] sm:h-[215px] md:h-[225px] flex items-center overflow-visible my-4 sm:my-6"
+          className="relative rounded-[24px] sm:rounded-[28px] bg-[#ba0015] text-white shadow-xl h-[235px] sm:h-[245px] md:h-[252px] flex items-center overflow-visible my-5 sm:my-6"
         >
-          {/* Fundo com curvas abstratas oficiais */}
-          <div className="absolute inset-0 pointer-events-none select-none opacity-25 mix-blend-overlay rounded-[22px] sm:rounded-[26px] overflow-hidden">
+          {/* Fundo com curvas abstratas e pétalas de sombra oficiais */}
+          <div className="absolute inset-0 pointer-events-none select-none rounded-[24px] sm:rounded-[28px] overflow-hidden">
+            <div className="absolute -bottom-10 -left-10 size-48 rounded-full bg-[#85000e] opacity-70 blur-2xs" />
+            <div className="absolute -top-10 -left-10 size-44 rounded-full bg-[#85000e] opacity-50 blur-2xs" />
             <Image
               src="/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-bg-fundo-vermelho-geometrico-abstrato-hd.png"
               alt=""
               fill
               priority
-              className="object-cover object-center"
+              className="object-cover object-center opacity-25 mix-blend-overlay"
             />
           </div>
 
-          {/* Coluna Esquerda: Badge, Título, Descrição e Metadados */}
-          <div className="relative z-10 w-[62%] sm:w-[55%] md:w-[44%] lg:w-[42%] flex flex-col justify-center h-full py-2 pr-2">
+          {/* Coluna Esquerda: Card Interno em Alto-Relevo (1:1 com Anexo 2) */}
+          <div className="relative z-10 ml-3.5 sm:ml-5 md:ml-6 my-auto w-[82%] sm:w-[50%] md:w-[42%] lg:w-[40%] max-w-[415px] h-[88%] sm:h-[90%] rounded-[20px] sm:rounded-[22px] bg-gradient-to-br from-[#c8001e] to-[#a00014] p-3.5 sm:p-4 md:p-5 shadow-[0_4px_16px_rgba(0,0,0,0.25)] border border-white/10 flex flex-col justify-between">
             {/* Badge Oficial */}
-            <div className="mb-1.5 sm:mb-2">
-              <span className="inline-flex items-center rounded-full bg-white px-2.5 py-0.5 text-[9.5px] sm:text-[10.5px] font-black text-[#CB001C] tracking-wider uppercase shadow-xs">
+            <div>
+              <span className="inline-flex items-center rounded-full bg-white px-2.5 py-0.5 text-[9.5px] sm:text-[10px] md:text-[10.5px] font-black text-[#CB001C] tracking-wider uppercase shadow-xs">
                 EXPLICA AÍ NORT!
               </span>
             </div>
 
             {/* Título Principal Compacto */}
-            <h1 className="text-sm sm:text-base md:text-[18px] lg:text-[20px] font-black leading-[1.15] tracking-tight text-white line-clamp-2 md:line-clamp-3">
+            <h1 className="text-sm sm:text-base md:text-[19px] lg:text-[21px] font-black leading-[1.14] tracking-tight text-white line-clamp-2 md:line-clamp-3">
               {post.title}
             </h1>
 
             {/* Subtítulo / Descrição Compacta */}
-            <p className="mt-1 sm:mt-1.5 text-[10px] sm:text-[11px] md:text-[11.5px] leading-snug text-white/90 line-clamp-2 md:line-clamp-3 max-w-md font-normal">
+            <p className="text-[10px] sm:text-[11px] md:text-[11.5px] leading-snug text-white/90 line-clamp-2 md:line-clamp-3 font-normal">
               {post.excerpt ||
                 'Tudo sobre caixas oitavadas e quadradas, respiros térmicos e lacres invioláveis para sua pizzaria. Dicas práticas para manter a qualidade da pizza do forno até o cliente.'}
             </p>
 
             {/* Metadados: visualizações, data e duração */}
-            <div className="mt-2 sm:mt-2.5 flex items-center gap-2 sm:gap-3 text-[9.5px] sm:text-[10.5px] font-medium text-white/90">
+            <div className="flex items-center gap-2 sm:gap-3 text-[9.5px] sm:text-[10.5px] font-medium text-white/90">
               <div className="flex items-center gap-1 sm:gap-1.5">
                 <span className="flex size-3.5 sm:size-4 items-center justify-center rounded-full bg-white text-[#CB001C] shadow-xs shrink-0">
                   <Play className="size-2 fill-[#CB001C] text-[#CB001C] ml-0.5" />
@@ -259,9 +261,9 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
             </div>
           </div>
 
-          {/* Coluna Central: Smartphone Mockup Protrudindo Verticalmente (Pixel-Perfect 1:1) */}
+          {/* Coluna Central: Smartphone Mockup Centralizado (1:1 com Anexo 2) */}
           <div className="absolute right-3 sm:right-6 md:right-auto md:left-[47%] md:-translate-x-1/2 top-1/2 -translate-y-1/2 z-20 flex justify-center">
-            <div className="relative w-[95px] sm:w-[110px] md:w-[126px] lg:w-[132px] h-[190px] sm:h-[220px] md:h-[255px] lg:h-[265px] rounded-[22px] sm:rounded-[26px] bg-[#0c0c0e] p-1 sm:p-1.5 shadow-[0_15px_35px_-10px_rgba(0,0,0,0.6)] border-[2px] sm:border-[2.5px] border-zinc-700/60 select-none shrink-0 group">
+            <div className="relative w-[95px] sm:w-[110px] md:w-[124px] lg:w-[128px] h-[195px] sm:h-[225px] md:h-[248px] lg:h-[252px] rounded-[22px] sm:rounded-[26px] bg-[#0c0c0e] p-1 sm:p-1.5 shadow-[0_15px_35px_-10px_rgba(0,0,0,0.65)] border-[2px] sm:border-[2.5px] border-zinc-700/60 select-none shrink-0 group">
               {/* Dynamic Island no topo do iPhone */}
               <div className="absolute top-1 sm:top-1.5 left-1/2 -translate-x-1/2 w-8 sm:w-10 md:w-12 h-2.5 sm:h-3 bg-black rounded-full z-30 flex items-center justify-end pr-1 sm:pr-1.5 pointer-events-none">
                 <div className="size-1 rounded-full bg-zinc-800" />
@@ -318,27 +320,27 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
             </div>
           </div>
 
-          {/* Coluna Direita: Callout com Seta Curva e Mascote Oficial (md:flex) */}
-          <div className="hidden md:flex absolute inset-y-0 right-0 left-[54%] items-center justify-between pointer-events-none z-10">
+          {/* Coluna Direita: Callout com Seta Curva e Mascote Oficial Grande (1:1 com Anexo 2) */}
+          <div className="hidden md:block absolute inset-y-0 right-0 left-[53%] pointer-events-none z-10">
             {/* Callout Texto + Seta Curva Apontando para o Telefone */}
-            <div className="flex items-center gap-2 self-start mt-4 lg:mt-5 ml-1 bg-black/15 border border-white/10 rounded-2xl px-2.5 py-1.5 backdrop-blur-2xs">
+            <div className="absolute left-2 lg:left-3 top-6 lg:top-7 flex items-center gap-2 bg-[#850010]/50 border border-white/10 rounded-2xl px-3 py-2 backdrop-blur-2xs shadow-xs pointer-events-auto">
               <svg
-                width="28"
+                width="30"
                 height="22"
-                viewBox="0 0 36 26"
+                viewBox="0 0 38 26"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 className="text-white shrink-0"
               >
                 <path
-                  d="M32 22 C 30 6, 16 3, 5 12"
+                  d="M34 22 C 30 6, 14 3, 5 12"
                   stroke="currentColor"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
                 <path
-                  d="M12 6 L 4 12 L 10 18"
+                  d="M13 6 L 5 12 L 11 18"
                   stroke="currentColor"
                   strokeWidth="2.2"
                   strokeLinecap="round"
@@ -346,21 +348,21 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
                 />
               </svg>
 
-              <div className="text-[10.5px] lg:text-[11.5px] font-bold leading-[1.18] text-white tracking-tight">
+              <div className="text-[10.5px] lg:text-[11.5px] font-bold leading-[1.18] text-white tracking-tight max-w-[115px]">
                 <p>Assista ao vídeo</p>
                 <p>e veja as dicas na prática!</p>
               </div>
             </div>
 
-            {/* Mascote Nort Oficial Sem Chapéu Apontando para o Telefone */}
-            <div className="relative w-[140px] md:w-[155px] lg:w-[175px] h-[140px] md:h-[155px] lg:h-[175px] shrink-0 self-end -mr-1 lg:mr-2">
+            {/* Mascote Nort Oficial Sem Chapéu Apontando para o Telefone (Grande 1:1 com Anexo 2) */}
+            <div className="absolute right-0 sm:right-1 md:right-2 bottom-0 w-[185px] md:w-[220px] lg:w-[245px] h-[210px] md:h-[245px] lg:h-[265px] shrink-0 pointer-events-none select-none z-15">
               <Image
                 src="/assets/explica-ai/mascote-nort-apontando.webp"
                 alt="Mascote Nort apontando para o smartphone"
                 fill
                 priority
-                sizes="(max-width: 1024px) 155px, 175px"
-                className="object-contain object-bottom drop-shadow-[0_8px_18px_rgba(0,0,0,0.3)]"
+                sizes="(max-width: 1024px) 220px, 250px"
+                className="object-contain object-bottom drop-shadow-[0_10px_20px_rgba(0,0,0,0.35)]"
               />
             </div>
           </div>
