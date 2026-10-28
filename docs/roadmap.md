@@ -5,6 +5,12 @@
 
 ## 1. Estado confirmado nesta revisão
 
+- **28/10/2026 — Estrutura Hierárquica Estilo WordPress para Workshops & Aulas Confeitaria:**
+  - **Página Mãe / Hub:** `/eventos/workshops/aulas-confeitaria` (e `/evento/workshop/aulas-confeitaria`).
+  - **Página Filha / Evento Específico:** `/evento/workshop/aulas-confeitaria/[slug]` (ex: `/evento/workshop/aulas-confeitaria/sabado-croquete-de-charque-para-trigo`).
+  - **Componente Dedicado:** `WorkshopSinglePost` com breadcrumb rastreável (`Início / Eventos / Workshops · Aulas Confeitaria / Título`), cronograma em linha do tempo, seletor de vagas e matrícula WhatsApp.
+  - **Qualidade:** 33 suítes / 132 testes aprovados no Storefront; Typecheck 100% verde nos 8 pacotes.
+
 - **28/10/2026 — Hub Fixo de Workshops & Aulas Confeitaria (White Mode):**
   - **URL Canônica:** `/eventos/workshops/aulas-confeitaria` (e compatibilidade `/evento/workshops/aulas-confeitaria`).
   - **Identidade White Mode / Confeitaria:** Fundo claro gourmet (`#FFFDF9`), badge âmbar/caramelo (`#B45309`), cards brancos com cartazes verticais 9:16 e CTAs diretos para WhatsApp de Matrículas do Centro Técnico.
