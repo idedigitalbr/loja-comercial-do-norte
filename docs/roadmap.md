@@ -5,6 +5,12 @@
 
 ## 1. Estado confirmado nesta revisão
 
+- **28/10/2026 — Hub Fixo de Workshops & Aulas Confeitaria (White Mode):**
+  - **URL Canônica:** `/eventos/workshops/aulas-confeitaria` (e compatibilidade `/evento/workshops/aulas-confeitaria`).
+  - **Identidade White Mode / Confeitaria:** Fundo claro gourmet (`#FFFDF9`), badge âmbar/caramelo (`#B45309`), cards brancos com cartazes verticais 9:16 e CTAs diretos para WhatsApp de Matrículas do Centro Técnico.
+  - **Integração no Header:** Botão oficial "Workshops [AULAS CONFEITARIA]" conectado diretamente à nova rota.
+  - **Validação:** 100% dos testes e typecheck aprovados nos 8 pacotes.
+
 - **28/10/2026 — CMS de Posts e Eventos & Taxonomia WooCommerce (Segmentos e Tags):**
   - **Entrega oficial direta na `main` (`58b6e76`):**
     - **Área Editorial / Posts (`/post` e `/post/[slug]`):** Vitrine institucional com "Explica Aí Nort!", player de vídeo, filtros por categorias de conteúdo, badges temáticas, contagem de views e CTAs contextuais de cotação.
