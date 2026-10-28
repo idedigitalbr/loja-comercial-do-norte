@@ -185,10 +185,10 @@ export function CatalogView({
 
         {/* LAYOUT PRINCIPAL: SIDEBAR FIXO/STICKY À ESQUERDA + CONTEÚDO À DIREITA */}
         <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-7">
-          {/* SIDEBAR DESKTOP (ABERTO POR PADRÃO, EXATAMENTE COMO NO PRINT) */}
+          {/* SIDEBAR DESKTOP (ABERTO TOTALMENTE, SEM SCROLLBAR INTERNA) */}
           <aside
             aria-label="Menu lateral e filtros de produtos"
-            className="hidden lg:block w-[270px] xl:w-[280px] shrink-0 sticky top-28 self-start max-h-[calc(100vh-7.5rem)] overflow-y-auto sidebar-scrollbar pr-1 overscroll-contain"
+            className="hidden lg:block w-[270px] xl:w-[280px] shrink-0"
           >
             <CatalogSidebar
               activeBrandSlug={activeBrand?.slug || marca}
@@ -198,6 +198,7 @@ export function CatalogView({
               baseUrl={baseUrl}
               brands={brands}
               categories={categories}
+              productsCount={total}
               segments={segments}
               tags={tags}
             />
@@ -481,6 +482,7 @@ export function CatalogView({
                 brands={brands}
                 categories={categories}
                 onItemClick={() => setMobileDrawerOpen(false)}
+                productsCount={total}
                 segments={segments}
                 tags={tags}
               />

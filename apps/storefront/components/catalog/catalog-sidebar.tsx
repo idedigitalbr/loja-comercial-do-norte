@@ -43,6 +43,7 @@ export type CatalogSidebarProps = {
   activeTagSlug?: string;
   activeBrandSlug?: string;
   baseUrl?: string;
+  productsCount?: number;
   onItemClick?: () => void;
 };
 
@@ -172,6 +173,7 @@ export function CatalogSidebar({
   activeTagSlug,
   activeBrandSlug,
   baseUrl = "/loja",
+  productsCount,
   onItemClick,
 }: CatalogSidebarProps) {
   const router = useRouter();
@@ -179,8 +181,10 @@ export function CatalogSidebar({
   const [, startTransition] = useTransition();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const isFewProducts = productsCount !== undefined && productsCount <= 4;
   const [showAllTags, setShowAllTags] = useState(false);
-  const [showAllCategories, setShowAllCategories] = useState(true);
+  const [showAllCategories, setShowAllCategories] = useState(!isFewProducts);
+  const [showAllSegments, setShowAllSegments] = useState(!isFewProducts);
   const [showAllBrands, setShowAllBrands] = useState(false);
 
   // Inicializa a primeira categoria aberta com subcategoria (exatamente como no print "Artigos para Festa")
@@ -253,18 +257,34 @@ export function CatalogSidebar({
     );
   }, [activeSegments, normalizedQuery]);
 
-  const visibleSegments = filteredSegments;
+  // Segmentos visíveis: quando showAllSegments está ativo exibe todos, senão exibe 4 itens com 'VER MAIS'
+  const visibleSegments = useMemo(() => {
+    if (showAllSegments || normalizedQuery) return filteredSegments;
+    const base = filteredSegments.slice(0, 4);
+    // Garante que o segmento ativo selecionado sempre apareça mesmo em modo recolhido
+    if (activeSegmentSlug && !base.some((s) => s.slug === activeSegmentSlug)) {
+      const active = filteredSegments.find((s) => s.slug === activeSegmentSlug);
+      if (active) base.push(active);
+    }
+    return base;
+  }, [showAllSegments, normalizedQuery, filteredSegments, activeSegmentSlug]);
 
   // Tags visíveis: 3 inicialmente com +4 mais / ver menos
   const visibleTags = showAllTags ? activeTags : activeTags.slice(0, 3);
 
-  // Categorias visíveis: quando showAllCategories está ativo exibe todas (com botão "VER MENOS ⌃" no fim)
-  const visibleCategories =
-    showAllCategories || normalizedQuery
-      ? filteredCategories
-      : filteredCategories.slice(0, 4);
+  // Categorias visíveis: quando showAllCategories está ativo exibe todas, senão exibe 4 itens com 'VER MAIS'
+  const visibleCategories = useMemo(() => {
+    if (showAllCategories || normalizedQuery) return filteredCategories;
+    const base = filteredCategories.slice(0, 4);
+    // Garante que a categoria ativa selecionada sempre apareça mesmo em modo recolhido
+    if (activeCategorySlug && !base.some((c) => c.slug === activeCategorySlug)) {
+      const active = filteredCategories.find((c) => c.slug === activeCategorySlug);
+      if (active) base.push(active);
+    }
+    return base;
+  }, [showAllCategories, normalizedQuery, filteredCategories, activeCategorySlug]);
 
-  const visibleBrands = showAllBrands ? availableBrands : availableBrands.slice(0, 10);
+  const visibleBrands = showAllBrands ? availableBrands : availableBrands.slice(0, 5);
 
   function toggleCategoryExpand(id: string, e?: React.SyntheticEvent) {
     if (e) {
@@ -611,6 +631,22 @@ export function CatalogSidebar({
             </p>
           )}
         </div>
+
+        {/* Botão VER MENOS / VER MAIS de Segmentos */}
+        {!normalizedQuery && activeSegments.length > 4 && (
+          <button
+            className="mt-2.5 flex w-full cursor-pointer items-center justify-center gap-1 border-t border-slate-100 pt-2.5 text-[10.5px] font-black uppercase tracking-wider text-slate-500 transition hover:text-[#004CB1]"
+            onClick={() => setShowAllSegments(!showAllSegments)}
+            type="button"
+          >
+            <span>{showAllSegments ? "VER MENOS" : "VER MAIS"}</span>
+            {showAllSegments ? (
+              <ChevronUp className="size-3.5 stroke-[2.5]" />
+            ) : (
+              <ChevronDown className="size-3.5 stroke-[2.5]" />
+            )}
+          </button>
+        )}
       </div>
 
       {/* CARD 03: SEÇÃO DE FILTROS (Ordenar, Entrega, Marca, Preço, Avaliação) */}

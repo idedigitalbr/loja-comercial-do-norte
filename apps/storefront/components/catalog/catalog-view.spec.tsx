@@ -135,5 +135,11 @@ describe("CatalogView", () => {
     // Product Card
     expect(screen.getByText("Leite Condensado 395 g")).toBeDefined();
     expect(screen.getByText("R$ 7,49")).toBeDefined();
+
+    // Aside must NOT have inner scrollbar or overflow-y-auto
+    const aside = screen.getByLabelText("Menu lateral e filtros de produtos");
+    expect(aside.className).not.toContain("overflow-y-auto");
+    expect(aside.className).not.toContain("max-h-");
+    expect(aside.className).not.toContain("sidebar-scrollbar");
   });
 });
