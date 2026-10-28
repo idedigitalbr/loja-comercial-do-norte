@@ -7,6 +7,7 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **28/10/2026 — Mais Vendidos e Ofertas do Dia:** filtros no servidor e rotas dedicadas (`/ofertas`, `/mais-vendidos`, `/loja?oferta=1`, `/loja?ordem=mais_vendidos`). NestJS API com `onlyOffers` e ordenação por `mais_vendidos`, títulos dinâmicos, breadcrumbs, fallback de ofertas reais e badges ativos no catálogo.
 - **28/10/2026 — CMS de Posts e Eventos & Taxonomia WooCommerce:** integrado diretamente na `main` com arquitetura completa (PostgreSQL + NestJS + Storefront Next.js + Admin React). Suporte a `/post`, `/evento`, `/segmento`, `/marca` e submenus administrativos de Posts e Eventos.
 
 

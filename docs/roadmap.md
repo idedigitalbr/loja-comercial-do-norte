@@ -5,6 +5,13 @@
 
 ## 1. Estado confirmado nesta revisão
 
+- **28/10/2026 — Mais Vendidos e Ofertas do Dia (Storefront & API):**
+  - **Filtros e Rotas Dedicadas:** `/loja?ordem=mais_vendidos`, `/loja?oferta=1`, `/mais-vendidos` (redireciona com filtro) e `/ofertas` (redireciona com filtro).
+  - **API NestJS:** `GET /catalog/products/search` atualizado para receber `onlyOffers` e `sort: 'mais_vendidos'`.
+  - **Catálogo & Sidebar:** Títulos contextuais "Mais Vendidos" e "Ofertas do Dia", breadcrumbs rastreáveis, botões de ação rápida na sidebar ("🔥 Ofertas do Dia" e "⭐ Mais Vendidos") e pills de filtros ativos com opção de remoção individual.
+  - **Fallback Inteligente:** Se a busca paginada não encontrar produtos em promoção, recupera ofertas ativas reais via `getOffers(24)` para que o cliente nunca veja a tela vazia.
+  - **Qualidade:** Typecheck 100% verde e todos os 129 testes do Storefront e 6 testes de busca da API aprovados.
+
 - **28/10/2026 — Estrutura Hierárquica Estilo WordPress para Workshops & Aulas Confeitaria:**
   - **Página Mãe / Hub:** `/eventos/workshops/aulas-confeitaria` (e `/evento/workshop/aulas-confeitaria`).
   - **Página Filha / Evento Específico:** `/evento/workshop/aulas-confeitaria/[slug]` (ex: `/evento/workshop/aulas-confeitaria/sabado-croquete-de-charque-para-trigo`).
