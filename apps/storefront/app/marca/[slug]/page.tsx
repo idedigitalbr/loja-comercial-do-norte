@@ -1,12 +1,20 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { ProductCard } from '@/components/product-card';
-import { getBrands, getProducts } from '@/lib/api';
+import { CatalogView } from '@/components/catalog/catalog-view';
+import { getBrands, getCategories, getProductsPage, getSegments, getTags } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
 
 type Params = Promise<{ slug: string }>;
+type SearchParams = Promise<{
+  q?: string;
+  ordem?: string;
+  entrega?: string;
+  avaliacao?: string;
+  precoMin?: string;
+  precoMax?: string;
+  pagina?: string;
+}>;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
@@ -18,36 +26,93 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   };
 }
 
-export default async function BrandPage({ params }: { params: Params }) {
+const PAGE_SIZE = 12;
+
+export default async function BrandPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: SearchParams;
+}) {
   const { slug } = await params;
-  const [brands, products] = await Promise.all([getBrands(), getProducts({ brand: slug })]);
+  const {
+    q,
+    ordem,
+    entrega,
+    avaliacao,
+    precoMin,
+    precoMax,
+    pagina,
+  } = await searchParams;
+
+  const page = Math.max(1, Number.parseInt(pagina ?? '1', 10) || 1);
+  const sort = ordem === 'nome' ? 'name_asc' : 'newest';
+
+  const [brands, categories, segments, tags, result] = await Promise.all([
+    getBrands(),
+    getCategories(),
+    getSegments(),
+    getTags(),
+    getProductsPage({
+      brand: slug,
+      search: q,
+      page,
+      pageSize: PAGE_SIZE,
+      sort,
+    }),
+  ]);
+
   const brand = brands.find((item) => item.slug === slug);
   if (!brand) notFound();
 
+  let items = result.items;
+  if (precoMin) {
+    const minCents = Math.round(Number(precoMin) * 100);
+    items = items.filter((p) => (p.variants[0]?.priceCents ?? 0) >= minCents);
+  }
+  if (precoMax) {
+    const maxCents = Math.round(Number(precoMax) * 100);
+    items = items.filter((p) => (p.variants[0]?.priceCents ?? 0) <= maxCents);
+  }
+  if (ordem === 'preco_asc') {
+    items = [...items].sort(
+      (a, b) => (a.variants[0]?.priceCents ?? 0) - (b.variants[0]?.priceCents ?? 0)
+    );
+  } else if (ordem === 'preco_desc') {
+    items = [...items].sort(
+      (a, b) => (b.variants[0]?.priceCents ?? 0) - (a.variants[0]?.priceCents ?? 0)
+    );
+  }
+
   return (
-    <div className="cn-container py-8">
-      <nav aria-label="Você está aqui" className="text-xs text-muted">
-        <Link className="hover:text-brand" href="/">Início</Link>
-        <span aria-hidden> / </span>
-        <Link className="hover:text-brand" href="/marcas">Marcas</Link>
-        <span aria-hidden> / </span>
-        <span className="text-ink">{brand.name}</span>
-      </nav>
-
-      <header className="mt-3">
-        <h1 className="text-2xl font-extrabold text-ink">{brand.name}</h1>
-        <p className="text-sm text-muted">{products.length} produto(s) desta marca.</p>
-      </header>
-
-      {products.length ? (
-        <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-          {products.map((product) => <ProductCard key={product.id} product={product} />)}
-        </div>
-      ) : (
-        <p className="mt-8 rounded-card border border-dashed border-line bg-surface p-6 text-sm text-muted">
-          Nenhum produto publicado desta marca.
-        </p>
-      )}
-    </div>
+    <CatalogView
+      activeBrand={brand}
+      baseUrl={`/marca/${slug}`}
+      brands={brands}
+      breadcrumbs={[
+        { label: 'Marcas', href: '/marcas' },
+        { label: brand.name },
+      ]}
+      categories={categories}
+      page={result.page}
+      pageSize={PAGE_SIZE}
+      products={items}
+      searchParamsState={{
+        q,
+        marca: slug,
+        ordem,
+        entrega,
+        avaliacao,
+        precoMin,
+        precoMax,
+        pagina,
+      }}
+      segments={segments}
+      tags={tags}
+      title={brand.name}
+      total={result.total}
+      totalPages={result.totalPages}
+    />
   );
 }
