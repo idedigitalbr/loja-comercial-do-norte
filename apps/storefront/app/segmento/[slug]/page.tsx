@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CatalogView } from '@/components/catalog/catalog-view';
 import { SegmentHeroBanner } from '@/components/segment-hero-banner';
+import { VideoArticlesCarouselWidget } from '@/components/storefront/widgets/video-articles-carousel/video-articles-carousel';
 import { getBrands, getCategories, getProductsPage, getSegments, getTags } from '@/lib/api';
+import { getSegmentContentSuggestions } from '@/lib/segment-content-data';
 import type { ApiSegment } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -119,6 +121,8 @@ export default async function SegmentPage({
     );
   }
 
+  const contentSuggestions = getSegmentContentSuggestions(slug);
+
   return (
     <div className="flex flex-col bg-[#F4F7FB] min-h-screen">
       {/* Banner Oficial do Segmento: Mesma altura e largura total do Hero da Home */}
@@ -153,6 +157,22 @@ export default async function SegmentPage({
         total={result.total}
         totalPages={result.totalPages}
       />
+
+      {/* Sugestões de Conteúdo para o Segmento (Explica Aí Nort!) — Acima do Footer */}
+      <section
+        aria-label={`Sugestões de conteúdo para ${segment.name}`}
+        className="mt-2 pb-10 sm:pb-14"
+      >
+        <VideoArticlesCarouselWidget
+          fullWidth={false}
+          items={contentSuggestions}
+          showViewAll={true}
+          subtitle="Dicas em vídeos e artigos para você usar no seu negócio."
+          title="Explica Aí Nort"
+          viewAllLabel="Ver todos"
+          viewAllUrl="/post"
+        />
+      </section>
     </div>
   );
 }

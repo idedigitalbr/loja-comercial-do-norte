@@ -14,7 +14,7 @@ export function VideoArticlesCarouselWidget({
   title = 'Explica Aí Nort',
   subtitle = 'Dicas em vídeos e artigos para você usar no seu negócio.',
   viewAllLabel = 'Ver todos',
-  viewAllUrl = '/loja',
+  viewAllUrl = '/post',
   showViewAll = true,
   fullWidth = false,
   mascotImageUrl = '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-Boneco3D-explica-ai-nort-trimmed.webp',

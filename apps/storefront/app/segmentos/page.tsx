@@ -3,7 +3,9 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import { ArrowRight, Store } from 'lucide-react';
 import { SegmentHeroBanner, resolveSegmentBanner } from '@/components/segment-hero-banner';
+import { VideoArticlesCarouselWidget } from '@/components/storefront/widgets/video-articles-carousel/video-articles-carousel';
 import { getSegments } from '@/lib/api';
+import { getSegmentContentSuggestions } from '@/lib/segment-content-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -103,6 +105,22 @@ export default async function SegmentsDirectoryPage() {
           </p>
         )}
       </div>
+
+      {/* Sugestões de Conteúdo (Explica Aí Nort!) — Acima do Footer */}
+      <section
+        aria-label="Dicas e conteúdos para o seu negócio"
+        className="mt-4 pb-12 sm:pb-16"
+      >
+        <VideoArticlesCarouselWidget
+          fullWidth={false}
+          items={getSegmentContentSuggestions()}
+          showViewAll={true}
+          subtitle="Dicas em vídeos e artigos para você usar no seu negócio."
+          title="Explica Aí Nort"
+          viewAllLabel="Ver todos"
+          viewAllUrl="/post"
+        />
+      </section>
     </div>
   );
 }
