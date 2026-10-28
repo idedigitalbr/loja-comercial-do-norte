@@ -12,11 +12,7 @@ afterEach(() => {
 
 // Mock Next.js Image e Link
 vi.mock('next/image', () => ({
-  __esModule: true,
-  default: ({ fill, priority, ...props }: any) => {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img {...props} alt={props.alt || ''} />;
-  },
+  default: ({ alt, src }: { alt: string; src: string }) => <img alt={alt} src={src} />,
 }));
 
 vi.mock('next/link', () => ({
