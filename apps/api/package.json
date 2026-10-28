@@ -3,8 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch src/main.ts",
-    "build": "prisma generate --schema=../../prisma/schema.prisma && tsc -p tsconfig.build.json && node -e \"const fs=require('fs'); if(fs.existsSync('public')) fs.cpSync('public', 'dist/public', {recursive: true});\"",
-    "vercel-build": "prisma generate --schema=../../prisma/schema.prisma && tsc -p tsconfig.build.json && node -e \"const fs=require('fs'); if(fs.existsSync('public')) fs.cpSync('public', 'dist/public', {recursive: true});\"",
+    "build": "prisma generate --schema=../../prisma/schema.prisma && tsc -p tsconfig.build.json && node -e \"const fs=require('fs'); if(fs.existsSync('public')) fs.cpSync('public', 'dist/public', {recursive: true}); if(fs.existsSync('public/storage')) fs.cpSync('public/storage', 'dist/storage', {recursive: true});\"",
+    "vercel-build": "prisma generate --schema=../../prisma/schema.prisma && tsc -p tsconfig.build.json && node -e \"const fs=require('fs'); if(fs.existsSync('public')) fs.cpSync('public', 'dist/public', {recursive: true}); if(fs.existsSync('public/storage')) fs.cpSync('public/storage', 'dist/storage', {recursive: true});\"",
     "lint": "eslint src",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node ../../scripts/dev/run-api-e2e.mjs --unit",
@@ -45,3 +45,4 @@
     "vitest": "^3.2.4"
   }
 }
+

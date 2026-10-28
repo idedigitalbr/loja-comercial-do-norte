@@ -6,6 +6,8 @@ import { existsSync } from 'node:fs';
 const targets = [
   ['apps/admin/dist', 'apps/api/public/admin'],
   ['apps/api/storage', 'apps/api/public/storage'],
+  ['apps/api/storage', 'apps/api/dist/storage'],
+  ['apps/api/storage', 'apps/storefront/public/storage'],
 ];
 
 for (const [source, target] of targets) {
@@ -19,3 +21,4 @@ for (const [source, target] of targets) {
 }
 
 console.log('Build do admin e storage copiados para apps/api/public com sucesso.');
+

@@ -24,6 +24,7 @@ export function configureApp(app: INestApplication): INestApplication {
   httpServer.use('/admin/assets', serveStatic(join(resolveApiProjectRoot(), 'public/admin/assets')));
   httpServer.use('/storage/uploads', serveStatic(join(resolveApiStorageRoot(), 'uploads')));
   httpServer.use('/storage/uploads', serveStatic(join(resolveApiProjectRoot(), 'public/storage/uploads')));
+  httpServer.use('/storage/uploads', serveStatic(join(resolveApiProjectRoot(), 'dist/public/storage/uploads')));
   app.setGlobalPrefix('api/v1', {
     exclude: [
       { path: 'admin', method: RequestMethod.GET },
@@ -129,3 +130,4 @@ async function bootstrap() {
 if (require.main === module) {
   void bootstrap();
 }
+
