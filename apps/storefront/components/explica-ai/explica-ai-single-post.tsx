@@ -207,10 +207,10 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
         {/* 2. Hero Banner: Explica Aí Nort (Card Vermelho Compacto & Pixel-Perfect) */}
         <section
           aria-label="Destaque em Vídeo"
-          className="relative overflow-hidden rounded-[22px] sm:rounded-[28px] bg-gradient-to-r from-[#d3121e] via-[#c40817] to-[#aa0010] px-5 py-4 sm:px-7 sm:py-5 md:px-8 md:py-6 text-white shadow-lg min-h-[220px] md:min-h-[240px] flex items-center"
+          className="relative rounded-[22px] sm:rounded-[26px] bg-gradient-to-r from-[#d3121e] via-[#c40817] to-[#aa0010] px-4 sm:px-6 md:px-8 text-white shadow-lg h-[200px] sm:h-[215px] md:h-[225px] flex items-center overflow-visible my-4 sm:my-6"
         >
           {/* Fundo com curvas abstratas oficiais */}
-          <div className="absolute inset-0 pointer-events-none select-none opacity-30 mix-blend-overlay">
+          <div className="absolute inset-0 pointer-events-none select-none opacity-25 mix-blend-overlay rounded-[22px] sm:rounded-[26px] overflow-hidden">
             <Image
               src="/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-bg-fundo-vermelho-geometrico-abstrato-hd.png"
               alt=""
@@ -220,150 +220,148 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
             />
           </div>
 
-          <div className="relative z-10 w-full grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-            {/* Coluna Esquerda: Badge, Título, Descrição e Metadados (md:col-span-6) */}
-            <div className="md:col-span-6 flex flex-col justify-center pr-2">
-              {/* Badge Oficial */}
-              <div className="mb-2">
-                <span className="inline-flex items-center rounded-full bg-white px-3 py-0.5 text-[10px] sm:text-[11px] font-black text-[#CB001C] tracking-wider uppercase shadow-xs">
-                  EXPLICA AÍ NORT!
+          {/* Coluna Esquerda: Badge, Título, Descrição e Metadados */}
+          <div className="relative z-10 w-[62%] sm:w-[55%] md:w-[44%] lg:w-[42%] flex flex-col justify-center h-full py-2 pr-2">
+            {/* Badge Oficial */}
+            <div className="mb-1.5 sm:mb-2">
+              <span className="inline-flex items-center rounded-full bg-white px-2.5 py-0.5 text-[9.5px] sm:text-[10.5px] font-black text-[#CB001C] tracking-wider uppercase shadow-xs">
+                EXPLICA AÍ NORT!
+              </span>
+            </div>
+
+            {/* Título Principal Compacto */}
+            <h1 className="text-sm sm:text-base md:text-[18px] lg:text-[20px] font-black leading-[1.15] tracking-tight text-white line-clamp-2 md:line-clamp-3">
+              {post.title}
+            </h1>
+
+            {/* Subtítulo / Descrição Compacta */}
+            <p className="mt-1 sm:mt-1.5 text-[10px] sm:text-[11px] md:text-[11.5px] leading-snug text-white/90 line-clamp-2 md:line-clamp-3 max-w-md font-normal">
+              {post.excerpt ||
+                'Tudo sobre caixas oitavadas e quadradas, respiros térmicos e lacres invioláveis para sua pizzaria. Dicas práticas para manter a qualidade da pizza do forno até o cliente.'}
+            </p>
+
+            {/* Metadados: visualizações, data e duração */}
+            <div className="mt-2 sm:mt-2.5 flex items-center gap-2 sm:gap-3 text-[9.5px] sm:text-[10.5px] font-medium text-white/90">
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <span className="flex size-3.5 sm:size-4 items-center justify-center rounded-full bg-white text-[#CB001C] shadow-xs shrink-0">
+                  <Play className="size-2 fill-[#CB001C] text-[#CB001C] ml-0.5" />
                 </span>
+                <span>{formattedViews} visualizações</span>
               </div>
-
-              {/* Título Principal Compacto */}
-              <h1 className="text-lg sm:text-xl md:text-[22px] lg:text-[24px] font-black leading-[1.14] tracking-tight text-white line-clamp-2">
-                {post.title}
-              </h1>
-
-              {/* Subtítulo / Descrição Compacta */}
-              <p className="mt-1.5 text-[11px] sm:text-xs leading-relaxed text-white/90 line-clamp-2 max-w-lg font-normal">
-                {post.excerpt ||
-                  'Tudo sobre caixas oitavadas e quadradas, respiros térmicos e lacres invioláveis para sua pizzaria. Dicas práticas para manter a qualidade da pizza do forno até o cliente.'}
-              </p>
-
-              {/* Metadados: visualizações, data e duração */}
-              <div className="mt-3 flex flex-wrap items-center gap-3 sm:gap-4 text-[10.5px] sm:text-[11px] font-medium text-white/90">
-                <div className="flex items-center gap-1">
-                  <span className="flex size-4 items-center justify-center rounded-full border border-white/60 bg-white/15">
-                    <Play className="size-2 fill-white ml-0.5" />
-                  </span>
-                  <span>{formattedViews} visualizações</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Calendar className="size-3.5 opacity-90" />
-                  <span>{formattedDate}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="size-3.5 opacity-90" />
-                  <span>{post.videoDuration || '5 min'}</span>
-                </div>
+              <div className="flex items-center gap-1">
+                <Calendar className="size-3 sm:size-3.5 opacity-90 shrink-0" />
+                <span>{formattedDate}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Clock className="size-3 sm:size-3.5 opacity-90 shrink-0" />
+                <span>{post.videoDuration || '5 min'}</span>
               </div>
             </div>
+          </div>
 
-            {/* Coluna Central: Smartphone Mockup Compacto (md:col-span-3) */}
-            <div className="md:col-span-3 flex justify-center py-1">
-              <div className="relative w-[110px] sm:w-[120px] md:w-[130px] aspect-[9/18.2] rounded-[22px] sm:rounded-[26px] bg-[#0c0c0e] p-1.5 shadow-[0_15px_35px_-10px_rgba(0,0,0,0.6)] border-[2.5px] border-zinc-700/60 select-none shrink-0 group">
-                {/* Dynamic Island no topo do iPhone */}
-                <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 sm:w-12 h-3 bg-black rounded-full z-30 flex items-center justify-end pr-1.5 pointer-events-none">
-                  <div className="size-1 rounded-full bg-zinc-800" />
-                </div>
+          {/* Coluna Central: Smartphone Mockup Protrudindo Verticalmente (Pixel-Perfect 1:1) */}
+          <div className="absolute right-3 sm:right-6 md:right-auto md:left-[47%] md:-translate-x-1/2 top-1/2 -translate-y-1/2 z-20 flex justify-center">
+            <div className="relative w-[95px] sm:w-[110px] md:w-[126px] lg:w-[132px] h-[190px] sm:h-[220px] md:h-[255px] lg:h-[265px] rounded-[22px] sm:rounded-[26px] bg-[#0c0c0e] p-1 sm:p-1.5 shadow-[0_15px_35px_-10px_rgba(0,0,0,0.6)] border-[2px] sm:border-[2.5px] border-zinc-700/60 select-none shrink-0 group">
+              {/* Dynamic Island no topo do iPhone */}
+              <div className="absolute top-1 sm:top-1.5 left-1/2 -translate-x-1/2 w-8 sm:w-10 md:w-12 h-2.5 sm:h-3 bg-black rounded-full z-30 flex items-center justify-end pr-1 sm:pr-1.5 pointer-events-none">
+                <div className="size-1 rounded-full bg-zinc-800" />
+              </div>
 
-                {/* Status Bar */}
-                <div className="absolute top-1.5 inset-x-3 flex items-center justify-between z-20 text-[7px] font-semibold text-white pointer-events-none">
-                  <span>9:41</span>
-                  <div className="flex items-center gap-0.5">
-                    <div className="flex gap-0.5 items-end h-1.5">
-                      <div className="w-0.5 h-1 bg-white rounded-2xs" />
-                      <div className="w-0.5 h-1.5 bg-white rounded-2xs" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tela do Vídeo */}
-                <div className="relative w-full h-full rounded-[18px] sm:rounded-[22px] overflow-hidden bg-zinc-950">
-                  <Image
-                    src="/assets/explica-ai/video-screen-girl.png"
-                    alt="Vídeo explicativo na prática"
-                    fill
-                    priority
-                    sizes="160px"
-                    className="object-cover"
-                  />
-
-                  {/* Gradiente escuro para legibilidade */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-black/25 pointer-events-none" />
-
-                  {/* Botão de Play Central Vermelho */}
-                  <button
-                    onClick={handleOpenVideo}
-                    aria-label="Assistir ao vídeo agora"
-                    className="absolute inset-0 m-auto size-9 sm:size-10 rounded-full bg-[#E30613] hover:bg-[#c40510] text-white flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all cursor-pointer z-20"
-                  >
-                    <Play className="size-4 sm:size-4.5 fill-white ml-0.5" />
-                  </button>
-
-                  {/* Barra de Controle Inferior do Vídeo */}
-                  <div className="absolute bottom-1.5 inset-x-2 z-20 flex flex-col gap-0.5 pointer-events-none">
-                    <div className="h-0.5 w-full bg-white/30 rounded-full overflow-hidden">
-                      <div className="h-full w-1/3 bg-[#E30613]" />
-                    </div>
-                    <div className="flex items-center justify-between text-[8px] font-mono text-white/90">
-                      <span>0:00 / 2:18</span>
-                      <div className="flex items-center gap-1">
-                        <Volume2 className="size-2.5 text-white" />
-                        <Maximize2 className="size-2.5 text-white" />
-                      </div>
-                    </div>
+              {/* Status Bar */}
+              <div className="absolute top-1 sm:top-1.5 inset-x-2.5 sm:inset-x-3 flex items-center justify-between z-20 text-[6.5px] sm:text-[7px] font-semibold text-white pointer-events-none">
+                <span>9:41</span>
+                <div className="flex items-center gap-0.5">
+                  <div className="flex gap-0.5 items-end h-1.5">
+                    <div className="w-0.5 h-1 bg-white rounded-2xs" />
+                    <div className="w-0.5 h-1.5 bg-white rounded-2xs" />
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Coluna Direita: Callout com Seta Curva e Mascote Oficial (md:col-span-3) */}
-            <div className="md:col-span-3 relative flex flex-col items-center md:items-end justify-between h-full self-stretch pt-1">
-              {/* Callout Texto + Seta Curva Apontando para o Telefone */}
-              <div className="flex items-center gap-1.5 self-start md:self-end md:mr-1 z-20">
-                <svg
-                  width="30"
-                  height="22"
-                  viewBox="0 0 44 32"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-white shrink-0 -scale-y-100 rotate-12"
-                >
-                  <path
-                    d="M38 28 C 36 6, 16 3, 5 15"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M10 8 L 4 15 L 12 21"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-
-                <div className="text-[11px] sm:text-xs font-bold leading-tight text-white tracking-tight">
-                  <p>Assista ao vídeo</p>
-                  <p>e veja as dicas na prática!</p>
-                </div>
-              </div>
-
-              {/* Mascote Nort Oficial Sem Chapéu Apontando para o Telefone */}
-              <div className="relative w-[130px] sm:w-[145px] md:w-[155px] h-[115px] sm:h-[130px] md:h-[140px] shrink-0 pointer-events-none select-none z-10 -mb-4 -mr-2">
+              {/* Tela do Vídeo */}
+              <div className="relative w-full h-full rounded-[18px] sm:rounded-[22px] overflow-hidden bg-zinc-950">
                 <Image
-                  src="/assets/explica-ai/mascote-nort-apontando.webp"
-                  alt="Mascote Nort apontando para o smartphone"
+                  src="/assets/explica-ai/video-screen-girl.png"
+                  alt="Vídeo explicativo na prática"
                   fill
                   priority
-                  sizes="(max-width: 768px) 140px, 160px"
-                  className="object-contain object-bottom drop-shadow-[0_8px_18px_rgba(0,0,0,0.3)]"
+                  sizes="(max-width: 768px) 110px, 140px"
+                  className="object-cover"
                 />
+
+                {/* Gradiente escuro para legibilidade */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-black/25 pointer-events-none" />
+
+                {/* Botão de Play Central Vermelho */}
+                <button
+                  onClick={handleOpenVideo}
+                  aria-label="Assistir ao vídeo agora"
+                  className="absolute inset-0 m-auto size-8 sm:size-9 md:size-10 rounded-full bg-[#E30613] hover:bg-[#c40510] text-white flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all cursor-pointer z-20"
+                >
+                  <Play className="size-3.5 sm:size-4 md:size-4.5 fill-white ml-0.5" />
+                </button>
+
+                {/* Barra de Controle Inferior do Vídeo */}
+                <div className="absolute bottom-1 sm:bottom-1.5 inset-x-1.5 sm:inset-x-2 z-20 flex flex-col gap-0.5 pointer-events-none">
+                  <div className="h-0.5 w-full bg-white/30 rounded-full overflow-hidden">
+                    <div className="h-full w-1/3 bg-[#E30613]" />
+                  </div>
+                  <div className="flex items-center justify-between text-[7px] sm:text-[8px] font-mono text-white/90">
+                    <span>0:00 / 2:18</span>
+                    <div className="flex items-center gap-1">
+                      <Volume2 className="size-2 sm:size-2.5 text-white" />
+                      <Maximize2 className="size-2 sm:size-2.5 text-white" />
+                    </div>
+                  </div>
+                </div>
               </div>
+            </div>
+          </div>
+
+          {/* Coluna Direita: Callout com Seta Curva e Mascote Oficial (md:flex) */}
+          <div className="hidden md:flex absolute inset-y-0 right-0 left-[54%] items-center justify-between pointer-events-none z-10">
+            {/* Callout Texto + Seta Curva Apontando para o Telefone */}
+            <div className="flex items-center gap-2 self-start mt-4 lg:mt-5 ml-1 bg-black/15 border border-white/10 rounded-2xl px-2.5 py-1.5 backdrop-blur-2xs">
+              <svg
+                width="28"
+                height="22"
+                viewBox="0 0 36 26"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-white shrink-0"
+              >
+                <path
+                  d="M32 22 C 30 6, 16 3, 5 12"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M12 6 L 4 12 L 10 18"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+
+              <div className="text-[10.5px] lg:text-[11.5px] font-bold leading-[1.18] text-white tracking-tight">
+                <p>Assista ao vídeo</p>
+                <p>e veja as dicas na prática!</p>
+              </div>
+            </div>
+
+            {/* Mascote Nort Oficial Sem Chapéu Apontando para o Telefone */}
+            <div className="relative w-[140px] md:w-[155px] lg:w-[175px] h-[140px] md:h-[155px] lg:h-[175px] shrink-0 self-end -mr-1 lg:mr-2">
+              <Image
+                src="/assets/explica-ai/mascote-nort-apontando.webp"
+                alt="Mascote Nort apontando para o smartphone"
+                fill
+                priority
+                sizes="(max-width: 1024px) 155px, 175px"
+                className="object-contain object-bottom drop-shadow-[0_8px_18px_rgba(0,0,0,0.3)]"
+              />
             </div>
           </div>
         </section>
