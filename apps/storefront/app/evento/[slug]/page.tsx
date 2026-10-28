@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getEventBySlug, type ApiEvent } from '@/lib/api';
+import { CANONICAL_EVENTS } from '@/lib/events-data';
 import { EventSinglePost } from '@/components/evento/event-single-post';
 
 export const dynamic = 'force-dynamic';
@@ -27,11 +28,19 @@ const DEFAULT_PEDREIRA_EVENT: ApiEvent = {
   sortOrder: 1,
 };
 
+function findFallbackEvent(slug: string): ApiEvent | null {
+  if (slug === DEFAULT_PEDREIRA_EVENT.slug || slug.includes('pedreira')) {
+    return DEFAULT_PEDREIRA_EVENT;
+  }
+  const match = CANONICAL_EVENTS.find(
+    (e) => e.slug === slug || slug.includes(e.slug) || e.slug.includes(slug)
+  );
+  return match || null;
+}
+
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
-  const event =
-    (await getEventBySlug(slug)) ||
-    (slug === DEFAULT_PEDREIRA_EVENT.slug || slug.includes('pedreira') ? DEFAULT_PEDREIRA_EVENT : null);
+  const event = (await getEventBySlug(slug)) || findFallbackEvent(slug);
 
   if (!event) return { title: 'Evento não encontrado | Comercial do Norte' };
 
@@ -46,8 +55,8 @@ export default async function SingleEventPage({ params }: { params: Params }) {
   const { slug } = await params;
   let event = await getEventBySlug(slug);
 
-  if (!event && (slug === 'grande-reinauguracao-loja-pedreira' || slug.includes('pedreira'))) {
-    event = DEFAULT_PEDREIRA_EVENT;
+  if (!event) {
+    event = findFallbackEvent(slug);
   }
 
   if (!event) {
