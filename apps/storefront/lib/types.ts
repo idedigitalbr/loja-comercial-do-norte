@@ -55,6 +55,21 @@ export type ApiBrand = {
   parentId: string | null;
 };
 
+export type ApiSegment = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  imagePath?: string | null;
+  sortOrder?: number;
+};
+
+export type ApiTag = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 export type SiteConfig = {
   site: {
     siteName: string;

@@ -30,7 +30,7 @@ export interface HeroSlide {
   title: string;
   imageUrl: string;
   mobileImageUrl?: string;
-  linkUrl: string;
+  linkUrl?: string;
   altText: string;
   badge?: string;
   backgroundColor?: string;
@@ -50,7 +50,7 @@ export interface ContainedHeroSlide {
   id: string;
   title: string;
   imageUrl: string;
-  linkUrl: string;
+  linkUrl?: string;
   altText: string;
 }
 
@@ -124,7 +124,7 @@ export interface PromotionalBanner {
   id: string;
   title?: string;
   imageUrl: string;
-  linkUrl: string;
+  linkUrl?: string;
   altText: string;
   tag?: string;
 }
@@ -176,7 +176,7 @@ export interface SegmentCardItem {
 export interface SegmentsCarouselProps {
   widgetId?: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   ctaLabel?: string;
   ctaUrl?: string;
   items: SegmentCardItem[];
@@ -208,7 +208,7 @@ export interface EventPosterItem {
   id: string;
   title: string;
   imageUrl: string;
-  linkUrl: string;
+  linkUrl?: string;
 }
 
 export interface EventsCarouselProps {
@@ -237,8 +237,10 @@ export interface VideoArticlesCarouselProps {
   widgetId?: string;
   title: string;
   subtitle: string;
-  viewAllLabel: string;
-  viewAllUrl: string;
+  viewAllLabel?: string;
+  viewAllUrl?: string;
+  showViewAll?: boolean;
+  fullWidth?: boolean;
   items: VideoArticleItem[];
   mascotImageUrl?: string;
   bgImageUrl?: string;

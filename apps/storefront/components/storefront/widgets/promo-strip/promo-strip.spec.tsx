@@ -15,7 +15,7 @@ vi.mock('@/components/storefront/editor/elementor-editor-context', () => ({
 }));
 
 describe('PromoStripWidget', () => {
-  it('renderiza a variante offers-strip em full largura com fundo e bordas arredondadas nos cantos', () => {
+  it('renderiza a variante offers-strip diretamente como imagem no container sem fundo escuro e sem vão excessivo', () => {
     const { container } = render(
       <PromoStripWidget
         ctaUrl="/loja?oferta=1"
@@ -28,14 +28,15 @@ describe('PromoStripWidget', () => {
 
     const section = container.querySelector('section');
     expect(section).toBeDefined();
-    expect(section?.className).toContain('w-full');
+    expect(section?.className).toContain('cn-container');
+    expect(section?.className).not.toContain('bg-[#001F4D]');
 
-    const backgroundContainer = section?.firstElementChild;
-    expect(backgroundContainer?.className).toContain('w-full');
-    expect(backgroundContainer?.className).toContain('rounded-[20px]');
-    expect(backgroundContainer?.className).toContain('bg-[#001F4D]');
+    const imageContainer = section?.firstElementChild;
+    expect(imageContainer?.className).toContain('rounded-2xl');
+    expect(imageContainer?.className).not.toContain('bg-[#001F4D]');
 
-    const contentContainer = backgroundContainer?.querySelector('.cn-container');
-    expect(contentContainer).toBeDefined();
+    const img = section?.querySelector('img');
+    expect(img).toBeDefined();
+    expect(img?.getAttribute('src')).toBe('/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp');
   });
 });

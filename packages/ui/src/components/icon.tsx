@@ -11,6 +11,7 @@ import {
   BadgeCheck,
   BarChart3,
   Bold,
+  Calendar,
   CalendarPlus,
   Check,
   CheckCircle2,
@@ -88,6 +89,7 @@ export type IconName =
   | 'badge-check'
   | 'bar-chart-3'
   | 'bold'
+  | 'calendar'
   | 'calendar-plus'
   | 'check'
   | 'check-circle-2'
@@ -162,6 +164,7 @@ const iconMap: Record<IconName, LucideIcon> = {
   'badge-check': BadgeCheck,
   'bar-chart-3': BarChart3,
   bold: Bold,
+  calendar: Calendar,
   'calendar-plus': CalendarPlus,
   check: Check,
   'check-circle-2': CheckCircle2,

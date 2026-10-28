@@ -49,45 +49,50 @@ export function BannerGridWidget({
               >
                 {pageBanners.map((banner, idx) => {
                   const globalIdx = pIdx * itemsPerPage + idx;
+                  const hasLink = Boolean(
+                    banner.linkUrl &&
+                    banner.linkUrl.trim() !== '' &&
+                    banner.linkUrl !== '#'
+                  );
+
+                  const imageElement = (
+                    <Image
+                      alt={banner.altText || banner.title || `Banner ${globalIdx + 1}`}
+                      className={`size-full object-cover transition duration-500 ${
+                        isEditing && !previewMode
+                          ? 'group-hover/img:brightness-50 group-hover/img:grayscale'
+                          : hasLink
+                            ? 'group-hover/img:scale-[1.02]'
+                            : ''
+                      }`}
+                      height={450}
+                      src={banner.imageUrl}
+                      unoptimized
+                      width={800}
+                    />
+                  );
+
                   return (
                     <div
-                      className="group/img relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-slate-100"
+                      className={`group/img relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-slate-100 ${
+                        hasLink ? 'cursor-pointer' : 'cursor-default'
+                      }`}
                       key={banner.id || globalIdx}
                     >
-                      {banner.linkUrl ? (
+                      {hasLink ? (
                         <Link
                           className="block size-full"
-                          href={banner.linkUrl}
+                          href={banner.linkUrl!}
                           onClick={(e) => {
                             if (isEditing && !previewMode) e.preventDefault();
                           }}
                         >
-                          <Image
-                            alt={banner.altText || banner.title || `Banner ${globalIdx + 1}`}
-                            className={`size-full object-cover transition duration-500 ${
-                              isEditing && !previewMode
-                                ? 'group-hover/img:brightness-50 group-hover/img:grayscale'
-                                : 'group-hover/img:scale-[1.02]'
-                            }`}
-                            height={450}
-                            src={banner.imageUrl}
-                            unoptimized
-                            width={800}
-                          />
+                          {imageElement}
                         </Link>
                       ) : (
-                        <Image
-                          alt={banner.altText || banner.title || `Banner ${globalIdx + 1}`}
-                          className={`size-full object-cover transition duration-500 ${
-                            isEditing && !previewMode
-                              ? 'group-hover/img:brightness-50 group-hover/img:grayscale'
-                              : ''
-                          }`}
-                          height={450}
-                          src={banner.imageUrl}
-                          unoptimized
-                          width={800}
-                        />
+                        <div className="block size-full select-none cursor-default">
+                          {imageElement}
+                        </div>
                       )}
 
                       {widgetId ? (

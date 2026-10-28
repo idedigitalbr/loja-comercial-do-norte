@@ -98,4 +98,21 @@ describe('VideoArticlesCarouselWidget (Explica Aí Nort)', () => {
     expect(screen.getByLabelText('Dica anterior')).toBeDefined();
     expect(screen.getByLabelText('Próxima dica')).toBeDefined();
   });
+
+  it('permite ocultar o botão "Ver todos" com showViewAll={false} e renderizar modo fullWidth', () => {
+    const { container } = render(
+      <VideoArticlesCarouselWidget
+        title="Explica Aí Nort"
+        subtitle="Dicas em vídeos e artigos para você usar no seu negócio."
+        showViewAll={false}
+        fullWidth={true}
+        items={mockItems}
+      />
+    );
+
+    expect(screen.queryByText('Ver todos')).toBeNull();
+    const section = container.querySelector('section');
+    expect(section?.className).toContain('w-full');
+    expect(section?.className).toContain('rounded-b-');
+  });
 });

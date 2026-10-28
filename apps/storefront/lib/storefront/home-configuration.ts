@@ -25,7 +25,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "A Festa Começa Aqui — Detalhes que Fazem a Diferença",
             imageUrl:
               "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (1).webp",
-            linkUrl: "/categoria/festas",
+            linkUrl: "",
             altText: "A Festa Começa Aqui — Comercial do Norte",
             backgroundColor: "#E2091E",
           },
@@ -34,7 +34,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Embalagens para Delivery, Pizzarias e Restaurantes",
             imageUrl:
               "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (2).webp",
-            linkUrl: "/loja?q=delivery",
+            linkUrl: "",
             altText:
               "Embalagens para Delivery e Alimentação no Comercial do Norte",
             backgroundColor: "#004CB1",
@@ -44,7 +44,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Artigos para Festas, Confeitaria e Eventos",
             imageUrl:
               "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (3x).webp",
-            linkUrl: "/segmento/loja-de-festas",
+            linkUrl: "",
             altText: "Artigos de Festa e Confeitaria Comercial do Norte",
             backgroundColor: "#00357B",
           },
@@ -53,7 +53,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Descartáveis no Atacado — Fardos Fechados com Menor Preço",
             imageUrl:
               "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (4).webp",
-            linkUrl: "/categoria/descartaveis",
+            linkUrl: "",
             altText: "Descartáveis no Atacado no Comercial do Norte",
             backgroundColor: "#002B66",
           },
@@ -62,7 +62,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Limpeza Profissional e Higienização Comercial",
             imageUrl:
               "/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (5).webp",
-            linkUrl: "/categoria/limpeza",
+            linkUrl: "",
             altText: "Limpeza e Higienização no Comercial do Norte",
             backgroundColor: "#004CB1",
           },
@@ -87,7 +87,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Semana do Feirante — Copo Descartável 180ml Cristalcopo",
             imageUrl:
               "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_k93f3kk93f3kk93f.jpg",
-            linkUrl: "/loja?q=copo",
+            linkUrl: "",
             altText:
               "Semana do Feirante Comercial do Norte — Copo Descartável 180ml Cristalcopo",
           },
@@ -96,7 +96,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Para Trigo 2026 — Domingo das 14h às 16h",
             imageUrl:
               "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_m54tnlm54tnlm54t.jpg",
-            linkUrl: "/cotacao",
+            linkUrl: "",
             altText: "Para Trigo 2026 Domingo 14h às 16h Comercial do Norte",
           },
           {
@@ -104,7 +104,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Mega Outlet de Embalagens e Descartáveis",
             imageUrl:
               "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_k46c0pk46c0pk46c.jpg",
-            linkUrl: "/loja?oferta=1",
+            linkUrl: "",
             altText: "Mega Outlet Comercial do Norte",
           },
           {
@@ -112,7 +112,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Linha Kraft & Embalagens Sustentáveis para Delivery",
             imageUrl:
               "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_nmv06jnmv06jnmv0.jpg",
-            linkUrl: "/loja?q=kraft",
+            linkUrl: "",
             altText: "Linha Kraft e Embalagens Sustentáveis Comercial do Norte",
           },
           {
@@ -120,7 +120,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Higiene e Proteção — Luvas e Descartáveis",
             imageUrl:
               "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_x5pilwx5pilwx5pi.jpg",
-            linkUrl: "/loja?q=luva",
+            linkUrl: "",
             altText: "Semana do Feirante Luvas Nitrílicas Comercial do Norte",
           },
           {
@@ -128,7 +128,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Últimas 24 Horas de Ofertas Especiais",
             imageUrl:
               "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_yr0ncxyr0ncxyr0n (1).jpg",
-            linkUrl: "/loja?oferta=1",
+            linkUrl: "",
             altText: "Ofertas Relâmpago 24h Comercial do Norte",
           },
           {
@@ -136,7 +136,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Visite Nossas Lojas Físicas — Bernardo Sayão e Jurunas",
             imageUrl:
               "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_u1xlqu1xlqu1xlqu.jpg",
-            linkUrl: "/loja",
+            linkUrl: "",
             altText: "Fachada Comercial do Norte — Belém PA",
           },
         ],
@@ -167,14 +167,14 @@ export const defaultHomeComposition: PageComposition = {
             label: 'Embalagens',
             imageUrl:
               '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/02-embalagens.png',
-            linkUrl: '/categoria/embalagens',
+            linkUrl: "",
           },
           {
             id: 'cat-descartaveis',
             label: 'Descartáveis',
             imageUrl:
               '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/03-descartaveis.png',
-            linkUrl: '/categoria/descartaveis',
+            linkUrl: "",
           },
           {
             id: 'cat-artigos-festa',
@@ -188,14 +188,14 @@ export const defaultHomeComposition: PageComposition = {
             label: 'Doces e Confeitaria',
             imageUrl:
               '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/05-doces-e-confeitaria.png',
-            linkUrl: "/segmento/confeitaria-bolos",
+            linkUrl: "",
           },
           {
             id: 'cat-limpeza',
             label: 'Limpeza Profissional',
             imageUrl:
               '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/06-limpeza-profissional.png',
-            linkUrl: '/categoria/limpeza',
+            linkUrl: "",
           },
           {
             id: 'cat-mais-vendidos',
@@ -246,7 +246,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Produtos de Limpeza até 30% OFF",
             imageUrl:
               "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/1-mini-card-azul.png.webp",
-            linkUrl: "/loja?q=limpeza",
+            linkUrl: "",
             altText: "Produtos de Limpeza até 30% OFF no Comercial do Norte",
           },
           {
@@ -254,7 +254,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Semana do Feirante — Luva Nitrílica",
             imageUrl:
               "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/2-mini-card-red.png.webp",
-            linkUrl: "/loja?oferta=1",
+            linkUrl: "",
             altText: "Semana do Feirante Luva Nitrílica Comercial do Norte",
           },
           {
@@ -262,7 +262,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Sacos e Sacolas até 25% OFF",
             imageUrl:
               "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/3-mini-card-azul-.png.webp",
-            linkUrl: "/loja?q=sacolas",
+            linkUrl: "",
             altText: "Sacos e Sacolas até 25% OFF Comercial do Norte",
           },
           {
@@ -270,7 +270,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Confeitaria e Doces até 20% OFF",
             imageUrl:
               "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/4-mini-card-azul.png.webp",
-            linkUrl: "/segmento/confeitaria-bolos",
+            linkUrl: "",
             altText: "Confeitaria e Doces até 20% OFF no Comercial do Norte",
           },
           {
@@ -278,7 +278,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Embalagens para Marmitas e Delivery",
             imageUrl:
               "/assets/HOME Vitrine/S11-MINICARDS-Carrossel/5-mini-ard-azul.png.webp",
-            linkUrl: "/categoria/embalagens",
+            linkUrl: "",
             altText:
               "Embalagens para Marmitas e Delivery no Comercial do Norte",
           },
@@ -287,7 +287,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Copos e Pratos Descartáveis no Atacado",
             imageUrl:
               "/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_k93f3kk93f3kk93f.jpg",
-            linkUrl: "/categoria/descartaveis",
+            linkUrl: "",
             altText: "Copos e Pratos Descartáveis no Comercial do Norte",
           },
         ],
@@ -319,7 +319,7 @@ export const defaultHomeComposition: PageComposition = {
         title: "Tudo para todos os negócios",
         subtitle: "Para todos os tamanhos!",
         ctaLabel: "Ver todos os segmentos",
-        ctaUrl: "/loja",
+        ctaUrl: "/segmentos",
         items: [
           {
             id: "seg-lanchonete",
@@ -363,7 +363,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "party",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-04-festas.jpg",
-            linkUrl: "/segmento/loja-de-festas",
+            linkUrl: "",
           },
           {
             id: "seg-buffet",
@@ -385,7 +385,7 @@ export const defaultHomeComposition: PageComposition = {
             iconType: "confectionery",
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-06-confeitaria.jpg",
-            linkUrl: "/segmento/confeitaria-bolos",
+            linkUrl: "",
           },
           {
             id: "seg-sorveteria",
@@ -425,7 +425,7 @@ export const defaultHomeComposition: PageComposition = {
         title: "em embalagens, descartáveis e utilidades",
         imageUrl:
           "/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp",
-        ctaUrl: "/loja?oferta=1",
+        ctaUrl: "",
         altText: "OFERTAS IMPERDÍVEIS em embalagens, descartáveis e utilidades",
       },
     },
@@ -459,7 +459,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Semana do Feirante — Hamburgueira Isopor",
             imageUrl:
               "/assets/HOME Vitrine/S11-MINICARDS-Carrossel/5-mini-ard-azul.png.webp",
-            linkUrl: "/loja?q=hamburgueira",
+            linkUrl: "",
             altText: "Semana do Feirante Hamburgueira Isopor R$ 85,95",
           },
           {
@@ -467,7 +467,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Semana do Feirante — Luva Nitrílica Vermelho",
             imageUrl:
               "/assets/HOME Vitrine/S11-MINICARDS-Carrossel/6-mini-card-red.png.webp",
-            linkUrl: "/loja?oferta=1",
+            linkUrl: "",
             altText: "Semana do Feirante Luva Nitrílica R$ 27,10",
           },
           {
@@ -475,7 +475,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Semana do Feirante — Luva Nitrílica Azul",
             imageUrl:
               "/assets/HOME Vitrine/S11-MINICARDS-Carrossel/7-mini-card-azul.png.webp",
-            linkUrl: "/loja?oferta=1",
+            linkUrl: "",
             altText: "Semana do Feirante Luva Nitrílica Azul R$ 27,10",
           },
           {
@@ -483,7 +483,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Filme PVC e Bobinas Térmicas",
             imageUrl:
               "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/1-mini-card-azul.png.webp",
-            linkUrl: "/loja?q=filme-pvc",
+            linkUrl: "",
             altText: "Filme PVC e Bobinas Térmicas no Comercial do Norte",
           },
           {
@@ -491,7 +491,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Papel Toalha Interfolhado e Higiene",
             imageUrl:
               "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/4-mini-card-azul.png.webp",
-            linkUrl: "/loja?q=papel-toalha",
+            linkUrl: "",
             altText: "Papel Toalha e Higiene Profissional Comercial do Norte",
           },
           {
@@ -499,7 +499,7 @@ export const defaultHomeComposition: PageComposition = {
             title: "Sacolas Kraft Reforçadas para Delivery",
             imageUrl:
               "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/3-mini-card-azul-.png.webp",
-            linkUrl: "/loja?q=kraft",
+            linkUrl: "",
             altText: "Sacolas Kraft Reforçadas Comercial do Norte",
           },
         ],
@@ -516,21 +516,21 @@ export const defaultHomeComposition: PageComposition = {
         title: "Nossos Eventos",
         subtitle: "Tudo que acontece no Comercial do Norte",
         ctaLabel: "Ver todos os eventos",
-        ctaUrl: "/loja",
+        ctaUrl: "",
         items: [
           {
             id: "ev-1",
             title: "Encontro de Empreendedores — James Holanda",
             imageUrl:
               "/assets/HOME Vitrine/S12-EVENTOS/s12-event-01-empreendedores.jpg",
-            linkUrl: "/loja",
+            linkUrl: "",
           },
           {
             id: "ev-2",
             title: "Grande Reinauguração Loja Pedreira",
             imageUrl:
               "/assets/HOME Vitrine/S12-EVENTOS/s12-event-02-reinauguracao.jpg",
-            linkUrl: "/loja",
+            linkUrl: "",
           },
           {
             id: "ev-3",
@@ -538,28 +538,28 @@ export const defaultHomeComposition: PageComposition = {
               "Workshop de Confeitaria Profissional — Decoração com Chantilly e Bicos",
             imageUrl:
               "/assets/HOME Vitrine/S12-EVENTOS/s12-event-03-workshop-confeitaria.jpg",
-            linkUrl: "/loja",
+            linkUrl: "",
           },
           {
             id: "ev-4",
             title: "Sábado Croquete de Charque — Pará Trigo 2026",
             imageUrl:
               "/assets/HOME Vitrine/S12-EVENTOS/s12-event-04-croquete.jpg",
-            linkUrl: "/loja",
+            linkUrl: "",
           },
           {
             id: "ev-5",
             title: "Encontro de Empreendedores — James Holanda",
             imageUrl:
               "/assets/HOME Vitrine/S12-EVENTOS/s12-event-01-empreendedores.jpg",
-            linkUrl: "/loja",
+            linkUrl: "",
           },
           {
             id: "ev-6",
             title: "Grande Reinauguração Loja Pedreira",
             imageUrl:
               "/assets/HOME Vitrine/S12-EVENTOS/s12-event-02-reinauguracao.jpg",
-            linkUrl: "/loja",
+            linkUrl: "",
           },
           {
             id: "ev-7",
@@ -567,14 +567,14 @@ export const defaultHomeComposition: PageComposition = {
               "Workshop de Confeitaria Profissional — Decoração com Chantilly e Bicos",
             imageUrl:
               "/assets/HOME Vitrine/S12-EVENTOS/s12-event-03-workshop-confeitaria.jpg",
-            linkUrl: "/loja",
+            linkUrl: "",
           },
           {
             id: "ev-8",
             title: "Sábado Croquete de Charque — Pará Trigo 2026",
             imageUrl:
               "/assets/HOME Vitrine/S12-EVENTOS/s12-event-04-croquete.jpg",
-            linkUrl: "/loja",
+            linkUrl: "",
           },
         ],
       },
@@ -605,7 +605,7 @@ export const defaultHomeComposition: PageComposition = {
         title: "Explica Aí Nort",
         subtitle: "Dicas em vídeos e artigos para você usar no seu negócio.",
         viewAllLabel: "Ver todos",
-        viewAllUrl: "/loja",
+        viewAllUrl: "/post",
         mascotImageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-Boneco3D-explica-ai-nort-trimmed.webp",
         bgImageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-bg-fundo-vermelho-geometrico-abstrato-hd.png",
         items: [
@@ -619,7 +619,7 @@ export const defaultHomeComposition: PageComposition = {
               "Valorize a apresentação do seu delivery.",
             ],
             ctaLabel: "Ver Completo",
-            ctaUrl: "/loja?q=kraft",
+            ctaUrl: "/post/embalagens-kraft-para-o-seu-delivery",
             imageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/kraft.webp",
           },
           {
@@ -632,7 +632,7 @@ export const defaultHomeComposition: PageComposition = {
               "Evite vazamentos no transporte.",
             ],
             ctaLabel: "Ver Completo",
-            ctaUrl: "/loja?q=copo",
+            ctaUrl: "/post/copos-e-tampas-para-acai-e-cafe",
             imageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/copos.webp",
           },
           {
@@ -645,7 +645,7 @@ export const defaultHomeComposition: PageComposition = {
               "Cuide da apresentação até a entrega.",
             ],
             ctaLabel: "Ver Completo",
-            ctaUrl: "/loja?q=pizza",
+            ctaUrl: "/post/caixas-de-pizza-formatos-e-respiros",
             imageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/pizza.webp",
           },
           {

@@ -29,12 +29,17 @@ export function PromoStripWidget({
   if (variant === 'offers-strip') {
     const effectiveImageUrl = imageUrl || '/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp';
     const effectiveAlt = altText || title || highlightText || 'OFERTAS IMPERDÍVEIS em embalagens, descartáveis e utilidades';
+    const hasLink = Boolean(ctaUrl && ctaUrl.trim() !== '' && ctaUrl !== '#');
 
     const bannerImage = effectiveImageUrl ? (
       <Image
         alt={effectiveAlt}
         className={`size-full object-cover transition duration-300 ${
-          isEditing && !previewMode ? 'group-hover/img:brightness-50 group-hover/img:grayscale' : 'hover:opacity-95'
+          isEditing && !previewMode
+            ? 'group-hover/img:brightness-50 group-hover/img:grayscale'
+            : hasLink
+              ? 'hover:opacity-95'
+              : ''
         }`}
         fill
         sizes="(max-width: 1536px) 100vw, 1536px"
@@ -52,40 +57,40 @@ export function PromoStripWidget({
     );
 
     return (
-      <section aria-label={effectiveAlt} className="w-full py-2.5 sm:py-3.5">
-        <div className="w-full overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[36px] bg-[#001F4D] py-3 sm:py-4 shadow-md">
-          <div className="cn-container">
-            <div className="group/img relative aspect-[1920/170] min-h-[56px] w-full overflow-hidden rounded-xl sm:rounded-2xl bg-slate-200 sm:min-h-24">
-              {ctaUrl ? (
-                <Link
-                  className="block size-full"
-                  href={ctaUrl}
-                  onClick={(e) => {
-                    if (isEditing && !previewMode) e.preventDefault();
-                  }}
-                >
-                  {bannerImage}
-                </Link>
-              ) : (
-                bannerImage
-              )}
-
-              {widgetId ? (
-                <InlineImageEditorOverlay
-                  canAdd={false}
-                  canRemove={false}
-                  currentImageUrl={effectiveImageUrl}
-                  currentLinkUrl={ctaUrl}
-                  fieldPath="imageUrl"
-                  linkFieldPath="ctaUrl"
-                  previewUrl={effectiveImageUrl}
-                  slideIndex={0}
-                  title={title || highlightText || 'Faixa Ofertas Imperdíveis'}
-                  widgetId={widgetId}
-                />
-              ) : null}
+      <section aria-label={effectiveAlt} className="cn-container py-2.5 sm:py-3.5">
+        <div className={`group/img relative aspect-[1920/170] min-h-[56px] w-full overflow-hidden rounded-2xl shadow-sm sm:min-h-24 ${
+          hasLink ? 'cursor-pointer' : 'cursor-default'
+        }`}>
+          {hasLink ? (
+            <Link
+              className="block size-full"
+              href={ctaUrl!}
+              onClick={(e) => {
+                if (isEditing && !previewMode) e.preventDefault();
+              }}
+            >
+              {bannerImage}
+            </Link>
+          ) : (
+            <div className="block size-full select-none cursor-default">
+              {bannerImage}
             </div>
-          </div>
+          )}
+
+          {widgetId ? (
+            <InlineImageEditorOverlay
+              canAdd={false}
+              canRemove={false}
+              currentImageUrl={effectiveImageUrl}
+              currentLinkUrl={ctaUrl}
+              fieldPath="imageUrl"
+              linkFieldPath="ctaUrl"
+              previewUrl={effectiveImageUrl}
+              slideIndex={0}
+              title={title || highlightText || 'Faixa Ofertas Imperdíveis'}
+              widgetId={widgetId}
+            />
+          ) : null}
         </div>
       </section>
     );
@@ -95,12 +100,17 @@ export function PromoStripWidget({
   if (variant === 'conditions-mascot') {
     const effectiveImageUrl = imageUrl || '/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp';
     const effectiveAlt = altText || title || highlightText || 'CONDIÇÕES ESPECIAIS para o seu negócio';
+    const hasLink = Boolean(ctaUrl && ctaUrl.trim() !== '' && ctaUrl !== '#');
 
     const bannerImage = (
       <Image
         alt={effectiveAlt}
         className={`size-full object-cover transition duration-300 ${
-          isEditing && !previewMode ? 'group-hover/img:brightness-50 group-hover/img:grayscale' : 'hover:opacity-95'
+          isEditing && !previewMode
+            ? 'group-hover/img:brightness-50 group-hover/img:grayscale'
+            : hasLink
+              ? 'hover:opacity-95'
+              : ''
         }`}
         height={125}
         priority={false}
@@ -112,11 +122,13 @@ export function PromoStripWidget({
 
     return (
       <section aria-label={effectiveAlt} className="cn-container py-3 sm:py-5">
-        <div className="group/img relative overflow-hidden rounded-2xl shadow-lg border border-white/10">
-          {ctaUrl ? (
+        <div className={`group/img relative overflow-hidden rounded-2xl shadow-lg border border-white/10 ${
+          hasLink ? 'cursor-pointer' : 'cursor-default'
+        }`}>
+          {hasLink ? (
             <Link
               className="block size-full"
-              href={ctaUrl}
+              href={ctaUrl!}
               onClick={(e) => {
                 if (isEditing && !previewMode) e.preventDefault();
               }}
@@ -124,7 +136,9 @@ export function PromoStripWidget({
               {bannerImage}
             </Link>
           ) : (
-            bannerImage
+            <div className="block size-full select-none cursor-default">
+              {bannerImage}
+            </div>
           )}
 
           {widgetId ? (

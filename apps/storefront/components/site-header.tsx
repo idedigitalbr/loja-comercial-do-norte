@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,7 @@ import {
   Heart,
   MapPin,
   Menu,
+  PanelLeft,
   Phone,
   Search,
   ShoppingBag,
@@ -26,9 +27,9 @@ import { useUserLocation } from "./location-provider";
 import { useFavorites } from "./favorites-provider";
 import { useAuth } from "./auth-provider";
 import { UserMenuDropdown } from "./user-menu-dropdown";
-import { MegaMenu } from "./mega-menu";
 import { CategoryMegaMenu, CATEGORY_MENUS_DATA } from "./category-mega-menu";
-import type { ApiBrand, ApiCategory } from "@/lib/types";
+import { CategorySidebarDrawer } from "./category-sidebar-drawer";
+import type { ApiBrand, ApiCategory, ApiSegment, ApiTag } from "@/lib/types";
 
 type SiteHeaderProps = {
   siteName: string;
@@ -37,6 +38,8 @@ type SiteHeaderProps = {
   whatsapp: string | null;
   categories: ApiCategory[];
   brands: ApiBrand[];
+  segments?: ApiSegment[];
+  tags?: ApiTag[];
 };
 
 export function SiteHeader({
@@ -46,6 +49,8 @@ export function SiteHeader({
   whatsapp,
   categories,
   brands,
+  segments,
+  tags,
 }: SiteHeaderProps) {
   const router = useRouter();
   const { count, openDrawer } = useQuoteCart();
@@ -53,7 +58,41 @@ export function SiteHeader({
   const { count: favCount } = useFavorites();
   const { user, isAuthenticated } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showFloatingButton, setShowFloatingButton] = useState(false);
   const [query, setQuery] = useState("");
+
+  // O botão flutuante só aparece após o usuário rolar a página além do 1º slide (hero banner)
+  useEffect(() => {
+    function handleScroll() {
+      const heroSection =
+        document.getElementById("section-s01-hero-full-width") ||
+        document.querySelector('section[aria-label="Carrossel Principal de Banners"]') ||
+        document.querySelector('[data-widget-type="hero-carousel"]');
+
+      if (heroSection) {
+        const rect = heroSection.getBoundingClientRect();
+        // O primeiro slide fica na frente / visível:
+        // O botão só aparece após o usuário rolar além desse primeiro slide (quando o fundo dele atinge o topo)
+        setShowFloatingButton(rect.bottom <= 50);
+      } else {
+        // Em outras páginas que não possuem o hero banner (ex: /categoria, /loja, etc.),
+        // exibe assim que rolar além do cabeçalho
+        const headerEl = document.getElementById("siteHeader");
+        const threshold = headerEl ? headerEl.offsetHeight : 140;
+        setShowFloatingButton(window.scrollY > threshold);
+      }
+    }
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
 
   function submitSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -71,7 +110,8 @@ export function SiteHeader({
     <>
       <header
         id="siteHeader"
-        className="relative w-full shadow-md z-30 bg-[#004CB1]"
+        className="relative w-full shadow-md z-[60] bg-[#004CB1]"
+        style={{ position: "relative", zIndex: 60 }}
       >
         {/* BARRA 01: FAIXA SUPERIOR VERMELHA DE BENEFÍCIOS (FIGMA OFICIAL) */}
         <div className="bg-[#E2091E] py-1 sm:py-1.5 text-white w-full">
@@ -292,147 +332,151 @@ export function SiteHeader({
           </button>
         </div>
 
-        {/* BARRA 03: SUBNORMAL AZUL ESCURO (#00357B) - DEPARTAMENTOS E CATEGORIAS */}
+        {/* BARRA 03: SUBNORMAL AZUL ESCURO (#00357B) - NAVEGAÇÃO DIVIDIDA ESQUERDA / DIREITA */}
         <div className="hidden border-t border-white/10 bg-[#00357B] font-semibold text-white md:block w-full">
           <div className="w-full px-2 sm:px-3 md:px-4 lg:px-6 flex items-center justify-between flex-nowrap py-1 text-[10.5px] lg:text-[11.5px] xl:text-[12px]">
-            {/* 1. Menu Departamentos (Dropdown) - Encostado na margem esquerda */}
-            <div className="group relative shrink-0">
+            {/* LADO ESQUERDO: CATEGORIAS | SEGMENTOS, EVENTOS, CONTEÚDOS E WORKSHOPS */}
+            <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2 shrink-0">
+              {/* 1. Botão Menu: Categorias | Segmentos */}
               <button
-                className="flex items-center gap-1.5 py-1 px-1.5 sm:px-2 text-white hover:bg-white/10 rounded-sm transition cursor-pointer whitespace-nowrap font-bold"
+                aria-expanded={sidebarOpen}
+                aria-haspopup="dialog"
+                aria-label={
+                  sidebarOpen
+                    ? "Fechar menu de categorias e segmentos"
+                    : "Abrir menu de categorias e segmentos"
+                }
+                className="flex items-center gap-1 sm:gap-1.5 py-1 px-1.5 sm:px-2 text-white hover:bg-white/10 rounded-sm transition-colors cursor-pointer whitespace-nowrap font-bold"
+                onClick={() => setSidebarOpen((prev) => !prev)}
                 type="button"
               >
-                <Menu className="size-4" />
+                <Menu className="size-3.5 sm:size-4 shrink-0" />
                 <span className="tracking-wide">
-                  Tem no Comercial do Norte
+                  Categorias | Segmentos
                 </span>
-                <ChevronDown className="size-3 text-white/70 transition-transform group-hover:rotate-180" />
+                <ChevronDown className={`size-2.5 sm:size-3 text-white/70 transition-transform duration-200 shrink-0 ${sidebarOpen ? "rotate-180" : ""}`} />
               </button>
 
-              {/* Mega Menu Flutuante Estilo shadcn / 21st.dev */}
-              <div className="invisible absolute top-full left-0 z-50 pt-2 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
-                <MegaMenu
-                  categories={categories}
-                  whatsappPhone={whatsapp ?? undefined}
-                />
-              </div>
+              {/* Divisor vertical */}
+              <span className="inline-block h-3.5 w-px bg-white/25 shrink-0 mx-0.5 sm:mx-1" />
+
+              {/* Eventos */}
+              <Link
+                className="rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                href="/eventos"
+              >
+                Eventos
+              </Link>
+
+              {/* Conteúdos */}
+              <Link
+                className="flex items-center gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                href="/post"
+              >
+                <span>Conteúdos</span>
+                <span className="rounded-full bg-[#E2091E] px-1.5 py-0.5 text-[8px] sm:text-[8.5px] font-black uppercase text-white leading-none tracking-tight">
+                  EXPLICA AÍ NORT
+                </span>
+              </Link>
+
+              {/* Workshops */}
+              <Link
+                className="flex items-center gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                href="/eventos"
+              >
+                <span>Workshops</span>
+                <span className="rounded-full bg-[#B45309] px-1.5 py-0.5 text-[8px] sm:text-[8.5px] font-black uppercase text-white leading-none tracking-tight">
+                  AULAS CONFEITARIA
+                </span>
+              </Link>
+
+              {/* Divisor vertical após Workshops */}
+              <span className="inline-block h-3.5 w-px bg-white/25 shrink-0 mx-0.5 sm:mx-1" />
             </div>
 
-            {/* Divisor vertical */}
-            <span className="inline-block h-4 w-px bg-white/25 shrink-0 mx-1 sm:mx-1.5 lg:mx-2" />
+            {/* LADO DIREITO (SÓ OS 6 ITENS DEFINIDOS: MAIS VENDIDOS, OFERTAS DO DIA, EMBALAGENS, DESCARTÁVEIS, SACOS & SACOLAS E VER TODOS) */}
+            <div className="ml-auto flex items-center gap-0.5 sm:gap-1 lg:gap-1.5 xl:gap-2 shrink-0">
+              {/* Divisor vertical antes do grupo direito */}
+              <span className="inline-block h-3.5 w-px bg-white/25 shrink-0 mx-0.5 sm:mx-1" />
 
-            {/* 2. Menu de Categorias distribuído por TODA a largura da barra */}
-            <div className="flex-1 flex items-center justify-between min-w-0 flex-nowrap pl-1 sm:pl-2">
-              {/* Ofertas do Dia */}
+              {/* 1. Mais Vendidos */}
               <Link
-                className="flex items-center gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition whitespace-nowrap shrink-0"
+                className="rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap shrink-0"
+                href="/loja"
+              >
+                Mais Vendidos
+              </Link>
+
+              {/* 2. Ofertas do Dia */}
+              <Link
+                className="flex items-center gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
                 href="/loja?oferta=1"
               >
                 <span>Ofertas do Dia</span>
-                <span className="rounded-full bg-[#E2091E] px-1.5 py-0.5 text-[8.5px] font-black uppercase text-white leading-none">
+                <span className="rounded-full bg-[#E2091E] px-1.5 py-0.5 text-[8px] sm:text-[8.5px] font-black uppercase text-white leading-none">
                   NOVO
                 </span>
               </Link>
 
-              {/* Mega Menu: Embalagens (Estilo Magalu) */}
+              {/* 3. Mega Menu: Embalagens (ancorado right-0 com align="right" para não vazar a tela nem tremer no hover) */}
               <div className="group/cat relative shrink-0">
                 <Link
-                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
+                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition-colors hover:bg-white/10 hover:text-white group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
                   href="/categoria/embalagens"
                 >
                   <span>Embalagens</span>
                   <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
                 </Link>
-                <div className="invisible absolute top-full left-0 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
-                  <CategoryMegaMenu config={CATEGORY_MENUS_DATA.embalagens} />
+                <div className="invisible absolute top-full right-0 z-50 pt-1.5 opacity-0 pointer-events-none group-hover/cat:pointer-events-auto transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
+                  <CategoryMegaMenu align="right" config={CATEGORY_MENUS_DATA.embalagens} />
                 </div>
               </div>
 
-              {/* Mega Menu: Descartáveis (Estilo Magalu) */}
+              {/* 4. Mega Menu: Descartáveis (ancorado right-0 com align="right") */}
               <div className="group/cat relative shrink-0">
                 <Link
-                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
+                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition-colors hover:bg-white/10 hover:text-white group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
                   href="/categoria/descartaveis"
                 >
                   <span>Descartáveis</span>
                   <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
                 </Link>
-                <div className="invisible absolute top-full -left-20 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
+                <div className="invisible absolute top-full right-0 z-50 pt-1.5 opacity-0 pointer-events-none group-hover/cat:pointer-events-auto transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
                   <CategoryMegaMenu
+                    align="right"
                     config={CATEGORY_MENUS_DATA.descartaveis}
                   />
                 </div>
               </div>
 
-              {/* Mega Menu: Artigos para Festa (Estilo Magalu) */}
+              {/* 5. Mega Menu: Sacos & Sacolas (ancorado right-0 com align="right") */}
               <div className="group/cat relative shrink-0">
                 <Link
-                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
-                  href="/categoria/artigos-festa"
-                >
-                  <span>Artigos para Festa</span>
-                  <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
-                </Link>
-                <div className="invisible absolute top-full -left-36 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
-                  <CategoryMegaMenu config={CATEGORY_MENUS_DATA.festa} />
-                </div>
-              </div>
-
-              {/* Mega Menu: Doces & Confeitaria (Estilo Magalu) */}
-              <div className="group/cat relative shrink-0">
-                <Link
-                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
-                  href="/categoria/confeitaria"
-                >
-                  <span>Doces &amp; Confeitaria</span>
-                  <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
-                </Link>
-                <div className="invisible absolute top-full -left-48 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
-                  <CategoryMegaMenu
-                    config={CATEGORY_MENUS_DATA.confeitaria}
-                  />
-                </div>
-              </div>
-
-              {/* Mega Menu: Sacos & Sacolas (Estilo Magalu) */}
-              <div className="group/cat relative shrink-0">
-                <Link
-                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
-                  href="/loja?q=sacola"
+                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition-colors hover:bg-white/10 hover:text-white group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
+                  href="/categoria/sacos-e-sacolas"
                 >
                   <span>Sacos &amp; Sacolas</span>
                   <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
                 </Link>
-              </div>
-
-              {/* Mega Menu: Limpeza Profissional (Estilo Magalu) */}
-              <div className="group/cat relative shrink-0">
-                <Link
-                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition hover:bg-white/10 hover:text-white group-hover/cat:border group-hover/cat:border-white/40 group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
-                  href="/categoria/limpeza"
-                >
-                  <span>Limpeza Profissional</span>
-                  <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
-                </Link>
-                <div className="invisible absolute top-full right-0 z-50 pt-2 opacity-0 transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
+                <div className="invisible absolute top-full right-0 z-50 pt-1.5 opacity-0 pointer-events-none group-hover/cat:pointer-events-auto transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
                   <CategoryMegaMenu
                     align="right"
-                    config={CATEGORY_MENUS_DATA.limpeza}
+                    config={CATEGORY_MENUS_DATA.sacolas}
                   />
                 </div>
               </div>
 
-              {/* Mais Vendidos */}
+              {/* 6. Ver todos */}
               <Link
-                className="rounded-full px-2 py-0.5 sm:px-2.5 sm:py-1 text-white/95 hover:bg-white/10 hover:text-white transition whitespace-nowrap shrink-0"
+                className="rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap shrink-0"
                 href="/loja"
               >
-                Mais Vendidos
+                Ver todos
               </Link>
             </div>
           </div>
         </div>
-      
-</header>
+      </header>
 
       {/* DRAWER MOBILE OFF-CANVAS PARA CELULAR */}
       {mobileMenuOpen && (
@@ -534,6 +578,24 @@ export function SiteHeader({
 
             {/* Lista de Navegação Mobile */}
             <div className="flex-1 overflow-y-auto p-4 pt-2">
+              {/* Botão de Destaque Categorias | Segmentos no Mobile */}
+              <button
+                className="mb-4 flex w-full cursor-pointer items-center justify-between rounded-xl bg-blue-50/80 border border-blue-100 p-2.5 text-xs font-bold text-[#004CB1] transition hover:bg-blue-100/80 active:scale-98"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setSidebarOpen(true);
+                }}
+                type="button"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="flex size-7 items-center justify-center rounded-lg bg-[#004CB1] text-white">
+                    <Menu className="size-4" />
+                  </div>
+                  <span className="font-extrabold text-[12.5px]">Categorias | Segmentos</span>
+                </div>
+                <ChevronRight className="size-4 text-[#004CB1]" />
+              </button>
+
               <div className="mb-4">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                   Departamentos
@@ -565,6 +627,30 @@ export function SiteHeader({
                   >
                     <Flame className="size-4 text-[#E2091E]" />
                     <span>Ofertas do Dia</span>
+                  </Link>
+                  <Link
+                    className="flex items-center gap-2 py-1.5 text-slate-700"
+                    href="/loja"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <ShoppingBag className="size-4 text-[#004CB1]" />
+                    <span>Mais Vendidos</span>
+                  </Link>
+                  <Link
+                    className="flex items-center gap-2 py-1.5 text-slate-700"
+                    href="/eventos"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Sparkles className="size-4 text-amber-500" />
+                    <span>Eventos &amp; Workshops</span>
+                  </Link>
+                  <Link
+                    className="flex items-center gap-2 py-1.5 text-slate-700"
+                    href="/post"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Sparkles className="size-4 text-[#E2091E]" />
+                    <span>Conteúdos — Explica Aí Nort!</span>
                   </Link>
                   <Link
                     className="flex items-center justify-between py-1.5 text-slate-700"
@@ -604,6 +690,50 @@ export function SiteHeader({
           </div>
         </div>
       )}
+
+      {/* 
+        Botão flutuante para abrir o menu lateral:
+        - Posicionado no canto superior esquerdo (fixed left-3 top-4 md:left-4 md:top-5).
+        - O primeiro slide (hero banner) fica na frente dele (oculto até rolar além dele).
+        - Animação suave deslizando da esquerda para a direita ao entrar.
+        - Tooltip "Ver menu produtos" exibido ao passar o mouse.
+      */}
+      <div
+        className={`fixed left-3 top-4 md:left-4 md:top-5 z-40 transition-all duration-300 ease-out ${
+          showFloatingButton && !sidebarOpen
+            ? "translate-x-0 opacity-100 pointer-events-auto"
+            : "-translate-x-14 opacity-0 pointer-events-none"
+        }`}
+      >
+        <div className="group/floating-toggle relative flex items-center">
+          <button
+            aria-label="Ver menu produtos"
+            className="flex size-9 md:size-10 cursor-pointer items-center justify-center rounded-xl border border-slate-200/90 bg-white text-slate-700 shadow-md transition-all duration-200 hover:border-[#004CB1] hover:bg-slate-50 hover:text-[#004CB1] hover:shadow-lg active:scale-95"
+            onClick={() => setSidebarOpen(true)}
+            type="button"
+          >
+            <PanelLeft className="size-5 stroke-[1.8]" />
+          </button>
+
+          {/* Tooltip shadcn style: "Ver menu produtos" com indicador visual */}
+          <div
+            role="tooltip"
+            className="pointer-events-none absolute left-full top-1/2 ml-2.5 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-2.5 py-1 text-xs font-semibold text-white shadow-xl opacity-0 scale-95 transition-all duration-150 group-hover/floating-toggle:opacity-100 group-hover/floating-toggle:scale-100 z-50"
+          >
+            Ver menu produtos
+            <div className="absolute right-full top-1/2 -translate-y-1/2 border-[4px] border-transparent border-r-slate-900" />
+          </div>
+        </div>
+      </div>
+
+      {/* Sidebar Drawer Lateral de Categorias, Segmentos e Tags */}
+      <CategorySidebarDrawer
+        categories={categories}
+        onClose={() => setSidebarOpen(false)}
+        open={sidebarOpen}
+        segments={segments}
+        tags={tags}
+      />
     </>
   );
 }

@@ -3,6 +3,7 @@ import { DatabaseModule } from './modules/database/database.module';
 import { HealthController } from './modules/health/health.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
+import { ContentModule } from './modules/content/content.module';
 import { CartsModule } from './modules/carts/carts.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { ShippingModule } from './modules/shipping/shipping.module';
@@ -22,7 +23,29 @@ import { AccountModule } from './modules/account/account.module';
 import { QuotesModule } from './modules/quotes/quotes.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, CatalogModule, CartsModule, InventoryModule, ShippingModule, OrdersModule, PaymentsModule, JobsModule, CheckoutModule, TrainingsModule, AuditModule, CustomersModule, ReportsModule, PromotionsModule, SettingsModule, AccountModule, QuotesModule, PublicShellModule, SecurityModule],
+  imports: [
+    DatabaseModule,
+    AuthModule,
+    CatalogModule,
+    ContentModule,
+    CartsModule,
+    InventoryModule,
+    ShippingModule,
+    OrdersModule,
+    PaymentsModule,
+    JobsModule,
+    CheckoutModule,
+    TrainingsModule,
+    AuditModule,
+    CustomersModule,
+    ReportsModule,
+    PromotionsModule,
+    SettingsModule,
+    AccountModule,
+    QuotesModule,
+    PublicShellModule,
+    SecurityModule,
+  ],
   controllers: [HealthController],
 })
 export class AppModule {}

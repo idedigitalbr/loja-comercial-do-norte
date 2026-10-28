@@ -13,11 +13,18 @@ import { CustomersPage } from './features/customers/customers-page';
 import { PromotionsPage } from './features/promotions/promotions-page';
 import { SettingsPage } from './features/settings/settings-page';
 import { HomeBannersPage } from './features/settings/home-banners-page';
+import { PostListPage } from './features/content/post-list-page';
+import { PostEditorPage } from './features/content/post-editor-page';
+import { PostCategoriesPage } from './features/content/post-categories-page';
+import { EventListPage } from './features/content/event-list-page';
+import { EventEditorPage } from './features/content/event-editor-page';
 
 export type AdminSection =
   | 'overview'
   | 'home-banners'
   | 'catalog'
+  | 'posts'
+  | 'events'
   | 'quotes'
   | 'orders'
   | 'inventory'
@@ -36,6 +43,8 @@ const navigation: NavigationItem[] = [
   { id: 'overview', label: 'Visão geral', description: 'Resumo da operação', icon: 'layout-dashboard' },
   { id: 'home-banners', label: 'Editar Páginas e Banners', description: 'Editor visual da vitrine e seções', icon: 'image' },
   { id: 'catalog', label: 'Produtos', description: 'Produtos e marcas', icon: 'shopping-bag' },
+  { id: 'posts', label: 'Posts', description: 'Artigos e dicas Explica Aí Nort', icon: 'file-text' },
+  { id: 'events', label: 'Eventos', description: 'Workshops e acontecimentos', icon: 'calendar' },
   { id: 'quotes', label: 'Cotações', description: 'Solicitações da loja', icon: 'clipboard-list' },
   { id: 'orders', label: 'Pedidos', description: 'Venda e atendimento', icon: 'clipboard-list' },
   { id: 'inventory', label: 'Estoque', description: 'Saldos e ajustes', icon: 'warehouse' },
@@ -49,6 +58,8 @@ const adminSectionRoutes: Record<AdminSection, string> = {
   overview: '/admin/',
   'home-banners': '/admin/banners-home',
   catalog: '/admin/catalogo/produtos',
+  posts: '/admin/posts',
+  events: '/admin/eventos',
   quotes: '/admin/cotacoes',
   orders: '/admin/orders',
   inventory: '/admin/inventory',
@@ -185,6 +196,28 @@ function OverviewPage() {
   );
 }
 
+
+type PostRoute = { mode: 'new' | 'edit'; id?: string } | null;
+type EventRoute = { mode: 'new' | 'edit'; id?: string } | null;
+type PostsSubPage = 'posts' | 'categories';
+
+function readPostRoute(pathname = window.location.pathname): PostRoute {
+  if (/^\/admin\/posts\/novo\/?$/.test(pathname)) return { mode: 'new' };
+  const match = pathname.match(/^\/admin\/posts\/([^/]+)\/editar\/?$/);
+  return match ? { mode: 'edit', id: decodeURIComponent(match[1]) } : null;
+}
+
+function readEventRoute(pathname = window.location.pathname): EventRoute {
+  if (/^\/admin\/eventos\/novo\/?$/.test(pathname)) return { mode: 'new' };
+  const match = pathname.match(/^\/admin\/eventos\/([^/]+)\/editar\/?$/);
+  return match ? { mode: 'edit', id: decodeURIComponent(match[1]) } : null;
+}
+
+function readPostSubPage(pathname = window.location.pathname): PostsSubPage {
+  if (/^\/admin\/posts\/categorias\/?$/.test(pathname)) return 'categories';
+  return 'posts';
+}
+
 type ProductRoute = { mode: 'new' | 'edit'; id?: string } | null;
 type BrandRoute = { mode: 'new' | 'edit'; id?: string; parentId?: string } | null;
 
@@ -221,6 +254,10 @@ export function getInitialAdminSection(pathname = window.location.pathname): Adm
   if (isPromotionsRoute(pathname)) return 'promotions';
   if (readProductRoute(pathname) || readBrandRoute(pathname) || /^\/admin\/catalogo(\/.*)?$/.test(pathname))
     return 'catalog';
+  if (readPostRoute(pathname) || /^\/admin\/posts(\/.*)?$/.test(pathname))
+    return 'posts';
+  if (readEventRoute(pathname) || /^\/admin\/eventos(\/.*)?$/.test(pathname))
+    return 'events';
   const normalizedPath = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
   const section = Object.entries(adminSectionRoutes).find(([, route]) => {
     const normalizedRoute = route.length > 1 ? route.replace(/\/+$/, '') : route;
@@ -268,6 +305,9 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
   const [catalogSubPage, setCatalogSubPage] = useState<CatalogSubPage>(() => readCatalogSubPage());
   const [productRoute, setProductRoute] = useState<ProductRoute>(() => readProductRoute());
   const [brandRoute, setBrandRoute] = useState<BrandRoute>(() => readBrandRoute());
+  const [postRoute, setPostRoute] = useState<PostRoute>(() => readPostRoute());
+  const [eventRoute, setEventRoute] = useState<EventRoute>(() => readEventRoute());
+  const [postSubPage, setPostSubPage] = useState<PostsSubPage>(() => readPostSubPage());
 
   useEffect(() => {
     const handlePopState = () => {
@@ -275,16 +315,26 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
       const nextProductRoute = readProductRoute();
       const nextBrandRoute = readBrandRoute();
       const nextCatalogSubPage = readCatalogSubPage();
+      const nextPostRoute = readPostRoute();
+      const nextEventRoute = readEventRoute();
+      const nextPostSubPage = readPostSubPage();
       setHomeBannersRoute(nextHomeBannersRoute);
       setProductRoute(nextProductRoute);
       setBrandRoute(nextBrandRoute);
       setCatalogSubPage(nextCatalogSubPage);
+      setPostRoute(nextPostRoute);
+      setEventRoute(nextEventRoute);
+      setPostSubPage(nextPostSubPage);
       setSection(
         nextHomeBannersRoute
           ? 'home-banners'
           : nextProductRoute || nextBrandRoute || /^\/admin\/catalogo(\/.*)?$/.test(window.location.pathname)
             ? 'catalog'
-            : getInitialAdminSection()
+            : nextPostRoute || /^\/admin\/posts(\/.*)?$/.test(window.location.pathname)
+              ? 'posts'
+              : nextEventRoute || /^\/admin\/eventos(\/.*)?$/.test(window.location.pathname)
+                ? 'events'
+                : getInitialAdminSection()
       );
     };
     window.addEventListener('popstate', handlePopState);
@@ -298,16 +348,26 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
     const nextProductRoute = readProductRoute(target.pathname);
     const nextBrandRoute = readBrandRoute(target.pathname, target.search);
     const nextCatalogSubPage = readCatalogSubPage(target.pathname);
+    const nextPostRoute = readPostRoute(target.pathname);
+    const nextEventRoute = readEventRoute(target.pathname);
+    const nextPostSubPage = readPostSubPage(target.pathname);
     setHomeBannersRoute(nextHomeBannersRoute);
     setProductRoute(nextProductRoute);
     setBrandRoute(nextBrandRoute);
     setCatalogSubPage(nextCatalogSubPage);
+    setPostRoute(nextPostRoute);
+    setEventRoute(nextEventRoute);
+    setPostSubPage(nextPostSubPage);
     setSection(
       nextHomeBannersRoute
         ? 'home-banners'
         : nextProductRoute || nextBrandRoute || /^\/admin\/catalogo(\/.*)?$/.test(target.pathname)
           ? 'catalog'
-          : getInitialAdminSection(target.pathname)
+          : nextPostRoute || /^\/admin\/posts(\/.*)?$/.test(target.pathname)
+            ? 'posts'
+            : nextEventRoute || /^\/admin\/eventos(\/.*)?$/.test(target.pathname)
+              ? 'events'
+              : getInitialAdminSection(target.pathname)
     );
   }
 
@@ -344,6 +404,57 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
                   </span>
                 </button>
 
+
+                {/* Submenu de Posts (WordPress style) */}
+                {item.id === 'posts' && isItemActive && (
+                  <div className="admin-subnav" role="menu" aria-label="Submenu de Posts">
+                    <button
+                      className={`admin-subnav__item ${
+                        postSubPage === 'posts' && !postRoute ? 'is-active' : ''
+                      }`}
+                      type="button"
+                      onClick={() => navigate('/admin/posts')}
+                    >
+                      Todos
+                    </button>
+                    <button
+                      className={`admin-subnav__item ${postRoute?.mode === 'new' ? 'is-active' : ''}`}
+                      type="button"
+                      onClick={() => navigate('/admin/posts/novo')}
+                    >
+                      Adicionar Novo
+                    </button>
+                    <button
+                      className={`admin-subnav__item ${
+                        postSubPage === 'categories' && !postRoute ? 'is-active' : ''
+                      }`}
+                      type="button"
+                      onClick={() => navigate('/admin/posts/categorias')}
+                    >
+                      Categorias
+                    </button>
+                  </div>
+                )}
+
+                {/* Submenu de Eventos (WordPress style) */}
+                {item.id === 'events' && isItemActive && (
+                  <div className="admin-subnav" role="menu" aria-label="Submenu de Eventos">
+                    <button
+                      className={`admin-subnav__item ${!eventRoute ? 'is-active' : ''}`}
+                      type="button"
+                      onClick={() => navigate('/admin/eventos')}
+                    >
+                      Todos
+                    </button>
+                    <button
+                      className={`admin-subnav__item ${eventRoute?.mode === 'new' ? 'is-active' : ''}`}
+                      type="button"
+                      onClick={() => navigate('/admin/eventos/novo')}
+                    >
+                      Adicionar Novo
+                    </button>
+                  </div>
+                )}
                 {/* Submenu de Produtos (Anexo 2 do WordPress) */}
                 {item.id === 'catalog' && isItemActive && (
                   <div className="admin-subnav" role="menu" aria-label="Submenu de Produtos">
@@ -429,6 +540,34 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
             productId={productRoute.mode === 'edit' ? productRoute.id : undefined}
             onBack={() => navigate('/admin/catalogo/produtos')}
             onOpenProduct={(id) => navigate(`/admin/catalogo/produtos/${encodeURIComponent(id)}/editar`)}
+          />
+        ) : postRoute ? (
+          <PostEditorPage
+            postId={postRoute.mode === 'edit' ? postRoute.id : undefined}
+            onBack={() => navigate('/admin/posts')}
+            onSaved={() => navigate('/admin/posts')}
+          />
+        ) : eventRoute ? (
+          <EventEditorPage
+            eventId={eventRoute.mode === 'edit' ? eventRoute.id : undefined}
+            onBack={() => navigate('/admin/eventos')}
+            onSaved={() => navigate('/admin/eventos')}
+          />
+        ) : section === 'posts' ? (
+          postSubPage === 'categories' ? (
+            <PostCategoriesPage onBack={() => navigate('/admin/posts')} />
+          ) : (
+            <PostListPage
+              onCreate={() => navigate('/admin/posts/novo')}
+              onEdit={(id) => navigate(`/admin/posts/${encodeURIComponent(id)}/editar`)}
+              onManageCategories={() => navigate('/admin/posts/categorias')}
+              onNavigate={(path) => navigate(path)}
+            />
+          )
+        ) : section === 'events' ? (
+          <EventListPage
+            onCreate={() => navigate('/admin/eventos/novo')}
+            onEdit={(id) => navigate(`/admin/eventos/${encodeURIComponent(id)}/editar`)}
           />
         ) : homeBannersRoute ? (
           <HomeBannersPage />

@@ -1,10 +1,14 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
 import React from 'react';
 import { EventsCarouselWidget } from './events-carousel';
+
+afterEach(() => {
+  cleanup();
+});
 
 // Mock Elementor Context
 vi.mock('@/components/storefront/editor/elementor-editor-context', () => ({
@@ -56,5 +60,22 @@ describe('EventsCarouselWidget', () => {
 
     expect(screen.getByText('Nossos Eventos')).toBeDefined();
     expect(screen.getByText('Tudo que acontece no Comercial do Norte')).toBeDefined();
+    expect(screen.getByText('Ver todos')).toBeDefined();
+    const ctaLink = screen.getByRole('link', { name: /ver todos/i });
+    expect(ctaLink.getAttribute('href')).toBe('/loja');
+  });
+
+  it('renderiza o texto padrão "Ver todos os eventos" e fallback para "/eventos"', () => {
+    render(
+      <EventsCarouselWidget
+        items={mockItems}
+        subtitle="Tudo que acontece no Comercial do Norte"
+        title="Nossos Eventos"
+      />
+    );
+
+    expect(screen.getByText('Ver todos os eventos')).toBeDefined();
+    const ctaLink = screen.getByRole('link', { name: /ver todos os eventos/i });
+    expect(ctaLink.getAttribute('href')).toBe('/eventos');
   });
 });

@@ -74,5 +74,6 @@ describe('AuthFlowCard', () => {
 
     fireEvent.click(captchaButton);
     expect(screen.getByText('Verificando segurança…')).toBeTruthy();
+    await new Promise((resolve) => setTimeout(resolve, 500));
   });
 });

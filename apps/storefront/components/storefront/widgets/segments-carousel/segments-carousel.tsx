@@ -43,12 +43,65 @@ function SegmentIcon({ type }: { type: SegmentCardItem['iconType'] }) {
   }
 }
 
+const SEGMENT_SLUG_MAP: Record<string, string> = {
+  lanchonete: 'lanchonete',
+  burger: 'lanchonete',
+  hamburguer: 'lanchonete',
+  pizzaria: 'pizzaria',
+  pizza: 'pizzaria',
+  padaria: 'padaria',
+  bakery: 'padaria',
+  festa: 'loja-de-festas',
+  festas: 'loja-de-festas',
+  'loja-de-festas': 'loja-de-festas',
+  buffet: 'restaurante-buffet',
+  restaurante: 'restaurante-buffet',
+  'restaurante-buffet': 'restaurante-buffet',
+  confeitaria: 'confeitaria-bolos',
+  'confeitaria-bolos': 'confeitaria-bolos',
+  bolo: 'confeitaria-bolos',
+  doces: 'confeitaria-bolos',
+  acai: 'sorveteria-acai',
+  açaí: 'sorveteria-acai',
+  sorveteria: 'sorveteria-acai',
+  'sorveteria-acai': 'sorveteria-acai',
+  bar: 'bar-distribuidora',
+  distribuidora: 'bar-distribuidora',
+  'bar-distribuidora': 'bar-distribuidora',
+};
+
+export function resolveSegmentUrl(item: { id?: string; title?: string; linkUrl?: string }): string {
+  if (item.linkUrl && item.linkUrl.startsWith('/segmento/')) {
+    return item.linkUrl;
+  }
+  const cleanId = (item.id || '').replace(/^seg[-_]/, '').toLowerCase();
+  if (cleanId && SEGMENT_SLUG_MAP[cleanId]) {
+    return `/segmento/${SEGMENT_SLUG_MAP[cleanId]}`;
+  }
+  if (item.linkUrl) {
+    const qMatch = item.linkUrl.match(/[?&](?:q|segmento)=([^&#]+)/);
+    if (qMatch && qMatch[1]) {
+      const qVal = decodeURIComponent(qMatch[1]).toLowerCase();
+      if (SEGMENT_SLUG_MAP[qVal]) {
+        return `/segmento/${SEGMENT_SLUG_MAP[qVal]}`;
+      }
+    }
+  }
+  const cleanTitle = (item.title || '').toLowerCase();
+  for (const [key, slug] of Object.entries(SEGMENT_SLUG_MAP)) {
+    if (cleanTitle.includes(key)) {
+      return `/segmento/${slug}`;
+    }
+  }
+  return item.linkUrl || '/segmentos';
+}
+
 export function SegmentsCarouselWidget({
   widgetId,
   title = 'Tudo para todos os negócios',
   subtitle = 'Para todos os tamanhos!',
   ctaLabel = 'Ver todos os segmentos',
-  ctaUrl = '/loja',
+  ctaUrl = '/segmentos',
   items = [],
 }: SegmentsCarouselProps) {
   const { isEditing, previewMode } = useElementor();
@@ -67,7 +120,7 @@ export function SegmentsCarouselWidget({
   const safeCurrentPage = Math.min(currentPage, Math.max(0, totalPages - 1));
 
   return (
-    <section aria-label={title} className="cn-container py-4 sm:py-6">
+    <section aria-label={title} className="cn-container pt-4 pb-2 sm:pt-6 sm:pb-3">
       <div className="relative bg-transparent">
         {/* Topo Azul Escuro: onde era azul permanece azul com gradiente oficial */}
         <div className="relative rounded-[24px] bg-gradient-to-r from-[#002868] via-[#003E99] to-[#002B66] px-6 pb-36 pt-7 shadow-md sm:px-10 sm:pt-9">
@@ -106,6 +159,7 @@ export function SegmentsCarouselWidget({
                 >
                   {pageItems.map((item, idx) => {
                     const globalIdx = pIdx * itemsPerPage + idx;
+                    const targetUrl = resolveSegmentUrl(item);
                     return (
                       <div
                         className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-md transition duration-200 hover:-translate-y-1 hover:shadow-xl"
@@ -115,7 +169,7 @@ export function SegmentsCarouselWidget({
                         <div className="group/img relative aspect-[1.05/1] w-full overflow-hidden bg-slate-100">
                           <Link
                             className="block size-full"
-                            href={item.linkUrl || '/loja'}
+                            href={targetUrl}
                             onClick={(e) => {
                               if (isEditing && !previewMode) e.preventDefault();
                             }}
@@ -138,7 +192,7 @@ export function SegmentsCarouselWidget({
                             <InlineImageEditorOverlay
                               canAdd={false}
                               canRemove={false}
-                              currentLinkUrl={item.linkUrl}
+                              currentLinkUrl={targetUrl}
                               fieldPath={`items.${globalIdx}.imageUrl`}
                               linkFieldPath={`items.${globalIdx}.linkUrl`}
                               previewUrl={item.imageUrl}
@@ -150,23 +204,29 @@ export function SegmentsCarouselWidget({
                         </div>
 
                         {/* Conteúdo do Card */}
-                        <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
+                        <Link
+                          className="flex flex-1 flex-col px-5 pb-5 pt-4 transition hover:bg-slate-50/60"
+                          href={targetUrl}
+                          onClick={(e) => {
+                            if (isEditing && !previewMode) e.preventDefault();
+                          }}
+                        >
                           <div className="flex items-center gap-3">
-                            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#E2091E] shadow-md">
+                            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#E2091E] shadow-md transition group-hover:scale-105">
                               <SegmentIcon type={item.iconType} />
                             </div>
                             <div>
                               <span className="block text-[11px] font-medium text-slate-400">
                                 {item.prefix}
                               </span>
-                              <h3 className="text-xl font-bold leading-tight tracking-tight text-[#002868]">
+                              <h3 className="text-xl font-bold leading-tight tracking-tight text-[#002868] transition group-hover:text-[#004CB1]">
                                 {item.title}
                               </h3>
                             </div>
                           </div>
                           <div className="my-3 h-[3px] w-12 rounded-full bg-[#E2091E]" />
                           <p className="text-xs leading-relaxed text-slate-600">{item.description}</p>
-                        </div>
+                        </Link>
                       </div>
                     );
                   })}
@@ -195,7 +255,7 @@ export function SegmentsCarouselWidget({
                 <ChevronRight className="size-5" />
               </button>
 
-              <div className="mt-6 flex justify-center">
+              <div className="mt-4 flex justify-center">
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-[#101F3C] px-3 py-1.5 shadow-sm">
                   {Array.from({ length: totalPages }).map((_, dot) => (
                     <button

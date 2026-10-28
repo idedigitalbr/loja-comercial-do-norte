@@ -1,4 +1,4 @@
-import type { ApiBrand, ApiCategory, ApiProduct, PublicQuote, SiteConfig } from './types';
+import type { ApiBrand, ApiCategory, ApiProduct, ApiSegment, ApiTag, PublicQuote, SiteConfig } from './types';
 
 /**
  * URL da API NestJS (fonte única de regra de negócio). O storefront só consome
@@ -155,7 +155,7 @@ export async function getQuote(publicId: string): Promise<PublicQuote | null> {
   }
 }
 
-export type ApiSegment = { id: string; name: string; slug: string; description?: string | null; imagePath?: string | null };
+export type { ApiSegment, ApiTag };
 export async function getSegments(): Promise<ApiSegment[]> {
   return safeJson<ApiSegment[]>('/catalog/segments', [], {
     revalidate: REVALIDATE_WINDOWS.TAXONOMY,
@@ -163,10 +163,106 @@ export async function getSegments(): Promise<ApiSegment[]> {
   });
 }
 
-export type ApiTag = { id: string; name: string; slug: string };
 export async function getTags(): Promise<ApiTag[]> {
   return safeJson<ApiTag[]>('/catalog/tags', [], {
     revalidate: REVALIDATE_WINDOWS.TAXONOMY,
     tags: [CACHE_TAGS.CATEGORIES],
   });
+}
+
+
+export type ApiPostCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  _count?: { posts: number };
+};
+
+export type ApiPost = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string | null;
+  content: string;
+  coverUrl?: string | null;
+  videoUrl?: string | null;
+  videoDuration?: string | null;
+  authorName?: string | null;
+  badges: string[];
+  status: string;
+  publishedAt: string;
+  views: number;
+  category?: { id: string; name: string; slug: string; description?: string | null } | null;
+};
+
+export type ApiPostsResponse = {
+  items: ApiPost[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
+
+export type ApiEvent = {
+  id: string;
+  title: string;
+  slug: string;
+  subtitle?: string | null;
+  description: string;
+  posterUrl?: string | null;
+  eventDate?: string | null;
+  eventDateText?: string | null;
+  eventTime?: string | null;
+  location?: string | null;
+  locationAddress?: string | null;
+  instructor?: string | null;
+  badge?: string | null;
+  ctaLabel?: string | null;
+  ctaUrl?: string | null;
+  status: string;
+  sortOrder: number;
+};
+
+export async function getPosts(params?: { search?: string; category?: string; page?: number; pageSize?: number }): Promise<ApiPostsResponse> {
+  const query = new URLSearchParams();
+  if (params?.search) query.set('search', params.search);
+  if (params?.category) query.set('category', params.category);
+  if (params?.page) query.set('page', String(params.page));
+  if (params?.pageSize) query.set('pageSize', String(params.pageSize));
+  const queryString = query.toString();
+  return safeJson<ApiPostsResponse>(`/posts${queryString ? `?${queryString}` : ''}`, {
+    items: [],
+    total: 0,
+    page: 1,
+    pageSize: 12,
+    totalPages: 1,
+  });
+}
+
+export async function getPostBySlug(slug: string): Promise<ApiPost | null> {
+  try {
+    return await getJson<ApiPost>(`/posts/${encodeURIComponent(slug)}`);
+  } catch {
+    return null;
+  }
+}
+
+export async function getPostCategories(): Promise<ApiPostCategory[]> {
+  return safeJson<ApiPostCategory[]>('/posts/categories', []);
+}
+
+export async function getEvents(params?: { search?: string }): Promise<ApiEvent[]> {
+  const query = new URLSearchParams();
+  if (params?.search) query.set('search', params.search);
+  const queryString = query.toString();
+  return safeJson<ApiEvent[]>(`/events${queryString ? `?${queryString}` : ''}`, []);
+}
+
+export async function getEventBySlug(slug: string): Promise<ApiEvent | null> {
+  try {
+    return await getJson<ApiEvent>(`/events/${encodeURIComponent(slug)}`);
+  } catch {
+    return null;
+  }
 }

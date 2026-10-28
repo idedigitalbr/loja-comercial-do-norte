@@ -1219,3 +1219,76 @@ model QuoteEvent {
 
   @@index([quoteId, createdAt])
 }
+
+/// Categorias de posts do CMS (WordPress-style)
+model PostCategory {
+  id           String       @id @default(cuid())
+  publicId     String       @unique @default(cuid())
+  legacySource String?      @db.VarChar(80)
+  legacyId     String?      @db.VarChar(191)
+  name         String       @unique @db.VarChar(160)
+  slug         String       @unique @db.VarChar(191)
+  description  String?      @db.Text
+  status       RecordStatus @default(ACTIVE)
+  sortOrder    Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  posts        Post[]
+
+  @@index([status, sortOrder])
+}
+
+/// Posts de artigos e tutoriais (Explica Ai Nort!)
+model Post {
+  id            String        @id @default(cuid())
+  publicId      String        @unique @default(cuid())
+  legacySource  String?       @db.VarChar(80)
+  legacyId      String?       @db.VarChar(191)
+  title         String        @db.VarChar(255)
+  slug          String        @unique @db.VarChar(191)
+  excerpt       String?       @db.Text
+  content       String        @db.Text
+  coverUrl      String?       @db.VarChar(500)
+  videoUrl      String?       @db.VarChar(500)
+  videoDuration String?       @db.VarChar(50)
+  authorName    String?       @db.VarChar(160)
+  badges        String[]      @default([])
+  status        RecordStatus  @default(ACTIVE)
+  categoryId    String?
+  category      PostCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  publishedAt   DateTime      @default(now())
+  views         Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([categoryId])
+}
+
+/// Eventos, workshops, reinauguracoes e feiras
+model Event {
+  id              String       @id @default(cuid())
+  publicId        String       @unique @default(cuid())
+  legacySource    String?      @db.VarChar(80)
+  legacyId        String?      @db.VarChar(191)
+  title           String       @db.VarChar(255)
+  slug            String       @unique @db.VarChar(191)
+  subtitle        String?      @db.VarChar(255)
+  description     String       @db.Text
+  posterUrl       String?      @db.VarChar(500)
+  eventDate       DateTime?
+  eventDateText   String?      @db.VarChar(100)
+  eventTime       String?      @db.VarChar(100)
+  location        String?      @db.VarChar(255)
+  locationAddress String?      @db.VarChar(255)
+  instructor      String?      @db.VarChar(160)
+  badge           String?      @db.VarChar(80)
+  ctaLabel        String?      @db.VarChar(80)
+  ctaUrl          String?      @db.VarChar(500)
+  status          RecordStatus @default(ACTIVE)
+  sortOrder       Int          @default(0)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([status, sortOrder])
+}

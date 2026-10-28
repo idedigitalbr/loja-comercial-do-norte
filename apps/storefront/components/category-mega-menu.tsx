@@ -205,6 +205,42 @@ export const CATEGORY_MENUS_DATA: Record<string, CategoryMenuConfig> = {
       ctaHref: '/categoria/limpeza',
     },
   },
+  sacolas: {
+    id: 'sacos-e-sacolas',
+    name: 'Sacos & Sacolas',
+    allLabel: 'Tudo de Sacos & Sacolas',
+    allHref: '/categoria/sacos-e-sacolas',
+    columns: [
+      [
+        { name: 'Sacolas Plásticas Reforçadas (Fardos)', href: '/loja?q=sacola', badge: 'LÍDER' },
+        { name: 'Sacolas Kraft com Alça Torcida', href: '/loja?q=kraft', badge: 'ECO' },
+        { name: 'Sacolas Kraft Delivery Fundo Largo', href: '/loja?q=kraft' },
+        { name: 'Sacolas Alça Camiseta (P, M, G, GG)', href: '/loja?q=sacola' },
+        { name: 'Sacolas Alça Vazada / Boca de Palhaço', href: '/loja?q=sacola' },
+        { name: 'Sacolas Transparentes de Alta Densidade', href: '/loja?q=sacola' },
+        { name: 'Sacolas Coloridas para Lojas e Boutiques', href: '/loja?q=sacola' },
+        { name: 'Sacolas Térmicas para Congelados', href: '/loja?q=termica' },
+      ],
+      [
+        { name: 'Bobinas Plásticas Picotadas Fundo Estrela', href: '/loja?q=bobina', badge: 'ATACADO' },
+        { name: 'Sacos Plásticos Transparentes PP / PE', href: '/loja?q=saco' },
+        { name: 'Sacos com Fecho Zip / Hermético', href: '/loja?q=zip' },
+        { name: 'Sacos de Papel Kraft para Pão & Lanches', href: '/loja?q=saco-papel' },
+        { name: 'Sacos de Lixo Reforçados 50L a 200L', href: '/loja?q=lixo' },
+        { name: 'Sacos a Vácuo para Alimentos', href: '/loja?q=vacuo' },
+        { name: 'Seladoras de Sacos Manuais e Pedal', href: '/loja?q=seladora' },
+        { name: '+ Todas as Opções de Sacos & Sacolas', href: '/categoria/sacos-e-sacolas' },
+      ],
+    ],
+    banner: {
+      tag: 'SACOS & SACOLAS',
+      title: 'Sacolas Plásticas e Kraft no Atacado e Varejo',
+      description: 'Variedade em tamanhos, espessuras reforçadas e fardos promocionais para seu comércio.',
+      imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-sacolas.jpg',
+      ctaLabel: 'Explorar Sacos & Sacolas',
+      ctaHref: '/categoria/sacos-e-sacolas',
+    },
+  },
 };
 
 type CategoryMegaMenuProps = {

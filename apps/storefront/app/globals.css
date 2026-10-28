@@ -91,6 +91,25 @@ body {
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
+/* Barra de rolagem minimalista e elegante para o menu lateral */
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 9999px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.75);
+}
+.sidebar-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+}
+
 /* Classe utilitária única para o container do site */
 .cn-container {
   width: 100%;

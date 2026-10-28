@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useElementor } from '@/components/storefront/editor/elementor-editor-context';
 import { InlineImageEditorOverlay } from '@/components/storefront/editor/inline-image-editor-overlay';
 import type { EventsCarouselProps } from '@/lib/storefront/widget-types';
@@ -12,12 +12,17 @@ export function EventsCarouselWidget({
   widgetId,
   title = 'Nossos Eventos',
   subtitle = 'Tudo que acontece no Comercial do Norte',
+  ctaLabel = 'Ver todos os eventos',
+  ctaUrl = '/eventos',
   items = [],
 }: EventsCarouselProps) {
   const { isEditing, previewMode } = useElementor();
   const [currentPage, setCurrentPage] = useState(0);
 
   if (!items || items.length === 0) return null;
+
+  const resolvedCtaLabel = ctaLabel?.trim() ? ctaLabel : 'Ver todos os eventos';
+  const resolvedCtaUrl = ctaUrl && ctaUrl.trim() !== '' ? ctaUrl : '/eventos';
 
   const itemsPerPage = 4;
   const totalPages = Math.ceil(items.length / itemsPerPage);
@@ -33,15 +38,28 @@ export function EventsCarouselWidget({
     <section aria-label={title} className="w-full py-3 sm:py-5">
       <div className="w-full overflow-hidden rounded-[24px] sm:rounded-[36px] md:rounded-[44px] bg-[#060709] bg-[linear-gradient(to_right,#ffffff06_1px,transparent_1px),linear-gradient(to_bottom,#ffffff06_1px,transparent_1px)] bg-[size:36px_36px] py-10 sm:py-14 shadow-xl border-y border-white/10">
         <div className="cn-container">
-          {/* Header escuro com barra vermelha à esquerda */}
-          <div className="mb-8">
-            <p className="text-lg font-medium text-slate-300 sm:text-xl">
-              {title}
-            </p>
-            <h2 className="mt-0.5 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
-              {subtitle}
-            </h2>
-            <div className="mt-2.5 h-1 w-28 rounded-full bg-[#E2091E]" />
+          {/* Header escuro com barra vermelha à esquerda e botão Ver todos na lateral direita */}
+          <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-lg font-medium text-slate-300 sm:text-xl">
+                {title}
+              </p>
+              <h2 className="mt-0.5 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+                {subtitle}
+              </h2>
+              <div className="mt-2.5 h-1 w-28 rounded-full bg-[#E2091E]" />
+            </div>
+
+            <Link
+              className="inline-flex items-center gap-2 self-start rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold text-white shadow-sm backdrop-blur-xs transition hover:border-white/40 hover:bg-white/20 active:scale-95 sm:self-auto"
+              href={resolvedCtaUrl}
+              onClick={(e) => {
+                if (isEditing && !previewMode) e.preventDefault();
+              }}
+            >
+              <span>{resolvedCtaLabel}</span>
+              <ArrowRight className="size-4" />
+            </Link>
           </div>
 
           {/* Carrossel de 4 Cartazes Verticais por página */}
@@ -58,31 +76,51 @@ export function EventsCarouselWidget({
                   >
                     {pageItems.map((item, idx) => {
                       const globalIdx = pIdx * itemsPerPage + idx;
+                      const hasLink = Boolean(
+                        item.linkUrl &&
+                        item.linkUrl.trim() !== '' &&
+                        item.linkUrl !== '#'
+                      );
+
+                      const imageElement = (
+                        <Image
+                          alt={item.title}
+                          className={`size-full object-cover transition duration-500 ${
+                            isEditing && !previewMode
+                              ? 'group-hover/img:brightness-50 group-hover/img:grayscale'
+                              : hasLink
+                                ? 'group-hover/img:scale-[1.02]'
+                                : ''
+                          }`}
+                          height={1025}
+                          src={item.imageUrl}
+                          unoptimized
+                          width={578}
+                        />
+                      );
+
                       return (
                         <div
-                          className="group/img relative aspect-[9/16] w-full overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 shadow-2xl transition duration-300 hover:-translate-y-1"
+                          className={`group/img relative aspect-[9/16] w-full overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 shadow-2xl transition duration-300 ${
+                            hasLink ? 'hover:-translate-y-1 cursor-pointer' : 'cursor-default'
+                          }`}
                           key={item.id || globalIdx}
                         >
-                          <Link
-                            className="block size-full"
-                            href={item.linkUrl || '/loja'}
-                            onClick={(e) => {
-                              if (isEditing && !previewMode) e.preventDefault();
-                            }}
-                          >
-                            <Image
-                              alt={item.title}
-                              className={`size-full object-cover transition duration-500 ${
-                                isEditing && !previewMode
-                                  ? 'group-hover/img:brightness-50 group-hover/img:grayscale'
-                                  : 'group-hover/img:scale-[1.02]'
-                              }`}
-                              height={1025}
-                              src={item.imageUrl}
-                              unoptimized
-                              width={578}
-                            />
-                          </Link>
+                          {hasLink ? (
+                            <Link
+                              className="block size-full"
+                              href={item.linkUrl!}
+                              onClick={(e) => {
+                                if (isEditing && !previewMode) e.preventDefault();
+                              }}
+                            >
+                              {imageElement}
+                            </Link>
+                          ) : (
+                            <div className="block size-full select-none cursor-default">
+                              {imageElement}
+                            </div>
+                          )}
 
                           {widgetId ? (
                             <InlineImageEditorOverlay

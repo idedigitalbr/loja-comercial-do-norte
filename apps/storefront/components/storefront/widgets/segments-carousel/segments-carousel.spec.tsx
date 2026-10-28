@@ -18,39 +18,39 @@ afterEach(cleanup);
 
 const mockItems: SegmentCardItem[] = [
   {
-    id: 'seg-1',
+    id: 'seg-buffet',
     prefix: 'Para seu',
     title: 'Restaurante & Buffet',
     description: 'Marmitas térmicas, travessas de alumínio e talheres descartáveis.',
     imageUrl: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-05-buffet.jpg',
-    linkUrl: '/loja?segmento=restaurante',
+    linkUrl: '/segmento/restaurante-buffet',
     iconType: 'buffet',
   },
   {
-    id: 'seg-2',
+    id: 'seg-confeitaria',
     prefix: 'Para sua',
     title: 'Confeitaria & Bolos',
     description: 'Bases para bolos, caixas vitrine, forminhas para doces.',
     imageUrl: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-06-confeitaria.jpg',
-    linkUrl: '/loja?segmento=confeitaria',
+    linkUrl: '/segmento/confeitaria-bolos',
     iconType: 'confectionery',
   },
   {
-    id: 'seg-3',
+    id: 'seg-sorveteria',
     prefix: 'Para sua',
     title: 'Sorveteria & Açaí',
     description: 'Potes térmicos, copos transparentes com tampa bolha.',
     imageUrl: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-07-acai.jpg',
-    linkUrl: '/loja?segmento=sorveteria',
+    linkUrl: '/segmento/sorveteria-acai',
     iconType: 'icecream',
   },
   {
-    id: 'seg-4',
+    id: 'seg-bar',
     prefix: 'Para seu',
     title: 'Bar & Distribuidora',
     description: 'Copos chopp e cerveja descartáveis, petisqueiras.',
     imageUrl: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-08-sustentaveis.jpg',
-    linkUrl: '/loja?segmento=bar',
+    linkUrl: '/segmento/bar-distribuidora',
     iconType: 'bar',
   },
 ];
@@ -108,5 +108,31 @@ describe('SegmentsCarouselWidget', () => {
     cards.forEach((card) => {
       expect(card.className).toContain('bg-white');
     });
+
+    // O título e a imagem direcionam para /segmento/...
+    const buffetLink = screen.getByText('Restaurante & Buffet').closest('a');
+    expect(buffetLink?.getAttribute('href')).toBe('/segmento/restaurante-buffet');
+  });
+
+  it('normaliza URLs legadas com q=padaria para /segmento/padaria', () => {
+    const legacyItem = {
+      id: 'seg-padaria',
+      prefix: 'Para sua',
+      title: 'Padaria',
+      description: 'Embalagens e formas.',
+      imageUrl: '/assets/padaria.jpg',
+      linkUrl: '/loja?q=padaria',
+      iconType: 'bakery' as const,
+    };
+
+    render(
+      <SegmentsCarouselWidget
+        items={[legacyItem]}
+        title="Tudo para todos os negócios"
+      />
+    );
+
+    const padariaLink = screen.getByText('Padaria').closest('a');
+    expect(padariaLink?.getAttribute('href')).toBe('/segmento/padaria');
   });
 });

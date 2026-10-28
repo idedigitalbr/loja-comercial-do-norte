@@ -10,7 +10,7 @@ import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { StorefrontShell } from '@/components/storefront/storefront-shell';
 import { WebVitalsReporter } from '@/components/web-vitals-reporter';
-import { getCategories, getBrands, getSiteConfig, mediaUrl } from '@/lib/api';
+import { getCategories, getBrands, getSegments, getTags, getSiteConfig, mediaUrl } from '@/lib/api';
 import { getStorefrontComposition } from '@/lib/storefront/composition-storage';
 
 export const metadata: Metadata = {
@@ -20,10 +20,12 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [config, categories, brands, composition] = await Promise.all([
+  const [config, categories, brands, segments, tags, composition] = await Promise.all([
     getSiteConfig(),
     getCategories(),
     getBrands(),
+    getSegments(),
+    getTags(),
     getStorefrontComposition(),
   ]);
   const site = config?.site ?? null;
@@ -46,6 +48,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     <SiteHeader
                       brands={brands}
                       categories={categories}
+                      segments={segments}
+                      tags={tags}
                       logoUrl={mediaUrl(site?.logoPath ?? null)}
                       phone={site?.phone ?? null}
                       siteName={site?.siteName ?? 'Comercial do Norte'}

@@ -18,6 +18,8 @@ describe('admin shell', () => {
       'overview',
       'home-banners',
       'catalog',
+      'posts',
+      'events',
       'quotes',
       'orders',
       'inventory',
@@ -30,6 +32,8 @@ describe('admin shell', () => {
       'layout-dashboard',
       'image',
       'shopping-bag',
+      'file-text',
+      'calendar',
       'clipboard-list',
       'clipboard-list',
       'warehouse',
@@ -40,6 +44,8 @@ describe('admin shell', () => {
     ]);
     // The label is changed to "Produtos" as requested
     expect(getAdminNavigation().find((item) => item.id === 'catalog')?.label).toBe('Produtos');
+    expect(getAdminNavigation().find((item) => item.id === 'posts')?.label).toBe('Posts');
+    expect(getAdminNavigation().find((item) => item.id === 'events')?.label).toBe('Eventos');
   });
 
   it('aponta para o storefront Next.js (porta 3001) a partir do admin', () => {
@@ -55,6 +61,8 @@ describe('admin shell', () => {
     expect(getInitialAdminSection('/admin/catalogo/produtos')).toBe('catalog');
     expect(getInitialAdminSection('/admin/catalogo/categorias')).toBe('catalog');
     expect(getInitialAdminSection('/admin/catalogo/tags')).toBe('catalog');
+    expect(getInitialAdminSection('/admin/posts')).toBe('posts');
+    expect(getInitialAdminSection('/admin/eventos')).toBe('events');
   });
 
   it('identifies the active WordPress-style catalog subpage', () => {
