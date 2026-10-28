@@ -5,14 +5,14 @@ import { ArrowRight, Store } from 'lucide-react';
 import { SegmentHeroBanner, resolveSegmentBanner } from '@/components/segment-hero-banner';
 import { VideoArticlesCarouselWidget } from '@/components/storefront/widgets/video-articles-carousel/video-articles-carousel';
 import { getSegments } from '@/lib/api';
-import { getSegmentContentSuggestions } from '@/lib/segment-content-data';
+import { getSegmentContentSuggestions, getSegmentTipsHeading } from '@/lib/segment-content-data';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Segmentos de Atuação | Comercial do Norte',
   description:
-    'Tudo para todos os negócios, para todos os tamanhos. Encontre embalagens e descartáveis sob medida para o seu ramo.',
+    'Para todos os Negócios, de todos os tamanhos. Encontre embalagens e descartáveis sob medida para o seu ramo.',
   alternates: { canonical: '/segmentos' },
 };
 
@@ -51,10 +51,10 @@ export default async function SegmentsDirectoryPage() {
               </span>
             </div>
             <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-ink">
-              Tudo para todos os negócios
+              Para todos os Negócios
             </h1>
             <p className="mt-1.5 max-w-2xl text-sm text-muted">
-              Para todos os tamanhos! Soluções completas em embalagens, descartáveis e utilidades personalizadas para cada tipo de empreendimento.
+              De todos os tamanhos! Soluções completas em embalagens, descartáveis e utilidades personalizadas para cada tipo de empreendimento.
             </p>
           </div>
         </div>
@@ -117,7 +117,8 @@ export default async function SegmentsDirectoryPage() {
           showViewAll={true}
           subtitle="Dicas em vídeos e artigos para você usar no seu negócio."
           title="Explica Aí Nort"
-          viewAllLabel="Ver todos"
+          topHeading={getSegmentTipsHeading()}
+          viewAllLabel="Ver mais"
           viewAllUrl="/post"
         />
       </section>

@@ -175,7 +175,7 @@ export interface SegmentCardItem {
 
 export interface SegmentsCarouselProps {
   widgetId?: string;
-  title: string;
+  title?: string;
   subtitle?: string;
   ctaLabel?: string;
   ctaUrl?: string;
@@ -235,8 +235,12 @@ export interface VideoArticleItem {
 
 export interface VideoArticlesCarouselProps {
   widgetId?: string;
-  title: string;
-  subtitle: string;
+  title?: string;
+  subtitle?: string;
+  topHeading?: {
+    prefix: string;
+    highlight: string;
+  } | string;
   viewAllLabel?: string;
   viewAllUrl?: string;
   showViewAll?: boolean;

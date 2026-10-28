@@ -115,4 +115,18 @@ describe('VideoArticlesCarouselWidget (Explica Aí Nort)', () => {
     expect(section?.className).toContain('w-full');
     expect(section?.className).toContain('rounded-b-');
   });
+
+  it('renderiza o topHeading com destaque sublinhado quando informado', () => {
+    render(
+      <VideoArticlesCarouselWidget
+        items={mockItems}
+        topHeading={{ prefix: 'Dicas para sua', highlight: 'Lanchonete' }}
+        viewAllLabel="Ver mais"
+      />
+    );
+
+    expect(screen.getByText(/Dicas para sua/)).toBeDefined();
+    expect(screen.getByText('Lanchonete')).toBeDefined();
+    expect(screen.getByText('Ver mais')).toBeDefined();
+  });
 });

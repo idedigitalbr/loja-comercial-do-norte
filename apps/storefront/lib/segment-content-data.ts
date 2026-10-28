@@ -524,3 +524,35 @@ export function getSegmentContentSuggestions(slug?: string): VideoArticleItem[] 
   const normalized = slug.trim().toLowerCase();
   return SEGMENT_SUGGESTIONS_MAP[normalized] ?? DEFAULT_SEGMENT_SUGGESTIONS;
 }
+
+export interface SegmentTipsHeading {
+  prefix: string;
+  highlight: string;
+}
+
+/**
+ * Retorna o título da seção de dicas ("Dicas para sua Lanchonete", etc.)
+ * com o prefixo gramatical correto e a palavra em destaque para sublinhado azul.
+ */
+export function getSegmentTipsHeading(slug?: string, fallbackName?: string): SegmentTipsHeading {
+  if (!slug) {
+    return { prefix: 'Dicas para seu', highlight: 'Negócio' };
+  }
+  const s = slug.toLowerCase().trim();
+  if (s.includes('lanchonete')) return { prefix: 'Dicas para sua', highlight: 'Lanchonete' };
+  if (s.includes('pizzaria')) return { prefix: 'Dicas para sua', highlight: 'Pizzaria' };
+  if (s.includes('padaria')) return { prefix: 'Dicas para sua', highlight: 'Padaria' };
+  if (s.includes('confeitaria')) return { prefix: 'Dicas para sua', highlight: 'Confeitaria' };
+  if (s.includes('acai') || s.includes('sorvete')) return { prefix: 'Dicas para seu', highlight: 'Açaí' };
+  if (s.includes('buffet') || s.includes('restaurante')) return { prefix: 'Dicas para seu', highlight: 'Restaurante' };
+  if (s.includes('bar')) return { prefix: 'Dicas para seu', highlight: 'Bar' };
+  if (s.includes('festa')) return { prefix: 'Dicas para sua', highlight: 'Festa' };
+
+  if (fallbackName) {
+    const mainWord = fallbackName.split('&')[0].trim();
+    const isFeminine = mainWord.endsWith('a') || mainWord.endsWith('as');
+    return { prefix: isFeminine ? 'Dicas para sua' : 'Dicas para seu', highlight: mainWord };
+  }
+
+  return { prefix: 'Dicas para seu', highlight: 'Negócio' };
+}

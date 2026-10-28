@@ -53,10 +53,14 @@ describe('SegmentPage (/segmento/[slug])', () => {
     expect(screen.getByText('LINHA KRAFT')).toBeDefined();
     expect(screen.getByText('AÇAÍ & CAFÉ')).toBeDefined();
 
-    // Verifica a presença do link Ver todos
-    const verTodosLink = screen.getByText('Ver todos');
-    expect(verTodosLink).toBeDefined();
-    expect(verTodosLink.closest('a')?.getAttribute('href')).toBe('/post');
+    // Verifica o título em destaque no topo da seção (Dicas para sua Lanchonete)
+    expect(screen.getByText(/Dicas para sua/)).toBeDefined();
+    expect(screen.getByText('Lanchonete')).toBeDefined();
+
+    // Verifica a presença do link Ver mais
+    const verMaisLink = screen.getByText('Ver mais');
+    expect(verMaisLink).toBeDefined();
+    expect(verMaisLink.closest('a')?.getAttribute('href')).toBe('/post');
   });
 
   it('renderiza a seção de sugestões de conteúdo específica para pizzaria', async () => {
@@ -67,6 +71,7 @@ describe('SegmentPage (/segmento/[slug])', () => {
 
     render(Component);
 
+    expect(screen.getByText('Pizzaria')).toBeDefined();
     expect(
       screen.getByText('Caixas de pizza: formatos e respiros que preservam a massa')
     ).toBeDefined();

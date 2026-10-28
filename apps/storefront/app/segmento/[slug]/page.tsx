@@ -4,7 +4,7 @@ import { CatalogView } from '@/components/catalog/catalog-view';
 import { SegmentHeroBanner } from '@/components/segment-hero-banner';
 import { VideoArticlesCarouselWidget } from '@/components/storefront/widgets/video-articles-carousel/video-articles-carousel';
 import { getBrands, getCategories, getProductsPage, getSegments, getTags } from '@/lib/api';
-import { getSegmentContentSuggestions } from '@/lib/segment-content-data';
+import { getSegmentContentSuggestions, getSegmentTipsHeading } from '@/lib/segment-content-data';
 import type { ApiSegment } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -122,6 +122,7 @@ export default async function SegmentPage({
   }
 
   const contentSuggestions = getSegmentContentSuggestions(slug);
+  const tipsHeading = getSegmentTipsHeading(slug, segment.name);
 
   return (
     <div className="flex flex-col bg-[#F4F7FB] min-h-screen">
@@ -169,7 +170,8 @@ export default async function SegmentPage({
           showViewAll={true}
           subtitle="Dicas em vídeos e artigos para você usar no seu negócio."
           title="Explica Aí Nort"
-          viewAllLabel="Ver todos"
+          topHeading={tipsHeading}
+          viewAllLabel="Ver mais"
           viewAllUrl="/post"
         />
       </section>

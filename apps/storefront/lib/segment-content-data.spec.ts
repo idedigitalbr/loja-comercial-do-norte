@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getSegmentContentSuggestions } from './segment-content-data';
+import { getSegmentContentSuggestions, getSegmentTipsHeading } from './segment-content-data';
 
 describe('segment-content-data', () => {
   it('retorna sugestões específicas para o segmento lanchonete', () => {
@@ -12,6 +12,33 @@ describe('segment-content-data', () => {
     expect(suggestions[1].tags).toContain('AÇAÍ & CAFÉ');
     expect(suggestions[2].title).toContain('respiro');
     expect(suggestions[3].title).toContain('cardápio de lanchonete');
+  });
+
+  it('retorna títulos e destaques gramaticais precisos via getSegmentTipsHeading', () => {
+    expect(getSegmentTipsHeading('lanchonete')).toEqual({
+      prefix: 'Dicas para sua',
+      highlight: 'Lanchonete',
+    });
+    expect(getSegmentTipsHeading('pizzaria')).toEqual({
+      prefix: 'Dicas para sua',
+      highlight: 'Pizzaria',
+    });
+    expect(getSegmentTipsHeading('restaurante-buffet')).toEqual({
+      prefix: 'Dicas para seu',
+      highlight: 'Restaurante',
+    });
+    expect(getSegmentTipsHeading('sorveteria-acai')).toEqual({
+      prefix: 'Dicas para seu',
+      highlight: 'Açaí',
+    });
+    expect(getSegmentTipsHeading('padaria')).toEqual({
+      prefix: 'Dicas para sua',
+      highlight: 'Padaria',
+    });
+    expect(getSegmentTipsHeading()).toEqual({
+      prefix: 'Dicas para seu',
+      highlight: 'Negócio',
+    });
   });
 
   it('retorna sugestões específicas para pizzaria', () => {

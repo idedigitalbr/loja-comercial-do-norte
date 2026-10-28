@@ -13,7 +13,8 @@ export function VideoArticlesCarouselWidget({
   widgetId,
   title = 'Explica Aí Nort',
   subtitle = 'Dicas em vídeos e artigos para você usar no seu negócio.',
-  viewAllLabel = 'Ver todos',
+  topHeading,
+  viewAllLabel = 'Ver mais',
   viewAllUrl = '/post',
   showViewAll = true,
   fullWidth = false,
@@ -59,17 +60,41 @@ export function VideoArticlesCarouselWidget({
         className="pointer-events-none select-none object-cover object-center -z-10"
       />
 
-      {/* Top right: Ver todos > */}
-      {showViewAll && viewAllLabel && (
-        <div className="flex items-center justify-between mb-3 lg:mb-0 lg:absolute lg:top-4 lg:right-6 xl:top-4.5 xl:right-7 z-20">
-          <div className="lg:hidden" />
-          <Link
-            href={viewAllUrl || '/post'}
-            className="inline-flex items-center gap-1 text-xs sm:text-[13px] font-semibold text-white/95 hover:text-white transition-opacity tracking-tight ml-auto"
-          >
-            <span>{viewAllLabel}</span>
-            <ChevronRight aria-hidden="true" className="size-3.5 stroke-[2.5]" />
-          </Link>
+      {/* Barra de Topo do Carrossel: Título Contextual ("Dicas para sua Lanchonete") e Link "Ver mais >" */}
+      {(topHeading || (showViewAll && viewAllLabel)) && (
+        <div
+          className={`flex items-center mb-3 lg:mb-0 lg:absolute z-20 ${
+            topHeading
+              ? 'relative justify-center lg:top-3.5 xl:top-4 lg:left-[43.5%] xl:left-[43%] lg:right-5 xl:right-6'
+              : 'justify-end lg:top-4 lg:right-6 xl:top-4.5 xl:right-7'
+          }`}
+        >
+          {topHeading && (
+            <h3 className="text-base sm:text-lg lg:text-[21px] xl:text-[22px] font-bold text-white tracking-tight text-center px-12 sm:px-0">
+              {typeof topHeading === 'string' ? (
+                topHeading
+              ) : (
+                <span>
+                  {topHeading.prefix}{' '}
+                  <span className="relative inline-block border-b-[3px] border-[#1552E6] pb-0.5 font-bold text-white">
+                    {topHeading.highlight}
+                  </span>
+                </span>
+              )}
+            </h3>
+          )}
+
+          {showViewAll && viewAllLabel && (
+            <Link
+              href={viewAllUrl || '/post'}
+              className={`${
+                topHeading ? 'absolute right-0 top-1/2 -translate-y-1/2' : 'ml-auto'
+              } inline-flex items-center gap-1 text-xs sm:text-[13px] font-semibold text-white/95 hover:text-white transition-opacity tracking-tight`}
+            >
+              <span>{viewAllLabel}</span>
+              <ChevronRight aria-hidden="true" className="size-3.5 stroke-[2.5]" />
+            </Link>
+          )}
         </div>
       )}
 
