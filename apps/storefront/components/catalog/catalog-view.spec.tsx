@@ -142,4 +142,50 @@ describe("CatalogView", () => {
     expect(aside.className).not.toContain("max-h-");
     expect(aside.className).not.toContain("sidebar-scrollbar");
   });
+
+  it("renders active filter pills for Ofertas do Dia and Mais Vendidos", () => {
+    vi.spyOn(QuoteCartModule, "useQuoteCart").mockReturnValue({
+      items: [],
+      count: 0,
+      subtotalCents: 0,
+      ready: true,
+      drawerOpen: false,
+      add: vi.fn(),
+      updateQuantity: vi.fn(),
+      remove: vi.fn(),
+      clear: vi.fn(),
+      openDrawer: vi.fn(),
+      closeDrawer: vi.fn(),
+    });
+
+    vi.spyOn(FavoritesModule, "useFavorites").mockReturnValue({
+      favorites: [],
+      count: 0,
+      ready: true,
+      isFavorite: vi.fn(() => false),
+      add: vi.fn(),
+      remove: vi.fn(),
+      toggle: vi.fn(),
+      clear: vi.fn(),
+    });
+
+    render(
+      <CatalogView
+        brands={[]}
+        categories={mockCategories}
+        page={1}
+        products={[mockProduct]}
+        searchParamsState={{ oferta: "1", ordem: "mais_vendidos" }}
+        segments={mockSegments}
+        tags={mockTags}
+        title="Ofertas do Dia"
+        total={1}
+        totalPages={1}
+      />
+    );
+
+    expect(screen.getByRole("heading", { name: "Ofertas do Dia", level: 1 })).toBeDefined();
+    expect(screen.getByTitle("Remover filtro de ofertas")).toBeDefined();
+    expect(screen.getByTitle("Remover ordenação por mais vendidos")).toBeDefined();
+  });
 });

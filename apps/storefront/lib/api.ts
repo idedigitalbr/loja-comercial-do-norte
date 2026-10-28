@@ -78,7 +78,7 @@ export type ProductPage = {
   page: number;
   pageSize: number;
   totalPages: number;
-  sort: 'newest' | 'name_asc';
+  sort: string;
 };
 
 const emptyPage = (page: number, pageSize: number): ProductPage => ({ items: [], total: 0, page, pageSize, totalPages: 1, sort: 'newest' });
@@ -92,7 +92,8 @@ export function getProductsPage(input: {
   tag?: string;
   page?: number;
   pageSize?: number;
-  sort?: 'newest' | 'name_asc';
+  sort?: string;
+  offer?: boolean | string;
 } = {}): Promise<ProductPage> {
   const page = Math.max(1, input.page ?? 1);
   const pageSize = Math.min(48, Math.max(1, input.pageSize ?? 12));
@@ -103,6 +104,7 @@ export function getProductsPage(input: {
   if (input.segment) params.set('segment', input.segment);
   if (input.tag) params.set('tag', input.tag);
   if (input.sort) params.set('sort', input.sort);
+  if (input.offer) params.set('offer', '1');
   return safeJson<ProductPage>(`/catalog/products/search?${params}`, emptyPage(page, pageSize), {
     revalidate: REVALIDATE_WINDOWS.CATALOG,
     tags: [CACHE_TAGS.PRODUCTS],

@@ -364,12 +364,31 @@ export class CatalogService {
     tag?: string;
     page?: number;
     pageSize?: number;
-    sort?: 'newest' | 'name_asc';
+    sort?: 'newest' | 'name_asc' | 'mais_vendidos';
+    onlyOffers?: boolean;
   } = {}) {
     const page = Math.max(1, Math.trunc(input.page ?? 1));
     const pageSize = Math.min(48, Math.max(1, Math.trunc(input.pageSize ?? 12)));
-    const where = await this.buildPublicWhere(input);
-    const orderBy: Prisma.ProductOrderByWithRelationInput = input.sort === 'name_asc' ? { name: 'asc' } : { createdAt: 'desc' };
+    const baseWhere = await this.buildPublicWhere(input);
+
+    const where: Prisma.ProductWhereInput = input.onlyOffers
+      ? {
+          ...baseWhere,
+          variants: {
+            some: {
+              status: RecordStatus.ACTIVE,
+              compareAtPriceCents: { gt: 0 },
+            },
+          },
+        }
+      : baseWhere;
+
+    const orderBy: Prisma.ProductOrderByWithRelationInput =
+      input.sort === 'name_asc'
+        ? { name: 'asc' }
+        : input.sort === 'mais_vendidos'
+          ? { updatedAt: 'desc' }
+          : { createdAt: 'desc' };
 
     const [items, total] = await Promise.all([
       this.prisma.product.findMany({

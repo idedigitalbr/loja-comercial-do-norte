@@ -280,7 +280,7 @@ export default async function ConfeitariaWorkshopsPage() {
                 {/* Cartaz Vertical 9:16 */}
                 <Link
                   className="relative block aspect-[9/16] w-full overflow-hidden bg-amber-50"
-                  href={`/evento/${workshop.slug}`}
+                  href={`/evento/workshop/aulas-confeitaria/${workshop.slug}`}
                 >
                   {workshop.posterUrl ? (
                     <Image
@@ -368,7 +368,7 @@ export default async function ConfeitariaWorkshopsPage() {
                   <Link
                     aria-label={`Ver mais sobre ${workshop.title}`}
                     className="flex items-center justify-center rounded-lg border border-slate-300 bg-white p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
-                    href={`/evento/${workshop.slug}`}
+                    href={`/evento/workshop/aulas-confeitaria/${workshop.slug}`}
                   >
                     <ChevronRight className="size-4" />
                   </Link>

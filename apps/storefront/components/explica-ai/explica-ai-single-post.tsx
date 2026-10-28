@@ -1,52 +1,33 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   Calendar,
-  ChevronDown,
-  Clock,
-  Eye,
-  FileText,
-  Maximize2,
-  Package,
-  Play,
-  Share2,
-  ShoppingBag,
-  Volume2,
-  X,
-  Youtube,
-  ArrowRight,
+  ChevronLeft,
   ChevronRight,
+  Clock,
+  Play,
+  Star,
+  X,
+  Volume2,
+  Maximize2,
+  Check,
 } from 'lucide-react';
+import { VideoArticleCard } from '@/components/storefront/widgets/video-articles-carousel/video-article-card';
+import { useQuoteCart } from '@/components/quote-cart-provider';
 
-export type ChapterItem = {
+export type ProductCarouselItem = {
   id: string;
-  timeCode: string;
-  seconds: number;
-  title: string;
-  description: string;
-  thumbnailUrl: string;
-  fullTranscript?: string;
-};
-
-export type CitedProduct = {
-  id: string;
+  variantId: string;
   title: string;
   subtitle: string;
+  price: string;
+  priceCents: number;
   imageUrl: string;
-  tags: string[];
-  productUrl: string;
-};
-
-export type RelatedVideo = {
-  id: string;
-  title: string;
+  ratingText: string;
   slug: string;
-  duration: string;
-  imageUrl: string;
-  tags: string[];
 };
 
 export type ExplicaAiSinglePostProps = {
@@ -68,127 +49,111 @@ export type ExplicaAiSinglePostProps = {
   };
 };
 
-const DEFAULT_CHAPTERS: ChapterItem[] = [
-  {
-    id: 'cap-1',
-    timeCode: '00:00',
-    seconds: 0,
-    title: 'Introdução: por que a caixa de pizza é tão importante?',
-    description:
-      'A caixa de pizza não é apenas uma embalagem: é a extensão da qualidade da sua cozinha até a casa do cliente. Entenda como ela protege a massa, mantém o sabor e valoriza a sua marca.',
-    thumbnailUrl: '/assets/explica-ai/chapter-1-thumb.png',
-    fullTranscript:
-      'Quando o cliente recebe uma pizza em casa, o primeiro contato físico com a sua pizzaria é através da caixa. Uma embalagem de baixa qualidade amassa no trajeto, umedece a massa devido à condensação e pode até transferir odores indesejados. Investir em papelão ondulado virgem com certificação alimentícia é o primeiro passo para garantir a fidelização do seu cliente.',
-  },
-  {
-    id: 'cap-2',
-    timeCode: '00:32',
-    seconds: 32,
-    title: 'Formatos: oitavada x quadrada',
-    description:
-      'As caixas oitavadas evitam que a pizza deslize durante a entrega, enquanto as quadradas oferecem mais estabilidade para empilhamento. Veja qual é a melhor opção para o seu negócio.',
-    thumbnailUrl: '/assets/explica-ai/chapter-2-thumb.png',
-    fullTranscript:
-      'O formato oitavado acompanha a anatomia redonda da pizza, minimizando o espaço livre nas pontas e impedindo que a pizza deslize dentro da embalagem quando o motoboy faz curvas. Já as caixas quadradas têm cantos retos que conferem maior rigidez vertical para empilhamentos altos na bag de entrega, além de facilitar a inclusão de sachês, lacres e recados personalizados.',
-  },
-  {
-    id: 'cap-3',
-    timeCode: '01:10',
-    seconds: 70,
-    title: 'Respiros: ventilação que preserva a massa',
-    description:
-      'Os respiros de ar garantem a saída controlada do vapor, evitando que a massa fique borrachuda e mantendo a crocância da pizza por mais tempo.',
-    thumbnailUrl: '/assets/explica-ai/chapter-3-thumb.png',
-    fullTranscript:
-      'O vapor liberado pela pizza recém-saída do forno precisa escapar de maneira controlada. Se a caixa for completamente selada sem furos térmicos, o vapor condensa na tampa e goteja de volta sobre o queijo e a borda, tornando a crosta borrachuda e amolecida. Os respiros laterais da Comercial do Norte mantêm o calor enquanto liberam a umidade excessiva.',
-  },
-  {
-    id: 'cap-4',
-    timeCode: '01:45',
-    seconds: 105,
-    title: 'Lacres de segurança e boas práticas',
-    description:
-      'O lacre inviolável transmite confiança ao cliente final e evita aberturas durante o transporte. Veja dicas de uso e armazenamento.',
-    thumbnailUrl: '/assets/explica-ai/chapter-4-thumb.png',
-    fullTranscript:
-      'O lacre destrutível garante ao cliente que ninguém abriu a embalagem entre o forno e a entrega. Além de atender às exigências sanitárias, cria um diferencial de profissionalismo que gera avaliações 5 estrelas nos aplicativos de delivery.',
-  },
-];
-
-const DEFAULT_PRODUCTS: CitedProduct[] = [
+const PIZZARIA_PRODUCTS: ProductCarouselItem[] = [
   {
     id: 'prod-1',
+    variantId: 'var-pizza-oitavada',
     title: 'Caixa de pizza oitavada',
     subtitle: 'Diversos tamanhos',
+    price: 'R$ 7,49',
+    priceCents: 749,
     imageUrl: '/assets/explica-ai/prod-1-clean.png',
-    tags: ['Embalagens', 'Delivery'],
-    productUrl: '/loja?busca=caixa+pizza+oitavada',
+    ratingText: '4.7 (129)',
+    slug: 'caixa-pizza-oitavada',
   },
   {
     id: 'prod-2',
+    variantId: 'var-pizza-quadrada',
     title: 'Caixa de pizza quadrada',
     subtitle: 'Diversos tamanhos',
+    price: 'R$ 24,90',
+    priceCents: 2490,
     imageUrl: '/assets/explica-ai/prod-2-clean.png',
-    tags: ['Embalagens', 'Delivery'],
-    productUrl: '/loja?busca=caixa+pizza+quadrada',
+    ratingText: '4.7 (129)',
+    slug: 'caixa-pizza-quadrada',
   },
   {
     id: 'prod-3',
+    variantId: 'var-pizza-respiros',
     title: 'Caixa com respiros laterais',
     subtitle: 'Mantém a crocância',
+    price: 'R$ 7,30',
+    priceCents: 730,
     imageUrl: '/assets/explica-ai/prod-3-clean.png',
-    tags: ['Embalagens', 'Pizzarias'],
-    productUrl: '/loja?busca=caixa+pizza+respiros',
+    ratingText: '4.7 (129)',
+    slug: 'caixa-com-respiros-laterais',
   },
   {
     id: 'prod-4',
+    variantId: 'var-lacre-seguranca',
     title: 'Lacre de segurança',
     subtitle: 'Mais confiança na entrega',
+    price: 'R$ 4,20',
+    priceCents: 420,
     imageUrl: '/assets/explica-ai/prod-4-clean.png',
-    tags: ['Embalagens', 'Delivery'],
-    productUrl: '/loja?busca=lacre+seguranca',
+    ratingText: '4.7 (129)',
+    slug: 'lacre-de-seguranca',
+  },
+  {
+    id: 'prod-5',
+    variantId: 'var-papel-forno-pizza',
+    title: 'Papel para forno de pizza',
+    subtitle: 'Diversos tamanhos',
+    price: 'R$ 15,90',
+    priceCents: 1590,
+    imageUrl: '/assets/explica-ai/prod-5-papel-forno.png',
+    ratingText: '4.7 (129)',
+    slug: 'papel-para-forno-de-pizza',
   },
 ];
 
-const DEFAULT_RELATED_VIDEOS: RelatedVideo[] = [
+const RELATED_VIDEO_ARTICLES = [
   {
-    id: 'rel-1',
-    title: 'Decoração de doces e bolos com chantilly profissional',
-    slug: 'decoracao-de-doces-e-bolos-com-chantilly',
-    duration: '2:35',
-    imageUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/doces.webp',
-    tags: ['Confeitaria', 'Doces & Bolos'],
-  },
-  {
-    id: 'rel-2',
-    title: 'Copos e tampas para açaí e café',
-    slug: 'copos-e-tampas-para-acai-e-cafe',
-    duration: '3:10',
-    imageUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/copos.webp',
-    tags: ['Açaí & Café', 'Food Service'],
-  },
-  {
-    id: 'rel-3',
+    id: 'vid-kraft',
     title: 'Embalagens kraft para o seu delivery',
-    slug: 'embalagens-kraft-para-o-seu-delivery',
-    duration: '2:48',
+    tags: ['DELIVERY', 'LINHA KRAFT'],
+    paragraphs: [
+      'Mais praticidade com embalagens kraft.',
+      'Combine formato e resistência.',
+      'Valorize a apresentação do seu delivery.',
+    ],
+    ctaLabel: 'Ver Completo',
+    ctaUrl: '/post/embalagens-kraft-para-o-seu-delivery',
     imageUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/kraft.webp',
-    tags: ['Delivery', 'Linha Kraft'],
   },
   {
-    id: 'rel-4',
-    title: 'Como melhorar a entrega da sua pizzaria',
-    slug: 'caixas-de-pizza-formatos-e-respiros',
-    duration: '3:05',
-    imageUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/pizza.webp',
-    tags: ['Pizzarias', 'Transporte Seguro'],
+    id: 'vid-copos',
+    title: 'Copos e tampas para açaí e café',
+    tags: ['AÇAÍ & CAFÉ', 'GUIA PRÁTICO'],
+    paragraphs: [
+      'O copo certo faz a diferença.',
+      'Combine a tampa com sua bebida.',
+      'Evite vazamentos no transporte.',
+    ],
+    ctaLabel: 'Ver Completo',
+    ctaUrl: '/post/copos-e-tampas-para-acai-e-cafe',
+    imageUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/copos.webp',
+  },
+  {
+    id: 'vid-doces',
+    title: 'Embalagens kraft para o seu delivery',
+    tags: ['DELIVERY', 'LINHA KRAFT'],
+    paragraphs: [
+      'Mais praticidade com embalagens kraft.',
+      'Combine formato e resistência.',
+      'Valorize a apresentação do seu delivery.',
+    ],
+    ctaLabel: 'Ver Completo',
+    ctaUrl: '/post/embalagens-kraft-para-o-seu-delivery',
+    imageUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/kraft.webp',
   },
 ];
 
 export function ExplicaAiSinglePost({ post }: ExplicaAiSinglePostProps) {
   const [activeVideoModal, setActiveVideoModal] = useState(false);
-  const [videoTimestamp, setVideoTimestamp] = useState<number | null>(null);
-  const [expandedChapter, setExpandedChapter] = useState<string | null>(null);
+  const [addedItems, setAddedItems] = useState<Record<string, boolean>>({});
+  const carouselTrackRef = useRef<HTMLDivElement>(null);
+  const { add } = useQuoteCart();
 
   const formattedDate = new Date(post.publishedAt).toLocaleDateString('pt-BR', {
     day: 'numeric',
@@ -203,15 +168,32 @@ export function ExplicaAiSinglePost({ post }: ExplicaAiSinglePostProps) {
 
   const categoryName = post.category?.name || 'Embalagens & Delivery';
   const categorySlug = post.category?.slug || 'embalagens-delivery';
-  const conceptTag = post.conceptTag || 'Conceito 7';
 
-  const handleOpenVideo = (seconds: number = 0) => {
-    setVideoTimestamp(seconds);
+  const handleOpenVideo = () => {
     setActiveVideoModal(true);
   };
 
-  const handleToggleChapter = (id: string) => {
-    setExpandedChapter((prev) => (prev === id ? null : id));
+  const handleScrollCarousel = (direction: number) => {
+    if (!carouselTrackRef.current) return;
+    const scrollAmount = 240 * direction;
+    carouselTrackRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  };
+
+  const handleAddToCart = (item: ProductCarouselItem) => {
+    add({
+      variantId: item.variantId,
+      productSlug: item.slug,
+      name: item.title,
+      sku: item.id,
+      imagePath: item.imageUrl,
+      unitPriceCents: item.priceCents,
+      quantity: 1,
+    });
+
+    setAddedItems((prev) => ({ ...prev, [item.id]: true }));
+    setTimeout(() => {
+      setAddedItems((prev) => ({ ...prev, [item.id]: false }));
+    }, 1800);
   };
 
   return (
@@ -246,12 +228,12 @@ export function ExplicaAiSinglePost({ post }: ExplicaAiSinglePostProps) {
           <span className="font-semibold text-slate-800 line-clamp-1">{post.title}</span>
         </nav>
 
-        {/* 2. Hero Banner: Explica Aí Nort (Red Card) */}
+        {/* 2. Hero Banner: Explica Aí Nort (Red Card Oficial) */}
         <section
           aria-label="Destaque em Vídeo"
           className="relative overflow-hidden rounded-[26px] sm:rounded-[34px] bg-gradient-to-br from-[#d3121e] via-[#c40817] to-[#aa0010] p-6 sm:p-8 md:p-10 lg:p-12 text-white shadow-xl"
         >
-          {/* Imagem de fundo com curvas geométricas suaves oficiais */}
+          {/* Fundo com curvas abstratas oficiais */}
           <div className="absolute inset-0 pointer-events-none select-none opacity-40 mix-blend-overlay">
             <Image
               src="/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-bg-fundo-vermelho-geometrico-abstrato-hd.png"
@@ -263,19 +245,16 @@ export function ExplicaAiSinglePost({ post }: ExplicaAiSinglePostProps) {
           </div>
 
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center">
-            {/* Coluna Esquerda: Tags, Título, Descrição e Metadados (lg:col-span-6) */}
+            {/* Coluna Esquerda: Badge, Título, Descrição e Metadados (lg:col-span-6) */}
             <div className="lg:col-span-6 flex flex-col justify-center">
-              {/* Tags Superior */}
+              {/* Badge Oficial */}
               <div className="flex flex-wrap items-center gap-2 mb-3 sm:mb-4">
-                <span className="inline-flex items-center rounded-full bg-white/20 px-3.5 py-1 text-[11px] sm:text-xs font-semibold text-white backdrop-blur-xs shadow-xs">
-                  {conceptTag}
-                </span>
                 <span className="inline-flex items-center rounded-full bg-white px-3.5 py-1 text-[11px] sm:text-xs font-black text-[#CB001C] tracking-wide uppercase shadow-sm">
                   EXPLICA AÍ NORT!
                 </span>
               </div>
 
-              {/* Título Principal Pixel-Perfect */}
+              {/* Título Principal */}
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-black leading-[1.08] tracking-tight text-white">
                 {post.title}
               </h1>
@@ -344,7 +323,7 @@ export function ExplicaAiSinglePost({ post }: ExplicaAiSinglePostProps) {
 
                   {/* Botão de Play Central Gigante Vermelho */}
                   <button
-                    onClick={() => handleOpenVideo(0)}
+                    onClick={handleOpenVideo}
                     aria-label="Assistir ao vídeo agora"
                     className="absolute inset-0 m-auto size-13 md:size-15 rounded-full bg-[#E30613] hover:bg-[#c40510] text-white flex items-center justify-center shadow-[0_10px_25px_rgba(227,6,19,0.6)] hover:scale-110 active:scale-95 transition-all cursor-pointer z-20"
                   >
@@ -372,7 +351,6 @@ export function ExplicaAiSinglePost({ post }: ExplicaAiSinglePostProps) {
             <div className="lg:col-span-3 relative flex flex-col items-center lg:items-start justify-end h-full pt-4 lg:pt-0">
               {/* Callout Texto + Seta Curva Apontando para o Telefone */}
               <div className="flex items-center gap-2 mb-2 lg:mb-4 lg:-ml-6 z-20">
-                {/* Seta curva desenhada em SVG pixel-perfect apontando para a esquerda */}
                 <svg
                   width="44"
                   height="32"
@@ -420,238 +398,228 @@ export function ExplicaAiSinglePost({ post }: ExplicaAiSinglePostProps) {
           </div>
         </section>
 
-        {/* 3. Seção: Transcrição do vídeo em blocos (Accordion Interativo) */}
-        <section aria-labelledby="transcricao-heading" className="mt-10 sm:mt-12">
-          {/* Header da Transcrição */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
-            <div className="flex items-start sm:items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-red-100 text-[#CB001C] shrink-0">
-                <FileText className="size-5 stroke-[2.2]" />
+        {/* 3. Seção: Descrição do post e Principais pontos (Card Branco Central) */}
+        <article className="mt-8 sm:mt-10 rounded-3xl bg-white p-6 sm:p-10 md:p-12 shadow-sm border border-slate-100 max-w-5xl mx-auto">
+          {/* Título Centralizado "Descrição do post" */}
+          <h2 className="text-center text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Descrição do post
+          </h2>
+
+          {/* Parágrafos Explicativos */}
+          <div className="mt-5 max-w-3xl mx-auto space-y-4 text-slate-700 text-sm sm:text-[15.5px] leading-relaxed text-justify sm:text-left font-normal">
+            <p>
+              A embalagem certa faz toda a diferença para manter a qualidade da pizza até o cliente.
+              Escolher o formato ideal, utilizar os respiros adequados e reforçar o fechamento com lacres
+              invioláveis ajuda a preservar o sabor, evitar que a massa fique borrachuda e garante uma
+              entrega mais segura.
+            </p>
+            <p>
+              Neste conteúdo, você vai entender quais são os principais formatos de caixas de pizza, como
+              funcionam os respiros térmicos e quais cuidados adotar para manter a pizza sempre no ponto,
+              desde o forno até o cliente.
+            </p>
+          </div>
+
+          {/* Imagem Central: Foto da Pizza com Caixas Empilhadas */}
+          <div className="my-8 relative aspect-[21/9] sm:aspect-[24/9] w-full max-w-3xl mx-auto overflow-hidden rounded-2xl border border-slate-100 shadow-md">
+            <Image
+              src="/assets/explica-ai/pizza-boxes-article.png"
+              alt="Pizza no forno com caixas de entrega ao lado"
+              fill
+              sizes="(max-width: 768px) 100vw, 800px"
+              className="object-cover object-center"
+            />
+          </div>
+
+          {/* Seção "Principais pontos do vídeo" */}
+          <div className="max-w-3xl mx-auto">
+            <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight mb-4">
+              Principais pontos do vídeo
+            </h3>
+
+            {/* Container dos 4 Pontos com Círculos Vermelhos */}
+            <div className="rounded-2xl bg-[#f8fafc] border border-slate-200/80 p-4 sm:p-6 flex flex-col gap-3.5">
+              <div className="flex items-center gap-3">
+                <span className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-[#E30613] text-white font-bold text-xs sm:text-sm shrink-0 shadow-xs">
+                  1
+                </span>
+                <span className="text-xs sm:text-sm md:text-[14.5px] font-semibold text-slate-800">
+                  Formatos: diferenças entre caixa oitavada e quadrada.
+                </span>
               </div>
-              <div>
-                <h2 id="transcricao-heading" className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-                  Transcrição do vídeo
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 font-normal">
-                  Acompanhe o conteúdo em blocos e explore cada tópico.
-                </p>
+
+              <div className="flex items-center gap-3">
+                <span className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-[#E30613] text-white font-bold text-xs sm:text-sm shrink-0 shadow-xs">
+                  2
+                </span>
+                <span className="text-xs sm:text-sm md:text-[14.5px] font-semibold text-slate-800">
+                  Respiros: como a ventilação evita que a massa fique borrachuda.
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-[#E30613] text-white font-bold text-xs sm:text-sm shrink-0 shadow-xs">
+                  3
+                </span>
+                <span className="text-xs sm:text-sm md:text-[14.5px] font-semibold text-slate-800">
+                  Lacres de segurança: mais confiança na entrega.
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-[#E30613] text-white font-bold text-xs sm:text-sm shrink-0 shadow-xs">
+                  4
+                </span>
+                <span className="text-xs sm:text-sm md:text-[14.5px] font-semibold text-slate-800">
+                  Dicas práticas de uso e armazenamento.
+                </span>
               </div>
             </div>
-
-            {/* Botão Assistir no YouTube */}
-            <button
-              onClick={() => handleOpenVideo(0)}
-              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-800 hover:text-[#CB001C] hover:border-red-300 shadow-xs transition cursor-pointer self-start sm:self-auto"
-            >
-              <div className="flex size-5 items-center justify-center rounded-full bg-[#E30613] text-white">
-                <Play className="size-2.5 fill-white ml-0.5" />
-              </div>
-              <span>Assistir no YouTube</span>
-            </button>
           </div>
+        </article>
 
-          {/* Lista de Blocos / Capítulos da Transcrição */}
-          <div className="mt-4 flex flex-col gap-3">
-            {DEFAULT_CHAPTERS.map((chap) => {
-              const isExpanded = expandedChapter === chap.id;
-              return (
-                <div
-                  key={chap.id}
-                  className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-3.5 sm:p-4 shadow-xs hover:border-slate-300 transition-all"
-                >
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    {/* Botão Play do Bloco */}
-                    <button
-                      onClick={() => handleOpenVideo(chap.seconds)}
-                      title={`Tocar a partir de ${chap.timeCode}`}
-                      className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-[#E30613] hover:bg-[#c40510] text-white shadow-xs hover:scale-105 active:scale-95 transition shrink-0 cursor-pointer"
-                    >
-                      <Play className="size-3 fill-white ml-0.5" />
-                    </button>
-
-                    {/* Thumbnail com Badge de Tempo */}
-                    <div
-                      onClick={() => handleOpenVideo(chap.seconds)}
-                      className="relative w-24 sm:w-28 md:w-32 aspect-[16/9] rounded-lg overflow-hidden bg-slate-100 shrink-0 cursor-pointer group"
-                    >
-                      <Image
-                        src={chap.thumbnailUrl}
-                        alt={chap.title}
-                        fill
-                        sizes="130px"
-                        className="object-cover group-hover:scale-105 transition-transform"
-                      />
-                      <span className="absolute bottom-1 left-1 rounded bg-black/85 px-1.5 py-0.5 text-[9px] font-mono font-bold text-white">
-                        {chap.timeCode}
-                      </span>
-                    </div>
-
-                    {/* Título e Breve Descrição */}
-                    <div className="flex-1 min-w-0">
-                      <h3
-                        onClick={() => handleToggleChapter(chap.id)}
-                        className="text-xs sm:text-sm font-bold text-slate-900 leading-snug cursor-pointer hover:text-[#CB001C] transition-colors"
-                      >
-                        {chap.title}
-                      </h3>
-                      <p className="mt-1 text-[11px] sm:text-xs text-slate-600 leading-relaxed line-clamp-2">
-                        {chap.description}
-                      </p>
-                    </div>
-
-                    {/* Botão Chevron para expandir transcrição completa */}
-                    <button
-                      onClick={() => handleToggleChapter(chap.id)}
-                      aria-label={isExpanded ? 'Recolher detalhes' : 'Expandir detalhes'}
-                      className="flex size-8 items-center justify-center rounded-full border border-slate-200 text-slate-400 hover:text-slate-700 hover:border-slate-300 transition shrink-0 cursor-pointer"
-                    >
-                      <ChevronDown
-                        className={`size-4 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-[#CB001C]' : ''}`}
-                      />
-                    </button>
-                  </div>
-
-                  {/* Conteúdo Expandido da Transcrição */}
-                  {isExpanded && chap.fullTranscript && (
-                    <div className="mt-3.5 pt-3 border-t border-slate-100 text-xs sm:text-sm text-slate-700 leading-relaxed pl-11 sm:pl-12">
-                      <p className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                        {chap.fullTranscript}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* 4. Banner Comercial CTA: Monte sua cotação (Navy Blue Card) */}
+        {/* 4. Banner Comercial CTA & Carrossel de Produtos Relacionados (Blue Banner Oficial) */}
         <section
-          aria-label="Cotação Comercial do Norte"
-          className="mt-10 sm:mt-12 relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#011838] p-6 sm:p-8 md:p-10 text-white shadow-xl"
+          aria-label="Produtos Relacionados para Pizzaria"
+          className="mt-10 sm:mt-12 relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#011838] p-5 sm:p-7 md:p-9 text-white shadow-xl"
         >
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-            {/* Texto Promocional (md:col-span-6) */}
+          {/* Header do Banner */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+            {/* Texto Promocional */}
             <div className="md:col-span-6 z-10">
               <span className="text-[11px] font-black uppercase tracking-wider text-[#FBBF24]">
-                PRECISA DESSES ITENS NO SEU NEGÓCIO?
+                PRODUTOS RELACIONADOS
               </span>
               <h2 className="mt-1 text-xl sm:text-2xl md:text-3xl font-black leading-tight text-white">
-                Monte sua cotação online na Comercial do Norte
+                Tudo para a sua pizzaria
               </h2>
-              <p className="mt-1.5 text-xs sm:text-sm text-slate-300 max-w-md font-normal leading-relaxed">
-                Caixas de pizza, embalagens, lacres e muito mais com entrega rápida em Belém e Região Metropolitana.
+              <p className="mt-1 text-xs sm:text-sm text-slate-300 max-w-md font-normal leading-relaxed">
+                Caixas de pizza, lacres, forminhas e muito mais com entrega rápida em Belém e Região Metropolitana.
               </p>
             </div>
 
-            {/* Imagem das caixas de pizza empilhadas (md:col-span-3) */}
-            <div className="md:col-span-3 flex justify-center z-10">
-              <div className="relative w-48 sm:w-56 h-28 sm:h-32">
+            {/* Imagem das caixas de pizza empilhadas */}
+            <div className="hidden md:flex md:col-span-3 justify-center z-10">
+              <div className="relative w-44 h-24">
                 <Image
                   src="/assets/explica-ai/cta-pizza-stack-clean.png"
-                  alt="Caixas de pizza empilhadas da Comercial do Norte"
+                  alt="Caixas de pizza empilhadas"
                   fill
-                  sizes="240px"
+                  sizes="200px"
                   className="object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
                 />
               </div>
             </div>
 
-            {/* Botão de Cotação (md:col-span-3) */}
+            {/* Botão Ver todos os produtos */}
             <div className="md:col-span-3 flex md:justify-end z-10">
               <Link
                 href="/loja"
-                className="w-full sm:w-auto text-center inline-flex items-center justify-center gap-2 rounded-full bg-[#E30613] hover:bg-[#c40510] px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-lg transition active:scale-95 whitespace-nowrap"
+                className="w-full sm:w-auto text-center inline-flex items-center justify-center gap-1.5 rounded-full bg-[#E30613] hover:bg-[#c40510] px-5 py-2.5 text-xs sm:text-[13px] font-bold text-white shadow-lg transition active:scale-95 whitespace-nowrap"
               >
-                <span>Ver Catálogo de Produtos</span>
+                <span>Ver todos os produtos</span>
                 <ChevronRight className="size-4 stroke-[2.5]" />
               </Link>
             </div>
           </div>
-        </section>
 
-        {/* 5. Seção: Produtos citados neste vídeo */}
-        <section aria-labelledby="produtos-heading" className="mt-12 sm:mt-14">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-200">
-            <div className="flex items-center gap-2.5">
-              <div className="flex size-8 items-center justify-center rounded-lg bg-red-100 text-[#CB001C] shrink-0">
-                <ShoppingBag className="size-4.5 stroke-[2.2]" />
-              </div>
-              <div>
-                <h2 id="produtos-heading" className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                  Produtos citados neste vídeo
-                </h2>
-                <p className="text-xs text-slate-500 font-normal">
-                  Confira os principais produtos para aplicar as dicas no seu negócio.
-                </p>
-              </div>
+          {/* Carrossel de Produtos 1:1 dentro do Card Azul */}
+          <div className="relative mt-6 z-10">
+            {/* Botão Esquerdo do Carrossel */}
+            <button
+              onClick={() => handleScrollCarousel(-1)}
+              aria-label="Ver produtos anteriores"
+              className="absolute -left-2.5 sm:-left-3.5 top-1/2 -translate-y-1/2 size-8 sm:size-9 rounded-full bg-white shadow-lg border border-slate-200 flex items-center justify-center text-slate-700 hover:text-[#CB001C] z-30 transition cursor-pointer"
+            >
+              <ChevronLeft className="size-4.5 stroke-[2.5]" />
+            </button>
+
+            {/* Track de Produtos */}
+            <div
+              ref={carouselTrackRef}
+              className="flex items-stretch gap-3 sm:gap-4 overflow-x-auto scrollbar-none scroll-smooth px-1 py-1"
+            >
+              {PIZZARIA_PRODUCTS.map((item) => {
+                const isAdded = Boolean(addedItems[item.id]);
+                return (
+                  <div
+                    key={item.id}
+                    className="flex flex-col justify-between rounded-2xl bg-white p-3.5 shadow-sm border border-slate-100 shrink-0 w-[170px] sm:w-[190px] md:w-[210px] text-slate-800 transition-all hover:shadow-md"
+                  >
+                    {/* Imagem do Produto */}
+                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-slate-50 flex items-center justify-center p-1.5">
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.title}
+                        fill
+                        sizes="180px"
+                        className="object-contain p-1"
+                      />
+                    </div>
+
+                    {/* Textos: Título e Subtítulo */}
+                    <div className="mt-2.5">
+                      <h4 className="text-xs sm:text-[13px] font-bold text-slate-900 leading-snug line-clamp-1">
+                        {item.title}
+                      </h4>
+                      <p className="text-[10.5px] text-slate-500 font-normal mt-0.5 line-clamp-1">
+                        {item.subtitle}
+                      </p>
+
+                      {/* 5 Estrelas + Avaliação 4.7 (129) */}
+                      <div className="mt-1 flex items-center gap-1 text-[10px] text-slate-600">
+                        <div className="flex items-center text-amber-400">
+                          {[0, 1, 2, 3, 4].map((s) => (
+                            <Star key={s} className="size-2.5 sm:size-3 fill-amber-400 text-amber-400" />
+                          ))}
+                        </div>
+                        <span className="font-semibold">{item.ratingText}</span>
+                      </div>
+
+                      {/* Preço em Destaque */}
+                      <div className="mt-1.5">
+                        <strong className="text-base sm:text-lg font-black text-slate-950">
+                          {item.price}
+                        </strong>
+                      </div>
+                    </div>
+
+                    {/* Botão Adicionar à Cotação */}
+                    <button
+                      onClick={() => handleAddToCart(item)}
+                      type="button"
+                      className={`mt-3 inline-flex items-center justify-center gap-1 w-full rounded-full border py-1.5 px-2 text-[11px] font-bold transition cursor-pointer ${
+                        isAdded
+                          ? 'bg-emerald-600 border-emerald-600 text-white'
+                          : 'border-rose-300 text-[#CB001C] hover:bg-rose-50 hover:border-rose-400'
+                      }`}
+                    >
+                      {isAdded ? (
+                        <>
+                          <Check className="size-3.5 stroke-[2.5]" />
+                          <span>Adicionado!</span>
+                        </>
+                      ) : (
+                        <span>Adicionar à Cotação</span>
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
 
-            <Link
-              href="/loja"
-              className="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-[#CB001C] hover:underline"
+            {/* Botão Direito do Carrossel */}
+            <button
+              onClick={() => handleScrollCarousel(1)}
+              aria-label="Ver próximos produtos"
+              className="absolute -right-2.5 sm:-right-3.5 top-1/2 -translate-y-1/2 size-8 sm:size-9 rounded-full bg-white shadow-lg border border-slate-200 flex items-center justify-center text-slate-700 hover:text-[#CB001C] z-30 transition cursor-pointer"
             >
-              <span>Ver todos os produtos</span>
-              <ArrowRight className="size-3.5" />
-            </Link>
-          </div>
-
-          {/* Grid de 4 Produtos Citados */}
-          <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {DEFAULT_PRODUCTS.map((prod) => (
-              <div
-                key={prod.id}
-                className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs hover:border-[#CB001C]/50 hover:shadow-md transition-all group"
-              >
-                {/* Imagem do Produto */}
-                <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-50 flex items-center justify-center p-2">
-                  <Image
-                    src={prod.imageUrl}
-                    alt={prod.title}
-                    fill
-                    sizes="250px"
-                    className="object-contain p-2 group-hover:scale-105 transition-transform"
-                  />
-                </div>
-
-                {/* Textos */}
-                <div className="mt-3">
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#CB001C] transition-colors">
-                    {prod.title}
-                  </h3>
-                  <p className="text-[11px] text-slate-500 font-normal mt-0.5">{prod.subtitle}</p>
-
-                  {/* Badges do Produto */}
-                  <div className="mt-2.5 flex flex-wrap gap-1.5">
-                    {prod.tags.map((tag, idx) => (
-                      <span
-                        key={idx}
-                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold border ${
-                          tag === 'Embalagens'
-                            ? 'bg-sky-50 text-sky-600 border-sky-200/60'
-                            : 'bg-rose-50 text-rose-600 border-rose-200/60'
-                        }`}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Botão Ver Produto */}
-                <Link
-                  href={prod.productUrl}
-                  className="mt-4 inline-flex items-center justify-center gap-1 w-full rounded-full border border-rose-200 py-1.5 text-xs font-semibold text-[#CB001C] hover:bg-rose-50 hover:border-rose-300 transition"
-                >
-                  <span>Ver Produto</span>
-                  <ChevronRight className="size-3" />
-                </Link>
-              </div>
-            ))}
+              <ChevronRight className="size-4.5 stroke-[2.5]" />
+            </button>
           </div>
         </section>
 
-        {/* 6. Seção: Outras dicas que podem te ajudar */}
+        {/* 5. Seção: Outras dicas que podem te ajudar (Componentes VideoArticleCard oficiais de /posts) */}
         <section aria-labelledby="outras-dicas-heading" className="mt-12 sm:mt-14">
           <div className="flex items-center justify-between pb-4 border-b border-slate-200">
             <div className="flex items-center gap-2.5">
@@ -673,65 +641,28 @@ export function ExplicaAiSinglePost({ post }: ExplicaAiSinglePostProps) {
               className="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-[#CB001C] hover:underline"
             >
               <span>Ver todos os conteúdos</span>
-              <ArrowRight className="size-3.5" />
+              <ChevronRight className="size-3.5 stroke-[2.5]" />
             </Link>
           </div>
 
-          {/* Grid de 4 Vídeos Relacionados */}
-          <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {DEFAULT_RELATED_VIDEOS.map((vid) => (
-              <Link
-                key={vid.id}
-                href={`/post/${vid.slug}`}
-                className="group flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs hover:border-[#CB001C]/50 hover:shadow-md transition-all"
-              >
-                {/* Thumbnail com Play Button Central e Duração */}
-                <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-100">
-                  <Image
-                    src={vid.imageUrl}
-                    alt={vid.title}
-                    fill
-                    sizes="250px"
-                    className="object-cover group-hover:scale-105 transition-transform"
-                  />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
-
-                  {/* Play Button Central */}
-                  <div className="absolute inset-0 m-auto size-10 rounded-full bg-[#E30613] text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                    <Play className="size-4 fill-white ml-0.5" />
-                  </div>
-
-                  {/* Badge de Duração no canto inferior direito */}
-                  <span className="absolute bottom-1.5 right-1.5 rounded bg-black/85 px-1.5 py-0.5 text-[9px] font-mono font-bold text-white">
-                    {vid.duration}
-                  </span>
-                </div>
-
-                {/* Título do Vídeo */}
-                <div className="mt-3 flex-1 flex flex-col justify-between">
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-2 group-hover:text-[#CB001C] transition-colors leading-snug">
-                    {vid.title}
-                  </h3>
-
-                  {/* Tags */}
-                  <div className="mt-2.5 flex flex-wrap gap-1.5">
-                    {vid.tags.map((tag, idx) => (
-                      <span
-                        key={idx}
-                        className="rounded-full bg-rose-50/80 border border-rose-200/50 px-2 py-0.5 text-[10px] font-medium text-rose-600"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </Link>
+          {/* Grid com VideoArticleCard oficial de /posts */}
+          <div className="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {RELATED_VIDEO_ARTICLES.map((vid, idx) => (
+              <VideoArticleCard
+                key={`${vid.id}-${idx}`}
+                title={vid.title}
+                tags={vid.tags}
+                paragraphs={vid.paragraphs}
+                ctaLabel={vid.ctaLabel}
+                ctaUrl={vid.ctaUrl}
+                imageUrl={vid.imageUrl}
+              />
             ))}
           </div>
         </section>
       </div>
 
-      {/* 7. Modal de Vídeo Interativo */}
+      {/* 6. Modal de Vídeo Interativo */}
       {activeVideoModal && (
         <div
           role="dialog"
@@ -760,7 +691,7 @@ export function ExplicaAiSinglePost({ post }: ExplicaAiSinglePostProps) {
               {post.videoUrl && post.videoUrl.includes('youtube') ? (
                 <iframe
                   className="size-full"
-                  src={`${post.videoUrl}${post.videoUrl.includes('?') ? '&' : '?'}autoplay=1&start=${videoTimestamp || 0}`}
+                  src={`${post.videoUrl}${post.videoUrl.includes('?') ? '&' : '?'}autoplay=1`}
                   title={post.title}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -772,8 +703,7 @@ export function ExplicaAiSinglePost({ post }: ExplicaAiSinglePostProps) {
                   </div>
                   <h4 className="text-base font-bold">{post.title}</h4>
                   <p className="text-xs text-zinc-400 mt-1 max-w-md">
-                    Reproduzindo dica prática do Explica Aí Nort a partir de{' '}
-                    {videoTimestamp ? `${videoTimestamp} segundos` : '00:00'}.
+                    Vídeo explicativo oficial da Comercial do Norte — Explica Aí Nort!
                   </p>
                 </div>
               )}

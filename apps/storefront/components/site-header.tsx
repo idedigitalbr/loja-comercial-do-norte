@@ -402,7 +402,7 @@ export function SiteHeader({
               {/* 1. Mais Vendidos */}
               <Link
                 className="rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap shrink-0"
-                href="/loja"
+                href="/loja?ordem=mais_vendidos"
               >
                 Mais Vendidos
               </Link>
@@ -630,7 +630,7 @@ export function SiteHeader({
                   </Link>
                   <Link
                     className="flex items-center gap-2 py-1.5 text-slate-700"
-                    href="/loja"
+                    href="/loja?ordem=mais_vendidos"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <ShoppingBag className="size-4 text-[#004CB1]" />

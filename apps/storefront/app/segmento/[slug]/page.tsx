@@ -15,6 +15,7 @@ type SearchParams = Promise<{
   precoMin?: string;
   precoMax?: string;
   pagina?: string;
+  oferta?: string;
 }>;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
@@ -48,10 +49,12 @@ export default async function SegmentPage({
     precoMin,
     precoMax,
     pagina,
+    oferta,
   } = await searchParams;
 
+  const isOferta = oferta === '1' || oferta === 'true';
   const page = Math.max(1, Number.parseInt(pagina ?? '1', 10) || 1);
-  const sort = ordem === 'nome' ? 'name_asc' : 'newest';
+  const sort = ordem === 'nome' ? 'name_asc' : ordem === 'mais_vendidos' ? 'mais_vendidos' : 'newest';
 
   const [segments, categories, tags, brands, result] = await Promise.all([
     getSegments(),
@@ -64,6 +67,7 @@ export default async function SegmentPage({
       page,
       pageSize: PAGE_SIZE,
       sort,
+      offer: isOferta,
     }),
   ]);
 
@@ -115,6 +119,7 @@ export default async function SegmentPage({
           precoMin,
           precoMax,
           pagina,
+          oferta: isOferta ? '1' : undefined,
         }}
         segments={segments}
         tags={tags}

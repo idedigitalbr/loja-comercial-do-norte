@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PanelLeft, SlidersHorizontal, X } from "lucide-react";
+import { Flame, PanelLeft, ShoppingBag, SlidersHorizontal, X } from "lucide-react";
 import { cn, WebButton, WebEmptyState } from "@commerce/ui/web";
 import { ProductCard } from "@/components/product-card";
 import type { ApiBrand, ApiCategory, ApiProduct, ApiSegment, ApiTag } from "@/lib/types";
@@ -38,6 +38,8 @@ export type CatalogViewProps = {
     precoMin?: string;
     precoMax?: string;
     pagina?: string;
+    oferta?: string;
+    promocao?: string;
   };
   activeCategory?: ApiCategory;
   activeSegment?: ApiSegment;
@@ -78,9 +80,13 @@ export function CatalogView({
     avaliacao,
     precoMin,
     precoMax,
+    oferta,
+    promocao,
   } = searchParamsState;
 
-  const currentSort = ordem === "nome" ? "name_asc" : "newest";
+  const isOferta = oferta === "1" || oferta === "true" || promocao === "1";
+  const isMaisVendidos = ordem === "mais_vendidos";
+  const currentSort = ordem === "nome" ? "name_asc" : isMaisVendidos ? "mais_vendidos" : "newest";
 
   const buildHref = (overrides: Record<string, string | number | undefined>) => {
     const params = new URLSearchParams();
@@ -105,7 +111,9 @@ export function CatalogView({
       entrega ||
       avaliacao ||
       precoMin ||
-      precoMax
+      precoMax ||
+      isOferta ||
+      isMaisVendidos
   );
 
   return (
@@ -235,6 +243,17 @@ export function CatalogView({
                   <Link
                     className={cn(
                       "rounded-full border px-3 py-1.5 text-xs font-semibold transition shadow-2xs",
+                      currentSort === "mais_vendidos"
+                        ? "border-[#004CB1] bg-[#004CB1] text-white"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-[#004CB1]"
+                    )}
+                    href={buildHref({ ordem: "mais_vendidos" })}
+                  >
+                    Mais Vendidos
+                  </Link>
+                  <Link
+                    className={cn(
+                      "rounded-full border px-3 py-1.5 text-xs font-semibold transition shadow-2xs",
                       currentSort === "name_asc"
                         ? "border-[#004CB1] bg-blue-50/70 text-[#004CB1]"
                         : "border-slate-200 bg-white text-slate-700 hover:border-[#004CB1]"
@@ -242,6 +261,18 @@ export function CatalogView({
                     href={buildHref({ ordem: "nome" })}
                   >
                     Nome A–Z
+                  </Link>
+                  <Link
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-semibold transition shadow-2xs",
+                      isOferta
+                        ? "border-[#E2091E] bg-[#E2091E] text-white"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-[#E2091E] hover:text-[#E2091E]"
+                    )}
+                    href={buildHref({ oferta: isOferta ? undefined : "1" })}
+                  >
+                    <Flame className={cn("size-3.5", isOferta ? "text-white" : "text-[#E2091E]")} />
+                    <span>Ofertas</span>
                   </Link>
                 </div>
 
@@ -353,6 +384,26 @@ export function CatalogView({
                   >
                     Preço: {precoMin ? `Min R$${precoMin}` : ""} {precoMax ? `Max R$${precoMax}` : ""}{" "}
                     <span className="font-bold text-slate-400">×</span>
+                  </Link>
+                ) : null}
+                {isOferta ? (
+                  <Link
+                    className="inline-flex items-center gap-1.5 rounded-full border border-red-300 bg-red-50 px-2.5 py-1 font-medium text-[#E2091E] transition hover:border-red-500 hover:text-red-700"
+                    href={buildHref({ oferta: undefined, promocao: undefined })}
+                    title="Remover filtro de ofertas"
+                  >
+                    <Flame className="size-3 text-[#E2091E]" />
+                    Ofertas do Dia <span className="font-bold text-red-400">×</span>
+                  </Link>
+                ) : null}
+                {isMaisVendidos ? (
+                  <Link
+                    className="inline-flex items-center gap-1.5 rounded-full border border-blue-300 bg-blue-50 px-2.5 py-1 font-medium text-[#004CB1] transition hover:border-[#004CB1] hover:text-[#004CB1]"
+                    href={buildHref({ ordem: undefined })}
+                    title="Remover ordenação por mais vendidos"
+                  >
+                    <ShoppingBag className="size-3 text-[#004CB1]" />
+                    Mais Vendidos <span className="font-bold text-blue-400">×</span>
                   </Link>
                 ) : null}
 

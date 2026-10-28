@@ -13,6 +13,7 @@ import {
   ChevronUp,
   Croissant,
   CupSoda,
+  Flame,
   IceCream2,
   Milk,
   Package,
@@ -193,7 +194,8 @@ export function CatalogSidebar({
   });
 
   // Query parameters atuais da URL
-  const currentOrdem = searchParams.get("ordem") ?? "mais_vendidos";
+  const currentOrdem = searchParams.get("ordem") ?? "";
+  const currentOferta = searchParams.get("oferta") === "1" || searchParams.get("promocao") === "1";
   const currentEntrega = searchParams.get("entrega") ?? "";
   const currentMarca = activeBrandSlug ?? searchParams.get("marca") ?? "";
   const currentAvaliacao = searchParams.get("avaliacao") ?? "";
@@ -337,8 +339,38 @@ export function CatalogSidebar({
           </div>
         </div>
 
-        {/* Linha de Tags */}
+        {/* Linha de Tags e Filtros Rápidos */}
         <div className="flex flex-wrap items-center gap-1.5">
+          {/* Botão Rápido de Ofertas */}
+          <button
+            className={cn(
+              "inline-flex shrink-0 cursor-pointer items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition shadow-2xs",
+              currentOferta
+                ? "border-[#E2091E] bg-[#E2091E] text-white"
+                : "border-red-200 bg-red-50/70 text-[#E2091E] hover:border-[#E2091E] hover:bg-red-100/60"
+            )}
+            onClick={() => toggleParam("oferta", "1")}
+            type="button"
+          >
+            <Flame className="size-3" />
+            <span>Ofertas do Dia</span>
+          </button>
+
+          {/* Botão Rápido de Mais Vendidos */}
+          <button
+            className={cn(
+              "inline-flex shrink-0 cursor-pointer items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition shadow-2xs",
+              currentOrdem === "mais_vendidos"
+                ? "border-[#004CB1] bg-[#004CB1] text-white"
+                : "border-blue-200 bg-blue-50/70 text-[#004CB1] hover:border-[#004CB1] hover:bg-blue-100/60"
+            )}
+            onClick={() => toggleParam("ordem", "mais_vendidos")}
+            type="button"
+          >
+            <ShoppingBag className="size-3" />
+            <span>Mais Vendidos</span>
+          </button>
+
           {visibleTags.map((tag) => {
             const isTagActive = currentTag === tag.slug;
             return (
@@ -669,9 +701,7 @@ export function CatalogSidebar({
               { label: "Mais Bem Avaliados", value: "avaliacao" },
               { label: "Lançamento", value: "lancamento" },
             ].map((opt) => {
-              const isSelected =
-                currentOrdem === opt.value ||
-                (!searchParams.get("ordem") && opt.value === "mais_vendidos");
+              const isSelected = currentOrdem === opt.value;
               return (
                 <button
                   className={cn(

@@ -59,4 +59,27 @@ describe('CatalogService — busca paginada do storefront (E7)', () => {
     expect(args.skip).toBe(0);
     expect(args.take).toBe(48);
   });
+
+  it('filtra apenas produtos em oferta quando onlyOffers for true', async () => {
+    const { prisma, service } = buildService();
+
+    await service.searchProducts({ onlyOffers: true });
+
+    const args = prisma.product.findMany.mock.calls[0][0];
+    expect(args.where.variants).toEqual({
+      some: {
+        status: 'ACTIVE',
+        compareAtPriceCents: { gt: 0 },
+      },
+    });
+  });
+
+  it('ordena por mais_vendidos usando updatedAt desc', async () => {
+    const { prisma, service } = buildService();
+
+    await service.searchProducts({ sort: 'mais_vendidos' });
+
+    const args = prisma.product.findMany.mock.calls[0][0];
+    expect(args.orderBy).toEqual({ updatedAt: 'desc' });
+  });
 });

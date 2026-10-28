@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { ExplicaAiSinglePost } from '@/components/explica-ai/explica-ai-single-post';
+import { QuoteCartProvider } from '@/components/quote-cart-provider';
 
 afterEach(() => {
   cleanup();
@@ -12,7 +13,11 @@ afterEach(() => {
 
 // Mock Next.js Image e Link
 vi.mock('next/image', () => ({
-  default: ({ alt, src }: { alt: string; src: string }) => <img alt={alt} src={src} />,
+  __esModule: true,
+  default: ({ fill, priority, ...props }: any) => {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img {...props} alt={props.alt || ''} />;
+  },
 }));
 
 vi.mock('next/link', () => ({
@@ -26,6 +31,29 @@ vi.mock('next/link', () => ({
   },
 }));
 
+// Mock do QuoteCartProvider com vi.hoisted para evitar erro de inicialização
+const { mockAddToCart } = vi.hoisted(() => ({
+  mockAddToCart: vi.fn(),
+}));
+
+vi.mock('@/components/quote-cart-provider', () => ({
+  useQuoteCart: () => ({
+    add: mockAddToCart,
+    items: [],
+    count: 0,
+    open: false,
+    setOpen: vi.fn(),
+    remove: vi.fn(),
+    updateQuantity: vi.fn(),
+    clear: vi.fn(),
+  }),
+  QuoteCartProvider: ({ children }: any) => children,
+}));
+
+function renderPost(post = mockPost) {
+  return render(<ExplicaAiSinglePost post={post} />);
+}
+
 const mockPost = {
   id: 'test-post-1',
   title: 'Caixas de pizza: formatos e respiros que preservam a massa',
@@ -38,9 +66,9 @@ const mockPost = {
   videoDuration: '5 min',
   authorName: 'Comercial do Norte',
   badges: ['PIZZARIAS', 'TRANSPORTE SEGURO'],
+  status: 'ACTIVE',
   publishedAt: '2026-10-27T10:00:00.000Z',
   views: 12500,
-  conceptTag: 'Conceito 7',
   category: {
     id: 'cat-1',
     name: 'Embalagens & Delivery',
@@ -50,18 +78,17 @@ const mockPost = {
 
 describe('ExplicaAiSinglePost Component (Pixel-Perfect Spec)', () => {
   it('renderiza o breadcrumb com caminho completo até o post', () => {
-    render(<ExplicaAiSinglePost post={mockPost} />);
+    renderPost();
 
     expect(screen.getByText('Início')).toBeDefined();
     expect(screen.getByText('Explica Aí Nort!')).toBeDefined();
     expect(screen.getByText('Embalagens & Delivery')).toBeDefined();
   });
 
-  it('renderiza o Hero Banner com badges, título, descrição, metadados e mascote Nort', () => {
-    render(<ExplicaAiSinglePost post={mockPost} />);
+  it('renderiza o Hero Banner com badge oficial, título, descrição, metadados e mascote Nort', () => {
+    renderPost();
 
-    // Badges
-    expect(screen.getByText('Conceito 7')).toBeDefined();
+    // Badge Oficial
     expect(screen.getByText('EXPLICA AÍ NORT!')).toBeDefined();
 
     // Título principal
@@ -80,64 +107,68 @@ describe('ExplicaAiSinglePost Component (Pixel-Perfect Spec)', () => {
     expect(mascot).toBeDefined();
   });
 
-  it('renderiza a seção de Transcrição do vídeo com os 4 capítulos e permite expandir', () => {
-    render(<ExplicaAiSinglePost post={mockPost} />);
+  it('renderiza a seção Descrição do post com texto explicativo, foto e Principais pontos', () => {
+    renderPost();
 
-    expect(screen.getByText('Transcrição do vídeo')).toBeDefined();
-    expect(screen.getByText('Assistir no YouTube')).toBeDefined();
+    expect(screen.getByText('Descrição do post')).toBeDefined();
+    expect(
+      screen.getByText(/A embalagem certa faz toda a diferença para manter a qualidade da pizza até o cliente/i)
+    ).toBeDefined();
 
-    // 4 capítulos
-    expect(screen.getByText('Introdução: por que a caixa de pizza é tão importante?')).toBeDefined();
-    expect(screen.getByText('Formatos: oitavada x quadrada')).toBeDefined();
-    expect(screen.getByText('Respiros: ventilação que preserva a massa')).toBeDefined();
-    expect(screen.getByText('Lacres de segurança e boas práticas')).toBeDefined();
+    // Imagem do artigo
+    const articlePhoto = screen.getByAltText(/Pizza no forno com caixas de entrega ao lado/i);
+    expect(articlePhoto).toBeDefined();
 
-    // Timestamps
-    expect(screen.getByText('00:00')).toBeDefined();
-    expect(screen.getByText('00:32')).toBeDefined();
-    expect(screen.getByText('01:10')).toBeDefined();
-    expect(screen.getByText('01:45')).toBeDefined();
-
-    // Clica para expandir capítulo 1
-    const chapterTitle = screen.getByText('Introdução: por que a caixa de pizza é tão importante?');
-    fireEvent.click(chapterTitle);
-
-    expect(screen.getByText(/Quando o cliente recebe uma pizza em casa/i)).toBeDefined();
+    // Principais pontos do vídeo
+    expect(screen.getByText('Principais pontos do vídeo')).toBeDefined();
+    expect(screen.getByText('Formatos: diferenças entre caixa oitavada e quadrada.')).toBeDefined();
+    expect(screen.getByText('Respiros: como a ventilação evita que a massa fique borrachuda.')).toBeDefined();
+    expect(screen.getByText('Lacres de segurança: mais confiança na entrega.')).toBeDefined();
+    expect(screen.getByText('Dicas práticas de uso e armazenamento.')).toBeDefined();
   });
 
-  it('renderiza o Banner Comercial CTA para montagem de cotação online', () => {
-    render(<ExplicaAiSinglePost post={mockPost} />);
+  it('renderiza o Banner de Produtos Relacionados com carrossel navegável e adiciona à cotação', () => {
+    renderPost();
 
-    expect(screen.getByText('PRECISA DESSES ITENS NO SEU NEGÓCIO?')).toBeDefined();
-    expect(screen.getByText('Monte sua cotação online na Comercial do Norte')).toBeDefined();
-    expect(screen.getByText(/Ver Catálogo de Produtos/i)).toBeDefined();
-  });
+    expect(screen.getByText('PRODUTOS RELACIONADOS')).toBeDefined();
+    expect(screen.getByText('Tudo para a sua pizzaria')).toBeDefined();
+    expect(screen.getByText('Ver todos os produtos')).toBeDefined();
 
-  it('renderiza os 4 Produtos citados neste vídeo com imagem e botão Ver Produto', () => {
-    render(<ExplicaAiSinglePost post={mockPost} />);
-
-    expect(screen.getByText('Produtos citados neste vídeo')).toBeDefined();
+    // Produtos do carrossel
     expect(screen.getByText('Caixa de pizza oitavada')).toBeDefined();
     expect(screen.getByText('Caixa de pizza quadrada')).toBeDefined();
     expect(screen.getByText('Caixa com respiros laterais')).toBeDefined();
     expect(screen.getByText('Lacre de segurança')).toBeDefined();
+    expect(screen.getByText('Papel para forno de pizza')).toBeDefined();
 
-    const verProdutoLinks = screen.getAllByText('Ver Produto');
-    expect(verProdutoLinks.length).toBe(4);
+    // Preços
+    expect(screen.getByText('R$ 7,49')).toBeDefined();
+    expect(screen.getByText('R$ 24,90')).toBeDefined();
+    expect(screen.getByText('R$ 7,30')).toBeDefined();
+    expect(screen.getByText('R$ 4,20')).toBeDefined();
+    expect(screen.getByText('R$ 15,90')).toBeDefined();
+
+    // Botões de Adicionar à Cotação
+    const addButtons = screen.getAllByText('Adicionar à Cotação');
+    expect(addButtons.length).toBe(5);
+
+    // Clica no primeiro produto para adicionar
+    fireEvent.click(addButtons[0]);
+    expect(mockAddToCart).toHaveBeenCalled();
   });
 
-  it('renderiza as Outras dicas que podem te ajudar com os 4 cards de vídeo', () => {
-    render(<ExplicaAiSinglePost post={mockPost} />);
+  it('renderiza Outras dicas que podem te ajudar com os cards de vídeo (VideoArticleCard de /posts)', () => {
+    renderPost();
 
     expect(screen.getByText('Outras dicas que podem te ajudar')).toBeDefined();
-    expect(screen.getByText('Decoração de doces e bolos com chantilly profissional')).toBeDefined();
-    expect(screen.getByText('Copos e tampas para açaí e café')).toBeDefined();
-    expect(screen.getByText('Embalagens kraft para o seu delivery')).toBeDefined();
-    expect(screen.getByText('Como melhorar a entrega da sua pizzaria')).toBeDefined();
+    expect(screen.getByText('Ver todos os conteúdos')).toBeDefined();
+
+    const verCompletoButtons = screen.getAllByText('Ver Completo');
+    expect(verCompletoButtons.length).toBeGreaterThanOrEqual(2);
   });
 
   it('abre e fecha o modal de vídeo ao clicar no botão de play', () => {
-    render(<ExplicaAiSinglePost post={mockPost} />);
+    renderPost();
 
     const playBtn = screen.getByLabelText('Assistir ao vídeo agora');
     fireEvent.click(playBtn);

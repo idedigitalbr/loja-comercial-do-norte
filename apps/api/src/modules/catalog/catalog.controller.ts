@@ -23,6 +23,8 @@ type SearchQuery = {
   page?: string;
   pageSize?: string;
   sort?: string;
+  offer?: string;
+  oferta?: string;
 };
 
 @UseGuards(PublicRateLimitGuard)
@@ -40,6 +42,12 @@ export class CatalogController {
   @PublicRateLimit({ limit: 120, windowMs: 60_000 })
   @Get('products/search')
   searchProducts(@Query() query: SearchQuery) {
+    const onlyOffers =
+      query.offer === '1' ||
+      query.offer === 'true' ||
+      query.oferta === '1' ||
+      query.oferta === 'true';
+
     return this.catalogService.searchProducts({
       search: query.search,
       brand: query.brand,
@@ -48,7 +56,13 @@ export class CatalogController {
       tag: query.tag,
       page: query.page ? Number(query.page) : undefined,
       pageSize: query.pageSize ? Number(query.pageSize) : undefined,
-      sort: query.sort === 'name_asc' ? 'name_asc' : 'newest',
+      sort:
+        query.sort === 'name_asc'
+          ? 'name_asc'
+          : query.sort === 'mais_vendidos'
+            ? 'mais_vendidos'
+            : 'newest',
+      onlyOffers,
     });
   }
 

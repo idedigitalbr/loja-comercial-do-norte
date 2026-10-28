@@ -202,7 +202,7 @@ export const defaultHomeComposition: PageComposition = {
             label: 'Mais Vendidos',
             imageUrl:
               '/assets/HOME Vitrine/S3-CARDS-Categorias/3d/07-mais-vendidos.png',
-            linkUrl: '/loja?ordenar=mais-vendidos',
+            linkUrl: '/loja?ordem=mais_vendidos',
           },
         ],
       },
