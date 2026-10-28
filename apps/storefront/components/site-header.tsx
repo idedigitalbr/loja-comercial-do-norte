@@ -382,7 +382,7 @@ export function SiteHeader({
               {/* Workshops */}
               <Link
                 className="flex items-center gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
-                href="/eventos"
+                href="/eventos/workshops/aulas-confeitaria"
               >
                 <span>Workshops</span>
                 <span className="rounded-full bg-[#B45309] px-1.5 py-0.5 text-[8px] sm:text-[8.5px] font-black uppercase text-white leading-none tracking-tight">
@@ -641,8 +641,16 @@ export function SiteHeader({
                     href="/eventos"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Sparkles className="size-4 text-amber-500" />
-                    <span>Eventos &amp; Workshops</span>
+                    <Sparkles className="size-4 text-blue-600" />
+                    <span>Nossos Eventos</span>
+                  </Link>
+                  <Link
+                    className="flex items-center gap-2 py-1.5 text-slate-700"
+                    href="/eventos/workshops/aulas-confeitaria"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Sparkles className="size-4 text-[#B45309]" />
+                    <span>Workshops — Aulas Confeitaria</span>
                   </Link>
                   <Link
                     className="flex items-center gap-2 py-1.5 text-slate-700"

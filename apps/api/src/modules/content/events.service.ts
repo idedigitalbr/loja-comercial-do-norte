@@ -43,6 +43,7 @@ export class EventsService {
         { description: { contains: term, mode: 'insensitive' } },
         { location: { contains: term, mode: 'insensitive' } },
         { instructor: { contains: term, mode: 'insensitive' } },
+        { badge: { contains: term, mode: 'insensitive' } },
       ];
     }
 

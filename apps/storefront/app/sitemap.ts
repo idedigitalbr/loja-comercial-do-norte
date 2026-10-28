@@ -19,6 +19,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/loja`, changeFrequency: 'daily', priority: 0.9 },
     { url: `${siteUrl}/marcas`, changeFrequency: 'weekly', priority: 0.5 },
     { url: `${siteUrl}/segmentos`, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${siteUrl}/eventos`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${siteUrl}/eventos/workshops/aulas-confeitaria`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${siteUrl}/post`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${siteUrl}/cotacao`, changeFrequency: 'monthly', priority: 0.3 },
   ];
 
