@@ -15,7 +15,8 @@ composer.phar
 out/
 dist/
 build/
-apps/api/public/
+apps/api/public/admin/
+!apps/api/public/storage/
 .turbo/
 .cache/
 .vite/
@@ -25,6 +26,7 @@ test-results/
 
 # Local runtime data and uploads
 apps/api/storage/
+!apps/api/storage/uploads/
 storage/uploads/
 storage/generated/
 storage/logs/
@@ -85,3 +87,4 @@ apps/storefront/AGENTS.md
 .env*
 # Offline storefront state (composition and checkpoints saved atomically).
 apps/storefront/data/home-state.json*
+

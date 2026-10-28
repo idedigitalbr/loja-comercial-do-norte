@@ -5,6 +5,12 @@
 
 ## 1. Estado confirmado nesta revisão
 
+- **28/10/2026 — Sincronização Integral Local → Produção (Neon, Storage, GitHub, Vercel):**
+  - **Neon & PostgreSQL:** 7 migrations oficiais aplicadas com sucesso (`20261026190000_add_home_composition`, `20261027200000_add_segments_and_tags`, `20261027210000_add_posts_and_events`). Preservadas todas as cotações de produção existentes. Sincronizados 4 posts, 6 eventos, 3 categorias de post e `homeComposition` (16 seções ativas) em `SiteConfiguration`.
+  - **Armazenamento e Imagens:** Ajustado `.gitignore` para unignore de `apps/api/public/storage/` e `apps/storefront/public/storage/`, garantindo que os 42 arquivos de mídia/seed (1440/960/480 WebP) sejam enviados ao repositório e distribuídos em produção, eliminando imagens 404.
+  - **Catálogo & Sidebar:** Implementada busca instantânea na sidebar por produtos, marcas, categorias, segmentos e tags, sincronização bidirecional do termo de busca e limpeza de filtros.
+  - **Validação Local:** `pnpm typecheck` 6/6 aprovado, `pnpm lint` 6/6 aprovado, `pnpm test` (165 testes na API, 132 testes no storefront) 100% aprovado.
+
 - **28/10/2026 — Mais Vendidos e Ofertas do Dia (Storefront & API):**
   - **Filtros e Rotas Dedicadas:** `/loja?ordem=mais_vendidos`, `/loja?oferta=1`, `/mais-vendidos` (redireciona com filtro) e `/ofertas` (redireciona com filtro).
   - **API NestJS:** `GET /catalog/products/search` atualizado para receber `onlyOffers` e `sort: 'mais_vendidos'`.

@@ -56,18 +56,27 @@ const mockItems: SegmentCardItem[] = [
 ];
 
 describe('SegmentsCarouselWidget', () => {
+  it('renderiza com os valores padrão corretos', () => {
+    render(<SegmentsCarouselWidget items={mockItems} />);
+
+    expect(screen.getByRole('region', { name: 'Para todos os Negócios' })).toBeDefined();
+    expect(screen.getByText('Para todos os Negócios')).toBeDefined();
+    expect(screen.getByText('De todos os tamanhos')).toBeDefined();
+    expect(screen.getByText('Ver todos os segmentos')).toBeDefined();
+  });
+
   it('renderiza o topo em azul escuro e a base transparente sem fundo branco', () => {
     const { container } = render(
       <SegmentsCarouselWidget
-        title="Tudo para todos os negócios"
-        subtitle="Para todos os tamanhos!"
+        title="Para todos os Negócios"
+        subtitle="De todos os tamanhos"
         ctaLabel="Ver todos os segmentos"
         ctaUrl="/loja"
         items={mockItems}
       />
     );
 
-    const section = screen.getByRole('region', { name: 'Tudo para todos os negócios' });
+    const section = screen.getByRole('region', { name: 'Para todos os Negócios' });
     expect(section).toBeDefined();
 
     // O container externo deve ser transparente e NÃO ter bg-white
@@ -89,8 +98,8 @@ describe('SegmentsCarouselWidget', () => {
   it('renderiza os cards com fundo branco para contraste sobre a base transparente', () => {
     render(
       <SegmentsCarouselWidget
-        title="Tudo para todos os negócios"
-        subtitle="Para todos os tamanhos!"
+        title="Para todos os Negócios"
+        subtitle="De todos os tamanhos"
         ctaLabel="Ver todos os segmentos"
         ctaUrl="/loja"
         items={mockItems}
@@ -128,7 +137,7 @@ describe('SegmentsCarouselWidget', () => {
     render(
       <SegmentsCarouselWidget
         items={[legacyItem]}
-        title="Tudo para todos os negócios"
+        title="Para todos os Negócios"
       />
     );
 

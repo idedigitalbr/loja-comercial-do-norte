@@ -7,6 +7,7 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **28/10/2026 — Sincronização Local e Produção:** alinhamento completo entre ambiente local e nuvem. Schema Neon atualizado com todas as 7 migrations versionadas (posts, events, segments, tags, home composition), persistência de dados de CMS preservando cotações de produção, inclusão dos assets de storage/uploads no controle de versão e deploy Vercel das aplicações.
 - **28/10/2026 — Mais Vendidos e Ofertas do Dia:** filtros no servidor e rotas dedicadas (`/ofertas`, `/mais-vendidos`, `/loja?oferta=1`, `/loja?ordem=mais_vendidos`). NestJS API com `onlyOffers` e ordenação por `mais_vendidos`, títulos dinâmicos, breadcrumbs, fallback de ofertas reais e badges ativos no catálogo.
 - **28/10/2026 — CMS de Posts e Eventos & Taxonomia WooCommerce:** integrado diretamente na `main` com arquitetura completa (PostgreSQL + NestJS + Storefront Next.js + Admin React). Suporte a `/post`, `/evento`, `/segmento`, `/marca` e submenus administrativos de Posts e Eventos.
 
@@ -176,7 +177,7 @@ docs/
       - `05` `banner-grid` (3 banners triplos: *Limpeza*, *Feirante*, *Sacos e Sacolas*)
       - `06` `product-carousel` (`variant: 'standard-5col'` — *Mais vendidos* com 5 colunas)
       - `07` `quote-steps-banner` (*Saiba / Como funciona a cotação online* — Mascote 3D James + 4 cards numerados com ícones azuis e setas vermelhas + arte direita; removido da vitrine inicial da Home a pedido do usuário, preservado no catálogo do Elementor)
-      - `08` `segments-carousel` (*Tudo para todos os negócios / Para todos os tamanhos!* — topo em azul escuro com gradiente oficial e 4 cards brancos editáveis sobrepondo em `-mt-28` com base transparente, sem container ou fundo branco inferior)
+      - `08` `segments-carousel` (*Para todos os Negócios / De todos os tamanhos* — topo em azul escuro com gradiente oficial e 4 cards brancos editáveis sobrepondo em `-mt-28` com base transparente, sem container ou fundo branco inferior)
       - `09` `promo-strip` (`variant: 'offers-strip'` — *OFERTAS IMPERDÍVEIS* em imagem oficial `/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp` e link para `/loja?oferta=1`)
       - `10` `product-carousel` (`variant: 'standard-5col'` — *Para você* com 5 colunas)
       - `11` `banner-grid` (3 banners triplos: *Hamburgueira*, *Luva Vermelho*, *Luva Azul*)

@@ -98,8 +98,8 @@ export function resolveSegmentUrl(item: { id?: string; title?: string; linkUrl?:
 
 export function SegmentsCarouselWidget({
   widgetId,
-  title = 'Tudo para todos os negócios',
-  subtitle = 'Para todos os tamanhos!',
+  title = 'Para todos os Negócios',
+  subtitle = 'De todos os tamanhos',
   ctaLabel = 'Ver todos os segmentos',
   ctaUrl = '/segmentos',
   items = [],
@@ -129,7 +129,7 @@ export function SegmentsCarouselWidget({
               <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
                 {title}
               </h2>
-              <p className="mt-1 text-lg font-medium text-blue-100 sm:text-xl">
+              <p className="mt-1 text-lg font-medium text-white sm:text-xl">
                 {subtitle}
               </p>
               <div className="mt-2.5 h-1 w-28 rounded-full bg-[#E2091E]" />

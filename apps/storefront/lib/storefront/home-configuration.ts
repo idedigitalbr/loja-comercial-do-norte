@@ -316,8 +316,8 @@ export const defaultHomeComposition: PageComposition = {
       enabled: true,
       order: 7,
       props: {
-        title: "Tudo para todos os negócios",
-        subtitle: "Para todos os tamanhos!",
+        title: "Para todos os Negócios",
+        subtitle: "De todos os tamanhos",
         ctaLabel: "Ver todos os segmentos",
         ctaUrl: "/segmentos",
         items: [

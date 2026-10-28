@@ -214,96 +214,65 @@ export function CatalogView({
 
           {/* ÁREA DE CONTEÚDO PRINCIPAL (HEADER + FILTROS ATIVOS + GRID DE PRODUTOS 4 COLUNAS) */}
           <main className="flex-1 min-w-0 w-full">
-            {/* CABEÇALHO DO CATÁLOGO: TÍTULO, CONTAGEM E CONTROLES À DIREITA */}
-            <div className="mb-5 flex flex-col md:flex-row md:items-end md:justify-between gap-3.5">
-              <div>
+            {/* CABEÇALHO DO CATÁLOGO: TÍTULO, CONTAGEM E ORDENAÇÃO EM UMA LINHA SÓ */}
+            <div className="mb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4">
+              <div className="flex flex-wrap items-baseline gap-2 min-w-0">
                 <h1 className="text-2xl sm:text-[26px] font-black tracking-tight text-slate-900">
                   {title}
                 </h1>
-                <p className="mt-1 text-xs text-slate-500">
-                  {total} produto(s) publicado(s){q ? ` para “${q}”` : ""} · página {page} de {totalPages}
-                </p>
+                <span className="text-xs text-slate-500 font-medium">
+                  · {total} produto(s) publicado(s){q ? ` para “${q}”` : ""} · página {page} de {totalPages}
+                </span>
               </div>
 
-              {/* CONTROLES À DIREITA: ORDENAR (NOVIDADES / NOME) + BUSCA NO CATÁLOGO */}
-              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-                <div className="flex items-center gap-1.5 text-xs text-slate-600">
-                  <span className="font-semibold text-slate-500">Ordenar:</span>
-                  <Link
-                    className={cn(
-                      "rounded-full border px-3 py-1.5 text-xs font-semibold transition shadow-2xs",
-                      currentSort === "newest"
-                        ? "border-[#004CB1] bg-blue-50/70 text-[#004CB1]"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-[#004CB1]"
-                    )}
-                    href={buildHref({ ordem: undefined })}
-                  >
-                    Novidades
-                  </Link>
-                  <Link
-                    className={cn(
-                      "rounded-full border px-3 py-1.5 text-xs font-semibold transition shadow-2xs",
-                      currentSort === "mais_vendidos"
-                        ? "border-[#004CB1] bg-[#004CB1] text-white"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-[#004CB1]"
-                    )}
-                    href={buildHref({ ordem: "mais_vendidos" })}
-                  >
-                    Mais Vendidos
-                  </Link>
-                  <Link
-                    className={cn(
-                      "rounded-full border px-3 py-1.5 text-xs font-semibold transition shadow-2xs",
-                      currentSort === "name_asc"
-                        ? "border-[#004CB1] bg-blue-50/70 text-[#004CB1]"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-[#004CB1]"
-                    )}
-                    href={buildHref({ ordem: "nome" })}
-                  >
-                    Nome A–Z
-                  </Link>
-                  <Link
-                    className={cn(
-                      "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-semibold transition shadow-2xs",
-                      isOferta
-                        ? "border-[#E2091E] bg-[#E2091E] text-white"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-[#E2091E] hover:text-[#E2091E]"
-                    )}
-                    href={buildHref({ oferta: isOferta ? undefined : "1" })}
-                  >
-                    <Flame className={cn("size-3.5", isOferta ? "text-white" : "text-[#E2091E]")} />
-                    <span>Ofertas</span>
-                  </Link>
-                </div>
-
-                {/* BUSCA COM BOTÃO AZUL ESCURO #162556 */}
-                <form
-                  action={baseUrl}
-                  className="flex items-center gap-1.5"
-                  role="search"
+              {/* CONTROLES DE ORDENAÇÃO */}
+              <div className="flex items-center gap-1.5 text-xs text-slate-600 shrink-0 flex-wrap">
+                <span className="font-semibold text-slate-500">Ordenar:</span>
+                <Link
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-semibold transition shadow-2xs",
+                    currentSort === "newest"
+                      ? "border-[#004CB1] bg-blue-50/70 text-[#004CB1]"
+                      : "border-slate-200 bg-white text-slate-700 hover:border-[#004CB1]"
+                  )}
+                  href={buildHref({ ordem: undefined })}
                 >
-                  <label className="sr-only" htmlFor="catalog-main-search">
-                    Buscar no catálogo
-                  </label>
-                  <input
-                    className="w-[190px] sm:w-[220px] rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs text-slate-800 placeholder-slate-400 shadow-2xs focus:border-[#004CB1] focus:outline-none focus:ring-1 focus:ring-[#004CB1]"
-                    defaultValue={q ?? ""}
-                    id="catalog-main-search"
-                    name="q"
-                    placeholder="Buscar produto, marca ou SKU"
-                    type="search"
-                  />
-                  {categoria ? <input name="categoria" type="hidden" value={categoria} /> : null}
-                  {segmento ? <input name="segmento" type="hidden" value={segmento} /> : null}
-                  {tag ? <input name="tag" type="hidden" value={tag} /> : null}
-                  {marca ? <input name="marca" type="hidden" value={marca} /> : null}
-                  <button
-                    className="cursor-pointer rounded-full bg-[#162556] px-4 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-[#00357B] active:scale-95"
-                    type="submit"
-                  >
-                    Buscar
-                  </button>
-                </form>
+                  Novidades
+                </Link>
+                <Link
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-semibold transition shadow-2xs",
+                    currentSort === "mais_vendidos"
+                      ? "border-[#004CB1] bg-[#004CB1] text-white"
+                      : "border-slate-200 bg-white text-slate-700 hover:border-[#004CB1]"
+                  )}
+                  href={buildHref({ ordem: "mais_vendidos" })}
+                >
+                  Mais Vendidos
+                </Link>
+                <Link
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-semibold transition shadow-2xs",
+                    currentSort === "name_asc"
+                      ? "border-[#004CB1] bg-blue-50/70 text-[#004CB1]"
+                      : "border-slate-200 bg-white text-slate-700 hover:border-[#004CB1]"
+                  )}
+                  href={buildHref({ ordem: "nome" })}
+                >
+                  Nome A–Z
+                </Link>
+                <Link
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-semibold transition shadow-2xs",
+                    isOferta
+                      ? "border-[#E2091E] bg-[#E2091E] text-white"
+                      : "border-slate-200 bg-white text-slate-700 hover:border-[#E2091E] hover:text-[#E2091E]"
+                  )}
+                  href={buildHref({ oferta: isOferta ? undefined : "1" })}
+                >
+                  <Flame className={cn("size-3.5", isOferta ? "text-white" : "text-[#E2091E]")} />
+                  <span>Ofertas</span>
+                </Link>
               </div>
             </div>
 

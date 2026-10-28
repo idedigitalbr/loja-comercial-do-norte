@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useTransition } from "react";
+import React, { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -181,7 +181,13 @@ export function CatalogSidebar({
   const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const currentQ = searchParams.get("q") ?? "";
+  const [searchQuery, setSearchQuery] = useState(currentQ);
+
+  useEffect(() => {
+    setSearchQuery(currentQ);
+  }, [currentQ]);
+
   const isFewProducts = productsCount !== undefined && productsCount <= 4;
   const [showAllTags, setShowAllTags] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState(!isFewProducts);
@@ -259,6 +265,24 @@ export function CatalogSidebar({
     );
   }, [activeSegments, normalizedQuery]);
 
+  const filteredTags = useMemo(() => {
+    if (!normalizedQuery) return activeTags;
+    return activeTags.filter(
+      (tag) =>
+        tag.name.toLowerCase().includes(normalizedQuery) ||
+        tag.slug.toLowerCase().includes(normalizedQuery)
+    );
+  }, [activeTags, normalizedQuery]);
+
+  const filteredBrands = useMemo(() => {
+    if (!normalizedQuery) return availableBrands;
+    return availableBrands.filter(
+      (brand) =>
+        brand.name.toLowerCase().includes(normalizedQuery) ||
+        brand.slug.toLowerCase().includes(normalizedQuery)
+    );
+  }, [availableBrands, normalizedQuery]);
+
   // Segmentos visíveis: quando showAllSegments está ativo exibe todos, senão exibe 4 itens com 'VER MAIS'
   const visibleSegments = useMemo(() => {
     if (showAllSegments || normalizedQuery) return filteredSegments;
@@ -271,8 +295,8 @@ export function CatalogSidebar({
     return base;
   }, [showAllSegments, normalizedQuery, filteredSegments, activeSegmentSlug]);
 
-  // Tags visíveis: 3 inicialmente com +4 mais / ver menos
-  const visibleTags = showAllTags ? activeTags : activeTags.slice(0, 3);
+  // Tags visíveis: quando buscando exibe todas as encontradas, senão 3 inicialmente com +4 mais / ver menos
+  const visibleTags = showAllTags || normalizedQuery ? filteredTags : filteredTags.slice(0, 3);
 
   // Categorias visíveis: quando showAllCategories está ativo exibe todas, senão exibe 4 itens com 'VER MAIS'
   const visibleCategories = useMemo(() => {
@@ -286,7 +310,7 @@ export function CatalogSidebar({
     return base;
   }, [showAllCategories, normalizedQuery, filteredCategories, activeCategorySlug]);
 
-  const visibleBrands = showAllBrands ? availableBrands : availableBrands.slice(0, 5);
+  const visibleBrands = showAllBrands || normalizedQuery ? filteredBrands : filteredBrands.slice(0, 5);
 
   function toggleCategoryExpand(id: string, e?: React.SyntheticEvent) {
     if (e) {
@@ -302,11 +326,31 @@ export function CatalogSidebar({
   function handleSidebarSearchSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const term = searchQuery.trim();
+    const params = new URLSearchParams(searchParams.toString());
     if (term) {
-      const params = new URLSearchParams(searchParams.toString());
       params.set("q", term);
+    } else {
+      params.delete("q");
+    }
+    params.delete("pagina");
+    const query = params.toString();
+    startTransition(() => {
+      router.push(query ? `${baseUrl}?${query}` : baseUrl);
+    });
+    onItemClick?.();
+  }
+
+  function handleClearSearch() {
+    setSearchQuery("");
+    if (searchParams.get("q")) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("q");
       params.delete("pagina");
-      router.push(`/loja?${params.toString()}`);
+      const query = params.toString();
+      startTransition(() => {
+        router.push(query ? `${baseUrl}?${query}` : baseUrl);
+      });
+      onItemClick?.();
     }
   }
 
@@ -413,26 +457,40 @@ export function CatalogSidebar({
 
       {/* 2. CAMPO DE BUSCA NA SIDEBAR */}
       <div className="relative w-full">
-        <form className="relative w-full" onSubmit={handleSidebarSearchSubmit}>
-          <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+        <form
+          className="relative w-full"
+          onSubmit={handleSidebarSearchSubmit}
+          role="search"
+        >
+          <label className="sr-only" htmlFor="catalog-sidebar-search">
+            Buscar produtos, categorias ou marcas
+          </label>
+          <button
+            aria-label="Buscar produtos e categorias"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 cursor-pointer p-0.5 text-slate-400 hover:text-[#004CB1] transition"
+            type="submit"
+          >
+            <Search className="size-4" />
+          </button>
           <input
-            aria-label="Buscar categorias, segmentos ou produtos"
+            aria-label="Buscar produtos, categorias..."
             className="w-full rounded-2xl border border-slate-200/90 bg-white py-2.5 pr-8 pl-10 text-xs text-slate-800 placeholder-slate-400 shadow-xs transition focus:border-[#004CB1] focus:outline-none focus:ring-1 focus:ring-[#004CB1]"
+            id="catalog-sidebar-search"
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar produtos, categorias..."
             type="search"
             value={searchQuery}
           />
-          {searchQuery && (
+          {searchQuery ? (
             <button
               aria-label="Limpar busca"
-              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer p-0.5 text-slate-400 hover:text-slate-600"
-              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer p-0.5 text-slate-400 hover:text-slate-600 transition"
+              onClick={handleClearSearch}
               type="button"
             >
               <X className="size-3.5" />
             </button>
-          )}
+          ) : null}
         </form>
       </div>
 

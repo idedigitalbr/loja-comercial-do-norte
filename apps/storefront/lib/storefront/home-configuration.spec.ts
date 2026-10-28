@@ -40,7 +40,7 @@ describe('defaultHomeComposition (16 seções site-final + S0/S20)', () => {
     const json = JSON.stringify(defaultHomeComposition);
     expect(json).toContain('/assets/HOME Vitrine/S1-TOPO-HERO-largura-total/s1-topo (1).webp');
     expect(json).toContain('/assets/HOME Vitrine/S2-TOPO-HERO-padrao/Gemini_Generated_Image_k93f3kk93f3kk93f.jpg');
-    expect(json).toContain('Tudo para todos os negócios');
+    expect(json).toContain('Para todos os Negócios');
     expect(json).toContain('OFERTAS IMPERDÍVEIS');
     expect(json).toContain('Nossos Eventos');
     expect(json).toContain('/assets/HOME Vitrine/S12-EVENTOS/s12-event-01-empreendedores.jpg');

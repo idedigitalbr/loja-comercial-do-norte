@@ -28,6 +28,12 @@ describe('CatalogService — acesso publico ao catalogo', () => {
     expect(where.OR).toEqual([
       { name: { contains: 'Copo 300ml', mode: 'insensitive' } },
       { slug: { contains: 'copo-300ml' } },
+      { description: { contains: 'Copo 300ml', mode: 'insensitive' } },
+      { brand: { name: { contains: 'Copo 300ml', mode: 'insensitive' } } },
+      { categories: { some: { category: { name: { contains: 'Copo 300ml', mode: 'insensitive' } } } } },
+      { segments: { some: { segment: { name: { contains: 'Copo 300ml', mode: 'insensitive' } } } } },
+      { tags: { some: { tag: { name: { contains: 'Copo 300ml', mode: 'insensitive' } } } } },
+      { variants: { some: { sku: { contains: 'Copo 300ml', mode: 'insensitive' } } } },
     ]);
   });
 });

@@ -452,6 +452,12 @@ export class CatalogService {
             OR: [
               { name: { contains: input.search.trim(), mode: Prisma.QueryMode.insensitive } },
               { slug: { contains: normalizeProductSlug(input.search) } },
+              { description: { contains: input.search.trim(), mode: Prisma.QueryMode.insensitive } },
+              { brand: { name: { contains: input.search.trim(), mode: Prisma.QueryMode.insensitive } } },
+              { categories: { some: { category: { name: { contains: input.search.trim(), mode: Prisma.QueryMode.insensitive } } } } },
+              { segments: { some: { segment: { name: { contains: input.search.trim(), mode: Prisma.QueryMode.insensitive } } } } },
+              { tags: { some: { tag: { name: { contains: input.search.trim(), mode: Prisma.QueryMode.insensitive } } } } },
+              { variants: { some: { sku: { contains: input.search.trim(), mode: Prisma.QueryMode.insensitive } } } },
             ],
           }
         : {}),
