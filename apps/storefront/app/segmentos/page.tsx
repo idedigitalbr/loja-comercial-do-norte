@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { ArrowRight, Store } from 'lucide-react';
-import { SegmentHeroBanner } from '@/components/segment-hero-banner';
+import { SegmentHeroBanner, resolveSegmentBanner } from '@/components/segment-hero-banner';
 import { getSegments } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
@@ -59,40 +59,43 @@ export default async function SegmentsDirectoryPage() {
 
         {segments.length ? (
           <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {segments.map((segment) => (
-              <Link
-                className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-brand/40 hover:shadow-lg"
-                href={`/segmento/${segment.slug}`}
-                key={segment.id}
-              >
-                {segment.imagePath ? (
-                  <div className="relative aspect-[1.15/1] w-full overflow-hidden bg-slate-100">
-                    <Image
-                      alt={segment.name}
-                      className="size-full object-cover transition duration-300 group-hover:scale-105"
-                      height={360}
-                      src={segment.imagePath}
-                      unoptimized
-                      width={480}
-                    />
-                  </div>
-                ) : null}
-                <div className="flex flex-1 flex-col p-5">
-                  <h2 className="text-lg font-bold text-[#002868] transition group-hover:text-brand">
-                    {segment.name}
-                  </h2>
-                  {segment.description ? (
-                    <p className="mt-1.5 text-xs text-slate-600 leading-relaxed line-clamp-3">
-                      {segment.description}
-                    </p>
+            {segments.map((segment) => {
+              const segImage = segment.imagePath || resolveSegmentBanner(segment).imageSrc;
+              return (
+                <Link
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-brand/40 hover:shadow-lg"
+                  href={`/segmento/${segment.slug}`}
+                  key={segment.id}
+                >
+                  {segImage ? (
+                    <div className="relative aspect-[1.15/1] w-full overflow-hidden bg-slate-50 flex items-center justify-center p-3">
+                      <Image
+                        alt={segment.name}
+                        className="size-full object-contain transition duration-300 group-hover:scale-105"
+                        height={360}
+                        src={segImage}
+                        unoptimized
+                        width={480}
+                      />
+                    </div>
                   ) : null}
-                  <div className="mt-auto pt-4 flex items-center justify-between text-xs font-bold text-brand">
-                    <span>Ver produtos</span>
-                    <ArrowRight className="size-3.5 transition group-hover:translate-x-1" />
+                  <div className="flex flex-1 flex-col p-5">
+                    <h2 className="text-lg font-bold text-[#002868] transition group-hover:text-brand">
+                      {segment.name}
+                    </h2>
+                    {segment.description ? (
+                      <p className="mt-1.5 text-xs text-slate-600 leading-relaxed line-clamp-3">
+                        {segment.description}
+                      </p>
+                    ) : null}
+                    <div className="mt-auto pt-4 flex items-center justify-between text-xs font-bold text-brand">
+                      <span>Ver produtos</span>
+                      <ArrowRight className="size-3.5 transition group-hover:translate-x-1" />
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <p className="mt-8 rounded-2xl border border-dashed border-line bg-surface p-6 text-sm text-muted text-center">

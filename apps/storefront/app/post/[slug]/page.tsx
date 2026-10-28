@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getPostBySlug } from '@/lib/api';
+import { getPostBySlug, getProducts } from '@/lib/api';
 import { ExplicaAiSinglePost } from '@/components/explica-ai/explica-ai-single-post';
 
 export const dynamic = 'force-dynamic';
@@ -45,7 +45,12 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
 export default async function SinglePostPage({ params }: { params: Params }) {
   const { slug } = await params;
-  let post = await getPostBySlug(slug);
+  const [postResult, products] = await Promise.all([
+    getPostBySlug(slug),
+    getProducts({ limit: 10 }),
+  ]);
+
+  let post = postResult;
 
   if (!post && (slug === 'caixas-de-pizza-formatos-e-respiros' || slug === 'caixas-de-pizza-formatos-e-respiros-que-preservam-a-massa')) {
     post = DEFAULT_PIZZA_POST;
@@ -55,5 +60,5 @@ export default async function SinglePostPage({ params }: { params: Params }) {
     notFound();
   }
 
-  return <ExplicaAiSinglePost post={post} />;
+  return <ExplicaAiSinglePost post={post} products={products} />;
 }

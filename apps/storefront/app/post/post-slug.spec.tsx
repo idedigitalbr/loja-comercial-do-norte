@@ -5,7 +5,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { ExplicaAiSinglePost } from '@/components/explica-ai/explica-ai-single-post';
-import { QuoteCartProvider } from '@/components/quote-cart-provider';
 
 afterEach(() => {
   cleanup();
@@ -15,7 +14,6 @@ afterEach(() => {
 vi.mock('next/image', () => ({
   __esModule: true,
   default: ({ fill, priority, ...props }: any) => {
-    // eslint-disable-next-line @next/next/no-img-element
     return <img {...props} alt={props.alt || ''} />;
   },
 }));
@@ -31,28 +29,26 @@ vi.mock('next/link', () => ({
   },
 }));
 
-// Mock do QuoteCartProvider com vi.hoisted para evitar erro de inicialização
-const { mockAddToCart } = vi.hoisted(() => ({
-  mockAddToCart: vi.fn(),
+// Mock do FavoritesProvider
+vi.mock('@/components/favorites-provider', () => ({
+  useFavorites: () => ({ isFavorite: () => false, toggleFavorite: vi.fn(), favorites: [] }),
+  FavoritesProvider: ({ children }: any) => <>{children}</>,
 }));
 
-vi.mock('@/components/quote-cart-provider', () => ({
-  useQuoteCart: () => ({
-    add: mockAddToCart,
-    items: [],
-    count: 0,
-    open: false,
-    setOpen: vi.fn(),
-    remove: vi.fn(),
-    updateQuantity: vi.fn(),
-    clear: vi.fn(),
-  }),
-  QuoteCartProvider: ({ children }: any) => children,
+// Mock do FavoriteButton
+vi.mock('@/components/favorite-button', () => ({
+  FavoriteButton: () => <button aria-label="Favoritar">♥</button>,
 }));
 
-function renderPost(post = mockPost) {
-  return render(<ExplicaAiSinglePost post={post} />);
-}
+// Mock do ProductCardActions
+vi.mock('@/components/product-card-actions', () => ({
+  ProductCardActions: () => (
+    <div>
+      <button>Cotar agora</button>
+      <button>Adicionar à cotação</button>
+    </div>
+  ),
+}));
 
 const mockPost = {
   id: 'test-post-1',
@@ -78,7 +74,7 @@ const mockPost = {
 
 describe('ExplicaAiSinglePost Component (Pixel-Perfect Spec)', () => {
   it('renderiza o breadcrumb com caminho completo até o post', () => {
-    renderPost();
+    render(<ExplicaAiSinglePost post={mockPost} />);
 
     expect(screen.getByText('Início')).toBeDefined();
     expect(screen.getByText('Explica Aí Nort!')).toBeDefined();
@@ -86,7 +82,7 @@ describe('ExplicaAiSinglePost Component (Pixel-Perfect Spec)', () => {
   });
 
   it('renderiza o Hero Banner com badge oficial, título, descrição, metadados e mascote Nort', () => {
-    renderPost();
+    render(<ExplicaAiSinglePost post={mockPost} />);
 
     // Badge Oficial
     expect(screen.getByText('EXPLICA AÍ NORT!')).toBeDefined();
@@ -97,10 +93,8 @@ describe('ExplicaAiSinglePost Component (Pixel-Perfect Spec)', () => {
     ).toBeDefined();
 
     // Callout
-    expect(screen.getByText('Assista')).toBeDefined();
-    expect(screen.getByText('ao vídeo')).toBeDefined();
-    expect(screen.getByText('e veja as dicas')).toBeDefined();
-    expect(screen.getByText('na prática!')).toBeDefined();
+    expect(screen.getByText(/Assista ao vídeo/i)).toBeDefined();
+    expect(screen.getByText(/e veja as dicas na prática!/i)).toBeDefined();
 
     // Mascote
     const mascot = screen.getByAltText(/Mascote Nort/i);
@@ -108,7 +102,7 @@ describe('ExplicaAiSinglePost Component (Pixel-Perfect Spec)', () => {
   });
 
   it('renderiza a seção Descrição do post com texto explicativo, foto e Principais pontos', () => {
-    renderPost();
+    render(<ExplicaAiSinglePost post={mockPost} />);
 
     expect(screen.getByText('Descrição do post')).toBeDefined();
     expect(
@@ -127,38 +121,33 @@ describe('ExplicaAiSinglePost Component (Pixel-Perfect Spec)', () => {
     expect(screen.getByText('Dicas práticas de uso e armazenamento.')).toBeDefined();
   });
 
-  it('renderiza o Banner de Produtos Relacionados com carrossel navegável e adiciona à cotação', () => {
-    renderPost();
+  it('renderiza o Banner de Produtos com o componente oficial ProductCard da home (sem caixa bugada)', () => {
+    render(<ExplicaAiSinglePost post={mockPost} />);
 
     expect(screen.getByText('PRODUTOS RELACIONADOS')).toBeDefined();
     expect(screen.getByText('Tudo para a sua pizzaria')).toBeDefined();
     expect(screen.getByText('Ver todos os produtos')).toBeDefined();
 
-    // Produtos do carrossel
-    expect(screen.getByText('Caixa de pizza oitavada')).toBeDefined();
-    expect(screen.getByText('Caixa de pizza quadrada')).toBeDefined();
-    expect(screen.getByText('Caixa com respiros laterais')).toBeDefined();
-    expect(screen.getByText('Lacre de segurança')).toBeDefined();
-    expect(screen.getByText('Papel para forno de pizza')).toBeDefined();
+    // Não deve conter imagem de caixa recortada bugada
+    expect(screen.queryByAltText('Caixas de pizza empilhadas')).toBeNull();
 
-    // Preços
+    // Produtos reais com o componente ProductCard oficial
+    expect(screen.getByText('Leite Condensado 395 g')).toBeDefined();
+    expect(screen.getByText('Detergente Neutro 5 L')).toBeDefined();
+    expect(screen.getByText('Forminha de Docinho nº 5')).toBeDefined();
+    expect(screen.getByText('Velas de Aniversário Coloridas')).toBeDefined();
+    expect(screen.getByText('Sacola Plástica Reforçada 40 x 50 cm')).toBeDefined();
+
+    // Preços oficiais
     expect(screen.getByText('R$ 7,49')).toBeDefined();
     expect(screen.getByText('R$ 24,90')).toBeDefined();
     expect(screen.getByText('R$ 7,30')).toBeDefined();
     expect(screen.getByText('R$ 4,20')).toBeDefined();
     expect(screen.getByText('R$ 15,90')).toBeDefined();
-
-    // Botões de Adicionar à Cotação
-    const addButtons = screen.getAllByText('Adicionar à Cotação');
-    expect(addButtons.length).toBe(5);
-
-    // Clica no primeiro produto para adicionar
-    fireEvent.click(addButtons[0]);
-    expect(mockAddToCart).toHaveBeenCalled();
   });
 
   it('renderiza Outras dicas que podem te ajudar com os cards de vídeo (VideoArticleCard de /posts)', () => {
-    renderPost();
+    render(<ExplicaAiSinglePost post={mockPost} />);
 
     expect(screen.getByText('Outras dicas que podem te ajudar')).toBeDefined();
     expect(screen.getByText('Ver todos os conteúdos')).toBeDefined();
@@ -168,7 +157,7 @@ describe('ExplicaAiSinglePost Component (Pixel-Perfect Spec)', () => {
   });
 
   it('abre e fecha o modal de vídeo ao clicar no botão de play', () => {
-    renderPost();
+    render(<ExplicaAiSinglePost post={mockPost} />);
 
     const playBtn = screen.getByLabelText('Assistir ao vídeo agora');
     fireEvent.click(playBtn);

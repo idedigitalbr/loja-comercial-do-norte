@@ -21,56 +21,119 @@ export const SEGMENT_BANNER_MAP: Record<string, SegmentBannerConfig> = {
   pizzaria: {
     prefix: "O COMERCIAL",
     highlight: "DA SUA PIZZARIA",
-    imageSrc: "/assets/segmentos/pizzaria.png",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-pizzaria.png.webp",
     altText: "O Comercial da Sua Pizzaria — Caixas de pizza, embalagens térmicas e descartáveis para delivery",
     backgroundColor: "#0059E9",
   },
   lanchonete: {
     prefix: "O COMERCIAL",
     highlight: "DA SUA LANCHONETE",
-    imageSrc: "/assets/segmentos/lanchonete.png",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-lanchonete.png.webp",
     altText: "O Comercial da Sua Lanchonete — Descartáveis, copos, guardanapos e embalagens térmicas",
     backgroundColor: "#0059E9",
   },
   padaria: {
     prefix: "O COMERCIAL",
     highlight: "DA SUA PADARIA",
-    imageSrc: "/assets/segmentos/padaria.png",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-padaria.png.webp",
     altText: "O Comercial da Sua Padaria — Formas forneáveis, sacos kraft, bandejas e descartáveis",
     backgroundColor: "#0059E9",
   },
   "loja-de-festas": {
     prefix: "O COMERCIAL",
     highlight: "DA SUA FESTA",
-    imageSrc: "/assets/segmentos/loja-de-festas.png",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-festas.png.webp",
+    altText: "O Comercial da Sua Festa — Copos personalizados, pratos, forminhas e artigos para eventos",
+    backgroundColor: "#0059E9",
+  },
+  festas: {
+    prefix: "O COMERCIAL",
+    highlight: "DA SUA FESTA",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-festas.png.webp",
+    altText: "O Comercial da Sua Festa — Copos personalizados, pratos, forminhas e artigos para eventos",
+    backgroundColor: "#0059E9",
+  },
+  festa: {
+    prefix: "O COMERCIAL",
+    highlight: "DA SUA FESTA",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-festas.png.webp",
     altText: "O Comercial da Sua Festa — Copos personalizados, pratos, forminhas e artigos para eventos",
     backgroundColor: "#0059E9",
   },
   "restaurante-buffet": {
     prefix: "O COMERCIAL",
     highlight: "DO SEU RESTAURANTE",
-    imageSrc: "/assets/segmentos/restaurante-buffet.png",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-restaurante-buffet.png.webp",
+    altText: "O Comercial do Seu Restaurante — Marmitas térmicas, travessas de alumínio e descartáveis",
+    backgroundColor: "#0059E9",
+  },
+  buffet: {
+    prefix: "O COMERCIAL",
+    highlight: "DO SEU RESTAURANTE",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-restaurante-buffet.png.webp",
+    altText: "O Comercial do Seu Restaurante — Marmitas térmicas, travessas de alumínio e descartáveis",
+    backgroundColor: "#0059E9",
+  },
+  restaurante: {
+    prefix: "O COMERCIAL",
+    highlight: "DO SEU RESTAURANTE",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-restaurante-buffet.png.webp",
     altText: "O Comercial do Seu Restaurante — Marmitas térmicas, travessas de alumínio e descartáveis",
     backgroundColor: "#0059E9",
   },
   "confeitaria-bolos": {
     prefix: "O COMERCIAL",
     highlight: "DA SUA CONFEITARIA",
-    imageSrc: "/assets/segmentos/confeitaria-bolos.png",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-confeitaria-bolos.png.webp",
+    altText: "O Comercial da Sua Confeitaria — Embalagens para bolos, tortas, doces e fitas decorativas",
+    backgroundColor: "#0059E9",
+  },
+  confeitaria: {
+    prefix: "O COMERCIAL",
+    highlight: "DA SUA CONFEITARIA",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-confeitaria-bolos.png.webp",
     altText: "O Comercial da Sua Confeitaria — Embalagens para bolos, tortas, doces e fitas decorativas",
     backgroundColor: "#0059E9",
   },
   "sorveteria-acai": {
     prefix: "O COMERCIAL",
     highlight: "DO SEU AÇAÍ",
-    imageSrc: "/assets/segmentos/sorveteria-acai.png",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-sorveteria-acai.png.webp",
+    altText: "O Comercial do Seu Açaí — Potes térmicos, copos com tampa bolha e colheres",
+    backgroundColor: "#0059E9",
+  },
+  acai: {
+    prefix: "O COMERCIAL",
+    highlight: "DO SEU AÇAÍ",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-sorveteria-acai.png.webp",
+    altText: "O Comercial do Seu Açaí — Potes térmicos, copos com tampa bolha e colheres",
+    backgroundColor: "#0059E9",
+  },
+  sorveteria: {
+    prefix: "O COMERCIAL",
+    highlight: "DO SEU AÇAÍ",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-sorveteria-acai.png.webp",
     altText: "O Comercial do Seu Açaí — Potes térmicos, copos com tampa bolha e colheres",
     backgroundColor: "#0059E9",
   },
   "bar-distribuidora": {
     prefix: "O COMERCIAL",
     highlight: "DO SEU BAR",
-    imageSrc: "/assets/segmentos/bar-distribuidora.png",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-bar-distribuidora.png.webp",
+    altText: "O Comercial do Seu Bar — Copos descartáveis para chopp, petisqueiras e sacolas reforçadas",
+    backgroundColor: "#0059E9",
+  },
+  bar: {
+    prefix: "O COMERCIAL",
+    highlight: "DO SEU BAR",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-bar-distribuidora.png.webp",
+    altText: "O Comercial do Seu Bar — Copos descartáveis para chopp, petisqueiras e sacolas reforçadas",
+    backgroundColor: "#0059E9",
+  },
+  distribuidora: {
+    prefix: "O COMERCIAL",
+    highlight: "DO SEU BAR",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-bar-distribuidora.png.webp",
     altText: "O Comercial do Seu Bar — Copos descartáveis para chopp, petisqueiras e sacolas reforçadas",
     backgroundColor: "#0059E9",
   },
@@ -116,7 +179,7 @@ export function resolveSegmentBanner(
   segmentOrSlug?: ApiSegment | string | null,
   override?: Partial<SegmentBannerConfig>
 ): SegmentBannerConfig {
-  const slug =
+  const rawSlug =
     typeof segmentOrSlug === "string"
       ? segmentOrSlug
       : segmentOrSlug?.slug ?? "";
@@ -125,7 +188,12 @@ export function resolveSegmentBanner(
       ? segmentOrSlug.name
       : "";
 
-  const mapped = slug ? SEGMENT_BANNER_MAP[slug] : null;
+  const slug = (rawSlug || "").toLowerCase().trim();
+  const normalizedSlug = slug.replace(/^segmento-/, "");
+
+  const mapped = slug
+    ? SEGMENT_BANNER_MAP[slug] ?? SEGMENT_BANNER_MAP[normalizedSlug]
+    : null;
 
   if (mapped) {
     return {
@@ -161,10 +229,17 @@ export function resolveSegmentBanner(
     ? name.split("&")[0].trim().toUpperCase()
     : "NEGÓCIO";
 
+  const defaultImage =
+    "/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/corpo-inteiro/nort-apontando-joinha.png";
+
   return {
     prefix: override?.prefix ?? "O COMERCIAL",
     highlight: override?.highlight ?? (isFeminine ? `DA SUA ${cleanTitle}` : `DO SEU ${cleanTitle}`),
-    imageSrc: override?.imageSrc ?? (slug ? `/assets/segmentos/${slug}.png` : "/assets/segmentos/default.png"),
+    imageSrc:
+      override?.imageSrc ??
+      (normalizedSlug
+        ? `/assets/PRODUTOS/segmentos/segmento-${normalizedSlug}.png.webp`
+        : defaultImage),
     altText:
       override?.altText ??
       `O Comercial para ${name || "seu segmento"} — Embalagens e descartáveis`,
@@ -183,7 +258,7 @@ export interface SegmentHeroBannerProps {
  * - Largura total no topo (mesmo tamanho e altura do Hero da Home)
  * - Cantos inferiores arredondados com sombra e fundo #EBEBEB em volta
  * - Fundo em cor sólida (#0059E9)
- * - Imagem PNG centralizada horizontalmente e ancorada na base (bottom-0)
+ * - Imagem PNG/WebP centralizada horizontalmente e ancorada na base (bottom-0)
  * - Lado esquerdo: "O COMERCIAL" em branco bold
  * - Lado direito: "DA SUA PIZZARIA" / "DO SEU RESTAURANTE" em vermelho vibrante com traço de pincel branco abaixo
  */
@@ -192,11 +267,18 @@ export function SegmentHeroBanner({
   banner: bannerOverride,
 }: SegmentHeroBannerProps) {
   const config = resolveSegmentBanner(segment, bannerOverride);
-  const fallbackImg = "/assets/segmentos/default.png";
+  const fallbackImg =
+    "/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/corpo-inteiro/nort-apontando-joinha.png";
 
-  const [imgSrc, setImgSrc] = useState<string>(
+  const [imgSrc, setImgSrc] = useState<string | null>(
     config.imageSrc || fallbackImg
   );
+  const [imageError, setImageError] = useState(false);
+
+  React.useEffect(() => {
+    setImgSrc(config.imageSrc || fallbackImg);
+    setImageError(false);
+  }, [config.imageSrc, fallbackImg]);
 
   // Divide highlight para quebra elegante em telas mobile pequenas ("DA SUA" / "PIZZARIA")
   const highlightWords = config.highlight.split(" ");
@@ -229,21 +311,25 @@ export function SegmentHeroBanner({
               </span>
             </div>
 
-            {/* CENTRO: Imagem PNG da pessoa / produto centralizada e colada na base */}
+            {/* CENTRO: Imagem PNG/WebP da pessoa / produto centralizada e colada na base */}
             <div className="relative h-full flex items-end justify-center shrink-0 z-20 pointer-events-none px-1 sm:px-2 md:px-4">
-              {/* eslint-disable-next-js/next/no-img-element */}
-              <img
-                alt={config.altText ?? `${config.prefix} ${config.highlight}`}
-                className="h-[92%] sm:h-[95%] md:h-[98%] lg:h-full w-auto max-w-[150px] xs:max-w-[180px] sm:max-w-[280px] md:max-w-[380px] lg:max-w-[460px] object-contain object-bottom drop-shadow-[0_12px_24px_rgba(0,0,0,0.28)] transition-transform duration-300"
-                fetchPriority="high"
-                loading="eager"
-                onError={() => {
-                  if (imgSrc !== fallbackImg) {
-                    setImgSrc(fallbackImg);
-                  }
-                }}
-                src={imgSrc}
-              />
+              {imgSrc && !imageError ? (
+                /* eslint-disable-next-js/next/no-img-element */
+                <img
+                  alt={config.altText ?? `${config.prefix} ${config.highlight}`}
+                  className="h-[92%] sm:h-[95%] md:h-[98%] lg:h-full w-auto max-w-[150px] xs:max-w-[180px] sm:max-w-[280px] md:max-w-[380px] lg:max-w-[460px] xl:max-w-[520px] object-contain object-bottom drop-shadow-[0_12px_24px_rgba(0,0,0,0.28)] transition-transform duration-300"
+                  fetchPriority="high"
+                  loading="eager"
+                  onError={() => {
+                    if (imgSrc !== fallbackImg) {
+                      setImgSrc(fallbackImg);
+                    } else {
+                      setImageError(true);
+                    }
+                  }}
+                  src={imgSrc}
+                />
+              ) : null}
             </div>
 
             {/* LADO DIREITO: "DA SUA PIZZARIA" / "DO SEU RESTAURANTE" + Traço de Pincel */}

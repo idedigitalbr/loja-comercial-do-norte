@@ -3,8 +3,34 @@ import { notFound } from 'next/navigation';
 import { CatalogView } from '@/components/catalog/catalog-view';
 import { SegmentHeroBanner } from '@/components/segment-hero-banner';
 import { getBrands, getCategories, getProductsPage, getSegments, getTags } from '@/lib/api';
+import type { ApiSegment } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
+
+const DEFAULT_FALLBACK_SEGMENTS: ApiSegment[] = [
+  { id: 'seg_lanchonete', name: 'Lanchonetes & Hamburguerias', slug: 'lanchonete' },
+  { id: 'seg_pizzaria', name: 'Pizzarias & Esfiharias', slug: 'pizzaria' },
+  { id: 'seg_padaria', name: 'Padarias & Confeitarias', slug: 'padaria' },
+  { id: 'seg_festas', name: 'Festas & Eventos', slug: 'loja-de-festas' },
+  { id: 'seg_buffet', name: 'Restaurantes & Buffets', slug: 'restaurante-buffet' },
+  { id: 'seg_confeitaria', name: 'Doces & Confeitaria Caseira', slug: 'confeitaria-bolos' },
+  { id: 'seg_sorveteria', name: 'Sorveterias & Açaís', slug: 'sorveteria-acai' },
+  { id: 'seg_bar', name: 'Bares & Distribuidoras', slug: 'bar-distribuidora' },
+];
+
+function findSegment(segments: ApiSegment[], slug: string): ApiSegment | undefined {
+  const all = segments.length > 0 ? segments : DEFAULT_FALLBACK_SEGMENTS;
+  return (
+    all.find((item) => item.slug === slug) ??
+    (slug === 'festas' ? all.find((item) => item.slug === 'loja-de-festas') : null) ??
+    (slug === 'loja-de-festas' ? all.find((item) => item.slug === 'festas') : null) ??
+    (slug === 'buffet' ? all.find((item) => item.slug === 'restaurante-buffet') : null) ??
+    (slug === 'confeitaria' ? all.find((item) => item.slug === 'confeitaria-bolos') : null) ??
+    (slug === 'acai' ? all.find((item) => item.slug === 'sorveteria-acai') : null) ??
+    (slug === 'bar' ? all.find((item) => item.slug === 'bar-distribuidora') : null) ??
+    DEFAULT_FALLBACK_SEGMENTS.find((item) => item.slug === slug)
+  );
+}
 
 type Params = Promise<{ slug: string }>;
 type SearchParams = Promise<{
@@ -21,7 +47,7 @@ type SearchParams = Promise<{
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
   const segments = await getSegments();
-  const segment = segments.find((item) => item.slug === slug);
+  const segment = findSegment(segments, slug);
   return {
     title: `${segment?.name ?? 'Segmento'} | Comercial do Norte`,
     description:
@@ -71,7 +97,7 @@ export default async function SegmentPage({
     }),
   ]);
 
-  const segment = segments.find((item) => item.slug === slug);
+  const segment = findSegment(segments, slug);
   if (!segment) notFound();
 
   let items = result.items;
