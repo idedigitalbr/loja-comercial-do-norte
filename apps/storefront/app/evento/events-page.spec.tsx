@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { EventsView } from '@/components/evento/events-view';
+import EventsPage from './page';
 import { CANONICAL_EVENTS } from '@/lib/events-data';
 
 afterEach(() => {
@@ -121,5 +122,27 @@ describe('EventsView Component (Pixel-Perfect Spec)', () => {
     // Clica no botão de reset e restaura os eventos
     fireEvent.click(resetBtn);
     expect(screen.getByText('Encontro de Empreendedores')).toBeDefined();
+  });
+
+  it('garante que a página principal /eventos remove workshops e aulas, exibindo apenas eventos gerais', async () => {
+    const Component = await EventsPage();
+    render(Component);
+
+    // Não deve conter categorias de workshops nem aulas
+    expect(screen.queryByText(/Workshops \(/i)).toBeNull();
+    expect(screen.queryByText(/Aulas-show \(/i)).toBeNull();
+
+    // Deve conter categorias institucionais gerais
+    expect(screen.getByText('Todos os eventos')).toBeDefined();
+    expect(screen.getByText(/Palestras/i)).toBeDefined();
+    expect(screen.getByText(/Reinaugurações/i)).toBeDefined();
+
+    // Deve conter eventos gerais
+    expect(screen.getByText(/Encontro de Empreendedores/i)).toBeDefined();
+    expect(screen.getByText(/Grande Reinauguração Loja Pedreira/i)).toBeDefined();
+
+    // Não deve conter eventos de workshops ou aulas
+    expect(screen.queryByText('Workshop de Confeitaria Profissional')).toBeNull();
+    expect(screen.queryByText('Croquete de Charque com Maionese de Chicória')).toBeNull();
   });
 });

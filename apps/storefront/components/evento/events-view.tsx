@@ -31,6 +31,7 @@ export type EventsViewProps = {
   badge?: string;
   title?: string | React.ReactNode;
   subtitle?: string;
+  allCategoryLabel?: string;
   benefits?: Array<{
     icon?: any;
     title: string;
@@ -51,6 +52,7 @@ export function EventsView({
     </>
   ),
   subtitle = 'Acompanhe nossa agenda de workshops, aulas-show, inaugurações e encontros de capacitação com especialistas do mercado.',
+  allCategoryLabel,
   benefits = [
     { title: 'Especialistas', subtitle: 'do mercado', icon: Users },
     { title: 'Conteúdo', subtitle: 'prático e atual', icon: TrendingUp },
@@ -63,7 +65,15 @@ export function EventsView({
 
   // Categorização inteligente para cada evento
   const getEventCategory = (event: EventItem): CategoryFilter => {
-    if (event.categoryKey) return event.categoryKey;
+    const key = event.categoryKey;
+    if (
+      key === 'workshops' ||
+      key === 'aulas-show' ||
+      key === 'palestras' ||
+      key === 'reinauguracoes'
+    ) {
+      return key;
+    }
     const text = `${event.badge || ''} ${event.title} ${event.subtitle || ''} ${event.slug}`.toLowerCase();
     if (text.includes('workshop')) return 'workshops';
     if (text.includes('aula') || text.includes('croquete')) return 'aulas-show';
@@ -280,76 +290,84 @@ export function EventsView({
               type="button"
             >
               <CalendarDays className="size-3.5" />
-              <span>Todos os eventos</span>
+              <span>{allCategoryLabel || 'Todos os eventos'}</span>
             </button>
 
             {/* Workshops */}
-            <button
-              className={cn(
-                'inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer',
-                activeCategory === 'workshops'
-                  ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/40'
-                  : theme === 'light'
-                    ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
-                    : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
-              )}
-              onClick={() => handleCategoryChange('workshops')}
-              type="button"
-            >
-              <GraduationCap className="size-3.5" />
-              <span>Workshops ({categoryCounts.workshops})</span>
-            </button>
+            {categoryCounts.workshops > 0 ? (
+              <button
+                className={cn(
+                  'inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer',
+                  activeCategory === 'workshops'
+                    ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/40'
+                    : theme === 'light'
+                      ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
+                      : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
+                )}
+                onClick={() => handleCategoryChange('workshops')}
+                type="button"
+              >
+                <GraduationCap className="size-3.5" />
+                <span>Workshops ({categoryCounts.workshops})</span>
+              </button>
+            ) : null}
 
             {/* Aulas-show */}
-            <button
-              className={cn(
-                'inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer',
-                activeCategory === 'aulas-show'
-                  ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/40'
-                  : theme === 'light'
-                    ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
-                    : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
-              )}
-              onClick={() => handleCategoryChange('aulas-show')}
-              type="button"
-            >
-              <Sparkles className="size-3.5" />
-              <span>Aulas-show ({categoryCounts['aulas-show']})</span>
-            </button>
+            {categoryCounts['aulas-show'] > 0 ? (
+              <button
+                className={cn(
+                  'inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer',
+                  activeCategory === 'aulas-show'
+                    ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/40'
+                    : theme === 'light'
+                      ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
+                      : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
+                )}
+                onClick={() => handleCategoryChange('aulas-show')}
+                type="button"
+              >
+                <Sparkles className="size-3.5" />
+                <span>Aulas-show ({categoryCounts['aulas-show']})</span>
+              </button>
+            ) : null}
 
             {/* Palestras */}
-            <button
-              className={cn(
-                'inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer',
-                activeCategory === 'palestras'
-                  ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/40'
-                  : theme === 'light'
-                    ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
-                    : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
-              )}
-              onClick={() => handleCategoryChange('palestras')}
-              type="button"
-            >
-              <Mic className="size-3.5" />
-              <span>Palestras ({categoryCounts.palestras})</span>
-            </button>
+            {categoryCounts.palestras > 0 ? (
+              <button
+                className={cn(
+                  'inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer',
+                  activeCategory === 'palestras'
+                    ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/40'
+                    : theme === 'light'
+                      ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
+                      : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
+                )}
+                onClick={() => handleCategoryChange('palestras')}
+                type="button"
+              >
+                <Mic className="size-3.5" />
+                <span>Palestras ({categoryCounts.palestras})</span>
+              </button>
+            ) : null}
 
             {/* Reinaugurações */}
-            <button
-              className={cn(
-                'inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer',
-                activeCategory === 'reinauguracoes'
-                  ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/40'
-                  : theme === 'light'
-                    ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
-                    : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
-              )}
-              onClick={() => handleCategoryChange('reinauguracoes')}
-              type="button"
-            >
-              <Store className="size-3.5" />
-              <span>Reinaugurações ({categoryCounts.reinauguracoes})</span>
-            </button>
+            {categoryCounts.reinauguracoes > 0 ? (
+              <button
+                className={cn(
+                  'inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer',
+                  activeCategory === 'reinauguracoes'
+                    ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/40'
+                    : theme === 'light'
+                      ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
+                      : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
+                )}
+                onClick={() => handleCategoryChange('reinauguracoes')}
+                type="button"
+              >
+                <Store className="size-3.5" />
+                <span>Reinaugurações ({categoryCounts.reinauguracoes})</span>
+              </button>
+            ) : null}
           </div>
 
           {/* Campo de Busca de Eventos */}

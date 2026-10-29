@@ -1,5 +1,12 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **29/10/2026 — Padronização de Workshop Confeitaria e Segregação de Eventos (executorId: `antigravity-gemini`):**
+  - **Single de Workshop e Confeitaria (`/evento/workshop/aulas-confeitaria/[slug]`):** Estrutura e seções rigorosamente unificadas ao template de referência (`/evento/[slug]`), com as 6 seções canônicas (Hero 3 colunas com seletor de vagas 1 a 5 e CTA WhatsApp, 4 cartões de destaques, programação com timeline e card de local/expectativas, galeria de fotos com lightbox e banner inferior de dúvidas). Visual adaptado para White Mode normal (`theme="light"` via `event-theme.module.css`). Suporte nativo ao slug `workshop-doces-finos-brigadeiros-gourmet` e correlatos sem erro 404.
+  - **Segregação de Rotas e Filtros:**
+    - `/eventos` (`/evento`): Exibe exclusivamente eventos gerais (Palestras, Reinaugurações, Fóruns), removendo workshops e aulas práticas e ocultando pills de categorias vazias.
+    - `/eventos/workshops/aulas-confeitaria`: Exibe estritamente workshops e aulas práticas de confeitaria em tema claro normal, removendo palestras e reinaugurações institucionais.
+  - **Qualidade & Validação:** 156 testes aprovados no Storefront (38 suítes, incluindo `workshop-slug.spec.tsx`, `aulas-confeitaria.spec.tsx`, `event-slug.spec.tsx` e `events-page.spec.tsx`), `pnpm typecheck` 100% verde e `pnpm lint` 100% limpo.
+
 - **29/10/2026 — Nort interativo e ciclo animado de 60s no cabeçalho (executorId: `antigravity-gemini` / `codex-will`):** ciclo autônomo completo de 60 segundos com 64 quadros em atlas (`nort-loop-64-v1.png`). Sequência com atuação orgânica: idle mãos no bolso com respiração (0-6s), retirada da mão (6-6.8s), joinha/like com pausa natural (12-19s), aceno de mão amigável (23-25.4s), transição para pose pensativa com balão automático exibido durante 9 segundos (28-37s) e retorno fluido ao idle com mãos no bolso. Interação manual: hover, clique ou navegação por teclado (Tab) abrem imediatamente o balão na pose pensativa; fecha com botão X, tecla Escape, clique externo ou blur mantendo foco acessível. Respeito integral a `prefers-reduced-motion`. Validação: 152/152 testes no storefront aprovados (incluindo `nort-timeline.spec.ts` e `site-header.spec.tsx`), typecheck 100% limpo e inspeção visual renderizada via Chromium.
 
 > **Único documento operacional de execução, bloqueios, riscos e histórico breve** — atualizado em **25/10/2026**.

@@ -224,6 +224,7 @@ export type ApiEvent = {
   ctaUrl?: string | null;
   status: string;
   sortOrder: number;
+  categoryKey?: string | null;
 };
 
 export async function getPosts(params?: { search?: string; category?: string; page?: number; pageSize?: number }): Promise<ApiPostsResponse> {

@@ -62,4 +62,16 @@ describe('Workshops & Aulas de Confeitaria Page (White Mode)', () => {
     const ctaLinks = screen.getAllByRole('link', { name: /Garantir Vaga/i });
     expect(ctaLinks.length).toBeGreaterThan(0);
   });
+
+  it('garante que a página de workshops não exibe palestras nem reinaugurações', async () => {
+    const Component = await ConfeitariaWorkshopsPage();
+    render(Component);
+
+    // Não deve conter categorias de palestras nem reinaugurações
+    expect(screen.queryByText(/Palestras/i)).toBeNull();
+    expect(screen.queryByText(/Reinaugurações/i)).toBeNull();
+
+    // Deve conter botão de todos os workshops
+    expect(screen.getByText('Todos os workshops')).toBeDefined();
+  });
 });

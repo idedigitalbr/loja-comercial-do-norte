@@ -1,8 +1,10 @@
 import type { ApiEvent } from './api';
 
+export type EventCategoryKey = 'workshops' | 'aulas-show' | 'palestras' | 'reinauguracoes';
+
 export type EventItem = ApiEvent & {
   buttonVariant?: 'red' | 'blue';
-  categoryKey?: 'workshops' | 'aulas-show' | 'palestras' | 'reinauguracoes';
+  categoryKey?: EventCategoryKey | string | null;
 };
 
 export const CANONICAL_EVENTS: EventItem[] = [
@@ -274,9 +276,58 @@ export const CONFEITARIA_WORKSHOPS: EventItem[] = [
   },
 ];
 
+export const GENERAL_EVENTS: EventItem[] = [
+  CANONICAL_EVENTS[0], // Encontro de Empreendedores (Palestra)
+  CANONICAL_EVENTS[1], // Grande Reinauguração Loja Pedreira (Reinauguração)
+  CANONICAL_EVENTS[7], // Gestão e Crescimento para Pequenos Negócios (Palestra)
+  {
+    id: 'inauguracao-nova-loja-castanhal',
+    title: 'Inauguração Oficial Nova Loja Castanhal',
+    slug: 'inauguracao-nova-loja-castanhal',
+    subtitle: 'Um novo espaço completo para o seu negócio',
+    description:
+      'Venha celebrar a inauguração da nossa nova unidade em Castanhal. Mais espaço, ofertas exclusivas e café da manhã especial para clientes e parceiros.',
+    posterUrl: '/assets/HOME Vitrine/S12-EVENTOS/s12-event-02-reinauguracao.jpg',
+    eventDateText: '15 de Dezembro',
+    eventTime: '09h',
+    location: 'Loja Castanhal',
+    locationAddress: 'Rodovia BR-316 — Castanhal/PA',
+    instructor: 'Equipe Comercial do Norte',
+    badge: 'INAUGURAÇÃO',
+    categoryKey: 'reinauguracoes',
+    ctaLabel: 'Ver Como Chegar',
+    ctaUrl: 'https://maps.google.com/?q=Comercial+do+Norte+Castanhal',
+    buttonVariant: 'red',
+    status: 'ACTIVE',
+    sortOrder: 4,
+  },
+  {
+    id: 'forum-de-varejo-e-food-service-2026',
+    title: 'Fórum de Varejo & Food Service Comercial do Norte',
+    slug: 'forum-de-varejo-e-food-service-2026',
+    subtitle: 'Tendências, Inovação e Lucratividade',
+    description:
+      'Painel estratégico com líderes do setor gastronômico e supermercadista do Norte. Palestras práticas sobre gestão comercial, inovação e expansão.',
+    posterUrl: '/assets/HOME Vitrine/S12-EVENTOS/s12-event-01-empreendedores.jpg',
+    eventDateText: '20 de Janeiro',
+    eventTime: '18h30',
+    location: 'Hangar Centro de Convenções',
+    locationAddress: 'Hangar Centro de Convenções — Belém/PA',
+    instructor: 'Especialistas Convidados',
+    badge: 'PALESTRA',
+    categoryKey: 'palestras',
+    ctaLabel: 'Garantir Vaga',
+    ctaUrl:
+      'https://wa.me/5591983440880?text=Ol%C3%A1!+Quero+me+inscrever+no+F%C3%B3rum+de+Varejo+Comercial+do+Norte',
+    buttonVariant: 'blue',
+    status: 'ACTIVE',
+    sortOrder: 5,
+  },
+];
+
 export function findAnyEventBySlug(slug: string): EventItem | null {
   const normalized = (slug || '').toLowerCase().trim();
-  const allEvents = [...CANONICAL_EVENTS, ...CONFEITARIA_WORKSHOPS];
+  const allEvents = [...CANONICAL_EVENTS, ...CONFEITARIA_WORKSHOPS, ...GENERAL_EVENTS];
 
   const exact = allEvents.find((e) => e.slug.toLowerCase() === normalized);
   if (exact) return exact;

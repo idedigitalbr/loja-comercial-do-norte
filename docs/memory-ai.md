@@ -7,6 +7,13 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **29/10/2026 — Padronização e Segregação de Eventos e Workshops (Light Mode):**
+  - **Single de Workshop e Aulas de Confeitaria (`/evento/workshop/aulas-confeitaria/[slug]`):** padronizada para conter rigorosamente a mesma estrutura de seções, componentes e recursos do template de eventos de referência (`/evento/[slug]`), preservando as 6 seções canônicas (Hero 3 colunas com seletor de vagas e matrícula WhatsApp, 4 cartões de destaques, programação em timeline + mapa e expectativas, galeria de fotos com lightbox e banner de dúvidas no WhatsApp). A única diferença visual é o tema claro normal (`theme="light"`, `event-theme.module.css`) em substituição ao dark mode de `/evento`.
+  - **Segregação de Catálogo entre `/eventos` e `/eventos/workshops/aulas-confeitaria`:**
+    - `/eventos` lista exclusivamente eventos gerais institucionais (Palestras, Reinaugurações, Fóruns), ocultando workshops e aulas de confeitaria, com contadores e botões de filtro visíveis apenas para categorias com eventos existentes.
+    - `/eventos/workshops/aulas-confeitaria` lista exclusivamente workshops práticos e aulas-show de confeitaria em tema claro normal, eliminando eventos institucionais (palestras e reinaugurações) de sua listagem e filtros.
+  - **Resolução de Roteamento e Fallbacks:** adicionado suporte a `workshop-doces-finos-brigadeiros-gourmet` e workshops da base canônica sem 404 através de busca centralizada em `findAnyEventBySlug`.
+
 - **29/10/2026 — Nort no cabeçalho:** ciclo animado orgânico de 60 segundos com 64 quadros em atlas (`nort-loop-64-v1.png`) cobrindo: idle com mãos no bolso, retirada de mão, joinha (like), aceno amigável, pose pensativa com abertura automática de balão por 9 segundos e retorno suave ao idle. Suporte a hover/clique para antecipar abertura mantendo a pose pensativa enquanto o visitante interage. Texto aprovado: “Oi! Eu sou o Nort! 👋 Como posso te ajudar?”. Por orientação do responsável, os links “Ver tour guiado novamente” e “Falar com o Nort” permanecem em `#` nesta etapa. Fechamento por Escape, botão X, blur ou clique externo. Suporte a `prefers-reduced-motion`.
 
 - **28/10/2026 — Sincronização Local e Produção:** alinhamento completo entre ambiente local e nuvem. Schema Neon atualizado com todas as 7 migrations versionadas (posts, events, segments, tags, home composition), persistência de dados de CMS preservando cotações de produção, inclusão dos assets de storage/uploads no controle de versão e deploy Vercel das aplicações.
@@ -179,7 +186,7 @@ docs/
       - `05` `banner-grid` (3 banners triplos: *Limpeza*, *Feirante*, *Sacos e Sacolas*)
       - `06` `product-carousel` (`variant: 'standard-5col'` — *Mais vendidos* com 5 colunas)
       - `07` `quote-steps-banner` (*Saiba / Como funciona a cotação online* — Mascote 3D James + 4 cards numerados com ícones azuis e setas vermelhas + arte direita; removido da vitrine inicial da Home a pedido do usuário, preservado no catálogo do Elementor)
-      - `08` `segments-carousel` (*Para todos os Negócios / De todos os tamanhos* — topo em azul escuro com gradiente oficial e 4 cards brancos editáveis sobrepondo em `-mt-28` com base transparente, sem container ou fundo branco inferior)
+      - `08` `segments-carousel` (*Para todos os Negócios / De todos os tamanhos* — topo em azul escuro com gradiente oficial e cards brancos editáveis sobrepondo em `-mt-28` com base transparente; prefixo padronizado como "Para" para todos os ramos e novo card de segmento "Delivery" adicionado com ícone dedicado e imagem s08-segment-09-delivery.jpg)
       - `09` `promo-strip` (`variant: 'offers-strip'` — *OFERTAS IMPERDÍVEIS* em imagem oficial `/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp` e link para `/loja?oferta=1`)
       - `10` `product-carousel` (`variant: 'standard-5col'` — *Para você* com 5 colunas)
       - `11` `banner-grid` (3 banners triplos: *Hamburgueira*, *Luva Vermelho*, *Luva Azul*)
