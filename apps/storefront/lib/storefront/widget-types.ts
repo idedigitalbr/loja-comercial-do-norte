@@ -180,6 +180,7 @@ export interface SegmentsCarouselProps {
   ctaLabel?: string;
   ctaUrl?: string;
   items: SegmentCardItem[];
+  autoplayIntervalMs?: number;
 }
 export type SegmentsCarouselWidgetConfig = BaseWidgetConfig<'segments-carousel', SegmentsCarouselProps>;
 

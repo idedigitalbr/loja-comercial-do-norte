@@ -168,4 +168,74 @@ describe('SegmentsCarouselWidget', () => {
     const deliveryLink = screen.getByText('Delivery').closest('a');
     expect(deliveryLink?.getAttribute('href')).toBe('/segmento/delivery');
   });
+
+  it('ativa carrossel infinito passando de 1 em 1 quando há mais de 4 itens', () => {
+    const nineItems: SegmentCardItem[] = [
+      ...mockItems,
+      {
+        id: 'seg-delivery',
+        prefix: 'Para',
+        title: 'Delivery',
+        description: 'Sacolas kraft.',
+        imageUrl: '/assets/delivery.jpg',
+        linkUrl: '/segmento/delivery',
+        iconType: 'delivery',
+      },
+      {
+        id: 'seg-lanchonete',
+        prefix: 'Para',
+        title: 'Lanchonete',
+        description: 'Copos e embalagens.',
+        imageUrl: '/assets/lanchonete.jpg',
+        linkUrl: '/segmento/lanchonete',
+        iconType: 'burger',
+      },
+      {
+        id: 'seg-pizzaria',
+        prefix: 'Para',
+        title: 'Pizzaria',
+        description: 'Caixas oitavadas.',
+        imageUrl: '/assets/pizzaria.jpg',
+        linkUrl: '/segmento/pizzaria',
+        iconType: 'pizza',
+      },
+      {
+        id: 'seg-festas',
+        prefix: 'Para',
+        title: 'Festas',
+        description: 'Balões e descartáveis.',
+        imageUrl: '/assets/festas.jpg',
+        linkUrl: '/segmento/loja-de-festas',
+        iconType: 'party',
+      },
+      {
+        id: 'seg-padaria-2',
+        prefix: 'Para',
+        title: 'Padaria Especial',
+        description: 'Sacos de papel.',
+        imageUrl: '/assets/padaria.jpg',
+        linkUrl: '/segmento/padaria',
+        iconType: 'bakery',
+      },
+    ];
+
+    const { container } = render(
+      <SegmentsCarouselWidget items={nineItems} autoplayIntervalMs={0} />
+    );
+
+    // Deve exibir botões de navegação
+    const prevBtn = screen.getByRole('button', { name: 'Segmento anterior' });
+    const nextBtn = screen.getByRole('button', { name: 'Próximo segmento' });
+    expect(prevBtn).toBeDefined();
+    expect(nextBtn).toBeDefined();
+
+    // Deve renderizar indicadores para cada um dos 9 itens
+    const dots = screen.getAllByRole('button', { name: /Segmento \d+/ });
+    expect(dots.length).toBe(9);
+
+    // O track flexível deve usar a translação baseada em passo de 1 card
+    const track = container.querySelector('[style*="translateX"]');
+    expect(track).not.toBeNull();
+    expect(track?.getAttribute('style')).toContain('var(--card-step)');
+  });
 });
