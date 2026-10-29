@@ -507,7 +507,7 @@ export function EventsView({
                         </div>
                       ) : null}
 
-                      {/* Botão de Ação */}
+                      {/* Botão de Ação direcionando para o Single Post do evento */}
                       <Link
                         className={cn(
                           'w-full mt-4 py-2.5 px-4 rounded-full text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200 group/btn',
@@ -519,10 +519,7 @@ export function EventsView({
                               ? 'border border-red-200 bg-red-50 text-[#E2091E] hover:bg-[#E2091E] hover:text-white hover:border-[#E2091E] shadow-xs'
                               : 'border border-red-500/50 bg-red-950/20 text-white hover:bg-[#E2091E] hover:border-[#E2091E] hover:shadow-lg hover:shadow-red-950/50'
                         )}
-                        href={event.ctaUrl || detailHref}
-                        {...(event.ctaUrl && event.ctaUrl.startsWith('http')
-                          ? { target: '_blank', rel: 'noopener noreferrer' }
-                          : {})}
+                        href={detailHref}
                       >
                         <span>{event.ctaLabel || 'Ver Detalhes'}</span>
                         <ChevronRight className="size-3.5 group-hover/btn:translate-x-1 transition-transform" />

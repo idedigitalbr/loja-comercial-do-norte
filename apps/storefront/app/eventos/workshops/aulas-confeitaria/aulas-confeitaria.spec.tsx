@@ -51,7 +51,7 @@ describe('Workshops & Aulas de Confeitaria Page (White Mode)', () => {
     expect(screen.getByText('Insumos Inclusos')).toBeDefined();
   });
 
-  it('renders the confectionery workshop cards with 9:16 poster and whatsapp CTA', async () => {
+  it('renders the confectionery workshop cards with 9:16 poster and single post CTA link', async () => {
     const Component = await ConfeitariaWorkshopsPage();
     render(Component);
 
@@ -61,6 +61,7 @@ describe('Workshops & Aulas de Confeitaria Page (White Mode)', () => {
 
     const ctaLinks = screen.getAllByRole('link', { name: /Garantir Vaga/i });
     expect(ctaLinks.length).toBeGreaterThan(0);
+    expect(ctaLinks[0].getAttribute('href')).toBe('/evento/workshop/aulas-confeitaria/workshop-confeitaria-teste');
   });
 
   it('garante que a página de workshops não exibe palestras nem reinaugurações', async () => {

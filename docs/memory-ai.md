@@ -7,6 +7,9 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **29/10/2026 — Navegação dos Botões de Listagem de Eventos e Workshops (executorId: `antigravity-gemini`):**
+  - **Ação dos Cards na Listagem:** O botão de ação dos cartões na listagem de eventos (`/evento`, `/eventos`) e na listagem de workshops (`/eventos/workshops/aulas-confeitaria`) direciona diretamente para o respectivo Single Post (`detailHref` = `/evento/[slug]` ou `/evento/workshop/aulas-confeitaria/[slug]`) em vez de abrir links externos de WhatsApp/Google Maps direto do card. O contato e confirmação de presença no WhatsApp permanecem como ação principal dentro da página de Single Post de cada evento.
+
 - **29/10/2026 — Padronização e Segregação de Eventos e Workshops (Light Mode):**
   - **Single de Workshop e Aulas de Confeitaria (`/evento/workshop/aulas-confeitaria/[slug]`):** padronizada para conter rigorosamente a mesma estrutura de seções, componentes e recursos do template de eventos de referência (`/evento/[slug]`), preservando as 6 seções canônicas (Hero 3 colunas com seletor de vagas e matrícula WhatsApp, 4 cartões de destaques, programação em timeline + mapa e expectativas, galeria de fotos com lightbox e banner de dúvidas no WhatsApp). A única diferença visual é o tema claro normal (`theme="light"`, `event-theme.module.css`) em substituição ao dark mode de `/evento`.
   - **Segregação de Catálogo entre `/eventos` e `/eventos/workshops/aulas-confeitaria`:**

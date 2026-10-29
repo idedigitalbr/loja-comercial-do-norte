@@ -80,6 +80,13 @@ describe('EventsView Component (Pixel-Perfect Spec)', () => {
     expect(screen.getByText('31 de Agosto')).toBeDefined();
     expect(screen.getByText('03 de Julho')).toBeDefined();
     expect(screen.getByText('19h30')).toBeDefined();
+
+    // Botões dos cards devem apontar para o Single Post (/evento/[slug]) e não para WhatsApp/externo
+    const empreendedoresCta = screen.getByRole('link', { name: /Garantir Vaga/i });
+    expect(empreendedoresCta.getAttribute('href')).toBe('/evento/encontro-de-empreendedores');
+
+    const pedreiraCta = screen.getByRole('link', { name: /Ver Como Chegar/i });
+    expect(pedreiraCta.getAttribute('href')).toBe('/evento/grande-reinauguracao-loja-pedreira');
   });
 
   it('filtra por categoria ao clicar nas pills', () => {
