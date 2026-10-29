@@ -7,11 +7,11 @@ import { useElementor } from './elementor-editor-context';
 
 export function ElementorTogglePill() {
   const { user, ready } = useAuth();
-  const { isEditing, setIsEditing, setPreviewMode } = useElementor();
+  const { isEditing, setIsEditing, setPreviewMode, canEdit } = useElementor();
   const [isHovered, setIsHovered] = useState(false);
 
-  // Somente administradores autenticados podem ver o botão e abrir o editor visual
-  if (!ready || !user?.isAdmin) return null;
+  // Administradores ou ambiente local de desenvolvimento podem abrir o editor visual
+  if (!ready || (!user?.isAdmin && !canEdit)) return null;
   if (isEditing) return null;
 
   return (

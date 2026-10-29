@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { GET, POST } from './route';
+import { DELETE, GET, POST } from './route';
 import { defaultHomeComposition } from '@/lib/storefront/home-configuration';
 
 vi.mock('next/headers', () => ({
@@ -87,5 +87,15 @@ describe('API Route /api/storefront/composition', () => {
     }));
     expect(result.status).toBe(403);
     expect(await fs.readdir(directory)).toEqual([]);
+  });
+
+  it('exclui o rascunho local via DELETE', async () => {
+    const res = await DELETE(new Request('http://localhost:3001/api/storefront/composition', {
+      method: 'DELETE',
+    }));
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.success).toBe(true);
+    expect(json.message).toContain('excluído');
   });
 });

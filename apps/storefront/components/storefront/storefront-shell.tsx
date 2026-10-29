@@ -4,6 +4,7 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import { ElementorEditorProvider, useElementor } from './editor/elementor-editor-context';
 import { ElementorTopBar } from './editor/elementor-top-bar';
+import { ElementorDraftBanner } from './editor/elementor-draft-banner';
 import { ElementorCanvas } from './editor/elementor-canvas';
 import { ElementorTogglePill } from './editor/elementor-toggle-pill';
 import { ElementorMediaModal } from './editor/elementor-media-modal';
@@ -87,6 +88,7 @@ export function StorefrontShell({
 
   return (
     <ElementorEditorProvider initialComposition={initialComposition}>
+      <ElementorDraftBanner />
       <ElementorTopBar />
       <ElementorGlobalMediaModal />
       <ElementorGlobalLinkModal />

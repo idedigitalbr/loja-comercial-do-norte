@@ -18,6 +18,32 @@ export function getRevisionsFilePath(): string {
   return path.join(path.dirname(getCompositionFilePath()), 'home-revisions.json');
 }
 function statePath() { return path.join(path.dirname(getCompositionFilePath()), 'home-state.json'); }
+export async function isLocalDraftActive(): Promise<boolean> {
+  if (!allowsLocalComposition()) return false;
+  try {
+    await fs.access(statePath());
+    return true;
+  } catch {
+    return false;
+  }
+}
+export async function clearLocalDraft(): Promise<void> {
+  if (allowsLocalComposition()) {
+    try {
+      await fs.rm(statePath(), { force: true });
+    } catch {
+      // Ignora erro
+    }
+  }
+}
+export async function getStorefrontCompositionInfo(): Promise<{
+  composition: PageComposition;
+  isDraft: boolean;
+}> {
+  const isDraft = await isLocalDraftActive();
+  const composition = await getStorefrontComposition();
+  return { composition, isDraft };
+}
 async function readLocalState(): Promise<LocalState> {
   try { return JSON.parse(await fs.readFile(statePath(), 'utf8')) as LocalState; } catch { /* Legacy local draft. */ }
   let composition = defaultHomeComposition;

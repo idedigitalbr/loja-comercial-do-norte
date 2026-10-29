@@ -64,6 +64,9 @@ interface ElementorContextValue {
   updateSlideInWidget: (widgetId: string, slideId: string, partial: any) => void;
   updateBenefitItem: (widgetId: string, index: number, partial: Partial<BenefitItem>) => void;
   resetToDefault: () => void;
+  discardDraft: (options?: unknown) => void;
+  hasDraft: boolean;
+  canEdit: boolean;
   saveComposition: () => Promise<void>;
   hasUnsavedChanges: boolean;
   saveMessage: string | null;
@@ -134,6 +137,11 @@ export function ElementorEditorProvider({
 }) {
   const { user, ready } = useAuth();
   const isAdmin = Boolean(user?.isAdmin || user?.roles?.includes('ADMIN') || user?.email === 'admin@admin.com');
+  const isDev = typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+  );
+  const canEdit = Boolean(isAdmin || isDev);
 
   const [isEditing, setIsEditing] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
@@ -143,11 +151,13 @@ export function ElementorEditorProvider({
   const [panelCollapsed, setPanelCollapsed] = useState(true);
 
   const [composition, setComposition] = useState<PageComposition>(initialComposition);
+  const [publishedComposition, setPublishedComposition] = useState<PageComposition>(initialComposition);
   const [history, setHistory] = useState<PageComposition[]>([initialComposition]);
   const [historyIndex, setHistoryIndex] = useState(0);
 
   const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   const [mediaModalState, setMediaModalState] = useState<MediaModalState>({
@@ -185,29 +195,24 @@ export function ElementorEditorProvider({
   }
 
   useEffect(() => {
-    // 1. Visitante comum ou deslogado: nunca carrega rascunhos de edição locais
-    if (!isAdmin) {
-      if (isEditing) {
-        setIsEditing(false);
-      }
-      return;
-    }
-
-    // 2. Administrador autenticado:
+    let localHasDraft = false;
     let loadedFromLocal = false;
+
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       const savedOnServer = localStorage.getItem(STORAGE_KEY + '_saved');
       if (saved) {
+        localHasDraft = true;
         const parsed = JSON.parse(saved);
         if (parsed?.version >= 6 && parsed?.widgets && Array.isArray(parsed.widgets)) {
-          setComposition(parsed);
-          setHistory([parsed]);
-          setHistoryIndex(0);
-          loadedFromLocal = true;
-          // Se o rascunho local for diferente da última versão salva no servidor
-          if (saved !== savedOnServer) {
-            setHasUnsavedChanges(true);
+          if (canEdit) {
+            setComposition(parsed);
+            setHistory([parsed]);
+            setHistoryIndex(0);
+            loadedFromLocal = true;
+            if (saved !== savedOnServer) {
+              setHasUnsavedChanges(true);
+            }
           }
         }
       }
@@ -215,19 +220,24 @@ export function ElementorEditorProvider({
       // Ignora erro
     }
 
-    if (!loadedFromLocal) {
-      fetch('/api/storefront/composition')
-        .then((res) => res.json())
-        .then((res) => {
-          if (res?.success && res?.data?.widgets?.length && res?.data?.version >= 2) {
-            setComposition(res.data);
-            setHistory([res.data]);
-            setHistoryIndex(0);
-            setHasUnsavedChanges(false);
-          }
-        })
-        .catch(() => {});
+    if (localHasDraft) {
+      setHasDraft(true);
     }
+
+    fetch('/api/storefront/composition')
+      .then((res) => res.json())
+      .then((res) => {
+        if (res?.isDraft) {
+          setHasDraft(true);
+        }
+        if (!loadedFromLocal && res?.success && res?.data?.widgets?.length && res?.data?.version >= 2) {
+          setComposition(res.data);
+          setHistory([res.data]);
+          setHistoryIndex(0);
+          setHasUnsavedChanges(false);
+        }
+      })
+      .catch(() => {});
 
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search);
@@ -241,7 +251,7 @@ export function ElementorEditorProvider({
         setPreviewMode(false);
       }
     }
-  }, [isAdmin, ready]);
+  }, [isAdmin, ready, canEdit]);
 
   function commitChange(newComp: PageComposition) {
     setComposition(newComp);
@@ -486,6 +496,7 @@ export function ElementorEditorProvider({
       }
 
       localStorage.setItem(STORAGE_KEY + '_saved', JSON.stringify(composition));
+      setPublishedComposition(composition);
       setHasUnsavedChanges(false);
       setSaveMessage('Alterações salvas e sincronizadas com o servidor!');
       loadRevisions();
@@ -505,6 +516,44 @@ export function ElementorEditorProvider({
       setHasUnsavedChanges(true);
       setSaveMessage('Vitrine oficial restaurada! Clique em Salvar para persistir no servidor.');
       setTimeout(() => setSaveMessage(null), 3500);
+    }
+  }
+
+  function discardDraft(options?: unknown) {
+    const shouldResetServer = typeof options === 'boolean' ? options : Boolean(options && typeof options === 'object' && 'forceServerReset' in options && (options as any).forceServerReset);
+    if (
+      !confirm(
+        shouldResetServer
+          ? 'Deseja excluir o rascunho local e restaurar a versão oficial da vitrine definida no código?'
+          : 'Apagar o rascunho deste navegador e voltar à versão publicada? As alterações não salvas serão perdidas.'
+      )
+    ) {
+      return;
+    }
+
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY + '_saved');
+    } catch {
+      // Ignora erro de localStorage
+    }
+
+    setComposition(publishedComposition);
+    setHistory([publishedComposition]);
+    setHistoryIndex(0);
+    setSelectedWidgetId(null);
+    setHasUnsavedChanges(false);
+    setHasDraft(false);
+    setSaveMessage('Rascunho apagado com sucesso. A vitrine oficial foi restaurada.');
+
+    if (shouldResetServer) {
+      fetch('/api/storefront/composition', { method: 'DELETE' })
+        .catch(() => {})
+        .finally(() => {
+          if (typeof window !== 'undefined') {
+            window.location.reload();
+          }
+        });
     }
   }
 
@@ -569,7 +618,7 @@ export function ElementorEditorProvider({
         setShowNavigator,
         activeTab,
         setActiveTab,
-        composition,
+        composition: canEdit && isEditing ? composition : publishedComposition,
         selectedWidgetId,
         setSelectedWidgetId,
         updateWidgetProps,
@@ -584,8 +633,11 @@ export function ElementorEditorProvider({
         updateSlideInWidget,
         updateBenefitItem,
         resetToDefault,
+        discardDraft,
         saveComposition,
         hasUnsavedChanges,
+        hasDraft,
+        canEdit,
         saveMessage,
         panelCollapsed,
         setPanelCollapsed,

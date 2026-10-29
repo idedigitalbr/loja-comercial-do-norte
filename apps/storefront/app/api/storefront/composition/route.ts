@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import {
-  getStorefrontComposition,
+  clearLocalDraft,
+  getStorefrontCompositionInfo,
   saveStorefrontComposition,
 } from '@/lib/storefront/composition-storage';
+import { defaultHomeComposition } from '@/lib/storefront/home-configuration';
 import { verifyAdminAuthorization } from '@/lib/auth/admin-guard';
 import type { PageComposition } from '@/lib/storefront/widget-types';
 
@@ -12,14 +14,43 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const data = await getStorefrontComposition();
+    const info = await getStorefrontCompositionInfo();
     return NextResponse.json({
       success: true,
-      data,
+      data: info.composition,
+      isDraft: info.isDraft,
     });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, error: err?.message || 'Falha ao recuperar composição da vitrine' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    if (request.headers.get('origin') && request.headers.get('origin') !== new URL(request.url).origin) {
+      return NextResponse.json({ success: false, error: 'Origem não autorizada.' }, { status: 403 });
+    }
+    const authResult = await verifyAdminAuthorization(request);
+    // Em dev local ou admin autenticado, permite exclusão do rascunho
+    if (!authResult.isAdmin && process.env.NODE_ENV === 'production') {
+      return NextResponse.json(
+        { success: false, error: 'Acesso negado para excluir rascunho' },
+        { status: 403 }
+      );
+    }
+    await clearLocalDraft();
+    revalidatePath('/');
+    return NextResponse.json({
+      success: true,
+      message: 'Rascunho local excluído com sucesso. A vitrine foi restaurada para a versão oficial.',
+      data: defaultHomeComposition,
+    });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, error: err?.message || 'Falha ao excluir rascunho da vitrine' },
       { status: 500 }
     );
   }
