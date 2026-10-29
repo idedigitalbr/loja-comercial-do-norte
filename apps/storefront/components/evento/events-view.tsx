@@ -20,15 +20,19 @@ import {
   ChevronLeft,
   X,
 } from 'lucide-react';
+import styles from './event-theme.module.css';
+import { cn } from '@commerce/ui/web';
 import type { EventItem } from '@/lib/events-data';
 
 export type EventsViewProps = {
   initialEvents: EventItem[];
+  theme?: 'dark' | 'light';
+  detailBasePath?: string;
 };
 
 type CategoryFilter = 'todos' | 'workshops' | 'aulas-show' | 'palestras' | 'reinauguracoes';
 
-export function EventsView({ initialEvents }: EventsViewProps) {
+export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/evento' }: EventsViewProps) {
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -104,9 +108,15 @@ export function EventsView({ initialEvents }: EventsViewProps) {
   };
 
   return (
-    <div className="w-full bg-[#070B14] min-h-screen text-white">
+    <div
+      data-event-theme={theme}
+      className={cn(
+        theme === 'light' && styles.light,
+        'w-full bg-[var(--event-page,#070B14)] min-h-screen text-[var(--event-foreground,#fff)]'
+      )}
+    >
       {/* 1. HERO BANNER CINEMATOGRÁFICO COM FOTOGRAFIA DE ALTA QUALIDADE */}
-      <section className="relative overflow-hidden border-b border-white/10 bg-[#070B14]">
+      <section className="relative overflow-hidden border-b border-[var(--event-border,#ffffff10)] bg-[var(--event-page,#070B14)]">
         {/* Fotografia em alta definição no topo com filtro escuro na esquerda */}
         <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
           <Image
@@ -121,11 +131,11 @@ export function EventsView({ initialEvents }: EventsViewProps) {
           />
 
           {/* Gradiente escuro na esquerda para contraste e legibilidade perfeita */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#070B14] via-[#070B14]/95 via-35% md:via-48% lg:via-52% to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--event-page,#070B14)] via-[var(--event-page,#070B14)]/95 via-35% md:via-48% lg:via-52% to-transparent" />
 
           {/* Gradiente vertical para suavizar conexão superior e inferior */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#070B14] via-transparent to-transparent opacity-90" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#070B14]/80 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--event-page,#070B14)] via-transparent to-transparent opacity-90" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[var(--event-page,#070B14)]/80 via-transparent to-transparent" />
 
           {/* Ambient glow red & blue simulando a iluminação de palco */}
           <div className="absolute -top-24 left-10 w-96 h-96 bg-red-600/10 rounded-full blur-[120px] pointer-events-none" />
@@ -135,12 +145,12 @@ export function EventsView({ initialEvents }: EventsViewProps) {
         {/* Conteúdo textual do Hero */}
         <div className="cn-container relative z-10 py-10 sm:py-14 lg:py-16">
           {/* Breadcrumb */}
-          <nav aria-label="Você está aqui" className="flex items-center gap-2 text-xs font-medium text-slate-400 mb-6">
-            <Link className="hover:text-white transition-colors" href="/">
+          <nav aria-label="Você está aqui" className="flex items-center gap-2 text-xs font-medium text-[var(--event-muted,#94a3b8)] mb-6">
+            <Link className="hover:text-[var(--event-foreground,#fff)] transition-colors" href="/">
               Início
             </Link>
             <ChevronRight className="size-3 text-slate-500" />
-            <span className="font-semibold text-white">Eventos</span>
+            <span className="font-semibold text-[var(--event-foreground,#fff)]">Eventos</span>
           </nav>
 
           <div className="max-w-2xl">
@@ -151,45 +161,45 @@ export function EventsView({ initialEvents }: EventsViewProps) {
             </div>
 
             {/* Headline Principal */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-[1.12]">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[var(--event-foreground,#fff)] leading-[1.12]">
               Aprenda, conecte-se e<br className="hidden sm:inline" /> faça seu negócio crescer
             </h1>
 
             {/* Subtítulo */}
-            <p className="mt-4 text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl">
+            <p className="mt-4 text-sm sm:text-base text-[var(--event-secondary,#cbd5e1)] leading-relaxed max-w-xl">
               Acompanhe nossa agenda de workshops, aulas-show, inaugurações e encontros de capacitação com especialistas do
               mercado.
             </p>
 
             {/* 3 Pilares com Ícones */}
-            <div className="mt-8 flex flex-wrap items-center gap-6 sm:gap-8 pt-5 border-t border-white/10">
+            <div className="mt-8 flex flex-wrap items-center gap-6 sm:gap-8 pt-5 border-t border-[var(--event-border,#ffffff10)]">
               <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-white/5 border border-white/10 text-slate-300">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-white/5 border border-[var(--event-border,#ffffff10)] text-[var(--event-secondary,#cbd5e1)]">
                   <Users className="size-5" />
                 </div>
-                <div className="text-xs sm:text-sm font-semibold text-slate-200 leading-snug">
+                <div className="text-xs sm:text-sm font-semibold text-[var(--event-secondary,#e2e8f0)] leading-snug">
                   Especialistas<br />
-                  <span className="text-slate-400 font-normal">do mercado</span>
+                  <span className="text-[var(--event-muted,#94a3b8)] font-normal">do mercado</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-white/5 border border-white/10 text-slate-300">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-white/5 border border-[var(--event-border,#ffffff10)] text-[var(--event-secondary,#cbd5e1)]">
                   <TrendingUp className="size-5" />
                 </div>
-                <div className="text-xs sm:text-sm font-semibold text-slate-200 leading-snug">
+                <div className="text-xs sm:text-sm font-semibold text-[var(--event-secondary,#e2e8f0)] leading-snug">
                   Conteúdo<br />
-                  <span className="text-slate-400 font-normal">prático e atual</span>
+                  <span className="text-[var(--event-muted,#94a3b8)] font-normal">prático e atual</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-white/5 border border-white/10 text-slate-300">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-white/5 border border-[var(--event-border,#ffffff10)] text-[var(--event-secondary,#cbd5e1)]">
                   <Share2 className="size-5" />
                 </div>
-                <div className="text-xs sm:text-sm font-semibold text-slate-200 leading-snug">
+                <div className="text-xs sm:text-sm font-semibold text-[var(--event-secondary,#e2e8f0)] leading-snug">
                   Networking<br />
-                  <span className="text-slate-400 font-normal">e novas oportunidades</span>
+                  <span className="text-[var(--event-muted,#94a3b8)] font-normal">e novas oportunidades</span>
                 </div>
               </div>
             </div>
@@ -208,7 +218,7 @@ export function EventsView({ initialEvents }: EventsViewProps) {
               className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
                 activeCategory === 'todos'
                   ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/50'
-                  : 'bg-[#0E1627] text-slate-300 border border-white/10 hover:border-white/25 hover:text-white hover:bg-[#141E34]'
+                  : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
               }`}
               onClick={() => handleCategoryChange('todos')}
               type="button"
@@ -222,7 +232,7 @@ export function EventsView({ initialEvents }: EventsViewProps) {
               className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
                 activeCategory === 'workshops'
                   ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/50'
-                  : 'bg-[#0E1627] text-slate-300 border border-white/10 hover:border-white/25 hover:text-white hover:bg-[#141E34]'
+                  : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
               }`}
               onClick={() => handleCategoryChange('workshops')}
               type="button"
@@ -236,7 +246,7 @@ export function EventsView({ initialEvents }: EventsViewProps) {
               className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
                 activeCategory === 'aulas-show'
                   ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/50'
-                  : 'bg-[#0E1627] text-slate-300 border border-white/10 hover:border-white/25 hover:text-white hover:bg-[#141E34]'
+                  : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
               }`}
               onClick={() => handleCategoryChange('aulas-show')}
               type="button"
@@ -250,7 +260,7 @@ export function EventsView({ initialEvents }: EventsViewProps) {
               className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
                 activeCategory === 'palestras'
                   ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/50'
-                  : 'bg-[#0E1627] text-slate-300 border border-white/10 hover:border-white/25 hover:text-white hover:bg-[#141E34]'
+                  : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
               }`}
               onClick={() => handleCategoryChange('palestras')}
               type="button"
@@ -264,7 +274,7 @@ export function EventsView({ initialEvents }: EventsViewProps) {
               className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
                 activeCategory === 'reinauguracoes'
                   ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/50'
-                  : 'bg-[#0E1627] text-slate-300 border border-white/10 hover:border-white/25 hover:text-white hover:bg-[#141E34]'
+                  : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
               }`}
               onClick={() => handleCategoryChange('reinauguracoes')}
               type="button"
@@ -277,7 +287,7 @@ export function EventsView({ initialEvents }: EventsViewProps) {
           {/* Campo de Busca de Eventos */}
           <div className="relative w-full lg:w-72">
             <input
-              className="w-full rounded-full bg-[#0E1627] border border-white/10 px-4 py-2.5 pr-10 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-red-500 transition-colors"
+              className="w-full rounded-full bg-[var(--event-surface,#0E1627)] border border-[var(--event-border,#ffffff10)] px-4 py-2.5 pr-10 text-xs text-[var(--event-foreground,#fff)] placeholder-slate-400 focus:outline-none focus:border-red-500 transition-colors"
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Buscar evento..."
               type="text"
@@ -286,14 +296,14 @@ export function EventsView({ initialEvents }: EventsViewProps) {
             {searchQuery ? (
               <button
                 aria-label="Limpar busca"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--event-muted,#94a3b8)] hover:text-[var(--event-foreground,#fff)] p-1 cursor-pointer"
                 onClick={() => handleSearchChange('')}
                 type="button"
               >
                 <X className="size-3.5" />
               </button>
             ) : (
-              <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-400 pointer-events-none" />
+              <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-[var(--event-muted,#94a3b8)] pointer-events-none" />
             )}
           </div>
         </div>
@@ -303,11 +313,11 @@ export function EventsView({ initialEvents }: EventsViewProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {displayedEvents.map((event) => {
               const isBlue = event.buttonVariant === 'blue';
-              const detailHref = `/evento/${event.slug}`;
+              const detailHref = `${detailBasePath}/${event.slug}`;
 
               return (
                 <article
-                  className="group flex flex-col rounded-2xl bg-[#0C1220]/95 border border-white/10 hover:border-red-500/50 hover:shadow-[0_16px_40px_rgba(226,9,30,0.22)] hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                  className="group flex flex-col rounded-2xl bg-[var(--event-surface,#0C1220)] border border-[var(--event-border,#ffffff10)] hover:border-red-500/50 hover:shadow-[0_16px_40px_rgba(226,9,30,0.22)] hover:-translate-y-1 transition-all duration-300 overflow-hidden"
                   key={event.id}
                 >
                   {/* Cabeçalho de Imagem */}
@@ -345,41 +355,41 @@ export function EventsView({ initialEvents }: EventsViewProps) {
                   <div className="p-5 flex flex-col flex-1 justify-between">
                     <div>
                       {/* Linha de Data e Horário */}
-                      <div className="flex items-center gap-3 text-xs text-slate-300 font-semibold">
+                      <div className="flex items-center gap-3 text-xs text-[var(--event-secondary,#cbd5e1)] font-semibold">
                         {event.eventDateText ? (
                           <div className="flex items-center gap-1.5">
-                            <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                            <Calendar className="size-3.5 text-[var(--event-muted,#94a3b8)] shrink-0" />
                             <span>{event.eventDateText}</span>
                           </div>
                         ) : null}
 
                         {event.eventTime ? (
                           <div className="flex items-center gap-1.5">
-                            <Clock className="size-3.5 text-slate-400 shrink-0" />
+                            <Clock className="size-3.5 text-[var(--event-muted,#94a3b8)] shrink-0" />
                             <span>{event.eventTime}</span>
                           </div>
                         ) : null}
                       </div>
 
                       {/* Título do Evento */}
-                      <h2 className="mt-2.5 text-base font-bold text-white group-hover:text-red-400 transition-colors line-clamp-2 leading-snug">
+                      <h2 className="mt-2.5 text-base font-bold text-[var(--event-foreground,#fff)] group-hover:text-red-400 transition-colors line-clamp-2 leading-snug">
                         <Link href={detailHref}>{event.title}</Link>
                       </h2>
 
                       {/* Subtítulo / Descrição */}
-                      <p className="mt-1.5 text-xs text-slate-400 line-clamp-3 leading-relaxed">
+                      <p className="mt-1.5 text-xs text-[var(--event-muted,#94a3b8)] line-clamp-3 leading-relaxed">
                         {event.subtitle ? (
-                          <span className="font-semibold text-slate-300 block mb-0.5">{event.subtitle}</span>
+                          <span className="font-semibold text-[var(--event-secondary,#cbd5e1)] block mb-0.5">{event.subtitle}</span>
                         ) : null}
                         {event.description}
                       </p>
                     </div>
 
                     {/* Rodapé do Cartão com Local e Botão de Ação */}
-                    <div className="mt-4 pt-3 border-t border-white/10">
+                    <div className="mt-4 pt-3 border-t border-[var(--event-border,#ffffff10)]">
                       {/* Localização */}
                       {event.location ? (
-                        <div className="flex items-start gap-1.5 text-xs text-slate-300 font-medium">
+                        <div className="flex items-start gap-1.5 text-xs text-[var(--event-secondary,#cbd5e1)] font-medium">
                           <MapPin className="size-3.5 text-[#E2091E] shrink-0 mt-0.5" />
                           <span className="line-clamp-2">
                             {event.location}
@@ -413,12 +423,12 @@ export function EventsView({ initialEvents }: EventsViewProps) {
           </div>
         ) : (
           /* Estado Vazio Quando Busca não Encontra Nada */
-          <div className="rounded-2xl border border-white/10 bg-[#0C1220] p-12 text-center my-6">
-            <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-white/5 border border-white/10 text-slate-400">
+          <div className="rounded-2xl border border-[var(--event-border,#ffffff10)] bg-[var(--event-surface,#0C1220)] p-12 text-center my-6">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-white/5 border border-[var(--event-border,#ffffff10)] text-[var(--event-muted,#94a3b8)]">
               <Search className="size-6" />
             </div>
-            <h3 className="mt-4 text-base font-bold text-white">Nenhum evento encontrado</h3>
-            <p className="mt-1 text-xs text-slate-400 max-w-sm mx-auto">
+            <h3 className="mt-4 text-base font-bold text-[var(--event-foreground,#fff)]">Nenhum evento encontrado</h3>
+            <p className="mt-1 text-xs text-[var(--event-muted,#94a3b8)] max-w-sm mx-auto">
               Não encontramos nenhum evento com os termos ou filtros selecionados. Experimente buscar por outros termos.
             </p>
             <button
@@ -441,7 +451,7 @@ export function EventsView({ initialEvents }: EventsViewProps) {
             {/* Botão Anterior */}
             <button
               aria-label="Página anterior"
-              className="flex size-9 items-center justify-center rounded-full bg-[#0E1627] border border-white/10 text-slate-400 hover:border-white/25 hover:text-white disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer text-xs"
+              className="flex size-9 items-center justify-center rounded-full bg-[var(--event-surface,#0E1627)] border border-[var(--event-border,#ffffff10)] text-[var(--event-muted,#94a3b8)] hover:border-[var(--event-border,#ffffff25)] hover:text-[var(--event-foreground,#fff)] disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer text-xs"
               disabled={safePage <= 1}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               type="button"
@@ -456,7 +466,7 @@ export function EventsView({ initialEvents }: EventsViewProps) {
                 className={`flex size-9 items-center justify-center rounded-full text-xs font-bold transition cursor-pointer ${
                   safePage === pageNum
                     ? 'bg-[#E2091E] text-white shadow-md shadow-red-950/60 scale-105'
-                    : 'bg-[#0E1627] border border-white/10 text-slate-400 hover:border-white/25 hover:text-white'
+                    : 'bg-[var(--event-surface,#0E1627)] border border-[var(--event-border,#ffffff10)] text-slate-400 hover:border-[var(--event-border,#ffffff25)] hover:text-white'
                 }`}
                 key={pageNum}
                 onClick={() => setCurrentPage(pageNum)}
@@ -469,7 +479,7 @@ export function EventsView({ initialEvents }: EventsViewProps) {
             {/* Botão Próximo */}
             <button
               aria-label="Próxima página"
-              className="flex size-9 items-center justify-center rounded-full bg-[#0E1627] border border-white/10 text-slate-400 hover:border-white/25 hover:text-white disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer text-xs"
+              className="flex size-9 items-center justify-center rounded-full bg-[var(--event-surface,#0E1627)] border border-[var(--event-border,#ffffff10)] text-[var(--event-muted,#94a3b8)] hover:border-[var(--event-border,#ffffff25)] hover:text-[var(--event-foreground,#fff)] disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer text-xs"
               disabled={safePage >= totalPages}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               type="button"
