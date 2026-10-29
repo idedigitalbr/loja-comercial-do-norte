@@ -168,7 +168,7 @@ export interface SegmentCardItem {
   prefix: string;
   title: string;
   description: string;
-  iconType: 'burger' | 'pizza' | 'bakery' | 'party' | 'buffet' | 'confectionery' | 'icecream' | 'bar';
+  iconType: 'burger' | 'pizza' | 'bakery' | 'party' | 'buffet' | 'confectionery' | 'icecream' | 'bar' | 'delivery';
   imageUrl: string;
   linkUrl: string;
 }

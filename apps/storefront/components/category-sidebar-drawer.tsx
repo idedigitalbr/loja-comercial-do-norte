@@ -107,6 +107,7 @@ const DEFAULT_FALLBACK_SEGMENTS: ApiSegment[] = [
   { id: "seg_pizzaria", name: "Pizzarias & Esfiharias", slug: "pizzaria" },
   { id: "seg_padaria", name: "Padarias & Confeitarias", slug: "padaria" },
   { id: "seg_festas", name: "Festas & Eventos", slug: "loja-de-festas" },
+  { id: "seg_delivery", name: "Delivery & Takeout", slug: "delivery" },
   { id: "seg_buffet", name: "Restaurantes & Buffets", slug: "restaurante-buffet" },
   { id: "seg_confeitaria", name: "Doces & Confeitaria Caseira", slug: "confeitaria-bolos" },
   { id: "seg_sorveteria", name: "Sorveterias & Açaís", slug: "sorveteria-acai" },

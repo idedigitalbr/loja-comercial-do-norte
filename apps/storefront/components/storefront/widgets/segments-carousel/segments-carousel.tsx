@@ -6,6 +6,7 @@ import Link from 'next/link';
 import {
   ArrowRight,
   Beer,
+  Bike,
   Cake,
   ChevronLeft,
   ChevronRight,
@@ -38,6 +39,8 @@ function SegmentIcon({ type }: { type: SegmentCardItem['iconType'] }) {
       return <IceCream className="size-4 text-white" />;
     case 'bar':
       return <Beer className="size-4 text-white" />;
+    case 'delivery':
+      return <Bike className="size-4 text-white" />;
     default:
       return <UtensilsCrossed className="size-4 text-white" />;
   }
@@ -68,6 +71,7 @@ const SEGMENT_SLUG_MAP: Record<string, string> = {
   bar: 'bar-distribuidora',
   distribuidora: 'bar-distribuidora',
   'bar-distribuidora': 'bar-distribuidora',
+  delivery: 'delivery',
 };
 
 export function resolveSegmentUrl(item: { id?: string; title?: string; linkUrl?: string }): string {

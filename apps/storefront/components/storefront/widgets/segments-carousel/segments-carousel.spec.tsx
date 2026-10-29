@@ -144,4 +144,28 @@ describe('SegmentsCarouselWidget', () => {
     const padariaLink = screen.getByText('Padaria').closest('a');
     expect(padariaLink?.getAttribute('href')).toBe('/segmento/padaria');
   });
+
+  it('renderiza card de Delivery com prefixo "Para" e resolve URL corretamente', () => {
+    const deliveryItem = {
+      id: 'seg-delivery',
+      prefix: 'Para',
+      title: 'Delivery',
+      description: 'Sacolas kraft, lacres invioláveis e embalagens térmicas.',
+      imageUrl: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg',
+      linkUrl: '/segmento/delivery',
+      iconType: 'delivery' as const,
+    };
+
+    render(
+      <SegmentsCarouselWidget
+        items={[deliveryItem]}
+        title="Para todos os Negócios"
+      />
+    );
+
+    expect(screen.getByText('Delivery')).toBeDefined();
+    expect(screen.getByText('Para')).toBeDefined();
+    const deliveryLink = screen.getByText('Delivery').closest('a');
+    expect(deliveryLink?.getAttribute('href')).toBe('/segmento/delivery');
+  });
 });

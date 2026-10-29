@@ -323,7 +323,7 @@ export const defaultHomeComposition: PageComposition = {
         items: [
           {
             id: "seg-lanchonete",
-            prefix: "Para sua",
+            prefix: "Para",
             title: "Lanchonete",
             description:
               "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
@@ -334,7 +334,7 @@ export const defaultHomeComposition: PageComposition = {
           },
           {
             id: "seg-pizzaria",
-            prefix: "Para sua",
+            prefix: "Para",
             title: "Pizzaria",
             description:
               "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
@@ -345,7 +345,7 @@ export const defaultHomeComposition: PageComposition = {
           },
           {
             id: "seg-padaria",
-            prefix: "Para sua",
+            prefix: "Para",
             title: "Padaria",
             description:
               "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
@@ -356,7 +356,7 @@ export const defaultHomeComposition: PageComposition = {
           },
           {
             id: "seg-festas",
-            prefix: "Para sua",
+            prefix: "Para",
             title: "Loja de Festas",
             description:
               "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
@@ -366,8 +366,19 @@ export const defaultHomeComposition: PageComposition = {
             linkUrl: "",
           },
           {
+            id: "seg-delivery",
+            prefix: "Para",
+            title: "Delivery",
+            description:
+              "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+            iconType: "delivery",
+            imageUrl:
+              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+            linkUrl: "/segmento/delivery",
+          },
+          {
             id: "seg-buffet",
-            prefix: "Para seu",
+            prefix: "Para",
             title: "Restaurante & Buffet",
             description:
               "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
@@ -378,7 +389,7 @@ export const defaultHomeComposition: PageComposition = {
           },
           {
             id: "seg-confeitaria",
-            prefix: "Para sua",
+            prefix: "Para",
             title: "Confeitaria & Bolos",
             description:
               "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
@@ -389,7 +400,7 @@ export const defaultHomeComposition: PageComposition = {
           },
           {
             id: "seg-sorveteria",
-            prefix: "Para sua",
+            prefix: "Para",
             title: "Sorveteria & Açaí",
             description:
               "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
@@ -400,7 +411,7 @@ export const defaultHomeComposition: PageComposition = {
           },
           {
             id: "seg-bar",
-            prefix: "Para seu",
+            prefix: "Para",
             title: "Bar & Distribuidora",
             description:
               "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
@@ -658,7 +669,7 @@ export const defaultHomeComposition: PageComposition = {
               "Proteja cada detalhe na entrega.",
             ],
             ctaLabel: "Ver Completo",
-            ctaUrl: "/categoria/confeitaria",
+            ctaUrl: "/post",
             imageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/doces.webp",
           },
         ],
