@@ -28,11 +28,35 @@ export type EventsViewProps = {
   initialEvents: EventItem[];
   theme?: 'dark' | 'light';
   detailBasePath?: string;
+  badge?: string;
+  title?: string | React.ReactNode;
+  subtitle?: string;
+  benefits?: Array<{
+    icon?: any;
+    title: string;
+    subtitle: string;
+  }>;
 };
 
 type CategoryFilter = 'todos' | 'workshops' | 'aulas-show' | 'palestras' | 'reinauguracoes';
 
-export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/evento' }: EventsViewProps) {
+export function EventsView({
+  initialEvents,
+  theme = 'dark',
+  detailBasePath = '/evento',
+  badge = 'Nossos Eventos',
+  title = (
+    <>
+      Aprenda, conecte-se e<br className="hidden sm:inline" /> faça seu negócio crescer
+    </>
+  ),
+  subtitle = 'Acompanhe nossa agenda de workshops, aulas-show, inaugurações e encontros de capacitação com especialistas do mercado.',
+  benefits = [
+    { title: 'Especialistas', subtitle: 'do mercado', icon: Users },
+    { title: 'Conteúdo', subtitle: 'prático e atual', icon: TrendingUp },
+    { title: 'Networking', subtitle: 'e novas oportunidades', icon: Share2 },
+  ],
+}: EventsViewProps) {
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -116,12 +140,20 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
       )}
     >
       {/* 1. HERO BANNER CINEMATOGRÁFICO COM FOTOGRAFIA DE ALTA QUALIDADE */}
-      <section className="relative overflow-hidden border-b border-[var(--event-border,#ffffff10)] bg-[var(--event-page,#070B14)]">
-        {/* Fotografia em alta definição no topo com filtro escuro na esquerda */}
+      <section
+        className={cn(
+          'relative overflow-hidden border-b border-[var(--event-border,#ffffff10)]',
+          theme === 'light' ? 'bg-[#FFFDF9]' : 'bg-[var(--event-page,#070B14)]'
+        )}
+      >
+        {/* Fotografia em alta definição no topo com filtro */}
         <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
           <Image
             alt="Eventos e Capacitação Comercial do Norte"
-            className="size-full object-cover object-right md:object-[78%_center] opacity-90"
+            className={cn(
+              'size-full object-cover object-right md:object-[78%_center]',
+              theme === 'light' ? 'opacity-35' : 'opacity-90'
+            )}
             fill
             priority
             quality={100}
@@ -130,16 +162,46 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
             unoptimized
           />
 
-          {/* Gradiente escuro na esquerda para contraste e legibilidade perfeita */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--event-page,#070B14)] via-[var(--event-page,#070B14)]/95 via-35% md:via-48% lg:via-52% to-transparent" />
+          {/* Gradiente escuro ou claro na esquerda para contraste e legibilidade perfeita */}
+          <div
+            className={cn(
+              'absolute inset-0',
+              theme === 'light'
+                ? 'bg-gradient-to-r from-[#FFFDF9] via-[#FFFDF9]/95 via-35% md:via-48% lg:via-52% to-transparent'
+                : 'bg-gradient-to-r from-[var(--event-page,#070B14)] via-[var(--event-page,#070B14)]/95 via-35% md:via-48% lg:via-52% to-transparent'
+            )}
+          />
 
           {/* Gradiente vertical para suavizar conexão superior e inferior */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--event-page,#070B14)] via-transparent to-transparent opacity-90" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[var(--event-page,#070B14)]/80 via-transparent to-transparent" />
+          <div
+            className={cn(
+              'absolute inset-0 opacity-90',
+              theme === 'light'
+                ? 'bg-gradient-to-t from-[#FFFDF9] via-transparent to-transparent'
+                : 'bg-gradient-to-t from-[var(--event-page,#070B14)] via-transparent to-transparent'
+            )}
+          />
+          <div
+            className={cn(
+              'absolute inset-0',
+              theme === 'light'
+                ? 'bg-gradient-to-b from-[#FFFDF9]/80 via-transparent to-transparent'
+                : 'bg-gradient-to-b from-[var(--event-page,#070B14)]/80 via-transparent to-transparent'
+            )}
+          />
 
           {/* Ambient glow red & blue simulando a iluminação de palco */}
-          <div className="absolute -top-24 left-10 w-96 h-96 bg-red-600/10 rounded-full blur-[120px] pointer-events-none" />
-          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-blue-600/15 rounded-full blur-[140px] pointer-events-none" />
+          {theme === 'dark' ? (
+            <>
+              <div className="absolute -top-24 left-10 w-96 h-96 bg-red-600/10 rounded-full blur-[120px] pointer-events-none" />
+              <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-blue-600/15 rounded-full blur-[140px] pointer-events-none" />
+            </>
+          ) : (
+            <>
+              <div className="absolute -top-24 left-10 w-96 h-96 bg-red-100/40 rounded-full blur-[120px] pointer-events-none" />
+              <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-amber-100/30 rounded-full blur-[140px] pointer-events-none" />
+            </>
+          )}
         </div>
 
         {/* Conteúdo textual do Hero */}
@@ -157,51 +219,42 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
             {/* Tagline / Eyebrow Oficial */}
             <div className="flex items-center gap-2.5 mb-3.5">
               <span className="h-1 w-6 rounded-full bg-[#E2091E]" />
-              <span className="text-[11px] font-black uppercase tracking-[0.22em] text-[#E2091E]">Nossos Eventos</span>
+              <span className="text-[11px] font-black uppercase tracking-[0.22em] text-[#E2091E]">{badge}</span>
             </div>
 
             {/* Headline Principal */}
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[var(--event-foreground,#fff)] leading-[1.12]">
-              Aprenda, conecte-se e<br className="hidden sm:inline" /> faça seu negócio crescer
+              {title}
             </h1>
 
             {/* Subtítulo */}
             <p className="mt-4 text-sm sm:text-base text-[var(--event-secondary,#cbd5e1)] leading-relaxed max-w-xl">
-              Acompanhe nossa agenda de workshops, aulas-show, inaugurações e encontros de capacitação com especialistas do
-              mercado.
+              {subtitle}
             </p>
 
             {/* 3 Pilares com Ícones */}
             <div className="mt-8 flex flex-wrap items-center gap-6 sm:gap-8 pt-5 border-t border-[var(--event-border,#ffffff10)]">
-              <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-white/5 border border-[var(--event-border,#ffffff10)] text-[var(--event-secondary,#cbd5e1)]">
-                  <Users className="size-5" />
-                </div>
-                <div className="text-xs sm:text-sm font-semibold text-[var(--event-secondary,#e2e8f0)] leading-snug">
-                  Especialistas<br />
-                  <span className="text-[var(--event-muted,#94a3b8)] font-normal">do mercado</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-white/5 border border-[var(--event-border,#ffffff10)] text-[var(--event-secondary,#cbd5e1)]">
-                  <TrendingUp className="size-5" />
-                </div>
-                <div className="text-xs sm:text-sm font-semibold text-[var(--event-secondary,#e2e8f0)] leading-snug">
-                  Conteúdo<br />
-                  <span className="text-[var(--event-muted,#94a3b8)] font-normal">prático e atual</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-white/5 border border-[var(--event-border,#ffffff10)] text-[var(--event-secondary,#cbd5e1)]">
-                  <Share2 className="size-5" />
-                </div>
-                <div className="text-xs sm:text-sm font-semibold text-[var(--event-secondary,#e2e8f0)] leading-snug">
-                  Networking<br />
-                  <span className="text-[var(--event-muted,#94a3b8)] font-normal">e novas oportunidades</span>
-                </div>
-              </div>
+              {benefits.map((item, idx) => {
+                const Icon = item.icon || (idx === 0 ? Users : idx === 1 ? TrendingUp : Share2);
+                return (
+                  <div className="flex items-center gap-3" key={idx}>
+                    <div
+                      className={cn(
+                        'flex size-10 items-center justify-center rounded-xl border',
+                        theme === 'light'
+                          ? 'bg-white border-slate-200 text-slate-800 shadow-xs'
+                          : 'bg-white/5 border-[var(--event-border,#ffffff10)] text-[var(--event-secondary,#cbd5e1)]'
+                      )}
+                    >
+                      <Icon className="size-5 text-[#E2091E]" />
+                    </div>
+                    <div className="text-xs sm:text-sm font-semibold text-[var(--event-secondary,#e2e8f0)] leading-snug">
+                      {item.title}<br />
+                      <span className="text-[var(--event-muted,#94a3b8)] font-normal">{item.subtitle}</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -215,11 +268,14 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
           <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
             {/* Todos os eventos */}
             <button
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
+              className={cn(
+                'inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer',
                 activeCategory === 'todos'
-                  ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/50'
-                  : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
-              }`}
+                  ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/40'
+                  : theme === 'light'
+                    ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
+                    : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
+              )}
               onClick={() => handleCategoryChange('todos')}
               type="button"
             >
@@ -229,11 +285,14 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
 
             {/* Workshops */}
             <button
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
+              className={cn(
+                'inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer',
                 activeCategory === 'workshops'
-                  ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/50'
-                  : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
-              }`}
+                  ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/40'
+                  : theme === 'light'
+                    ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
+                    : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
+              )}
               onClick={() => handleCategoryChange('workshops')}
               type="button"
             >
@@ -243,11 +302,14 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
 
             {/* Aulas-show */}
             <button
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
+              className={cn(
+                'inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer',
                 activeCategory === 'aulas-show'
-                  ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/50'
-                  : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
-              }`}
+                  ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/40'
+                  : theme === 'light'
+                    ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
+                    : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
+              )}
               onClick={() => handleCategoryChange('aulas-show')}
               type="button"
             >
@@ -257,11 +319,14 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
 
             {/* Palestras */}
             <button
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
+              className={cn(
+                'inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer',
                 activeCategory === 'palestras'
-                  ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/50'
-                  : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
-              }`}
+                  ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/40'
+                  : theme === 'light'
+                    ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
+                    : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
+              )}
               onClick={() => handleCategoryChange('palestras')}
               type="button"
             >
@@ -271,11 +336,14 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
 
             {/* Reinaugurações */}
             <button
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
+              className={cn(
+                'inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer',
                 activeCategory === 'reinauguracoes'
-                  ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/50'
-                  : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
-              }`}
+                  ? 'bg-[#E2091E] text-white shadow-lg shadow-red-950/40'
+                  : theme === 'light'
+                    ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
+                    : 'bg-[var(--event-surface,#0E1627)] text-slate-300 border border-[var(--event-border,#ffffff10)] hover:border-[var(--event-border,#ffffff25)] hover:text-white hover:bg-[var(--event-hover,#141E34)]'
+              )}
               onClick={() => handleCategoryChange('reinauguracoes')}
               type="button"
             >
@@ -287,7 +355,12 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
           {/* Campo de Busca de Eventos */}
           <div className="relative w-full lg:w-72">
             <input
-              className="w-full rounded-full bg-[var(--event-surface,#0E1627)] border border-[var(--event-border,#ffffff10)] px-4 py-2.5 pr-10 text-xs text-[var(--event-foreground,#fff)] placeholder-slate-400 focus:outline-none focus:border-red-500 transition-colors"
+              className={cn(
+                'w-full rounded-full border px-4 py-2.5 pr-10 text-xs focus:outline-none focus:border-red-500 transition-colors',
+                theme === 'light'
+                  ? 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 shadow-xs'
+                  : 'bg-[var(--event-surface,#0E1627)] border-[var(--event-border,#ffffff10)] text-[var(--event-foreground,#fff)] placeholder-slate-400'
+              )}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Buscar evento..."
               type="text"
@@ -317,11 +390,22 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
 
               return (
                 <article
-                  className="group flex flex-col rounded-2xl bg-[var(--event-surface,#0C1220)] border border-[var(--event-border,#ffffff10)] hover:border-red-500/50 hover:shadow-[0_16px_40px_rgba(226,9,30,0.22)] hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                  className={cn(
+                    'group flex flex-col rounded-2xl border transition-all duration-300 overflow-hidden',
+                    theme === 'light'
+                      ? 'bg-white border-slate-200 shadow-xs hover:shadow-xl hover:border-red-300 hover:-translate-y-1'
+                      : 'bg-[var(--event-surface,#0C1220)] border-[var(--event-border,#ffffff10)] hover:border-red-500/50 hover:shadow-[0_16px_40px_rgba(226,9,30,0.22)] hover:-translate-y-1'
+                  )}
                   key={event.id}
                 >
                   {/* Cabeçalho de Imagem */}
-                  <Link className="relative aspect-[16/10] w-full overflow-hidden bg-slate-950 block" href={detailHref}>
+                  <Link
+                    className={cn(
+                      'relative aspect-[16/10] w-full overflow-hidden block',
+                      theme === 'light' ? 'bg-slate-100' : 'bg-slate-950'
+                    )}
+                    href={detailHref}
+                  >
                     {event.posterUrl ? (
                       <Image
                         alt={event.title}
@@ -348,7 +432,12 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
                     ) : null}
 
                     {/* Gradiente sutil inferior na foto */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0C1220] via-transparent to-transparent opacity-90 pointer-events-none" />
+                    <div
+                      className={cn(
+                        'absolute inset-0 bg-gradient-to-t via-transparent to-transparent opacity-90 pointer-events-none',
+                        theme === 'light' ? 'from-white' : 'from-[#0C1220]'
+                      )}
+                    />
                   </Link>
 
                   {/* Corpo do Cartão */}
@@ -372,7 +461,7 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
                       </div>
 
                       {/* Título do Evento */}
-                      <h2 className="mt-2.5 text-base font-bold text-[var(--event-foreground,#fff)] group-hover:text-red-400 transition-colors line-clamp-2 leading-snug">
+                      <h2 className="mt-2.5 text-base font-bold text-[var(--event-foreground,#fff)] group-hover:text-red-500 transition-colors line-clamp-2 leading-snug">
                         <Link href={detailHref}>{event.title}</Link>
                       </h2>
 
@@ -402,11 +491,16 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
 
                       {/* Botão de Ação */}
                       <Link
-                        className={`w-full mt-4 py-2.5 px-4 rounded-full text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200 group/btn ${
+                        className={cn(
+                          'w-full mt-4 py-2.5 px-4 rounded-full text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200 group/btn',
                           isBlue
-                            ? 'border border-blue-500/50 bg-blue-950/20 text-white hover:bg-blue-600 hover:border-blue-600 hover:shadow-lg hover:shadow-blue-950/50'
-                            : 'border border-red-500/50 bg-red-950/20 text-white hover:bg-[#E2091E] hover:border-[#E2091E] hover:shadow-lg hover:shadow-red-950/50'
-                        }`}
+                            ? theme === 'light'
+                              ? 'border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 shadow-xs'
+                              : 'border border-blue-500/50 bg-blue-950/20 text-white hover:bg-blue-600 hover:border-blue-600 hover:shadow-lg hover:shadow-blue-950/50'
+                            : theme === 'light'
+                              ? 'border border-red-200 bg-red-50 text-[#E2091E] hover:bg-[#E2091E] hover:text-white hover:border-[#E2091E] shadow-xs'
+                              : 'border border-red-500/50 bg-red-950/20 text-white hover:bg-[#E2091E] hover:border-[#E2091E] hover:shadow-lg hover:shadow-red-950/50'
+                        )}
                         href={event.ctaUrl || detailHref}
                         {...(event.ctaUrl && event.ctaUrl.startsWith('http')
                           ? { target: '_blank', rel: 'noopener noreferrer' }
@@ -423,8 +517,22 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
           </div>
         ) : (
           /* Estado Vazio Quando Busca não Encontra Nada */
-          <div className="rounded-2xl border border-[var(--event-border,#ffffff10)] bg-[var(--event-surface,#0C1220)] p-12 text-center my-6">
-            <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-white/5 border border-[var(--event-border,#ffffff10)] text-[var(--event-muted,#94a3b8)]">
+          <div
+            className={cn(
+              'rounded-2xl border p-12 text-center my-6',
+              theme === 'light'
+                ? 'border-slate-200 bg-white shadow-xs'
+                : 'border-[var(--event-border,#ffffff10)] bg-[var(--event-surface,#0C1220)]'
+            )}
+          >
+            <div
+              className={cn(
+                'mx-auto flex size-14 items-center justify-center rounded-full border',
+                theme === 'light'
+                  ? 'bg-slate-100 border-slate-200 text-slate-500'
+                  : 'bg-white/5 border-[var(--event-border,#ffffff10)] text-[var(--event-muted,#94a3b8)]'
+              )}
+            >
               <Search className="size-6" />
             </div>
             <h3 className="mt-4 text-base font-bold text-[var(--event-foreground,#fff)]">Nenhum evento encontrado</h3>
@@ -440,18 +548,23 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
               }}
               type="button"
             >
-              <span>Ver todos os eventos</span>
+              Ver todos os eventos
             </button>
           </div>
         )}
 
-        {/* 3. PAGINAÇÃO OFICIAL */}
-        {totalPages > 0 && (
+        {/* 3. PAGINAÇÃO ESTILIZADA */}
+        {totalPages > 1 ? (
           <div className="mt-12 flex items-center justify-center gap-2">
             {/* Botão Anterior */}
             <button
               aria-label="Página anterior"
-              className="flex size-9 items-center justify-center rounded-full bg-[var(--event-surface,#0E1627)] border border-[var(--event-border,#ffffff10)] text-[var(--event-muted,#94a3b8)] hover:border-[var(--event-border,#ffffff25)] hover:text-[var(--event-foreground,#fff)] disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer text-xs"
+              className={cn(
+                'flex size-9 items-center justify-center rounded-full border transition cursor-pointer text-xs disabled:opacity-40 disabled:pointer-events-none',
+                theme === 'light'
+                  ? 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 shadow-xs'
+                  : 'bg-[var(--event-surface,#0E1627)] border-[var(--event-border,#ffffff10)] text-[var(--event-muted,#94a3b8)] hover:border-[var(--event-border,#ffffff25)] hover:text-[var(--event-foreground,#fff)]'
+              )}
               disabled={safePage <= 1}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               type="button"
@@ -462,12 +575,14 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
             {/* Números de Página */}
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
               <button
-                aria-label={`Página ${pageNum}`}
-                className={`flex size-9 items-center justify-center rounded-full text-xs font-bold transition cursor-pointer ${
+                className={cn(
+                  'flex size-9 items-center justify-center rounded-full text-xs font-bold transition cursor-pointer',
                   safePage === pageNum
                     ? 'bg-[#E2091E] text-white shadow-md shadow-red-950/60 scale-105'
-                    : 'bg-[var(--event-surface,#0E1627)] border border-[var(--event-border,#ffffff10)] text-slate-400 hover:border-[var(--event-border,#ffffff25)] hover:text-white'
-                }`}
+                    : theme === 'light'
+                      ? 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 shadow-xs'
+                      : 'bg-[var(--event-surface,#0E1627)] border border-[var(--event-border,#ffffff10)] text-slate-400 hover:border-[var(--event-border,#ffffff25)] hover:text-white'
+                )}
                 key={pageNum}
                 onClick={() => setCurrentPage(pageNum)}
                 type="button"
@@ -479,7 +594,12 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
             {/* Botão Próximo */}
             <button
               aria-label="Próxima página"
-              className="flex size-9 items-center justify-center rounded-full bg-[var(--event-surface,#0E1627)] border border-[var(--event-border,#ffffff10)] text-[var(--event-muted,#94a3b8)] hover:border-[var(--event-border,#ffffff25)] hover:text-[var(--event-foreground,#fff)] disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer text-xs"
+              className={cn(
+                'flex size-9 items-center justify-center rounded-full border transition cursor-pointer text-xs disabled:opacity-40 disabled:pointer-events-none',
+                theme === 'light'
+                  ? 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 shadow-xs'
+                  : 'bg-[var(--event-surface,#0E1627)] border-[var(--event-border,#ffffff10)] text-[var(--event-muted,#94a3b8)] hover:border-[var(--event-border,#ffffff25)] hover:text-[var(--event-foreground,#fff)]'
+              )}
               disabled={safePage >= totalPages}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               type="button"
@@ -487,7 +607,7 @@ export function EventsView({ initialEvents, theme = 'dark', detailBasePath = '/e
               <ChevronRight className="size-4" />
             </button>
           </div>
-        )}
+        ) : null}
       </section>
     </div>
   );

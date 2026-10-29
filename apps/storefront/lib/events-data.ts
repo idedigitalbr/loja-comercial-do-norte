@@ -182,3 +182,109 @@ export const CANONICAL_EVENTS: EventItem[] = [
     sortOrder: 8,
   },
 ];
+
+export const CONFEITARIA_WORKSHOPS: EventItem[] = [
+  {
+    id: 'workshop-confeitaria-profissional-chantilly-bicos',
+    title: 'Workshop de Confeitaria Profissional: Decoração com Chantilly e Bicos',
+    slug: 'workshop-confeitaria-profissional-chantilly-bicos',
+    subtitle: 'Aprenda técnicas exclusivas com um especialista em confeitaria',
+    description:
+      'Treinamento prático voltado para boleiras, confeiteiras e pequenos produtores. Conteúdo aborda: ponto correto do chantilly, técnicas de bicos russos e perlê, trabalho com chantininho, nivelamento de bolos e decorações modernas.',
+    posterUrl: '/assets/HOME Vitrine/S12-EVENTOS/s12-event-03-workshop-confeitaria.jpg',
+    eventDateText: 'Em breve',
+    eventTime: '14h às 18h',
+    location: 'Centro Técnico Comercial do Norte',
+    locationAddress: 'Av. Bernardo Sayão, Belém/PA',
+    instructor: 'Mestre Doceiro',
+    badge: 'WORKSHOP CONFEITARIA',
+    categoryKey: 'workshops',
+    ctaLabel: 'Garantir Vaga',
+    ctaUrl:
+      'https://wa.me/5591983440880?text=Ol%C3%A1!+Gostaria+de+me+inscrever+no+Workshop+de+Confeitaria+com+Chantilly+e+Bicos',
+    buttonVariant: 'red',
+    status: 'ACTIVE',
+    sortOrder: 1,
+  },
+  {
+    id: 'workshop-doces-finos-brigadeiros-gourmet',
+    title: 'Doces Finos e Brigadeiros Gourmet para Casamentos e Festas',
+    slug: 'workshop-doces-finos-brigadeiros-gourmet',
+    subtitle: 'Técnicas de ponto perfeito, texturas aveludadas e embalagens de luxo',
+    description:
+      'Workshop mão na massa com receitas consagradas de brigadeiros gourmet, trufas finas, banho de chocolate nobre e apresentação em forminhas especiais e caixas rígidas para festas sofisticadas.',
+    posterUrl: '/assets/HOME Vitrine/S12-EVENTOS/s12-event-03-workshop-confeitaria.jpg',
+    eventDateText: '18 de Novembro',
+    eventTime: '13h30 às 17h30',
+    location: 'Centro Técnico Comercial do Norte',
+    locationAddress: 'Av. Bernardo Sayão — Belém/PA',
+    instructor: 'Chef Confeiteira Convidada',
+    badge: 'AULAS CONFEITARIA',
+    categoryKey: 'workshops',
+    ctaLabel: 'Garantir Vaga',
+    ctaUrl:
+      'https://wa.me/5591983440880?text=Ol%C3%A1!+Quero+me+inscrever+no+Workshop+Doces+Finos+e+Brigadeiros+Gourmet',
+    buttonVariant: 'red',
+    status: 'ACTIVE',
+    sortOrder: 2,
+  },
+  {
+    id: 'workshop-sobremesas-na-taca-copo-da-felicidade',
+    title: 'Sobremesas na Taça & Copos da Felicidade: Sucesso de Vendas',
+    slug: 'workshop-sobremesas-na-taca-copo-da-felicidade',
+    subtitle: 'Montagem estratégica, cremes estruturados e apresentação irresistível',
+    description:
+      'Domine a preparação de sobremesas geladas de alto giro e excelente margem de lucro. Aprenda cremes básicos estruturados (ninho, 4 leites, ganaches nobres), montagens em camadas nos copos bolha e taças acrílicas, com dicas de conservação e precificação comercial.',
+    posterUrl: '/assets/HOME Vitrine/S12-EVENTOS/s12-event-03-workshop-confeitaria.jpg',
+    eventDateText: '25 de Novembro',
+    eventTime: '14h às 18h',
+    location: 'Auditório Gastronômico Comercial do Norte',
+    locationAddress: 'Travessa Mauriti — Belém/PA',
+    instructor: 'Especialista em Sobremesas',
+    badge: 'WORKSHOP',
+    categoryKey: 'workshops',
+    ctaLabel: 'Garantir Vaga',
+    ctaUrl:
+      'https://wa.me/5591983440880?text=Ol%C3%A1!+Quero+me+inscrever+no+Workshop+Sobremesas+na+Ta%C3%A7a',
+    buttonVariant: 'red',
+    status: 'ACTIVE',
+    sortOrder: 3,
+  },
+  {
+    id: 'sabado-croquete-de-charque-para-trigo',
+    title: 'Croquete de Charque com Maionese de Chicória — Aula-Show Gastronômica',
+    slug: 'sabado-croquete-de-charque-para-trigo',
+    subtitle: 'Aula prática regional no Stand Comercial do Norte',
+    description:
+      'Aprenda o passo a passo completo da receita consagrada de croquete de charque com toque regional de maionese de chicória. Aula demonstrativa ministrada pela instrutora Thais Reis com degustação.',
+    posterUrl: '/assets/HOME Vitrine/S12-EVENTOS/s12-event-04-croquete.jpg',
+    eventDateText: '03/10 (Sábado)',
+    eventTime: '17h',
+    location: 'Hangar Centro de Convenções',
+    locationAddress: 'Stand Comercial do Norte — Belém/PA',
+    instructor: 'Thais Reis',
+    badge: 'AULA-SHOW',
+    categoryKey: 'aulas-show',
+    ctaLabel: 'Confirmar Presença',
+    ctaUrl:
+      'https://wa.me/5591983440880?text=Ol%C3%A1!+Gostaria+de+confirmar+presen%C3%A7a+na+aula-show+Croquete+de+Charque',
+    buttonVariant: 'red',
+    status: 'ACTIVE',
+    sortOrder: 4,
+  },
+];
+
+export function findAnyEventBySlug(slug: string): EventItem | null {
+  const normalized = (slug || '').toLowerCase().trim();
+  const allEvents = [...CANONICAL_EVENTS, ...CONFEITARIA_WORKSHOPS];
+
+  const exact = allEvents.find((e) => e.slug.toLowerCase() === normalized);
+  if (exact) return exact;
+
+  const match = allEvents.find(
+    (e) =>
+      normalized.includes(e.slug.toLowerCase()) ||
+      e.slug.toLowerCase().includes(normalized)
+  );
+  return match || null;
+}

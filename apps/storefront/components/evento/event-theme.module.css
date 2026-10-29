@@ -1,0 +1,15 @@
+.light {
+  color-scheme: light;
+  --event-page: #ffffff;
+  --event-surface: #ffffff;
+  --event-muted-surface: #f8fafc;
+  --event-foreground: #0f172a;
+  --event-secondary: #334155;
+  --event-muted: #64748b;
+  --event-border: #e2e8f0;
+  --event-hover: #f1f5f9;
+  --event-banner: #fff1f2;
+  --event-banner-border: #fecdd3;
+  --event-success: #047857;
+  --event-grid: rgba(15, 23, 42, 0.05);
+}

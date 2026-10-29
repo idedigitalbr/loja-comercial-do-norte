@@ -32,6 +32,11 @@ import type { ApiEvent } from '@/lib/api';
 export type EventSinglePostProps = {
   event: ApiEvent;
   theme?: 'dark' | 'light';
+  breadcrumbParent?: {
+    label: string;
+    href: string;
+  };
+  ctaLabel?: string;
 };
 
 // Dados complementares para garantir fidelidade pixel-perfect
@@ -128,7 +133,12 @@ const GALLERY_PHOTOS = [
   },
 ];
 
-export function EventSinglePost({ event, theme = 'dark' }: EventSinglePostProps) {
+export function EventSinglePost({
+  event,
+  theme = 'dark',
+  breadcrumbParent,
+  ctaLabel,
+}: EventSinglePostProps) {
   const [ticketCount, setTicketCount] = useState<number>(1);
   const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
   const [carouselOffset, setCarouselOffset] = useState<number>(0);
@@ -187,26 +197,49 @@ export function EventSinglePost({ event, theme = 'dark' }: EventSinglePostProps)
       )}
     >
       {/* Luzes atmosféricas de fundo */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-40 -left-40 size-[500px] rounded-full bg-[#E2091E]/12 blur-[140px]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-48 left-1/2 -translate-x-1/2 size-[600px] rounded-full bg-[#E2091E]/10 blur-[160px]"
-      />
+      {theme === 'dark' ? (
+        <>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-40 -left-40 size-[500px] rounded-full bg-[#E2091E]/12 blur-[140px]"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute top-48 left-1/2 -translate-x-1/2 size-[600px] rounded-full bg-[#E2091E]/10 blur-[160px]"
+          />
+        </>
+      ) : (
+        <>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-40 -left-40 size-[500px] rounded-full bg-red-100/40 blur-[140px]"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute top-48 left-1/2 -translate-x-1/2 size-[600px] rounded-full bg-amber-100/30 blur-[160px]"
+          />
+        </>
+      )}
 
       <div className="cn-container relative z-10 pt-6 sm:pt-8">
         {/* Breadcrumb oficial */}
-        <nav aria-label="Você está aqui" className="text-xs text-[var(--event-muted,#94a3b8)] mb-8 sm:mb-10">
+        <nav aria-label="Você está aqui" className="text-xs text-[var(--event-muted,#94a3b8)] mb-8 sm:mb-10 flex items-center flex-wrap gap-1.5">
           <Link className="transition hover:text-[var(--event-foreground,#fff)]" href="/">
             Início
           </Link>
-          <span className="mx-2 text-slate-600">/</span>
+          <span className="text-slate-400 dark:text-slate-600">/</span>
           <Link className="transition hover:text-[var(--event-foreground,#fff)]" href="/evento">
             Eventos
           </Link>
-          <span className="mx-2 text-slate-600">/</span>
+          {breadcrumbParent ? (
+            <>
+              <span className="text-slate-400 dark:text-slate-600">/</span>
+              <Link className="transition hover:text-[var(--event-foreground,#fff)]" href={breadcrumbParent.href}>
+                {breadcrumbParent.label}
+              </Link>
+            </>
+          ) : null}
+          <span className="text-slate-400 dark:text-slate-600">/</span>
           <span className="font-semibold text-[var(--event-foreground,#fff)]">{title}</span>
         </nav>
 
@@ -219,7 +252,14 @@ export function EventSinglePost({ event, theme = 'dark' }: EventSinglePostProps)
               <span className="inline-flex items-center rounded-full bg-[#E2091E] px-3.5 py-1 text-[11px] font-black uppercase tracking-wider text-white shadow-md shadow-red-950/40">
                 {badgeLabel}
               </span>
-              <span className="inline-flex items-center rounded-full border border-[#b38a16]/40 bg-[#422e06]/60 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#fde047]">
+              <span
+                className={cn(
+                  'inline-flex items-center rounded-full px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider',
+                  theme === 'light'
+                    ? 'border border-amber-200 bg-amber-50 text-amber-800'
+                    : 'border border-[#b38a16]/40 bg-[#422e06]/60 text-[#fde047]'
+                )}
+              >
                 Evento Presencial
               </span>
             </div>
@@ -300,9 +340,21 @@ export function EventSinglePost({ event, theme = 'dark' }: EventSinglePostProps)
 
           {/* Coluna 3: Card de Inscrição "Garanta seu ingresso" */}
           <div className="lg:col-span-4 flex flex-col justify-center">
-            <div className="rounded-2xl border border-[var(--event-border,#ffffff10)] bg-[var(--event-surface,#0d121c)] backdrop-blur-md p-6 sm:p-7 shadow-2xl">
+            <div
+              className={cn(
+                'rounded-2xl border border-[var(--event-border,#ffffff10)] bg-[var(--event-surface,#0d121c)] backdrop-blur-md p-6 sm:p-7',
+                theme === 'light' ? 'shadow-xl shadow-slate-200/70' : 'shadow-2xl'
+              )}
+            >
               {/* Badge Gratuito */}
-              <span className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[var(--event-success,#34d399)]">
+              <span
+                className={cn(
+                  'inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider',
+                  theme === 'light'
+                    ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+                    : 'border border-emerald-500/30 bg-emerald-500/15 text-[var(--event-success,#34d399)]'
+                )}
+              >
                 Evento Gratuito
               </span>
 
@@ -325,12 +377,20 @@ export function EventSinglePost({ event, theme = 'dark' }: EventSinglePostProps)
                 <div className="flex items-center justify-between gap-3">
                   {/* Stepper */}
                   <div
-                    className="flex items-center bg-[var(--event-surface,#151b26)] border border-[var(--event-border,#ffffff10)] rounded-xl px-2 py-1.5 gap-3 shrink-0"
+                    className={cn(
+                      'flex items-center border border-[var(--event-border,#ffffff10)] rounded-xl px-2 py-1.5 gap-3 shrink-0',
+                      theme === 'light' ? 'bg-slate-50' : 'bg-[var(--event-surface,#151b26)]'
+                    )}
                     id="ticket-stepper"
                   >
                     <button
                       aria-label="Diminuir quantidade de ingressos"
-                      className="size-7 rounded-lg flex items-center justify-center text-[var(--event-muted,#94a3b8)] hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                      className={cn(
+                        'size-7 rounded-lg flex items-center justify-center transition disabled:opacity-30 disabled:cursor-not-allowed',
+                        theme === 'light'
+                          ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                          : 'text-[var(--event-muted,#94a3b8)] hover:text-white hover:bg-white/10'
+                      )}
                       disabled={ticketCount <= 1}
                       onClick={() => setTicketCount((prev) => Math.max(1, prev - 1))}
                       type="button"
@@ -342,7 +402,12 @@ export function EventSinglePost({ event, theme = 'dark' }: EventSinglePostProps)
                     </span>
                     <button
                       aria-label="Aumentar quantidade de ingressos"
-                      className="size-7 rounded-lg flex items-center justify-center text-[var(--event-muted,#94a3b8)] hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                      className={cn(
+                        'size-7 rounded-lg flex items-center justify-center transition disabled:opacity-30 disabled:cursor-not-allowed',
+                        theme === 'light'
+                          ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                          : 'text-[var(--event-muted,#94a3b8)] hover:text-white hover:bg-white/10'
+                      )}
                       disabled={ticketCount >= 5}
                       onClick={() => setTicketCount((prev) => Math.min(5, prev + 1))}
                       type="button"
@@ -367,17 +432,27 @@ export function EventSinglePost({ event, theme = 'dark' }: EventSinglePostProps)
                 target="_blank"
               >
                 <Ticket className="size-4" />
-                <span>Confirmar Presença</span>
+                <span>{ctaLabel || event.ctaLabel || 'Confirmar Presença'}</span>
               </a>
 
               {/* Botão Secundário: Tirar dúvidas */}
               <a
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-[var(--event-border,#ffffff20)] bg-white/5 py-3 px-5 text-xs sm:text-sm font-bold text-white transition duration-200 hover:border-[var(--event-border,#ffffff40)] hover:bg-white/10"
+                className={cn(
+                  'mt-3 flex w-full items-center justify-center gap-2 rounded-full border py-3 px-5 text-xs sm:text-sm font-bold transition duration-200',
+                  theme === 'light'
+                    ? 'border-slate-200 bg-slate-50 text-slate-800 hover:bg-slate-100 hover:border-slate-300'
+                    : 'border-[var(--event-border,#ffffff20)] bg-white/5 text-white hover:border-[var(--event-border,#ffffff40)] hover:bg-white/10'
+                )}
                 href={doubtsUrl}
                 rel="noreferrer"
                 target="_blank"
               >
-                <MessageCircle className="size-4 text-[var(--event-success,#34d399)]" />
+                <MessageCircle
+                  className={cn(
+                    'size-4',
+                    theme === 'light' ? 'text-emerald-600' : 'text-[var(--event-success,#34d399)]'
+                  )}
+                />
                 <span>Tirar dúvidas no WhatsApp</span>
               </a>
             </div>
@@ -504,12 +579,17 @@ export function EventSinglePost({ event, theme = 'dark' }: EventSinglePostProps)
                 {/* Botão de rota: Abrir no Google Maps */}
                 <div className="absolute inset-x-0 bottom-3 flex justify-center z-10">
                   <a
-                    className="inline-flex items-center gap-2 rounded-full border border-[var(--event-border,#ffffff20)] bg-[var(--event-surface,#0f141d)] px-4 py-2 text-xs font-bold text-[var(--event-foreground,#fff)] shadow-lg backdrop-blur-md transition hover:bg-[var(--event-hover,#1a2232)] hover:border-[var(--event-border,#ffffff40)]"
+                    className={cn(
+                      'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold shadow-lg transition',
+                      theme === 'light'
+                        ? 'border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-300'
+                        : 'border-[var(--event-border,#ffffff20)] bg-[var(--event-surface,#0f141d)] text-[var(--event-foreground,#fff)] backdrop-blur-md hover:bg-[var(--event-hover,#1a2232)] hover:border-[var(--event-border,#ffffff40)]'
+                    )}
                     href={googleMapsUrl}
                     rel="noreferrer"
                     target="_blank"
                   >
-                    <MapIcon className="size-3.5 text-[var(--event-secondary,#cbd5e1)]" />
+                    <MapIcon className="size-3.5 text-[#E2091E]" />
                     <span>Abrir no Google Maps</span>
                   </a>
                 </div>
@@ -527,7 +607,12 @@ export function EventSinglePost({ event, theme = 'dark' }: EventSinglePostProps)
                   const Icon = item.icon;
                   return (
                     <div
-                      className="flex items-start gap-3 rounded-2xl border border-[var(--event-border,#ffffff10)] bg-[var(--event-surface,#0c1017)] p-4 transition hover:border-[var(--event-border,#ffffff20)]"
+                      className={cn(
+                        'flex items-start gap-3 rounded-2xl border border-[var(--event-border,#ffffff10)] bg-[var(--event-surface,#0c1017)] p-4 transition',
+                        theme === 'light'
+                          ? 'shadow-xs hover:shadow-md hover:border-slate-300'
+                          : 'hover:border-[var(--event-border,#ffffff20)]'
+                      )}
                       key={idx}
                     >
                       <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#E2091E]/30 bg-[#E2091E]/10 text-[#E2091E]">
@@ -560,7 +645,12 @@ export function EventSinglePost({ event, theme = 'dark' }: EventSinglePostProps)
             <div className="hidden sm:flex items-center gap-2">
               <button
                 aria-label="Ver fotos anteriores"
-                className="size-8 rounded-full border border-[var(--event-border,#ffffff10)] bg-white/5 flex items-center justify-center text-[var(--event-secondary,#cbd5e1)] hover:text-[var(--event-foreground,#fff)] hover:bg-white/15 transition disabled:opacity-30"
+                className={cn(
+                  'size-8 rounded-full border border-[var(--event-border,#ffffff10)] flex items-center justify-center transition disabled:opacity-30',
+                  theme === 'light'
+                    ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    : 'bg-white/5 text-[var(--event-secondary,#cbd5e1)] hover:text-[var(--event-foreground,#fff)] hover:bg-white/15'
+                )}
                 disabled={carouselOffset === 0}
                 onClick={handlePrevPhoto}
                 type="button"
@@ -569,7 +659,12 @@ export function EventSinglePost({ event, theme = 'dark' }: EventSinglePostProps)
               </button>
               <button
                 aria-label="Ver próximas fotos"
-                className="size-8 rounded-full border border-[var(--event-border,#ffffff10)] bg-white/5 flex items-center justify-center text-[var(--event-secondary,#cbd5e1)] hover:text-[var(--event-foreground,#fff)] hover:bg-white/15 transition disabled:opacity-30"
+                className={cn(
+                  'size-8 rounded-full border border-[var(--event-border,#ffffff10)] flex items-center justify-center transition disabled:opacity-30',
+                  theme === 'light'
+                    ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    : 'bg-white/5 text-[var(--event-secondary,#cbd5e1)] hover:text-[var(--event-foreground,#fff)] hover:bg-white/15'
+                )}
                 disabled={carouselOffset >= GALLERY_PHOTOS.length - 1}
                 onClick={handleNextPhoto}
                 type="button"
@@ -624,9 +719,23 @@ export function EventSinglePost({ event, theme = 'dark' }: EventSinglePostProps)
         </div>
 
         {/* BANNER INFERIOR "AINDA TEM DÚVIDAS?" */}
-        <div className="mt-14 sm:mt-16 rounded-2xl sm:rounded-3xl border border-[#E2091E]/30 bg-gradient-to-r from-[var(--event-banner,#4d070e)] via-[var(--event-banner,#240407)] to-[var(--event-banner,#0d0203)] p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-2xl">
+        <div
+          className={cn(
+            'mt-14 sm:mt-16 rounded-2xl sm:rounded-3xl border p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-2xl',
+            theme === 'light'
+              ? 'border-red-200 bg-gradient-to-r from-red-50 via-rose-50 to-amber-50 shadow-red-100/40'
+              : 'border-[#E2091E]/30 bg-gradient-to-r from-[var(--event-banner,#4d070e)] via-[var(--event-banner,#240407)] to-[var(--event-banner,#0d0203)]'
+          )}
+        >
           <div className="flex items-start sm:items-center gap-4">
-            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-[#E2091E]/30 bg-[#E2091E]/20 text-[#E2091E] shadow-inner">
+            <div
+              className={cn(
+                'flex size-12 shrink-0 items-center justify-center rounded-2xl border text-[#E2091E]',
+                theme === 'light'
+                  ? 'border-red-200 bg-white shadow-xs'
+                  : 'border-[#E2091E]/30 bg-[#E2091E]/20 shadow-inner'
+              )}
+            >
               <MessageCircle className="size-6" />
             </div>
             <div>

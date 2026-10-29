@@ -75,4 +75,37 @@ describe('Hierarchical Workshop Event Page (/evento/workshop/aulas-confeitaria/[
     expect(whatsappBtn.getAttribute('href')).toContain('wa.me/5591983440880');
     expect(whatsappBtn.getAttribute('href')).toContain('Croquete');
   });
+
+  it('renders workshop-doces-finos-brigadeiros-gourmet seamlessly with identical sections in light mode', async () => {
+    const meta = await generateMetadata({
+      params: Promise.resolve({ slug: 'workshop-doces-finos-brigadeiros-gourmet' }),
+    });
+
+    expect(meta.title).toContain('Doces Finos e Brigadeiros Gourmet');
+    expect(meta.alternates?.canonical).toBe(
+      '/evento/workshop/aulas-confeitaria/workshop-doces-finos-brigadeiros-gourmet'
+    );
+
+    const Component = await WorkshopEventPage({
+      params: Promise.resolve({ slug: 'workshop-doces-finos-brigadeiros-gourmet' }),
+    });
+
+    const { container } = render(Component);
+
+    // Light mode verification
+    const themedContainer = container.querySelector('[data-event-theme="light"]');
+    expect(themedContainer).toBeDefined();
+
+    // Verify identical structure/sections as reference event
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toContain(
+      'Doces Finos e Brigadeiros Gourmet'
+    );
+    expect(screen.getByText('Garanta seu ingresso')).toBeDefined();
+    expect(screen.getByText('Programação')).toBeDefined();
+    expect(screen.getByText('Local do Evento')).toBeDefined();
+    expect(screen.getByText('O que te espera')).toBeDefined();
+    expect(screen.getByText('Veja como foi na última edição')).toBeDefined();
+    expect(screen.getByText('Ainda tem dúvidas?')).toBeDefined();
+    expect(screen.getByRole('link', { name: /Garantir Vaga no WhatsApp/i })).toBeDefined();
+  });
 });

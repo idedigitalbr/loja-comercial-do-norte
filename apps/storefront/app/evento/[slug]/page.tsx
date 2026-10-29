@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getEventBySlug, type ApiEvent } from '@/lib/api';
-import { CANONICAL_EVENTS } from '@/lib/events-data';
+import { CANONICAL_EVENTS, findAnyEventBySlug } from '@/lib/events-data';
 import { EventSinglePost } from '@/components/evento/event-single-post';
 
 export const dynamic = 'force-dynamic';
@@ -32,10 +32,7 @@ function findFallbackEvent(slug: string): ApiEvent | null {
   if (slug === DEFAULT_PEDREIRA_EVENT.slug || slug.includes('pedreira')) {
     return DEFAULT_PEDREIRA_EVENT;
   }
-  const match = CANONICAL_EVENTS.find(
-    (e) => e.slug === slug || slug.includes(e.slug) || e.slug.includes(slug)
-  );
-  return match || null;
+  return findAnyEventBySlug(slug);
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
