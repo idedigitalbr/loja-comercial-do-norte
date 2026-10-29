@@ -283,7 +283,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -292,7 +292,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -301,7 +301,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -310,7 +310,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -318,8 +318,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -328,7 +337,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -337,7 +346,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -346,7 +355,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -1225,7 +1234,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -1234,7 +1243,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -1243,7 +1252,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -1252,7 +1261,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -1260,8 +1269,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -1270,7 +1288,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -1279,7 +1297,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -1288,7 +1306,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -2125,7 +2143,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -2134,7 +2152,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -2143,7 +2161,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -2152,7 +2170,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -2160,8 +2178,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -2170,7 +2197,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -2179,7 +2206,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -2188,7 +2215,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -3026,7 +3053,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -3035,7 +3062,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -3044,7 +3071,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -3053,7 +3080,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -3061,8 +3088,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -3071,7 +3107,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -3080,7 +3116,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -3089,7 +3125,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -3927,7 +3963,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -3936,7 +3972,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -3945,7 +3981,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -3954,7 +3990,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -3962,8 +3998,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -3972,7 +4017,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -3981,7 +4026,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -3990,7 +4035,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -4828,7 +4873,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -4837,7 +4882,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -4846,7 +4891,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -4855,7 +4900,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -4863,8 +4908,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -4873,7 +4927,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -4882,7 +4936,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -4891,7 +4945,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -5729,7 +5783,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -5738,7 +5792,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -5747,7 +5801,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -5756,7 +5810,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -5764,8 +5818,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -5774,7 +5837,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -5783,7 +5846,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -5792,7 +5855,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -6630,7 +6693,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -6639,7 +6702,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -6648,7 +6711,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -6657,7 +6720,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -6665,8 +6728,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -6675,7 +6747,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -6684,7 +6756,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -6693,7 +6765,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -7531,7 +7603,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -7540,7 +7612,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -7549,7 +7621,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -7558,7 +7630,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -7566,8 +7638,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -7576,7 +7657,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -7585,7 +7666,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -7594,7 +7675,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -8432,7 +8513,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -8441,7 +8522,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -8450,7 +8531,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -8459,7 +8540,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -8467,8 +8548,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -8477,7 +8567,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -8486,7 +8576,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -8495,7 +8585,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -9333,7 +9423,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -9342,7 +9432,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -9351,7 +9441,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -9360,7 +9450,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -9368,8 +9458,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -9378,7 +9477,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -9387,7 +9486,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -9396,7 +9495,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -10234,7 +10333,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -10243,7 +10342,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -10252,7 +10351,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -10261,7 +10360,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -10269,8 +10368,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -10279,7 +10387,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -10288,7 +10396,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -10297,7 +10405,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -11135,7 +11243,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -11144,7 +11252,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -11153,7 +11261,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -11162,7 +11270,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -11170,8 +11278,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -11180,7 +11297,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -11189,7 +11306,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -11198,7 +11315,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -12036,7 +12153,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -12045,7 +12162,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -12054,7 +12171,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -12063,7 +12180,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -12071,8 +12188,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -12081,7 +12207,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -12090,7 +12216,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -12099,7 +12225,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -12937,7 +13063,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -12946,7 +13072,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -12955,7 +13081,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -12964,7 +13090,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -12972,8 +13098,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -12982,7 +13117,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -12991,7 +13126,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -13000,7 +13135,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -13838,7 +13973,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -13847,7 +13982,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -13856,7 +13991,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -13865,7 +14000,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -13873,8 +14008,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -13883,7 +14027,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -13892,7 +14036,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -13901,7 +14045,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",
@@ -14739,7 +14883,7 @@
             "items": [
               {
                 "id": "seg-lanchonete",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Lanchonete",
                 "description": "Embalagens térmicas, sacolas, guardanapos, copos e descartáveis para atendimento rápido.",
                 "iconType": "burger",
@@ -14748,7 +14892,7 @@
               },
               {
                 "id": "seg-pizzaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Pizzaria",
                 "description": "Caixas oitavadas e quadradas, lacres, bobinas, sacolas e insumos para delivery seguro.",
                 "iconType": "pizza",
@@ -14757,7 +14901,7 @@
               },
               {
                 "id": "seg-padaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Padaria",
                 "description": "Bandejas, embalagens para doces e bolos, filme PVC, sacos de papel e luvas descartáveis.",
                 "iconType": "bakery",
@@ -14766,7 +14910,7 @@
               },
               {
                 "id": "seg-festas",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Loja de Festas",
                 "description": "Balões, descartáveis coloridos, velas, forminhas e utilidades com preço de atacado.",
                 "iconType": "party",
@@ -14774,8 +14918,17 @@
                 "linkUrl": "/segmento/loja-de-festas"
               },
               {
+                "id": "seg-delivery",
+                "prefix": "Para",
+                "title": "Delivery",
+                "description": "Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.",
+                "iconType": "delivery",
+                "imageUrl": "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+                "linkUrl": "/segmento/delivery"
+              },
+              {
                 "id": "seg-buffet",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Restaurante & Buffet",
                 "description": "Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.",
                 "iconType": "buffet",
@@ -14784,7 +14937,7 @@
               },
               {
                 "id": "seg-confeitaria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Confeitaria & Bolos",
                 "description": "Bases para bolos, caixas vitrine, forminhas para doces finos, mangas e bicos de confeitar.",
                 "iconType": "confectionery",
@@ -14793,7 +14946,7 @@
               },
               {
                 "id": "seg-sorveteria",
-                "prefix": "Para sua",
+                "prefix": "Para",
                 "title": "Sorveteria & Açaí",
                 "description": "Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.",
                 "iconType": "icecream",
@@ -14802,7 +14955,7 @@
               },
               {
                 "id": "seg-bar",
-                "prefix": "Para seu",
+                "prefix": "Para",
                 "title": "Bar & Distribuidora",
                 "description": "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
                 "iconType": "bar",

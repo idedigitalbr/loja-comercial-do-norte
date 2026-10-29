@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@commerce/ui/web";
 import {
   Boxes,
+  Bike,
   CakeSlice,
   Candy,
   ChevronDown,
@@ -107,7 +108,7 @@ const DEFAULT_FALLBACK_SEGMENTS: ApiSegment[] = [
   { id: "seg_pizzaria", name: "Pizzarias & Esfiharias", slug: "pizzaria" },
   { id: "seg_padaria", name: "Padarias & Confeitarias", slug: "padaria" },
   { id: "seg_festas", name: "Festas & Eventos", slug: "loja-de-festas" },
-  { id: "seg_delivery", name: "Delivery & Takeout", slug: "delivery" },
+  { id: "seg_delivery", name: "Delivery", slug: "delivery" },
   { id: "seg_buffet", name: "Restaurantes & Buffets", slug: "restaurante-buffet" },
   { id: "seg_confeitaria", name: "Doces & Confeitaria Caseira", slug: "confeitaria-bolos" },
   { id: "seg_sorveteria", name: "Sorveterias & Açaís", slug: "sorveteria-acai" },
@@ -141,6 +142,7 @@ function getSegmentIcon(slug: string) {
   if (slug.includes("pizzaria")) return Pizza;
   if (slug.includes("padaria")) return Croissant;
   if (slug.includes("festas")) return PartyPopper;
+  if (slug.includes("delivery")) return Bike;
   if (slug.includes("buffet") || slug.includes("restaurante")) return UtensilsCrossed;
   if (slug.includes("confeitaria") || slug.includes("bolo")) return CakeSlice;
   if (slug.includes("sorveteria") || slug.includes("acai")) return IceCream2;

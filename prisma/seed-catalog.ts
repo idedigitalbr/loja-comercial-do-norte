@@ -76,32 +76,39 @@ const segments: readonly DemoSegment[] = [
     sortOrder: 4,
   },
   {
+    name: 'Delivery',
+    slug: 'delivery',
+    description: 'Sacolas kraft, lacres invioláveis, embalagens térmicas, potes antivazamento e caixas para transporte.',
+    imagePath: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg',
+    sortOrder: 5,
+  },
+  {
     name: 'Restaurantes & Buffets',
     slug: 'restaurante-buffet',
     description: 'Marmitas térmicas, travessas de alumínio, talheres descartáveis premium e guardanapos folha dupla.',
     imagePath: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-05-buffet.jpg',
-    sortOrder: 5,
+    sortOrder: 6,
   },
   {
     name: 'Doces & Confeitaria Caseira',
     slug: 'confeitaria-bolos',
     description: 'Embalagens articuladas para fatias, formas forneáveis, sacos para confeitar e fitas de cetim.',
     imagePath: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-06-confeitaria.jpg',
-    sortOrder: 6,
+    sortOrder: 7,
   },
   {
     name: 'Sorveterias & Açaís',
     slug: 'sorveteria-acai',
     description: 'Potes térmicos, copos transparentes com tampa bolha, colheres coloridas e canudos biodegradáveis.',
     imagePath: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-07-acai.jpg',
-    sortOrder: 7,
+    sortOrder: 8,
   },
   {
     name: 'Bares & Distribuidoras',
     slug: 'bar-distribuidora',
     description: 'Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.',
     imagePath: '/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-08-sustentaveis.jpg',
-    sortOrder: 8,
+    sortOrder: 9,
   },
 ];
 
