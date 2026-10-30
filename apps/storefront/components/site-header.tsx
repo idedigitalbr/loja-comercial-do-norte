@@ -161,6 +161,7 @@ export function SiteHeader({
             <div className="flex items-center gap-2 sm:gap-3 md:pl-[88px] lg:pl-[94px]">
               {/* Botão Menu Hamburger Mobile */}
               <button
+                id="tour-header-mobile-menu"
                 aria-label="Abrir menu principal"
                 className="flex size-9 items-center justify-center rounded-lg text-white hover:bg-white/10 md:hidden cursor-pointer"
                 onClick={() => setMobileMenuOpen(true)}
@@ -171,6 +172,7 @@ export function SiteHeader({
 
               {/* Logo Oficial com Centro Vermelho e Texto Branco */}
               <Link
+                id="tour-header-logo"
                 aria-label={`${siteName} - Página Inicial`}
                 className="flex items-center shrink-0"
                 href="/"
@@ -298,6 +300,7 @@ export function SiteHeader({
         {/* BARRA MOBILE/TABLET: LOCALIZAÇÃO & CEP COMPACTO (ESTILO MAGALU) */}
         <div className="flex lg:hidden items-center justify-between border-t border-white/10 bg-[#00357B]/90 px-3 py-1.5 text-xs text-white">
           <button
+            id="tour-header-location-mobile"
             aria-haspopup="dialog"
             aria-label={`Enviar para: ${location.shortLabel}. Clique para alterar.`}
             className="flex items-center gap-1.5 text-white/95 hover:text-white transition cursor-pointer text-left min-w-0 flex-1 mr-2"

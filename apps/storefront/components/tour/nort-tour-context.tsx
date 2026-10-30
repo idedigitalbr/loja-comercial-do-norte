@@ -1,10 +1,17 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import type { NortTourContextType, NortTourStep } from './nort-tour-types';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react';
 import { NORT_TOUR_STEPS } from './nort-tour-steps';
 import { NortTourOverlay } from './nort-tour-overlay';
 import { NortTourPrompt } from './nort-tour-prompt';
+import type { NortTourContextType, NortTourStep } from './nort-tour-types';
 
 const STORAGE_KEY_SEEN = 'cn_nort_tour_completed_v1';
 const STORAGE_KEY_PROMPT = 'cn_nort_tour_prompt_dismissed_v1';
@@ -29,10 +36,10 @@ const defaultNortTourContext: NortTourContextType = {
 
 const NortTourContext = createContext<NortTourContextType | null>(null);
 
-export function NortTourProvider({ children }: { children: React.ReactNode }) {
+export function NortTourProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [hasSeenTour, setHasSeenTour] = useState(true); // default true para SSR seguro
+  const [hasSeenTour, setHasSeenTour] = useState(true); // default true para evitar hydration mismatch no SSR
   const [promptDismissed, setPromptDismissed] = useState(true);
 
   // Inicializa estado a partir do LocalStorage no cliente
@@ -43,13 +50,19 @@ export function NortTourProvider({ children }: { children: React.ReactNode }) {
       setHasSeenTour(seen === 'true');
       setPromptDismissed(prompt === 'true');
     } catch {
-      // Falhas silenciosas em ambientes privados/sem storage
+      // Ignora falhas em ambientes sem acesso ao storage
     }
   }, []);
 
-  const startTour = useCallback((startIndex = 0) => {
-    setCurrentStepIndex(Math.max(0, Math.min(startIndex, NORT_TOUR_STEPS.length - 1)));
+  const startTour = useCallback((startIndex?: unknown) => {
+    const validIndex =
+      typeof startIndex === 'number' && !Number.isNaN(startIndex)
+        ? Math.floor(startIndex)
+        : 0;
+    const clampedIndex = Math.max(0, Math.min(validIndex, NORT_TOUR_STEPS.length - 1));
+    setCurrentStepIndex(clampedIndex);
     setIsOpen(true);
+    setPromptDismissed(true);
   }, []);
 
   const endTour = useCallback((markAsSeen = true) => {
@@ -71,18 +84,18 @@ export function NortTourProvider({ children }: { children: React.ReactNode }) {
   }, [endTour]);
 
   const nextStep = useCallback(() => {
-    if (currentStepIndex < NORT_TOUR_STEPS.length - 1) {
-      setCurrentStepIndex((prev) => prev + 1);
-    } else {
+    setCurrentStepIndex((prev) => {
+      if (prev < NORT_TOUR_STEPS.length - 1) {
+        return prev + 1;
+      }
       endTour(true);
-    }
-  }, [currentStepIndex, endTour]);
+      return prev;
+    });
+  }, [endTour]);
 
   const prevStep = useCallback(() => {
-    if (currentStepIndex > 0) {
-      setCurrentStepIndex((prev) => prev - 1);
-    }
-  }, [currentStepIndex]);
+    setCurrentStepIndex((prev) => Math.max(0, prev - 1));
+  }, []);
 
   const goToStep = useCallback((index: number) => {
     if (index >= 0 && index < NORT_TOUR_STEPS.length) {
@@ -131,7 +144,7 @@ export function NortTourProvider({ children }: { children: React.ReactNode }) {
     >
       {children}
 
-      {/* OVERLAY NATIVO INTERATIVO COM MÁSCARA SVG E NORT 3D */}
+      {/* OVERLAY DO TOUR EM EXECUÇÃO */}
       {isOpen && currentStep && (
         <NortTourOverlay
           step={currentStep}
@@ -146,7 +159,7 @@ export function NortTourProvider({ children }: { children: React.ReactNode }) {
 
       {/* CONVITE SUAVE PARA VISITANTES DE PRIMEIRA VIAGEM */}
       {!isOpen && !hasSeenTour && !promptDismissed && (
-        <NortTourPrompt onStart={startTour} onDismiss={dismissPrompt} />
+        <NortTourPrompt onStart={() => startTour(0)} onDismiss={dismissPrompt} />
       )}
     </NortTourContext.Provider>
   );

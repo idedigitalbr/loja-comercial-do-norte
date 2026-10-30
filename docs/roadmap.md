@@ -1,5 +1,12 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **30/10/2026 — Correção Crítica no Gatilho do Tour Guiado do Nort (executorId: `antigravity-gemini`):**
+  - **Correção de Ativação do Tour:** Corrigido o bug onde clicar em "Fazer tour!" no prompt de boas-vindas repassava o evento sintético do React (`MouseEvent`) para `startTour(startIndex = 0)`. O cálculo `Math.min(event, 8)` gerava `NaN`, fazendo com que `currentStepIndex` ficasse inválido e o overlay não fosse renderizado.
+  - **Defensiva em `startTour`:** Implementada validação de tipo estrita (`typeof startIndex === 'number' && !Number.isNaN(startIndex)`), garantindo inicialização correta no passo 0.
+  - **Renderização via Portal:** `NortTourOverlay` e `NortTourPrompt` passam a renderizar diretamente no `document.body` via `createPortal`, evitando conflitos de stacking context e overflow.
+  - **Suporte Mobile e Elementos Ocultos:** Suporte a `mobileSelector` e tratamento gracioso quando elementos têm `display: none` ou `rect.width === 0`, evitando posições estranhas e centralizando o card do mascote.
+  - **Qualidade & Testes:** Teste unitário dedicado `abre o tour com sucesso ao clicar em "Fazer tour!" no prompt de boas-vindas` adicionado e aprovado com 100% de sucesso. Total de 174 testes unitários verdes no Storefront e build validado.
+
 - **30/10/2026 — Sincronização e Deploy Integral de Produção (Vercel + Neon DB) (executorId: `antigravity-gemini`):**
   - **Causa Raiz da Defasagem Visual:**
     1. Domínios de produção na Vercel: o domínio canônico com hífen `https://loja-comercialdonorte.vercel.app` estava mapeado para um deploy defasado de 4 dias (`loja-home-front-mogsgnmnp`).

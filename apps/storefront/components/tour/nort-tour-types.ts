@@ -3,6 +3,7 @@ export type BalloonSide = 'top' | 'bottom' | 'left' | 'right' | 'auto';
 export interface NortTourStep {
   id: string;
   selector: string;
+  mobileSelector?: string;
   title: string;
   message: string;
   badge?: string;
@@ -20,7 +21,7 @@ export interface NortTourContextType {
   totalSteps: number;
   hasSeenTour: boolean;
   promptDismissed: boolean;
-  startTour: (stepIndex?: number) => void;
+  startTour: (stepIndex?: unknown) => void;
   endTour: (markAsSeen?: boolean) => void;
   closeTour: () => void;
   skipTour: () => void;

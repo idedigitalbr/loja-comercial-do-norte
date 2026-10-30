@@ -13,7 +13,7 @@ import { NortHeader } from '../nort-header';
 vi.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
-    const { fill, priority, ...rest } = props;
+    const { fill, priority, unoptimized, ...rest } = props;
     return <img {...rest} />;
   },
 }));
@@ -22,7 +22,7 @@ function TestConsumer() {
   const { startTour, isOpen, currentStepIndex, totalSteps, closeTour } = useNortTour();
   return (
     <div>
-      <button onClick={() => startTour(0)}>Iniciar Tour</button>
+      <button onClick={() => startTour()}>Iniciar Tour</button>
       <button onClick={closeTour}>Fechar Tour</button>
       <span data-testid="status">{isOpen ? 'aberto' : 'fechado'}</span>
       <span data-testid="step-index">{currentStepIndex}</span>
@@ -56,6 +56,37 @@ describe('Nort Guided Tour Engine', () => {
 
     expect(screen.getByTestId('status').textContent).toBe('aberto');
     expect(screen.getByRole('dialog')).toBeTruthy();
+  });
+
+  it('abre o tour com sucesso ao clicar em "Fazer tour!" no prompt de boas-vindas', () => {
+    vi.useFakeTimers();
+
+    // Visitante novo: hasSeenTour = false, promptDismissed = false
+    window.localStorage.removeItem('cn_nort_tour_completed_v1');
+    window.localStorage.removeItem('cn_nort_tour_prompt_dismissed_v1');
+
+    render(
+      <NortTourProvider>
+        <div>conteúdo da página</div>
+      </NortTourProvider>
+    );
+
+    // Passam-se os 3.5 segundos para o prompt aparecer
+    act(() => {
+      vi.advanceTimersByTime(3600);
+    });
+
+    const fazerTourBtn = screen.getByRole('button', { name: /Fazer tour!/i });
+    expect(fazerTourBtn).toBeTruthy();
+
+    // Clica no botão "Fazer tour!"
+    fireEvent.click(fazerTourBtn);
+
+    // O tour DEVE abrir imediatamente sem falhar com NaN
+    expect(screen.getByRole('dialog')).toBeTruthy();
+    expect(screen.getByText('Oi! Eu sou o Nort! 👋')).toBeTruthy();
+
+    vi.useRealTimers();
   });
 
   it('renderiza o balão de fala com o mascote Nort, fala oficial e badge de boas-vindas no passo 1', () => {

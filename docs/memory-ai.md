@@ -7,6 +7,15 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **30/10/2026 — Correção Crítica no Gatilho do Tour Guiado do Nort (executorId: `antigravity-gemini`):**
+  - **Causa Raiz Identificada:** Ao clicar em "Fazer tour!" no prompt flutuante de boas-vindas (`NortTourPrompt`), o evento de clique do React (`MouseEvent`) era repassado como primeiro argumento para `startTour(startIndex = 0)`. O cálculo `Math.min(event, 8)` avaliava para `NaN`, resultando em `currentStepIndex = NaN`. Como `NORT_TOUR_STEPS[NaN]` é `undefined`, o `currentStep` ficava `null` e o `NortTourOverlay` não era renderizado, fazendo com que o prompt fechasse e nenhuma tela de tour abrisse.
+  - **Blindagem e Resolução:**
+    - `startTour` atualizado com sanitização defensiva: valida `typeof startIndex === 'number' && !Number.isNaN(startIndex) ? Math.floor(startIndex) : 0`, garantindo fallback seguro para o passo 0 mesmo se chamado diretamente por manipuladores de eventos.
+    - Encapsulamento de chamadas com arrow functions `onClick={() => onStart()}` em `NortTourPrompt`.
+    - Adicionado `createPortal(..., document.body)` em `NortTourOverlay` e `NortTourPrompt`, blindando os overlays contra empilhamento e restrições de overflow/transform de containers pais.
+    - Implementação de `mobileSelector` e detecção de visibilidade (`rect.width === 0 && rect.height === 0`): quando o tour roda no mobile ou quando um elemento estiver oculto (`display: none`), o sistema faz fallback gracioso para seletores alternativos visíveis (ex: `#tour-header-mobile-menu`, `#tour-header-logo`, `#tour-header-location-mobile`) ou centraliza o diálogo na viewport sem quebras.
+    - Suíte `nort-tour.spec.tsx` atualizada com teste específico validando o clique em "Fazer tour!" com 100% de sucesso.
+
 - **30/10/2026 — Sincronização Total de Produção: Vitrine Vercel, API e Banco Neon (executorId: `antigravity-gemini`):**
   - **Diagnóstico de Defasagem ("Aparecendo Antigo"):**
     - Identificada dupla causa para a visualização antiga em produção:

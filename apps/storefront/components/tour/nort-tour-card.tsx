@@ -41,6 +41,7 @@ export function NortTourCard({
             sizes="(max-width: 640px) 96px, 144px"
             className="object-contain object-bottom"
             priority
+            unoptimized
           />
         </div>
       </div>
