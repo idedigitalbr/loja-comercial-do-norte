@@ -37,8 +37,9 @@ describe("SegmentHeroBanner", () => {
     expect(custom.highlight).toBe("DA SUA HAMBURGUERIA GOURMET");
   });
 
-  it("resolves all 8 official segments to their respective photos in PRODUTOS/segmentos", () => {
+  it("resolves all official segments to their respective photos in PRODUTOS/segmentos", () => {
     const expectations = [
+      { slug: "delivery", image: "/assets/PRODUTOS/segmentos/segmento-delivery.png.webp", highlight: "DO SEU DELIVERY" },
       { slug: "pizzaria", image: "/assets/PRODUTOS/segmentos/segmento-pizzaria.png.webp", highlight: "DA SUA PIZZARIA" },
       { slug: "lanchonete", image: "/assets/PRODUTOS/segmentos/segmento-lanchonete.png.webp", highlight: "DA SUA LANCHONETE" },
       { slug: "padaria", image: "/assets/PRODUTOS/segmentos/segmento-padaria.png.webp", highlight: "DA SUA PADARIA" },
@@ -75,6 +76,23 @@ describe("SegmentHeroBanner", () => {
     const img = screen.getByRole("img") as HTMLImageElement;
     expect(img).toBeDefined();
     expect(img.getAttribute("src")).toBe("/assets/PRODUTOS/segmentos/segmento-pizzaria.png.webp");
+    expect(img.className).toContain("object-bottom");
+  });
+
+  it("renders delivery banner with transparent cutout image and exact highlight text", () => {
+    render(
+      <SegmentHeroBanner
+        segment={{ id: "seg_delivery", name: "Delivery", slug: "delivery" }}
+      />
+    );
+
+    expect(screen.getByText("O COMERCIAL")).toBeDefined();
+    expect(screen.getByText("DO SEU")).toBeDefined();
+    expect(screen.getByText("DELIVERY")).toBeDefined();
+
+    const img = screen.getByRole("img") as HTMLImageElement;
+    expect(img).toBeDefined();
+    expect(img.getAttribute("src")).toBe("/assets/PRODUTOS/segmentos/segmento-delivery.png.webp");
     expect(img.className).toContain("object-bottom");
   });
 

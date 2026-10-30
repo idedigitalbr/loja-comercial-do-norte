@@ -21,7 +21,7 @@ export const SEGMENT_BANNER_MAP: Record<string, SegmentBannerConfig> = {
   delivery: {
     prefix: "O COMERCIAL",
     highlight: "DO SEU DELIVERY",
-    imageSrc: "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+    imageSrc: "/assets/PRODUTOS/segmentos/segmento-delivery.png.webp",
     altText: "O Comercial do Seu Delivery — Sacolas kraft, lacres invioláveis, embalagens térmicas e caixas",
     backgroundColor: "#0059E9",
   },
