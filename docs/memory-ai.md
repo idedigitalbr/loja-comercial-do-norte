@@ -7,6 +7,15 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **29/10/2026 — Padronização Visual do Banner de Segmento Delivery (executorId: `antigravity-gemini`):**
+  - **Identificação do problema:** O banner de topo da página de segmento Delivery (`/segmento/delivery`) estava utilizando temporariamente a foto de card com fundo retangular fechado de cozinha (`s08-segment-09-delivery.jpg`), rompendo o padrão visual das outras 8 páginas de segmento (`pizzaria`, `lanchonete`, `padaria`, `restaurante-buffet`, etc.), onde a foto central é estritamente uma pessoa recortada sem fundo (PNG/WebP transparente com canal alfa, ancorada na base sobre o fundo azul `#0059E9`).
+  - **Correção e padronização de assets:**
+    - Geração de fotografia de estúdio com entregador sorridente segurando sacola kraft com lacre de segurança inviolável e conjunto completo de insumos de delivery (caixas kraft, marmitas térmicas com tampa bolha, bandejas de alumínio, copos de café e potes de molho).
+    - Recorte e desmatting de alta precisão com canal alfa transparente no padrão `1536x1024` (4 canais, WebP/PNG), alinhamento rente à base inferior (`object-bottom`) e integração com o efeito nativo de drop shadow do componente `SegmentHeroBanner`.
+    - Criação de `apps/storefront/public/assets/PRODUTOS/segmentos/segmento-delivery.png.webp` e mapeamento em `SEGMENT_BANNER_MAP.delivery` em `apps/storefront/components/segment-hero-banner.tsx`.
+    - Atualização da suíte de testes em `apps/storefront/components/segment-hero-banner.spec.tsx` cobrindo o novo asset oficial e o texto de destaque "DO SEU DELIVERY".
+
+
 - **29/10/2026 — Tour Guiado Interativo com o Mascote Nort (executorId: `antigravity-gemini`):**
   - **Motor de Tour Dedicado para Next.js 16 / React 19:**
     - Avaliação técnica entre Onborda e NextStepjs: ambas usam Framer Motion, mas apresentam limitações em headers fixos e viewports móveis sem cálculo de clamping nem suporte nativo a avatares e balões em estilo quadrinhos.

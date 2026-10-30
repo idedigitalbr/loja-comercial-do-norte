@@ -1,5 +1,12 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **29/10/2026 — Padronização Visual do Banner de Segmento Delivery (executorId: `antigravity-gemini`):**
+  - **Banner Oficial de Topo do Segmento:** O banner da página `/segmento/delivery` foi alinhado ao padrão canônico das demais 8 páginas de segmento (`pizzaria`, `lanchonete`, `padaria`, `confeitaria-bolos`, `festas`, `restaurante-buffet`, `sorveteria-acai`, `bar-distribuidora`). A imagem temporária de card com fundo retangular fechado de cozinha (`s08-segment-09-delivery.jpg`) foi substituída pelo asset recortado com transparência e fundo transparente (`segmento-delivery.png.webp`).
+  - **Composição da Imagem:** Entregador profissional uniformizado segurando sacola kraft com lacre inviolável vermelho e linha completa de embalagens de delivery (marmitas térmicas, bandejas de alumínio, potes de molho, caixas kraft e copo de café).
+  - **Resolução e Enquadramento:** Resolução `1536x1024`, 4 canais RGBA com canal alfa limpo e anti-aliased, posicionado flush na base inferior (`object-bottom`), permitindo que a cor azul `#0059E9` do banner e o efeito nativo de drop shadow do Next.js envolvam harmoniosamente a figura.
+  - **Validação:** Suíte `components/segment-hero-banner.spec.tsx` atualizada e 100% aprovada, typecheck verde e conformidade total com as regras de design da Comercial do Norte.
+
+
 - **29/10/2026 — Tour Guiado Interativo pelo Site com Mascote Nort e Balão de Fala Dinâmico (executorId: `antigravity-gemini`):**
   - **Mecanismo de Tour Guiado:** Motor sob medida para Next.js 16 App Router e React 19 com máscara SVG de recorte suave (spotlight cutout), anel pulsante dourado com glow suave ao redor do elemento em foco, auto-scroll inteligente e tracking em 60fps via `requestAnimationFrame` em eventos de `scroll` e `resize` (sem vazamento nem deslocamento de tela).
   - **Apresentação Oficial pelo Mascote Nort:** Poses em alta definição selecionadas dinamicamente para cada etapa (`nort-boas-vindas.png`, `nort-apontando-joinha.png`, `mascote-nort-apontando.webp`, `nort-pensativo.png`, `nort-ofertas.png`, `nort-notebook-em-pe.png`, `nort-entrega-pedidos.png`, `nort-celular.png` e `nort-sorridente-joinha.png`). Balão de fala estilo quadrinhos com rabicho apontado diretamente para a boca do mascote e falas em primeira pessoa.
