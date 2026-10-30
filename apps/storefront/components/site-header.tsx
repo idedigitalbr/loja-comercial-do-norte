@@ -221,6 +221,7 @@ export function SiteHeader({
                 onSubmit={submitSearch}
               >
                 <input
+                  id="catalog-search"
                   aria-label="Buscar produtos, categorias ou marcas"
                   className="w-full rounded-full bg-white py-2.5 sm:py-3 pr-14 pl-5 text-xs sm:text-sm text-slate-800 placeholder-slate-400 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#00357B] transition-all"
                   onChange={(e) => setQuery(e.target.value)}
