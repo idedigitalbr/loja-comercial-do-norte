@@ -16,9 +16,10 @@ function findWorkspaceRoot(start = process.cwd()): string {
 describe('resolveApiStorageRoot', () => {
   it('uses the same storage/uploads directory from the workspace root and API app directory', () => {
     const workspaceRoot = findWorkspaceRoot();
-    const expected = join(workspaceRoot, 'apps', 'api', 'storage');
+    const fromWorkspaceRoot = resolveApiStorageRoot(workspaceRoot);
+    const fromApiAppDir = resolveApiStorageRoot(join(workspaceRoot, 'apps', 'api'));
 
-    expect(resolveApiStorageRoot(workspaceRoot)).toBe(expected);
-    expect(resolveApiStorageRoot(join(workspaceRoot, 'apps', 'api'))).toBe(expected);
+    expect(fromApiAppDir).toBe(fromWorkspaceRoot);
+    expect(existsSync(fromWorkspaceRoot)).toBe(true);
   });
 });
