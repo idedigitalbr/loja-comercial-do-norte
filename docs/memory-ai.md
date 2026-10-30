@@ -7,6 +7,16 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **30/10/2026 — Sincronização em Produção: 5 Linhas (20 Produtos/Pág), 158 Itens no Neon e Deploys Vercel (executorId: `antigravity-gemini`):**
+  - **Grid de 5 Linhas (20 produtos/página):**
+    - Padronizado `PAGE_SIZE = 20` no storefront em todas as rotas (`/loja`, `/categoria/[slug]`, `/segmento/[slug]`, `/marca/[slug]`, `/tag/[slug]` e fallback do cliente de API), preenchendo exatamente 5 linhas de 4 cards no desktop.
+  - **Sincronização do Banco Neon (`db_lojacomercialdonorte`):**
+    - Catálogo expandido para 158 produtos comerciais ativos com demonstração íntegra, multi-categorias e 480 mídias WebP espelhadas.
+    - Todos os 9 segmentos (28 a 94 itens) e todas as categorias principais (22 a 52 itens) possuem $\ge 2$ páginas de paginação completas.
+  - **Publicação na Vercel:**
+    - **API de Produção:** deploy `loja-1gzy7ea04-idedigital.vercel.app` promovido e vinculado a `https://api-comercialdonorte.vercel.app`, respondendo com 158 itens e servindo uploads WebP.
+    - **Storefront de Produção:** deploy `loja-home-front-hn4bne17j-idedigital.vercel.app` promovido e vinculado aos domínios `https://loja-comercialdonorte.vercel.app` e `https://lojacomercialdonorte.vercel.app` com HTTP 200 OK.
+
 - **30/10/2026 — Rastreabilidade de Deploy: Tag de Versão e Timestamp Automático no Balão do Tour (executorId: `antigravity-gemini`):**
   - **Identificador de Versão Minimalista Automático:**
     - Criado módulo canônico `apps/storefront/lib/version.ts` com cálculo em build-time formatado no padrão exato solicitado: `vDD-MM-YYYY-H-MPM` no fuso horário de Brasília (exemplo: `v30-10-2026-12-28pm`).
