@@ -141,8 +141,8 @@ describe('EventsView Component (Pixel-Perfect Spec)', () => {
 
     // Deve conter categorias institucionais gerais
     expect(screen.getByText('Todos os eventos')).toBeDefined();
-    expect(screen.getByText(/Palestras/i)).toBeDefined();
-    expect(screen.getByText(/Reinaugurações/i)).toBeDefined();
+    expect(screen.getByText(/Palestras \(/i)).toBeDefined();
+    expect(screen.getByText(/Reinaugurações \(/i)).toBeDefined();
 
     // Deve conter eventos gerais
     expect(screen.getByText(/Encontro de Empreendedores/i)).toBeDefined();
