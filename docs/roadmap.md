@@ -1,5 +1,9 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **30/10/2026 — Ampliação Visual do Mascote Nort no Tour Guiado (executorId: `antigravity-gemini`):**
+  - **Escala Ampliada do Mascote Nort:** Redimensionado de `h-40 sm:h-52 md:h-60` para `h-56 sm:h-72 md:h-[340px] lg:h-[400px] xl:h-[450px]` e largura até `480px` (`max-h-[46vh]`), conferindo presença imponente, carismática e proporção harmoniosa com o balão de fala estilo quadrinhos.
+  - **Qualidade & Validação:** 174 testes unitários no Storefront aprovados, typecheck com 0 erros e build Next.js 16 validado.
+
 - **30/10/2026 — Tour Guiado do Nort: Fundo Teatral Ultra Escuro (96.5%) e Regra de Frequência de 2x ao Dia nos Primeiros 2 Dias (executorId: `antigravity-gemini`):**
   - **Filtro Teatral Ultra Escuro:** Backdrop SVG aprofundado para `rgba(1, 3, 10, 0.965)` com brilho e contorno dourado (`shadow-[0_0_40px_rgba(251,191,36,0.9)]`), garantindo contraste teatral expressivo onde apenas o elemento em foco fica iluminado.
   - **Frequência Automática (2x ao dia nos primeiros 2 dias):**

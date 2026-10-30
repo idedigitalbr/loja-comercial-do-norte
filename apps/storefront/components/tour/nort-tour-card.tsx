@@ -30,7 +30,7 @@ export function NortTourCard({
   return (
     <div className="relative flex flex-col items-center w-full max-w-xl md:max-w-2xl select-none animate-in slide-in-from-bottom-8 fade-in duration-300">
       {/* BALÃO DE FALA EM FORMATO COMIC COM RABICHO APONTADO PARA A BOCA DO NORT */}
-      <div className="relative w-full bg-white text-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_25px_60px_rgba(0,15,50,0.55)] border-2 border-[#004CB1]/30 z-20 mb-1.5 sm:mb-2.5">
+      <div className="relative w-full bg-white text-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_25px_60px_rgba(0,15,50,0.55)] border-2 border-[#004CB1]/30 z-20 mb-1 sm:mb-2">
         {/* RABICHO DO BALÃO APONTANDO PARA BAIXO EM DIREÇÃO À CABEÇA/BOCA DO NORT */}
         <div
           aria-hidden="true"
@@ -137,13 +137,13 @@ export function NortTourCard({
       </div>
 
       {/* MASCOTE NORT BEM GRANDE ENCOSTADO NO CANTO INFERIOR (BOTTOM: 0) */}
-      <div className="relative shrink-0 flex items-end justify-center w-48 sm:w-60 md:w-72 h-40 sm:h-52 md:h-60 z-10 -mb-1">
+      <div className="relative shrink-0 flex items-end justify-center w-64 sm:w-80 md:w-[380px] lg:w-[440px] xl:w-[480px] h-56 sm:h-72 md:h-[340px] lg:h-[400px] xl:h-[450px] max-h-[46vh] z-10 -mb-1">
         <Image
           src={step.mascotPose}
           alt={step.mascotAlt}
           fill
-          sizes="(max-width: 640px) 192px, 288px"
-          className="object-contain object-bottom filter drop-shadow-[0_15px_30px_rgba(0,0,0,0.65)]"
+          sizes="(max-width: 640px) 256px, (max-width: 768px) 320px, 480px"
+          className="object-contain object-bottom filter drop-shadow-[0_20px_35px_rgba(0,0,0,0.75)]"
           priority
           unoptimized
         />

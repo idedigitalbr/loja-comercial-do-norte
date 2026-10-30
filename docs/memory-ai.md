@@ -7,6 +7,13 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **30/10/2026 — Ampliação Visual do Mascote Nort no Tour Guiado (executorId: `antigravity-gemini`):**
+  - **Aumento Proporcional do Mascote Nort:**
+    - O mascote Nort no componente `NortTourCard` foi ampliado de `w-48 sm:w-60 md:w-72 h-40 sm:h-52 md:h-60` para `w-64 sm:w-80 md:w-[380px] lg:w-[440px] xl:w-[480px]` e altura `h-56 sm:h-72 md:h-[340px] lg:h-[400px] xl:h-[450px]` com `max-h-[46vh]`.
+    - Isso aumenta a altura e o volume do Nort em até 70% em telas desktop, eliminando o aspecto de miniatura sob o balão de fala e tornando suas poses, expressões faciais e o rabicho do balão apontado para sua boca muito mais expressivos e carismáticos.
+    - Sombra e iluminação aprimoradas (`drop-shadow-[0_20px_35px_rgba(0,0,0,0.75)]`) com ancoragem rente à base inferior (`bottom: 0`).
+  - **Validação:** 174 testes unitários no Storefront aprovados, typecheck com 0 erros e build Next.js 16 validado com sucesso.
+
 - **30/10/2026 — Tour Guiado do Nort: Fundo Teatral Ultra Escuro (96.5%) e Regra de Frequência de 2x ao Dia nos Primeiros 2 Dias (executorId: `antigravity-gemini`):**
   - **Filtro de Contraste Teatral Ultra Escuro:**
     - Ajustado o preenchimento da máscara SVG de escurecimento de `rgba(2, 6, 23, 0.92)` para `rgba(1, 3, 10, 0.965)`, criando um blackout quase total no fundo não focado e intensificando o anel dourado pulsante (`shadow-[0_0_40px_rgba(251,191,36,0.9)]`). Os elementos em foco brilham com recorte nítido e os passos de boas-vindas e encerramento direcionam toda a atenção para o Nort.
