@@ -7,6 +7,17 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **30/10/2026 — Sincronização Total de Produção: Vitrine Vercel, API e Banco Neon (executorId: `antigravity-gemini`):**
+  - **Diagnóstico de Defasagem ("Aparecendo Antigo"):**
+    - Identificada dupla causa para a visualização antiga em produção:
+      1. **Roteamento de Domínios Vercel:** O domínio com hífen `https://loja-comercialdonorte.vercel.app` e a API `https://api-comercialdonorte.vercel.app` estavam apontando para deployments antigos de 4 dias atrás (`loja-home-front-mogsgnmnp`), enquanto apenas o alias sem hífen recebia updates do CLI.
+      2. **Descompasso de Dados no Neon PostgreSQL:** O banco de dados de produção Neon (`bitter-haze-15129381`, `db_lojacomercialdonorte`) continha apenas 8 segmentos e 12 produtos datados de 28/10. O 9º segmento (`delivery`), os 3 produtos de delivery (`sacola-kraft-delivery`, `lacre-seguranca-delivery`, `pote-termico-molho-250ml`) e a `homeComposition` com a seção `s08-segmentos-negocios` atualizada ainda não tinham sido sincronizados na nuvem.
+  - **Ações e Resolução Executadas:**
+    - Executado `seedCatalog` diretamente no banco Neon de produção (`db_lojacomercialdonorte`), sincronizando as 13 categorias, 9 segmentos com suas ordenações oficiais, 7 tags, 15 produtos e 8 associações ativas para o segmento Delivery.
+    - Atualizada a `homeComposition` em `SiteConfiguration` (registro `default`) no Neon para a versão com os 9 itens no carrossel de negócios.
+    - Executado novo build e deploy de produção do storefront na Vercel (`loja-home-front-5e6fcnbd5-idedigital.vercel.app`) a partir da `main`.
+    - Alinhados ambos os aliases de produção: `https://loja-comercialdonorte.vercel.app` e `https://lojacomercialdonorte.vercel.app`, garantindo que ambos sirvam a versão atualizada com HTTP 200 e paridade 1:1 com o localhost.
+
 - **29/10/2026 — Produtos Vinculados ao Segmento Delivery no Catálogo (executorId: `antigravity-gemini`):**
   - **Identificação do problema:** A página `/segmento/delivery` retornava 0 produtos porque, embora o segmento Delivery tivesse sido inserido no banco de dados e taxonomia, nenhum produto do catálogo possuía o vínculo `ProductSegment` com a chave `delivery`.
   - **Vínculos e Novos Produtos Canônicos:**

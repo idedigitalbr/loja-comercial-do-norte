@@ -1,5 +1,12 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **30/10/2026 — Sincronização e Deploy Integral de Produção (Vercel + Neon DB) (executorId: `antigravity-gemini`):**
+  - **Causa Raiz da Defasagem Visual:**
+    1. Domínios de produção na Vercel: o domínio canônico com hífen `https://loja-comercialdonorte.vercel.app` estava mapeado para um deploy defasado de 4 dias (`loja-home-front-mogsgnmnp`).
+    2. Banco de dados de nuvem Neon (`bitter-haze-15129381`, `db_lojacomercialdonorte`): não havia recebido a carga do 9º segmento (`delivery`), dos novos produtos de delivery e da atualização da seção `s08-segmentos-negocios` de `SiteConfiguration.homeComposition`.
+  - **Sincronização Neon Database:** Executado `seedCatalog` conectando ao Neon de produção (`db_lojacomercialdonorte`), totalizando 13 categorias, 9 segmentos com ordenação e fotos oficiais, 7 tags, 15 produtos e 8 associações no segmento Delivery. Composição da vitrine atualizada com o 9º card do carrossel.
+  - **Build e Deploy Vercel:** Deploy de produção concluído com sucesso (`loja-home-front-5e6fcnbd5-idedigital.vercel.app`), com alias simultâneo configurado para `lojacomercialdonorte.vercel.app` e `loja-comercialdonorte.vercel.app`. Ambas as URLs servem o conteúdo mais recente com HTTP 200.
+
 - **29/10/2026 — Catálogo de Produtos do Segmento Delivery (executorId: `antigravity-gemini`):**
   - **Vinculação de Produtos no Banco de Dados:** Corrigido o retorno vazio na rota `/segmento/delivery`. Associados produtos já existentes (`caixa-pizza-35cm`, `sacola-plastica-40x50`, `bandeja-isopor-n2`, `guardanapo-papel-24x24`, `copo-descartavel-300ml`) e criados 3 produtos canônicos de delivery em `prisma/seed-catalog.ts` (`sacola-kraft-delivery`, `lacre-seguranca-delivery` e `pote-termico-molho-250ml`).
   - **Sincronização & API:** Executado o sincronizador de seed, resultando em 8 produtos ativos no endpoint `/api/v1/catalog/products/search?segment=delivery`. Suítes de testes unitários e de integração verdes (100%).
