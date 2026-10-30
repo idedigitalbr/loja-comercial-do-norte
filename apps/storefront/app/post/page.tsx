@@ -71,7 +71,7 @@ const DEFAULT_BANNER_ITEMS: VideoArticleItem[] = [
       'Proteja cada detalhe na entrega.',
     ],
     ctaLabel: 'Ver Completo',
-    ctaUrl: '/post/decoracao-de-doces-e-bolos-com-chantilly',
+    ctaUrl: '/post',
     imageUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/doces.webp',
   },
 ];

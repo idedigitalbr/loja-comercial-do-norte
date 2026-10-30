@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import styles from './explica-ai-single-post.module.css';
 import {
   Calendar,
   ChevronLeft,
@@ -173,12 +174,12 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
   };
 
   return (
-    <div className="w-full bg-[#f8fafc] pb-16">
-      <div className="cn-container pt-3 sm:pt-4">
+    <div className={styles.page}>
+      <div className={styles.container}>
         {/* 1. Breadcrumb Pixel-Perfect */}
         <nav
           aria-label="Você está aqui"
-          className="text-[11px] sm:text-xs text-slate-500 mb-3 sm:mb-4 font-normal flex flex-wrap items-center gap-1.5"
+          className={styles.breadcrumb}
         >
           <Link className="hover:text-[#CB001C] transition-colors" href="/">
             Início
@@ -201,29 +202,16 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
           <span className="text-slate-400" aria-hidden>
             /
           </span>
-          <span className="font-semibold text-slate-800 line-clamp-1">{post.title}</span>
+          <span className={styles.currentCrumb} aria-current="page">{post.title}</span>
         </nav>
 
         {/* 2. Hero Banner: Explica Aí Nort (Card Vermelho Compacto & Pixel-Perfect) */}
         <section
           aria-label="Destaque em Vídeo"
-          className="relative rounded-[24px] sm:rounded-[28px] bg-[#ba0015] text-white shadow-xl h-[235px] sm:h-[245px] md:h-[252px] flex items-center overflow-visible my-5 sm:my-6"
+          className={styles.hero}
         >
-          {/* Fundo com curvas abstratas e pétalas de sombra oficiais */}
-          <div className="absolute inset-0 pointer-events-none select-none rounded-[24px] sm:rounded-[28px] overflow-hidden">
-            <div className="absolute -bottom-10 -left-10 size-48 rounded-full bg-[#85000e] opacity-70 blur-2xs" />
-            <div className="absolute -top-10 -left-10 size-44 rounded-full bg-[#85000e] opacity-50 blur-2xs" />
-            <Image
-              src="/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-bg-fundo-vermelho-geometrico-abstrato-hd.png"
-              alt=""
-              fill
-              priority
-              className="object-cover object-center opacity-25 mix-blend-overlay"
-            />
-          </div>
-
           {/* Coluna Esquerda: Card Interno em Alto-Relevo (1:1 com Anexo 2) */}
-          <div className="relative z-10 ml-3.5 sm:ml-5 md:ml-6 my-auto w-[82%] sm:w-[50%] md:w-[42%] lg:w-[40%] max-w-[415px] h-[88%] sm:h-[90%] rounded-[20px] sm:rounded-[22px] bg-gradient-to-br from-[#c8001e] to-[#a00014] p-3.5 sm:p-4 md:p-5 shadow-[0_4px_16px_rgba(0,0,0,0.25)] border border-white/10 flex flex-col justify-between">
+          <div className={styles.copy}>
             {/* Badge Oficial */}
             <div>
               <span className="inline-flex items-center rounded-full bg-white px-2.5 py-0.5 text-[9.5px] sm:text-[10px] md:text-[10.5px] font-black text-[#CB001C] tracking-wider uppercase shadow-xs">
@@ -232,18 +220,18 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
             </div>
 
             {/* Título Principal Compacto */}
-            <h1 className="text-sm sm:text-base md:text-[19px] lg:text-[21px] font-black leading-[1.14] tracking-tight text-white line-clamp-2 md:line-clamp-3">
+            <h1 className={styles.title}>
               {post.title}
             </h1>
 
             {/* Subtítulo / Descrição Compacta */}
-            <p className="text-[10px] sm:text-[11px] md:text-[11.5px] leading-snug text-white/90 line-clamp-2 md:line-clamp-3 font-normal">
+            <p className={styles.excerpt}>
               {post.excerpt ||
                 'Tudo sobre caixas oitavadas e quadradas, respiros térmicos e lacres invioláveis para sua pizzaria. Dicas práticas para manter a qualidade da pizza do forno até o cliente.'}
             </p>
 
             {/* Metadados: visualizações, data e duração */}
-            <div className="flex items-center gap-2 sm:gap-3 text-[9.5px] sm:text-[10.5px] font-medium text-white/90">
+            <div className={styles.metadata}>
               <div className="flex items-center gap-1 sm:gap-1.5">
                 <span className="flex size-3.5 sm:size-4 items-center justify-center rounded-full bg-white text-[#CB001C] shadow-xs shrink-0">
                   <Play className="size-2 fill-[#CB001C] text-[#CB001C] ml-0.5" />
@@ -262,8 +250,8 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
           </div>
 
           {/* Coluna Central: Smartphone Mockup Centralizado (1:1 com Anexo 2) */}
-          <div className="absolute right-3 sm:right-6 md:right-auto md:left-[47%] md:-translate-x-1/2 top-1/2 -translate-y-1/2 z-20 flex justify-center">
-            <div className="relative w-[95px] sm:w-[110px] md:w-[124px] lg:w-[128px] h-[195px] sm:h-[225px] md:h-[248px] lg:h-[252px] rounded-[22px] sm:rounded-[26px] bg-[#0c0c0e] p-1 sm:p-1.5 shadow-[0_15px_35px_-10px_rgba(0,0,0,0.65)] border-[2px] sm:border-[2.5px] border-zinc-700/60 select-none shrink-0 group">
+          <div className={styles.phonePosition}>
+            <div className={styles.phone}>
               {/* Dynamic Island no topo do iPhone */}
               <div className="absolute top-1 sm:top-1.5 left-1/2 -translate-x-1/2 w-8 sm:w-10 md:w-12 h-2.5 sm:h-3 bg-black rounded-full z-30 flex items-center justify-end pr-1 sm:pr-1.5 pointer-events-none">
                 <div className="size-1 rounded-full bg-zinc-800" />
@@ -287,7 +275,7 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
                   alt="Vídeo explicativo na prática"
                   fill
                   priority
-                  sizes="(max-width: 768px) 110px, 140px"
+                  sizes="(max-width: 767px) 200px, 232px"
                   className="object-cover"
                 />
 
@@ -298,7 +286,7 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
                 <button
                   onClick={handleOpenVideo}
                   aria-label="Assistir ao vídeo agora"
-                  className="absolute inset-0 m-auto size-8 sm:size-9 md:size-10 rounded-full bg-[#E30613] hover:bg-[#c40510] text-white flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all cursor-pointer z-20"
+                  className={styles.play}
                 >
                   <Play className="size-3.5 sm:size-4 md:size-4.5 fill-white ml-0.5" />
                 </button>
@@ -321,9 +309,9 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
           </div>
 
           {/* Coluna Direita: Callout com Seta Curva e Mascote Oficial Grande (1:1 com Anexo 2) */}
-          <div className="hidden md:block absolute inset-y-0 right-0 left-[53%] pointer-events-none z-10">
+          <div className={styles.aside}>
             {/* Callout Texto + Seta Curva Apontando para o Telefone */}
-            <div className="absolute left-2 lg:left-3 top-6 lg:top-7 flex items-center gap-2 bg-[#850010]/50 border border-white/10 rounded-2xl px-3 py-2 backdrop-blur-2xs shadow-xs pointer-events-auto">
+            <div className={styles.callout}>
               <svg
                 width="30"
                 height="22"
@@ -348,28 +336,27 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
                 />
               </svg>
 
-              <div className="text-[10.5px] lg:text-[11.5px] font-bold leading-[1.18] text-white tracking-tight max-w-[115px]">
-                <p>Assista ao vídeo</p>
-                <p>e veja as dicas na prática!</p>
+              <div className={styles.calloutText}>
+                <p>Assista <br />ao vídeo</p><p>e veja as dicas <br />na prática!</p>
               </div>
             </div>
 
             {/* Mascote Nort Oficial Sem Chapéu Apontando para o Telefone (Grande 1:1 com Anexo 2) */}
-            <div className="absolute right-0 sm:right-1 md:right-2 bottom-0 w-[185px] md:w-[220px] lg:w-[245px] h-[210px] md:h-[245px] lg:h-[265px] shrink-0 pointer-events-none select-none z-15">
+            <div className={styles.mascot}>
               <Image
                 src="/assets/explica-ai/mascote-nort-apontando.webp"
                 alt="Mascote Nort apontando para o smartphone"
                 fill
                 priority
-                sizes="(max-width: 1024px) 220px, 250px"
-                className="object-contain object-bottom drop-shadow-[0_10px_20px_rgba(0,0,0,0.35)]"
+                sizes="(max-width: 1200px) 250px, 340px"
+                className="object-contain object-bottom"
               />
             </div>
           </div>
         </section>
 
         {/* 3. Seção: Descrição do post e Principais pontos (Card Branco Central) */}
-        <article className="mt-8 sm:mt-10 rounded-3xl bg-white p-6 sm:p-10 md:p-12 shadow-sm border border-slate-100 max-w-5xl mx-auto">
+        <article className={styles.article}>
           {/* Título Centralizado "Descrição do post" */}
           <h2 className="text-center text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Descrição do post

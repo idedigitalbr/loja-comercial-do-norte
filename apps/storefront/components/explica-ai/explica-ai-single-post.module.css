@@ -1,0 +1,64 @@
+.page { background: #cfe5ed; padding-bottom: 64px; }
+.container { width: calc(100% - 48px); max-width: 1610px; margin-inline: auto; padding-top: 14px; }
+.breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: 0 3px; margin: 0 0 10px 8.1%; max-width: 40%; color: #64748b; font-size: 10px; line-height: 11px; }
+.currentCrumb { flex-basis: 100%; color: #334155; font-weight: 600; }
+.hero { position: relative; display: flex; align-items: center; height: 393px; border-radius: 56px; color: white; background: #ce001c; }
+.copy { position: relative; width: 37.7%; height: 335px; margin-left: 2%; align-self: flex-start; margin-top: 16px; padding: 28px 20px 12px 5.5%; border-radius: 42px; background: linear-gradient(138deg, #ec0028, #c0001b); display: flex; flex-direction: column; align-items: flex-start; }
+.copy::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(135deg, transparent 13%, #a9001520 13%, transparent 38%), linear-gradient(135deg, transparent 65%, #a9001540); }
+.copy > * { position: relative; }
+.copy > div:first-child > span { font-size: 12px; line-height: 16px; padding: 2px 10px; letter-spacing: 0; }
+.title { font-size: 42px; line-height: 1.02; letter-spacing: -.6px; margin: 12px 0 10px; color: white; }
+.excerpt { font-size: 18px; line-height: 23px; max-width: 415px; color: #fff; margin: 0; }
+.metadata { display: flex; align-items: center; gap: 22px; font-size: 12px; line-height: 16px; margin-top: auto; padding-top: 12px; white-space: nowrap; }
+.metadata svg { width: 18px; height: 18px; }
+.phonePosition { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 20; }
+.phone { position: relative; width: 232px; height: 466px; padding: 9px; background: #0c0c0e; border: 3px solid #777; border-radius: 36px; box-shadow: 0 3px 0 2px #ffffff80, inset 0 0 0 2px #222; user-select: none; }
+.phone > div:last-child { border-radius: 25px; }
+.phone > div:first-child { top: 10px; width: 76px; height: 21px; }
+.phone > div:nth-child(2) { top: 16px; left: 24px; right: 20px; font-size: 9px; }
+.phone > div:last-child > div:first-of-type { background: linear-gradient(to top, #0009, transparent 24%); }
+.play { position: absolute; inset: 0; margin: auto; width: 58px; height: 58px; border-radius: 50%; background: #ed0025; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; transition: transform .2s; }
+.play:hover { transform: scale(1.08); }
+.play svg { width: 26px; height: 26px; }
+.phone > div:last-child > div:last-child { bottom: 19px; left: 12px; right: 12px; gap: 10px; }
+.phone > div:last-child > div:last-child > div:last-child { font-size: 11px; }
+.aside { position: absolute; inset: 0 0 0 59.5%; pointer-events: none; }
+.callout { position: absolute; top: 57px; left: 0; display: flex; align-items: flex-start; gap: 16px; padding: 0 20px 10px; border-radius: 36px; background: linear-gradient(transparent, #b9001933); }
+.callout > svg { width: 76px; height: 52px; margin-top: 8px; }
+.calloutText { font-family: 'Comic Sans MS', cursive; font-size: 24px; font-weight: 700; line-height: 25px; transform: rotate(-6deg); }
+.mascot { position: absolute; right: 12px; bottom: 0; width: 340px; height: 300px; user-select: none; }
+.article { margin: 76px auto 0; max-width: 1474px; border-radius: 44px; background: white; padding: 40px 48px; }
+.article > h2 { font-size: 52px; line-height: 1.2; }
+@media (min-width: 768px) and (max-width: 1500px) {
+  .hero { height: 350px; }
+  .copy { height: 318px; padding-left: 3%; width: 39%; }
+  .title { font-size: clamp(24px, 2.3vw, 36px); }
+  .excerpt { font-size: 15px; line-height: 20px; }
+  .metadata { gap: 10px; font-size: 10px; flex-wrap: wrap; }
+  .phone { width: 208px; height: 418px; }
+  .mascot { width: 270px; height: 250px; }
+  .callout { left: 12px; top: 40px; gap: 8px; padding: 0; }
+  .callout > svg { width: 50px; }
+  .calloutText { font-size: 20px; line-height: 23px; }
+}
+@media (min-width: 768px) and (max-width: 1050px) {
+  .phonePosition { left: 54%; }
+  .aside { left: 70%; }
+  .mascot { width: 200px; height: 210px; }
+  .callout > svg { width: 32px; }
+  .calloutText { font-size: 17px; line-height: 21px; }
+}
+@media (max-width: 767px) {
+  .container { width: calc(100% - 32px); padding-top: 16px; }
+  .breadcrumb { margin: 0 4px 18px; max-width: 100%; font-size: 11px; line-height: 16px; }
+  .hero { height: auto; flex-direction: column; border-radius: 28px; padding: 16px 16px 0; }
+  .copy { margin: 0; padding: 24px; width: 100%; height: auto; border-radius: 24px; gap: 12px; }
+  .title { font-size: 28px; margin: 0; }
+  .excerpt { font-size: 16px; line-height: 23px; }
+  .metadata { flex-wrap: wrap; gap: 10px 16px; white-space: normal; font-size: 11px; }
+  .phonePosition { position: relative; left: auto; top: auto; transform: none; margin: 20px 0 -28px; }
+  .phone { width: 200px; height: 402px; }
+  .aside { display: none; }
+  .article { margin-top: 60px; padding: 28px 20px; border-radius: 28px; }
+  .article > h2 { font-size: 30px; }
+}

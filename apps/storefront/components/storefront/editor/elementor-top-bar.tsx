@@ -124,6 +124,7 @@ export function ElementorTopBar() {
     canUndo,
     canRedo,
     resetToDefault,
+    discardDraft,
     addWidget,
     setRevisionsModalOpen,
   } = useElementor();
@@ -328,6 +329,14 @@ export function ElementorTopBar() {
           </button>
 
           {/* Resetar padrão */}
+          <button
+            className="text-[11px] text-zinc-300 hover:text-white underline cursor-pointer"
+            onClick={discardDraft}
+            title="Apagar rascunho local e voltar à versão publicada"
+            type="button"
+          >
+            Apagar rascunho
+          </button>
           <button
             className="hidden text-[11px] text-zinc-500 hover:text-zinc-300 underline cursor-pointer lg:inline-block pr-1"
             onClick={resetToDefault}

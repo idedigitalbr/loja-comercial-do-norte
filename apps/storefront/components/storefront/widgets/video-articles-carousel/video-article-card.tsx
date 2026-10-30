@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ChevronRight, Play } from 'lucide-react';
+import { BookOpen, ChevronRight } from 'lucide-react';
 import { InlineImageEditorOverlay } from '@/components/storefront/editor/inline-image-editor-overlay';
 
 export interface VideoArticleCardProps {
@@ -25,11 +25,19 @@ export function VideoArticleCard({
   tags = [],
   paragraphs = [],
   ctaLabel = 'Ver Completo',
-  ctaUrl = '/loja',
+  ctaUrl = '/post',
   widgetId,
   index,
   className = '',
 }: VideoArticleCardProps) {
+  // Corrige destinos antigos já salvos na composição da vitrine.
+  const legacyDestinations: Record<string, string> = {
+    '/loja?q=kraft': '/post/embalagens-kraft-para-o-seu-delivery',
+    '/loja?q=copo': '/post/copos-e-tampas-para-acai-e-cafe',
+    '/categoria/confeitaria': '/post',
+  };
+  const destination = legacyDestinations[ctaUrl] ?? ctaUrl;
+
   return (
     <article
       className={`group relative flex flex-row items-stretch rounded-[18px] lg:rounded-[20px] bg-white p-2 shadow-sm transition-all hover:shadow-md h-[180px] lg:h-[184px] xl:h-[190px] ${className}`}
@@ -44,12 +52,12 @@ export function VideoArticleCard({
           className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
         />
         <Link
-          href={ctaUrl}
-          aria-label={`Ver vídeo: ${title}`}
+          href={destination}
+          aria-label={`Ver conteúdo: ${title}`}
           className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors"
         >
           <span className="flex size-8.5 sm:size-9 items-center justify-center rounded-full bg-[#e2091e] text-white shadow-md transition-transform duration-200 group-hover:scale-110">
-            <Play aria-hidden="true" className="size-3.5 sm:size-4 fill-white ml-0.5" />
+            <BookOpen aria-hidden="true" className="size-3.5 sm:size-4" />
           </span>
         </Link>
         {widgetId && typeof index === 'number' ? (
@@ -84,7 +92,7 @@ export function VideoArticleCard({
             </div>
           )}
           <h3 className="line-clamp-2 text-[12px] sm:text-[12.5px] xl:text-[13px] font-bold leading-tight text-[#0c2340]">
-            <Link href={ctaUrl} className="hover:text-[#cb001c] transition-colors">
+            <Link href={destination} className="hover:text-[#cb001c] transition-colors">
               {title}
             </Link>
           </h3>
@@ -101,7 +109,7 @@ export function VideoArticleCard({
 
         {/* Base: Botão Ver Completo estilo pílula */}
         <Link
-          href={ctaUrl}
+          href={destination}
           className="inline-flex w-full items-center justify-center gap-1 rounded-full border border-[#e2091e] py-1 px-2 text-[10px] sm:text-[10.5px] font-bold text-[#e2091e] transition-colors hover:bg-red-50 hover:border-[#c4001a] text-center shrink-0"
         >
           <span>{ctaLabel}</span>

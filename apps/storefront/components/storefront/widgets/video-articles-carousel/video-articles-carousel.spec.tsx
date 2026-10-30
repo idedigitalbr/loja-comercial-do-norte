@@ -20,7 +20,7 @@ const mockItems: VideoArticleItem[] = [
       'Valorize a apresentação do seu delivery.',
     ],
     ctaLabel: 'Ver Completo',
-    ctaUrl: '/loja?q=kraft',
+    ctaUrl: '/post/embalagens-kraft-para-o-seu-delivery',
     imageUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/kraft.webp',
   },
   {
@@ -33,7 +33,7 @@ const mockItems: VideoArticleItem[] = [
       'Evite vazamentos no transporte.',
     ],
     ctaLabel: 'Ver Completo',
-    ctaUrl: '/loja?q=copo',
+    ctaUrl: '/post/copos-e-tampas-para-acai-e-cafe',
     imageUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/copos.webp',
   },
 ];
@@ -45,7 +45,7 @@ describe('VideoArticlesCarouselWidget (Explica Aí Nort)', () => {
         title="Explica Aí Nort"
         subtitle="Dicas em vídeos e artigos para você usar no seu negócio."
         viewAllLabel="Ver todos"
-        viewAllUrl="/loja"
+        viewAllUrl="/post"
         items={mockItems}
       />
     );
@@ -64,7 +64,7 @@ describe('VideoArticlesCarouselWidget (Explica Aí Nort)', () => {
         title="Explica Aí Nort"
         subtitle="Dicas em vídeos e artigos para você usar no seu negócio."
         viewAllLabel="Ver todos"
-        viewAllUrl="/loja"
+        viewAllUrl="/post"
         items={mockItems}
       />
     );
@@ -79,6 +79,9 @@ describe('VideoArticlesCarouselWidget (Explica Aí Nort)', () => {
 
     const buttons = screen.getAllByText('Ver Completo');
     expect(buttons.length).toBe(2);
+    expect(screen.getByLabelText('Ver conteúdo: Embalagens kraft para o seu delivery').getAttribute('href')).toBe('/post/embalagens-kraft-para-o-seu-delivery');
+    expect(buttons[1].closest('a')?.getAttribute('href')).toBe('/post/copos-e-tampas-para-acai-e-cafe');
+    expect(screen.getByText('Ver todos').closest('a')?.getAttribute('href')).toBe('/post');
   });
 
   it('exibe o mascote e os botões de navegação circular do carrossel', () => {
@@ -87,7 +90,7 @@ describe('VideoArticlesCarouselWidget (Explica Aí Nort)', () => {
         title="Explica Aí Nort"
         subtitle="Dicas em vídeos e artigos para você usar no seu negócio."
         viewAllLabel="Ver todos"
-        viewAllUrl="/loja"
+        viewAllUrl="/post"
         items={mockItems}
       />
     );
