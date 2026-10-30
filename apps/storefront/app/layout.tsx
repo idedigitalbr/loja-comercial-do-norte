@@ -5,6 +5,7 @@ import { FavoritesProvider } from '@/components/favorites-provider';
 import { LocationProvider } from '@/components/location-provider';
 import { PostalCodeModal } from '@/components/postal-code-modal';
 import { QuoteCartProvider } from '@/components/quote-cart-provider';
+import { NortTourProvider } from '@/components/tour';
 import { QuoteDrawer } from '@/components/quote-drawer';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
@@ -40,27 +41,29 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <FavoritesProvider>
             <LocationProvider>
               <QuoteCartProvider>
-                <WebVitalsReporter />
-                <StorefrontShell
-                  initialComposition={composition}
-                  footer={<SiteFooter categories={categories} site={site} />}
-                  header={
-                    <SiteHeader
-                      brands={brands}
-                      categories={categories}
-                      segments={segments}
-                      tags={tags}
-                      logoUrl={mediaUrl(site?.logoPath ?? null)}
-                      phone={site?.phone ?? null}
-                      siteName={site?.siteName ?? 'Comercial do Norte'}
-                      whatsapp={site?.whatsapp ?? null}
-                    />
-                  }
-                >
-                  <main id="conteudo">{children}</main>
-                  <QuoteDrawer />
-                  <PostalCodeModal />
-                </StorefrontShell>
+                <NortTourProvider>
+                  <WebVitalsReporter />
+                  <StorefrontShell
+                    initialComposition={composition}
+                    footer={<SiteFooter categories={categories} site={site} />}
+                    header={
+                      <SiteHeader
+                        brands={brands}
+                        categories={categories}
+                        segments={segments}
+                        tags={tags}
+                        logoUrl={mediaUrl(site?.logoPath ?? null)}
+                        phone={site?.phone ?? null}
+                        siteName={site?.siteName ?? 'Comercial do Norte'}
+                        whatsapp={site?.whatsapp ?? null}
+                      />
+                    }
+                  >
+                    <main id="conteudo">{children}</main>
+                    <QuoteDrawer />
+                    <PostalCodeModal />
+                  </StorefrontShell>
+                </NortTourProvider>
               </QuoteCartProvider>
             </LocationProvider>
           </FavoritesProvider>

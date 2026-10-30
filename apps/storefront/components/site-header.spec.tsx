@@ -60,10 +60,12 @@ const mockTags: ApiTag[] = [
 describe("SiteHeader - Floating Toggle Button & Drawer", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   });
 
   afterEach(() => {
     cleanup();
+    vi.unstubAllGlobals();
   });
 
   it("inicia com o botão flutuante oculto no topo da página e exibe após rolar além do slide", () => {

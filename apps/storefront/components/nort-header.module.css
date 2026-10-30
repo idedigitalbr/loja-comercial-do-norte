@@ -1,0 +1,23 @@
+.root { position: absolute; bottom: 0; left: 1.5rem; z-index: 70; display: none; }
+.trigger { display: block; position: relative; height: 100px; width: 75px; border: 0; background: transparent; padding: 0; cursor: pointer; border-radius: 12px; }
+.trigger:focus-visible, .action:focus-visible, .close:focus-visible { outline: 3px solid #fbbf24; outline-offset: 3px; }
+.character { display: block; position: absolute; bottom: 0; left: 50%; width: 104px; height: 104px; margin-left: -52px; transform-origin: bottom center; animation: breathe 4s ease-in-out infinite; }
+.sprite { display: block; width: 100%; height: 100%; background-image: url('/assets/HOME%20Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-loop-64-v1.png'); background-size: 800% 800%; }
+.root[data-open='true'] .character { animation: thoughtful 3s ease-in-out infinite; }
+.bubbleWrap { position: absolute; top: 100%; left: 0; padding-top: 10px; width: 310px; }
+.bubble { position: relative; padding: 20px 16px 16px; border-radius: 18px; background: white; color: #00357b; border: 1px solid #dbeafe; box-shadow: 0 14px 40px rgb(0 25 65 / 24%); animation: appear 160ms ease-out; }
+.bubble::before { content: ''; position: absolute; top: -8px; left: 32px; width: 14px; height: 14px; background: white; border-left: 1px solid #dbeafe; border-top: 1px solid #dbeafe; transform: rotate(45deg); }
+.greeting { margin: 0 16px 4px 0; font-weight: 700; font-size: 16px; }
+.question { margin: 0 0 14px; color: #475569; font-size: 14px; }
+.action { display: flex; align-items: center; gap: 10px; padding: 12px; margin-top: 8px; border-radius: 10px; background: #eff6ff; color: #00357b; text-decoration: none; font-size: 13px; font-weight: 600; border: 0; width: 100%; cursor: pointer; text-align: left; }
+.action:hover { background: #dbeafe; }
+.close { position: absolute; top: 7px; right: 7px; display: grid; place-items: center; width: 28px; height: 28px; background: transparent; border: 0; border-radius: 8px; color: #64748b; cursor: pointer; }
+.close:hover { background: #f1f5f9; }
+@keyframes thoughtful { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-3deg); } }
+@keyframes appear { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+@media (min-width: 768px) { .root { display: block; } }
+@media (min-width: 1024px) { .trigger { height: 104px; width: 78px; } }
+@media (prefers-reduced-motion: reduce) { .character, .sprite, .bubble, .root[data-open='true'] .character { animation: none; } .character img, .sprite { transition: none; } }
+
+@keyframes breathe { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-2px) rotate(1deg); } }
+

@@ -27,6 +27,7 @@ import { useUserLocation } from "./location-provider";
 import { useFavorites } from "./favorites-provider";
 import { useAuth } from "./auth-provider";
 import { UserMenuDropdown } from "./user-menu-dropdown";
+import { NortHeader } from "./nort-header";
 import { CategoryMegaMenu, CATEGORY_MENUS_DATA } from "./category-mega-menu";
 import { CategorySidebarDrawer } from "./category-sidebar-drawer";
 import type { ApiBrand, ApiCategory, ApiSegment, ApiTag } from "@/lib/types";
@@ -137,6 +138,7 @@ export function SiteHeader({
             {/* WhatsApp Vendas (Direita) */}
             <div className="flex items-center gap-2 whitespace-nowrap pl-2">
               <a
+                id="tour-header-whatsapp"
                 className="inline-flex items-center gap-1.5 rounded-full bg-[#B80617] hover:bg-[#9E0514] px-3 py-0.5 font-bold text-white transition text-[11px]"
                 href={`https://wa.me/${whatsappDigits}`}
                 rel="noreferrer"
@@ -153,22 +155,7 @@ export function SiteHeader({
         <div className="relative bg-[#004CB1] text-white min-h-[68px] sm:min-h-[72px] flex items-center w-full">
           <div className="w-full px-3 sm:px-4 md:px-6 relative flex items-center justify-between gap-3 md:gap-4 py-2.5 sm:py-3 md:py-3.5">
             {/* MASCOTE NORT 3D OFICIAL (Ancorado na base da Barra 02 sem invadir a Barra 03, subindo até quase o teto da Barra 01) */}
-            <Link
-              aria-label={`${siteName} - Ir para a Página Inicial`}
-              className="group/mascot absolute bottom-0 left-3 md:left-6 z-30 hidden md:block cursor-pointer"
-              href="/"
-            >
-              <div className="relative h-[98px] w-[74px] transition-transform duration-200 group-hover/mascot:scale-105 group-active/mascot:scale-95 sm:h-[100px] sm:w-[75px] lg:h-[104px] lg:w-[78px]">
-                <Image
-                  alt="Mascote NORT 3D Comercial do Norte - Ir para a Página Inicial"
-                  className="drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)] object-contain object-bottom"
-                  fill
-                  priority
-                  sizes="85px"
-                  src="/assets/HOME Vitrine/S0-HEADER/Mascote-3D-NORT/principais/nort-01-principal.png"
-                />
-              </div>
-            </Link>
+            <NortHeader />
 
             {/* LADO ESQUERDO: HAMBURGER (MOBILE) + LOGO COM C VERMELHO E TEXTO BRANCO */}
             <div className="flex items-center gap-2 sm:gap-3 md:pl-[88px] lg:pl-[94px]">
@@ -206,6 +193,7 @@ export function SiteHeader({
 
             {/* SELETOR DE CEP / LOCALIZAÇÃO INTERATIVO (ESTILO MAGALU) */}
             <button
+              id="tour-header-location"
               aria-haspopup="dialog"
               aria-label={`Enviar para ${location.shortLabel}. Clique para alterar CEP ou endereço.`}
               className="hidden items-center gap-2 px-2 py-1 text-xs text-white lg:flex transition cursor-pointer text-left hover:opacity-90 shrink-0 group"
@@ -227,7 +215,7 @@ export function SiteHeader({
             </button>
 
             {/* BARRA DE BUSCA CENTRAL COM BOTÃO CIRCULAR AZUL */}
-            <div className="flex-1 max-w-2xl xl:max-w-3xl">
+            <div id="tour-header-search" className="flex-1 max-w-2xl xl:max-w-3xl">
               <form
                 className="relative flex items-center w-full"
                 onSubmit={submitSearch}
@@ -277,6 +265,7 @@ export function SiteHeader({
 
               {/* Botão de Cotação (Sacola com badge verde/vermelho idêntico à referência) */}
               <button
+                id="tour-header-quote"
                 aria-label={`Ver lista de cotação com ${count} itens`}
                 className="relative flex flex-col items-center justify-center text-white transition hover:opacity-90 cursor-pointer"
                 onClick={openDrawer}
@@ -339,6 +328,7 @@ export function SiteHeader({
             <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2 shrink-0">
               {/* 1. Botão Menu: Categorias | Segmentos */}
               <button
+                id="tour-header-categories"
                 aria-expanded={sidebarOpen}
                 aria-haspopup="dialog"
                 aria-label={
@@ -360,35 +350,38 @@ export function SiteHeader({
               {/* Divisor vertical */}
               <span className="inline-block h-3.5 w-px bg-white/25 shrink-0 mx-0.5 sm:mx-1" />
 
-              {/* Eventos */}
-              <Link
-                className="rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
-                href="/eventos"
-              >
-                Eventos
-              </Link>
+              {/* Bloco de Conteúdos & Workshops (Explica Aí Nort + Aulas Confeitaria) */}
+              <div id="tour-header-content" className="flex items-center gap-1 sm:gap-1.5">
+                {/* Eventos */}
+                <Link
+                  className="rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                  href="/eventos"
+                >
+                  Eventos
+                </Link>
 
-              {/* Conteúdos */}
-              <Link
-                className="flex items-center gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
-                href="/post"
-              >
-                <span>Conteúdos</span>
-                <span className="rounded-full bg-[#E2091E] px-1.5 py-0.5 text-[8px] sm:text-[8.5px] font-black uppercase text-white leading-none tracking-tight">
-                  EXPLICA AÍ NORT
-                </span>
-              </Link>
+                {/* Conteúdos */}
+                <Link
+                  className="flex items-center gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                  href="/post"
+                >
+                  <span>Conteúdos</span>
+                  <span className="rounded-full bg-[#E2091E] px-1.5 py-0.5 text-[8px] sm:text-[8.5px] font-black uppercase text-white leading-none tracking-tight">
+                    EXPLICA AÍ NORT
+                  </span>
+                </Link>
 
-              {/* Workshops */}
-              <Link
-                className="flex items-center gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
-                href="/eventos/workshops/aulas-confeitaria"
-              >
-                <span>Workshops</span>
-                <span className="rounded-full bg-[#B45309] px-1.5 py-0.5 text-[8px] sm:text-[8.5px] font-black uppercase text-white leading-none tracking-tight">
-                  AULAS CONFEITARIA
-                </span>
-              </Link>
+                {/* Workshops */}
+                <Link
+                  className="flex items-center gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                  href="/eventos/workshops/aulas-confeitaria"
+                >
+                  <span>Workshops</span>
+                  <span className="rounded-full bg-[#B45309] px-1.5 py-0.5 text-[8px] sm:text-[8.5px] font-black uppercase text-white leading-none tracking-tight">
+                    AULAS CONFEITARIA
+                  </span>
+                </Link>
+              </div>
 
               {/* Divisor vertical após Workshops */}
               <span className="inline-block h-3.5 w-px bg-white/25 shrink-0 mx-0.5 sm:mx-1" />
@@ -399,24 +392,27 @@ export function SiteHeader({
               {/* Divisor vertical antes do grupo direito */}
               <span className="inline-block h-3.5 w-px bg-white/25 shrink-0 mx-0.5 sm:mx-1" />
 
-              {/* 1. Mais Vendidos */}
-              <Link
-                className="rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap shrink-0"
-                href="/loja?ordem=mais_vendidos"
-              >
-                Mais Vendidos
-              </Link>
+              {/* Bloco de Mais Vendidos & Ofertas do Dia */}
+              <div id="tour-header-deals" className="flex items-center gap-0.5 sm:gap-1">
+                {/* 1. Mais Vendidos */}
+                <Link
+                  className="rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap shrink-0"
+                  href="/loja?ordem=mais_vendidos"
+                >
+                  Mais Vendidos
+                </Link>
 
-              {/* 2. Ofertas do Dia */}
-              <Link
-                className="flex items-center gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
-                href="/loja?oferta=1"
-              >
-                <span>Ofertas do Dia</span>
-                <span className="rounded-full bg-[#E2091E] px-1.5 py-0.5 text-[8px] sm:text-[8.5px] font-black uppercase text-white leading-none">
-                  NOVO
-                </span>
-              </Link>
+                {/* 2. Ofertas do Dia */}
+                <Link
+                  className="flex items-center gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                  href="/loja?oferta=1"
+                >
+                  <span>Ofertas do Dia</span>
+                  <span className="rounded-full bg-[#E2091E] px-1.5 py-0.5 text-[8px] sm:text-[8.5px] font-black uppercase text-white leading-none">
+                    NOVO
+                  </span>
+                </Link>
+              </div>
 
               {/* 3. Mega Menu: Embalagens (ancorado right-0 com align="right" para não vazar a tela nem tremer no hover) */}
               <div className="group/cat relative shrink-0">
