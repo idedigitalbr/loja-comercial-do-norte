@@ -7,6 +7,30 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **29/10/2026 — Tour Guiado Interativo com o Mascote Nort (executorId: `antigravity-gemini`):**
+  - **Motor de Tour Dedicado para Next.js 16 / React 19:**
+    - Avaliação técnica entre Onborda e NextStepjs: ambas usam Framer Motion, mas apresentam limitações em headers fixos e viewports móveis sem cálculo de clamping nem suporte nativo a avatares e balões em estilo quadrinhos.
+    - Implementação de motor sob medida em `apps/storefront/components/tour/` com máscara SVG fullscreen de spotlight com cantos arredondados (`rx/ry`), anel pulsante dourado com glow suave ao redor do elemento em foco e rastreamento em 60fps via `requestAnimationFrame` em eventos de `scroll` e `resize`.
+  - **Apresentação em 1ª Pessoa pelo Mascote Nort:**
+    - O mascote Nort 3D participa ativamente de cada passo com poses em alta definição (`nort-boas-vindas.png`, `nort-apontando-joinha.png`, `mascote-nort-apontando.webp`, `nort-pensativo.png`, `nort-ofertas.png`, `nort-notebook-em-pe.png`, `nort-entrega-pedidos.png`, `nort-celular.png` e `nort-sorridente-joinha.png`).
+    - Balão de fala estilo HQ com rabicho/ponteiro voltado diretamente para a boca do mascote (lateral no desktop e vertical no mobile), texto em primeira pessoa ("Oi! Eu sou o Nort!...", "Aqui na nossa busca...", etc.), tag "Nort Apresenta" e badge temático para cada área.
+  - **Etapas Canônicas do Tour:**
+    1. Boas-vindas e introdução ao catálogo (`#tour-header-nort`)
+    2. Barra de Busca Rápida de Produtos (`#tour-header-search`)
+    3. Departamentos & Segmentos (`#tour-header-categories`)
+    4. Explica Aí Nort & Workshops de Confeitaria (`#tour-header-content`)
+    5. Mais Vendidos & Ofertas do Dia (`#tour-header-deals`)
+    6. Localização, Entrega e Retirada nas Lojas (`#tour-header-location`)
+    7. Minha Cotação e Lista de Pedidos (`#tour-header-quote`)
+    8. Atendimento Direto e WhatsApp Vendas (`#tour-header-whatsapp`)
+    9. Conclusão e convite para navegar à vontade
+  - **Controles, Acessibilidade e Gatilhos:**
+    - Paginação por pontinhos interativos com salto direto, botões "Pular tour", "Voltar" e "Próximo / Concluir Tour! 🚀".
+    - Navegação completa por teclado (`Escape` para fechar, `ArrowRight` para avançar, `ArrowLeft` para voltar).
+    - Gatilho permanente no balão do cabeçalho do Nort ("Ver tour guiado novamente"), ativando `startTour()`.
+    - Convite flutuante sutil no rodapé para novos visitantes após 3.5 segundos sem intrusão, com memória no `localStorage` (`cn_nort_tour_completed_v1`).
+    - 172 testes unitários aprovados e build Next.js 16 validado sem erros.
+
 - **29/10/2026 — Redesign Premium de Workshops e Confeitaria (Kit Visual Oficial) (executorId: `antigravity-gemini`):**
   - **Identidade e Paleta Canônica de Confeitaria Fina:**
     - Cor Principal e Dominante: Marrom Chocolate (`#4B290D`) aplicado em títulos, botões primários, destaques, bordas ativas e badges.
