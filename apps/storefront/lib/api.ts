@@ -96,7 +96,7 @@ export function getProductsPage(input: {
   offer?: boolean | string;
 } = {}): Promise<ProductPage> {
   const page = Math.max(1, input.page ?? 1);
-  const pageSize = Math.min(48, Math.max(1, input.pageSize ?? 12));
+  const pageSize = Math.min(48, Math.max(1, input.pageSize ?? 20));
   const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
   if (input.search?.trim()) params.set('search', input.search.trim());
   if (input.category) params.set('category', input.category);

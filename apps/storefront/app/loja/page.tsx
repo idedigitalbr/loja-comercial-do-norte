@@ -22,7 +22,7 @@ type SearchParams = Promise<{
   mais_vendidos?: string;
 }>;
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 20;
 
 export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
   const params = await searchParams;

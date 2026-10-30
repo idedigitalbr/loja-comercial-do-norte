@@ -127,119 +127,8 @@ const tags: readonly DemoTag[] = [
   { name: 'Vai ao Micro-ondas', slug: 'vai-ao-micro-ondas' },
 ];
 
-type DemoProduct = {
-  slug: string;
-  name: string;
-  description: string;
-  categorySlug: string;
-  segmentSlugs?: string[];
-  tagSlugs?: string[];
-  sku: string;
-  priceCents: number;
-  compareAtPriceCents?: number;
-  weightGrams: number;
-  widthMm?: number;
-  heightMm?: number;
-  lengthMm?: number;
-  physicalQuantity: number;
-  status: 'ACTIVE' | 'DRAFT';
-};
-
-/** Produtos de exemplo. Dois ficam em DRAFT para exercitar a fila de publicação. */
-export const demoProducts: readonly DemoProduct[] = [
-  {
-    slug: 'copo-descartavel-300ml', name: 'Copo Descartável Transparente 300 ml',
-    description: 'Pacote com 100 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'copos', segmentSlugs: ['lanchonete', 'bar-distribuidora', 'loja-de-festas', 'delivery'], tagSlugs: ['descartavel', 'transparente'], sku: 'DEMO-COP-300', priceCents: 890, compareAtPriceCents: 1090,
-    weightGrams: 1200, widthMm: 300, heightMm: 400, lengthMm: 300, physicalQuantity: 180, status: 'ACTIVE',
-  },
-  {
-    slug: 'prato-descartavel-21cm', name: 'Prato Descartável Branco 21 cm',
-    description: 'Pacote com 50 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'pratos', segmentSlugs: ['loja-de-festas', 'restaurante-buffet'], tagSlugs: ['descartavel'], sku: 'DEMO-PRA-021', priceCents: 1250,
-    weightGrams: 900, widthMm: 210, heightMm: 120, lengthMm: 210, physicalQuantity: 140, status: 'ACTIVE',
-  },
-  {
-    slug: 'guardanapo-papel-24x24', name: 'Guardanapo de Papel 24 x 24 cm',
-    description: 'Pacote com 50 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'artigos-para-festa', segmentSlugs: ['lanchonete', 'pizzaria', 'restaurante-buffet', 'delivery'], tagSlugs: ['biodegradavel'], sku: 'DEMO-GUA-2424', priceCents: 650,
-    weightGrams: 500, widthMm: 240, heightMm: 80, lengthMm: 240, physicalQuantity: 220, status: 'ACTIVE',
-  },
-  {
-    slug: 'caixa-pizza-35cm', name: 'Caixa de Pizza 35 cm',
-    description: 'Caixa de papelão para pizza, 100 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'caixas-e-bandejas', segmentSlugs: ['pizzaria', 'delivery'], tagSlugs: ['kraft', 'termico'], sku: 'DEMO-CAI-035', priceCents: 390, compareAtPriceCents: 450,
-    weightGrams: 400, widthMm: 350, heightMm: 40, lengthMm: 350, physicalQuantity: 300, status: 'ACTIVE',
-  },
-  {
-    slug: 'bandeja-isopor-n2', name: 'Bandeja de Isopor nº 2',
-    description: 'Bandeja para frios e carnes, 100 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'caixas-e-bandejas', segmentSlugs: ['padaria', 'restaurante-buffet', 'delivery'], tagSlugs: ['termico', 'descartavel'], sku: 'DEMO-BAN-002', priceCents: 990, compareAtPriceCents: 1290,
-    weightGrams: 300, widthMm: 250, heightMm: 30, lengthMm: 200, physicalQuantity: 160, status: 'ACTIVE',
-  },
-  {
-    slug: 'sacola-plastica-40x50', name: 'Sacola Plástica Reforçada 40 x 50 cm',
-    description: 'Fardo com 1 kg de sacolas. Produto de demonstração do catálogo.',
-    categorySlug: 'sacos-e-sacolas', segmentSlugs: ['lanchonete', 'pizzaria', 'padaria', 'bar-distribuidora', 'delivery'], tagSlugs: ['reforcado'], sku: 'DEMO-SAC-4050', priceCents: 1590, compareAtPriceCents: 2035,
-    weightGrams: 1500, widthMm: 400, heightMm: 60, lengthMm: 500, physicalQuantity: 90, status: 'ACTIVE',
-  },
-  {
-    slug: 'sacola-kraft-delivery', name: 'Sacola de Papel Kraft Delivery com Alça',
-    description: 'Pacote com 50 unidades. Sacola de papel kraft resistente ideal para entregas de pedidos e delivery.',
-    categorySlug: 'sacos-e-sacolas', segmentSlugs: ['delivery', 'lanchonete', 'restaurante-buffet'], tagSlugs: ['kraft', 'biodegradavel', 'reforcado'], sku: 'DEMO-SAC-KRAFT-DEL', priceCents: 1890, compareAtPriceCents: 2250,
-    weightGrams: 1400, widthMm: 320, heightMm: 390, lengthMm: 180, physicalQuantity: 150, status: 'ACTIVE',
-  },
-  {
-    slug: 'lacre-seguranca-delivery', name: 'Lacre de Segurança Inviolável para Delivery',
-    description: 'Rolo com 500 etiquetas adesivas invioláveis. Garante a proteção e integridade dos pedidos até a entrega.',
-    categorySlug: 'caixas-e-bandejas', segmentSlugs: ['delivery', 'pizzaria', 'lanchonete'], tagSlugs: ['reforcado', 'kraft'], sku: 'DEMO-LAC-SEG-500', priceCents: 1490, compareAtPriceCents: 1790,
-    weightGrams: 280, widthMm: 100, heightMm: 100, lengthMm: 45, physicalQuantity: 240, status: 'ACTIVE',
-  },
-  {
-    slug: 'pote-termico-molho-250ml', name: 'Pote Térmico com Tampa Antivazamento 250 ml',
-    description: 'Pacote com 50 unidades. Embalagem térmica hermética para sopas, caldos e molhos no delivery.',
-    categorySlug: 'caixas-e-bandejas', segmentSlugs: ['delivery', 'restaurante-buffet', 'lanchonete'], tagSlugs: ['termico', 'descartavel'], sku: 'DEMO-POT-TER-250', priceCents: 1290, compareAtPriceCents: 1550,
-    weightGrams: 450, widthMm: 120, heightMm: 80, lengthMm: 120, physicalQuantity: 180, status: 'ACTIVE',
-  },
-  {
-    slug: 'velas-aniversario-coloridas', name: 'Velas de Aniversário Coloridas',
-    description: 'Cartela com 12 velas. Produto de demonstração do catálogo.',
-    categorySlug: 'velas-e-suprimentos', segmentSlugs: ['loja-de-festas', 'confeitaria-bolos'], sku: 'DEMO-VEL-0012', priceCents: 420,
-    weightGrams: 120, widthMm: 150, heightMm: 20, lengthMm: 100, physicalQuantity: 75, status: 'ACTIVE',
-  },
-  {
-    slug: 'forminha-docinho-n5', name: 'Forminha de Docinho nº 5',
-    description: 'Pacote com 100 forminhas. Produto de demonstração do catálogo.',
-    categorySlug: 'doces-e-bomboniere', segmentSlugs: ['confeitaria-bolos', 'loja-de-festas'], tagSlugs: ['descartavel'], sku: 'DEMO-FOR-005', priceCents: 730,
-    weightGrams: 200, widthMm: 200, heightMm: 60, lengthMm: 150, physicalQuantity: 210, status: 'ACTIVE',
-  },
-  {
-    slug: 'detergente-neutro-5l', name: 'Detergente Neutro 5 L',
-    description: 'Galão de 5 litros. Produto de demonstração do catálogo.',
-    categorySlug: 'produtos-de-limpeza', segmentSlugs: ['restaurante-buffet', 'padaria', 'lanchonete'], tagSlugs: ['reforcado'], sku: 'DEMO-DET-005L', priceCents: 2490, compareAtPriceCents: 2790,
-    weightGrams: 5200, widthMm: 200, heightMm: 300, lengthMm: 150, physicalQuantity: 60, status: 'ACTIVE',
-  },
-  {
-    slug: 'leite-condensado-395g', name: 'Leite Condensado 395 g',
-    description: 'Lata de 395 g. Produto de demonstração do catálogo.',
-    categorySlug: 'mercearia', segmentSlugs: ['confeitaria-bolos', 'padaria'], sku: 'DEMO-LEI-395', priceCents: 749,
-    weightGrams: 400, widthMm: 80, heightMm: 110, lengthMm: 80, physicalQuantity: 320, status: 'ACTIVE',
-  },
-  {
-    // DRAFT: falta comprimento, então a publicação deve falhar com PRODUCT_INCOMPLETE.
-    slug: 'filme-pvc-30cm', name: 'Filme PVC 30 cm x 30 m',
-    description: 'Rolo de filme PVC. Produto de demonstração aguardando dados completos.',
-    categorySlug: 'filme-e-aluminio', segmentSlugs: ['padaria', 'restaurante-buffet'], tagSlugs: ['transparente'], sku: 'DEMO-FIL-030', priceCents: 1890,
-    weightGrams: 350, widthMm: 300, heightMm: 100, physicalQuantity: 45, status: 'DRAFT',
-  },
-  {
-    // DRAFT completo: publicar deve funcionar assim que o marketing decidir.
-    slug: 'queijo-mussarela-fatiado-1kg', name: 'Queijo Mussarela Fatiado 1 kg',
-    description: 'Pacote de 1 kg. Produto de demonstração pronto para publicação.',
-    categorySlug: 'frios-e-laticinios', segmentSlugs: ['pizzaria', 'lanchonete', 'padaria'], tagSlugs: ['reforcado'], sku: 'DEMO-QUE-001', priceCents: 3990,
-    weightGrams: 1000, widthMm: 250, heightMm: 60, lengthMm: 200, physicalQuantity: 25, status: 'DRAFT',
-  },
-] as const;
+import { demoProducts, type DemoProduct } from './seed-catalog-data';
+export { demoProducts, type DemoProduct };
 
 const uploadsRoot = join(resolveApiStorageRoot(), 'uploads');
 
@@ -624,10 +513,18 @@ export async function seedCatalog(prisma: PrismaClient): Promise<{ categories: n
       },
     });
 
-    const categoryId = categoryIdBySlug.get(product.categorySlug);
-    if (categoryId) {
+    const catSlugs = product.categorySlugs && product.categorySlugs.length > 0
+      ? product.categorySlugs
+      : product.categorySlug ? [product.categorySlug] : [];
+
+    if (catSlugs.length > 0) {
       await prisma.productCategory.deleteMany({ where: { productId: productRow.id } });
-      await prisma.productCategory.create({ data: { productId: productRow.id, categoryId } });
+      for (const cSlug of catSlugs) {
+        const categoryId = categoryIdBySlug.get(cSlug);
+        if (categoryId) {
+          await prisma.productCategory.create({ data: { productId: productRow.id, categoryId } });
+        }
+      }
     }
 
     const variant = await prisma.productVariant.upsert({

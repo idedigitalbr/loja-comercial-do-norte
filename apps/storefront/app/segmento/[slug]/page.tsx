@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   };
 }
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 20;
 
 export default async function SegmentPage({
   params,
