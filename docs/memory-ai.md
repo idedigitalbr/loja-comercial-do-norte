@@ -7,6 +7,13 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **30/10/2026 — Rastreabilidade de Deploy: Tag de Versão e Timestamp Automático no Balão do Tour (executorId: `antigravity-gemini`):**
+  - **Identificador de Versão Minimalista Automático:**
+    - Criado módulo canônico `apps/storefront/lib/version.ts` com cálculo em build-time formatado no padrão exato solicitado: `vDD-MM-YYYY-H-MPM` no fuso horário de Brasília (exemplo: `v30-10-2026-12-28pm`).
+    - Configurado em `apps/storefront/next.config.ts` via injeção estática `env.NEXT_PUBLIC_DEPLOY_VERSION`, garantindo que todo e qualquer deploy futuro em produção (Vercel ou local) registre automaticamente o horário preciso em que foi compilado.
+    - Exibição de tag minimalista no canto superior esquerdo do balão de fala do mascote Nort (`NortTourCard`), permitindo auditoria visual imediata da versão publicada ativa no navegador.
+  - **Validação:** Testes unitários atualizados em `nort-tour.spec.tsx` com regex de formato aprovado, typecheck verde e build Next.js 16 validado com sucesso.
+
 - **30/10/2026 — Publicação em Produção na Vercel: Vitrine do Storefront com Tour Guiado do Nort Atualizado (executorId: `antigravity-gemini`):**
   - **Deploy de Produção Concluído:**
     - Executado build e publicação na Vercel a partir do commit `d77e11f` (`main`).

@@ -134,6 +134,9 @@ describe('Nort Guided Tour Engine', () => {
     expect(screen.getByText('Nort Apresenta')).toBeTruthy();
     expect(screen.getByText('Boas-vindas')).toBeTruthy();
 
+    // Verifica a tag de versão minimalista no topo do balão (formato vDD-MM-YYYY-H-MPM)
+    expect(screen.getByText(/^v\d{2}-\d{2}-\d{4}-\d{1,2}-\d{2}[ap]m$/i)).toBeTruthy();
+
     // Verifica a fala em 1ª pessoa saindo da boca do mascote
     expect(screen.getByText('Opa! Seja muito bem-vindo à Comercial do Norte! 👋')).toBeTruthy();
     expect(

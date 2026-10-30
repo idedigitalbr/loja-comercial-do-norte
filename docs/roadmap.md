@@ -1,5 +1,9 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **30/10/2026 — Rastreabilidade de Deploy: Tag de Versão e Timestamp Automático no Balão do Tour (executorId: `antigravity-gemini`):**
+  - **Tag Automática de Versão:** Injeção automática em tempo de build (`next.config.ts` + `lib/version.ts`) gerando `vDD-MM-YYYY-H-MPM` (fuso de Brasília) gravada no bundle. Exibida no balão do mascote Nort como indicador visual de release em produção.
+  - **Qualidade & Validação:** 174 testes unitários aprovados no Storefront, typecheck com 0 erros e build validado.
+
 - **30/10/2026 — Publicação em Produção na Vercel: Vitrine do Storefront com Tour Guiado do Nort Atualizado (executorId: `antigravity-gemini`):**
   - **Deploy Vercel:** Publicado com sucesso a partir do commit `d77e11f` (`https://loja-home-front-1tu83a0x1-idedigital.vercel.app`).
   - **Aliases Ativos (HTTP 200):** `https://lojacomercialdonorte.vercel.app` e `https://loja-comercialdonorte.vercel.app`.

@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { ArrowLeft, ArrowRight, Check, Sparkles, X } from 'lucide-react';
+import { APP_VERSION } from '@/lib/version';
 import type { NortTourStep } from './nort-tour-types';
 
 interface NortTourCardProps {
@@ -37,9 +38,16 @@ export function NortTourCard({
           className="absolute left-1/2 -translate-x-1/2 -bottom-3 w-0 h-0 border-x-[12px] border-x-transparent border-t-[14px] border-t-white filter drop-shadow-[0_2px_2px_rgba(0,0,0,0.12)] pointer-events-none"
         />
 
-        {/* TOPO DO BALÃO: BADGE DO NORT + CONTADOR DE PASSOS + BOTÃO FECHAR */}
+        {/* TOPO DO BALÃO: VERSÃO MINIMALISTA + BADGE DO NORT + CONTADOR DE PASSOS + BOTÃO FECHAR */}
         <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
           <div className="flex items-center gap-1.5 flex-wrap">
+            <span
+              title="Versão e horário da última atualização do sistema"
+              className="text-[9.5px] font-mono font-medium text-slate-400 bg-slate-100/90 px-1.5 py-0.5 rounded tracking-tight select-all border border-slate-200/60"
+            >
+              {APP_VERSION}
+            </span>
+
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#004CB1]/10 text-[#004CB1]">
               <Sparkles className="size-3 text-amber-500 fill-amber-400" />
               <span>Nort Apresenta</span>

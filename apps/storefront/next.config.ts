@@ -3,7 +3,45 @@ import type { NextConfig } from 'next';
 const apiUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:3000';
 const api = new URL(apiUrl);
 
+function getDeployVersion(): string {
+  if (process.env.NEXT_PUBLIC_DEPLOY_VERSION) {
+    return process.env.NEXT_PUBLIC_DEPLOY_VERSION;
+  }
+  try {
+    const now = new Date();
+    const d = new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(now);
+    const [day, month, year] = d.split('/');
+
+    const timeParts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Sao_Paulo',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+    }).formatToParts(now);
+
+    const hour = timeParts.find((p) => p.type === 'hour')?.value ?? '12';
+    const minute = timeParts.find((p) => p.type === 'minute')?.value ?? '00';
+    const dayPeriod = (
+      timeParts.find((p) => p.type === 'dayPeriod')?.value ?? 'pm'
+    ).toLowerCase();
+
+    return `v${day}-${month}-${year}-${hour}-${minute}${dayPeriod}`;
+  } catch {
+    return 'v30-10-2026-12-00pm';
+  }
+}
+
+const deployVersion = getDeployVersion();
+
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_DEPLOY_VERSION: deployVersion,
+  },
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
