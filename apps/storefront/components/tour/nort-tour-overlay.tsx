@@ -221,11 +221,11 @@ export function NortTourOverlay({
           </mask>
         </defs>
 
-        {/* Camada bem mais escura de foco total conforme solicitado (rgba 2, 6, 23 com 92% de opacidade) */}
+        {/* Camada teatral ultra escura de foco total conforme solicitado (rgba 1, 3, 10 com 96.5% de opacidade) */}
         <rect
           width="100%"
           height="100%"
-          fill="rgba(2, 6, 23, 0.92)"
+          fill="rgba(1, 3, 10, 0.965)"
           mask="url(#nort-tour-spotlight-mask)"
         />
       </svg>
@@ -242,7 +242,7 @@ export function NortTourOverlay({
             height: `${highlightRect.height}px`,
             borderRadius: `${highlightRect.rx}px`,
           }}
-          className="pointer-events-none ring-4 ring-amber-400 shadow-[0_0_35px_rgba(251,191,36,0.85),inset_0_0_15px_rgba(251,191,36,0.3)] animate-pulse transition-all duration-300 ease-out z-[99998]"
+          className="pointer-events-none ring-4 ring-amber-400 shadow-[0_0_40px_rgba(251,191,36,0.9),inset_0_0_15px_rgba(251,191,36,0.3)] animate-pulse transition-all duration-300 ease-out z-[99998]"
         />
       )}
 

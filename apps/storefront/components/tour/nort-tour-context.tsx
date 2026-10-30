@@ -13,6 +13,79 @@ import { NortTourOverlay } from './nort-tour-overlay';
 import type { NortTourContextType, NortTourStep } from './nort-tour-types';
 
 const STORAGE_KEY_SEEN = 'cn_nort_tour_completed_v1';
+export const STORAGE_KEY_FREQ = 'cn_nort_tour_freq_v1';
+
+export const MAX_TOUR_DAYS = 2;
+export const MAX_OPENS_PER_DAY = 2;
+
+export interface NortTourFrequencyRecord {
+  days: Record<string, number>;
+}
+
+export function getTodayDateString(d: Date = new Date()): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Avalia se o tour guiado deve ser aberto automaticamente:
+ * - Abre no máximo 2 vezes ao dia (1ª e 2ª carga de página daquele dia).
+ * - Repete esse comportamento apenas nos primeiros 2 dias de visita do usuário.
+ * - A partir do 3º dia em diante (ou na 3ª carga de página de cada um dos 2 dias),
+ *   não abre mais automaticamente.
+ * - Retorna true se deve abrir (e já incrementa e salva a contagem), false caso contrário.
+ */
+export function checkAndRecordAutoOpen(
+  storage: Storage | null = typeof window !== 'undefined' ? window.localStorage : null,
+  now: Date = new Date()
+): boolean {
+  if (!storage) return false;
+
+  try {
+    const raw = storage.getItem(STORAGE_KEY_FREQ);
+    let record: NortTourFrequencyRecord = { days: {} };
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (
+          parsed &&
+          typeof parsed === 'object' &&
+          parsed.days &&
+          typeof parsed.days === 'object'
+        ) {
+          record = parsed;
+        }
+      } catch {
+        record = { days: {} };
+      }
+    }
+
+    const today = getTodayDateString(now);
+    const recordedDays = Object.keys(record.days);
+    const hasToday = Object.prototype.hasOwnProperty.call(record.days, today);
+
+    // Se a data de hoje ainda não foi registrada e já existem MAX_TOUR_DAYS registrados anteriormente,
+    // o período de 2 dias do usuário já foi encerrado.
+    if (!hasToday && recordedDays.length >= MAX_TOUR_DAYS) {
+      return false;
+    }
+
+    const todayCount = record.days[today] ?? 0;
+    // Se hoje já atingiu a cota diária de MAX_OPENS_PER_DAY aberturas automáticas
+    if (todayCount >= MAX_OPENS_PER_DAY) {
+      return false;
+    }
+
+    // Registra a nova abertura automática de hoje e persiste no localStorage
+    record.days[today] = todayCount + 1;
+    storage.setItem(STORAGE_KEY_FREQ, JSON.stringify(record));
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 const defaultNortTourContext: NortTourContextType = {
   isOpen: false,
@@ -94,16 +167,18 @@ export function NortTourProvider({ children }: { children: ReactNode }) {
   const resetTour = useCallback(() => {
     try {
       localStorage.removeItem(STORAGE_KEY_SEEN);
+      localStorage.removeItem(STORAGE_KEY_FREQ);
       setHasSeenTour(false);
       startTour(0);
     } catch {}
   }, [startTour]);
 
-  // Ao montar no cliente: se for a primeira visita do usuário, inicia o tour imediatamente!
+  // Ao montar no cliente: verifica se deve abrir automaticamente
+  // (máximo 2 vezes ao dia durante os 2 primeiros dias do visitante)
   useEffect(() => {
     try {
-      const seen = localStorage.getItem(STORAGE_KEY_SEEN);
-      if (seen !== 'true') {
+      const shouldAutoOpen = checkAndRecordAutoOpen();
+      if (shouldAutoOpen) {
         setHasSeenTour(false);
         const timer = setTimeout(() => {
           startTour(0);

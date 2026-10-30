@@ -1,5 +1,15 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **30/10/2026 — Tour Guiado do Nort: Fundo Teatral Ultra Escuro (96.5%) e Regra de Frequência de 2x ao Dia nos Primeiros 2 Dias (executorId: `antigravity-gemini`):**
+  - **Filtro Teatral Ultra Escuro:** Backdrop SVG aprofundado para `rgba(1, 3, 10, 0.965)` com brilho e contorno dourado (`shadow-[0_0_40px_rgba(251,191,36,0.9)]`), garantindo contraste teatral expressivo onde apenas o elemento em foco fica iluminado.
+  - **Frequência Automática (2x ao dia nos primeiros 2 dias):**
+    - Armazenamento em `localStorage` (`cn_nort_tour_freq_v1`).
+    - Dia 1: auto-abre na 1ª e na 2ª carga de página; não abre a partir da 3ª.
+    - Dia 2: auto-abre na 1ª e na 2ª carga de página; não abre a partir da 3ª.
+    - Dia 3 em diante: não abre mais automaticamente.
+    - Abertura manual ("Ver tour guiado novamente" no cabeçalho do Nort) continua 100% disponível a qualquer momento.
+  - **Qualidade & Validação:** 174 testes unitários verdes no Storefront, typecheck com 0 erros e build Next.js 16 compilado com sucesso.
+
 - **30/10/2026 — Redesign do Tour Guiado: Abertura Imediata, Mascote Nort na Base em Tamanho Grande e Filtro Ultra Escuro (executorId: `antigravity-gemini`):**
   - **Experiência de Abertura:** Removido o prompt flutuante do canto inferior. O tour agora inicia diretamente para novos visitantes logo no carregamento inicial da página, com opção permanente no cabeçalho ("Ver tour guiado novamente").
   - **Mascote Nort na Base Inferior:** Nort centralizado e encostado no rodapé da viewport (`bottom: 0`), com escala aumentada e sombras expressivas, acompanhado pelo balão de fala apontando para baixo diretamente para o mascote.

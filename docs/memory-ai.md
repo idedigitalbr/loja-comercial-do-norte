@@ -7,6 +7,17 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **30/10/2026 — Tour Guiado do Nort: Fundo Teatral Ultra Escuro (96.5%) e Regra de Frequência de 2x ao Dia nos Primeiros 2 Dias (executorId: `antigravity-gemini`):**
+  - **Filtro de Contraste Teatral Ultra Escuro:**
+    - Ajustado o preenchimento da máscara SVG de escurecimento de `rgba(2, 6, 23, 0.92)` para `rgba(1, 3, 10, 0.965)`, criando um blackout quase total no fundo não focado e intensificando o anel dourado pulsante (`shadow-[0_0_40px_rgba(251,191,36,0.9)]`). Os elementos em foco brilham com recorte nítido e os passos de boas-vindas e encerramento direcionam toda a atenção para o Nort.
+  - **Regra de Frequência Automática (2x ao dia nos primeiros 2 dias):**
+    - Implementada a função canônica `checkAndRecordAutoOpen(storage, now)` com persistência estruturada no `localStorage` sob a chave `cn_nort_tour_freq_v1` (`{ days: { [dateIso]: count } }`).
+    - **Dia 1:** O tour inicia automaticamente na 1ª e na 2ª carga de página. Na 3ª carga de página do Dia 1, não abre mais automaticamente.
+    - **Dia 2:** Repete o mesmo comportamento (abre na 1ª e 2ª carga de página do Dia 2, bloqueando a partir da 3ª).
+    - **Dia 3 em diante:** O tour encerra as aberturas automáticas permanentemente.
+    - O gatilho manual ("Ver tour guiado novamente" no balão do mascote no cabeçalho) permanece sempre funcional para o usuário rever o tour quando quiser, sem consumir nem ser bloqueado pela cota automática.
+  - **Validação e Testes:** Suíte `components/tour/nort-tour.spec.tsx` atualizada com validação completa de datas consecutivas e futuras, 174 testes unitários aprovados no Storefront, typecheck com 0 erros e build de produção Next.js 16 concluído com sucesso.
+
 - **30/10/2026 — Redesign do Tour Guiado: Abertura Imediata, Mascote Nort na Base em Tamanho Grande e Filtro Ultra Escuro (executorId: `antigravity-gemini`):**
   - **Abertura Imediata sem Prompt Inferior:**
     - O prompt pequenininho flutuante no canto inferior direito foi removido.
