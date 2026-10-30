@@ -78,4 +78,17 @@ describe('SegmentPage (/segmento/[slug])', () => {
     expect(screen.getByText('PIZZARIAS')).toBeDefined();
     expect(screen.getByText('TRANSPORTE SEGURO')).toBeDefined();
   });
+
+  it('renderiza o segmento delivery com o banner oficial e consulta de produtos para delivery', async () => {
+    const Component = await SegmentPage({
+      params: Promise.resolve({ slug: 'delivery' }),
+      searchParams: Promise.resolve({}),
+    });
+
+    render(Component);
+
+    expect(screen.getByText('O COMERCIAL')).toBeDefined();
+    expect(screen.getByText('DO SEU')).toBeDefined();
+    expect(screen.getAllByText('DELIVERY').length).toBeGreaterThanOrEqual(1);
+  });
 });

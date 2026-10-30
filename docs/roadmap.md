@@ -1,5 +1,10 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **29/10/2026 — Catálogo de Produtos do Segmento Delivery (executorId: `antigravity-gemini`):**
+  - **Vinculação de Produtos no Banco de Dados:** Corrigido o retorno vazio na rota `/segmento/delivery`. Associados produtos já existentes (`caixa-pizza-35cm`, `sacola-plastica-40x50`, `bandeja-isopor-n2`, `guardanapo-papel-24x24`, `copo-descartavel-300ml`) e criados 3 produtos canônicos de delivery em `prisma/seed-catalog.ts` (`sacola-kraft-delivery`, `lacre-seguranca-delivery` e `pote-termico-molho-250ml`).
+  - **Sincronização & API:** Executado o sincronizador de seed, resultando em 8 produtos ativos no endpoint `/api/v1/catalog/products/search?segment=delivery`. Suítes de testes unitários e de integração verdes (100%).
+
+
 - **29/10/2026 — Padronização Visual do Banner de Segmento Delivery (executorId: `antigravity-gemini`):**
   - **Banner Oficial de Topo do Segmento:** O banner da página `/segmento/delivery` foi alinhado ao padrão canônico das demais 8 páginas de segmento (`pizzaria`, `lanchonete`, `padaria`, `confeitaria-bolos`, `festas`, `restaurante-buffet`, `sorveteria-acai`, `bar-distribuidora`). A imagem temporária de card com fundo retangular fechado de cozinha (`s08-segment-09-delivery.jpg`) foi substituída pelo asset recortado com transparência e fundo transparente (`segmento-delivery.png.webp`).
   - **Composição da Imagem:** Entregador profissional uniformizado segurando sacola kraft com lacre inviolável vermelho e linha completa de embalagens de delivery (marmitas térmicas, bandejas de alumínio, potes de molho, caixas kraft e copo de café).

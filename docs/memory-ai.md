@@ -7,6 +7,15 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **29/10/2026 — Produtos Vinculados ao Segmento Delivery no Catálogo (executorId: `antigravity-gemini`):**
+  - **Identificação do problema:** A página `/segmento/delivery` retornava 0 produtos porque, embora o segmento Delivery tivesse sido inserido no banco de dados e taxonomia, nenhum produto do catálogo possuía o vínculo `ProductSegment` com a chave `delivery`.
+  - **Vínculos e Novos Produtos Canônicos:**
+    - Atualizados produtos essenciais já existentes para incluir o segmento `delivery`: `caixa-pizza-35cm` (caixas de pizza), `sacola-plastica-40x50` (sacolas plásticas reforçadas), `bandeja-isopor-n2` (bandejas térmicas), `guardanapo-papel-24x24` (guardanapos) e `copo-descartavel-300ml` (copos descartáveis).
+    - Adicionados 3 produtos específicos de demonstração em `prisma/seed-catalog.ts` fiéis ao segmento: `sacola-kraft-delivery` (Sacola de Papel Kraft Delivery com Alça), `lacre-seguranca-delivery` (Lacre de Segurança Inviolável para Delivery) e `pote-termico-molho-250ml` (Pote Térmico com Tampa Antivazamento 250 ml).
+    - Executado o `seedCatalog` via script canônico, totalizando 8 produtos ativos para o segmento Delivery no endpoint `/api/v1/catalog/products/search?segment=delivery`.
+    - Atualizada a suíte `apps/storefront/app/segmento/[slug]/segment-page.spec.tsx` cobrindo a renderização completa e consulta de produtos no segmento Delivery.
+
+
 - **29/10/2026 — Padronização Visual do Banner de Segmento Delivery (executorId: `antigravity-gemini`):**
   - **Identificação do problema:** O banner de topo da página de segmento Delivery (`/segmento/delivery`) estava utilizando temporariamente a foto de card com fundo retangular fechado de cozinha (`s08-segment-09-delivery.jpg`), rompendo o padrão visual das outras 8 páginas de segmento (`pizzaria`, `lanchonete`, `padaria`, `restaurante-buffet`, etc.), onde a foto central é estritamente uma pessoa recortada sem fundo (PNG/WebP transparente com canal alfa, ancorada na base sobre o fundo azul `#0059E9`).
   - **Correção e padronização de assets:**

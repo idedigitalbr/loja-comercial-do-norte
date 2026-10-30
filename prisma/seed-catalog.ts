@@ -150,7 +150,7 @@ export const demoProducts: readonly DemoProduct[] = [
   {
     slug: 'copo-descartavel-300ml', name: 'Copo Descartável Transparente 300 ml',
     description: 'Pacote com 100 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'copos', segmentSlugs: ['lanchonete', 'bar-distribuidora', 'loja-de-festas'], tagSlugs: ['descartavel', 'transparente'], sku: 'DEMO-COP-300', priceCents: 890, compareAtPriceCents: 1090,
+    categorySlug: 'copos', segmentSlugs: ['lanchonete', 'bar-distribuidora', 'loja-de-festas', 'delivery'], tagSlugs: ['descartavel', 'transparente'], sku: 'DEMO-COP-300', priceCents: 890, compareAtPriceCents: 1090,
     weightGrams: 1200, widthMm: 300, heightMm: 400, lengthMm: 300, physicalQuantity: 180, status: 'ACTIVE',
   },
   {
@@ -162,26 +162,44 @@ export const demoProducts: readonly DemoProduct[] = [
   {
     slug: 'guardanapo-papel-24x24', name: 'Guardanapo de Papel 24 x 24 cm',
     description: 'Pacote com 50 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'artigos-para-festa', segmentSlugs: ['lanchonete', 'pizzaria', 'restaurante-buffet'], tagSlugs: ['biodegradavel'], sku: 'DEMO-GUA-2424', priceCents: 650,
+    categorySlug: 'artigos-para-festa', segmentSlugs: ['lanchonete', 'pizzaria', 'restaurante-buffet', 'delivery'], tagSlugs: ['biodegradavel'], sku: 'DEMO-GUA-2424', priceCents: 650,
     weightGrams: 500, widthMm: 240, heightMm: 80, lengthMm: 240, physicalQuantity: 220, status: 'ACTIVE',
   },
   {
     slug: 'caixa-pizza-35cm', name: 'Caixa de Pizza 35 cm',
     description: 'Caixa de papelão para pizza, 100 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'caixas-e-bandejas', segmentSlugs: ['pizzaria'], tagSlugs: ['kraft', 'termico'], sku: 'DEMO-CAI-035', priceCents: 390, compareAtPriceCents: 450,
+    categorySlug: 'caixas-e-bandejas', segmentSlugs: ['pizzaria', 'delivery'], tagSlugs: ['kraft', 'termico'], sku: 'DEMO-CAI-035', priceCents: 390, compareAtPriceCents: 450,
     weightGrams: 400, widthMm: 350, heightMm: 40, lengthMm: 350, physicalQuantity: 300, status: 'ACTIVE',
   },
   {
     slug: 'bandeja-isopor-n2', name: 'Bandeja de Isopor nº 2',
     description: 'Bandeja para frios e carnes, 100 unidades. Produto de demonstração do catálogo.',
-    categorySlug: 'caixas-e-bandejas', segmentSlugs: ['padaria', 'restaurante-buffet'], tagSlugs: ['termico', 'descartavel'], sku: 'DEMO-BAN-002', priceCents: 990, compareAtPriceCents: 1290,
+    categorySlug: 'caixas-e-bandejas', segmentSlugs: ['padaria', 'restaurante-buffet', 'delivery'], tagSlugs: ['termico', 'descartavel'], sku: 'DEMO-BAN-002', priceCents: 990, compareAtPriceCents: 1290,
     weightGrams: 300, widthMm: 250, heightMm: 30, lengthMm: 200, physicalQuantity: 160, status: 'ACTIVE',
   },
   {
     slug: 'sacola-plastica-40x50', name: 'Sacola Plástica Reforçada 40 x 50 cm',
     description: 'Fardo com 1 kg de sacolas. Produto de demonstração do catálogo.',
-    categorySlug: 'sacos-e-sacolas', segmentSlugs: ['lanchonete', 'pizzaria', 'padaria', 'bar-distribuidora'], tagSlugs: ['reforcado'], sku: 'DEMO-SAC-4050', priceCents: 1590, compareAtPriceCents: 2035,
+    categorySlug: 'sacos-e-sacolas', segmentSlugs: ['lanchonete', 'pizzaria', 'padaria', 'bar-distribuidora', 'delivery'], tagSlugs: ['reforcado'], sku: 'DEMO-SAC-4050', priceCents: 1590, compareAtPriceCents: 2035,
     weightGrams: 1500, widthMm: 400, heightMm: 60, lengthMm: 500, physicalQuantity: 90, status: 'ACTIVE',
+  },
+  {
+    slug: 'sacola-kraft-delivery', name: 'Sacola de Papel Kraft Delivery com Alça',
+    description: 'Pacote com 50 unidades. Sacola de papel kraft resistente ideal para entregas de pedidos e delivery.',
+    categorySlug: 'sacos-e-sacolas', segmentSlugs: ['delivery', 'lanchonete', 'restaurante-buffet'], tagSlugs: ['kraft', 'biodegradavel', 'reforcado'], sku: 'DEMO-SAC-KRAFT-DEL', priceCents: 1890, compareAtPriceCents: 2250,
+    weightGrams: 1400, widthMm: 320, heightMm: 390, lengthMm: 180, physicalQuantity: 150, status: 'ACTIVE',
+  },
+  {
+    slug: 'lacre-seguranca-delivery', name: 'Lacre de Segurança Inviolável para Delivery',
+    description: 'Rolo com 500 etiquetas adesivas invioláveis. Garante a proteção e integridade dos pedidos até a entrega.',
+    categorySlug: 'caixas-e-bandejas', segmentSlugs: ['delivery', 'pizzaria', 'lanchonete'], tagSlugs: ['reforcado', 'kraft'], sku: 'DEMO-LAC-SEG-500', priceCents: 1490, compareAtPriceCents: 1790,
+    weightGrams: 280, widthMm: 100, heightMm: 100, lengthMm: 45, physicalQuantity: 240, status: 'ACTIVE',
+  },
+  {
+    slug: 'pote-termico-molho-250ml', name: 'Pote Térmico com Tampa Antivazamento 250 ml',
+    description: 'Pacote com 50 unidades. Embalagem térmica hermética para sopas, caldos e molhos no delivery.',
+    categorySlug: 'caixas-e-bandejas', segmentSlugs: ['delivery', 'restaurante-buffet', 'lanchonete'], tagSlugs: ['termico', 'descartavel'], sku: 'DEMO-POT-TER-250', priceCents: 1290, compareAtPriceCents: 1550,
+    weightGrams: 450, widthMm: 120, heightMm: 80, lengthMm: 120, physicalQuantity: 180, status: 'ACTIVE',
   },
   {
     slug: 'velas-aniversario-coloridas', name: 'Velas de Aniversário Coloridas',
