@@ -13,7 +13,6 @@ interface NortTourCardProps {
   onPrev: () => void;
   onClose: () => void;
   onStepClick: (index: number) => void;
-  isMobile?: boolean;
 }
 
 export function NortTourCard({
@@ -24,40 +23,18 @@ export function NortTourCard({
   onPrev,
   onClose,
   onStepClick,
-  isMobile = false,
 }: NortTourCardProps) {
   const isFirst = currentStepIndex === 0;
   const isLast = currentStepIndex === totalSteps - 1;
 
   return (
-    <div className="relative flex flex-col sm:flex-row items-center sm:items-end gap-2 sm:gap-4 max-w-[94vw] sm:max-w-xl md:max-w-2xl select-none animate-in fade-in zoom-in-95 duration-200">
-      {/* MASCOTE NORT 3D COM POSE DINÂMICA */}
-      <div className="relative shrink-0 flex items-end justify-center w-24 sm:w-32 md:w-36 -mb-1 sm:mb-0 z-20">
-        <div className="relative h-28 sm:h-40 md:h-48 w-full filter drop-shadow-[0_12px_20px_rgba(0,0,0,0.35)] transition-all duration-300 transform hover:scale-105">
-          <Image
-            src={step.mascotPose}
-            alt={step.mascotAlt}
-            fill
-            sizes="(max-width: 640px) 96px, 144px"
-            className="object-contain object-bottom"
-            priority
-            unoptimized
-          />
-        </div>
-      </div>
-
+    <div className="relative flex flex-col items-center w-full max-w-xl md:max-w-2xl select-none animate-in slide-in-from-bottom-8 fade-in duration-300">
       {/* BALÃO DE FALA EM FORMATO COMIC COM RABICHO APONTADO PARA A BOCA DO NORT */}
-      <div className="relative flex-1 bg-white text-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_20px_50px_rgba(0,35,120,0.35)] border-2 border-[#004CB1]/25 z-10 w-full">
-        {/* RABICHO DO BALÃO: DESKTOP (Apontando para a esquerda, na altura da boca do Nort) */}
+      <div className="relative w-full bg-white text-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_25px_60px_rgba(0,15,50,0.55)] border-2 border-[#004CB1]/30 z-20 mb-1.5 sm:mb-2.5">
+        {/* RABICHO DO BALÃO APONTANDO PARA BAIXO EM DIREÇÃO À CABEÇA/BOCA DO NORT */}
         <div
           aria-hidden="true"
-          className="hidden sm:block absolute -left-3 top-10 sm:top-12 w-0 h-0 border-y-[10px] border-y-transparent border-r-[14px] border-r-white filter drop-shadow-[-2px_0_2px_rgba(0,0,0,0.08)] pointer-events-none"
-        />
-
-        {/* RABICHO DO BALÃO: MOBILE (Apontando para cima em direção à cabeça do Nort) */}
-        <div
-          aria-hidden="true"
-          className="sm:hidden absolute left-12 -top-2.5 w-0 h-0 border-x-[10px] border-x-transparent border-b-[12px] border-b-white filter drop-shadow-[0_-2px_2px_rgba(0,0,0,0.08)] pointer-events-none"
+          className="absolute left-1/2 -translate-x-1/2 -bottom-3 w-0 h-0 border-x-[12px] border-x-transparent border-t-[14px] border-t-white filter drop-shadow-[0_2px_2px_rgba(0,0,0,0.12)] pointer-events-none"
         />
 
         {/* TOPO DO BALÃO: BADGE DO NORT + CONTADOR DE PASSOS + BOTÃO FECHAR */}
@@ -77,7 +54,7 @@ export function NortTourCard({
 
           <div className="flex items-center gap-1.5 shrink-0">
             <span className="text-[11px] font-bold text-slate-400">
-              {currentStepIndex + 1} de {totalSteps}
+              Passo {currentStepIndex + 1} de {totalSteps}
             </span>
             <button
               type="button"
@@ -91,17 +68,17 @@ export function NortTourCard({
         </div>
 
         {/* CONTEÚDO PRINCIPAL (FALA DO NORT) */}
-        <div className="py-2.5 sm:py-3 space-y-1">
-          <h3 className="font-extrabold text-[#00357B] text-sm sm:text-base tracking-tight leading-snug">
+        <div className="py-2 sm:py-2.5 space-y-1">
+          <h3 className="font-extrabold text-[#00357B] text-sm sm:text-base md:text-lg tracking-tight leading-snug">
             {step.title}
           </h3>
-          <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed font-normal">
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
             {step.message}
           </p>
         </div>
 
         {/* PROGRESSO EM PONTINHOS (PAGINAÇÃO INTERATIVA) */}
-        <div className="flex items-center justify-center gap-1.5 py-1.5" aria-label="Progresso do tour">
+        <div className="flex items-center justify-center gap-1.5 py-1" aria-label="Progresso do tour">
           {Array.from({ length: totalSteps }).map((_, idx) => (
             <button
               key={idx}
@@ -157,6 +134,19 @@ export function NortTourCard({
             </button>
           </div>
         </div>
+      </div>
+
+      {/* MASCOTE NORT BEM GRANDE ENCOSTADO NO CANTO INFERIOR (BOTTOM: 0) */}
+      <div className="relative shrink-0 flex items-end justify-center w-48 sm:w-60 md:w-72 h-40 sm:h-52 md:h-60 z-10 -mb-1">
+        <Image
+          src={step.mascotPose}
+          alt={step.mascotAlt}
+          fill
+          sizes="(max-width: 640px) 192px, 288px"
+          className="object-contain object-bottom filter drop-shadow-[0_15px_30px_rgba(0,0,0,0.65)]"
+          priority
+          unoptimized
+        />
       </div>
     </div>
   );

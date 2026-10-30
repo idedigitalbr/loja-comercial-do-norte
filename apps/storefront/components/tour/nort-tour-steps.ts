@@ -3,8 +3,7 @@ import type { NortTourStep } from './nort-tour-types';
 export const NORT_TOUR_STEPS: NortTourStep[] = [
   {
     id: 'step-welcome',
-    selector: '#tour-header-nort',
-    mobileSelector: '#tour-header-logo',
+    selector: '',
     title: 'Oi! Eu sou o Nort! 👋',
     message:
       'Seja muito bem-vindo à Loja Comercial do Norte! Vou te guiar rapidinho pelo nosso site para você conhecer onde encontrar produtos, novidades e montar suas cotações sem complicação.',
@@ -122,8 +121,7 @@ export const NORT_TOUR_STEPS: NortTourStep[] = [
   },
   {
     id: 'step-finish',
-    selector: '#tour-header-nort',
-    mobileSelector: '#tour-header-logo',
+    selector: '',
     title: 'Tudo pronto para navegar! 🎉',
     message:
       'Prontinho! Agora você já sabe tudo sobre a Comercial do Norte. Se quiser rever este tour a qualquer momento, é só clicar em mim no topo da tela e escolher "Ver tour guiado novamente". Boas compras e ótimas cotações!',

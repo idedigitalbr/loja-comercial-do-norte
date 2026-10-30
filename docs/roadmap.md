@@ -1,5 +1,11 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **30/10/2026 — Redesign do Tour Guiado: Abertura Imediata, Mascote Nort na Base em Tamanho Grande e Filtro Ultra Escuro (executorId: `antigravity-gemini`):**
+  - **Experiência de Abertura:** Removido o prompt flutuante do canto inferior. O tour agora inicia diretamente para novos visitantes logo no carregamento inicial da página, com opção permanente no cabeçalho ("Ver tour guiado novamente").
+  - **Mascote Nort na Base Inferior:** Nort centralizado e encostado no rodapé da viewport (`bottom: 0`), com escala aumentada e sombras expressivas, acompanhado pelo balão de fala apontando para baixo diretamente para o mascote.
+  - **Filtro de Contraste Escuro:** Backdrop SVG aprofundado para `rgba(2, 6, 23, 0.92)` com anel de holofote pulsante em dourado reluzente sobre a área destacada. Nos passos 1 e 9, a tela escurece totalmente para foco absoluto no Nort.
+  - **Qualidade & Validação:** 173 testes unitários no Storefront aprovados, typecheck verde e build Next.js 16 compilado com sucesso.
+
 - **30/10/2026 — Correção Crítica no Gatilho do Tour Guiado do Nort (executorId: `antigravity-gemini`):**
   - **Correção de Ativação do Tour:** Corrigido o bug onde clicar em "Fazer tour!" no prompt de boas-vindas repassava o evento sintético do React (`MouseEvent`) para `startTour(startIndex = 0)`. O cálculo `Math.min(event, 8)` gerava `NaN`, fazendo com que `currentStepIndex` ficasse inválido e o overlay não fosse renderizado.
   - **Defensiva em `startTour`:** Implementada validação de tipo estrita (`typeof startIndex === 'number' && !Number.isNaN(startIndex)`), garantindo inicialização correta no passo 0.

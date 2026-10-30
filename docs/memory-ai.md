@@ -7,6 +7,21 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **30/10/2026 — Redesign do Tour Guiado: Abertura Imediata, Mascote Nort na Base em Tamanho Grande e Filtro Ultra Escuro (executorId: `antigravity-gemini`):**
+  - **Abertura Imediata sem Prompt Inferior:**
+    - O prompt pequenininho flutuante no canto inferior direito foi removido.
+    - O tour guiado agora inicia **automaticamente** assim que o visitante acessa o site (se ainda não tiver completado anteriormente), proporcionando uma experiência de boas-vindas fluida e sem atrito.
+    - O botão no cabeçalho do Nort ("Ver tour guiado novamente") permanece ativo para reabrir o tour sempre que desejado.
+  - **Mascote Nort Grandão Centralizado na Base (Bottom: 0):**
+    - O Mascote 3D Nort foi reposicionado para a base inferior da tela (`bottom: 0`), centralizado, com dimensões aumentadas (`w-48 sm:w-60 md:w-72 h-40 sm:h-52 md:h-60`), mantendo-o imponente e expressivo.
+    - O balão de fala estilo quadrinhos fica posicionado logo acima do Nort com o rabicho apontando para baixo diretamente para a cabeça/boca do mascote.
+    - A área superior da viewport fica 100% desobstruída para a visualização dos elementos destacados (busca, categorias, ofertas, cotação, etc.).
+  - **Filtro de Foco Ultra Escuro (92% de Opacidade):**
+    - A máscara SVG de escurecimento foi aprofundada para `rgba(2, 6, 23, 0.92)`, criando alto contraste cinematográfico.
+    - O spotlight abre recorte com anel dourado pulsante de 4px e brilho intenso (`shadow-[0_0_35px_rgba(251,191,36,0.85)]`) sobre os elementos ativos.
+    - No passo 1 (Boas-vindas) e no passo 9 (Conclusão), o palco todo escurece para evidenciar a apresentação do Nort.
+  - **Validação:** 173 testes unitários aprovados, typecheck limpo e build de produção Next.js 16 validado com sucesso.
+
 - **30/10/2026 — Correção Crítica no Gatilho do Tour Guiado do Nort (executorId: `antigravity-gemini`):**
   - **Causa Raiz Identificada:** Ao clicar em "Fazer tour!" no prompt flutuante de boas-vindas (`NortTourPrompt`), o evento de clique do React (`MouseEvent`) era repassado como primeiro argumento para `startTour(startIndex = 0)`. O cálculo `Math.min(event, 8)` avaliava para `NaN`, resultando em `currentStepIndex = NaN`. Como `NORT_TOUR_STEPS[NaN]` é `undefined`, o `currentStep` ficava `null` e o `NortTourOverlay` não era renderizado, fazendo com que o prompt fechasse e nenhuma tela de tour abrisse.
   - **Blindagem e Resolução:**

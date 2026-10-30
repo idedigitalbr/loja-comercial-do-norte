@@ -43,27 +43,11 @@ describe('Nort Guided Tour Engine', () => {
     cleanup();
   });
 
-  it('inicia com tour fechado e permite iniciar via startTour()', () => {
-    render(
-      <NortTourProvider>
-        <TestConsumer />
-      </NortTourProvider>
-    );
-
-    expect(screen.getByTestId('status').textContent).toBe('fechado');
-
-    fireEvent.click(screen.getByText('Iniciar Tour'));
-
-    expect(screen.getByTestId('status').textContent).toBe('aberto');
-    expect(screen.getByRole('dialog')).toBeTruthy();
-  });
-
-  it('abre o tour com sucesso ao clicar em "Fazer tour!" no prompt de boas-vindas', () => {
+  it('inicia o tour automaticamente no carregamento da página para novos visitantes', () => {
     vi.useFakeTimers();
 
-    // Visitante novo: hasSeenTour = false, promptDismissed = false
+    // Novo visitante: ainda não completou o tour
     window.localStorage.removeItem('cn_nort_tour_completed_v1');
-    window.localStorage.removeItem('cn_nort_tour_prompt_dismissed_v1');
 
     render(
       <NortTourProvider>
@@ -71,25 +55,19 @@ describe('Nort Guided Tour Engine', () => {
       </NortTourProvider>
     );
 
-    // Passam-se os 3.5 segundos para o prompt aparecer
+    // Avança o micro-timer de inicialização (80ms)
     act(() => {
-      vi.advanceTimersByTime(3600);
+      vi.advanceTimersByTime(100);
     });
 
-    const fazerTourBtn = screen.getByRole('button', { name: /Fazer tour!/i });
-    expect(fazerTourBtn).toBeTruthy();
-
-    // Clica no botão "Fazer tour!"
-    fireEvent.click(fazerTourBtn);
-
-    // O tour DEVE abrir imediatamente sem falhar com NaN
+    // O tour DEVE abrir imediatamente em tela cheia com o Nort
     expect(screen.getByRole('dialog')).toBeTruthy();
     expect(screen.getByText('Oi! Eu sou o Nort! 👋')).toBeTruthy();
 
     vi.useRealTimers();
   });
 
-  it('renderiza o balão de fala com o mascote Nort, fala oficial e badge de boas-vindas no passo 1', () => {
+  it('renderiza o balão de fala com o mascote Nort grande e badge de boas-vindas no passo 1', () => {
     render(
       <NortTourCard
         step={NORT_TOUR_STEPS[0]}
@@ -156,6 +134,9 @@ describe('Nort Guided Tour Engine', () => {
   });
 
   it('integração com NortHeader: clicar em "Ver tour guiado novamente" inicia o tour', () => {
+    // Simula que já viu o tour antes para não auto-abrir
+    window.localStorage.setItem('cn_nort_tour_completed_v1', 'true');
+
     render(
       <NortTourProvider>
         <NortHeader />

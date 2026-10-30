@@ -10,11 +10,9 @@ import React, {
 } from 'react';
 import { NORT_TOUR_STEPS } from './nort-tour-steps';
 import { NortTourOverlay } from './nort-tour-overlay';
-import { NortTourPrompt } from './nort-tour-prompt';
 import type { NortTourContextType, NortTourStep } from './nort-tour-types';
 
 const STORAGE_KEY_SEEN = 'cn_nort_tour_completed_v1';
-const STORAGE_KEY_PROMPT = 'cn_nort_tour_prompt_dismissed_v1';
 
 const defaultNortTourContext: NortTourContextType = {
   isOpen: false,
@@ -22,7 +20,7 @@ const defaultNortTourContext: NortTourContextType = {
   currentStep: null,
   totalSteps: NORT_TOUR_STEPS.length,
   hasSeenTour: false,
-  promptDismissed: false,
+  promptDismissed: true,
   startTour: () => {},
   endTour: () => {},
   closeTour: () => {},
@@ -40,19 +38,6 @@ export function NortTourProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [hasSeenTour, setHasSeenTour] = useState(true); // default true para evitar hydration mismatch no SSR
-  const [promptDismissed, setPromptDismissed] = useState(true);
-
-  // Inicializa estado a partir do LocalStorage no cliente
-  useEffect(() => {
-    try {
-      const seen = localStorage.getItem(STORAGE_KEY_SEEN);
-      const prompt = localStorage.getItem(STORAGE_KEY_PROMPT);
-      setHasSeenTour(seen === 'true');
-      setPromptDismissed(prompt === 'true');
-    } catch {
-      // Ignora falhas em ambientes sem acesso ao storage
-    }
-  }, []);
 
   const startTour = useCallback((startIndex?: unknown) => {
     const validIndex =
@@ -62,7 +47,6 @@ export function NortTourProvider({ children }: { children: ReactNode }) {
     const clampedIndex = Math.max(0, Math.min(validIndex, NORT_TOUR_STEPS.length - 1));
     setCurrentStepIndex(clampedIndex);
     setIsOpen(true);
-    setPromptDismissed(true);
   }, []);
 
   const endTour = useCallback((markAsSeen = true) => {
@@ -104,20 +88,33 @@ export function NortTourProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const dismissPrompt = useCallback(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_PROMPT, 'true');
-      setPromptDismissed(true);
-    } catch {}
+    // Mantido por compatibilidade de tipo
   }, []);
 
   const resetTour = useCallback(() => {
     try {
       localStorage.removeItem(STORAGE_KEY_SEEN);
-      localStorage.removeItem(STORAGE_KEY_PROMPT);
       setHasSeenTour(false);
-      setPromptDismissed(false);
       startTour(0);
     } catch {}
+  }, [startTour]);
+
+  // Ao montar no cliente: se for a primeira visita do usuário, inicia o tour imediatamente!
+  useEffect(() => {
+    try {
+      const seen = localStorage.getItem(STORAGE_KEY_SEEN);
+      if (seen !== 'true') {
+        setHasSeenTour(false);
+        const timer = setTimeout(() => {
+          startTour(0);
+        }, 80);
+        return () => clearTimeout(timer);
+      } else {
+        setHasSeenTour(true);
+      }
+    } catch {
+      // Ignora falhas em ambientes sem acesso ao storage
+    }
   }, [startTour]);
 
   const currentStep: NortTourStep | null = isOpen ? (NORT_TOUR_STEPS[currentStepIndex] ?? null) : null;
@@ -130,7 +127,7 @@ export function NortTourProvider({ children }: { children: ReactNode }) {
         currentStep,
         totalSteps: NORT_TOUR_STEPS.length,
         hasSeenTour,
-        promptDismissed,
+        promptDismissed: true,
         startTour,
         endTour,
         closeTour,
@@ -155,11 +152,6 @@ export function NortTourProvider({ children }: { children: ReactNode }) {
           onClose={() => endTour(true)}
           onStepClick={goToStep}
         />
-      )}
-
-      {/* CONVITE SUAVE PARA VISITANTES DE PRIMEIRA VIAGEM */}
-      {!isOpen && !hasSeenTour && !promptDismissed && (
-        <NortTourPrompt onStart={() => startTour(0)} onDismiss={dismissPrompt} />
       )}
     </NortTourContext.Provider>
   );

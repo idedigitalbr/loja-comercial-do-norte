@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { NortTourCard } from './nort-tour-card';
 import type { NortTourStep } from './nort-tour-types';
@@ -35,9 +35,6 @@ export function NortTourOverlay({
 }: NortTourOverlayProps) {
   const [mounted, setMounted] = useState(false);
   const [highlightRect, setHighlightRect] = useState<HighlightRect | null>(null);
-  const [cardPosition, setCardPosition] = useState<{ top?: number; bottom?: number; left: number }>({ left: 16 });
-  const [isMobile, setIsMobile] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -46,6 +43,7 @@ export function NortTourOverlay({
   // Busca o elemento alvo considerando preferências mobile
   const getTargetElement = useCallback((): Element | null => {
     if (typeof window === 'undefined' || typeof document === 'undefined') return null;
+    if (!step.selector) return null; // Passos como Boas-vindas ou Conclusão não recortam o topo
 
     const isSmall = window.innerWidth < 768;
     if (isSmall && step.mobileSelector) {
@@ -79,32 +77,15 @@ export function NortTourOverlay({
   const updatePositions = useCallback(() => {
     if (typeof window === 'undefined') return;
 
-    const mobile = window.innerWidth < 640;
-    setIsMobile(mobile);
-
     const el = getTargetElement();
     if (!el) {
-      // Elemento não encontrado: posiciona no centro da viewport
-      const cx = window.innerWidth / 2;
-      const cy = window.innerHeight / 2;
       setHighlightRect(null);
-      setCardPosition({
-        top: Math.max(20, cy - 120),
-        left: Math.max(16, cx - Math.min(280, window.innerWidth / 2 - 16)),
-      });
       return;
     }
 
     const rect = el.getBoundingClientRect();
     if (rect.width === 0 && rect.height === 0) {
-      // Elemento oculto / display: none
-      const cx = window.innerWidth / 2;
-      const cy = window.innerHeight / 2;
       setHighlightRect(null);
-      setCardPosition({
-        top: Math.max(20, cy - 120),
-        left: Math.max(16, cx - Math.min(280, window.innerWidth / 2 - 16)),
-      });
       return;
     }
 
@@ -124,42 +105,9 @@ export function NortTourOverlay({
       rx: rad,
       ry: rad,
     });
-
-    // Posicionamento inteligente do cartão do Nort
-    if (mobile) {
-      // No mobile, ancora suavemente na base da tela para nunca vazar
-      setCardPosition({
-        bottom: 16,
-        left: 12,
-      });
-    } else {
-      const cardWidth = 560; // largura estimada máxima do card com o mascote
-      const cardHeight = 240;
-
-      // Centraliza horizontalmente sobre o elemento alvo e faz o clamping
-      let left = rect.left + rect.width / 2 - cardWidth / 2;
-      left = Math.max(20, Math.min(left, window.innerWidth - cardWidth - 20));
-
-      const spaceBelow = window.innerHeight - (rect.bottom + pad);
-      const spaceAbove = rect.top - pad;
-
-      let top: number;
-      if (spaceBelow >= cardHeight + 20 || spaceBelow >= spaceAbove) {
-        // Posiciona abaixo do elemento
-        top = Math.min(window.innerHeight - cardHeight - 20, rect.bottom + pad + 16);
-      } else {
-        // Posiciona acima do elemento
-        top = Math.max(20, rect.top - pad - cardHeight - 16);
-      }
-
-      setCardPosition({
-        top,
-        left,
-      });
-    }
   }, [step, getTargetElement]);
 
-  // Rola o elemento suavemente para o centro da tela na transição de passo
+  // Rola o elemento suavemente para o topo da tela na transição de passo
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -167,8 +115,8 @@ export function NortTourOverlay({
     if (el) {
       const rect = el.getBoundingClientRect();
       const inView =
-        rect.top >= 40 &&
-        rect.bottom <= window.innerHeight - 40 &&
+        rect.top >= 20 &&
+        rect.top <= window.innerHeight * 0.4 &&
         rect.width > 0 &&
         rect.height > 0;
 
@@ -176,7 +124,7 @@ export function NortTourOverlay({
         try {
           el.scrollIntoView({
             behavior: 'smooth',
-            block: window.innerWidth < 640 ? 'start' : 'center',
+            block: 'start',
             inline: 'nearest',
           });
         } catch {
@@ -248,7 +196,7 @@ export function NortTourOverlay({
       aria-label="Tour guiado pelo site Comercial do Norte com o mascote Nort"
       className="fixed inset-0 z-[99999] pointer-events-auto overflow-hidden select-none"
     >
-      {/* MÁSCARA SVG DO SPOTLIGHT COM CUTOUT SUAVE */}
+      {/* MÁSCARA SVG DO SPOTLIGHT COM RECORTE SUAVE E FILTRO MAIS ESCURO (CONTRASTE CINEMATOGRÁFICO) */}
       <svg
         className="fixed inset-0 w-screen h-screen pointer-events-none transition-all duration-300"
         xmlns="http://www.w3.org/2000/svg"
@@ -273,11 +221,11 @@ export function NortTourOverlay({
           </mask>
         </defs>
 
-        {/* Camada escura de foco com leve desfoque */}
+        {/* Camada bem mais escura de foco total conforme solicitado (rgba 2, 6, 23 com 92% de opacidade) */}
         <rect
           width="100%"
           height="100%"
-          fill="rgba(2, 14, 38, 0.74)"
+          fill="rgba(2, 6, 23, 0.92)"
           mask="url(#nort-tour-spotlight-mask)"
         />
       </svg>
@@ -294,32 +242,23 @@ export function NortTourOverlay({
             height: `${highlightRect.height}px`,
             borderRadius: `${highlightRect.rx}px`,
           }}
-          className="pointer-events-none ring-4 ring-amber-400/90 shadow-[0_0_25px_rgba(251,191,36,0.65)] animate-pulse transition-all duration-300 ease-out z-[99998]"
+          className="pointer-events-none ring-4 ring-amber-400 shadow-[0_0_35px_rgba(251,191,36,0.85),inset_0_0_15px_rgba(251,191,36,0.3)] animate-pulse transition-all duration-300 ease-out z-[99998]"
         />
       )}
 
-      {/* CARTÃO DO NORT COM BALÃO DE FALA */}
-      <div
-        ref={cardRef}
-        style={{
-          position: 'fixed',
-          left: `${cardPosition.left}px`,
-          top: cardPosition.top !== undefined ? `${cardPosition.top}px` : undefined,
-          bottom: cardPosition.bottom !== undefined ? `${cardPosition.bottom}px` : undefined,
-          maxWidth: isMobile ? 'calc(100vw - 24px)' : '620px',
-        }}
-        className="z-[99999] transition-all duration-200 ease-out pointer-events-auto"
-      >
-        <NortTourCard
-          step={step}
-          currentStepIndex={currentStepIndex}
-          totalSteps={totalSteps}
-          onNext={onNext}
-          onPrev={onPrev}
-          onClose={onClose}
-          onStepClick={onStepClick}
-          isMobile={isMobile}
-        />
+      {/* MASCOTE NORT BEM GRANDE CENTRALIZADO E ENCOSTADO NO CANTO INFERIOR (BOTTOM: 0) COM O BALÃO DE FALA */}
+      <div className="fixed inset-x-0 bottom-0 z-[99999] flex flex-col items-center justify-end pointer-events-none pb-0 px-3 sm:px-6">
+        <div className="pointer-events-auto w-full flex justify-center">
+          <NortTourCard
+            step={step}
+            currentStepIndex={currentStepIndex}
+            totalSteps={totalSteps}
+            onNext={onNext}
+            onPrev={onPrev}
+            onClose={onClose}
+            onStepClick={onStepClick}
+          />
+        </div>
       </div>
     </div>,
     document.body
