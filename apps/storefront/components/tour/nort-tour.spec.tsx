@@ -13,7 +13,6 @@ import { NortHeader } from '../nort-header';
 vi.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
-    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
     const { fill, priority, ...rest } = props;
     return <img {...rest} />;
   },
