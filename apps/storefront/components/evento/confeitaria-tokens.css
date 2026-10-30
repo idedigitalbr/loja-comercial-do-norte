@@ -1,0 +1,49 @@
+/* ==========================================================================
+   TOKENS E ESTILOS VISUAIS: CONFEITARIA & WORKSHOPS PREMIUM
+   Cores canônicas extraídas do kit oficial de confeitaria:
+   - Marrom Chocolate: #4B290D (cor principal e dominante)
+   - Creme Claro: #FAF6F0
+   - Creme Médio: #F3EAE0
+   - Rosé Claro: #E0BCBC
+   - Branco Suave: #FFFFFF / #FDFDFD
+   - Rosa Destaque: #B75675
+   ========================================================================== */
+
+:root {
+  --color-chocolate: #4B290D;
+  --color-chocolate-dark: #381E09;
+  --color-chocolate-hover: #5D3310;
+  --color-cream-light: #FAF6F0;
+  --color-cream-medium: #F3EAE0;
+  --color-cream-card: #FFFFFF;
+  --color-rose-light: #E0BCBC;
+  --color-rose-subtle: #FDF4F3;
+  --color-rose-accent: #B75675;
+  --color-rose-tag: #A64761;
+  --color-soft-white: #FFFFFF;
+  --color-text-brown: #4B290D;
+  --color-text-brown-muted: #73594C;
+  --color-text-brown-subtle: #967C6E;
+  --color-border-confeitaria: #EFE4DC;
+  --color-border-confeitaria-hover: #D7C4B7;
+}
+
+.confeitaria-theme {
+  background-color: var(--color-cream-light);
+  color: var(--color-text-brown);
+  font-family: var(--cn-font-sans, system-ui, -apple-system, sans-serif);
+}
+
+.confeitaria-serif {
+  font-family: var(--font-playfair, Georgia, Cambria, 'Times New Roman', serif);
+  letter-spacing: -0.02em;
+}
+
+/* Sombra suave e elegante para os cards de confeitaria */
+.confeitaria-card-shadow {
+  box-shadow: 0 4px 20px -2px rgba(75, 41, 13, 0.05), 0 2px 6px -1px rgba(75, 41, 13, 0.02);
+}
+
+.confeitaria-card-shadow-hover {
+  box-shadow: 0 16px 32px -4px rgba(75, 41, 13, 0.12), 0 4px 12px -2px rgba(75, 41, 13, 0.04);
+}

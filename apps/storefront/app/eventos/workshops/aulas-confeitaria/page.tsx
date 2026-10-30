@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { EventsView } from '@/components/evento/events-view';
+import { ConfeitariaWorkshopsList } from '@/components/evento/confeitaria-workshops-list';
 import { getEvents } from '@/lib/api';
 import { CONFEITARIA_WORKSHOPS } from '@/lib/events-data';
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default async function ConfeitariaWorkshopsPage() {
   const allEvents = await getEvents();
 
-  // Filtra estritamente apenas eventos de Workshop / Aulas (sem palestras ou reinaugurações)
+  // Filtra estritamente apenas eventos de Workshop / Aulas (sem palestras corporativas ou reinaugurações)
   const confeitariaEvents = allEvents.filter((ev) => {
     const isPalestraOrReinauguracao =
       ev.categoryKey === 'palestras' ||
@@ -40,19 +40,9 @@ export default async function ConfeitariaWorkshopsPage() {
   const displayList = confeitariaEvents.length > 0 ? confeitariaEvents : CONFEITARIA_WORKSHOPS;
 
   return (
-    <EventsView
+    <ConfeitariaWorkshopsList
       initialEvents={displayList}
-      theme="light"
       detailBasePath="/evento/workshop/aulas-confeitaria"
-      badge="AULAS CONFEITARIA"
-      title="Workshops & Aulas Práticas de Confeitaria"
-      subtitle="Aprenda técnicas práticas de confeitaria com grandes especialistas no Centro Técnico Comercial do Norte."
-      allCategoryLabel="Todos os workshops"
-      benefits={[
-        { title: '100% Prático', subtitle: 'Bancadas equipadas' },
-        { title: 'Certificado', subtitle: 'Oficial Comercial do Norte' },
-        { title: 'Insumos Inclusos', subtitle: 'Tudo pronto para você' },
-      ]}
     />
   );
 }

@@ -1,0 +1,162 @@
+[
+  {
+    "path": "01-listagem-eventos/01-hero-foto-confeiteira-direita.jpg",
+    "pixels": "1076x844",
+    "descricao": "Trecho fotográfico do hero original, sem títulos e botões"
+  },
+  {
+    "path": "01-listagem-eventos/02-hero-eventos-degrade-pronto.png",
+    "pixels": "1920x700",
+    "descricao": "1920x700, fundo branco suave/degradê já aplicado"
+  },
+  {
+    "path": "01-listagem-eventos/03-hero-eventos-sem-degrade.jpg",
+    "pixels": "1920x700",
+    "descricao": "Hero sem segunda camada de degradê"
+  },
+  {
+    "path": "01-listagem-eventos/04-card-brigadeiros-gourmet.jpg",
+    "pixels": "1000x600",
+    "descricao": "Foto do card: Brigadeiros gourmet em forminhas; sem etiquetas visuais"
+  },
+  {
+    "path": "01-listagem-eventos/05-card-bolo-decorado-rosa.jpg",
+    "pixels": "1000x600",
+    "descricao": "Foto do card: Bolo decorado com chantilly rosa; sem etiquetas visuais"
+  },
+  {
+    "path": "01-listagem-eventos/06-card-sobremesa-na-taca.jpg",
+    "pixels": "1000x600",
+    "descricao": "Foto do card: Sobremesa em taça com morangos; sem etiquetas visuais"
+  },
+  {
+    "path": "01-listagem-eventos/07-card-cupcakes-rosa.jpg",
+    "pixels": "1000x600",
+    "descricao": "Foto do card: Cupcakes com cobertura rosa; sem etiquetas visuais"
+  },
+  {
+    "path": "01-listagem-eventos/08-banner-chocolate-foto.jpg",
+    "pixels": "1920x600",
+    "descricao": "Bolo de chocolate sem degradê"
+  },
+  {
+    "path": "01-listagem-eventos/09-banner-chocolate-degrade-pronto.png",
+    "pixels": "1920x600",
+    "descricao": "1920x600, degradê rosé/branco incluído"
+  },
+  {
+    "path": "02-pagina-workshop/01-hero-doces-finos-foto.jpg",
+    "pixels": "1920x700",
+    "descricao": "Fotografia de chocolate para o hero da página interna"
+  },
+  {
+    "path": "02-pagina-workshop/02-hero-doces-finos-degrade-pronto.png",
+    "pixels": "1920x700",
+    "descricao": "1920x700, camada branca já aplicada para texto e card de inscrição"
+  },
+  {
+    "path": "02-pagina-workshop/03-foto-brigadeiros-sobre-o-evento.jpg",
+    "pixels": "1000x1200",
+    "descricao": "Brigadeiros da seção Sobre o Evento"
+  },
+  {
+    "path": "02-pagina-workshop/04-banner-cupcakes-foto.jpg",
+    "pixels": "1600x490",
+    "descricao": "Cupcakes e técnica de confeitaria sem frase"
+  },
+  {
+    "path": "02-pagina-workshop/05-banner-cupcakes-degrade-pronto.png",
+    "pixels": "1600x490",
+    "descricao": "1600x490, fundo de cupcakes com degradê rosé"
+  },
+  {
+    "path": "02-pagina-workshop/06-galeria-confeiteira.jpg",
+    "pixels": "1200x720",
+    "descricao": "Confeiteira preparando bolo; recorte do design original, exportado em tamanho maior"
+  },
+  {
+    "path": "02-pagina-workshop/07-galeria-brigadeiros-coloridos.jpg",
+    "pixels": "1200x720",
+    "descricao": "Brigadeiros gourmet variados; recorte do design original, exportado em tamanho maior"
+  },
+  {
+    "path": "02-pagina-workshop/08-galeria-aula-pratica.jpg",
+    "pixels": "1200x720",
+    "descricao": "Turma presencial de confeitaria; recorte do design original, exportado em tamanho maior"
+  },
+  {
+    "path": "02-pagina-workshop/09-galeria-bolo-de-chocolate.jpg",
+    "pixels": "1200x720",
+    "descricao": "Bolo decorado de chocolate com morangos; recorte do design original, exportado em tamanho maior"
+  },
+  {
+    "path": "03-fotos-extras/01-foto-atelier-workshop.jpg",
+    "pixels": "1200x720",
+    "descricao": "Confeiteira decorando bolo no atelier"
+  },
+  {
+    "path": "03-fotos-extras/02-brigadeiro-chocolate-macro.jpg",
+    "pixels": "1200x720",
+    "descricao": "Brigadeiro com granulado de chocolate macro"
+  },
+  {
+    "path": "03-fotos-extras/03-confeiteira-confeitando-cupcakes.jpg",
+    "pixels": "1200x720",
+    "descricao": "Chef preparando cobertura de cupcakes"
+  },
+  {
+    "path": "03-fotos-extras/04-brigadeiros-coloridos.jpg",
+    "pixels": "1200x720",
+    "descricao": "Brigadeiros coloridos, rosé e chocolate"
+  },
+  {
+    "path": "03-fotos-extras/05-ambiente-de-evento.jpg",
+    "pixels": "1280x720",
+    "descricao": "Interior do salão com auditório"
+  },
+  {
+    "path": "03-fotos-extras/06-cupcake-cor-de-rosa.jpg",
+    "pixels": "1000x1000",
+    "descricao": "Cupcake rosa em fundo pastel"
+  },
+  {
+    "path": "03-fotos-extras/07-brigadeiro-tradicional.jpg",
+    "pixels": "1000x1000",
+    "descricao": "Brigadeiro tradicional com granulado"
+  },
+  {
+    "path": "03-fotos-extras/08-embalagem-presente-rose.jpg",
+    "pixels": "1000x1000",
+    "descricao": "Presente em embalagem rosa"
+  },
+  {
+    "path": "03-fotos-extras/09-ingredientes-confeitaria.jpg",
+    "pixels": "1440x810",
+    "descricao": "Ingredientes e chocolate da cozinha"
+  },
+  {
+    "path": "03-fotos-extras/10-fundo-rose-decorativo.jpg",
+    "pixels": "1440x810",
+    "descricao": "Textura rosa suave decorativa"
+  },
+  {
+    "path": "03-fotos-extras/11-fundo-chocolate-decorativo.jpg",
+    "pixels": "1440x810",
+    "descricao": "Fundo marrom chocolate decorativo"
+  },
+  {
+    "path": "03-fotos-extras/12-fundo-bokeh-confeitaria.jpg",
+    "pixels": "1440x810",
+    "descricao": "Fundo desfocado em rosa e marrom"
+  },
+  {
+    "path": "05-referencias/banner-listagem-com-UI-do-mockup.png",
+    "pixels": "1086x422",
+    "descricao": "Trecho original da composição gerada; contém textos, NÃO aplicar como fotografia"
+  },
+  {
+    "path": "05-referencias/banner-interno-com-UI-do-mockup.png",
+    "pixels": "1024x418",
+    "descricao": "Trecho original com card e tipografia; apenas referência"
+  }
+]

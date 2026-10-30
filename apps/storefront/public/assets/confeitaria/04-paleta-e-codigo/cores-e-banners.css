@@ -1,0 +1,31 @@
+/* PALETA – exatamente amostrada da imagem fornecida */
+:root {
+  --chocolate: #4B290D; /* PRINCIPAL: títulos, botões primários e destaques */
+  --rose-claro: #E0BCBC; /* complementar: cards suaves, bordas, fundos */
+  --rosa: #B75675; /* complementar: etiquetas e detalhes */
+  --branco-suave: #F8F8F8; /* fundo neutro */
+}
+/* Os arquivos -degrade-pronto.png já têm o fade. Não aplique outra camada! */
+.confeitaria-hero {
+  background-color: var(--branco-suave);
+  background-image: url('../01-listagem-eventos/02-hero-eventos-degrade-pronto.png');
+  background-size: cover;
+  background-position: center;
+  min-height: 540px;
+}
+.confeitaria-cta {
+  background-image: url('../01-listagem-eventos/09-banner-chocolate-degrade-pronto.png');
+  background-size: cover;
+  background-position: center;
+}
+.workshop-hero {
+  background-image: url('../02-pagina-workshop/02-hero-doces-finos-degrade-pronto.png');
+  background-size: cover;
+  background-position: center;
+}
+.confeitaria-btn-primary { background: var(--chocolate); color: white; }
+.confeitaria-tag { background: var(--rosa); color: white; }
+.confeitaria-btn-secondary { background: #f9e9e7; color: var(--chocolate); }
+@media(max-width: 767px){
+  .confeitaria-hero,.workshop-hero { min-height:420px; background-position: 68% center; }
+}

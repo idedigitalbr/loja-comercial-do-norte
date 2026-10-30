@@ -1,24 +1,23 @@
 'use client';
 
 import React from 'react';
-import { EventSinglePost } from './event-single-post';
+import { ConfeitariaWorkshopSingle } from './confeitaria-workshop-single';
 import type { ApiEvent } from '@/lib/api';
+import type { EventItem } from '@/lib/events-data';
 
 export type WorkshopSinglePostProps = {
-  event: ApiEvent;
-  relatedWorkshops?: ApiEvent[];
+  event: ApiEvent | EventItem;
+  relatedWorkshops?: (ApiEvent | EventItem)[];
 };
 
 export function WorkshopSinglePost({ event }: WorkshopSinglePostProps) {
   return (
-    <EventSinglePost
-      event={event}
-      theme="light"
+    <ConfeitariaWorkshopSingle
+      event={event as EventItem}
       breadcrumbParent={{
         label: 'Workshops · Aulas Confeitaria',
         href: '/eventos/workshops/aulas-confeitaria',
       }}
-      ctaLabel="Garantir Vaga no WhatsApp"
     />
   );
 }

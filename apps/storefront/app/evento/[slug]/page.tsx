@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getEventBySlug, type ApiEvent } from '@/lib/api';
 import { CANONICAL_EVENTS, findAnyEventBySlug } from '@/lib/events-data';
 import { EventSinglePost } from '@/components/evento/event-single-post';
+import { WorkshopSinglePost } from '@/components/evento/workshop-single-post';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,6 +59,16 @@ export default async function SingleEventPage({ params }: { params: Params }) {
 
   if (!event) {
     notFound();
+  }
+
+  const isWorkshop =
+    event.categoryKey === 'workshops' ||
+    event.categoryKey === 'aulas-show' ||
+    (event.badge && event.badge.toLowerCase().includes('confeitaria')) ||
+    event.slug.includes('workshop');
+
+  if (isWorkshop) {
+    return <WorkshopSinglePost event={event} />;
   }
 
   return <EventSinglePost event={event} />;

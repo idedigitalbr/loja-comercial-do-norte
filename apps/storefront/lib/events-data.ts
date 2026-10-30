@@ -5,6 +5,15 @@ export type EventCategoryKey = 'workshops' | 'aulas-show' | 'palestras' | 'reina
 export type EventItem = ApiEvent & {
   buttonVariant?: 'red' | 'blue';
   categoryKey?: EventCategoryKey | string | null;
+  eventWeekday?: string;
+  durationText?: string;
+  typeBadge?: string;
+  isFree?: boolean;
+  heroUrl?: string;
+  aboutPhotoUrl?: string;
+  whatYouWillLearn?: string[];
+  schedule?: Array<{ time: string; title: string; description: string }>;
+  gallery?: string[];
 };
 
 export const CANONICAL_EVENTS: EventItem[] = [
@@ -187,63 +196,161 @@ export const CANONICAL_EVENTS: EventItem[] = [
 
 export const CONFEITARIA_WORKSHOPS: EventItem[] = [
   {
-    id: 'workshop-confeitaria-profissional-chantilly-bicos',
-    title: 'Workshop de Confeitaria Profissional: Decoração com Chantilly e Bicos',
-    slug: 'workshop-confeitaria-profissional-chantilly-bicos',
-    subtitle: 'Aprenda técnicas exclusivas com um especialista em confeitaria',
-    description:
-      'Treinamento prático voltado para boleiras, confeiteiras e pequenos produtores. Conteúdo aborda: ponto correto do chantilly, técnicas de bicos russos e perlê, trabalho com chantininho, nivelamento de bolos e decorações modernas.',
-    posterUrl: '/assets/HOME Vitrine/S12-EVENTOS/s12-event-03-workshop-confeitaria.jpg',
-    eventDateText: 'Em breve',
-    eventTime: '14h às 18h',
-    location: 'Centro Técnico Comercial do Norte',
-    locationAddress: 'Av. Bernardo Sayão, Belém/PA',
-    instructor: 'Mestre Doceiro',
-    badge: 'WORKSHOP CONFEITARIA',
-    categoryKey: 'workshops',
-    ctaLabel: 'Garantir Vaga',
-    ctaUrl:
-      'https://wa.me/5591983440880?text=Ol%C3%A1!+Gostaria+de+me+inscrever+no+Workshop+de+Confeitaria+com+Chantilly+e+Bicos',
-    buttonVariant: 'red',
-    status: 'ACTIVE',
-    sortOrder: 1,
-  },
-  {
     id: 'workshop-doces-finos-brigadeiros-gourmet',
     title: 'Doces Finos e Brigadeiros Gourmet para Casamentos e Festas',
     slug: 'workshop-doces-finos-brigadeiros-gourmet',
-    subtitle: 'Técnicas de ponto perfeito, texturas aveludadas e embalagens de luxo',
+    subtitle: 'Técnicas de ponto perfeito, texturas aveludadas e embalagens de luxo. Aprenda com especialistas do Centro Técnico Comercial do Norte e eleve suas criações para eventos especiais.',
     description:
-      'Workshop mão na massa com receitas consagradas de brigadeiros gourmet, trufas finas, banho de chocolate nobre e apresentação em forminhas especiais e caixas rígidas para festas sofisticadas.',
-    posterUrl: '/assets/HOME Vitrine/S12-EVENTOS/s12-event-03-workshop-confeitaria.jpg',
-    eventDateText: '18 de Novembro',
+      'Workshop mão na massa com receitas consagradas de brigadeiros gourmet, trufas finas, banho de chocolate nobre e apresentação em forminhas especiais e caixas rígidas para festas sofisticadas. Uma experiência completa para aprimorar suas técnicas e surpreender seus clientes.',
+    posterUrl: '/assets/confeitaria/01-listagem-eventos/04-card-brigadeiros-gourmet.jpg',
+    heroUrl: '/assets/confeitaria/02-pagina-workshop/02-hero-doces-finos-degrade-pronto.png',
+    aboutPhotoUrl: '/assets/confeitaria/02-pagina-workshop/03-foto-brigadeiros-sobre-o-evento.jpg',
+    eventDateText: '18 de Novembro de 2024',
+    eventWeekday: 'Segunda-feira',
     eventTime: '13h30 às 17h30',
+    durationText: '4 horas de workshop',
     location: 'Centro Técnico Comercial do Norte',
     locationAddress: 'Av. Bernardo Sayão — Belém/PA',
-    instructor: 'Chef Confeiteira Convidada',
-    badge: 'AULAS CONFEITARIA',
+    instructor: 'Chef Especialista em Confeitaria Fina',
+    badge: 'WORKSHOP',
+    typeBadge: 'EVENTO PRESENCIAL',
+    isFree: true,
     categoryKey: 'workshops',
-    ctaLabel: 'Garantir Vaga',
+    ctaLabel: 'Inscreva-se Já!',
     ctaUrl:
-      'https://wa.me/5591983440880?text=Ol%C3%A1!+Quero+me+inscrever+no+Workshop+Doces+Finos+e+Brigadeiros+Gourmet',
+      'https://wa.me/5591983440880?text=Ol%C3%A1!+Gostaria+de+garantir+minha+vaga+no+Workshop+Doces+Finos+e+Brigadeiros+Gourmet',
+    buttonVariant: 'red',
+    status: 'ACTIVE',
+    sortOrder: 1,
+    whatYouWillLearn: [
+      'Técnicas profissionais de preparo e finalização',
+      'Pontos ideais de cremosidade e textura',
+      'Apresentação e decoração para eventos',
+      'Dicas de precificação e conservação',
+      'Uso de insumos e embalagens de alta qualidade',
+    ],
+    schedule: [
+      {
+        time: '13h30',
+        title: 'Recepção e café da manhã',
+        description: 'Recepção dos convidados e parceiros.',
+      },
+      {
+        time: '14h00',
+        title: 'Abertura oficial',
+        description: 'Apresentação do novo espaço e novidades.',
+      },
+      {
+        time: '14h10',
+        title: 'Demonstração de produtos',
+        description: 'Principais lançamentos e soluções para o seu negócio.',
+      },
+      {
+        time: '15h30',
+        title: 'Parte prática',
+        description: 'Mão na massa com receitas e técnicas exclusivas.',
+      },
+      {
+        time: '17h00',
+        title: 'Dúvidas e networking',
+        description: 'Tire suas dúvidas com os especialistas.',
+      },
+      {
+        time: '17h30',
+        title: 'Encerramento',
+        description: 'Agradecimento e sorteios de brindes.',
+      },
+    ],
+    gallery: [
+      '/assets/confeitaria/02-pagina-workshop/06-galeria-confeiteira.jpg',
+      '/assets/confeitaria/02-pagina-workshop/07-galeria-brigadeiros-coloridos.jpg',
+      '/assets/confeitaria/02-pagina-workshop/08-galeria-aula-pratica.jpg',
+      '/assets/confeitaria/02-pagina-workshop/09-galeria-bolo-de-chocolate.jpg',
+    ],
+  },
+  {
+    id: 'workshop-confeitaria-profissional-chantilly-bicos',
+    title: 'Bolos Decorados com Chantilly e Bicos',
+    slug: 'workshop-confeitaria-profissional-chantilly-bicos',
+    subtitle: 'Aprenda técnicas exclusivas com uma especialista e descubra como criar bolos incríveis e cheios de personalidade.',
+    description:
+      'Treinamento prático voltado para boleiras, confeiteiras e iniciantes. Conteúdo aborda: ponto correto e estabilização de chantilly e chantininho no calor, utilização de bicos clássicos e russos, espatulados perfeitos, estruturação de andares e técnicas de transporte seguro.',
+    posterUrl: '/assets/confeitaria/01-listagem-eventos/05-card-bolo-decorado-rosa.jpg',
+    heroUrl: '/assets/confeitaria/02-pagina-workshop/02-hero-doces-finos-degrade-pronto.png',
+    aboutPhotoUrl: '/assets/confeitaria/02-pagina-workshop/03-foto-brigadeiros-sobre-o-evento.jpg',
+    eventDateText: '03 de Outubro',
+    eventWeekday: 'Sábado',
+    eventTime: '17h',
+    durationText: '2 horas de aula-show',
+    location: 'Hangar Centro de Convenções',
+    locationAddress: 'Feira Pará Trigo — Belém/PA',
+    instructor: 'Thais Reis (Chef Instrutora Convidada)',
+    badge: 'AULA-SHOW',
+    typeBadge: 'EVENTO PRESENCIAL',
+    isFree: true,
+    categoryKey: 'aulas-show',
+    ctaLabel: 'Confirmar Presença',
+    ctaUrl:
+      'https://wa.me/5591983440880?text=Ol%C3%A1!+Gostaria+de+confirmar+presen%C3%A7a+na+aula-show+Bolos+Decorados+com+Chantilly+e+Bicos',
     buttonVariant: 'red',
     status: 'ACTIVE',
     sortOrder: 2,
+    whatYouWillLearn: [
+      'Ponto correto e hidratação de chantininho',
+      'Técnicas de bico 1M, pitanga, babados e flores',
+      'Alinhamento e nivelamento com espátulas de inox',
+      'Colorimetria e degradês sem manchar',
+      'Dicas para bolos que suportam o clima paraense',
+    ],
+    schedule: [
+      {
+        time: '17h00',
+        title: 'Boas-vindas e introdução de insumos',
+        description: 'Apresentação dos tipos de chantilly e corantes adequados.',
+      },
+      {
+        time: '17h25',
+        title: 'Demonstração de ponto e batimento',
+        description: 'Como atingir a textura sedosa sem porosidade.',
+      },
+      {
+        time: '17h50',
+        title: 'Técnicas de bico e aplicação ao vivo',
+        description: 'Decoração prática passo a passo no bolo real.',
+      },
+      {
+        time: '18h30',
+        title: 'Espaço para dúvidas e degustação',
+        description: 'Interação direta com a instrutora e corte do bolo.',
+      },
+    ],
+    gallery: [
+      '/assets/confeitaria/02-pagina-workshop/06-galeria-confeiteira.jpg',
+      '/assets/confeitaria/02-pagina-workshop/07-galeria-brigadeiros-coloridos.jpg',
+      '/assets/confeitaria/02-pagina-workshop/08-galeria-aula-pratica.jpg',
+      '/assets/confeitaria/02-pagina-workshop/09-galeria-bolo-de-chocolate.jpg',
+    ],
   },
   {
     id: 'workshop-sobremesas-na-taca-copo-da-felicidade',
-    title: 'Sobremesas na Taça & Copos da Felicidade: Sucesso de Vendas',
+    title: 'Sobremesas na Taça & Copos da Felicidade',
     slug: 'workshop-sobremesas-na-taca-copo-da-felicidade',
-    subtitle: 'Montagem estratégica, cremes estruturados e apresentação irresistível',
+    subtitle: 'Montagem estratégica, cremes estruturados e apresentação irresistível para alavancar suas vendas.',
     description:
       'Domine a preparação de sobremesas geladas de alto giro e excelente margem de lucro. Aprenda cremes básicos estruturados (ninho, 4 leites, ganaches nobres), montagens em camadas nos copos bolha e taças acrílicas, com dicas de conservação e precificação comercial.',
-    posterUrl: '/assets/HOME Vitrine/S12-EVENTOS/s12-event-03-workshop-confeitaria.jpg',
+    posterUrl: '/assets/confeitaria/01-listagem-eventos/06-card-sobremesa-na-taca.jpg',
+    heroUrl: '/assets/confeitaria/02-pagina-workshop/02-hero-doces-finos-degrade-pronto.png',
+    aboutPhotoUrl: '/assets/confeitaria/02-pagina-workshop/03-foto-brigadeiros-sobre-o-evento.jpg',
     eventDateText: '25 de Novembro',
+    eventWeekday: 'Segunda-feira',
     eventTime: '14h às 18h',
-    location: 'Auditório Gastronômico Comercial do Norte',
-    locationAddress: 'Travessa Mauriti — Belém/PA',
-    instructor: 'Especialista em Sobremesas',
+    durationText: '4 horas de workshop',
+    location: 'Centro Técnico Comercial do Norte',
+    locationAddress: 'Av. Bernardo Sayão — Belém/PA',
+    instructor: 'Especialista em Sobremesas Comerciais',
     badge: 'WORKSHOP',
+    typeBadge: 'EVENTO PRESENCIAL',
+    isFree: true,
     categoryKey: 'workshops',
     ctaLabel: 'Garantir Vaga',
     ctaUrl:
@@ -251,28 +358,104 @@ export const CONFEITARIA_WORKSHOPS: EventItem[] = [
     buttonVariant: 'red',
     status: 'ACTIVE',
     sortOrder: 3,
+    whatYouWillLearn: [
+      'Cremes base ultra aveludados e resistentes',
+      'Camadas harmônicas e contraste de texturas',
+      'Seleção de embalagens plásticas e taças para entrega',
+      'Congelamento e validade comercial prolongada',
+      'Ficha técnica de custo e margem de 100%+',
+    ],
+    schedule: [
+      {
+        time: '14h00',
+        title: 'Recepção e introdução ao mercado de delivery doce',
+        description: 'Visão geral das opções de maior saída no balcão.',
+      },
+      {
+        time: '14h30',
+        title: 'Preparo dos cremes estruturados',
+        description: 'Técnica de cozimento e resfriamento rápido.',
+      },
+      {
+        time: '15h45',
+        title: 'Montagem prática dos copos e taças',
+        description: 'Prática de montagem em camadas e finalizações com confeitos.',
+      },
+      {
+        time: '17h15',
+        title: 'Embalagem, precificação e fechamento',
+        description: 'Como calcular seu preço de venda e divulgar fotos que vendem.',
+      },
+    ],
+    gallery: [
+      '/assets/confeitaria/02-pagina-workshop/06-galeria-confeiteira.jpg',
+      '/assets/confeitaria/02-pagina-workshop/07-galeria-brigadeiros-coloridos.jpg',
+      '/assets/confeitaria/02-pagina-workshop/08-galeria-aula-pratica.jpg',
+      '/assets/confeitaria/02-pagina-workshop/09-galeria-bolo-de-chocolate.jpg',
+    ],
   },
   {
-    id: 'sabado-croquete-de-charque-para-trigo',
-    title: 'Croquete de Charque com Maionese de Chicória — Aula-Show Gastronômica',
-    slug: 'sabado-croquete-de-charque-para-trigo',
-    subtitle: 'Aula prática regional no Stand Comercial do Norte',
+    id: 'workshop-cupcakes-confeitaria-criativa',
+    title: 'Cupcakes e Confeitaria Criativa para Presentear',
+    slug: 'workshop-cupcakes-confeitaria-criativa',
+    subtitle: 'Aprenda do zero, com técnicas práticas, decorações encantadoras e ideias para presentes e datas especiais.',
     description:
-      'Aprenda o passo a passo completo da receita consagrada de croquete de charque com toque regional de maionese de chicória. Aula demonstrativa ministrada pela instrutora Thais Reis com degustação.',
-    posterUrl: '/assets/HOME Vitrine/S12-EVENTOS/s12-event-04-croquete.jpg',
-    eventDateText: '03/10 (Sábado)',
-    eventTime: '17h',
-    location: 'Hangar Centro de Convenções',
-    locationAddress: 'Stand Comercial do Norte — Belém/PA',
-    instructor: 'Thais Reis',
-    badge: 'AULA-SHOW',
-    categoryKey: 'aulas-show',
-    ctaLabel: 'Confirmar Presença',
+      'Aprenda do zero massas leves e úmidas, recheios trufados que encantam clientes e coberturas firmes para decorações com bicos florais. Descubra opções de embalagens individuais e caixas para presentes com alto valor percebido.',
+    posterUrl: '/assets/confeitaria/01-listagem-eventos/07-card-cupcakes-rosa.jpg',
+    heroUrl: '/assets/confeitaria/02-pagina-workshop/02-hero-doces-finos-degrade-pronto.png',
+    aboutPhotoUrl: '/assets/confeitaria/02-pagina-workshop/03-foto-brigadeiros-sobre-o-evento.jpg',
+    eventDateText: '10 de Dezembro',
+    eventWeekday: 'Terça-feira',
+    eventTime: '13h às 17h',
+    durationText: '4 horas de aula prática',
+    location: 'Auditório Gastronômico Comercial do Norte',
+    locationAddress: 'Belém/PA',
+    instructor: 'Chef Pâtissier Convidada',
+    badge: 'AULA PRÁTICA',
+    typeBadge: 'EVENTO PRESENCIAL',
+    isFree: true,
+    categoryKey: 'workshops',
+    ctaLabel: 'Garantir Vaga',
     ctaUrl:
-      'https://wa.me/5591983440880?text=Ol%C3%A1!+Gostaria+de+confirmar+presen%C3%A7a+na+aula-show+Croquete+de+Charque',
+      'https://wa.me/5591983440880?text=Ol%C3%A1!+Quero+me+inscrever+no+Workshop+Cupcakes+e+Confeitaria+Criativa',
     buttonVariant: 'red',
     status: 'ACTIVE',
     sortOrder: 4,
+    whatYouWillLearn: [
+      'Massas de baunilha, chocolate e red velvet',
+      'Recheios que não vazam e técnicas de injeção',
+      'Decorações com bicos de folhas, rosas e pitangas',
+      'Montagem de caixas para presentes de datas comemorativas',
+      'Estratégias de combos para datas como Natal e Dia das Mães',
+    ],
+    schedule: [
+      {
+        time: '13h00',
+        title: 'Boas-vindas e apostila técnica',
+        description: 'Entrega do material e apresentação das bancadas.',
+      },
+      {
+        time: '13h30',
+        title: 'Mão na massa: assamento e pontos de cocção',
+        description: 'Segredos para cupcakes nivelados e úmidos.',
+      },
+      {
+        time: '14h45',
+        title: 'Recheios e trabalho de bico',
+        description: 'Prática de decorações florais e temáticas.',
+      },
+      {
+        time: '16h15',
+        title: 'Embalagens e sessão de fotos para portfólio',
+        description: 'Embalando para presente e entrega de certificados.',
+      },
+    ],
+    gallery: [
+      '/assets/confeitaria/02-pagina-workshop/06-galeria-confeiteira.jpg',
+      '/assets/confeitaria/02-pagina-workshop/07-galeria-brigadeiros-coloridos.jpg',
+      '/assets/confeitaria/02-pagina-workshop/08-galeria-aula-pratica.jpg',
+      '/assets/confeitaria/02-pagina-workshop/09-galeria-bolo-de-chocolate.jpg',
+    ],
   },
 ];
 

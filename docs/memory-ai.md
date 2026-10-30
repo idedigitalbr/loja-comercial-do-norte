@@ -7,6 +7,31 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **29/10/2026 — Redesign Premium de Workshops e Confeitaria (Kit Visual Oficial) (executorId: `antigravity-gemini`):**
+  - **Identidade e Paleta Canônica de Confeitaria Fina:**
+    - Cor Principal e Dominante: Marrom Chocolate (`#4B290D`) aplicado em títulos, botões primários, destaques, bordas ativas e badges.
+    - Cores Complementares: Creme Claro (`#FAF6F0`), Creme Médio (`#F3EAE0`), Rosé Claro (`#E0BCBC`), Branco Suave (`#FFFFFF`) e Rosa Framboesa (`#B75675`) para tags e acentos sutis, sem dominar a interface.
+    - Tokens CSS declarados em `confeitaria-tokens.css` (`--color-chocolate`, `--color-cream-light`, `--color-cream-medium`, `--color-rose-light`, `--color-soft-white`, etc.).
+  - **Assets Oficiais Integrados em `/public/assets/confeitaria`:**
+    - Cópia e organização estruturada das pastas `01-listagem-eventos`, `02-pagina-workshop`, `03-fotos-extras`, `04-paleta-e-codigo`, `05-referencias` e `06-icones-vetoriais`.
+  - **Página 1: Listagem de Todos os Workshops (`/eventos/workshops/aulas-confeitaria`):**
+    - Componente dedicado `ConfeitariaWorkshopsList` reproduzindo pixel-perfect o layout de referência `05-referencias/layout-listagem-completo.png`.
+    - Hero com composição de confeitaria (`01-hero-foto-confeiteira-direita.jpg`), breadcrumbs, eyebrow rosa, títulos em serif refinada e 3 pilares em círculos rosé com ícones vetoriais (100% Prático, Certificado Oficial, Insumos Inclusos).
+    - Barra de filtros em pílulas com marrom chocolate para seleção ativa, contadores dinâmicos e campo de busca refinado.
+    - Grid de 4 colunas com os 4 workshops principais (Doces Finos e Brigadeiros Gourmet, Bolos Decorados com Chantilly e Bicos, Sobremesas na Taça, Cupcakes para Presentear) com fotos em alta definição do kit, badges flutuantes e CTAs elegantes direcionando para a página single.
+    - Banner intermediário com degradê pronto (`09-banner-chocolate-degrade-pronto.png`), chamada institucional "Confeitaria que transforma" e selo cursivo decorativo.
+    - 4 blocos de diferenciais (Novos ambientes, Promoções exclusivas, Café da manhã, Especialistas) e divisória institucional "Conhecimento · Técnica · Sabor · Grandes Resultados".
+  - **Página 2: Single do Workshop (`/evento/workshop/aulas-confeitaria/[slug]`):**
+    - Componente dedicado `ConfeitariaWorkshopSingle` reproduzindo pixel-perfect o layout de referência `05-referencias/layout-pagina-interna-completo.png`.
+    - Hero cinematográfico com foto do bolo de chocolate gourmet (`02-hero-doces-finos-degrade-pronto.png`), badges de modalidade presencial, metadados de data/horário/local e Card Flutuante de Inscrição com seletor interativo de quantidade de ingressos (1 a 5) e conversão via WhatsApp com mensagem pré-preenchida.
+    - Seção "Sobre o Evento" com caixa destacada "O que você vai aprender" com checks, foto alta de brigadeiros gourmet (`03-foto-brigadeiros-sobre-o-evento.jpg`) e card de localização com botão do Google Maps.
+    - Seção "Programação" com timeline vertical estilizada e horários em nós circulares + "O que te espera" (grid 2x2) + Banner com degradê pronto de cupcakes (`05-banner-cupcakes-degrade-pronto.png`).
+    - Galeria "Veja como foi na última edição" com as 4 fotos oficiais (`06-galeria-confeiteira.jpg`, `07-galeria-brigadeiros-coloridos.jpg`, `08-galeria-aula-pratica.jpg`, `09-galeria-bolo-de-chocolate.jpg`) e Lightbox/Modal para ampliação.
+    - Card final acolhedor "Ainda tem dúvidas?" com CTA para atendimento no WhatsApp.
+  - **Integridade Global:**
+    - Menu/Header e Footer do site foram 100% preservados sem nenhuma alteração.
+    - 166 testes unitários aprovados e build Next.js 16 compilado com sucesso.
+
 - **29/10/2026 — Navegação dos Botões de Listagem de Eventos e Workshops (executorId: `antigravity-gemini`):**
   - **Ação dos Cards na Listagem:** O botão de ação dos cartões na listagem de eventos (`/evento`, `/eventos`) e na listagem de workshops (`/eventos/workshops/aulas-confeitaria`) direciona diretamente para o respectivo Single Post (`detailHref` = `/evento/[slug]` ou `/evento/workshop/aulas-confeitaria/[slug]`) em vez de abrir links externos de WhatsApp/Google Maps direto do card. O contato e confirmação de presença no WhatsApp permanecem como ação principal dentro da página de Single Post de cada evento.
 
@@ -17,7 +42,7 @@
     - `/eventos/workshops/aulas-confeitaria` lista exclusivamente workshops práticos e aulas-show de confeitaria em tema claro normal, eliminando eventos institucionais (palestras e reinaugurações) de sua listagem e filtros.
   - **Resolução de Roteamento e Fallbacks:** adicionado suporte a `workshop-doces-finos-brigadeiros-gourmet` e workshops da base canônica sem 404 através de busca centralizada em `findAnyEventBySlug`.
 
-- **29/10/2026 — Nort no cabeçalho:** ciclo animado orgânico de 60 segundos com 64 quadros em atlas (`nort-loop-64-v1.png`) cobrindo: idle com mãos no bolso, retirada de mão, joinha (like), aceno amigável, pose pensativa com abertura automática de balão por 9 segundos e retorno suave ao idle. Suporte a hover/clique para antecipar abertura mantendo a pose pensativa enquanto o visitante interage. Texto aprovado: “Oi! Eu sou o Nort! 👋 Como posso te ajudar?”. Por orientação do responsável, os links “Ver tour guiado novamente” e “Falar com o Nort” permanecem em `#` nesta etapa. Fechamento por Escape, botão X, blur ou clique externo. Suporte a `prefers-reduced-motion`. O balão foi configurado para abrir para baixo (`top: 100%` com seta indicadora superior alinhada ao mascote), mantendo desobstruídos o logo, a seleção de CEP/localização ("Enviar para...") e a barra de busca à direita.
+- **29/10/2026 — Nort no cabeçalho:** ciclo animado orgânico de 60 segundos com 64 quadros em atlas (`nort-loop-64-v1.png`) cobrindo: idle com mãos no bolso, retirada de mão, joinha (like), aceno amigável, pose pensativa e retorno suave ao idle. Por orientação do responsável, o balão não abre de imediato nem sozinho; a abertura ocorre exclusivamente se o visitante insistir com o hover em cima do Nort por 4 segundos contínuos (ou clique direto), abrindo para baixo (`top: 100%` com seta indicadora superior alinhada ao mascote) para manter desobstruídos o logo, o seletor de CEP e a barra de busca. Se o cursor sair antes de 4s, a abertura é cancelada. Texto aprovado: “Oi! Eu sou o Nort! 👋 Como posso te ajudar?”. Por orientação do responsável, os links “Ver tour guiado novamente” e “Falar com o Nort” permanecem em `#` nesta etapa. Fechamento por Escape, botão X, blur ou clique externo. Suporte a `prefers-reduced-motion`. Suíte dedicada `nort-header.spec.tsx` validando os 4 segundos de insistência.
 
 - **28/10/2026 — Sincronização Local e Produção:** alinhamento completo entre ambiente local e nuvem. Schema Neon atualizado com todas as 7 migrations versionadas (posts, events, segments, tags, home composition), persistência de dados de CMS preservando cotações de produção, inclusão dos assets de storage/uploads no controle de versão e deploy Vercel das aplicações.
 - **28/10/2026 — Mais Vendidos e Ofertas do Dia:** filtros no servidor e rotas dedicadas (`/ofertas`, `/mais-vendidos`, `/loja?oferta=1`, `/loja?ordem=mais_vendidos`). NestJS API com `onlyOffers` e ordenação por `mais_vendidos`, títulos dinâmicos, breadcrumbs, fallback de ofertas reais e badges ativos no catálogo.

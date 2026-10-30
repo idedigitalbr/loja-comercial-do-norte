@@ -1,0 +1,26 @@
+KIT DE FOTOGRAFIAS – PÁGINAS DE EVENTOS / WORKSHOP DE CONFEITARIA
+
+A paleta correta é CHOCOLATE #4B290D (principal), ROSÉ CLARO #E0BCBC,
+ROSA #B75675 e BRANCO SUAVE #F8F8F8.
+
+PASTAS
+01-listagem-eventos: imagem hero e quatro cards + banner promocional.
+02-pagina-workshop: hero interno + foto da seção Sobre + banner de cupcakes + galeria.
+03-fotos-extras: fotografias complementares e texturas.
+04-paleta-e-codigo: paleta enviada, hex e CSS.
+05-referencias: mockups finais originais e recortes com interface.
+06-icones-vetoriais: ícones SVG para reconstruir a interface sem rasterização.
+
+IMPORTANTE SOBRE A FIDELIDADE:
+As artes anteriores foram geradas como mockups completos, não como camadas de
+fotografia editáveis. Portanto estes arquivos são EXTRAÇÕES E RECOMPOSIÇÕES das
+imagens visíveis nos designs; não são as fotos originais fornecidas pela IA.
+Os banners prontos removem textos e botões para que você sobreponha HTML real.
+Os banners de chocolate e cupcake usam fotografias correspondentes extraídas
+ou reconstituídas para evitar textos, cards e outros elementos do mockup.
+Algumas imagens pequenas foram ampliadas com reamostragem Lanczos; o tamanho
+maior da exportação não equivale a mais detalhe fotográfico capturado.
+
+DICA PARA IMPLEMENTAÇÃO EM NEXT.JS: coloque as pastas de imagens em /public/assets/confeitaria
+Utilize background-image com os arquivos *-degrade-pronto.png para heros e CTAs.
+Mantenha header/menu/footer existentes no seu projeto SEM ALTERAÇÕES.

@@ -1,5 +1,27 @@
-# ROADMAP & AUDITORIA — COMERCIAL DO NORTE
+﻿# ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **29/10/2026 — Redesign Visual de "Todos os Workshops" e "Single do Workshop" (Kit Confeitaria Oficial) (executorId: `antigravity-gemini`):**
+  - **Identidade e Paleta Oficial de Confeitaria Fina:**
+    - Cor Principal e Dominante: Marrom Chocolate (#4B290D) para títulos principais, botões de conversão, badges, bordas ativas e destaques.
+    - Cores Complementares: Creme Claro (#FAF6F0), Creme Médio (#F3EAE0), Rosé Claro (#E0BCBC), Branco Suave (#FFFFFF) e acentos pontuais em Rosa Framboesa (#B75675).
+    - Tokens CSS declarados em `confeitaria-tokens.css` com classes de elevação e tipografia serifada de alto padrão.
+  - **Assets Integrados em `/public/assets/confeitaria`:**
+    - Importação completa dos assets da pasta oficial (heros com degradê pronto, fotos de cards em 1000x600, fotos verticais da seção Sobre, banners de chocolate e cupcakes, e 4 fotos da última edição para a galeria).
+  - **Página de Listagem de Workshops (`/eventos/workshops/aulas-confeitaria`):**
+    - Redesenhada com o componente `ConfeitariaWorkshopsList` fiel à referência `layout-listagem-completo.png`.
+    - Hero com composição de confeitaria (`01-hero-foto-confeiteira-direita.jpg`), breadcrumbs, eyebrow rosa, títulos em serif refinada e 3 pilares em círculos rosé com ícones vetoriais (100% Prático, Certificado Oficial, Insumos Inclusos).
+    - Barra de filtros em pílulas com marrom chocolate para seleção ativa, contadores dinâmicos e campo de busca refinado.
+    - Grid de 4 colunas com os 4 workshops principais com fotos em alta definição do kit, badges flutuantes e CTAs elegantes direcionando para a página single.
+    - Banner intermediário com degradê pronto (`09-banner-chocolate-degrade-pronto.png`), chamada institucional "Confeitaria que transforma" e selo cursivo decorativo.
+    - 4 blocos de diferenciais e divisória institucional "Conhecimento · Técnica · Sabor · Grandes Resultados".
+  - **Página Single do Workshop (`/evento/workshop/aulas-confeitaria/[slug]`):**
+    - Redesenhada com o componente `ConfeitariaWorkshopSingle` fiel à referência `layout-pagina-interna-completo.png`.
+    - Hero cinematográfico com foto do bolo de chocolate gourmet (`02-hero-doces-finos-degrade-pronto.png`), badges de modalidade presencial, metadados de data/horário/local e Card Flutuante de Inscrição com seletor interativo de quantidade de ingressos (1 a 5) e conversão via WhatsApp com mensagem pré-preenchida.
+    - Seção "Sobre o Evento" com caixa destacada "O que você vai aprender" com checks, foto alta de brigadeiros gourmet (`03-foto-brigadeiros-sobre-o-evento.jpg`) e card de localização com botão do Google Maps.
+    - Seção "Programação" com timeline vertical estilizada e horários em nós circulares + "O que te espera" (grid 2x2) + Banner com degradê pronto de cupcakes (`05-banner-cupcakes-degrade-pronto.png`).
+    - Galeria "Veja como foi na última edição" com as 4 fotos oficiais (`06-galeria-confeiteira.jpg`, `07-galeria-brigadeiros-coloridos.jpg`, `08-galeria-aula-pratica.jpg`, `09-galeria-bolo-de-chocolate.jpg`) e Lightbox/Modal para ampliação.
+    - Card final acolhedor "Ainda tem dúvidas?" com CTA para atendimento no WhatsApp.
+  - **Qualidade & Validação:** 166 testes unitários no Storefront (40 suítes) aprovados com sucesso, `pnpm typecheck` 100% verde e build Next.js 16 compilado com sucesso. Header e Footer mantidos 100% intactos.
 - **29/10/2026 — Navegação dos Botões de Listagem de Eventos e Workshops para o Single Post (executorId: `antigravity-gemini`):**
   - **Ação dos Cards:** O botão CTA inferior de cada cartão na listagem de eventos e workshops foi padronizado para navegar para o Single Post do evento (`detailHref`), eliminando o redirecionamento prematuro para links externos de WhatsApp/Google Maps na listagem. O botão de WhatsApp permanece no Single Post de cada evento.
   - **Testes & Validação:** Atualizados `events-page.spec.tsx` e `aulas-confeitaria.spec.tsx` para assegurar que os links dos cards navegam estritamente para o Single Post interno. 100% dos testes e typecheck aprovados.
@@ -11,7 +33,7 @@
     - `/eventos/workshops/aulas-confeitaria`: Exibe estritamente workshops e aulas práticas de confeitaria em tema claro normal, removendo palestras e reinaugurações institucionais.
   - **Qualidade & Validação:** 156 testes aprovados no Storefront (38 suítes, incluindo `workshop-slug.spec.tsx`, `aulas-confeitaria.spec.tsx`, `event-slug.spec.tsx` e `events-page.spec.tsx`), `pnpm typecheck` 100% verde e `pnpm lint` 100% limpo.
 
-- **29/10/2026 — Nort interativo e ciclo animado de 60s no cabeçalho (executorId: `antigravity-gemini` / `codex-will`):** ciclo autônomo completo de 60 segundos com 64 quadros em atlas (`nort-loop-64-v1.png`). Sequência com atuação orgânica: idle mãos no bolso com respiração (0-6s), retirada da mão (6-6.8s), joinha/like com pausa natural (12-19s), aceno de mão amigável (23-25.4s), transição para pose pensativa com balão automático exibido durante 9 segundos (28-37s) orientado para baixo (evitando cobrir o logo e a seleção de CEP/localização à direita) e retorno fluido ao idle com mãos no bolso. Interação manual: hover, clique ou navegação por teclado (Tab) abrem imediatamente o balão na pose pensativa; fecha com botão X, tecla Escape, clique externo ou blur mantendo foco acessível. Respeito integral a `prefers-reduced-motion`. Validação: 160/160 testes no storefront aprovados (incluindo `nort-timeline.spec.ts` e `site-header.spec.tsx`), typecheck 100% limpo e inspeção visual renderizada via Chromium.
+- **29/10/2026 — Nort interativo e ciclo animado de 60s no cabeçalho (executorId: `antigravity-gemini` / `codex-will`):** ciclo autônomo completo de 60 segundos com 64 quadros em atlas (`nort-loop-64-v1.png`). Sequência com atuação orgânica: idle mãos no bolso com respiração (0-6s), retirada da mão (6-6.8s), joinha/like com pausa natural (12-19s), aceno de mão amigável (23-25.4s), transição para pose pensativa e retorno fluido ao idle com mãos no bolso. Interação do balão de fala: o balão não abre de imediato nem sozinho; a abertura ocorre exclusivamente se o visitante insistir com o hover em cima do Nort por 4 segundos contínuos (ou clique direto), abrindo para baixo para manter o logo e a busca desobstruídos. Se o cursor sair antes de 4s, a abertura é cancelada. Fecha com botão X, tecla Escape, clique externo ou blur mantendo foco acessível. Respeito integral a `prefers-reduced-motion`. Validação: 165 testes no storefront aprovados (incluindo `nort-header.spec.tsx`, `nort-timeline.spec.ts` e `site-header.spec.tsx`), typecheck 100% limpo e build de produção validado.
 
 > **Único documento operacional de execução, bloqueios, riscos e histórico breve** — atualizado em **25/10/2026**.
 > Decisões permanentes e contexto: [`memory-ai.md`](./memory-ai.md). Não criar changelog, checklist ou prompts de memória separados nesta pasta.
