@@ -7,6 +7,20 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **30/10/2026 — Publicação em Produção na Vercel: Vitrine do Storefront com Tour Guiado do Nort Atualizado (executorId: `antigravity-gemini`):**
+  - **Deploy de Produção Concluído:**
+    - Executado build e publicação na Vercel a partir do commit `d77e11f` (`main`).
+    - Deployment oficial gerado: `https://loja-home-front-1tu83a0x1-idedigital.vercel.app`.
+    - Aliases de produção alinhados e ativos com HTTP 200:
+      - `https://lojacomercialdonorte.vercel.app`
+      - `https://loja-comercialdonorte.vercel.app`
+      - `https://loja-home-front-idedigital.vercel.app`
+  - **Recursos Disponíveis Online:**
+    - Tour guiado teatral com backdrop ultra escuro (`rgba(1, 3, 10, 0.965)`).
+    - Mascote Nort ampliado em alta escala (`h-[400px] xl:h-[450px]`) encostado no rodapé com balão de quadrinhos apontando para sua boca.
+    - Nova fala oficial canônica de abertura com posicionamento de negócio da loja.
+    - Regra de frequência de auto-abertura (2x ao dia nos 2 primeiros dias) ativa no cliente.
+
 - **30/10/2026 — Atualização da Fala Canônica de Boas-Vindas do Mascote Nort no Tour (executorId: `antigravity-gemini`):**
   - **Nova Fala Oficial de Abertura:**
     - Título: `"Opa! Seja muito bem-vindo à Comercial do Norte! 👋"`

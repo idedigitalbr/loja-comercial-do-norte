@@ -1,5 +1,10 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **30/10/2026 — Publicação em Produção na Vercel: Vitrine do Storefront com Tour Guiado do Nort Atualizado (executorId: `antigravity-gemini`):**
+  - **Deploy Vercel:** Publicado com sucesso a partir do commit `d77e11f` (`https://loja-home-front-1tu83a0x1-idedigital.vercel.app`).
+  - **Aliases Ativos (HTTP 200):** `https://lojacomercialdonorte.vercel.app` e `https://loja-comercialdonorte.vercel.app`.
+  - **Entrega Online:** Mascote Nort ampliado, filtro teatral ultra escuro (96.5%), regra de frequência (2x/dia por 2 dias) e nova fala canônica de abertura.
+
 - **30/10/2026 — Atualização da Fala Canônica de Boas-Vindas do Mascote Nort no Tour (executorId: `antigravity-gemini`):**
   - **Fala Oficial de Abertura:** Atualizado o passo 1 (Boas-vindas) em `nort-tour-steps.ts` para a nova fala canônica: *"Opa! Seja muito bem-vindo à Comercial do Norte! 👋 Eu sou o Nort, o mascote da loja! Somos o comercial da pizzaria, do lancheiro e de quem empreende. 💙 Aqui você encontra tudo o que precisa para o seu negócio. Quer que eu te mostre nossa loja?"*.
   - **Qualidade & Validação:** 174 testes aprovados no Storefront, typecheck verde e build Next.js 16 validado.
