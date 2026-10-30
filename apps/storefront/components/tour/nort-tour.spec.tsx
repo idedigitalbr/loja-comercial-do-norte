@@ -108,7 +108,7 @@ describe('Nort Guided Tour Engine', () => {
 
     // O tour DEVE abrir imediatamente em tela cheia com o Nort
     expect(screen.getByRole('dialog')).toBeTruthy();
-    expect(screen.getByText('Oi! Eu sou o Nort! 👋')).toBeTruthy();
+    expect(screen.getByText('Opa! Seja muito bem-vindo à Comercial do Norte! 👋')).toBeTruthy();
 
     vi.useRealTimers();
   });
@@ -135,9 +135,9 @@ describe('Nort Guided Tour Engine', () => {
     expect(screen.getByText('Boas-vindas')).toBeTruthy();
 
     // Verifica a fala em 1ª pessoa saindo da boca do mascote
-    expect(screen.getByText('Oi! Eu sou o Nort! 👋')).toBeTruthy();
+    expect(screen.getByText('Opa! Seja muito bem-vindo à Comercial do Norte! 👋')).toBeTruthy();
     expect(
-      screen.getByText(/Seja muito bem-vindo à Loja Comercial do Norte!/i)
+      screen.getByText(/Eu sou o Nort, o mascote da loja! Somos o comercial da pizzaria, do lancheiro e de quem empreende/i)
     ).toBeTruthy();
 
     // No primeiro passo, não deve haver botão "Voltar"
@@ -155,7 +155,7 @@ describe('Nort Guided Tour Engine', () => {
     fireEvent.click(screen.getByText('Iniciar Tour'));
 
     // Passo 1 ativo
-    expect(screen.getByText('Oi! Eu sou o Nort! 👋')).toBeTruthy();
+    expect(screen.getByText('Opa! Seja muito bem-vindo à Comercial do Norte! 👋')).toBeTruthy();
 
     // Clica em Próximo
     fireEvent.click(screen.getByText('Próximo'));
@@ -212,6 +212,6 @@ describe('Nort Guided Tour Engine', () => {
 
     // O tour deve abrir imediatamente sob comando manual
     expect(screen.getByRole('dialog')).toBeTruthy();
-    expect(screen.getByText('Oi! Eu sou o Nort! 👋')).toBeTruthy();
+    expect(screen.getByText('Opa! Seja muito bem-vindo à Comercial do Norte! 👋')).toBeTruthy();
   });
 });

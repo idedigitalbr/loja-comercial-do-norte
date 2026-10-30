@@ -4,9 +4,9 @@ export const NORT_TOUR_STEPS: NortTourStep[] = [
   {
     id: 'step-welcome',
     selector: '',
-    title: 'Oi! Eu sou o Nort! 👋',
+    title: 'Opa! Seja muito bem-vindo à Comercial do Norte! 👋',
     message:
-      'Seja muito bem-vindo à Loja Comercial do Norte! Vou te guiar rapidinho pelo nosso site para você conhecer onde encontrar produtos, novidades e montar suas cotações sem complicação.',
+      'Eu sou o Nort, o mascote da loja! Somos o comercial da pizzaria, do lancheiro e de quem empreende. 💙 Aqui você encontra tudo o que precisa para o seu negócio. Quer que eu te mostre nossa loja?',
     badge: 'Boas-vindas',
     mascotPose:
       '/assets/HOME%20Vitrine/S0-HEADER/Mascote-3D-NORT/corpo-inteiro/nort-boas-vindas.png',

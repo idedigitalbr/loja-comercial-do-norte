@@ -7,6 +7,13 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **30/10/2026 — Atualização da Fala Canônica de Boas-Vindas do Mascote Nort no Tour (executorId: `antigravity-gemini`):**
+  - **Nova Fala Oficial de Abertura:**
+    - Título: `"Opa! Seja muito bem-vindo à Comercial do Norte! 👋"`
+    - Mensagem: `"Eu sou o Nort, o mascote da loja! Somos o comercial da pizzaria, do lancheiro e de quem empreende. 💙 Aqui você encontra tudo o que precisa para o seu negócio. Quer que eu te mostre nossa loja?"`
+    - Substituição da introdução genérica anterior pela cópia canônica oficial focada no posicionamento comercial dos segmentos (pizzaria, lancheiro, empreendedores).
+  - **Validação:** Testes unitários atualizados em `nort-tour.spec.tsx` e 100% aprovados, typecheck com 0 erros e build Next.js 16 compilado com sucesso.
+
 - **30/10/2026 — Ampliação Visual do Mascote Nort no Tour Guiado (executorId: `antigravity-gemini`):**
   - **Aumento Proporcional do Mascote Nort:**
     - O mascote Nort no componente `NortTourCard` foi ampliado de `w-48 sm:w-60 md:w-72 h-40 sm:h-52 md:h-60` para `w-64 sm:w-80 md:w-[380px] lg:w-[440px] xl:w-[480px]` e altura `h-56 sm:h-72 md:h-[340px] lg:h-[400px] xl:h-[450px]` com `max-h-[46vh]`.

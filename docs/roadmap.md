@@ -1,5 +1,9 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **30/10/2026 — Atualização da Fala Canônica de Boas-Vindas do Mascote Nort no Tour (executorId: `antigravity-gemini`):**
+  - **Fala Oficial de Abertura:** Atualizado o passo 1 (Boas-vindas) em `nort-tour-steps.ts` para a nova fala canônica: *"Opa! Seja muito bem-vindo à Comercial do Norte! 👋 Eu sou o Nort, o mascote da loja! Somos o comercial da pizzaria, do lancheiro e de quem empreende. 💙 Aqui você encontra tudo o que precisa para o seu negócio. Quer que eu te mostre nossa loja?"*.
+  - **Qualidade & Validação:** 174 testes aprovados no Storefront, typecheck verde e build Next.js 16 validado.
+
 - **30/10/2026 — Ampliação Visual do Mascote Nort no Tour Guiado (executorId: `antigravity-gemini`):**
   - **Escala Ampliada do Mascote Nort:** Redimensionado de `h-40 sm:h-52 md:h-60` para `h-56 sm:h-72 md:h-[340px] lg:h-[400px] xl:h-[450px]` e largura até `480px` (`max-h-[46vh]`), conferindo presença imponente, carismática e proporção harmoniosa com o balão de fala estilo quadrinhos.
   - **Qualidade & Validação:** 174 testes unitários no Storefront aprovados, typecheck com 0 erros e build Next.js 16 validado.
