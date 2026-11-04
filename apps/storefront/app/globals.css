@@ -167,11 +167,10 @@ body {
 
 /* Zero-flash SSR curtain e controle de exibição para a introdução em vídeo */
 html.nort-intro-active {
-  background-color: #000000 !important;
-  color-scheme: dark;
+  background-color: #E1DBD7 !important;
 }
 html.nort-intro-active body {
-  background-color: #000000 !important;
+  background-color: #E1DBD7 !important;
   overflow: hidden !important;
 }
 html.nort-intro-active #storefront-shell-root,

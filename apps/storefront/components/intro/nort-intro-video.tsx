@@ -408,7 +408,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
           handleToggleSound();
         }
       }}
-      className={`fixed inset-0 z-[9999999] w-screen h-screen bg-black overflow-hidden select-none transition-opacity duration-700 ease-out ${
+      className={`fixed inset-0 z-[9999999] w-screen h-screen bg-[#E1DBD7] overflow-hidden select-none transition-opacity duration-700 ease-out ${
         isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >

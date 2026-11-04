@@ -54,11 +54,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           dangerouslySetInnerHTML={{
             __html: `
 html.nort-intro-active {
-  background-color: #000000 !important;
-  color-scheme: dark;
+  background-color: #E1DBD7 !important;
 }
 html.nort-intro-active body {
-  background-color: #000000 !important;
+  background-color: #E1DBD7 !important;
   overflow: hidden !important;
 }
 html.nort-intro-active #storefront-shell-root,
@@ -87,7 +86,7 @@ html.nort-intro-active #nort-intro-ssr-curtain {
             inset: 0,
             width: '100vw',
             height: '100vh',
-            backgroundColor: '#000000',
+            backgroundColor: '#E1DBD7',
             zIndex: 9999990,
             pointerEvents: 'none',
             transition: 'opacity 700ms ease-out',
