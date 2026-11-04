@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 341" width="1024" height="341">
+  <defs>
+    <!-- Base dark chocolate gradient -->
+    <linearGradient id="baseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a181c" />
+      <stop offset="45%" stop-color="#3c1115" />
+      <stop offset="100%" stop-color="#2a0a0d" />
+    </linearGradient>
+
+    <!-- Top left burgundy wave gradient -->
+    <linearGradient id="topWaveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#cc4a64" />
+      <stop offset="50%" stop-color="#a43046" />
+      <stop offset="100%" stop-color="#671927" />
+    </linearGradient>
+
+    <!-- Bottom left burgundy wave gradient -->
+    <linearGradient id="bottomLeftGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c03b55" />
+      <stop offset="65%" stop-color="#932539" />
+      <stop offset="100%" stop-color="#5a1421" />
+    </linearGradient>
+
+    <!-- Top right wave gradient -->
+    <linearGradient id="topRightGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#681827" />
+      <stop offset="100%" stop-color="#99293e" />
+    </linearGradient>
+
+    <!-- Bottom center subtle wave -->
+    <linearGradient id="bottomCenterGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8e263a" />
+      <stop offset="100%" stop-color="#4d121c" />
+    </linearGradient>
+
+    <!-- Bottom right cream organic swoosh -->
+    <linearGradient id="creamGrad" x1="0%" y1="60%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fcf4eb" />
+      <stop offset="50%" stop-color="#ede0ce" />
+      <stop offset="100%" stop-color="#dccab5" />
+    </linearGradient>
+  </defs>
+
+  <!-- Base background -->
+  <rect width="1024" height="341" fill="url(#baseGrad)" />
+
+  <!-- Wave 1: Top-left deep curve -->
+  <path d="M 0,0 L 220,0 C 180,60 140,115 60,115 C 20,115 0,95 0,80 Z" fill="url(#topWaveGrad)" />
+
+  <!-- Wave 2: Bottom-left organic curve -->
+  <path d="M 0,185 C 50,185 100,205 145,235 C 190,265 230,300 270,341 L 0,341 Z" fill="url(#bottomLeftGrad)" />
+
+  <!-- Wave 3: Bottom-center wave -->
+  <path d="M 420,341 C 520,310 680,305 840,341 Z" fill="url(#bottomCenterGrad)" />
+
+  <!-- Wave 4: Top-right curve -->
+  <path d="M 740,0 C 820,30 900,65 1024,75 L 1024,0 Z" fill="url(#topRightGrad)" />
+
+  <!-- Wave 5: Bottom-right cream organic swoosh -->
+  <path d="M 850,341 C 895,310 945,275 1024,240 L 1024,341 Z" fill="url(#creamGrad)" />
+</svg>

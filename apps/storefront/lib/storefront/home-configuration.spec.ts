@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { defaultHomeComposition } from './home-configuration';
 
-describe('defaultHomeComposition (16 seções site-final + S0/S20)', () => {
-  it('possui exatamente 16 seções de widgets habilitadas em ordem sequencial de 1 a 16', () => {
+describe('defaultHomeComposition (seções site-final + S0/S20)', () => {
+  it('possui todas as seções de widgets habilitadas em ordem sequencial', () => {
     expect(defaultHomeComposition.page).toBe('home');
     expect(defaultHomeComposition.version).toBeGreaterThanOrEqual(2);
-    expect(defaultHomeComposition.widgets).toHaveLength(16);
+    expect(defaultHomeComposition.widgets).toHaveLength(17);
 
     defaultHomeComposition.widgets.forEach((widget, idx) => {
       expect(widget.enabled).toBe(true);
@@ -30,6 +30,7 @@ describe('defaultHomeComposition (16 seções site-final + S0/S20)', () => {
       'events-carousel',
       'product-carousel',
       'video-articles-carousel',
+      'video-articles-carousel',
       'instagram-feed',
       'testimonials-grid',
       'store-locations-map',
@@ -45,6 +46,7 @@ describe('defaultHomeComposition (16 seções site-final + S0/S20)', () => {
     expect(json).toContain('Nossos Eventos');
     expect(json).toContain('/assets/HOME Vitrine/S12-EVENTOS/s12-event-01-empreendedores.jpg');
     expect(json).toContain('Explica Aí Nort');
+    expect(json).toContain('Workshops & Aulas Práticas de Confeitaria');
     expect(json).toContain('A Loja no Instagram');
     expect(json).toContain('/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-02-no-balcao.jpg');
     expect(json).toContain('O que nossos clientes dizem no Google.');

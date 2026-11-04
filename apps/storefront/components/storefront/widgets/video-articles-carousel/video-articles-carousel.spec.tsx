@@ -132,4 +132,62 @@ describe('VideoArticlesCarouselWidget (Explica Aí Nort)', () => {
     expect(screen.getByText('Lanchonete')).toBeDefined();
     expect(screen.getByText('Ver mais')).toBeDefined();
   });
+
+  it('renderiza a variante Confeitaria (Workshops & Aulas Práticas) com título serif, mascote confeiteira e cards temáticos', () => {
+    const confeitariaItems: VideoArticleItem[] = [
+      {
+        id: 'conf-1',
+        tags: ['WORKSHOP', 'BOLOS DECORADOS'],
+        title: 'Técnicas de decoração para bolos e tortas',
+        paragraphs: [
+          'Aprenda acabamento, recheio, montagem e apresentação com foco prático.',
+        ],
+        ctaLabel: 'Ver Completo',
+        ctaUrl: '/eventos/workshops/aulas-confeitaria',
+        imageUrl: '/assets/confeitaria/card-tecnicas-decoracao.webp',
+      },
+      {
+        id: 'conf-2',
+        tags: ['AULA PRÁTICA', 'DOCES FINOS'],
+        title: 'Doces finos e sobremesas para vender',
+        paragraphs: [
+          'Descubra receitas, finalização e embalagem para valorizar sua produção.',
+        ],
+        ctaLabel: 'Ver Completo',
+        ctaUrl: '/eventos/workshops/aulas-confeitaria',
+        imageUrl: '/assets/confeitaria/card-doces-finos.webp',
+      },
+    ];
+
+    render(
+      <VideoArticlesCarouselWidget
+        variant="confeitaria"
+        title="Workshops & Aulas Práticas de Confeitaria"
+        subtitle="Faça suas compras e ganhe treinamento gratuitamente."
+        viewAllLabel="Ver todos"
+        viewAllUrl="/eventos/workshops/aulas-confeitaria"
+        items={confeitariaItems}
+      />
+    );
+
+    expect(screen.getByText(/Workshops &/)).toBeDefined();
+    expect(screen.getByText('Aulas Práticas')).toBeDefined();
+    expect(screen.getByText('de Confeitaria')).toBeDefined();
+    expect(screen.getByText(/Faça suas compras e ganhe/)).toBeDefined();
+    expect(screen.getByText('gratuitamente.')).toBeDefined();
+
+    expect(screen.getByText('WORKSHOP')).toBeDefined();
+    expect(screen.getByText('BOLOS DECORADOS')).toBeDefined();
+    expect(screen.getByText('Técnicas de decoração para bolos e tortas')).toBeDefined();
+
+    expect(screen.getByText('AULA PRÁTICA')).toBeDefined();
+    expect(screen.getByText('DOCES FINOS')).toBeDefined();
+    expect(screen.getByText('Doces finos e sobremesas para vender')).toBeDefined();
+
+    const confeiteiraImages = screen.getAllByAltText('Workshop de Confeitaria');
+    expect(confeiteiraImages.length).toBeGreaterThanOrEqual(1);
+
+    expect(screen.getByLabelText('Workshop anterior')).toBeDefined();
+    expect(screen.getByLabelText('Próximo workshop')).toBeDefined();
+  });
 });

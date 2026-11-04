@@ -320,6 +320,9 @@ export const defaultHomeComposition: PageComposition = {
         subtitle: "De todos os tamanhos",
         ctaLabel: "Ver todos os segmentos",
         ctaUrl: "/segmentos",
+        videoButtonLabel: "Assista nosso vídeo",
+        videoUrl: "/videos/nort-intro.mp4",
+        mascotImageUrl: "/assets/nort-segmentos.png",
         items: [
           {
             id: "seg-lanchonete",
@@ -676,12 +679,57 @@ export const defaultHomeComposition: PageComposition = {
       },
     },
 
+    // 15B — SEÇÃO WORKSHOPS & AULAS PRÁTICAS DE CONFEITARIA (DUPLICAÇÃO CUSTOMIZADA)
+    {
+      id: "s15b-workshops-confeitaria",
+      type: "video-articles-carousel",
+      enabled: true,
+      order: 14,
+      props: {
+        variant: "confeitaria",
+        title: "Workshops & Aulas Práticas de Confeitaria",
+        subtitle: "Faça suas compras e ganhe treinamento gratuitamente.",
+        viewAllLabel: "Ver todos",
+        viewAllUrl: "/eventos/workshops/aulas-confeitaria",
+        mascotImageUrl: "/assets/confeitaria/confeiteira-banner-cutout-trimmed.webp",
+        bgImageUrl: "/assets/confeitaria/bg-confeitaria-banner.svg",
+        items: [
+          {
+            id: "conf-1",
+            tags: ["WORKSHOP", "BOLOS DECORADOS"],
+            title: "Técnicas de decoração para bolos e tortas",
+            paragraphs: [
+              "Aprenda acabamento, recheio,",
+              "montagem e apresentação",
+              "com foco prático.",
+            ],
+            ctaLabel: "Ver Completo",
+            ctaUrl: "/eventos/workshops/aulas-confeitaria",
+            imageUrl: "/assets/confeitaria/card-tecnicas-decoracao.webp",
+          },
+          {
+            id: "conf-2",
+            tags: ["AULA PRÁTICA", "DOCES FINOS"],
+            title: "Doces finos e sobremesas para vender",
+            paragraphs: [
+              "Descubra receitas, finalização",
+              "e embalagem para valorizar",
+              "sua produção.",
+            ],
+            ctaLabel: "Ver Completo",
+            ctaUrl: "/eventos/workshops/aulas-confeitaria",
+            imageUrl: "/assets/confeitaria/card-doces-finos.webp",
+          },
+        ],
+      },
+    },
+
     // 16 — SEÇÃO CARROSSEL DE CARDS COMPACTOS (A LOJA NO INSTAGRAM)
     {
       id: "s16-instagram-feed",
       type: "instagram-feed",
       enabled: true,
-      order: 14,
+      order: 15,
       props: {
         title: "A Loja no Instagram",
         subtitle:
@@ -782,7 +830,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s18-avaliacoes-google",
       type: "testimonials-grid",
       enabled: true,
-      order: 15,
+      order: 16,
       props: {
         eyebrow: "AVALIAÇÕES NO GOOGLE",
         title: "O que nossos clientes dizem no Google.",
@@ -898,7 +946,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s19-unidades-mapa",
       type: "store-locations-map",
       enabled: true,
-      order: 16,
+      order: 17,
       props: {
         title: "Encontre nossas unidades",
         subtitle: "Lojas mais perto de você",

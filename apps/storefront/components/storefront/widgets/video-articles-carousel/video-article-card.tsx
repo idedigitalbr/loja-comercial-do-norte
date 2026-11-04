@@ -17,6 +17,7 @@ export interface VideoArticleCardProps {
   widgetId?: string;
   index?: number;
   className?: string;
+  variant?: 'default' | 'confeitaria';
 }
 
 export function VideoArticleCard({
@@ -29,6 +30,7 @@ export function VideoArticleCard({
   widgetId,
   index,
   className = '',
+  variant = 'default',
 }: VideoArticleCardProps) {
   // Corrige destinos antigos já salvos na composição da vitrine.
   const legacyDestinations: Record<string, string> = {
@@ -54,11 +56,13 @@ export function VideoArticleCard({
         <Link
           href={destination}
           aria-label={`Ver conteúdo: ${title}`}
-          className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors"
+          className="absolute inset-0 flex items-center justify-center bg-black/5 group-hover:bg-black/15 transition-colors"
         >
-          <span className="flex size-8.5 sm:size-9 items-center justify-center rounded-full bg-[#e2091e] text-white shadow-md transition-transform duration-200 group-hover:scale-110">
-            <BookOpen aria-hidden="true" className="size-3.5 sm:size-4" />
-          </span>
+          {variant !== 'confeitaria' && (
+            <span className="flex size-8.5 sm:size-9 items-center justify-center rounded-full bg-[#e2091e] text-white shadow-md transition-transform duration-200 group-hover:scale-110">
+              <BookOpen aria-hidden="true" className="size-3.5 sm:size-4" />
+            </span>
+          )}
         </Link>
         {widgetId && typeof index === 'number' ? (
           <InlineImageEditorOverlay
@@ -84,7 +88,11 @@ export function VideoArticleCard({
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full bg-[#fde8ea] px-1.5 py-0.5 text-[8.5px] font-bold uppercase tracking-wider text-[#d6112c] leading-none"
+                  className={`rounded-full px-1.5 py-0.5 text-[8.5px] font-bold uppercase tracking-wider leading-none ${
+                    variant === 'confeitaria'
+                      ? 'bg-[#fae8eb] text-[#b82344]'
+                      : 'bg-[#fde8ea] text-[#d6112c]'
+                  }`}
                 >
                   {tag}
                 </span>
@@ -92,7 +100,14 @@ export function VideoArticleCard({
             </div>
           )}
           <h3 className="line-clamp-2 text-[12px] sm:text-[12.5px] xl:text-[13px] font-bold leading-tight text-[#0c2340]">
-            <Link href={destination} className="hover:text-[#cb001c] transition-colors">
+            <Link
+              href={destination}
+              className={
+                variant === 'confeitaria'
+                  ? 'hover:text-[#b82344] transition-colors'
+                  : 'hover:text-[#cb001c] transition-colors'
+              }
+            >
               {title}
             </Link>
           </h3>
@@ -110,7 +125,11 @@ export function VideoArticleCard({
         {/* Base: Botão Ver Completo estilo pílula */}
         <Link
           href={destination}
-          className="inline-flex w-full items-center justify-center gap-1 rounded-full border border-[#e2091e] py-1 px-2 text-[10px] sm:text-[10.5px] font-bold text-[#e2091e] transition-colors hover:bg-red-50 hover:border-[#c4001a] text-center shrink-0"
+          className={`inline-flex w-full items-center justify-center gap-1 rounded-full border py-1 px-2 text-[10px] sm:text-[10.5px] font-bold transition-colors text-center shrink-0 ${
+            variant === 'confeitaria'
+              ? 'border-[#b82344] text-[#b82344] hover:bg-[#fae8eb] hover:border-[#961a35]'
+              : 'border-[#e2091e] text-[#e2091e] hover:bg-red-50 hover:border-[#c4001a]'
+          }`}
         >
           <span>{ctaLabel}</span>
           <ChevronRight aria-hidden="true" className="size-2.5 sm:size-3 stroke-[2.5]" />

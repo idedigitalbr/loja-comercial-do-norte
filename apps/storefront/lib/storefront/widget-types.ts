@@ -179,6 +179,9 @@ export interface SegmentsCarouselProps {
   subtitle?: string;
   ctaLabel?: string;
   ctaUrl?: string;
+  videoButtonLabel?: string;
+  videoUrl?: string;
+  mascotImageUrl?: string;
   items: SegmentCardItem[];
   autoplayIntervalMs?: number;
 }
@@ -236,6 +239,7 @@ export interface VideoArticleItem {
 
 export interface VideoArticlesCarouselProps {
   widgetId?: string;
+  variant?: 'default' | 'confeitaria';
   title?: string;
   subtitle?: string;
   topHeading?: {
