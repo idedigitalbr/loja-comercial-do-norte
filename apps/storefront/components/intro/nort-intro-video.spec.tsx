@@ -110,53 +110,72 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       expect(progressbar).toBeTruthy();
       expect(screen.getByTestId('nort-intro-progress-marker')).toBeTruthy();
 
-      // Controles inferiores
-      expect(screen.getByTestId('nort-intro-play-toggle')).toBeTruthy();
+      // Controles inferiores: Som com Slider e Contagem regressiva
       expect(screen.getByTestId('nort-intro-sound-toggle')).toBeTruthy();
+      expect(screen.getByTestId('nort-intro-volume-slider')).toBeTruthy();
       expect(screen.getByText('Carregando a loja será aberta em...')).toBeTruthy();
       expect(screen.getByTestId('nort-intro-countdown')).toBeTruthy();
       expect(screen.getByTestId('nort-intro-fullscreen-toggle')).toBeTruthy();
     });
 
-    it('inicia mutado com o destaque animado "Clique para ativar o áudio" posicionado acima da barra', () => {
+    it('clicar em qualquer canto do vídeo na 1ª vez ativa o áudio e reinicia o vídeo do começo', () => {
       render(<NortIntroVideo forceOpen />);
+
+      const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
+      video.currentTime = 8;
 
       const soundBtn = screen.getByTestId('nort-intro-sound-toggle');
       expect(soundBtn.getAttribute('aria-label')).toBe('Ativar som');
 
-      // Destaque pulsante "Clique para ativar o áudio"
-      const prompt = screen.getByTestId('nort-intro-audio-prompt');
-      expect(prompt).toBeTruthy();
-      expect(screen.getByText('Clique para ativar o áudio')).toBeTruthy();
-
-      // Clica no destaque para ativar o som
+      // Clica no vídeo
       act(() => {
-        fireEvent.click(prompt);
+        fireEvent.click(video);
       });
 
-      // Áudio desmutado
+      // O vídeo volta para 0 e ativa o som
+      expect(video.currentTime).toBe(0);
       expect(soundBtn.getAttribute('aria-label')).toBe('Desativar som');
-      // Destaque desaparece
-      expect(screen.queryByTestId('nort-intro-audio-prompt')).toBeNull();
+      expect(window.HTMLMediaElement.prototype.pause).not.toHaveBeenCalled();
     });
 
-    it('alterna Play e Pause corretamente', async () => {
+    it('cliques subsequentes no vídeo alternam mute e unmute sem pausar o vídeo', () => {
       render(<NortIntroVideo forceOpen />);
 
-      const playBtn = screen.getByTestId('nort-intro-play-toggle');
-      expect(playBtn.getAttribute('aria-label')).toBe('Pausar vídeo');
+      const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
+      const soundBtn = screen.getByTestId('nort-intro-sound-toggle');
+
+      // 1º clique: ativa som e reinicia
+      act(() => {
+        fireEvent.click(video);
+      });
+      expect(soundBtn.getAttribute('aria-label')).toBe('Desativar som');
+
+      // 2º clique: muta (sem pausar)
+      act(() => {
+        fireEvent.click(video);
+      });
+      expect(soundBtn.getAttribute('aria-label')).toBe('Ativar som');
+      expect(window.HTMLMediaElement.prototype.pause).not.toHaveBeenCalled();
+
+      // 3º clique: desmuta novamente (sem pausar)
+      act(() => {
+        fireEvent.click(video);
+      });
+      expect(soundBtn.getAttribute('aria-label')).toBe('Desativar som');
+      expect(window.HTMLMediaElement.prototype.pause).not.toHaveBeenCalled();
+    });
+
+    it('permite ajustar o volume através do slider', () => {
+      render(<NortIntroVideo forceOpen />);
+
+      const slider = screen.getByTestId('nort-intro-volume-slider') as HTMLInputElement;
+      const soundBtn = screen.getByTestId('nort-intro-sound-toggle');
 
       act(() => {
-        fireEvent.click(playBtn);
+        fireEvent.change(slider, { target: { value: '0.6' } });
       });
 
-      expect(playBtn.getAttribute('aria-label')).toBe('Reproduzir vídeo');
-
-      await act(async () => {
-        fireEvent.click(playBtn);
-      });
-
-      expect(playBtn.getAttribute('aria-label')).toBe('Pausar vídeo');
+      expect(soundBtn.getAttribute('aria-label')).toBe('Desativar som');
     });
 
     it('atualiza a contagem decrescente "Carregando a loja será aberta em... X Segundos" e a barra de progresso', () => {

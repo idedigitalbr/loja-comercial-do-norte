@@ -37,11 +37,16 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
   const [isOpen, setIsOpen] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
 
-  // Estados de reprodução e áudio
+  // Estados de reprodução, áudio e volume
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [volume, setVolume] = useState(1);
   const [showAudioPrompt, setShowAudioPrompt] = useState(true);
   const [hasInteractedAudio, setHasInteractedAudio] = useState(false);
+
+  // Controle de posição do mouse para o tooltip flutuante interativo
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  const [isNearBottom, setIsNearBottom] = useState(false);
 
   // Controle de visibilidade da UI estilo YouTube (auto-hide)
   const [isUiVisible, setIsUiVisible] = useState(true);
@@ -106,40 +111,70 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     }
   }, [isPlaying, hasInteractedAudio]);
 
-  const handleTogglePlay = useCallback(() => {
-    const vid = videoRef.current;
-    if (!vid) return;
-    if (isPlaying) {
-      vid.pause();
-      setIsPlaying(false);
-      setIsUiVisible(true);
-      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-    } else {
-      vid
-        .play()
-        .then(() => {
-          setIsPlaying(true);
-          resetHideTimer();
-        })
-        .catch(() => {});
+  // Ativação inicial de áudio: reinicia o vídeo do começo com som ativado
+  const handleActivateAudio = useCallback(() => {
+    setIsMuted(false);
+    if (videoRef.current) {
+      // Reinicia o vídeo do começo conforme solicitado
+      videoRef.current.currentTime = 0;
+      videoRef.current.muted = false;
+      videoRef.current.volume = volume || 1;
+      setCurrentTime(0);
+      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
     }
-  }, [isPlaying, resetHideTimer]);
+    setShowAudioPrompt(false);
+    setHasInteractedAudio(true);
+    // Ao ativar o som, oculta a UI suavemente
+    setIsUiVisible(false);
+    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+  }, [volume]);
 
+  // Alterna som entre mutado e desmutado (sem nunca pausar o vídeo)
   const handleToggleSound = useCallback(() => {
+    if (!hasInteractedAudio) {
+      handleActivateAudio();
+      return;
+    }
+
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
     if (videoRef.current) {
       videoRef.current.muted = nextMuted;
+      if (!nextMuted && videoRef.current.volume === 0) {
+        videoRef.current.volume = 1;
+        setVolume(1);
+      }
+      // O vídeo continua tocando ininterruptamente
       if (videoRef.current.paused) {
         videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
       }
     }
-    setShowAudioPrompt(false);
-    setHasInteractedAudio(true);
-    // Ao clicar em ativar o áudio, a UI se oculta suavemente conforme solicitado
-    setIsUiVisible(false);
-    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-  }, [isMuted]);
+    resetHideTimer();
+  }, [hasInteractedAudio, handleActivateAudio, isMuted, resetHideTimer]);
+
+  // Controle de volume deslizante
+  const handleVolumeChange = useCallback(
+    (newVol: number) => {
+      const clamped = Math.max(0, Math.min(1, newVol));
+      setVolume(clamped);
+      if (videoRef.current) {
+        videoRef.current.volume = clamped;
+        if (clamped === 0) {
+          videoRef.current.muted = true;
+          setIsMuted(true);
+        } else {
+          videoRef.current.muted = false;
+          setIsMuted(false);
+        }
+      }
+      if (!hasInteractedAudio) {
+        setShowAudioPrompt(false);
+        setHasInteractedAudio(true);
+      }
+      resetHideTimer();
+    },
+    [hasInteractedAudio, resetHideTimer]
+  );
 
   const handleSeek = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -177,6 +212,21 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     }
     resetHideTimer();
   }, [resetHideTimer]);
+
+  const handleOverlayMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const clientX = e.clientX;
+      const clientY = e.clientY;
+      setMousePos({ x: clientX, y: clientY });
+
+      // Detecta se o mouse está descendo e se aproximando da barra inferior
+      const threshold = typeof window !== 'undefined' ? window.innerHeight - 150 : 600;
+      setIsNearBottom(clientY >= threshold);
+
+      resetHideTimer();
+    },
+    [resetHideTimer]
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -301,10 +351,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         handleFinish();
-      } else if (e.key === ' ' || e.key === 'k' || e.key === 'K') {
-        e.preventDefault();
-        handleTogglePlay();
-      } else if (e.key === 'm' || e.key === 'M') {
+      } else if (e.key === ' ' || e.key === 'm' || e.key === 'M') {
         e.preventDefault();
         handleToggleSound();
       } else if (e.key === 'f' || e.key === 'F') {
@@ -316,7 +363,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, handleFinish, handleTogglePlay, handleToggleSound, handleToggleFullscreen]);
+  }, [isOpen, handleFinish, handleToggleSound, handleToggleFullscreen]);
 
   // Restaura overflow e timers ao desmontar
   useEffect(() => {
@@ -344,11 +391,11 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
       aria-modal="true"
       aria-label="Apresentação Oficial Comercial do Norte"
       data-testid="nort-intro-video-overlay"
-      onMouseMove={resetHideTimer}
+      onMouseMove={handleOverlayMouseMove}
       onClick={(e) => {
-        // Clicar no fundo da tela alterna reprodução/pausa e exibe a UI
+        // Clicar em qualquer canto do vídeo MUTA e DESMUTA (não há pause; na 1ª vez reinicia do começo)
         if (e.target === overlayRef.current || e.target === videoRef.current) {
-          handleTogglePlay();
+          handleToggleSound();
         }
       }}
       className={`fixed inset-0 z-[9999999] w-screen h-screen bg-black overflow-hidden select-none transition-opacity duration-700 ease-out ${
@@ -400,6 +447,40 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         <source src="/videos/nort-intro.mp4" type="video/mp4" />
       </video>
 
+      {/* AVISO FLUTUANTE SEGUINDO O MOUSE (Quando o cursor estiver no meio/alto da tela) */}
+      {showAudioPrompt && isMuted && mousePos && !isNearBottom && (
+        <div
+          className="fixed z-50 pointer-events-auto cursor-pointer transition-transform duration-75 ease-out -translate-x-1/2 -translate-y-1/2"
+          style={{ left: mousePos.x, top: Math.max(45, mousePos.y - 36) }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleActivateAudio();
+          }}
+          role="tooltip"
+          aria-label="Clique para ativar o áudio"
+          data-testid="nort-intro-audio-prompt-floating"
+        >
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#11050b]/95 border-[1.5px] border-white shadow-[0_0_20px_rgba(255,0,51,0.95),inset_0_0_8px_rgba(255,0,51,0.4)] backdrop-blur-md animate-nort-pulse-glow hover:scale-105 active:scale-95 transition-transform">
+            <svg
+              className="w-4 h-4 text-white animate-nort-icon-glow shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" />
+              <line x1="22" y1="9" x2="16" y2="15" />
+              <line x1="16" y1="9" x2="22" y2="15" />
+            </svg>
+            <span className="text-xs sm:text-sm font-semibold text-white tracking-wide whitespace-nowrap select-none">
+              Clique para ativar o áudio
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* GRADIENTE INFERIOR SUAVE ESTILO YOUTUBE FULLSCREEN */}
       <div
         className={`absolute inset-x-0 bottom-0 pointer-events-none h-44 sm:h-56 bg-gradient-to-t from-black/90 via-black/45 to-transparent z-30 transition-opacity duration-500 ease-out ${
@@ -421,20 +502,33 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
       >
         {/* CONTAINER DA BARRA DE PROGRESSO COM O DESTAQUE ANIMADO ACIMA DELA (Idêntico ao Anexo 2) */}
         <div className="relative w-full">
-          {/* DESTAQUE ANIMADO: "Clique para ativar o áudio" - Posicionado ACIMA da barra de progresso com seta cruzando a barra */}
-          {showAudioPrompt && isMuted && (
+          {/* DESTAQUE ANIMADO NO LUGAR FIXO: Ativado quando o mouse aproxima do rodapé ou antes de mexer o mouse */}
+          {showAudioPrompt && isMuted && (isNearBottom || !mousePos) && (
             <div
-              className="absolute bottom-[calc(100%+14px)] left-4 sm:left-12 flex flex-col items-start z-50 cursor-pointer pointer-events-auto"
+              className="absolute bottom-[calc(100%+14px)] left-4 sm:left-12 flex flex-col items-start z-50 cursor-pointer pointer-events-auto animate-in fade-in duration-200"
               onClick={(e) => {
                 e.stopPropagation();
-                handleToggleSound();
+                handleActivateAudio();
               }}
               role="tooltip"
               aria-label="Clique para ativar o áudio"
               data-testid="nort-intro-audio-prompt"
             >
               {/* Cápsula com borda branca luminosa e glow vermelho neon pulsante */}
-              <div className="relative px-4 py-1.5 rounded-full bg-[#11050b]/90 border-[1.5px] border-white shadow-[0_0_16px_rgba(255,0,51,0.9),inset_0_0_8px_rgba(255,0,51,0.4)] backdrop-blur-md animate-nort-pulse-glow transition-transform hover:scale-105 active:scale-95">
+              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#11050b]/90 border-[1.5px] border-white shadow-[0_0_16px_rgba(255,0,51,0.9),inset_0_0_8px_rgba(255,0,51,0.4)] backdrop-blur-md animate-nort-pulse-glow transition-transform hover:scale-105 active:scale-95">
+                <svg
+                  className="w-3.5 h-3.5 text-white animate-nort-icon-glow shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" />
+                  <line x1="22" y1="9" x2="16" y2="15" />
+                  <line x1="16" y1="9" x2="22" y2="15" />
+                </svg>
                 <span className="text-xs sm:text-sm font-semibold text-white tracking-wide whitespace-nowrap select-none">
                   Clique para ativar o áudio
                 </span>
@@ -518,76 +612,86 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
 
         {/* LINHA HORIZONTAL DE CONTROLES INFERIORES */}
         <div className="flex items-center justify-between text-xs sm:text-sm text-white pt-1">
-          {/* LADO ESQUERDO: Play/Pause, Mute com Destaque Animado, e Texto de contagem regressiva */}
-          <div className="flex items-center gap-2.5 sm:gap-4">
-            {/* 1. Botão Reproduzir / Pausar */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleTogglePlay();
-              }}
-              data-testid="nort-intro-play-toggle"
-              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white/70"
-              aria-label={isPlaying ? 'Pausar vídeo' : 'Reproduzir vídeo'}
-            >
-              {isPlaying ? (
-                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <rect x="6" y="4" width="4" height="16" rx="1" />
-                  <rect x="14" y="4" width="4" height="16" rx="1" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor">
-                  <polygon points="6,4 20,12 6,20" />
-                </svg>
-              )}
-            </button>
+          {/* LADO ESQUERDO: Controle de Áudio (Mute/Unmute com Slider expansível YouTube) e Texto com Contagem Regressiva */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* 1. Controle de Áudio com Slider de Volume estilo YouTube */}
+            <div className="relative flex items-center group/volume">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggleSound();
+                }}
+                data-testid="nort-intro-sound-toggle"
+                className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white/70 ${
+                  isMuted && showAudioPrompt ? 'animate-nort-icon-glow' : ''
+                }`}
+                aria-label={isMuted ? 'Ativar som' : 'Desativar som'}
+              >
+                {isMuted || volume === 0 ? (
+                  <svg
+                    className="w-5 h-5 text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" />
+                    <line x1="22" y1="9" x2="16" y2="15" />
+                    <line x1="16" y1="9" x2="22" y2="15" />
+                  </svg>
+                ) : volume < 0.5 ? (
+                  <svg
+                    className="w-5 h-5 text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-5 h-5 text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                  </svg>
+                )}
+              </button>
 
-            {/* 2. Botão de Som Mudo / Ativo (com aura neon no ícone enquanto mutado) */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleSound();
-              }}
-              data-testid="nort-intro-sound-toggle"
-              className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white/70 ${
-                isMuted && showAudioPrompt ? 'animate-nort-icon-glow' : ''
-              }`}
-              aria-label={isMuted ? 'Ativar som' : 'Desativar som'}
-            >
-              {isMuted ? (
-                <svg
-                  className="w-5 h-5 text-white"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" />
-                  <line x1="22" y1="9" x2="16" y2="15" />
-                  <line x1="16" y1="9" x2="22" y2="15" />
-                </svg>
-              ) : (
-                <svg
-                  className="w-5 h-5 text-white"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" />
-                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-                </svg>
-              )}
-            </button>
+              {/* Slider deslizante de volume expansível no hover estilo YouTube */}
+              <div
+                className="w-0 opacity-0 group-hover/volume:w-16 sm:group-hover/volume:w-20 group-hover/volume:opacity-100 group-focus-within/volume:w-16 sm:group-focus-within/volume:w-20 group-focus-within/volume:opacity-100 transition-all duration-200 overflow-hidden flex items-center pr-1.5"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={isMuted ? 0 : volume}
+                  onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+                  data-testid="nort-intro-volume-slider"
+                  className="w-full h-1 bg-white/30 rounded-full appearance-none cursor-pointer accent-white hover:accent-red-500 transition-all"
+                  aria-label="Controle de volume"
+                />
+              </div>
+            </div>
 
-            {/* 3. Texto informativo com contagem decrescente: "Carregando a loja será aberta em... X Segundos" */}
+            {/* 3. Título exato com contagem decrescente: "Carregando a loja será aberta em... X Segundos" */}
             <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-white/90 select-none">
               <span className="font-medium text-white/90">Carregando a loja será aberta em...</span>
               <span
