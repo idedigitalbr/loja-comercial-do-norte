@@ -7,6 +7,22 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **03/11/2026 — Vídeo de Apresentação do Mascote Nort em WebM e Fake Loading em Tela Cheia (executorId: `antigravity-gemini`):**
+  - **Compressão e Otimização WebM:**
+    - Vídeo original em MP4 (18.6 MB) comprimido e convertido para WebM VP9 + áudio Opus (`/videos/nort-intro.webm`) resultando em 4.1 MB (redução de 78%), com resolução 1080p nítida e taxa de carregamento ultra-rápida.
+    - Gerado fallback MP4 com atom faststart (`/videos/nort-intro.mp4`) para compatibilidade universal em navegadores legados.
+  - **Componente Fullscreen de Intro / Fake Loading (`NortIntroVideo`):**
+    - Exibição em tela cheia com ambiência escura cinematográfica (`#030712`) e reflexo difuso de luz em segundo plano.
+    - Autoplay sem botões de play/pause tradicionais, com inicialização suave sem bloqueio do navegador.
+    - Barra inferior de fake loading com indicador de usabilidade: `"Carregando loja virtual Comercial do Norte..."`, barra de progresso com gradiente institucional, porcentagem dinâmica e contagem regressiva de segundos restantes.
+    - Controles discretos: botão de alternar áudio (`Ativar som` / `Som ativo`) e botão de atalho (`Pular para a loja ➔`).
+  - **Regra de Frequência (Primeiras 3 Visualizações):**
+    - Controle via `localStorage` (`cn_nort_intro_views_v1`) para exibir nas primeiras 3 visitas do usuário.
+    - Suporte a preview via URL `?intro=1` ou `?reset-intro=1`, além de métodos globais `window.__replayNortIntro()` e `window.__resetNortIntro()`.
+  - **Validação:**
+    - 9 testes unitários em `components/intro/nort-intro-video.spec.tsx` (183 testes totais no storefront aprovados).
+    - Build de produção Next.js 16 (Turbopack) validado com sucesso.
+
 - **30/10/2026 — Sincronização em Produção: 5 Linhas (20 Produtos/Pág), 158 Itens no Neon e Deploys Vercel (executorId: `antigravity-gemini`):**
   - **Grid de 5 Linhas (20 produtos/página):**
     - Padronizado `PAGE_SIZE = 20` no storefront em todas as rotas (`/loja`, `/categoria/[slug]`, `/segmento/[slug]`, `/marca/[slug]`, `/tag/[slug]` e fallback do cliente de API), preenchendo exatamente 5 linhas de 4 cards no desktop.

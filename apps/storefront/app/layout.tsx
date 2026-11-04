@@ -6,6 +6,7 @@ import { LocationProvider } from '@/components/location-provider';
 import { PostalCodeModal } from '@/components/postal-code-modal';
 import { QuoteCartProvider } from '@/components/quote-cart-provider';
 import { NortTourProvider } from '@/components/tour';
+import { NortIntroVideo } from '@/components/intro';
 import { QuoteDrawer } from '@/components/quote-drawer';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
@@ -42,6 +43,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <LocationProvider>
               <QuoteCartProvider>
                 <NortTourProvider>
+                  <NortIntroVideo />
                   <WebVitalsReporter />
                   <StorefrontShell
                     initialComposition={composition}
