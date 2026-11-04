@@ -174,11 +174,7 @@ html.nort-intro-active body {
   overflow: hidden !important;
 }
 html.nort-intro-active #storefront-shell-root,
-html.nort-intro-active [data-storefront-content="true"],
-html.nort-intro-active header,
-html.nort-intro-active main,
-html.nort-intro-active footer,
-html.nort-intro-active nav {
+html.nort-intro-active [data-storefront-content="true"] {
   visibility: hidden !important;
   pointer-events: none !important;
 }
@@ -187,11 +183,7 @@ html.nort-intro-active #nort-intro-ssr-curtain {
 }
 
 html.nort-intro-fading #storefront-shell-root,
-html.nort-intro-fading [data-storefront-content="true"],
-html.nort-intro-fading header,
-html.nort-intro-fading main,
-html.nort-intro-fading footer,
-html.nort-intro-fading nav {
+html.nort-intro-fading [data-storefront-content="true"] {
   visibility: visible !important;
 }
 html.nort-intro-fading #nort-intro-ssr-curtain {

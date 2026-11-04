@@ -61,11 +61,7 @@ html.nort-intro-active body {
   overflow: hidden !important;
 }
 html.nort-intro-active #storefront-shell-root,
-html.nort-intro-active [data-storefront-content="true"],
-html.nort-intro-active header,
-html.nort-intro-active main,
-html.nort-intro-active footer,
-html.nort-intro-active nav {
+html.nort-intro-active [data-storefront-content="true"] {
   visibility: hidden !important;
   pointer-events: none !important;
 }

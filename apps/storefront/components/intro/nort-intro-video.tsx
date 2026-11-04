@@ -517,8 +517,11 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         aria-hidden="true"
       />
 
-      {/* FOOTER INFERIOR: A BARRINHA DE PROGRESSO E STATUS MINI FICAM SEMPRE VISÍVEIS NO RODAPÉ! */}
-      <footer
+      {/* BARRA INFERIOR: A BARRINHA DE PROGRESSO E CONTROLES FICAM NO RODAPÉ */}
+      <div
+        role="region"
+        aria-label="Controles do player de vídeo"
+        data-testid="nort-intro-controls-bar"
         onMouseEnter={() => {
           if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
           setIsUiVisible(true);
@@ -527,7 +530,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
           if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
           hideTimeoutRef.current = setTimeout(() => {
             setIsUiVisible(false);
-          }, 2500);
+          }, 3500);
         }}
         className={`absolute bottom-0 inset-x-0 z-40 px-3 sm:px-6 md:px-10 flex flex-col justify-end select-none transition-all duration-300 ease-out ${
           isUiVisible ? 'pb-4 sm:pb-6 pt-10 gap-2.5 sm:gap-3' : 'pb-2 sm:pb-2.5 pt-0 gap-1'
@@ -887,7 +890,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
             </button>
           </div>
         </div>
-      </footer>
+      </div>
     </div>
   );
 

@@ -190,15 +190,14 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       render(<NortIntroVideo forceOpen />);
 
       const overlay = screen.getByTestId('nort-intro-video-overlay');
-      const dialog = screen.getByTestId('nort-intro-video-overlay');
-      const footer = dialog.querySelector('footer');
+      const controlsBar = screen.getByTestId('nort-intro-controls-bar');
 
       // Move o mouse para a área inferior (y = 700)
       act(() => {
         fireEvent.mouseMove(overlay, { clientX: 200, clientY: 700 });
       });
 
-      expect(footer?.className).toContain('pb-4');
+      expect(controlsBar.className).toContain('pb-4');
     });
 
     it('permite ajustar o volume através do slider', () => {
