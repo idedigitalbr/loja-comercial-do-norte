@@ -89,7 +89,7 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       window.HTMLMediaElement.prototype.pause = vi.fn();
     });
 
-    it('renderiza com a barrinha minimalista vermelha e a contagem mini no canto inferior direito', () => {
+    it('renderiza com os controles completos visíveis (Play, Áudio, Barra vermelha, Contagem e Tempo)', () => {
       render(<NortIntroVideo forceOpen />);
 
       const dialog = screen.getByTestId('nort-intro-video-overlay');
@@ -98,18 +98,44 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
       expect(video).toBeTruthy();
 
+      // Botão Play / Pause presente
+      expect(screen.getByTestId('nort-intro-play-toggle')).toBeTruthy();
+
+      // Botão de Áudio e aviso ancorado com a setinha presentes
+      expect(screen.getByTestId('nort-intro-sound-toggle')).toBeTruthy();
+      const prompt = screen.getByTestId('nort-intro-audio-prompt');
+      expect(prompt).toBeTruthy();
+      expect(prompt.textContent).toContain('Clique para ativar o áudio');
+
       // Barra de progresso vermelha e marcador minimalista no rodapé estão presentes
       const progressbar = screen.getByRole('progressbar');
       expect(progressbar).toBeTruthy();
       expect(screen.getByTestId('nort-intro-progress-marker')).toBeTruthy();
 
-      // Status mini no canto inferior direito está presente mesmo no modo minimalista
-      expect(screen.getByTestId('nort-intro-countdown-mini')).toBeTruthy();
+      // Contagem e tempo de reprodução estão presentes
+      expect(screen.getByTestId('nort-intro-countdown')).toBeTruthy();
+      expect(screen.getByTestId('nort-intro-time-display')).toBeTruthy();
+    });
 
-      // Aviso flutuante pedindo para clicar está presente quando mutado
-      const floatingPrompt = screen.getByTestId('nort-intro-audio-prompt-floating');
-      expect(floatingPrompt).toBeTruthy();
-      expect(floatingPrompt.textContent).toContain('Clique para ativar o áudio');
+    it('permite alternar reprodução e pausa através do botão de Play/Pause', async () => {
+      render(<NortIntroVideo forceOpen />);
+
+      const playBtn = screen.getByTestId('nort-intro-play-toggle');
+      expect(playBtn.getAttribute('aria-label')).toBe('Pausar vídeo');
+
+      // Clica para pausar
+      act(() => {
+        fireEvent.click(playBtn);
+      });
+      expect(window.HTMLMediaElement.prototype.pause).toHaveBeenCalled();
+      expect(playBtn.getAttribute('aria-label')).toBe('Reproduzir vídeo');
+
+      // Clica para despausar
+      await act(async () => {
+        fireEvent.click(playBtn);
+      });
+      expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalled();
+      expect(playBtn.getAttribute('aria-label')).toBe('Pausar vídeo');
     });
 
     it('clicar em qualquer canto do vídeo na 1ª vez ativa o áudio e reinicia o vídeo do começo', () => {
@@ -131,32 +157,33 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       expect(soundBtn.getAttribute('aria-label')).toBe('Desativar som');
       expect(window.HTMLMediaElement.prototype.pause).not.toHaveBeenCalled();
 
-      // O aviso flutuante de desmutar desaparece
-      expect(screen.queryByTestId('nort-intro-audio-prompt-floating')).toBeNull();
+      // O aviso de áudio desaparece
+      expect(screen.queryByTestId('nort-intro-audio-prompt')).toBeNull();
     });
 
-    it('quando o vídeo é mutado novamente, o aviso flutuante volta a aparecer', () => {
+    it('quando o vídeo é mutado novamente através do botão de áudio, o aviso com a seta reaparece', () => {
       render(<NortIntroVideo forceOpen />);
 
       const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
+      const soundBtn = screen.getByTestId('nort-intro-sound-toggle');
 
-      // 1º clique: ativa o áudio -> aviso desaparece
+      // 1º clique no vídeo: ativa o áudio -> aviso desaparece
       act(() => {
         fireEvent.click(video);
       });
-      expect(screen.queryByTestId('nort-intro-audio-prompt-floating')).toBeNull();
+      expect(screen.queryByTestId('nort-intro-audio-prompt')).toBeNull();
 
-      // 2º clique: muta o áudio -> aviso volta a aparecer!
+      // Muta através do botão de som -> aviso volta a aparecer com a setinha
       act(() => {
-        fireEvent.click(video);
+        fireEvent.click(soundBtn);
       });
-      expect(screen.getByTestId('nort-intro-audio-prompt-floating')).toBeTruthy();
+      expect(screen.getByTestId('nort-intro-audio-prompt')).toBeTruthy();
 
-      // 3º clique: desmuta novamente -> aviso desaparece!
+      // Desmuta novamente -> aviso desaparece
       act(() => {
-        fireEvent.click(video);
+        fireEvent.click(soundBtn);
       });
-      expect(screen.queryByTestId('nort-intro-audio-prompt-floating')).toBeNull();
+      expect(screen.queryByTestId('nort-intro-audio-prompt')).toBeNull();
     });
 
     it('expande os controles inferiores quando o mouse se move para o rodapé', () => {
@@ -187,7 +214,7 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       expect(soundBtn.getAttribute('aria-label')).toBe('Desativar som');
     });
 
-    it('atualiza a contagem decrescente em ambos os locais (mini e expandido)', () => {
+    it('atualiza a contagem decrescente e progresso da barra a 60 FPS', () => {
       render(<NortIntroVideo forceOpen />);
 
       const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
@@ -200,9 +227,6 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
         fireEvent.timeUpdate(video);
       });
 
-      const countdownMini = screen.getByTestId('nort-intro-countdown-mini');
-      expect(countdownMini.textContent).toBe('16 Segundos');
-
       const countdown = screen.getByTestId('nort-intro-countdown');
       expect(countdown.textContent).toBe('16 Segundos');
 
@@ -210,7 +234,7 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       expect(progressbar.getAttribute('aria-valuenow')).toBe('38');
     });
 
-    it('exibe o botão de pular mini no canto direito APENAS após atingir a metade do vídeo', () => {
+    it('exibe o botão de pular apresentação estilo YouTube APENAS após atingir a metade do vídeo', () => {
       render(<NortIntroVideo forceOpen />);
 
       const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
@@ -226,7 +250,7 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       });
 
       // Botão NÃO deve estar presente antes da metade
-      expect(screen.queryByTestId('nort-intro-skip-button-mini')).toBeNull();
+      expect(screen.queryByTestId('nort-intro-skip-button')).toBeNull();
 
       // Avança para 10s (metade exata do vídeo)
       act(() => {
@@ -234,10 +258,10 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
         fireEvent.timeUpdate(video);
       });
 
-      // Agora o botão de pular mini DEVE estar visível no canto direito
-      const skipMini = screen.getByTestId('nort-intro-skip-button-mini');
-      expect(skipMini).toBeTruthy();
-      expect(skipMini.textContent).toContain('Pular');
+      // Agora o botão de pular estilo YouTube DEVE estar visível
+      const skipBtn = screen.getByTestId('nort-intro-skip-button');
+      expect(skipBtn).toBeTruthy();
+      expect(skipBtn.textContent).toContain('Pular apresentação');
     });
 
     it('permite buscar ponto do vídeo (seek) ao clicar na barra de progresso', () => {
@@ -289,7 +313,7 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
         fireEvent.timeUpdate(video);
       });
 
-      const skipBtn = screen.getByTestId('nort-intro-skip-button-mini');
+      const skipBtn = screen.getByTestId('nort-intro-skip-button');
       act(() => {
         fireEvent.click(skipBtn);
       });
