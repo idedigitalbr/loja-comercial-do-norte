@@ -123,3 +123,31 @@ body {
     padding-inline: 1.5rem;
   }
 }
+
+/* Animação suave para destaque de áudio da tela de boas-vindas */
+@keyframes nortAudioPulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 0, 51, 0.45);
+    border-color: rgba(255, 0, 51, 0.75);
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(255, 0, 51, 0.85);
+    border-color: rgba(255, 0, 51, 1);
+    transform: scale(1.025);
+    opacity: 1;
+  }
+}
+
+.animate-nort-pulse-glow {
+  animation: nortAudioPulseGlow 2.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-nort-pulse-glow {
+    animation: none;
+    box-shadow: 0 0 10px rgba(255, 0, 51, 0.6);
+  }
+}
+
