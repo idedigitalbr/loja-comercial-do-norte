@@ -165,3 +165,40 @@ body {
   }
 }
 
+/* Zero-flash SSR curtain e controle de exibição para a introdução em vídeo */
+html.nort-intro-active {
+  background-color: #000000 !important;
+  color-scheme: dark;
+}
+html.nort-intro-active body {
+  background-color: #000000 !important;
+  overflow: hidden !important;
+}
+html.nort-intro-active #storefront-shell-root,
+html.nort-intro-active [data-storefront-content="true"],
+html.nort-intro-active header,
+html.nort-intro-active main,
+html.nort-intro-active footer,
+html.nort-intro-active nav {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+html.nort-intro-active #nort-intro-ssr-curtain {
+  display: block !important;
+}
+
+html.nort-intro-fading #storefront-shell-root,
+html.nort-intro-fading [data-storefront-content="true"],
+html.nort-intro-fading header,
+html.nort-intro-fading main,
+html.nort-intro-fading footer,
+html.nort-intro-fading nav {
+  visibility: visible !important;
+}
+html.nort-intro-fading #nort-intro-ssr-curtain {
+  display: block !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 700ms ease-out !important;
+}
+

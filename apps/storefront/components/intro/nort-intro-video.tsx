@@ -80,6 +80,11 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     setIsFadingOut(true);
     setIntroActive(false);
 
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.add('nort-intro-fading');
+      document.documentElement.classList.remove('nort-intro-active');
+    }
+
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent(NORT_INTRO_FINISHED_EVENT));
     }
@@ -89,7 +94,12 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     const timer = setTimeout(() => {
       setIsOpen(false);
       if (typeof document !== 'undefined') {
+        document.documentElement.classList.remove('nort-intro-fading');
         document.body.style.overflow = '';
+        const ssrCurtain = document.getElementById('nort-intro-ssr-curtain');
+        if (ssrCurtain) {
+          ssrCurtain.remove();
+        }
       }
     }, 700);
 
@@ -236,10 +246,18 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
       setIntroActive(true);
       setIsOpen(true);
       if (typeof document !== 'undefined') {
+        document.documentElement.classList.add('nort-intro-active');
         document.body.style.overflow = 'hidden';
       }
     } else {
       setIntroActive(false);
+      if (typeof document !== 'undefined') {
+        document.documentElement.classList.remove('nort-intro-active');
+        const ssrCurtain = document.getElementById('nort-intro-ssr-curtain');
+        if (ssrCurtain) {
+          ssrCurtain.remove();
+        }
+      }
     }
   }, [forceOpen]);
 
@@ -355,13 +373,15 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     };
   }, [isOpen, handleFinish, handleToggleSound, handleToggleFullscreen]);
 
-  // Restaura overflow e timers ao desmontar
+  // Restaura overflow, classes e timers ao desmontar
   useEffect(() => {
     return () => {
       setIntroActive(false);
       if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       if (typeof document !== 'undefined') {
+        document.documentElement.classList.remove('nort-intro-active');
+        document.documentElement.classList.remove('nort-intro-fading');
         document.body.style.overflow = '';
       }
     };

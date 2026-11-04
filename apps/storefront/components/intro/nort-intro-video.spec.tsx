@@ -335,6 +335,37 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       render(<NortIntroVideo />);
 
       expect(screen.queryByTestId('nort-intro-video-overlay')).toBeNull();
+      expect(document.documentElement.classList.contains('nort-intro-active')).toBe(false);
+    });
+
+    it('gerencia classes zero-flash nort-intro-active e nort-intro-fading e remove cortina SSR ao finalizar', () => {
+      vi.useFakeTimers();
+      // Simula a cortina SSR inserida pelo layout.tsx
+      const curtain = document.createElement('div');
+      curtain.id = 'nort-intro-ssr-curtain';
+      document.body.appendChild(curtain);
+
+      render(<NortIntroVideo forceOpen />);
+
+      expect(document.documentElement.classList.contains('nort-intro-active')).toBe(true);
+
+      // Finaliza via tecla Escape
+      act(() => {
+        fireEvent.keyDown(window, { key: 'Escape' });
+      });
+
+      // Durante o fade-out, nort-intro-active sai e nort-intro-fading entra
+      expect(document.documentElement.classList.contains('nort-intro-active')).toBe(false);
+      expect(document.documentElement.classList.contains('nort-intro-fading')).toBe(true);
+
+      // Após 750ms, a transição conclui e a cortina SSR é removida
+      act(() => {
+        vi.advanceTimersByTime(750);
+      });
+
+      expect(document.documentElement.classList.contains('nort-intro-fading')).toBe(false);
+      expect(document.getElementById('nort-intro-ssr-curtain')).toBeNull();
+      vi.useRealTimers();
     });
   });
 });

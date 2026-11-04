@@ -34,7 +34,65 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){
+  try {
+    var s = window.location.search || '';
+    var p = s.indexOf('intro=1') !== -1 || s.indexOf('force-intro=1') !== -1 || s.indexOf('reset-intro=1') !== -1;
+    var v = localStorage.getItem('cn_nort_intro_views_v1');
+    var count = v === null ? 0 : parseInt(v, 10);
+    if (p || isNaN(count) || count < 3) {
+      document.documentElement.classList.add('nort-intro-active');
+    }
+  } catch (e) {}
+})();`,
+          }}
+        />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+html.nort-intro-active {
+  background-color: #000000 !important;
+  color-scheme: dark;
+}
+html.nort-intro-active body {
+  background-color: #000000 !important;
+  overflow: hidden !important;
+}
+html.nort-intro-active #storefront-shell-root,
+html.nort-intro-active [data-storefront-content="true"],
+html.nort-intro-active header,
+html.nort-intro-active main,
+html.nort-intro-active footer,
+html.nort-intro-active nav {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+html.nort-intro-active #nort-intro-ssr-curtain {
+  display: block !important;
+}
+`,
+          }}
+        />
+      </head>
       <body className="min-h-screen antialiased bg-white" suppressHydrationWarning>
+        <div
+          id="nort-intro-ssr-curtain"
+          aria-hidden="true"
+          style={{
+            display: 'none',
+            position: 'fixed',
+            inset: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: '#000000',
+            zIndex: 9999990,
+            pointerEvents: 'none',
+            transition: 'opacity 700ms ease-out',
+          }}
+        />
         <a className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-ink" href="#conteudo">
           Pular para o conteúdo
         </a>
@@ -45,26 +103,28 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <NortTourProvider>
                   <NortIntroVideo />
                   <WebVitalsReporter />
-                  <StorefrontShell
-                    initialComposition={composition}
-                    footer={<SiteFooter categories={categories} site={site} />}
-                    header={
-                      <SiteHeader
-                        brands={brands}
-                        categories={categories}
-                        segments={segments}
-                        tags={tags}
-                        logoUrl={mediaUrl(site?.logoPath ?? null)}
-                        phone={site?.phone ?? null}
-                        siteName={site?.siteName ?? 'Comercial do Norte'}
-                        whatsapp={site?.whatsapp ?? null}
-                      />
-                    }
-                  >
-                    <main id="conteudo">{children}</main>
-                    <QuoteDrawer />
-                    <PostalCodeModal />
-                  </StorefrontShell>
+                  <div id="storefront-shell-root" data-storefront-content="true">
+                    <StorefrontShell
+                      initialComposition={composition}
+                      footer={<SiteFooter categories={categories} site={site} />}
+                      header={
+                        <SiteHeader
+                          brands={brands}
+                          categories={categories}
+                          segments={segments}
+                          tags={tags}
+                          logoUrl={mediaUrl(site?.logoPath ?? null)}
+                          phone={site?.phone ?? null}
+                          siteName={site?.siteName ?? 'Comercial do Norte'}
+                          whatsapp={site?.whatsapp ?? null}
+                        />
+                      }
+                    >
+                      <main id="conteudo">{children}</main>
+                      <QuoteDrawer />
+                      <PostalCodeModal />
+                    </StorefrontShell>
+                  </div>
                 </NortTourProvider>
               </QuoteCartProvider>
             </LocationProvider>
