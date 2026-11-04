@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { SegmentsCarouselWidget } from './segments-carousel';
 import type { SegmentCardItem } from '@/lib/storefront/widget-types';
@@ -237,5 +237,36 @@ describe('SegmentsCarouselWidget', () => {
     const track = container.querySelector('[style*="translateX"]');
     expect(track).not.toBeNull();
     expect(track?.getAttribute('style')).toContain('var(--card-step)');
+  });
+
+  it('renderiza o botão "Assista nosso vídeo" e o mascote Nort', () => {
+    render(<SegmentsCarouselWidget items={mockItems} />);
+
+    expect(screen.getByRole('button', { name: 'Assista nosso vídeo' })).toBeDefined();
+    expect(screen.getByText('Assista nosso vídeo')).toBeDefined();
+
+    const mascotImg = screen.getByAltText(/Nort — Veja os produtos para seu segmento/i);
+    expect(mascotImg).toBeDefined();
+  });
+
+  it('abre e fecha o modal de vídeo institucional dos segmentos', () => {
+    render(<SegmentsCarouselWidget items={mockItems} />);
+
+    // Inicialmente o modal está fechado
+    expect(screen.queryByRole('dialog', { name: 'Vídeo institucional dos segmentos' })).toBeNull();
+
+    // Clica no botão de vídeo
+    const videoBtn = screen.getByRole('button', { name: 'Assista nosso vídeo' });
+    fireEvent.click(videoBtn);
+
+    // O modal deve estar aberto
+    const modal = screen.getByRole('dialog', { name: 'Vídeo institucional dos segmentos' });
+    expect(modal).toBeDefined();
+
+    // Fecha o modal pelo botão fechar
+    const closeBtn = screen.getByRole('button', { name: 'Fechar vídeo' });
+    fireEvent.click(closeBtn);
+
+    expect(screen.queryByRole('dialog', { name: 'Vídeo institucional dos segmentos' })).toBeNull();
   });
 });

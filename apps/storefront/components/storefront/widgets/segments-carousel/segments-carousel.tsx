@@ -14,8 +14,10 @@ import {
   IceCream,
   PartyPopper,
   Pizza,
+  Play,
   Soup,
   UtensilsCrossed,
+  X,
 } from 'lucide-react';
 import { useElementor } from '@/components/storefront/editor/elementor-editor-context';
 import { InlineImageEditorOverlay } from '@/components/storefront/editor/inline-image-editor-overlay';
@@ -108,6 +110,9 @@ export function SegmentsCarouselWidget({
   subtitle = 'De todos os tamanhos',
   ctaLabel = 'Ver todos os segmentos',
   ctaUrl = '/segmentos',
+  videoButtonLabel = 'Assista nosso vídeo',
+  videoUrl = '/videos/nort-intro.mp4',
+  mascotImageUrl = '/assets/nort-segmentos.png',
   items = [],
   autoplayIntervalMs = 5000,
 }: SegmentsCarouselProps) {
@@ -118,6 +123,18 @@ export function SegmentsCarouselWidget({
   const [currentIndex, setCurrentIndex] = useState(() => (canLoop ? CLONE_COUNT : 0));
   const [isTransitionEnabled, setIsTransitionEnabled] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isVideoModalOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsVideoModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isVideoModalOpen]);
 
   const currentIndexRef = useRef(currentIndex);
   currentIndexRef.current = currentIndex;
@@ -313,34 +330,75 @@ export function SegmentsCarouselWidget({
     : currentIndex % items.length;
 
   return (
-    <section aria-label={title} className="cn-container pt-4 pb-2 sm:pt-6 sm:pb-3">
+    <section aria-label={title} className="cn-container pt-6 pb-2 sm:pt-8 md:pt-10 sm:pb-3">
       <div className="relative bg-transparent">
-        {/* Topo Azul Escuro: onde era azul permanece azul com gradiente oficial */}
-        <div className="relative rounded-[24px] bg-gradient-to-r from-[#002868] via-[#003E99] to-[#002B66] px-6 pb-36 pt-7 shadow-md sm:px-10 sm:pt-9">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+        {/* Topo Azul Escuro: onde era azul permanece azul com gradiente oficial e altura ajustada */}
+        <div className="relative rounded-[24px] bg-gradient-to-r from-[#002868] via-[#003E99] to-[#002B66] px-6 pt-7 pb-44 sm:px-10 sm:pt-9 sm:pb-52 md:pb-60 lg:pb-64 shadow-md">
+          {/* Header Superior: Textos à esquerda e CTA à direita */}
+          <div className="relative z-20 flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
+            {/* Bloco Esquerda: Título, Subtítulo, Traço Vermelho e Botão Assista nosso vídeo */}
+            <div className="max-w-md">
+              <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-[32px]">
                 {title}
               </h2>
               <p className="mt-1 text-lg font-medium text-white sm:text-xl">
                 {subtitle}
               </p>
-              <div className="mt-2.5 h-1 w-28 rounded-full bg-[#E2091E]" />
+              <div className="mt-2.5 h-1 w-24 rounded-full bg-[#E2091E]" />
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (isEditing && !previewMode) return;
+                  setIsVideoModalOpen(true);
+                }}
+                className="mt-6 sm:mt-7 inline-flex items-center gap-3 cursor-pointer group select-none text-left transition hover:opacity-95"
+                aria-label={videoButtonLabel}
+              >
+                <span className="flex size-9 sm:size-10 items-center justify-center rounded-full bg-[#E2091E] text-white shadow-md transition-transform duration-200 group-hover:scale-105 ring-2 ring-white/30 shrink-0">
+                  <Play className="size-4 text-white fill-white ml-0.5" />
+                </span>
+                <span className="text-sm sm:text-base font-semibold text-white tracking-wide group-hover:text-white/90 transition-colors">
+                  {videoButtonLabel}
+                </span>
+              </button>
             </div>
 
+            {/* Bloco Direita: CTA Ver todos os segmentos */}
             <Link
-              className="inline-flex items-center gap-2 self-start rounded-xl border border-white/40 bg-[#002868]/70 px-5 py-2.5 text-xs font-bold text-white backdrop-blur-xs transition hover:bg-white/20 sm:self-auto"
+              className="inline-flex items-center gap-2 self-start rounded-xl border border-white/40 bg-[#002868]/70 px-5 py-2.5 text-xs font-bold text-white backdrop-blur-xs transition hover:bg-white/20 sm:self-center"
               href={ctaUrl}
+              onClick={(e) => {
+                if (isEditing && !previewMode) e.preventDefault();
+              }}
             >
               <span>{ctaLabel}</span>
               <ArrowRight className="size-4" />
             </Link>
           </div>
+
+          {/* Mascote Nort 3D Centralizado com Balão "Veja os produtos para seu segmento" (Anexo 3) */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-3 sm:-top-4 md:-top-5 lg:-top-6 z-10 hidden sm:flex items-start justify-center w-[400px] sm:w-[460px] md:w-[520px] lg:w-[580px] xl:w-[610px] select-none"
+          >
+            <div className="relative w-full aspect-[1024/576]">
+              <Image
+                alt="Nort — Veja os produtos para seu segmento"
+                className="size-full object-contain object-top drop-shadow-[0_12px_24px_rgba(0,0,0,0.3)]"
+                fill
+                priority
+                sizes="(max-width: 640px) 400px, (max-width: 768px) 460px, (max-width: 1024px) 520px, 610px"
+                src={mascotImageUrl}
+                unoptimized
+              />
+            </div>
+          </div>
         </div>
 
         {/* Carrossel de Cards sobrepondo o fundo azul com base transparente (sem fundo branco na parte de baixo) */}
         <div
-          className="relative -mt-28 px-5 pb-2 sm:px-9"
+          className="relative -mt-28 px-5 pb-2 sm:px-9 z-20"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
           onTouchEnd={handleTouchEnd}
@@ -480,6 +538,55 @@ export function SegmentsCarouselWidget({
           )}
         </div>
       </div>
+
+      {/* Modal de Vídeo Institucional dos Segmentos */}
+      {isVideoModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Vídeo institucional dos segmentos"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-xs animate-in fade-in duration-200"
+          onClick={() => setIsVideoModalOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-zinc-800 bg-black shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/90 px-4 py-3 text-white">
+              <div className="flex items-center gap-2">
+                <span className="flex size-6 items-center justify-center rounded-full bg-[#E2091E] text-white">
+                  <Play className="size-3 fill-white ml-0.5" />
+                </span>
+                <span className="text-xs sm:text-sm font-bold">
+                  Comercial do Norte — Para todos os Negócios
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsVideoModalOpen(false)}
+                aria-label="Fechar vídeo"
+                className="flex size-8 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 transition hover:bg-zinc-700 hover:text-white cursor-pointer"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="relative aspect-video w-full bg-black">
+              <video
+                src={videoUrl}
+                controls
+                autoPlay
+                playsInline
+                className="size-full object-contain"
+              >
+                <source src="/videos/nort-intro.webm" type="video/webm" />
+                <source src="/videos/nort-intro.mp4" type="video/mp4" />
+                Seu navegador não suporta a tag de vídeo.
+              </video>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
