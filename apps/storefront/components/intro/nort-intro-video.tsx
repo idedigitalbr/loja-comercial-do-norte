@@ -36,17 +36,33 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
-  // O áudio deve começar estritamente MUTADO para garantir autoplay sem restrições do navegador
+
+  // Estados de reprodução e áudio
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [showAudioPrompt, setShowAudioPrompt] = useState(true);
+  const [hasInteractedAudio, setHasInteractedAudio] = useState(false);
+
+  // Controle de visibilidade da UI estilo YouTube (auto-hide)
+  const [isUiVisible, setIsUiVisible] = useState(true);
+
+  // Tempo e duração
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(17);
+  const [duration, setDuration] = useState(26);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const finishedRef = useRef(false);
+
+  // Refs de alta performance para 60 FPS contínuos sem sobrecarga de re-renders
+  const progressFillRef = useRef<HTMLDivElement | null>(null);
+  const progressMarkerRef = useRef<HTMLDivElement | null>(null);
+  const progressTextRef = useRef<HTMLSpanElement | null>(null);
+  const countdownRef = useRef<HTMLSpanElement | null>(null);
+  const lastRemainingRef = useRef<number | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Sinaliza imediatamente para o ecossistema que a intro está ativa no client
   if (typeof window !== 'undefined' && (forceOpen || shouldShowNortIntro())) {
@@ -76,32 +92,53 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     return () => clearTimeout(timer);
   }, [onFinish]);
 
+  // Função para reiniciar temporizador de auto-hide da UI
+  const resetHideTimer = useCallback(() => {
+    setIsUiVisible(true);
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+    }
+    // Auto-oculta após 2.5s se estiver reproduzindo e já tiver interagido com o áudio
+    if (isPlaying && hasInteractedAudio) {
+      hideTimeoutRef.current = setTimeout(() => {
+        setIsUiVisible(false);
+      }, 2500);
+    }
+  }, [isPlaying, hasInteractedAudio]);
+
   const handleTogglePlay = useCallback(() => {
     const vid = videoRef.current;
     if (!vid) return;
     if (isPlaying) {
       vid.pause();
       setIsPlaying(false);
+      setIsUiVisible(true);
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
     } else {
       vid
         .play()
-        .then(() => setIsPlaying(true))
+        .then(() => {
+          setIsPlaying(true);
+          resetHideTimer();
+        })
         .catch(() => {});
     }
-  }, [isPlaying]);
+  }, [isPlaying, resetHideTimer]);
 
   const handleToggleSound = useCallback(() => {
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
     if (videoRef.current) {
       videoRef.current.muted = nextMuted;
-      // Garante que continue tocando se estiver pausado
       if (videoRef.current.paused) {
         videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
       }
     }
-    // Ao interagir com o controle de som, fecha o destaque visual
     setShowAudioPrompt(false);
+    setHasInteractedAudio(true);
+    // Ao clicar em ativar o áudio, a UI se oculta suavemente conforme solicitado
+    setIsUiVisible(false);
+    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
   }, [isMuted]);
 
   const handleSeek = useCallback(
@@ -116,8 +153,9 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         videoRef.current.currentTime = targetTime;
         setCurrentTime(targetTime);
       }
+      resetHideTimer();
     },
-    [duration]
+    [duration, resetHideTimer]
   );
 
   const handleToggleFullscreen = useCallback(() => {
@@ -137,7 +175,8 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         (document as unknown as { webkitExitFullscreen: () => void }).webkitExitFullscreen();
       }
     }
-  }, []);
+    resetHideTimer();
+  }, [resetHideTimer]);
 
   useEffect(() => {
     setMounted(true);
@@ -186,11 +225,60 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
             setIsPlaying(true);
           })
           .catch(() => {
-            // Em caso de bloqueio total excepcional pelo navegador
             setIsPlaying(false);
           });
       }
     }
+  }, [isOpen]);
+
+  // Loop a 60 FPS contínuo via requestAnimationFrame para fluidez total da barra e tempo
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let isMounted = true;
+    const updateLoop = () => {
+      const vid = videoRef.current;
+      if (vid && vid.duration > 0) {
+        const curr = vid.currentTime;
+        const dur = vid.duration;
+        const pct = Math.min(100, Math.max(0, (curr / dur) * 100));
+
+        // Atualização contínua a 60 FPS diretamente no DOM
+        if (progressFillRef.current) {
+          progressFillRef.current.style.width = `${pct}%`;
+          progressFillRef.current.setAttribute('aria-valuenow', String(Math.round(pct)));
+        }
+        if (progressMarkerRef.current) {
+          progressMarkerRef.current.style.left = `${pct}%`;
+        }
+        if (progressTextRef.current) {
+          progressTextRef.current.textContent = `${Math.round(pct)}%`;
+        }
+
+        // Atualização da contagem regressiva decrescente
+        const remaining = Math.max(0, Math.ceil(dur - curr));
+        if (countdownRef.current && remaining !== lastRemainingRef.current) {
+          lastRemainingRef.current = remaining;
+          countdownRef.current.textContent = `${remaining} ${remaining === 1 ? 'Segundo' : 'Segundos'}`;
+        }
+
+        // Mantém currentTime sincronizado para a regra do botão "Pular" (só após metade)
+        setCurrentTime(curr);
+      }
+
+      if (isMounted) {
+        animFrameRef.current = requestAnimationFrame(updateLoop);
+      }
+    };
+
+    animFrameRef.current = requestAnimationFrame(updateLoop);
+
+    return () => {
+      isMounted = false;
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+      }
+    };
   }, [isOpen]);
 
   // Sincronização do estado de Fullscreen
@@ -230,10 +318,12 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     };
   }, [isOpen, handleFinish, handleTogglePlay, handleToggleSound, handleToggleFullscreen]);
 
-  // Restaura overflow ao desmontar
+  // Restaura overflow e timers ao desmontar
   useEffect(() => {
     return () => {
       setIntroActive(false);
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       if (typeof document !== 'undefined') {
         document.body.style.overflow = '';
       }
@@ -242,7 +332,10 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
 
   if (!isOpen || !mounted || typeof document === 'undefined') return null;
 
-  const progressPercent = duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
+  const initialPercent = duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
+  const initialRemaining = Math.max(0, Math.ceil(duration - currentTime));
+  // O botão pular só é habilitado após atingir a metade do vídeo
+  const canSkip = duration > 0 && currentTime >= duration / 2;
 
   const content = (
     <div
@@ -251,8 +344,9 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
       aria-modal="true"
       aria-label="Apresentação Oficial Comercial do Norte"
       data-testid="nort-intro-video-overlay"
+      onMouseMove={resetHideTimer}
       onClick={(e) => {
-        // Clicar no fundo da tela (vídeo) alterna reprodução/pausa
+        // Clicar no fundo da tela alterna reprodução/pausa e exibe a UI
         if (e.target === overlayRef.current || e.target === videoRef.current) {
           handleTogglePlay();
         }
@@ -270,7 +364,26 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onTimeUpdate={(e) => {
-          setCurrentTime(e.currentTarget.currentTime);
+          // Fallback para ambientes sem rAF (ex: testes jsdom)
+          const curr = e.currentTarget.currentTime;
+          setCurrentTime(curr);
+          if (duration > 0) {
+            const pct = Math.min(100, Math.max(0, (curr / duration) * 100));
+            if (progressFillRef.current) {
+              progressFillRef.current.style.width = `${pct}%`;
+              progressFillRef.current.setAttribute('aria-valuenow', String(Math.round(pct)));
+            }
+            if (progressMarkerRef.current) {
+              progressMarkerRef.current.style.left = `${pct}%`;
+            }
+            if (progressTextRef.current) {
+              progressTextRef.current.textContent = `${Math.round(pct)}%`;
+            }
+            const rem = Math.max(0, Math.ceil(duration - curr));
+            if (countdownRef.current) {
+              countdownRef.current.textContent = `${rem} ${rem === 1 ? 'Segundo' : 'Segundos'}`;
+            }
+          }
         }}
         onLoadedMetadata={(e) => {
           const dur = e.currentTarget.duration;
@@ -289,51 +402,123 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
 
       {/* GRADIENTE INFERIOR SUAVE ESTILO YOUTUBE FULLSCREEN */}
       <div
-        className="absolute inset-x-0 bottom-0 pointer-events-none h-44 sm:h-56 bg-gradient-to-t from-black/90 via-black/45 to-transparent z-30"
+        className={`absolute inset-x-0 bottom-0 pointer-events-none h-44 sm:h-56 bg-gradient-to-t from-black/90 via-black/45 to-transparent z-30 transition-opacity duration-500 ease-out ${
+          isUiVisible ? 'opacity-100' : 'opacity-0'
+        }`}
         aria-hidden="true"
       />
 
-      {/* NOVO PLAYER INFERIOR: BARRA DE PROGRESSO VERMELHA E CONTROLES */}
-      <footer className="absolute bottom-0 inset-x-0 z-40 px-4 sm:px-8 md:px-12 pb-5 sm:pb-7 pt-6 flex flex-col gap-3 sm:gap-4 select-none">
-        {/* ÚNICA BARRA DE PROGRESSO: Vermelha #FF0033 com Marcador Dinâmico e Cápsula com % integrada */}
-        <div
-          className="relative w-full py-2 -my-2 cursor-pointer group"
-          onClick={handleSeek}
-          role="slider"
-          tabIndex={0}
-          aria-label="Progresso do vídeo"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(progressPercent)}
-          data-testid="nort-intro-progress-container"
-        >
-          {/* Trilha base branca com transparência */}
-          <div className="relative w-full h-1 sm:h-[4px] bg-white/30 rounded-full overflow-visible transition-all duration-150 group-hover:h-1.5">
-            {/* Barra percorrida vermelha #FF0033 */}
+      {/* NOVO PLAYER INFERIOR: BARRA DE PROGRESSO VERMELHA E CONTROLES (Com auto-hide estilo YouTube) */}
+      <footer
+        onMouseEnter={() => {
+          if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+          setIsUiVisible(true);
+        }}
+        onMouseLeave={resetHideTimer}
+        className={`absolute bottom-0 inset-x-0 z-40 px-4 sm:px-8 md:px-12 pb-5 sm:pb-7 pt-12 flex flex-col gap-3 select-none transition-all duration-500 ease-out ${
+          isUiVisible ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
+      >
+        {/* CONTAINER DA BARRA DE PROGRESSO COM O DESTAQUE ANIMADO ACIMA DELA (Idêntico ao Anexo 2) */}
+        <div className="relative w-full">
+          {/* DESTAQUE ANIMADO: "Clique para ativar o áudio" - Posicionado ACIMA da barra de progresso com seta cruzando a barra */}
+          {showAudioPrompt && isMuted && (
             <div
-              className="h-full bg-[#FF0033] rounded-full relative transition-all duration-75 ease-linear shadow-[0_0_8px_rgba(255,0,51,0.7)]"
-              style={{ width: `${progressPercent}%` }}
-              role="progressbar"
-              aria-valuenow={Math.round(progressPercent)}
-              aria-valuemin={0}
-              aria-valuemax={100}
+              className="absolute bottom-[calc(100%+14px)] left-4 sm:left-12 flex flex-col items-start z-50 cursor-pointer pointer-events-auto"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleSound();
+              }}
+              role="tooltip"
+              aria-label="Clique para ativar o áudio"
+              data-testid="nort-intro-audio-prompt"
             >
-              {/* Marcador com Cápsula Vermelha Dinâmica contendo a porcentagem atual */}
-              <div
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 flex items-center justify-center z-10 pointer-events-none"
-                data-testid="nort-intro-progress-marker"
-              >
-                <span className="bg-[#FF0033] text-white font-bold text-[10px] sm:text-xs leading-none px-2 py-0.5 rounded-full shadow-[0_2px_8px_rgba(255,0,51,0.6)] select-none whitespace-nowrap">
-                  {Math.round(progressPercent)}%
+              {/* Cápsula com borda branca luminosa e glow vermelho neon pulsante */}
+              <div className="relative px-4 py-1.5 rounded-full bg-[#11050b]/90 border-[1.5px] border-white shadow-[0_0_16px_rgba(255,0,51,0.9),inset_0_0_8px_rgba(255,0,51,0.4)] backdrop-blur-md animate-nort-pulse-glow transition-transform hover:scale-105 active:scale-95">
+                <span className="text-xs sm:text-sm font-semibold text-white tracking-wide whitespace-nowrap select-none">
+                  Clique para ativar o áudio
                 </span>
+              </div>
+
+              {/* Seta curvada branca com glow vermelho que cruza a barra de progresso e aponta diretamente para o ícone de áudio */}
+              <div className="w-10 h-10 relative -mt-0.5 ml-4 overflow-visible pointer-events-none">
+                <svg
+                  className="w-10 h-10 overflow-visible"
+                  viewBox="0 0 40 40"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <defs>
+                    <filter id="nortArrowNeonGlow" x="-50%" y="-50%" width="200%" height="200%">
+                      <feDropShadow dx="0" dy="0" stdDeviation="2.5" floodColor="#FF0033" floodOpacity="1" />
+                    </filter>
+                  </defs>
+                  <path
+                    d="M 24 0 C 24 16, 10 18, 5 34"
+                    stroke="#ffffff"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    filter="url(#nortArrowNeonGlow)"
+                  />
+                  <path
+                    d="M 1 27 L 5 36 L 12 32"
+                    stroke="#ffffff"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    filter="url(#nortArrowNeonGlow)"
+                  />
+                </svg>
+              </div>
+            </div>
+          )}
+
+          {/* ÚNICA BARRA DE PROGRESSO: Vermelha #FF0033 a 60 FPS contínuos com Marcador Dinâmico e Cápsula com % */}
+          <div
+            className="relative w-full py-2 -my-2 cursor-pointer group"
+            onClick={handleSeek}
+            role="slider"
+            tabIndex={0}
+            aria-label="Progresso do vídeo"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(initialPercent)}
+            data-testid="nort-intro-progress-container"
+          >
+            {/* Trilha base branca com transparência */}
+            <div className="relative w-full h-1 sm:h-[4px] bg-white/30 rounded-full overflow-visible group-hover:h-1.5 transition-all duration-150">
+              {/* Barra percorrida vermelha #FF0033 com atualização fluida a 60 FPS */}
+              <div
+                ref={progressFillRef}
+                className="h-full bg-[#FF0033] rounded-full relative shadow-[0_0_8px_rgba(255,0,51,0.7)]"
+                style={{ width: `${initialPercent}%` }}
+                role="progressbar"
+                aria-valuenow={Math.round(initialPercent)}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
+                {/* Marcador com Cápsula Vermelha Dinâmica contendo a porcentagem atual */}
+                <div
+                  ref={progressMarkerRef}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 flex items-center justify-center z-10 pointer-events-none"
+                  style={{ left: '100%' }}
+                  data-testid="nort-intro-progress-marker"
+                >
+                  <span
+                    ref={progressTextRef}
+                    className="bg-[#FF0033] text-white font-bold text-[10px] sm:text-xs leading-none px-2 py-0.5 rounded-full shadow-[0_2px_8px_rgba(255,0,51,0.6)] select-none whitespace-nowrap"
+                  >
+                    {Math.round(initialPercent)}%
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* LINHA HORIZONTAL DE CONTROLES INFERIORES */}
-        <div className="flex items-center justify-between text-xs sm:text-sm text-white">
-          {/* LADO ESQUERDO: Play/Pause, Mute com Destaque Animado, Tempo, Separador e "Preparando sua loja..." */}
+        <div className="flex items-center justify-between text-xs sm:text-sm text-white pt-1">
+          {/* LADO ESQUERDO: Play/Pause, Mute com Destaque Animado, e Texto de contagem regressiva */}
           <div className="flex items-center gap-2.5 sm:gap-4">
             {/* 1. Botão Reproduzir / Pausar */}
             <button
@@ -358,132 +543,87 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
               )}
             </button>
 
-            {/* 2. Botão de Áudio com Destaque Animado Obrigatório */}
-            <div className="relative flex items-center">
-              {/* Destaque Animado no Botão de Áudio: "Clique para ativar o áudio" */}
-              {showAudioPrompt && isMuted && (
-                <div
-                  className="absolute bottom-full left-0 sm:left-1/2 sm:-translate-x-6 mb-2 flex flex-col items-start z-50 cursor-pointer pointer-events-auto"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleToggleSound();
-                  }}
-                  role="tooltip"
-                  aria-label="Clique para ativar o áudio"
-                  data-testid="nort-intro-audio-prompt"
-                >
-                  {/* Cápsula com borda luminosa e glow vermelho sutil */}
-                  <div className="relative px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-black/85 border border-[#FF0033] shadow-[0_0_12px_rgba(255,0,51,0.65)] backdrop-blur-md animate-nort-pulse-glow transition-all hover:scale-105 active:scale-95">
-                    <span className="text-[11px] sm:text-xs font-semibold text-white tracking-wide whitespace-nowrap select-none">
-                      Clique para ativar o áudio
-                    </span>
-                  </div>
-
-                  {/* Seta curvada vermelha apontando diretamente para o ícone de áudio */}
-                  <div className="w-6 h-3.5 relative -mt-0.5 ml-3 sm:ml-4 overflow-visible pointer-events-none">
-                    <svg
-                      className="w-6 h-3.5 overflow-visible"
-                      viewBox="0 0 24 14"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M 13 0 C 13 5, 5 6, 3 10"
-                        stroke="#FF0033"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                      <path
-                        d="M 1 7 L 3 11 L 6 8"
-                        stroke="#FF0033"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              )}
-
-              {/* Botão de Som Mudo / Ativo */}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleToggleSound();
-                }}
-                data-testid="nort-intro-sound-toggle"
-                className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white/70"
-                aria-label={isMuted ? 'Ativar som' : 'Desativar som'}
-              >
-                {isMuted ? (
-                  <svg
-                    className="w-5 h-5 text-white"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" />
-                    <line x1="22" y1="9" x2="16" y2="15" />
-                    <line x1="16" y1="9" x2="22" y2="15" />
-                  </svg>
-                ) : (
-                  <svg
-                    className="w-5 h-5 text-white"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" />
-                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-                  </svg>
-                )}
-              </button>
-            </div>
-
-            {/* 3. Tempo atual e duração do vídeo (formato 00:13 / 00:17) */}
-            <span
-              data-testid="nort-intro-time-display"
-              className="font-mono text-xs sm:text-sm font-medium text-white/90 tabular-nums select-none tracking-tight"
-            >
-              {formatTime(currentTime)} / {formatTime(duration)}
-            </span>
-
-            {/* Separador vertical sutil */}
-            <span className="hidden xs:inline-block text-white/30 text-xs sm:text-sm select-none" aria-hidden="true">
-              |
-            </span>
-
-            {/* 4. Texto explicativo "Preparando sua loja..." */}
-            <span className="hidden sm:inline-block text-xs sm:text-sm text-white/80 select-none">
-              Preparando sua loja...
-            </span>
-          </div>
-
-          {/* LADO DIREITO: "Pular apresentação" e Ícone de Tela Cheia */}
-          <div className="flex items-center gap-3.5 sm:gap-5">
-            {/* 1. Pular apresentação */}
+            {/* 2. Botão de Som Mudo / Ativo (com aura neon no ícone enquanto mutado) */}
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                handleFinish();
+                handleToggleSound();
               }}
-              data-testid="nort-intro-skip-button"
-              className="text-xs sm:text-sm font-medium text-white/90 hover:text-white transition-colors cursor-pointer select-none focus-visible:underline"
-              aria-label="Pular apresentação e entrar na loja"
+              data-testid="nort-intro-sound-toggle"
+              className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white/70 ${
+                isMuted && showAudioPrompt ? 'animate-nort-icon-glow' : ''
+              }`}
+              aria-label={isMuted ? 'Ativar som' : 'Desativar som'}
             >
-              Pular apresentação
+              {isMuted ? (
+                <svg
+                  className="w-5 h-5 text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" />
+                  <line x1="22" y1="9" x2="16" y2="15" />
+                  <line x1="16" y1="9" x2="22" y2="15" />
+                </svg>
+              ) : (
+                <svg
+                  className="w-5 h-5 text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" />
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                </svg>
+              )}
             </button>
 
-            {/* 2. Ícone de Tela Cheia */}
+            {/* 3. Texto informativo com contagem decrescente: "Carregando a loja será aberta em... X Segundos" */}
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-white/90 select-none">
+              <span className="font-medium text-white/90">Carregando a loja será aberta em...</span>
+              <span
+                ref={countdownRef}
+                data-testid="nort-intro-countdown"
+                className="font-bold text-white font-mono tabular-nums bg-white/10 px-2 py-0.5 rounded shadow-sm"
+              >
+                {initialRemaining} {initialRemaining === 1 ? 'Segundo' : 'Segundos'}
+              </span>
+            </div>
+          </div>
+
+          {/* LADO DIREITO: Botão "Pular apresentação" estilo YouTube Anúncio + Botão de Tela Cheia */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Botão estilo YouTube Anúncios (com cantos arredondados e ícone ▶|, exibido APENAS após a metade do vídeo) */}
+            {canSkip && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleFinish();
+                }}
+                data-testid="nort-intro-skip-button"
+                className="flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-lg bg-black/75 hover:bg-black/90 text-white text-xs sm:text-sm font-medium border border-white/20 backdrop-blur-md shadow-lg active:scale-95 transition-all cursor-pointer animate-in fade-in zoom-in-95 duration-300 focus-visible:ring-2 focus-visible:ring-white/70"
+                aria-label="Pular apresentação"
+              >
+                <span>Pular apresentação</span>
+                {/* Ícone clássico do YouTube "Pular anúncio" ▶| */}
+                <svg className="w-3.5 h-3.5 text-white fill-current" viewBox="0 0 24 24">
+                  <polygon points="5 4 15 12 5 20 5 4" />
+                  <rect x="17" y="4" width="2.5" height="16" rx="0.5" />
+                </svg>
+              </button>
+            )}
+
+            {/* Ícone de Tela Cheia */}
             <button
               type="button"
               onClick={(e) => {

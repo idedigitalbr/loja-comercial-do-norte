@@ -124,30 +124,44 @@ body {
   }
 }
 
-/* Animação suave para destaque de áudio da tela de boas-vindas */
+/* Animação suave para destaque de áudio da tela de boas-vindas com efeito neon e glow pulsante */
 @keyframes nortAudioPulseGlow {
   0%, 100% {
-    box-shadow: 0 0 8px rgba(255, 0, 51, 0.45);
-    border-color: rgba(255, 0, 51, 0.75);
+    box-shadow: 0 0 10px rgba(255, 0, 51, 0.6), inset 0 0 6px rgba(255, 0, 51, 0.35);
+    border-color: rgba(255, 255, 255, 0.9);
     transform: scale(1);
-    opacity: 0.95;
+    opacity: 0.96;
   }
   50% {
-    box-shadow: 0 0 16px rgba(255, 0, 51, 0.85);
-    border-color: rgba(255, 0, 51, 1);
+    box-shadow: 0 0 20px rgba(255, 0, 51, 1), 0 0 30px rgba(255, 0, 51, 0.5), inset 0 0 10px rgba(255, 0, 51, 0.6);
+    border-color: #ffffff;
     transform: scale(1.025);
     opacity: 1;
   }
 }
 
 .animate-nort-pulse-glow {
-  animation: nortAudioPulseGlow 2.2s ease-in-out infinite;
+  animation: nortAudioPulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes nortIconGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px rgba(255, 0, 51, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(255, 0, 51, 0.95));
+  }
+}
+
+.animate-nort-icon-glow {
+  animation: nortIconGlow 2s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-nort-pulse-glow {
+  .animate-nort-pulse-glow,
+  .animate-nort-icon-glow {
     animation: none;
-    box-shadow: 0 0 10px rgba(255, 0, 51, 0.6);
+    box-shadow: 0 0 12px rgba(255, 0, 51, 0.7);
   }
 }
 

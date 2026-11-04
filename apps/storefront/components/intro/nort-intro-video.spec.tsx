@@ -113,13 +113,12 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       // Controles inferiores
       expect(screen.getByTestId('nort-intro-play-toggle')).toBeTruthy();
       expect(screen.getByTestId('nort-intro-sound-toggle')).toBeTruthy();
-      expect(screen.getByTestId('nort-intro-time-display')).toBeTruthy();
-      expect(screen.getByText('Preparando sua loja...')).toBeTruthy();
-      expect(screen.getByTestId('nort-intro-skip-button')).toBeTruthy();
+      expect(screen.getByText('Carregando a loja será aberta em...')).toBeTruthy();
+      expect(screen.getByTestId('nort-intro-countdown')).toBeTruthy();
       expect(screen.getByTestId('nort-intro-fullscreen-toggle')).toBeTruthy();
     });
 
-    it('inicia mutado com o destaque animado "Clique para ativar o áudio"', () => {
+    it('inicia mutado com o destaque animado "Clique para ativar o áudio" posicionado acima da barra', () => {
       render(<NortIntroVideo forceOpen />);
 
       const soundBtn = screen.getByTestId('nort-intro-sound-toggle');
@@ -130,7 +129,7 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       expect(prompt).toBeTruthy();
       expect(screen.getByText('Clique para ativar o áudio')).toBeTruthy();
 
-      // Clica no destaque ou botão para ativar o som
+      // Clica no destaque para ativar o som
       act(() => {
         fireEvent.click(prompt);
       });
@@ -160,25 +159,54 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       expect(playBtn.getAttribute('aria-label')).toBe('Pausar vídeo');
     });
 
-    it('atualiza o tempo no formato MM:SS (ex: 00:10 / 00:20) e atualiza a cápsula de porcentagem dinâmica', () => {
+    it('atualiza a contagem decrescente "Carregando a loja será aberta em... X Segundos" e a barra de progresso', () => {
       render(<NortIntroVideo forceOpen />);
 
       const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
 
       act(() => {
-        Object.defineProperty(video, 'duration', { value: 20, writable: true });
+        Object.defineProperty(video, 'duration', { value: 26, writable: true });
         fireEvent.loadedMetadata(video);
 
         Object.defineProperty(video, 'currentTime', { value: 10, writable: true });
         fireEvent.timeUpdate(video);
       });
 
-      expect(screen.getByText('00:10 / 00:20')).toBeTruthy();
-      const progressbar = screen.getByRole('progressbar');
-      expect(progressbar.getAttribute('aria-valuenow')).toBe('50');
+      const countdown = screen.getByTestId('nort-intro-countdown');
+      expect(countdown.textContent).toBe('16 Segundos');
 
-      // Cápsula de porcentagem dinâmica no marcador
-      expect(screen.getByText('50%')).toBeTruthy();
+      const progressbar = screen.getByRole('progressbar');
+      expect(progressbar.getAttribute('aria-valuenow')).toBe('38');
+    });
+
+    it('exibe o botão "Pular apresentação" APENAS após atingir a metade do vídeo', () => {
+      render(<NortIntroVideo forceOpen />);
+
+      const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
+
+      // Define duração total de 20s
+      act(() => {
+        Object.defineProperty(video, 'duration', { value: 20, writable: true });
+        fireEvent.loadedMetadata(video);
+
+        // Tempo em 5s (antes da metade de 10s)
+        Object.defineProperty(video, 'currentTime', { value: 5, writable: true });
+        fireEvent.timeUpdate(video);
+      });
+
+      // Botão NÃO deve estar presente antes da metade
+      expect(screen.queryByTestId('nort-intro-skip-button')).toBeNull();
+
+      // Avança para 10s (metade exata do vídeo)
+      act(() => {
+        Object.defineProperty(video, 'currentTime', { value: 10, writable: true });
+        fireEvent.timeUpdate(video);
+      });
+
+      // Agora o botão estilo YouTube DEVE estar visível
+      const skipBtn = screen.getByTestId('nort-intro-skip-button');
+      expect(skipBtn).toBeTruthy();
+      expect(skipBtn.textContent).toContain('Pular apresentação');
     });
 
     it('permite buscar ponto do vídeo (seek) ao clicar na barra de progresso', () => {
@@ -219,6 +247,16 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       window.addEventListener(NORT_INTRO_FINISHED_EVENT, eventListener);
 
       render(<NortIntroVideo forceOpen onFinish={onFinishMock} />);
+
+      const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
+
+      // Coloca após a metade do vídeo para exibir o botão
+      act(() => {
+        Object.defineProperty(video, 'duration', { value: 20, writable: true });
+        fireEvent.loadedMetadata(video);
+        Object.defineProperty(video, 'currentTime', { value: 15, writable: true });
+        fireEvent.timeUpdate(video);
+      });
 
       const skipBtn = screen.getByTestId('nort-intro-skip-button');
       act(() => {
