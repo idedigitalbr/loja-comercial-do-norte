@@ -46,9 +46,8 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
 
   // Controle de posição do mouse para o tooltip flutuante
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
-  const [isNearBottom, setIsNearBottom] = useState(false);
 
-  // A UI inferior começa TOTALMENTE OCULTA no início conforme solicitado!
+  // Controle de expansão da UI dos controles (a barra de progresso fica sempre visível no rodapé em modo minimalista!)
   const [isUiVisible, setIsUiVisible] = useState(false);
 
   // Tempo e duração
@@ -68,7 +67,6 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
   const lastRemainingRef = useRef<number | null>(null);
   const animFrameRef = useRef<number | null>(null);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const uiDelayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Sinaliza imediatamente para o ecossistema que a intro está ativa no client
   if (typeof window !== 'undefined' && (forceOpen || shouldShowNortIntro())) {
@@ -98,7 +96,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     return () => clearTimeout(timer);
   }, [onFinish]);
 
-  // Ativação inicial de áudio: reinicia o vídeo do começo com som ativado e revela a UI após delay
+  // Ativação inicial de áudio: reinicia o vídeo do começo com som ativado
   const handleActivateAudio = useCallback(() => {
     setIsMuted(false);
     if (videoRef.current) {
@@ -111,17 +109,6 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     }
     setShowAudioPrompt(false);
     setHasInteractedAudio(true);
-
-    // Conforme solicitado: começa sem aparecer a UI; após alguns segundos sim que aparece o negócio de baixo
-    if (uiDelayTimerRef.current) clearTimeout(uiDelayTimerRef.current);
-    uiDelayTimerRef.current = setTimeout(() => {
-      setIsUiVisible(true);
-      // Auto-oculta após 3s se a pessoa não mexer o mouse lá embaixo
-      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-      hideTimeoutRef.current = setTimeout(() => {
-        setIsUiVisible(false);
-      }, 3000);
-    }, 1600);
   }, [volume]);
 
   // Alterna som entre mutado e desmutado (sem pausar o vídeo)
@@ -203,35 +190,29 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     }
   }, []);
 
-  const handleOverlayMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const clientX = e.clientX;
-      const clientY = e.clientY;
-      setMousePos({ x: clientX, y: clientY });
+  const handleOverlayMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+    setMousePos({ x: clientX, y: clientY });
 
-      const threshold = typeof window !== 'undefined' ? window.innerHeight - 150 : 600;
-      const isBottom = clientY >= threshold;
-      setIsNearBottom(isBottom);
+    const threshold = typeof window !== 'undefined' ? window.innerHeight - 140 : 600;
+    const isBottom = clientY >= threshold;
 
-      // Se o áudio já foi ativado, a barra inferior só aparece se o mouse for movido para a parte de baixo!
-      if (hasInteractedAudio) {
-        if (isBottom) {
-          setIsUiVisible(true);
-          if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-          hideTimeoutRef.current = setTimeout(() => {
-            setIsUiVisible(false);
-          }, 2500);
-        } else {
-          // Se o mouse subiu para cima da barra, fecha suavemente
-          if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-          hideTimeoutRef.current = setTimeout(() => {
-            setIsUiVisible(false);
-          }, 1200);
-        }
-      }
-    },
-    [hasInteractedAudio]
-  );
+    // Se o mouse descer para a área inferior da tela, expande a UI de controles
+    if (isBottom) {
+      setIsUiVisible(true);
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = setTimeout(() => {
+        setIsUiVisible(false);
+      }, 2500);
+    } else {
+      // Se afastar o mouse da área inferior, recolhe suavemente mantendo a barra minimalista
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = setTimeout(() => {
+        setIsUiVisible(false);
+      }, 1000);
+    }
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -375,7 +356,6 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     return () => {
       setIntroActive(false);
       if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-      if (uiDelayTimerRef.current) clearTimeout(uiDelayTimerRef.current);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       if (typeof document !== 'undefined') {
         document.body.style.overflow = '';
@@ -453,7 +433,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         <source src="/videos/nort-intro.mp4" type="video/mp4" />
       </video>
 
-      {/* AVISO FLUTUANTE SEGUINDO O MOUSE (No início apenas este elemento aparece pedindo para clicar!) */}
+      {/* AVISO FLUTUANTE SEGUINDO O MOUSE (Aparece no início pedindo para clicar!) */}
       {showAudioPrompt && isMuted && (
         <div
           className="fixed z-50 pointer-events-auto cursor-pointer transition-transform duration-75 ease-out -translate-x-1/2 -translate-y-1/2"
@@ -490,15 +470,15 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         </div>
       )}
 
-      {/* GRADIENTE INFERIOR SUAVE ESTILO YOUTUBE FULLSCREEN (Controlado por isUiVisible) */}
+      {/* GRADIENTE INFERIOR SUAVE ESTILO YOUTUBE FULLSCREEN (Visível quando a UI está expandida) */}
       <div
-        className={`absolute inset-x-0 bottom-0 pointer-events-none h-44 sm:h-56 bg-gradient-to-t from-black/90 via-black/45 to-transparent z-30 transition-opacity duration-500 ease-out ${
+        className={`absolute inset-x-0 bottom-0 pointer-events-none h-44 sm:h-56 bg-gradient-to-t from-black/90 via-black/45 to-transparent z-30 transition-opacity duration-300 ease-out ${
           isUiVisible ? 'opacity-100' : 'opacity-0'
         }`}
         aria-hidden="true"
       />
 
-      {/* NOVO PLAYER INFERIOR: BARRA DE PROGRESSO VERMELHA E CONTROLES (Começa oculto e só aparece após ativar o áudio) */}
+      {/* FOOTER INFERIOR: A BARRINHA DE PROGRESSO FICA SEMPRE VISÍVEL NO RODAPÉ EM MODO MINIMALISTA! */}
       <footer
         onMouseEnter={() => {
           if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
@@ -510,15 +490,14 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
             setIsUiVisible(false);
           }, 2500);
         }}
-        className={`absolute bottom-0 inset-x-0 z-40 px-4 sm:px-8 md:px-12 pb-5 sm:pb-7 pt-12 flex flex-col gap-3 select-none transition-all duration-500 ease-out ${
-          isUiVisible ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
+        className={`absolute bottom-0 inset-x-0 z-40 px-3 sm:px-6 md:px-10 flex flex-col justify-end select-none transition-all duration-300 ease-out ${
+          isUiVisible ? 'pb-4 sm:pb-6 pt-10 gap-2.5 sm:gap-3' : 'pb-1 sm:pb-1.5 pt-0 gap-0'
         }`}
       >
-        {/* CONTAINER DA BARRA DE PROGRESSO */}
+        {/* ÚNICA BARRA DE PROGRESSO VERMELHA #FF0033: Fica sempre no rodapé (minimalista no vídeo inteiro ou expandida) */}
         <div className="relative w-full">
-          {/* ÚNICA BARRA DE PROGRESSO: Vermelha #FF0033 a 60 FPS contínuos com Marcador Dinâmico e Cápsula com % */}
           <div
-            className="relative w-full py-2 -my-2 cursor-pointer group"
+            className="relative w-full py-1 cursor-pointer group"
             onClick={handleSeek}
             role="slider"
             tabIndex={0}
@@ -529,7 +508,11 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
             data-testid="nort-intro-progress-container"
           >
             {/* Trilha base branca com transparência */}
-            <div className="relative w-full h-1 sm:h-[4px] bg-white/30 rounded-full overflow-visible group-hover:h-1.5 transition-all duration-150">
+            <div
+              className={`relative w-full bg-white/30 rounded-full overflow-visible transition-all duration-200 ${
+                isUiVisible ? 'h-[3.5px] sm:h-1 group-hover:h-1.5' : 'h-[2.5px] sm:h-[3px]'
+              }`}
+            >
               {/* Barra percorrida vermelha #FF0033 com atualização fluida a 60 FPS */}
               <div
                 ref={progressFillRef}
@@ -549,7 +532,11 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
                 >
                   <span
                     ref={progressTextRef}
-                    className="bg-[#FF0033] text-white font-bold text-[10px] sm:text-xs leading-none px-2 py-0.5 rounded-full shadow-[0_2px_8px_rgba(255,0,51,0.6)] select-none whitespace-nowrap"
+                    className={`bg-[#FF0033] text-white font-bold leading-none rounded-full shadow-[0_2px_8px_rgba(255,0,51,0.6)] select-none whitespace-nowrap transition-all duration-200 ${
+                      isUiVisible
+                        ? 'text-[10px] sm:text-xs px-2 py-0.5'
+                        : 'text-[9px] sm:text-[10px] px-1.5 py-0.5'
+                    }`}
                   >
                     {Math.round(initialPercent)}%
                   </span>
@@ -559,8 +546,14 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
           </div>
         </div>
 
-        {/* LINHA HORIZONTAL DE CONTROLES INFERIORES */}
-        <div className="flex items-center justify-between text-xs sm:text-sm text-white pt-1">
+        {/* CONTROLES INFERIORES: Abrem suavemente quando o mouse desce até a barra */}
+        <div
+          className={`flex items-center justify-between text-xs sm:text-sm text-white transition-all duration-300 ease-out ${
+            isUiVisible
+              ? 'opacity-100 max-h-14 pt-1 pointer-events-auto translate-y-0'
+              : 'opacity-0 max-h-0 pt-0 pointer-events-none translate-y-3 overflow-hidden'
+          }`}
+        >
           {/* LADO ESQUERDO: Controle de Áudio (Mute/Unmute com Slider expansível YouTube) e Texto com Contagem Regressiva */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* 1. Controle de Áudio com Slider de Volume estilo YouTube */}

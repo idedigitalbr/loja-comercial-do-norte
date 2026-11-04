@@ -89,7 +89,7 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       window.HTMLMediaElement.prototype.pause = vi.fn();
     });
 
-    it('inicia com a UI inferior oculta e apenas o aviso flutuante pedindo para clicar visível', () => {
+    it('renderiza com a barrinha minimalista vermelha sempre visível no rodapé e o aviso flutuante', () => {
       render(<NortIntroVideo forceOpen />);
 
       const dialog = screen.getByTestId('nort-intro-video-overlay');
@@ -98,14 +98,15 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
       expect(video).toBeTruthy();
 
+      // Barra de progresso vermelha e marcador minimalista no rodapé estão sempre presentes
+      const progressbar = screen.getByRole('progressbar');
+      expect(progressbar).toBeTruthy();
+      expect(screen.getByTestId('nort-intro-progress-marker')).toBeTruthy();
+
       // Aviso flutuante pedindo para clicar está presente
       const floatingPrompt = screen.getByTestId('nort-intro-audio-prompt-floating');
       expect(floatingPrompt).toBeTruthy();
       expect(floatingPrompt.textContent).toContain('Clique para ativar o áudio');
-
-      // A barra inferior tem as classes de opacidade 0 no início
-      const footer = dialog.querySelector('footer');
-      expect(footer?.className).toContain('opacity-0');
     });
 
     it('clicar em qualquer canto do vídeo na 1ª vez ativa o áudio e reinicia o vídeo do começo', () => {
@@ -128,30 +129,19 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       expect(window.HTMLMediaElement.prototype.pause).not.toHaveBeenCalled();
     });
 
-    it('revela a UI inferior após o delay de ativação do áudio', () => {
-      vi.useFakeTimers();
+    it('expande os controles inferiores quando o mouse se move para o rodapé', () => {
       render(<NortIntroVideo forceOpen />);
 
-      const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
+      const overlay = screen.getByTestId('nort-intro-video-overlay');
       const dialog = screen.getByTestId('nort-intro-video-overlay');
       const footer = dialog.querySelector('footer');
 
-      expect(footer?.className).toContain('opacity-0');
-
-      // Clica no vídeo para ativar som
+      // Move o mouse para a área inferior (y = 700)
       act(() => {
-        fireEvent.click(video);
+        fireEvent.mouseMove(overlay, { clientX: 200, clientY: 700 });
       });
 
-      // Avança o delay de ativação da UI (~1600ms)
-      act(() => {
-        vi.advanceTimersByTime(1700);
-      });
-
-      // Agora a UI inferior fica visível
-      expect(footer?.className).toContain('opacity-100');
-
-      vi.useRealTimers();
+      expect(footer?.className).toContain('pb-4');
     });
 
     it('cliques subsequentes no vídeo alternam mute e unmute sem pausar o vídeo', () => {
