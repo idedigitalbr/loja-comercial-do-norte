@@ -89,7 +89,7 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       window.HTMLMediaElement.prototype.pause = vi.fn();
     });
 
-    it('renderiza vídeo fullscreen limpo com o player inferior YouTube, sem molduras e sem cabeçalhos poluídos', () => {
+    it('inicia com a UI inferior oculta e apenas o aviso flutuante pedindo para clicar visível', () => {
       render(<NortIntroVideo forceOpen />);
 
       const dialog = screen.getByTestId('nort-intro-video-overlay');
@@ -97,25 +97,15 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
 
       const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
       expect(video).toBeTruthy();
-      expect(video.querySelector('source[type="video/webm"]')?.getAttribute('src')).toBe('/videos/nort-intro.webm');
-      expect(video.querySelector('source[type="video/mp4"]')?.getAttribute('src')).toBe('/videos/nort-intro.mp4');
 
-      // Sem controles nativos e sem textos desnecessários
-      expect(video.getAttribute('controls')).toBeNull();
-      expect(screen.queryByText('Carregando loja virtual Comercial do Norte...')).toBeNull();
-      expect(screen.queryByText('Apresentação Oficial')).toBeNull();
+      // Aviso flutuante pedindo para clicar está presente
+      const floatingPrompt = screen.getByTestId('nort-intro-audio-prompt-floating');
+      expect(floatingPrompt).toBeTruthy();
+      expect(floatingPrompt.textContent).toContain('Clique para ativar o áudio');
 
-      // Barra de progresso vermelha e marcador
-      const progressbar = screen.getByRole('progressbar');
-      expect(progressbar).toBeTruthy();
-      expect(screen.getByTestId('nort-intro-progress-marker')).toBeTruthy();
-
-      // Controles inferiores: Som com Slider e Contagem regressiva
-      expect(screen.getByTestId('nort-intro-sound-toggle')).toBeTruthy();
-      expect(screen.getByTestId('nort-intro-volume-slider')).toBeTruthy();
-      expect(screen.getByText('Carregando a loja será aberta em...')).toBeTruthy();
-      expect(screen.getByTestId('nort-intro-countdown')).toBeTruthy();
-      expect(screen.getByTestId('nort-intro-fullscreen-toggle')).toBeTruthy();
+      // A barra inferior tem as classes de opacidade 0 no início
+      const footer = dialog.querySelector('footer');
+      expect(footer?.className).toContain('opacity-0');
     });
 
     it('clicar em qualquer canto do vídeo na 1ª vez ativa o áudio e reinicia o vídeo do começo', () => {
@@ -136,6 +126,32 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       expect(video.currentTime).toBe(0);
       expect(soundBtn.getAttribute('aria-label')).toBe('Desativar som');
       expect(window.HTMLMediaElement.prototype.pause).not.toHaveBeenCalled();
+    });
+
+    it('revela a UI inferior após o delay de ativação do áudio', () => {
+      vi.useFakeTimers();
+      render(<NortIntroVideo forceOpen />);
+
+      const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
+      const dialog = screen.getByTestId('nort-intro-video-overlay');
+      const footer = dialog.querySelector('footer');
+
+      expect(footer?.className).toContain('opacity-0');
+
+      // Clica no vídeo para ativar som
+      act(() => {
+        fireEvent.click(video);
+      });
+
+      // Avança o delay de ativação da UI (~1600ms)
+      act(() => {
+        vi.advanceTimersByTime(1700);
+      });
+
+      // Agora a UI inferior fica visível
+      expect(footer?.className).toContain('opacity-100');
+
+      vi.useRealTimers();
     });
 
     it('cliques subsequentes no vídeo alternam mute e unmute sem pausar o vídeo', () => {

@@ -44,12 +44,12 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
   const [showAudioPrompt, setShowAudioPrompt] = useState(true);
   const [hasInteractedAudio, setHasInteractedAudio] = useState(false);
 
-  // Controle de posição do mouse para o tooltip flutuante interativo
+  // Controle de posição do mouse para o tooltip flutuante
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
   const [isNearBottom, setIsNearBottom] = useState(false);
 
-  // Controle de visibilidade da UI estilo YouTube (auto-hide)
-  const [isUiVisible, setIsUiVisible] = useState(true);
+  // A UI inferior começa TOTALMENTE OCULTA no início conforme solicitado!
+  const [isUiVisible, setIsUiVisible] = useState(false);
 
   // Tempo e duração
   const [currentTime, setCurrentTime] = useState(0);
@@ -68,6 +68,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
   const lastRemainingRef = useRef<number | null>(null);
   const animFrameRef = useRef<number | null>(null);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const uiDelayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Sinaliza imediatamente para o ecossistema que a intro está ativa no client
   if (typeof window !== 'undefined' && (forceOpen || shouldShowNortIntro())) {
@@ -97,21 +98,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     return () => clearTimeout(timer);
   }, [onFinish]);
 
-  // Função para reiniciar temporizador de auto-hide da UI
-  const resetHideTimer = useCallback(() => {
-    setIsUiVisible(true);
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current);
-    }
-    // Auto-oculta após 2.5s se estiver reproduzindo e já tiver interagido com o áudio
-    if (isPlaying && hasInteractedAudio) {
-      hideTimeoutRef.current = setTimeout(() => {
-        setIsUiVisible(false);
-      }, 2500);
-    }
-  }, [isPlaying, hasInteractedAudio]);
-
-  // Ativação inicial de áudio: reinicia o vídeo do começo com som ativado
+  // Ativação inicial de áudio: reinicia o vídeo do começo com som ativado e revela a UI após delay
   const handleActivateAudio = useCallback(() => {
     setIsMuted(false);
     if (videoRef.current) {
@@ -124,12 +111,20 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     }
     setShowAudioPrompt(false);
     setHasInteractedAudio(true);
-    // Ao ativar o som, oculta a UI suavemente
-    setIsUiVisible(false);
-    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+
+    // Conforme solicitado: começa sem aparecer a UI; após alguns segundos sim que aparece o negócio de baixo
+    if (uiDelayTimerRef.current) clearTimeout(uiDelayTimerRef.current);
+    uiDelayTimerRef.current = setTimeout(() => {
+      setIsUiVisible(true);
+      // Auto-oculta após 3s se a pessoa não mexer o mouse lá embaixo
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = setTimeout(() => {
+        setIsUiVisible(false);
+      }, 3000);
+    }, 1600);
   }, [volume]);
 
-  // Alterna som entre mutado e desmutado (sem nunca pausar o vídeo)
+  // Alterna som entre mutado e desmutado (sem pausar o vídeo)
   const handleToggleSound = useCallback(() => {
     if (!hasInteractedAudio) {
       handleActivateAudio();
@@ -144,13 +139,11 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         videoRef.current.volume = 1;
         setVolume(1);
       }
-      // O vídeo continua tocando ininterruptamente
       if (videoRef.current.paused) {
         videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
       }
     }
-    resetHideTimer();
-  }, [hasInteractedAudio, handleActivateAudio, isMuted, resetHideTimer]);
+  }, [hasInteractedAudio, handleActivateAudio, isMuted]);
 
   // Controle de volume deslizante
   const handleVolumeChange = useCallback(
@@ -171,9 +164,8 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         setShowAudioPrompt(false);
         setHasInteractedAudio(true);
       }
-      resetHideTimer();
     },
-    [hasInteractedAudio, resetHideTimer]
+    [hasInteractedAudio]
   );
 
   const handleSeek = useCallback(
@@ -188,9 +180,8 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         videoRef.current.currentTime = targetTime;
         setCurrentTime(targetTime);
       }
-      resetHideTimer();
     },
-    [duration, resetHideTimer]
+    [duration]
   );
 
   const handleToggleFullscreen = useCallback(() => {
@@ -210,8 +201,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         (document as unknown as { webkitExitFullscreen: () => void }).webkitExitFullscreen();
       }
     }
-    resetHideTimer();
-  }, [resetHideTimer]);
+  }, []);
 
   const handleOverlayMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -219,13 +209,28 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
       const clientY = e.clientY;
       setMousePos({ x: clientX, y: clientY });
 
-      // Detecta se o mouse está descendo e se aproximando da barra inferior
       const threshold = typeof window !== 'undefined' ? window.innerHeight - 150 : 600;
-      setIsNearBottom(clientY >= threshold);
+      const isBottom = clientY >= threshold;
+      setIsNearBottom(isBottom);
 
-      resetHideTimer();
+      // Se o áudio já foi ativado, a barra inferior só aparece se o mouse for movido para a parte de baixo!
+      if (hasInteractedAudio) {
+        if (isBottom) {
+          setIsUiVisible(true);
+          if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+          hideTimeoutRef.current = setTimeout(() => {
+            setIsUiVisible(false);
+          }, 2500);
+        } else {
+          // Se o mouse subiu para cima da barra, fecha suavemente
+          if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+          hideTimeoutRef.current = setTimeout(() => {
+            setIsUiVisible(false);
+          }, 1200);
+        }
+      }
     },
-    [resetHideTimer]
+    [hasInteractedAudio]
   );
 
   useEffect(() => {
@@ -370,6 +375,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     return () => {
       setIntroActive(false);
       if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      if (uiDelayTimerRef.current) clearTimeout(uiDelayTimerRef.current);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       if (typeof document !== 'undefined') {
         document.body.style.overflow = '';
@@ -447,11 +453,14 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         <source src="/videos/nort-intro.mp4" type="video/mp4" />
       </video>
 
-      {/* AVISO FLUTUANTE SEGUINDO O MOUSE (Quando o cursor estiver no meio/alto da tela) */}
-      {showAudioPrompt && isMuted && mousePos && !isNearBottom && (
+      {/* AVISO FLUTUANTE SEGUINDO O MOUSE (No início apenas este elemento aparece pedindo para clicar!) */}
+      {showAudioPrompt && isMuted && (
         <div
           className="fixed z-50 pointer-events-auto cursor-pointer transition-transform duration-75 ease-out -translate-x-1/2 -translate-y-1/2"
-          style={{ left: mousePos.x, top: Math.max(45, mousePos.y - 36) }}
+          style={{
+            left: mousePos ? mousePos.x : '50%',
+            top: mousePos ? Math.max(45, mousePos.y - 36) : '75%',
+          }}
           onClick={(e) => {
             e.stopPropagation();
             handleActivateAudio();
@@ -481,7 +490,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         </div>
       )}
 
-      {/* GRADIENTE INFERIOR SUAVE ESTILO YOUTUBE FULLSCREEN */}
+      {/* GRADIENTE INFERIOR SUAVE ESTILO YOUTUBE FULLSCREEN (Controlado por isUiVisible) */}
       <div
         className={`absolute inset-x-0 bottom-0 pointer-events-none h-44 sm:h-56 bg-gradient-to-t from-black/90 via-black/45 to-transparent z-30 transition-opacity duration-500 ease-out ${
           isUiVisible ? 'opacity-100' : 'opacity-0'
@@ -489,84 +498,24 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         aria-hidden="true"
       />
 
-      {/* NOVO PLAYER INFERIOR: BARRA DE PROGRESSO VERMELHA E CONTROLES (Com auto-hide estilo YouTube) */}
+      {/* NOVO PLAYER INFERIOR: BARRA DE PROGRESSO VERMELHA E CONTROLES (Começa oculto e só aparece após ativar o áudio) */}
       <footer
         onMouseEnter={() => {
           if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
           setIsUiVisible(true);
         }}
-        onMouseLeave={resetHideTimer}
+        onMouseLeave={() => {
+          if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+          hideTimeoutRef.current = setTimeout(() => {
+            setIsUiVisible(false);
+          }, 2500);
+        }}
         className={`absolute bottom-0 inset-x-0 z-40 px-4 sm:px-8 md:px-12 pb-5 sm:pb-7 pt-12 flex flex-col gap-3 select-none transition-all duration-500 ease-out ${
           isUiVisible ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
       >
-        {/* CONTAINER DA BARRA DE PROGRESSO COM O DESTAQUE ANIMADO ACIMA DELA (Idêntico ao Anexo 2) */}
+        {/* CONTAINER DA BARRA DE PROGRESSO */}
         <div className="relative w-full">
-          {/* DESTAQUE ANIMADO NO LUGAR FIXO: Ativado quando o mouse aproxima do rodapé ou antes de mexer o mouse */}
-          {showAudioPrompt && isMuted && (isNearBottom || !mousePos) && (
-            <div
-              className="absolute bottom-[calc(100%+14px)] left-4 sm:left-12 flex flex-col items-start z-50 cursor-pointer pointer-events-auto animate-in fade-in duration-200"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleActivateAudio();
-              }}
-              role="tooltip"
-              aria-label="Clique para ativar o áudio"
-              data-testid="nort-intro-audio-prompt"
-            >
-              {/* Cápsula com borda branca luminosa e glow vermelho neon pulsante */}
-              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#11050b]/90 border-[1.5px] border-white shadow-[0_0_16px_rgba(255,0,51,0.9),inset_0_0_8px_rgba(255,0,51,0.4)] backdrop-blur-md animate-nort-pulse-glow transition-transform hover:scale-105 active:scale-95">
-                <svg
-                  className="w-3.5 h-3.5 text-white animate-nort-icon-glow shrink-0"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" />
-                  <line x1="22" y1="9" x2="16" y2="15" />
-                  <line x1="16" y1="9" x2="22" y2="15" />
-                </svg>
-                <span className="text-xs sm:text-sm font-semibold text-white tracking-wide whitespace-nowrap select-none">
-                  Clique para ativar o áudio
-                </span>
-              </div>
-
-              {/* Seta curvada branca com glow vermelho que cruza a barra de progresso e aponta diretamente para o ícone de áudio */}
-              <div className="w-10 h-10 relative -mt-0.5 ml-4 overflow-visible pointer-events-none">
-                <svg
-                  className="w-10 h-10 overflow-visible"
-                  viewBox="0 0 40 40"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <defs>
-                    <filter id="nortArrowNeonGlow" x="-50%" y="-50%" width="200%" height="200%">
-                      <feDropShadow dx="0" dy="0" stdDeviation="2.5" floodColor="#FF0033" floodOpacity="1" />
-                    </filter>
-                  </defs>
-                  <path
-                    d="M 24 0 C 24 16, 10 18, 5 34"
-                    stroke="#ffffff"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    filter="url(#nortArrowNeonGlow)"
-                  />
-                  <path
-                    d="M 1 27 L 5 36 L 12 32"
-                    stroke="#ffffff"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    filter="url(#nortArrowNeonGlow)"
-                  />
-                </svg>
-              </div>
-            </div>
-          )}
-
           {/* ÚNICA BARRA DE PROGRESSO: Vermelha #FF0033 a 60 FPS contínuos com Marcador Dinâmico e Cápsula com % */}
           <div
             className="relative w-full py-2 -my-2 cursor-pointer group"
@@ -691,7 +640,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
               </div>
             </div>
 
-            {/* 3. Título exato com contagem decrescente: "Carregando a loja será aberta em... X Segundos" */}
+            {/* 2. Título exato com contagem decrescente: "Carregando a loja será aberta em... X Segundos" */}
             <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-white/90 select-none">
               <span className="font-medium text-white/90">Carregando a loja será aberta em...</span>
               <span
