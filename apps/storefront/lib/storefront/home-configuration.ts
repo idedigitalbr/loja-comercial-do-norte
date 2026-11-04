@@ -436,7 +436,7 @@ export const defaultHomeComposition: PageComposition = {
         title: "em embalagens, descartáveis e utilidades",
         imageUrl:
           "/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp",
-        ctaUrl: "",
+        ctaUrl: "/ofertas",
         altText: "OFERTAS IMPERDÍVEIS em embalagens, descartáveis e utilidades",
       },
     },

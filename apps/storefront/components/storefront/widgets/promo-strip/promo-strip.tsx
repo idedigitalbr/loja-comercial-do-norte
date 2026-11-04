@@ -29,7 +29,8 @@ export function PromoStripWidget({
   if (variant === 'offers-strip') {
     const effectiveImageUrl = imageUrl || '/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp';
     const effectiveAlt = altText || title || highlightText || 'OFERTAS IMPERDÍVEIS em embalagens, descartáveis e utilidades';
-    const hasLink = Boolean(ctaUrl && ctaUrl.trim() !== '' && ctaUrl !== '#');
+    const effectiveCtaUrl = ctaUrl && ctaUrl.trim() !== '' ? ctaUrl.trim() : '/ofertas';
+    const hasLink = Boolean(effectiveCtaUrl && effectiveCtaUrl !== '#');
 
     const bannerImage = effectiveImageUrl ? (
       <Image
@@ -64,7 +65,8 @@ export function PromoStripWidget({
           {hasLink ? (
             <Link
               className="block size-full"
-              href={ctaUrl!}
+              aria-label={effectiveAlt}
+              href={effectiveCtaUrl}
               onClick={(e) => {
                 if (isEditing && !previewMode) e.preventDefault();
               }}
@@ -82,7 +84,7 @@ export function PromoStripWidget({
               canAdd={false}
               canRemove={false}
               currentImageUrl={effectiveImageUrl}
-              currentLinkUrl={ctaUrl}
+              currentLinkUrl={effectiveCtaUrl}
               fieldPath="imageUrl"
               linkFieldPath="ctaUrl"
               previewUrl={effectiveImageUrl}

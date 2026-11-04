@@ -38,5 +38,36 @@ describe('PromoStripWidget', () => {
     const img = section?.querySelector('img');
     expect(img).toBeDefined();
     expect(img?.getAttribute('src')).toBe('/assets/HOME Vitrine/S9-BANNERZINHO-Promo/S9-BANNERZINHO-Promo.webp');
+
+    const link = section?.querySelector('a');
+    expect(link).toBeDefined();
+    expect(link?.getAttribute('href')).toBe('/loja?oferta=1');
+  });
+
+  it('direciona para a página de ofertas (/ofertas) por padrão quando ctaUrl está vazio ou não definido', () => {
+    const { container } = render(
+      <PromoStripWidget
+        highlightText="OFERTAS IMPERDÍVEIS"
+        variant="offers-strip"
+      />
+    );
+
+    const link = container.querySelector('a');
+    expect(link).toBeDefined();
+    expect(link?.getAttribute('href')).toBe('/ofertas');
+    expect(link?.getAttribute('aria-label')).toContain('OFERTAS IMPERDÍVEIS');
+  });
+
+  it('não adiciona link quando ctaUrl é explicitamente #', () => {
+    const { container } = render(
+      <PromoStripWidget
+        ctaUrl="#"
+        highlightText="OFERTAS IMPERDÍVEIS"
+        variant="offers-strip"
+      />
+    );
+
+    const link = container.querySelector('a');
+    expect(link).toBeNull();
   });
 });
