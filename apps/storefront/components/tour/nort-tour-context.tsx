@@ -11,6 +11,7 @@ import React, {
 import { NORT_TOUR_STEPS } from './nort-tour-steps';
 import { NortTourOverlay } from './nort-tour-overlay';
 import type { NortTourContextType, NortTourStep } from './nort-tour-types';
+import { isIntroActive } from '../intro/nort-intro-helpers';
 
 const STORAGE_KEY_SEEN = 'cn_nort_tour_completed_v1';
 export const STORAGE_KEY_FREQ = 'cn_nort_tour_freq_v1';
@@ -180,6 +181,22 @@ export function NortTourProvider({ children }: { children: ReactNode }) {
       const shouldAutoOpen = checkAndRecordAutoOpen();
       if (shouldAutoOpen) {
         setHasSeenTour(false);
+
+        // Se o vídeo de intro estiver em reprodução, aguarda ele terminar antes de abrir o tour
+        if (isIntroActive()) {
+          const onFinished = () => {
+            window.removeEventListener('nort-intro-finished', onFinished);
+            const timer = setTimeout(() => {
+              startTour(0);
+            }, 300);
+            return () => clearTimeout(timer);
+          };
+          window.addEventListener('nort-intro-finished', onFinished);
+          return () => {
+            window.removeEventListener('nort-intro-finished', onFinished);
+          };
+        }
+
         const timer = setTimeout(() => {
           startTour(0);
         }, 80);

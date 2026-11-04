@@ -7,6 +7,20 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **04/11/2026 — Refinamento do Vídeo de Intro: Fullscreen Real, Áudio Ligado, Barra YouTube e Desacoplamento do Tour (executorId: `antigravity-gemini`):**
+  - **Fullscreen Real de Ponta a Ponta:**
+    - Removidos containers com largura/altura limitadas (`max-w-6xl`, `max-h-[76vh]`), bordas e paddings. O elemento `<video>` agora ocupa 100% da tela (`w-full h-full object-cover object-center`) em camada fullscreen absoluta `z-[9999999]`.
+  - **Barra de Progresso Minimalista Estilo YouTube:**
+    - Removidos todos os textos de poluição visual (títulos de loading, slogans e headers superiores).
+    - Implementada barra de progresso fina e limpa na borda inferior da tela com preenchimento vermelho e scrubber circular (padrão YouTube), contador de tempo numérico (`0:04 / 0:25`), controle de volume e botão discreto de "Pular" no topo.
+  - **Áudio Ligado por Padrão:**
+    - O vídeo agora inicia com `muted = false` (som ligado). Caso a política restrita de autoplay do navegador barre som antes de uma interação, o sistema faz fallback silencioso para áudio mutado e ativa o som no primeiro toque/clique em qualquer ponto da tela.
+  - **Desacoplamento Rigoroso do Tour Onboarding:**
+    - O tour guiado (`NortTourProvider` / `NortTourOverlay`) agora checa `isIntroActive()`. Durante a execução do vídeo de intro, o tour NÃO é renderizado e aguarda o evento `nort-intro-finished` para abrir suavemente após o vídeo terminar ou ser pulado.
+  - **Métricas de Compressão Registradas:**
+    - Arquivo original: 18,63 MB. Novo WebM VP9: 4,26 MB (**redução de 77,1%**, menos de 1/4 do tamanho original mantendo resolução 1080p).
+  - **Validação:** 184 testes unitários aprovados no Storefront e build Next.js 16 validado sem erros.
+
 - **03/11/2026 — Vídeo de Apresentação do Mascote Nort em WebM e Fake Loading em Tela Cheia (executorId: `antigravity-gemini`):**
   - **Compressão e Otimização WebM:**
     - Vídeo original em MP4 (18.6 MB) comprimido e convertido para WebM VP9 + áudio Opus (`/videos/nort-intro.webm`) resultando em 4.1 MB (redução de 78%), com resolução 1080p nítida e taxa de carregamento ultra-rápida.

@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { NortTourCard } from './nort-tour-card';
 import type { NortTourStep } from './nort-tour-types';
+import { isIntroActive } from '../intro/nort-intro-helpers';
 
 interface HighlightRect {
   x: number;
@@ -187,7 +188,7 @@ export function NortTourOverlay({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, onNext, onPrev]);
 
-  if (!mounted || typeof document === 'undefined') return null;
+  if (!mounted || typeof document === 'undefined' || isIntroActive()) return null;
 
   return createPortal(
     <div

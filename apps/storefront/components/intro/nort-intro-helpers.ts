@@ -1,6 +1,31 @@
 export const STORAGE_KEY_INTRO_VIEWS = 'cn_nort_intro_views_v1';
 export const MAX_INTRO_VIEWS = 3;
 
+let introActiveState = false;
+
+/**
+ * Define se a intro está ativamente em exibição.
+ */
+export function setIntroActive(active: boolean) {
+  introActiveState = active;
+  if (typeof window !== 'undefined') {
+    (window as unknown as { __nortIntroActive?: boolean }).__nortIntroActive = active;
+  }
+}
+
+/**
+ * Consulta se a intro está ativamente em exibição no momento.
+ */
+export function isIntroActive(): boolean {
+  if (typeof window !== 'undefined') {
+    const globalVal = (window as unknown as { __nortIntroActive?: boolean }).__nortIntroActive;
+    if (globalVal !== undefined) {
+      return !!globalVal;
+    }
+  }
+  return introActiveState;
+}
+
 /**
  * Verifica se a animação em vídeo de introdução / loading do Nort deve ser exibida.
  * - Exibida pelas primeiras 3 vezes (visitas/cargas de página).

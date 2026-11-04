@@ -7,17 +7,19 @@ import { render, screen, cleanup, fireEvent, act } from '@testing-library/react'
 import { NortIntroVideo, NORT_INTRO_FINISHED_EVENT } from './nort-intro-video';
 import {
   STORAGE_KEY_INTRO_VIEWS,
-  MAX_INTRO_VIEWS,
   shouldShowNortIntro,
   recordNortIntroView,
+  isIntroActive,
+  setIntroActive,
 } from './nort-intro-helpers';
 
-describe('Nort Intro Video & Fake Loading Component', () => {
+describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
   beforeEach(() => {
     delete (window as any).location;
     (window as any).location = new URL('https://lojacomercialdonorte.vercel.app/');
     window.localStorage.clear();
     window.sessionStorage.clear();
+    setIntroActive(false);
     vi.restoreAllMocks();
   });
 
@@ -27,22 +29,18 @@ describe('Nort Intro Video & Fake Loading Component', () => {
 
   describe('nort-intro-helpers', () => {
     it('permite exibição para novos visitantes e respeita o limite de 3 vezes', () => {
-      // 1ª visita: ainda não exibido (vazio)
       expect(shouldShowNortIntro(window.localStorage)).toBe(true);
       expect(recordNortIntroView(window.localStorage)).toBe(1);
       expect(window.localStorage.getItem(STORAGE_KEY_INTRO_VIEWS)).toBe('1');
 
-      // 2ª visita
       expect(shouldShowNortIntro(window.localStorage)).toBe(true);
       expect(recordNortIntroView(window.localStorage)).toBe(2);
       expect(window.localStorage.getItem(STORAGE_KEY_INTRO_VIEWS)).toBe('2');
 
-      // 3ª visita
       expect(shouldShowNortIntro(window.localStorage)).toBe(true);
       expect(recordNortIntroView(window.localStorage)).toBe(3);
       expect(window.localStorage.getItem(STORAGE_KEY_INTRO_VIEWS)).toBe('3');
 
-      // 4ª visita em diante: atingiu MAX_INTRO_VIEWS (3) -> NÃO deve mais abrir
       expect(shouldShowNortIntro(window.localStorage)).toBe(false);
     });
 
@@ -50,7 +48,6 @@ describe('Nort Intro Video & Fake Loading Component', () => {
       window.localStorage.setItem(STORAGE_KEY_INTRO_VIEWS, '3');
       expect(shouldShowNortIntro(window.localStorage)).toBe(false);
 
-      // Simula query param no window
       delete (window as any).location;
       (window as any).location = new URL('https://lojacomercialdonorte.vercel.app/?intro=1');
 
@@ -65,77 +62,86 @@ describe('Nort Intro Video & Fake Loading Component', () => {
       expect(shouldShowNortIntro(window.localStorage)).toBe(true);
       expect(window.localStorage.getItem(STORAGE_KEY_INTRO_VIEWS)).toBeNull();
     });
+
+    it('controla a flag isIntroActive corretamente', () => {
+      expect(isIntroActive()).toBe(false);
+      setIntroActive(true);
+      expect(isIntroActive()).toBe(true);
+      setIntroActive(false);
+      expect(isIntroActive()).toBe(false);
+    });
   });
 
   describe('NortIntroVideo Component', () => {
     beforeEach(() => {
-      // Mock do HTMLMediaElement no jsdom
       window.HTMLMediaElement.prototype.play = vi.fn().mockImplementation(() => Promise.resolve());
       window.HTMLMediaElement.prototype.pause = vi.fn();
     });
 
-    it('renderiza tela cheia com vídeo, barra de progresso e texto de carregamento', () => {
+    it('renderiza vídeo fullscreen limpo com barra de progresso estilo YouTube e sem poluição de texto', () => {
       render(<NortIntroVideo forceOpen />);
 
-      // Verifica dialog acessível
       const dialog = screen.getByTestId('nort-intro-video-overlay');
       expect(dialog).toBeTruthy();
 
-      // Verifica elemento de vídeo com fontes webm e mp4
       const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
       expect(video).toBeTruthy();
       expect(video.querySelector('source[type="video/webm"]')?.getAttribute('src')).toBe('/videos/nort-intro.webm');
       expect(video.querySelector('source[type="video/mp4"]')?.getAttribute('src')).toBe('/videos/nort-intro.mp4');
 
-      // Não tem controles nativos de play/pause
+      // Sem controles nativos e sem textos desnecessários
       expect(video.getAttribute('controls')).toBeNull();
+      expect(screen.queryByText('Carregando loja virtual Comercial do Norte...')).toBeNull();
+      expect(screen.queryByText('Apresentação Oficial')).toBeNull();
 
-      // Verifica texto de loading
-      expect(screen.getByText('Carregando loja virtual Comercial do Norte...')).toBeTruthy();
-
-      // Verifica presença da barra de progresso
+      // Barra de progresso estilo YouTube
       const progressbar = screen.getByRole('progressbar');
       expect(progressbar).toBeTruthy();
 
-      // Verifica branding
-      expect(screen.getByText('Comercial do Norte')).toBeTruthy();
-      expect(screen.getByText('Apresentação Oficial')).toBeTruthy();
+      // Botão discreto de pular
+      expect(screen.getByTestId('nort-intro-skip-button')).toBeTruthy();
     });
 
-    it('atualiza o progresso e contagem regressiva ao receber eventos de timeUpdate e metadata', () => {
+    it('atualiza o tempo no formato estilo YouTube (ex: 0:10 / 0:20) e progresso', () => {
       render(<NortIntroVideo forceOpen />);
 
       const video = screen.getByTestId('nort-intro-video-element') as HTMLVideoElement;
 
       act(() => {
-        // Simula carregamento de metadata com duração de 20s
         Object.defineProperty(video, 'duration', { value: 20, writable: true });
         fireEvent.loadedMetadata(video);
 
-        // Simula avanço de tempo para 10s (50%)
         Object.defineProperty(video, 'currentTime', { value: 10, writable: true });
         fireEvent.timeUpdate(video);
       });
 
-      // 50% de progresso e 10s restantes
-      expect(screen.getByText('50%')).toBeTruthy();
-      expect(screen.getByText('10s restantes')).toBeTruthy();
+      expect(screen.getByText('0:10 / 0:20')).toBeTruthy();
+      const progressbar = screen.getByRole('progressbar');
+      expect(progressbar.getAttribute('aria-valuenow')).toBe('50');
     });
 
-    it('alterna o botão de som entre ativado e desativado', () => {
+    it('alterna o botão de som entre mutado e desmutado', () => {
       render(<NortIntroVideo forceOpen />);
 
       const soundBtn = screen.getByTestId('nort-intro-sound-toggle');
-      expect(screen.getByText('Ativar som')).toBeTruthy();
+      expect(soundBtn).toBeTruthy();
 
       act(() => {
         fireEvent.click(soundBtn);
       });
 
-      expect(screen.getByText('Som ativo')).toBeTruthy();
+      // Muta
+      expect(soundBtn.getAttribute('aria-label')).toBe('Ativar som');
+
+      act(() => {
+        fireEvent.click(soundBtn);
+      });
+
+      // Desmuta
+      expect(soundBtn.getAttribute('aria-label')).toBe('Desativar som');
     });
 
-    it('fecha a intro e dispara evento customizado ao clicar em "Pular para a loja"', () => {
+    it('fecha a intro e dispara evento customizado ao clicar em "Pular"', () => {
       vi.useFakeTimers();
       const onFinishMock = vi.fn();
       const eventListener = vi.fn();
@@ -148,16 +154,13 @@ describe('Nort Intro Video & Fake Loading Component', () => {
         fireEvent.click(skipBtn);
       });
 
-      // Dispara callback e evento imediatamente
       expect(onFinishMock).toHaveBeenCalledTimes(1);
       expect(eventListener).toHaveBeenCalledTimes(1);
 
-      // Avança o timer de fade-out (700ms)
       act(() => {
         vi.advanceTimersByTime(750);
       });
 
-      // O overlay é removido do DOM
       expect(screen.queryByTestId('nort-intro-video-overlay')).toBeNull();
 
       window.removeEventListener(NORT_INTRO_FINISHED_EVENT, eventListener);
