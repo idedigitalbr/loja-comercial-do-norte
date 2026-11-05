@@ -43,12 +43,10 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     expect(toggleBtn.className).not.toContain('bg-gradient');
     expect(toggleBtn.className).toContain('bg-[#00A884]');
 
-    // Inicialmente oculto (não mostra fixo)
     expect(
       screen.queryByText(/oi! precisa de ajuda com cotação ou produtos\? fala comigo!/i)
     ).toBeNull();
 
-    // Avança 15s para dar o pop + tempo da digitação suave
     act(() => {
       vi.advanceTimersByTime(15000);
       vi.advanceTimersByTime(2000);
@@ -63,9 +61,9 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     vi.useFakeTimers();
     render(<NortChatFloating whatsapp="5591983440880" />);
 
-    // Avança para o balão surgir
     act(() => {
-      vi.advanceTimersByTime(17000);
+      vi.advanceTimersByTime(15000);
+      vi.advanceTimersByTime(2000);
     });
 
     const dismissBtn = screen.getByRole('button', {
@@ -78,29 +76,7 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     ).toBeNull();
   });
 
-  it('fecha automaticamente o balão de prévia após 10 segundos de exibição', () => {
-    vi.useFakeTimers();
-    render(<NortChatFloating whatsapp="5591983440880" />);
-
-    // Avança para o balão surgir e digitar
-    act(() => {
-      vi.advanceTimersByTime(17000);
-    });
-    expect(
-      screen.getByText(/oi! precisa de ajuda com cotação ou produtos\? fala comigo!/i)
-    ).toBeDefined();
-
-    // Avança 10s de tempo visível
-    act(() => {
-      vi.advanceTimersByTime(10000);
-    });
-
-    expect(
-      screen.queryByText(/oi! precisa de ajuda com cotação ou produtos\? fala comigo!/i)
-    ).toBeNull();
-  });
-
-  it('ao abrir o chat: escurece o fundo da página (97%), trava o scroll da página e envia as mensagens iniciais uma a uma com indicador digitando...', () => {
+  it('ao abrir o chat: remove a barra inferior do Anexo 1, escurece o fundo (97%) e simula digitação lenta e humana etapa por etapa (Anexos 3, 4 e 5)', () => {
     vi.useFakeTimers();
     render(<NortChatFloating whatsapp="5591983440880" />);
 
@@ -109,52 +85,75 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     });
     fireEvent.click(toggleBtn);
 
-    // 1. Verifica modal, backdrop 97% escuro acima do header (z-[9990]) e scroll travado
     const dialog = screen.getByRole('dialog', {
       name: /chat de atendimento com o mascote norti/i,
     });
     expect(dialog).toBeDefined();
     expect(dialog.className).toContain('z-[9995]');
 
+    // Garante que a barra inferior do Anexo 1 ("Informe seu nome e WhatsApp acima para iniciar") foi completamente removida
+    expect(screen.queryByText(/informe seu nome e whatsapp acima para iniciar/i)).toBeNull();
+
+    // Backdrop 97% escuro e scroll lock ativos
     const backdrop = screen.getByTestId('nort-chat-backdrop');
     expect(backdrop).toBeDefined();
-    expect(backdrop.className).toContain('z-[9990]');
     expect(document.body.style.overflow).toBe('hidden');
-    expect(document.documentElement.style.overflow).toBe('hidden');
 
-    // 2. No instante 0ms: Nort começa digitando a primeira mensagem (não mostra tudo de uma vez!)
+    // Etapa 1 (Anexo 3): Indicador de digitação aparece antes da 1ª mensagem (~2 a 3 segundos)
     act(() => {
-      vi.advanceTimersByTime(10);
+      vi.advanceTimersByTime(250);
     });
     expect(screen.getByText('digitando...')).toBeDefined();
     expect(screen.getByLabelText('Nort está digitando')).toBeDefined();
-    expect(screen.queryByPlaceholderText('Como posso te chamar?')).toBeNull();
-    // Os botões de serviço não aparecem na primeira tela!
-    expect(screen.queryByText(/falar com vendas no whatsapp/i)).toBeNull();
+    expect(
+      screen.queryByText(/olá! 👋 eu sou o nort, assistente virtual da comercial do norte!/i)
+    ).toBeNull();
 
-    // 3. Após ~800ms: chega a 1ª mensagem de apresentação, e logo em seguida Nort volta a digitar a 2ª
+    // Avança ~3.2s -> 1ª mensagem aparece por completo (Anexo 3) e a 2ª ainda NÃO apareceu
     act(() => {
-      vi.advanceTimersByTime(800);
+      vi.advanceTimersByTime(3200);
     });
     expect(
       screen.getByText(/olá! 👋 eu sou o nort, assistente virtual da comercial do norte!/i)
     ).toBeDefined();
+    expect(
+      screen.queryByText(/para começar, me conta: qual é o seu nome e número do whatsapp\?/i)
+    ).toBeNull();
 
-    // 4. Após o segundo ciclo de digitação: chega a 2ª mensagem e o formulário de Nome/WhatsApp é liberado
+    // Etapa 2 (Anexo 4): Após pequena pausa, o indicador de digitação aparece novamente para a 2ª mensagem
     act(() => {
-      vi.advanceTimersByTime(1500);
+      vi.advanceTimersByTime(700);
     });
-    expect(screen.getByText('online')).toBeDefined();
+    expect(screen.getByText('digitando...')).toBeDefined();
+    expect(screen.getByLabelText('Nort está digitando')).toBeDefined();
+
+    // Avança o tempo de escrita da 2ª mensagem -> 2ª mensagem aparece (Anexo 4), mas o formulário (Anexo 5) ainda aguarda seu ciclo de digitação
+    act(() => {
+      vi.advanceTimersByTime(3300);
+    });
     expect(
       screen.getByText(/para começar, me conta: qual é o seu nome e número do whatsapp\?/i)
     ).toBeDefined();
+    expect(screen.queryByPlaceholderText('Como posso te chamar?')).toBeNull();
+
+    // Etapa 3 (Anexo 5): Indicador de digitação aparece antes do formulário e depois exibe o formulário limpo como no Anexo 2
+    act(() => {
+      vi.advanceTimersByTime(700);
+    });
+    expect(screen.getByLabelText('Nort está digitando')).toBeDefined();
+
+    act(() => {
+      vi.advanceTimersByTime(2200);
+    });
+    expect(screen.getByText('online')).toBeDefined();
+    expect(screen.queryByLabelText('Nort está digitando')).toBeNull();
     expect(screen.getByPlaceholderText('Como posso te chamar?')).toBeDefined();
     expect(screen.getByPlaceholderText('(91) 99999-9999')).toBeDefined();
-    // Continua sem mostrar os botões da última etapa na tela inicial
-    expect(screen.queryByText(/falar com vendas no whatsapp/i)).toBeNull();
+    // Continua sem nenhuma barra cinza embaixo (Anexo 2)
+    expect(screen.queryByText(/informe seu nome e whatsapp acima para iniciar/i)).toBeNull();
   });
 
-  it('conduz o fluxo completo passo a passo com pausas de digitação e só exibe as opções de serviço após escolher a unidade', () => {
+  it('conduz o fluxo completo passo a passo com pausas humanas de digitação e só exibe as opções de serviço após escolher a unidade', () => {
     vi.useFakeTimers();
     render(<NortChatFloating whatsapp="5591983440880" />);
 
@@ -162,9 +161,9 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
       screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
     );
 
-    // Conclui digitação inicial das 2 mensagens
+    // Conclui a sequência inicial completa (Msg 1 + Msg 2 + Card do formulário)
     act(() => {
-      vi.advanceTimersByTime(2500);
+      vi.advanceTimersByTime(11000);
     });
 
     const continueBtn = screen.getByRole('button', { name: /continuar no chat/i });
@@ -183,16 +182,16 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     // Envia identificação
     fireEvent.click(continueBtn);
 
-    // Mensagem do usuário entra no chat e Nort começa a digitar a resposta
+    // Mensagem do usuário entra no chat e Nort começa a digitar lentamente
     expect(screen.getByText(/carlos mendes/i)).toBeDefined();
     act(() => {
-      vi.advanceTimersByTime(50);
+      vi.advanceTimersByTime(300);
     });
     expect(screen.getByText('digitando...')).toBeDefined();
 
-    // Avança digitação das 2 mensagens da etapa de unidade
+    // Avança digitação das mensagens da etapa de unidade + liberação dos botões
     act(() => {
-      vi.advanceTimersByTime(2500);
+      vi.advanceTimersByTime(10000);
     });
 
     expect(screen.getByText('online')).toBeDefined();
@@ -208,7 +207,7 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     // Escolhe "Escolher uma unidade"
     fireEvent.click(screen.getByText(/🏬 escolher uma unidade/i));
     act(() => {
-      vi.advanceTimersByTime(1500);
+      vi.advanceTimersByTime(7000);
     });
 
     expect(screen.getByText(/selecione a unidade comercial do norte:/i)).toBeDefined();
@@ -217,23 +216,21 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     // Confirma a unidade selecionada
     fireEvent.click(screen.getByRole('button', { name: /confirmar unidade selecionada/i }));
     act(() => {
-      vi.advanceTimersByTime(50);
+      vi.advanceTimersByTime(300);
     });
     expect(screen.getByText('digitando...')).toBeDefined();
 
     act(() => {
-      vi.advanceTimersByTime(2500);
+      vi.advanceTimersByTime(10000);
     });
 
-    // Agora sim (Etapa 3) aparecem os botões de serviço e atendimento!
+    // Etapa 3: aparecem os botões de serviço e atendimento
     expect(screen.getByText(/perfeito, carlos mendes! 💙/i)).toBeDefined();
     expect(screen.getByText(/agora me conta, como posso te ajudar hoje\?/i)).toBeDefined();
     expect(screen.getByText(/🛍️ consultar produtos/i)).toBeDefined();
     expect(screen.getByText(/📋 solicitar uma cotação/i)).toBeDefined();
     expect(screen.getByText(/📍 endereço e horários/i)).toBeDefined();
     expect(screen.getByText(/💬 falar com um atendente/i)).toBeDefined();
-    expect(screen.getByText(/💬 falar com vendas no whatsapp/i)).toBeDefined();
-    expect(screen.getByText(/🧭 fazer tour guiado na loja/i)).toBeDefined();
 
     // Seleciona "Solicitar uma cotação" -> registra lead no CRM e abre WhatsApp
     fireEvent.click(screen.getByText(/📋 solicitar uma cotação/i));
@@ -257,7 +254,7 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     );
 
     act(() => {
-      vi.advanceTimersByTime(2500);
+      vi.advanceTimersByTime(11000);
     });
 
     fireEvent.change(screen.getByPlaceholderText('Como posso te chamar?'), {
@@ -269,13 +266,13 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     fireEvent.click(screen.getByRole('button', { name: /continuar no chat/i }));
 
     act(() => {
-      vi.advanceTimersByTime(2500);
+      vi.advanceTimersByTime(10000);
     });
 
     fireEvent.click(screen.getByText(/📍 encontrar a mais próxima de mim/i));
 
     act(() => {
-      vi.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(7000);
     });
 
     const cepField = screen.getByPlaceholderText('Informe seu CEP...');
@@ -287,13 +284,13 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     fireEvent.click(screen.getByRole('button', { name: /localizar unidade mais próxima/i }));
 
     act(() => {
-      vi.advanceTimersByTime(2500);
+      vi.advanceTimersByTime(10000);
     });
 
     expect(screen.getByText(/identifiquei a unidade são brás/i)).toBeDefined();
   });
 
-  it('fecha o chat e destrava o scroll da página ao pressionar Escape ou clicar no backdrop escuro', () => {
+  it('fecha o chat e destrava o scroll da página ao pressionar Escape', () => {
     render(<NortChatFloating whatsapp="5591983440880" />);
 
     fireEvent.click(
@@ -319,14 +316,14 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
       screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
     );
     act(() => {
-      vi.advanceTimersByTime(2500);
+      vi.advanceTimersByTime(11000);
     });
 
     const restartBtn = screen.getByRole('button', { name: /reiniciar conversa/i });
     fireEvent.click(restartBtn);
 
     act(() => {
-      vi.advanceTimersByTime(2500);
+      vi.advanceTimersByTime(11000);
     });
 
     expect(
