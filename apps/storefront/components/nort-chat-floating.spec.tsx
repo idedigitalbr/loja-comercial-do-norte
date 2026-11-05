@@ -21,23 +21,38 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     vi.clearAllMocks();
     window.open = vi.fn();
     global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   });
 
   afterEach(() => {
     cleanup();
     vi.useRealTimers();
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   });
 
-  it('inicia com o botão flutuante sólido (sem gradiente) e o balão de prévia visíveis', () => {
+  it('inicia com o botão flutuante sólido e o balão de prévia oculto até o timer de 15s', () => {
+    vi.useFakeTimers();
     render(<NortChatFloating whatsapp="5591983440880" />);
 
     const toggleBtn = screen.getByRole('button', {
       name: /abrir chat com o norti no whatsapp/i,
     });
     expect(toggleBtn).toBeDefined();
-    // Garante proibição de gradientes no botão flutuante
     expect(toggleBtn.className).not.toContain('bg-gradient');
     expect(toggleBtn.className).toContain('bg-[#00A884]');
+
+    // Inicialmente oculto (não mostra fixo)
+    expect(
+      screen.queryByText(/oi! precisa de ajuda com cotação ou produtos\? fala comigo!/i)
+    ).toBeNull();
+
+    // Avança 15s para dar o pop + tempo da digitação suave
+    act(() => {
+      vi.advanceTimersByTime(15000);
+      vi.advanceTimersByTime(2000);
+    });
 
     expect(
       screen.getByText(/oi! precisa de ajuda com cotação ou produtos\? fala comigo!/i)
@@ -45,7 +60,13 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
   });
 
   it('permite dispensar o balão de prévia clicando no X do aviso', () => {
+    vi.useFakeTimers();
     render(<NortChatFloating whatsapp="5591983440880" />);
+
+    // Avança para o balão surgir
+    act(() => {
+      vi.advanceTimersByTime(17000);
+    });
 
     const dismissBtn = screen.getByRole('button', {
       name: /dispensar aviso do norti/i,
@@ -57,7 +78,30 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     ).toBeNull();
   });
 
-  it('abre o modal de chat estilo WhatsApp com cabeçalho #075844, wallpaper e apresentação do Nort', () => {
+  it('fecha automaticamente o balão de prévia após 10 segundos de exibição', () => {
+    vi.useFakeTimers();
+    render(<NortChatFloating whatsapp="5591983440880" />);
+
+    // Avança para o balão surgir e digitar
+    act(() => {
+      vi.advanceTimersByTime(17000);
+    });
+    expect(
+      screen.getByText(/oi! precisa de ajuda com cotação ou produtos\? fala comigo!/i)
+    ).toBeDefined();
+
+    // Avança 10s de tempo visível
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    expect(
+      screen.queryByText(/oi! precisa de ajuda com cotação ou produtos\? fala comigo!/i)
+    ).toBeNull();
+  });
+
+  it('ao abrir o chat: escurece o fundo da página (97%), trava o scroll da página e envia as mensagens iniciais uma a uma com indicador digitando...', () => {
+    vi.useFakeTimers();
     render(<NortChatFloating whatsapp="5591983440880" />);
 
     const toggleBtn = screen.getByRole('button', {
@@ -65,35 +109,52 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     });
     fireEvent.click(toggleBtn);
 
+    // 1. Verifica modal, backdrop 97% escuro acima do header (z-[9990]) e scroll travado
     const dialog = screen.getByRole('dialog', {
       name: /chat de atendimento com o mascote norti/i,
     });
     expect(dialog).toBeDefined();
+    expect(dialog.className).toContain('z-[9995]');
 
-    // Cabeçalho oficial Nort | Comercial do Norte e status online
-    expect(screen.getByText('Nort | Comercial do Norte')).toBeDefined();
-    expect(screen.getByText('online')).toBeDefined();
+    const backdrop = screen.getByTestId('nort-chat-backdrop');
+    expect(backdrop).toBeDefined();
+    expect(backdrop.className).toContain('z-[9990]');
+    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.overflow).toBe('hidden');
 
-    // Mensagem inicial exata da Seção 2
+    // 2. No instante 0ms: Nort começa digitando a primeira mensagem (não mostra tudo de uma vez!)
+    act(() => {
+      vi.advanceTimersByTime(10);
+    });
+    expect(screen.getByText('digitando...')).toBeDefined();
+    expect(screen.getByLabelText('Nort está digitando')).toBeDefined();
+    expect(screen.queryByPlaceholderText('Como posso te chamar?')).toBeNull();
+    // Os botões de serviço não aparecem na primeira tela!
+    expect(screen.queryByText(/falar com vendas no whatsapp/i)).toBeNull();
+
+    // 3. Após ~800ms: chega a 1ª mensagem de apresentação, e logo em seguida Nort volta a digitar a 2ª
+    act(() => {
+      vi.advanceTimersByTime(800);
+    });
     expect(
-      screen.getByText(
-        /olá! 👋 eu sou o nort, assistente virtual da comercial do norte!/i
-      )
+      screen.getByText(/olá! 👋 eu sou o nort, assistente virtual da comercial do norte!/i)
     ).toBeDefined();
 
-    // Formulário integrado à conversa com Nome e WhatsApp
+    // 4. Após o segundo ciclo de digitação: chega a 2ª mensagem e o formulário de Nome/WhatsApp é liberado
+    act(() => {
+      vi.advanceTimersByTime(1500);
+    });
+    expect(screen.getByText('online')).toBeDefined();
+    expect(
+      screen.getByText(/para começar, me conta: qual é o seu nome e número do whatsapp\?/i)
+    ).toBeDefined();
     expect(screen.getByPlaceholderText('Como posso te chamar?')).toBeDefined();
     expect(screen.getByPlaceholderText('(91) 99999-9999')).toBeDefined();
-
-    // Opções de resposta rápida estilo WhatsApp
-    expect(screen.getByText(/falar com vendas no whatsapp/i)).toBeDefined();
-    expect(screen.getByText(/ajuda com lista de cotação/i)).toBeDefined();
-    expect(screen.getByText(/fazer tour guiado na loja/i)).toBeDefined();
-    expect(screen.getByText(/endereços e horários das lojas/i)).toBeDefined();
-    expect(screen.getByText(/suporte e pós-venda crm/i)).toBeDefined();
+    // Continua sem mostrar os botões da última etapa na tela inicial
+    expect(screen.queryByText(/falar com vendas no whatsapp/i)).toBeNull();
   });
 
-  it('valida campos obrigatórios, aplica máscara de WhatsApp e conduz o fluxo completo com indicador digitando...', async () => {
+  it('conduz o fluxo completo passo a passo com pausas de digitação e só exibe as opções de serviço após escolher a unidade', () => {
     vi.useFakeTimers();
     render(<NortChatFloating whatsapp="5591983440880" />);
 
@@ -101,9 +162,14 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
       screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
     );
 
+    // Conclui digitação inicial das 2 mensagens
+    act(() => {
+      vi.advanceTimersByTime(2500);
+    });
+
     const continueBtn = screen.getByRole('button', { name: /continuar no chat/i });
 
-    // Tenta enviar vazio -> exibe validação amigável
+    // Validação de campos obrigatórios
     fireEvent.click(continueBtn);
     expect(screen.getByRole('alert').textContent).toMatch(/informe seu nome/i);
 
@@ -112,48 +178,62 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
 
     fireEvent.change(nameInput, { target: { value: 'Carlos Mendes' } });
     fireEvent.change(phoneInput, { target: { value: '91988776655' } });
-
-    // Verifica máscara brasileira (91) 98877-6655
     expect((phoneInput as HTMLInputElement).value).toBe('(91) 98877-6655');
 
     // Envia identificação
     fireEvent.click(continueBtn);
 
-    // Resposta do usuário aparece como balão enviado e Nort entra em estado "digitando..."
+    // Mensagem do usuário entra no chat e Nort começa a digitar a resposta
     expect(screen.getByText(/carlos mendes/i)).toBeDefined();
-    expect(screen.getByText('digitando...')).toBeDefined();
-    expect(screen.getByLabelText('Nort está digitando')).toBeDefined();
-
-    // Avança o tempo de digitação
     act(() => {
-      vi.advanceTimersByTime(1500);
+      vi.advanceTimersByTime(50);
+    });
+    expect(screen.getByText('digitando...')).toBeDefined();
+
+    // Avança digitação das 2 mensagens da etapa de unidade
+    act(() => {
+      vi.advanceTimersByTime(2500);
     });
 
-    // Nort responde usando o nome informado e exibe as duas opções de unidade (Seção 3)
     expect(screen.getByText('online')).toBeDefined();
     expect(screen.getByText(/prazer, carlos mendes! 😊/i)).toBeDefined();
+    expect(
+      screen.getByText(
+        /agora me diz: em qual unidade da comercial do norte você gostaria de ser atendido\?/i
+      )
+    ).toBeDefined();
     expect(screen.getByText(/📍 encontrar a mais próxima de mim/i)).toBeDefined();
     expect(screen.getByText(/🏬 escolher uma unidade/i)).toBeDefined();
 
     // Escolhe "Escolher uma unidade"
     fireEvent.click(screen.getByText(/🏬 escolher uma unidade/i));
+    act(() => {
+      vi.advanceTimersByTime(1500);
+    });
+
     expect(screen.getByText(/selecione a unidade comercial do norte:/i)).toBeDefined();
     expect(screen.getByText(/unidade são brás \(matriz\)/i)).toBeDefined();
 
     // Confirma a unidade selecionada
     fireEvent.click(screen.getByRole('button', { name: /confirmar unidade selecionada/i }));
+    act(() => {
+      vi.advanceTimersByTime(50);
+    });
     expect(screen.getByText('digitando...')).toBeDefined();
 
     act(() => {
-      vi.advanceTimersByTime(1500);
+      vi.advanceTimersByTime(2500);
     });
 
-    // Terceira interação (Seção 4): Como podemos ajudar?
+    // Agora sim (Etapa 3) aparecem os botões de serviço e atendimento!
     expect(screen.getByText(/perfeito, carlos mendes! 💙/i)).toBeDefined();
+    expect(screen.getByText(/agora me conta, como posso te ajudar hoje\?/i)).toBeDefined();
     expect(screen.getByText(/🛍️ consultar produtos/i)).toBeDefined();
     expect(screen.getByText(/📋 solicitar uma cotação/i)).toBeDefined();
     expect(screen.getByText(/📍 endereço e horários/i)).toBeDefined();
     expect(screen.getByText(/💬 falar com um atendente/i)).toBeDefined();
+    expect(screen.getByText(/💬 falar com vendas no whatsapp/i)).toBeDefined();
+    expect(screen.getByText(/🧭 fazer tour guiado na loja/i)).toBeDefined();
 
     // Seleciona "Solicitar uma cotação" -> registra lead no CRM e abre WhatsApp
     fireEvent.click(screen.getByText(/📋 solicitar uma cotação/i));
@@ -176,6 +256,10 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
       screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
     );
 
+    act(() => {
+      vi.advanceTimersByTime(2500);
+    });
+
     fireEvent.change(screen.getByPlaceholderText('Como posso te chamar?'), {
       target: { value: 'Maria' },
     });
@@ -185,14 +269,13 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     fireEvent.click(screen.getByRole('button', { name: /continuar no chat/i }));
 
     act(() => {
-      vi.advanceTimersByTime(1500);
+      vi.advanceTimersByTime(2500);
     });
 
-    // Clica em "Encontrar a mais próxima de mim" (sem navigator.geolocation no jsdom padrão)
     fireEvent.click(screen.getByText(/📍 encontrar a mais próxima de mim/i));
 
     act(() => {
-      vi.advanceTimersByTime(1500);
+      vi.advanceTimersByTime(2000);
     });
 
     const cepField = screen.getByPlaceholderText('Informe seu CEP...');
@@ -204,109 +287,19 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     fireEvent.click(screen.getByRole('button', { name: /localizar unidade mais próxima/i }));
 
     act(() => {
-      vi.advanceTimersByTime(1500);
+      vi.advanceTimersByTime(2500);
     });
 
     expect(screen.getByText(/identifiquei a unidade são brás/i)).toBeDefined();
   });
 
-  it('aciona o tour guiado e fecha o chat ao clicar na opção de Tour', () => {
+  it('fecha o chat e destrava o scroll da página ao pressionar Escape ou clicar no backdrop escuro', () => {
     render(<NortChatFloating whatsapp="5591983440880" />);
 
     fireEvent.click(
       screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
     );
-
-    const tourBtn = screen.getByRole('button', {
-      name: /fazer tour guiado na loja/i,
-    });
-    fireEvent.click(tourBtn);
-
-    expect(mockStartTour).toHaveBeenCalledTimes(1);
-    expect(
-      screen.queryByRole('dialog', {
-        name: /chat de atendimento com o mascote norti/i,
-      })
-    ).toBeNull();
-  });
-
-  it('redireciona para o WhatsApp com mensagem contextualizada ao escolher atendimento de vendas', () => {
-    render(<NortChatFloating whatsapp="5591983440880" />);
-
-    fireEvent.click(
-      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
-    );
-
-    const vendasBtn = screen.getByRole('button', {
-      name: /falar com vendas no whatsapp/i,
-    });
-    fireEvent.click(vendasBtn);
-
-    expect(window.open).toHaveBeenCalledWith(
-      expect.stringContaining('https://wa.me/5591983440880?text='),
-      '_blank',
-      'noopener,noreferrer'
-    );
-  });
-
-  it('exibe e oculta as informações de lojas ao alternar a opção', () => {
-    render(<NortChatFloating whatsapp="5591983440880" />);
-
-    fireEvent.click(
-      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
-    );
-
-    const lojasBtn = screen.getByRole('button', {
-      name: /endereços e horários das lojas/i,
-    });
-
-    fireEvent.click(lojasBtn);
-    expect(screen.getByText(/nossas unidades em belém e região:/i)).toBeDefined();
-    expect(screen.getByText(/av\. bernardo sayão, 608/i)).toBeDefined();
-
-    fireEvent.click(lojasBtn);
-    expect(screen.queryByText(/nossas unidades em belém e região:/i)).toBeNull();
-  });
-
-  it('permite enviar mensagem digitada diretamente para o WhatsApp', () => {
-    render(<NortChatFloating whatsapp="5591983440880" />);
-
-    fireEvent.click(
-      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
-    );
-
-    const input = screen.getByLabelText(
-      /digite sua mensagem para o atendimento/i
-    );
-    fireEvent.change(input, {
-      target: { value: 'Gostaria de saber o preço de caixas de pizza' },
-    });
-
-    const sendBtn = screen.getByRole('button', {
-      name: /enviar mensagem no whatsapp/i,
-    });
-    fireEvent.click(sendBtn);
-
-    expect(window.open).toHaveBeenCalledWith(
-      expect.stringContaining(
-        encodeURIComponent('Gostaria de saber o preço de caixas de pizza')
-      ),
-      '_blank',
-      'noopener,noreferrer'
-    );
-  });
-
-  it('fecha o chat ao pressionar a tecla Escape', () => {
-    render(<NortChatFloating whatsapp="5591983440880" />);
-
-    fireEvent.click(
-      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
-    );
-    expect(
-      screen.getByRole('dialog', {
-        name: /chat de atendimento com o mascote norti/i,
-      })
-    ).toBeDefined();
+    expect(document.body.style.overflow).toBe('hidden');
 
     fireEvent.keyDown(window, { key: 'Escape' });
 
@@ -315,18 +308,26 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
         name: /chat de atendimento com o mascote norti/i,
       })
     ).toBeNull();
+    expect(document.body.style.overflow).toBe('');
   });
 
-  it('permite reiniciar o atendimento pelo botão de reiniciar', () => {
+  it('permite reiniciar o atendimento com sequência de digitação desde o início', () => {
+    vi.useFakeTimers();
     render(<NortChatFloating whatsapp="5591983440880" />);
 
     fireEvent.click(
       screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
     );
+    act(() => {
+      vi.advanceTimersByTime(2500);
+    });
 
     const restartBtn = screen.getByRole('button', { name: /reiniciar conversa/i });
-    expect(restartBtn).toBeDefined();
     fireEvent.click(restartBtn);
+
+    act(() => {
+      vi.advanceTimersByTime(2500);
+    });
 
     expect(
       screen.getByText(

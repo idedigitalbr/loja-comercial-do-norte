@@ -18,6 +18,8 @@ import { useNortTour } from './tour';
 export type NortChatFloatingProps = {
   whatsapp?: string | null;
   phone?: string | null;
+  previewDelayMs?: number;
+  previewDurationMs?: number;
 };
 
 export type ChatMessage = {
@@ -37,8 +39,8 @@ export type BotStep =
   | 'SERVICE'
   | 'FINISHED';
 
-const INITIAL_BOT_MESSAGE =
-  'Olá! 👋 Eu sou o Nort, assistente virtual da Comercial do Norte!\n\nPara começar, me conta: qual é o seu nome e número do WhatsApp?';
+const WELCOME_MSG_1 = 'Olá! 👋 Eu sou o Nort, assistente virtual da Comercial do Norte!';
+const WELCOME_MSG_2 = 'Para começar, me conta: qual é o seu nome e número do WhatsApp?';
 
 /* ============================================================================
  * SUBCOMPONENTES REUTILIZÁVEIS (PADRÃO WHATSAPP)
@@ -79,11 +81,11 @@ function TypingIndicatorBubble() {
   return (
     <div
       aria-label="Nort está digitando"
-      className="flex items-start gap-2 max-w-[85%] animate-in fade-in duration-150"
+      className="flex items-end gap-2 max-w-[85%] animate-in fade-in duration-150"
     >
       <NortAvatar alt="Nort digitando" size={30} />
       <div className="relative rounded-[10px] rounded-tl-none bg-[#F1F3F4] px-3.5 py-2.5 shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#D1D7DB]/60">
-        {/* Tail superior esquerdo */}
+        {/* Rabicho superior esquerdo no padrão WhatsApp */}
         <span
           aria-hidden="true"
           className="absolute -left-[6px] top-0 w-0 h-0 border-t-[8px] border-t-[#F1F3F4] border-l-[6px] border-l-transparent"
@@ -101,15 +103,17 @@ function TypingIndicatorBubble() {
 function MessageBubble({
   message,
   showAvatar,
+  showTail,
 }: {
   message: ChatMessage;
   showAvatar: boolean;
+  showTail: boolean;
 }) {
   const isBot = message.sender === 'bot';
 
   if (isBot) {
     return (
-      <div className="flex items-start gap-2 max-w-[90%] animate-in fade-in duration-150">
+      <div className="flex items-end gap-2 max-w-[90%] animate-in fade-in duration-150">
         {showAvatar ? (
           <NortAvatar alt="Nort" size={30} />
         ) : (
@@ -117,10 +121,10 @@ function MessageBubble({
         )}
         <div
           className={`relative bg-[#F1F3F4] text-[#111B21] rounded-[10px] ${
-            showAvatar ? 'rounded-tl-none' : ''
+            showTail ? 'rounded-tl-none' : ''
           } px-3 pt-2 pb-1.5 shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#D1D7DB]/50 text-[13px] leading-[1.42]`}
         >
-          {showAvatar && (
+          {showTail && (
             <span
               aria-hidden="true"
               className="absolute -left-[6px] top-0 w-0 h-0 border-t-[8px] border-t-[#F1F3F4] border-l-[6px] border-l-transparent"
@@ -192,14 +196,28 @@ function QuickReplyButton({
  * COMPONENTE PRINCIPAL — CHAT DO NORT (ESTILO WHATSAPP CONVERSACIONAL GUIADO)
  * ============================================================================ */
 
-export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
+export function NortChatFloating({
+  whatsapp,
+  phone,
+  previewDelayMs,
+  previewDurationMs,
+}: NortChatFloatingProps) {
   const { startTour } = useNortTour();
   const [isOpen, setIsOpen] = useState(false);
   const [bubbleDismissed, setBubbleDismissed] = useState(false);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewTypedText, setPreviewTypedText] = useState('');
+  const [isPreviewTyping, setIsPreviewTyping] = useState(false);
+
+  const previewDelay = previewDelayMs ?? 15000;
+  const previewDuration = previewDurationMs ?? 10000;
+  const PREVIEW_FULL_TEXT =
+    'Oi! Precisa de ajuda com cotação ou produtos? Fala comigo! 👋';
 
   // Etapas e estado do atendimento
   const [step, setStep] = useState<BotStep>('IDENTIFY');
   const [isTyping, setIsTyping] = useState(false);
+  const [hasInitializedIntro, setHasInitializedIntro] = useState(false);
 
   // Dados do cliente e escolhas
   const [customerName, setCustomerName] = useState('');
@@ -213,15 +231,8 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
   const [customMessageText, setCustomMessageText] = useState('');
   const [storeInfoVisible, setStoreInfoVisible] = useState(false);
 
-  // Histórico de mensagens
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'welcome-1',
-      sender: 'bot',
-      text: INITIAL_BOT_MESSAGE,
-      time: 'Agora',
-    },
-  ]);
+  // Histórico de mensagens (iniciado vazio e preenchido sequencialmente com delay de digitação ao abrir)
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const chatBodyRef = useRef<HTMLDivElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -235,9 +246,60 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
   const rawNumber = whatsapp || phone || defaultWhatsapp;
   const whatsappDigits = rawNumber.replace(/\D/g, '') || defaultWhatsapp;
 
+  function clearScheduledTimers() {
+    timersRef.current.forEach((t) => {
+      window.clearTimeout(t);
+      window.clearInterval(t);
+    });
+    timersRef.current = [];
+  }
+
+  // Popup do balão do Nort após 15s com efeito digitando e fechamento automático em 10s
+  useEffect(() => {
+    if (isOpen || bubbleDismissed) {
+      setPreviewVisible(false);
+      setIsPreviewTyping(false);
+      return;
+    }
+
+    const popTimer = window.setTimeout(() => {
+      if (isOpen || bubbleDismissed) return;
+      setPreviewVisible(true);
+      setIsPreviewTyping(true);
+      setPreviewTypedText('');
+
+      let charIndex = 0;
+      const typeInterval = window.setInterval(() => {
+        charIndex += 2;
+        if (charIndex >= PREVIEW_FULL_TEXT.length) {
+          setPreviewTypedText(PREVIEW_FULL_TEXT);
+          setIsPreviewTyping(false);
+          window.clearInterval(typeInterval);
+        } else {
+          setPreviewTypedText(PREVIEW_FULL_TEXT.slice(0, charIndex));
+        }
+      }, 35);
+
+      timersRef.current.push(typeInterval as unknown as number);
+
+      const autoCloseTimer = window.setTimeout(() => {
+        setPreviewVisible(false);
+        setBubbleDismissed(true);
+      }, previewDuration);
+
+      timersRef.current.push(autoCloseTimer as unknown as number);
+    }, previewDelay);
+
+    timersRef.current.push(popTimer as unknown as number);
+
+    return () => {
+      window.clearTimeout(popTimer);
+    };
+  }, [isOpen, bubbleDismissed, previewDelay, previewDuration]);
+
   useEffect(() => {
     return () => {
-      timersRef.current.forEach((t) => window.clearTimeout(t));
+      clearScheduledTimers();
     };
   }, []);
 
@@ -251,6 +313,86 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [isOpen]);
 
+  // Trava a rolagem (scroll) da página inteira enquanto o chat estiver aberto
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (!isOpen) return;
+
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+    };
+  }, [isOpen]);
+
+  function getFormattedTime() {
+    return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  /**
+   * Envia uma fila de mensagens do Nort uma por uma, com calma:
+   * 1. Ativa "digitando..." + balão de 3 pontinhos
+   * 2. Espera o tempo de escrita
+   * 3. Exibe a mensagem
+   * 4. Faz uma pausa curta e inicia o "digitando..." da próxima mensagem
+   * 5. Só ao terminar todas as mensagens libera o formulário ou botões da etapa!
+   */
+  function scheduleBotSequence(texts: string[], onSequenceComplete?: () => void) {
+    clearScheduledTimers();
+
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let elapsed = 0;
+
+    texts.forEach((text, index) => {
+      const pauseBeforeTyping = index === 0 ? 0 : prefersReducedMotion ? 60 : 320;
+      elapsed += pauseBeforeTyping;
+
+      const startTypingTimer = window.setTimeout(() => {
+        setIsTyping(true);
+      }, elapsed);
+      timersRef.current.push(startTypingTimer);
+
+      const typingDuration = prefersReducedMotion
+        ? 120
+        : Math.min(1150, Math.max(700, text.length * 10));
+      elapsed += typingDuration;
+
+      const deliverMsgTimer = window.setTimeout(() => {
+        setIsTyping(false);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `bot-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
+            sender: 'bot',
+            text,
+            time: getFormattedTime(),
+          },
+        ]);
+
+        if (index === texts.length - 1) {
+          onSequenceComplete?.();
+        }
+      }, elapsed);
+      timersRef.current.push(deliverMsgTimer);
+    });
+  }
+
+  // Ao abrir o chat pela primeira vez, dispara a sequência inicial com digitação calma (msg 1 -> delay -> msg 2)
+  useEffect(() => {
+    if (isOpen && !hasInitializedIntro) {
+      setHasInitializedIntro(true);
+      scheduleBotSequence([WELCOME_MSG_1, WELCOME_MSG_2]);
+    }
+  }, [isOpen, hasInitializedIntro]);
+
   useEffect(() => {
     if (isOpen) {
       const scrollTimer = window.setTimeout(() => {
@@ -260,50 +402,19 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
             behavior: 'smooth',
           });
         }
-        if (step === 'IDENTIFY') {
-          nameInputRef.current?.focus();
-        } else if (step === 'UNIT_CEP') {
-          cepInputRef.current?.focus();
-        } else if (step === 'FINISHED') {
-          customInputRef.current?.focus();
+        if (!isTyping) {
+          if (step === 'IDENTIFY' && messages.length >= 2) {
+            nameInputRef.current?.focus();
+          } else if (step === 'UNIT_CEP') {
+            cepInputRef.current?.focus();
+          } else if (step === 'FINISHED') {
+            customInputRef.current?.focus();
+          }
         }
       }, 60);
       return () => window.clearTimeout(scrollTimer);
     }
   }, [isOpen, messages, isTyping, step, storeInfoVisible]);
-
-  function getFormattedTime() {
-    return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  }
-
-  function scheduleBotReply(text: string, onDone?: () => void) {
-    // Respeita movimento reduzido ou calcula tempo proporcional (800ms a 1400ms)
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      typeof window.matchMedia === 'function' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    const calculatedDelay = prefersReducedMotion
-      ? 150
-      : Math.min(1300, Math.max(800, text.length * 6));
-
-    setIsTyping(true);
-    const timerId = window.setTimeout(() => {
-      setIsTyping(false);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `bot-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          sender: 'bot',
-          text,
-          time: getFormattedTime(),
-        },
-      ]);
-      onDone?.();
-    }, calculatedDelay);
-
-    timersRef.current.push(timerId);
-  }
 
   async function registerLeadToCRM(leadData: {
     name: string;
@@ -365,15 +476,17 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
       sender: 'user',
       text: `${cleanName}\n📱 ${formattedPhone}`,
       time: getFormattedTime(),
-      quotedText: 'Para começar, me conta: qual é o seu nome e número do WhatsApp?',
+      quotedText: WELCOME_MSG_2,
     };
 
     setMessages((prev) => [...prev, userMsg]);
     setStep('UNIT_MODE');
 
-    scheduleBotReply(
-      `Prazer, ${cleanName}! 😊\n\nAgora me diz: em qual unidade da Comercial do Norte você gostaria de ser atendido?`
-    );
+    // Envia 1ª mensagem -> pausa/digitando -> envia 2ª mensagem -> mostra botões de unidade
+    scheduleBotSequence([
+      `Prazer, ${cleanName}! 😊`,
+      'Agora me diz: em qual unidade da Comercial do Norte você gostaria de ser atendido?',
+    ]);
   }
 
   /* ============================================================================
@@ -405,17 +518,18 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
         },
         () => {
           setStep('UNIT_CEP');
-          scheduleBotReply(
-            'Não consegui acessar sua localização automática. Sem problemas! Informe seu CEP abaixo para eu localizar a unidade mais próxima:'
-          );
+          scheduleBotSequence([
+            'Não consegui acessar sua localização automática. Sem problemas!',
+            'Informe seu CEP abaixo para eu localizar a unidade mais próxima:',
+          ]);
         },
         { timeout: 5000 }
       );
     } else {
       setStep('UNIT_CEP');
-      scheduleBotReply(
-        'Para localizar a loja mais próxima, informe seu CEP abaixo:'
-      );
+      scheduleBotSequence([
+        'Para localizar a unidade mais próxima de você, informe seu CEP abaixo:',
+      ]);
     }
   }
 
@@ -431,6 +545,10 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
     };
     setMessages((prev) => [...prev, userMsg]);
     setStep('UNIT_LIST');
+
+    scheduleBotSequence([
+      'Claro! Selecione abaixo em qual das nossas unidades você prefere ser atendido:',
+    ]);
   }
 
   function handleCepSubmit(e: React.FormEvent) {
@@ -457,9 +575,10 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
     setSelectedStore(nearest);
     setStep('SERVICE');
 
-    scheduleBotReply(
-      `Perfeito, ${customerName || 'visitante'}! 💙 Identifiquei a ${nearest.shortTitle} como a mais próxima.\n\nAgora me conta, como posso te ajudar hoje?`
-    );
+    scheduleBotSequence([
+      `Perfeito, ${customerName || 'visitante'}! 💙 Identifiquei a ${nearest.shortTitle} como a mais próxima.`,
+      'Agora me conta, como posso te ajudar hoje?',
+    ]);
   }
 
   function confirmStoreSelection(store: CommercialStore, customPrefix?: string) {
@@ -475,11 +594,18 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
     setMessages((prev) => [...prev, userMsg]);
     setStep('SERVICE');
 
-    const replyText = customPrefix
-      ? `${customPrefix}\n\nPerfeito, ${customerName || 'visitante'}! 💙\nAgora me conta, como posso te ajudar hoje?`
-      : `Perfeito, ${customerName || 'visitante'}! 💙\n\nAgora me conta, como posso te ajudar hoje?`;
-
-    scheduleBotReply(replyText);
+    if (customPrefix) {
+      scheduleBotSequence([
+        customPrefix,
+        `Perfeito, ${customerName || 'visitante'}! 💙`,
+        'Agora me conta, como posso te ajudar hoje?',
+      ]);
+    } else {
+      scheduleBotSequence([
+        `Perfeito, ${customerName || 'visitante'}! 💙`,
+        'Agora me conta, como posso te ajudar hoje?',
+      ]);
+    }
   }
 
   /* ============================================================================
@@ -519,9 +645,10 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
       window.open(url, '_blank', 'noopener,noreferrer');
     }
 
-    scheduleBotReply(
-      `Tudo certo, ${customerName || 'visitante'}! Já preparei seu atendimento para a ${selectedStore.shortTitle}.\n\nSe a janela do WhatsApp não abriu automaticamente, toque no botão abaixo ou envie uma mensagem adicional:`
-    );
+    scheduleBotSequence([
+      `Tudo certo, ${customerName || 'visitante'}! Já preparei seu atendimento para a ${selectedStore.shortTitle}.`,
+      'Se a janela do WhatsApp não abriu automaticamente, toque no botão abaixo ou envie uma mensagem adicional:',
+    ]);
   }
 
   function handleShowAddressesInChat() {
@@ -581,8 +708,7 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
   }
 
   function handleRestartChat() {
-    timersRef.current.forEach((t) => window.clearTimeout(t));
-    timersRef.current = [];
+    clearScheduledTimers();
     setStep('IDENTIFY');
     setCustomerName('');
     setCustomerPhone('');
@@ -594,15 +720,9 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
     setChosenSubject('');
     setCustomMessageText('');
     setStoreInfoVisible(false);
-    setIsTyping(false);
-    setMessages([
-      {
-        id: `welcome-${Date.now()}`,
-        sender: 'bot',
-        text: INITIAL_BOT_MESSAGE,
-        time: getFormattedTime(),
-      },
-    ]);
+    setMessages([]);
+    setHasInitializedIntro(true);
+    scheduleBotSequence([WELCOME_MSG_1, WELCOME_MSG_2]);
   }
 
   const finalWhatsAppUrl = buildWhatsAppLink(
@@ -612,20 +732,39 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
 
   return (
     <>
-      {/* 1. BALÃO FLUTUANTE DE PRÉVIA / CONVITE DO NORT (SEM GRADIENTES) */}
-      {!isOpen && !bubbleDismissed && (
+      {/* 0. BACKDROP ULTRA ESCURO (97%) EM TODA A PÁGINA QUANDO O CHAT ESTÁ ABERTO (FOCO TOTAL NO CHAT E ACIMA DO HEADER) */}
+      {isOpen && (
+        <div
+          aria-hidden="true"
+          className="fixed inset-0 z-[9990] bg-[#01030A]/[0.97] animate-in fade-in duration-200 cursor-pointer"
+          data-testid="nort-chat-backdrop"
+          onClick={() => setIsOpen(false)}
+          style={{ backgroundColor: 'rgba(1, 3, 10, 0.97)' }}
+        />
+      )}
+
+      {/* 1. BALÃO FLUTUANTE DE PRÉVIA / CONVITE DO NORT (SURGE APÓS 15s COM EFEITO DIGITANDO E FECHA EM 10s) */}
+      {!isOpen && !bubbleDismissed && previewVisible && (
         <aside
           aria-label="Convite de atendimento do Norti"
-          className="fixed bottom-20 right-4 sm:right-6 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200 max-w-[290px] sm:max-w-[320px]"
+          className="fixed bottom-20 right-4 sm:right-6 z-50 animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-300 max-w-[290px] sm:max-w-[320px]"
         >
           <div className="relative flex items-start gap-2.5 rounded-[12px] bg-[#FFFFFF] p-3 shadow-[0_4px_16px_rgba(17,27,33,0.18)] border border-[#D1D7DB]">
             <NortAvatar alt="Nort Atendente" size={38} />
 
             <div
               className="flex-1 min-w-0 cursor-pointer text-left"
-              onClick={() => setIsOpen(true)}
+              onClick={() => {
+                setIsOpen(true);
+                setPreviewVisible(false);
+                setBubbleDismissed(true);
+              }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') setIsOpen(true);
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setIsOpen(true);
+                  setPreviewVisible(false);
+                  setBubbleDismissed(true);
+                }
               }}
               role="button"
               tabIndex={0}
@@ -634,18 +773,25 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
                 <span className="text-xs font-bold text-[#111B21]">
                   Nort | Comercial do Norte
                 </span>
-                <span className="size-2 rounded-full bg-[#00A884]" />
+                <span className="size-2 rounded-full bg-[#00A884] animate-pulse" />
               </div>
               <p className="mt-0.5 text-xs text-[#667781] leading-snug">
-                Oi! Precisa de ajuda com cotação ou produtos? Fala comigo! 👋
+                {previewTypedText}
+                {isPreviewTyping && (
+                  <span
+                    aria-hidden="true"
+                    className="inline-block w-1 h-3.5 bg-[#00A884] ml-0.5 animate-pulse align-middle"
+                  />
+                )}
               </p>
             </div>
 
             <button
               aria-label="Dispensar aviso do Norti"
-              className="text-[#667781] hover:text-[#111B21] transition -mr-1 -mt-1 p-1 rounded"
+              className="text-[#667781] hover:text-[#111B21] transition -mr-1 -mt-1 p-1 rounded cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
+                setPreviewVisible(false);
                 setBubbleDismissed(true);
               }}
               type="button"
@@ -657,7 +803,7 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
       )}
 
       {/* 2. BOTÃO FLUTUANTE PRINCIPAL (COR SÓLIDA #00A884, SEM GRADIENTE) */}
-      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999]">
         <button
           aria-controls={id}
           aria-expanded={isOpen}
@@ -693,12 +839,12 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
         </button>
       </div>
 
-      {/* 3. JANELA DE CONVERSA WHATSAPP (CORES SÓLIDAS + WALLPAPER CLÁSSICO) */}
+      {/* 3. JANELA DE CONVERSA WHATSAPP (CORES SÓLIDAS + WALLPAPER CLÁSSICO, ACIMA DE QUALQUER HEADER) */}
       {isOpen && (
         <section
           id={id}
           aria-label="Chat de atendimento com o mascote Norti"
-          className="fixed inset-x-0 bottom-0 sm:inset-auto sm:bottom-22 sm:right-6 z-50 w-full sm:w-[395px] h-[100dvh] sm:h-[580px] sm:max-h-[calc(100vh-105px)] bg-[#E4D8D3] sm:rounded-[14px] shadow-[0_12px_36px_rgba(17,27,33,0.28)] border border-[#D1D7DB] overflow-hidden flex flex-col animate-in fade-in duration-150"
+          className="fixed inset-x-0 bottom-0 sm:inset-auto sm:bottom-22 sm:right-6 z-[9995] w-full sm:w-[395px] h-[100dvh] sm:h-[580px] sm:max-h-[calc(100vh-105px)] bg-[#E4D8D3] sm:rounded-[14px] shadow-[0_20px_50px_rgba(0,0,0,0.65)] border border-[#D1D7DB] overflow-hidden flex flex-col animate-in fade-in duration-150"
           role="dialog"
         >
           {/* CABEÇALHO SÓLIDO #075844 — PADRÃO WHATSAPP (ANEXOS 2 E 3) */}
@@ -792,15 +938,18 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
               </div>
             </div>
 
-            {/* HISTÓRICO DE MENSAGENS */}
+            {/* HISTÓRICO DE MENSAGENS (COM AGRUPAMENTO ESTILO ANEXO 3) */}
             {messages.map((msg, idx) => {
-              const prevMsg = idx > 0 ? messages[idx - 1] : null;
-              const showAvatar = msg.sender === 'bot' && (!prevMsg || prevMsg.sender !== 'bot');
+              const nextMsg = idx < messages.length - 1 ? messages[idx + 1] : null;
+              // Avatar aparece na última mensagem consecutiva do Nort (quando não está digitando outra em seguida), igual ao Anexo 3
+              const isLastInBotGroup =
+                msg.sender === 'bot' && (!nextMsg || nextMsg.sender !== 'bot') && !isTyping;
               return (
                 <MessageBubble
                   key={msg.id}
                   message={msg}
-                  showAvatar={showAvatar}
+                  showAvatar={isLastInBotGroup}
+                  showTail={msg.sender === 'bot'}
                 />
               );
             })}
@@ -809,9 +958,10 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
             {isTyping && <TypingIndicatorBubble />}
 
             {/* =================================================================
-             * INTERAÇÃO 1 — FORMULÁRIO INTEGRADO À CONVERSA (NOME + WHATSAPP)
+             * INTERAÇÃO 1 — FORMULÁRIO INTEGRADO À CONVERSA (APENAS NOME + WHATSAPP)
+             * Só aparece DEPOIS que o Nort terminar de digitar as duas mensagens iniciais!
              * ================================================================= */}
-            {step === 'IDENTIFY' && !isTyping && (
+            {step === 'IDENTIFY' && !isTyping && messages.length >= 2 && (
               <div className="pl-[38px] pr-1 pt-0.5 animate-in fade-in duration-150">
                 <form
                   aria-label="Identificação rápida para atendimento"
@@ -876,66 +1026,12 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
                     <Send className="size-3.5" />
                   </button>
                 </form>
-
-                {/* Botões de resposta rápida do WhatsApp (Anexo 1) */}
-                <div className="mt-2 space-y-1.5">
-                  <QuickReplyButton
-                    onClick={() => {
-                      const activePhone = selectedStore.whatsappDigits || whatsappDigits;
-                      const url = buildWhatsAppLink(
-                        activePhone,
-                        'Olá! Gostaria de falar com vendas da Comercial do Norte para tirar dúvidas sobre produtos e preços.'
-                      );
-                      window.open(url, '_blank', 'noopener,noreferrer');
-                    }}
-                  >
-                    💬 Falar com Vendas no WhatsApp
-                  </QuickReplyButton>
-
-                  <QuickReplyButton
-                    onClick={() => {
-                      const activePhone = selectedStore.whatsappDigits || whatsappDigits;
-                      const url = buildWhatsAppLink(
-                        activePhone,
-                        'Olá! Preciso de ajuda com a minha lista de cotação de produtos na Comercial do Norte.'
-                      );
-                      window.open(url, '_blank', 'noopener,noreferrer');
-                    }}
-                  >
-                    📋 Ajuda com Lista de Cotação
-                  </QuickReplyButton>
-
-                  <QuickReplyButton
-                    onClick={() => {
-                      setIsOpen(false);
-                      startTour();
-                    }}
-                  >
-                    🧭 Fazer Tour Guiado na Loja
-                  </QuickReplyButton>
-
-                  <QuickReplyButton onClick={handleShowAddressesInChat}>
-                    📍 Endereços e Horários das Lojas
-                  </QuickReplyButton>
-
-                  <QuickReplyButton
-                    onClick={() => {
-                      const activePhone = selectedStore.whatsappDigits || whatsappDigits;
-                      const url = buildWhatsAppLink(
-                        activePhone,
-                        'Olá! Preciso de atendimento de suporte e pós-venda da Comercial do Norte.'
-                      );
-                      window.open(url, '_blank', 'noopener,noreferrer');
-                    }}
-                  >
-                    🎧 Suporte e Pós-Venda CRM
-                  </QuickReplyButton>
-                </div>
               </div>
             )}
 
             {/* =================================================================
              * INTERAÇÃO 2 — ESCOLHA DA UNIDADE (BOTÕES DE RESPOSTA RÁPIDA)
+             * Só aparece DEPOIS que o Nort terminar de digitar!
              * ================================================================= */}
             {step === 'UNIT_MODE' && !isTyping && (
               <div className="pl-[38px] pr-1 space-y-1.5 pt-0.5 animate-in fade-in duration-150">
@@ -1052,6 +1148,7 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
 
             {/* =================================================================
              * INTERAÇÃO 3 — COMO PODEMOS AJUDAR HOJE? (BOTÕES ESTILO WHATSAPP)
+             * Só aparece DEPOIS da identificação e escolha da unidade!
              * ================================================================= */}
             {step === 'SERVICE' && !isTyping && (
               <div className="pl-[38px] pr-1 space-y-1.5 pt-0.5 animate-in fade-in duration-150">
@@ -1093,12 +1190,45 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
                 </QuickReplyButton>
 
                 <QuickReplyButton
+                  onClick={() =>
+                    handleSelectService(
+                      '💬 Falar com Vendas no WhatsApp',
+                      'Gostaria de falar com um vendedor da Comercial do Norte para tirar dúvidas sobre produtos e preços.'
+                    )
+                  }
+                >
+                  💬 Falar com Vendas no WhatsApp
+                </QuickReplyButton>
+
+                <QuickReplyButton
+                  onClick={() =>
+                    handleSelectService(
+                      '📋 Ajuda com Lista de Cotação',
+                      'Preciso de ajuda com a minha lista de cotação de produtos na loja.'
+                    )
+                  }
+                >
+                  📋 Ajuda com Lista de Cotação
+                </QuickReplyButton>
+
+                <QuickReplyButton
                   onClick={() => {
                     setIsOpen(false);
                     startTour();
                   }}
                 >
                   🧭 Fazer Tour Guiado na Loja
+                </QuickReplyButton>
+
+                <QuickReplyButton
+                  onClick={() =>
+                    handleSelectService(
+                      '🎧 Suporte e Pós-Venda CRM',
+                      'Preciso de atendimento de suporte e pós-venda da Comercial do Norte.'
+                    )
+                  }
+                >
+                  🎧 Suporte e Pós-Venda CRM
                 </QuickReplyButton>
               </div>
             )}
@@ -1125,7 +1255,7 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
 
             {/* PAINEL DE ENDEREÇOS E HORÁRIOS REAIS INTEGRADO À CONVERSA */}
             {storeInfoVisible && (
-              <div className="flex items-start gap-2 max-w-[92%] animate-in fade-in duration-150">
+              <div className="flex items-end gap-2 max-w-[92%] animate-in fade-in duration-150">
                 <NortAvatar alt="Nort" size={30} />
                 <div className="relative rounded-[10px] rounded-tl-none bg-[#F1F3F4] p-3 text-[12px] text-[#111B21] shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#D1D7DB]/60 leading-relaxed">
                   <p className="font-bold text-[#075844] mb-1">
@@ -1161,7 +1291,15 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
 
           {/* RODAPÉ ADAPTATIVO CONFORME A ETAPA DA CONVERSA (SEÇÃO 7) */}
           <footer className="bg-[#F1F3F4] px-2.5 py-2 border-t border-[#D1D7DB] shrink-0">
-            {step === 'UNIT_MODE' || step === 'UNIT_LIST' || step === 'SERVICE' ? (
+            {isTyping ? (
+              <div className="flex items-center justify-between rounded-full bg-[#FFFFFF] px-3.5 py-2 border border-[#D1D7DB] text-[12px] text-[#667781]">
+                <span>Nort está digitando uma mensagem...</span>
+              </div>
+            ) : step === 'IDENTIFY' ? (
+              <div className="flex items-center justify-between rounded-full bg-[#FFFFFF] px-3.5 py-2 border border-[#D1D7DB] text-[12px] text-[#667781]">
+                <span>Informe seu nome e WhatsApp acima para iniciar</span>
+              </div>
+            ) : step === 'UNIT_MODE' || step === 'UNIT_LIST' || step === 'SERVICE' ? (
               <div className="flex items-center justify-between rounded-full bg-[#FFFFFF] px-3.5 py-2 border border-[#D1D7DB] text-[12px] text-[#667781]">
                 <span>Selecione uma das opções acima na conversa</span>
                 <button
