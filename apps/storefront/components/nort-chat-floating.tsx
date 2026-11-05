@@ -2,7 +2,23 @@
 
 import React, { useEffect, useId, useRef, useState } from 'react';
 import Image from 'next/image';
-import { ArrowLeft, CheckCheck, ChevronDown, Minimize2, RotateCcw, Send, X } from 'lucide-react';
+import {
+  ArrowLeft,
+  Check,
+  CheckCheck,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  HelpCircle,
+  History,
+  MessageSquare,
+  PlusCircle,
+  Search,
+  Send,
+  Settings,
+  User,
+  X,
+} from 'lucide-react';
 import {
   COMMERCIAL_STORES,
   CommercialStore,
@@ -26,6 +42,19 @@ import {
   saveStoredLocation,
   type UserLocation,
 } from '../lib/location';
+import {
+  NortTicket,
+  TicketEvent,
+  TicketEventType,
+  formatTicketDateTime,
+  formatTicketNumber,
+  generateTicketTitle,
+  getActiveTicketId,
+  groupTicketsChronologically,
+  loadStoredTickets,
+  saveStoredTickets,
+  setActiveTicketId,
+} from '../lib/nort-tickets';
 import { useOptionalUserLocation } from './location-provider';
 import { useNortTour } from './tour';
 
@@ -186,12 +215,12 @@ function VerifiedBadge() {
 function TypingIndicatorBubble() {
   return (
     <div
+      role="status"
       aria-label="Nort está digitando"
       className="flex items-end gap-2 max-w-[85%] animate-in fade-in duration-200"
     >
       <NortAvatar alt="Nort digitando" size={30} />
       <div className="relative rounded-[10px] rounded-tl-none bg-[#F1F3F4] px-3.5 py-2.5 shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#D1D7DB]/60">
-        {/* Rabicho superior esquerdo no padrão WhatsApp */}
         <span
           aria-hidden="true"
           className="absolute -left-[6px] top-0 w-0 h-0 border-t-[8px] border-t-[#F1F3F4] border-l-[6px] border-l-transparent"
@@ -206,58 +235,44 @@ function TypingIndicatorBubble() {
   );
 }
 
-function MessageBubble({
-  message,
-  showAvatar,
-  showTail,
-}: {
-  message: ChatMessage;
-  showAvatar: boolean;
-  showTail: boolean;
-}) {
-  const isBot = message.sender === 'bot';
-
-  if (isBot) {
-    return (
-      <div className="flex items-end gap-2 max-w-[90%] animate-in fade-in duration-200">
-        {showAvatar ? (
-          <NortAvatar alt="Nort" size={30} />
-        ) : (
-          <div aria-hidden="true" className="w-[30px] shrink-0" />
-        )}
-        <div
-          className={`relative bg-[#F1F3F4] text-[#111B21] rounded-[10px] ${
-            showTail ? 'rounded-tl-none' : ''
-          } px-3 pt-2 pb-1.5 shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#D1D7DB]/50 text-[13px] leading-[1.42]`}
-        >
-          {showTail && (
-            <span
-              aria-hidden="true"
-              className="absolute -left-[6px] top-0 w-0 h-0 border-t-[8px] border-t-[#F1F3F4] border-l-[6px] border-l-transparent"
-            />
-          )}
-          <p className="whitespace-pre-wrap break-words pr-10">{message.text}</p>
-          <div className="flex justify-end -mt-1">
-            <span className="text-[10px] text-[#667781] leading-none select-none">
-              {message.time}
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+function BotMessageBubble({ message }: { message: ChatMessage }) {
   return (
-    <div className="flex justify-end w-full animate-in fade-in duration-200">
-      <div className="relative max-w-[85%] bg-[#E0FBD4] text-[#111B21] rounded-[10px] rounded-tr-none px-3 pt-2 pb-1.5 shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#D1D7DB]/50 text-[13px] leading-[1.42]">
+    <div className="flex items-end gap-2 max-w-[85%] animate-in fade-in duration-150">
+      <NortAvatar alt="Nort" size={30} />
+      <div className="relative rounded-[10px] rounded-tl-none bg-[#F1F3F4] px-3.5 py-2 text-[13px] text-[#111B21] shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#D1D7DB]/60 leading-relaxed break-words">
+        <span
+          aria-hidden="true"
+          className="absolute -left-[6px] top-0 w-0 h-0 border-t-[8px] border-t-[#F1F3F4] border-l-[6px] border-l-transparent"
+        />
+        {message.quotedText && (
+          <div className="mb-1.5 rounded-[6px] border-l-4 border-l-[#00A884] bg-[#FFFFFF] px-2.5 py-1 text-[11px] text-[#667781]">
+            <span className="block font-semibold text-[#00A884]">
+              {message.quotedTitle || 'Nort'}
+            </span>
+            <span className="line-clamp-2">{message.quotedText}</span>
+          </div>
+        )}
+        <p className="whitespace-pre-wrap break-words pr-12">{message.text}</p>
+        <span className="block text-right text-[10px] text-[#667781] -mt-1 select-none">
+          {message.time}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function UserMessageBubble({ message }: { message: ChatMessage }) {
+  return (
+    <div className="flex justify-end animate-in fade-in duration-150">
+      <div className="relative max-w-[85%] rounded-[10px] rounded-tr-none bg-[#E0FBD4] px-3.5 py-2 text-[13px] text-[#111B21] shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#C6EDB9]/80 leading-relaxed break-words">
         <span
           aria-hidden="true"
           className="absolute -right-[6px] top-0 w-0 h-0 border-t-[8px] border-t-[#E0FBD4] border-r-[6px] border-r-transparent"
         />
         {message.quotedText && (
-          <div className="mb-1.5 rounded-[6px] bg-[#D1F4CC] border-l-[3px] border-l-[#075844] px-2 py-1 text-[11px] text-[#667781]">
-            <span className="block font-bold text-[#075844]">
-              {message.quotedTitle || 'Nort | Comercial do Norte'}
+          <div className="mb-1.5 rounded-[6px] border-l-4 border-l-[#00A884] bg-[#D1F4C9] px-2.5 py-1 text-[11px] text-[#54656F]">
+            <span className="block font-semibold text-[#075844]">
+              {message.quotedTitle || 'Nort'}
             </span>
             <span className="line-clamp-2">{message.quotedText}</span>
           </div>
@@ -299,19 +314,34 @@ function QuickReplyButton({
 }
 
 /* ============================================================================
- * CÁLCULO DE TEMPO DE DIGITAÇÃO HUMANO, LENTO E NATURAL (2 A 4 SEGUNDOS)
+ * CÁLCULO DE TEMPO DINÂMICO DE DIGITAÇÃO CONFORME A TABELA DA SEÇÃO 9
+ * - Muito curta (< 25 chars): 0,8 a 1,5 segundo
+ * - Curta (25 a 60 chars): 1,5 a 2,0 segundos
+ * - Média (60 a 120 chars): 2,0 a 3,0 segundos
+ * - Longa (> 120 chars): 3,0 a 4,0 segundos (teto de 4s)
  * ============================================================================ */
 
-function calculateHumanTypingMs(text: string, index: number): number {
-  // Ritmo humano realista, calmo e lento (estritamente entre 2.4s e 3.8s por mensagem)
-  const charCount = text.trim().length;
-  const baseMs = 2350 + Math.min(1000, charCount * 16);
-  const naturalCadence = ((charCount * 41 + index * 170) % 380);
-  return Math.min(3850, Math.max(2400, baseMs + naturalCadence));
+export function calculateHumanTypingMs(text: string, index = 0): number {
+  const chars = text.trim().length;
+  const jitter = (chars * 37 + index * 90) % 140;
+
+  if (chars < 25) {
+    const base = 850 + chars * 24;
+    return Math.min(1500, Math.max(800, base + jitter));
+  } else if (chars < 60) {
+    const base = 1500 + (chars - 25) * 14;
+    return Math.min(2000, Math.max(1500, base + jitter));
+  } else if (chars < 120) {
+    const base = 2050 + (chars - 60) * 15;
+    return Math.min(3000, Math.max(2000, base + jitter));
+  } else {
+    const base = 3050 + (chars - 120) * 10;
+    return Math.min(4000, Math.max(3000, base + jitter));
+  }
 }
 
 /* ============================================================================
- * COMPONENTE PRINCIPAL — CHAT DO NORT (ESTILO WHATSAPP CONVERSACIONAL GUIADO)
+ * COMPONENTE PRINCIPAL — CENTRAL DE ATENDIMENTO NORT (AMPLIADA & CENTRALIZADA)
  * ============================================================================ */
 
 export function NortChatFloating({
@@ -341,9 +371,23 @@ export function NortChatFloating({
   const [hasInitializedIntro, setHasInitializedIntro] = useState(false);
   const [hasRestoredSession, setHasRestoredSession] = useState(false);
 
+  // Gestão de Tickets & Histórico
+  const [tickets, setTickets] = useState<NortTicket[]>([]);
+  const [activeTicketId, setActiveTicketIdState] = useState<string | null>(null);
+
+  // Navegação da Sidebar de Configurações
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [sidebarView, setSidebarView] = useState<
+    'menu' | 'new_ticket' | 'history' | 'ticket_detail' | 'profile' | 'help'
+  >('menu');
+  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+  const [ticketSearchTerm, setTicketSearchTerm] = useState('');
+  const [profileSuccessMsg, setProfileSuccessMsg] = useState(false);
+
   // Dados do cliente e escolhas
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [formError, setFormError] = useState('');
@@ -462,11 +506,104 @@ export function NortChatFloating({
   }
 
   /**
-   * Simulação realista e lenta de digitação humana (2 a 4 segundos por mensagem):
-   * - O indicador de digitação (...) e status "digitando..." ativam IMEDIATAMENTE no início.
-   * - Cada mensagem permanece em digitação por 2.4s a 3.8s.
-   * - Ao entregar a mensagem, ocorre pausa natural de respiração (750ms).
-   * - Antes de exibir o formulário ou botões interativos, o indicador de digitação volta por ~2.0s.
+   * Registro Estruturado de Eventos do Cliente (Audit Trail / CRM Trail — Seção 7).
+   */
+  function recordTicketEvent(
+    type: TicketEventType,
+    actionText: string,
+    details?: string,
+    overrideStep?: BotStep
+  ) {
+    const curStep = overrideStep || step;
+    const now = Date.now();
+    const timeFormatted = getFormattedTime();
+
+    setTickets((prev) => {
+      let current = prev.find((t) => t.id === activeTicketId);
+      let nextTickets = [...prev];
+
+      if (!current) {
+        const nextNum = 101 + prev.length;
+        current = {
+          id: formatTicketNumber(nextNum),
+          numericId: nextNum,
+          customerName: customerName.trim(),
+          customerPhone: customerPhone.trim(),
+          customerEmail: customerEmail.trim() || undefined,
+          storeId: selectedStore.id,
+          storeName: selectedStore.shortTitle,
+          title: 'Novo atendimento',
+          category: 'Atendimento Geral',
+          status: 'in_progress',
+          step: curStep,
+          createdAt: now,
+          updatedAt: now,
+          messages,
+          events: [],
+          origin: 'chat-nort-site',
+        };
+        setActiveTicketIdState(current.id);
+        setActiveTicketId(current.id);
+        nextTickets = [current, ...prev];
+      }
+
+      const newEvent: TicketEvent = {
+        id: `ev-${now}-${Math.random().toString(36).slice(2, 6)}`,
+        ticketId: current.id,
+        timestamp: now,
+        timeFormatted,
+        type,
+        actionText,
+        details,
+        step: curStep,
+      };
+
+      const updatedEvents = [...current.events, newEvent];
+      const { title: autoTitle, category: autoCategory } = generateTicketTitle(
+        updatedEvents,
+        current.title
+      );
+
+      const updatedTicket: NortTicket = {
+        ...current,
+        customerName: customerName.trim() || current.customerName,
+        customerPhone: customerPhone.trim() || current.customerPhone,
+        customerEmail: customerEmail.trim() || current.customerEmail,
+        storeId: selectedStore.id || current.storeId,
+        storeName: selectedStore.shortTitle || current.storeName,
+        title: autoTitle,
+        category: autoCategory,
+        step: curStep,
+        updatedAt: now,
+        finishedAt: type === 'finish' ? now : current.finishedAt,
+        status: type === 'finish' ? 'finished' : current.status,
+        events: updatedEvents,
+        messages,
+      };
+
+      const finalTickets = nextTickets.map((t) => (t.id === current?.id ? updatedTicket : t));
+      saveStoredTickets(finalTickets);
+      return finalTickets;
+    });
+  }
+
+  function updateActiveTicketMessages(newMessages: ChatMessage[]) {
+    setTickets((prev) => {
+      const current = prev.find((t) => t.id === activeTicketId);
+      if (!current) return prev;
+      const updated: NortTicket = {
+        ...current,
+        messages: newMessages,
+        updatedAt: Date.now(),
+      };
+      const finalTickets = prev.map((t) => (t.id === current.id ? updated : t));
+      saveStoredTickets(finalTickets);
+      return finalTickets;
+    });
+  }
+
+  /**
+   * Simulação realista de digitação humana com cálculo de tamanho proporcional (Seção 9).
    */
   function scheduleBotSequence(
     texts: string[],
@@ -477,13 +614,11 @@ export function NortChatFloating({
   ) {
     clearScheduledTimers();
     setInteractiveReady(false);
-    // Ativa status "digitando..." e o balão dos três pontinhos IMEDIATAMENTE
     setIsTyping(true);
 
     let elapsed = 0;
 
     texts.forEach((text, index) => {
-      // Se for a partir da 2ª mensagem, há uma pausa de respiração antes de retomar a digitação
       if (index > 0) {
         const pauseBeforeTyping = 750;
         elapsed += pauseBeforeTyping;
@@ -499,22 +634,23 @@ export function NortChatFloating({
 
       const deliverMsgTimer = window.setTimeout(() => {
         setIsTyping(false);
-        setMessages((prev) => [
-          ...prev,
-          {
+        setMessages((prev) => {
+          const newMsg: ChatMessage = {
             id: `bot-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
             sender: 'bot',
             text,
             time: getFormattedTime(),
-          },
-        ]);
+          };
+          const updated = [...prev, newMsg];
+          updateActiveTicketMessages(updated);
+          return updated;
+        });
       }, elapsed);
       timersRef.current.push(deliverMsgTimer);
     });
 
-    // Antes de exibir o bloco interativo (formulário ou opções), mostra digitação por ~2s
     if (options?.withInteractiveWidget !== false) {
-      const pauseBeforeWidgetTyping = 600;
+      const pauseBeforeWidgetTyping = 700;
       elapsed += pauseBeforeWidgetTyping;
 
       const startWidgetTypingTimer = window.setTimeout(() => {
@@ -522,7 +658,7 @@ export function NortChatFloating({
       }, elapsed);
       timersRef.current.push(startWidgetTypingTimer);
 
-      const widgetTypingDuration = 2000;
+      const widgetTypingDuration = 2200;
       elapsed += widgetTypingDuration;
 
       const showWidgetTimer = window.setTimeout(() => {
@@ -540,11 +676,48 @@ export function NortChatFloating({
     }
   }
 
-  // Restaura sessão salva do cliente (localStorage / cookie / banco CRM) ao montar no navegador
+  // Inicialização e recuperação de sessão e tickets
   useEffect(() => {
     const pubId = getOrCreateVisitorPublicId();
     setVisitorPublicId(pubId);
 
+    const storedTickets = loadStoredTickets();
+    const storedActiveId = getActiveTicketId();
+
+    setTickets(storedTickets);
+
+    let active = storedTickets.find((t) => t.id === storedActiveId);
+    if (!active && storedTickets.length > 0) {
+      active = storedTickets[0];
+    }
+
+    if (active) {
+      setActiveTicketIdState(active.id);
+      setActiveTicketId(active.id);
+      setCustomerName(active.customerName || '');
+      setCustomerPhone(active.customerPhone || '');
+      setCustomerEmail(active.customerEmail || '');
+      setSelectedStore(findStoreById(active.storeId));
+      setPendingStoreId(active.storeId || DEFAULT_STORE.id);
+      setChosenSubject(active.title || '');
+      setMessages(active.messages || []);
+      setStep(active.step || 'IDENTIFY');
+      setHasRestoredSession(true);
+
+      setPreviousSession({
+        publicId: pubId,
+        step: active.step,
+        customerName: active.customerName,
+        customerPhone: active.customerPhone,
+        selectedStoreId: active.storeId,
+        chosenSubject: active.title,
+        messages: active.messages,
+        updatedAt: active.updatedAt,
+      });
+      return;
+    }
+
+    // Fallback legado de sessão localStorage
     const localSession = loadStoredNortSession();
     if (localSession && localSession.customerName?.trim().length >= 2) {
       setPreviousSession(localSession);
@@ -554,10 +727,43 @@ export function NortChatFloating({
       setPendingStoreId(localSession.selectedStoreId || DEFAULT_STORE.id);
       setChosenSubject(localSession.chosenSubject || '');
       setHasRestoredSession(true);
+
+      // Migra sessão antiga para o primeiro Ticket
+      const legacyTicket: NortTicket = {
+        id: '#000101',
+        numericId: 101,
+        customerName: localSession.customerName,
+        customerPhone: localSession.customerPhone || '',
+        storeId: localSession.selectedStoreId || DEFAULT_STORE.id,
+        storeName: findStoreById(localSession.selectedStoreId).shortTitle,
+        title: localSession.chosenSubject || 'Atendimento geral',
+        category: 'Atendimento Geral',
+        status: 'in_progress',
+        step: localSession.step,
+        createdAt: localSession.updatedAt || Date.now(),
+        updatedAt: localSession.updatedAt || Date.now(),
+        messages: localSession.messages || [],
+        events: [
+          {
+            id: 'ev-legacy-start',
+            ticketId: '#000101',
+            timestamp: localSession.updatedAt || Date.now(),
+            timeFormatted: getFormattedTime(),
+            type: 'start',
+            actionText: 'Atendimento migrado da sessão anterior',
+            step: localSession.step,
+          },
+        ],
+        origin: 'chat-nort-site',
+      };
+      setTickets([legacyTicket]);
+      setActiveTicketIdState(legacyTicket.id);
+      setActiveTicketId(legacyTicket.id);
+      saveStoredTickets([legacyTicket]);
       return;
     }
 
-    // Caso o localStorage tenha sido limpo mas o cookie da sessão (publicId) exista no banco CRM, restaura do backend!
+    // Backend CRM restore fallback
     if (typeof window !== 'undefined' && document.cookie.includes(NORT_VISITOR_COOKIE_KEY)) {
       void fetch(`/api/v1/crm/leads/session?publicId=${encodeURIComponent(pubId)}`)
         .then((res) => (res.ok ? res.json() : null))
@@ -576,33 +782,52 @@ export function NortChatFloating({
                   }))
                 : [];
 
-            const backendSession: StoredNortSession = {
-              publicId: lead.publicId || pubId,
-              step: 'SERVICE',
-              customerName: lead.customerName,
-              customerPhone: lead.customerPhone || '',
-              selectedStoreId: restoredStore.id,
-              chosenSubject: lead.subject || '',
-              messages: mappedMessages,
-              updatedAt: Date.now(),
-            };
-
-            setPreviousSession(backendSession);
             setCustomerName(lead.customerName);
             setCustomerPhone(lead.customerPhone || '');
             setSelectedStore(restoredStore);
             setPendingStoreId(restoredStore.id);
             setChosenSubject(lead.subject || '');
             setHasRestoredSession(true);
+
+            const crmTicket: NortTicket = {
+              id: '#000101',
+              numericId: 101,
+              customerName: lead.customerName,
+              customerPhone: lead.customerPhone || '',
+              storeId: restoredStore.id,
+              storeName: restoredStore.shortTitle,
+              title: lead.subject || 'Atendimento CRM',
+              category: 'Atendimento Geral',
+              status: 'in_progress',
+              step: 'SERVICE',
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              messages: mappedMessages,
+              events: [
+                {
+                  id: 'ev-crm-restore',
+                  ticketId: '#000101',
+                  timestamp: Date.now(),
+                  timeFormatted: getFormattedTime(),
+                  type: 'start',
+                  actionText: 'Sessão recuperada do banco de dados CRM',
+                  step: 'SERVICE',
+                },
+              ],
+              origin: 'chat-nort-site',
+            };
+
+            setTickets([crmTicket]);
+            setActiveTicketIdState(crmTicket.id);
+            setActiveTicketId(crmTicket.id);
+            saveStoredTickets([crmTicket]);
           }
         })
-        .catch(() => {
-          // Ignora falha de rede
-        });
+        .catch(() => {});
     }
   }, []);
 
-  // Salva automaticamente o histórico e progresso da conversa no localStorage sempre que o usuário já se identificou
+  // Salva automaticamente o progresso no localStorage
   useEffect(() => {
     if (!customerName || customerName.trim().length < 2) return;
     if (messages.length === 0 || step === 'RESUME_PROMPT') return;
@@ -620,8 +845,6 @@ export function NortChatFloating({
   }, [visitorPublicId, step, customerName, customerPhone, selectedStore, chosenSubject, messages]);
 
   // Ao abrir o chat pela primeira vez:
-  // Se for visitante de retorno: abre limpo com boas-vindas acolhedora e opções de continuar ou novo atendimento!
-  // Se for novo visitante: inicia identificação guiada
   useEffect(() => {
     if (!isOpen || hasInitializedIntro) return;
 
@@ -646,6 +869,7 @@ export function NortChatFloating({
 
     setStep('IDENTIFY');
     setMessages([]);
+    recordTicketEvent('start', 'Atendimento iniciado', 'Canal web Comercial do Norte', 'IDENTIFY');
     scheduleBotSequence([WELCOME_MSG_1, WELCOME_MSG_2], { withInteractiveWidget: true });
   }, [isOpen, hasInitializedIntro, previousSession]);
 
@@ -670,7 +894,7 @@ export function NortChatFloating({
       }, 60);
       return () => window.clearTimeout(scrollTimer);
     }
-  }, [isOpen, messages, isTyping, interactiveReady, step, storeInfoVisible]);
+  }, [isOpen, messages, isTyping, interactiveReady, step, storeInfoVisible, isSidebarOpen]);
 
   async function registerLeadToCRM(leadData: {
     name: string;
@@ -681,6 +905,7 @@ export function NortChatFloating({
   }) {
     const activePublicId = visitorPublicId || getOrCreateVisitorPublicId();
     try {
+      const curTicket = tickets.find((t) => t.id === activeTicketId);
       await fetch('/api/v1/crm/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -688,19 +913,27 @@ export function NortChatFloating({
           publicId: activePublicId,
           customerName: leadData.name,
           customerPhone: leadData.phone,
+          customerEmail: customerEmail.trim() || undefined,
           preferredStore: leadData.store.name,
           storeId: leadData.store.id,
           subject: leadData.subject,
-          conversationLog: leadData.allMessages.map((m) => ({
-            id: m.id,
-            sender: m.sender,
-            text: m.text,
-            timestamp: m.time,
-          })),
+          conversationLog: {
+            ticketId: curTicket?.id || '#000101',
+            title: curTicket?.title || leadData.subject,
+            category: curTicket?.category || 'Atendimento Geral',
+            status: curTicket?.status || 'in_progress',
+            events: curTicket?.events || [],
+            messages: leadData.allMessages.map((m) => ({
+              id: m.id,
+              sender: m.sender,
+              text: m.text,
+              timestamp: m.time,
+            })),
+          },
         }),
       });
     } catch {
-      // Ignora erro de rede em modo offline ou teste
+      // Ignora falha de rede
     }
   }
 
@@ -739,14 +972,21 @@ export function NortChatFloating({
 
     const nextMessages = [...messages, userMsg];
     setMessages(nextMessages);
+    updateActiveTicketMessages(nextMessages);
     setStep('UNIT_MODE');
 
-    // Já registra a identificação inicial do lead na sessão do CRM para nunca perder o contato
+    recordTicketEvent(
+      'identify',
+      'Cliente identificado',
+      `${cleanName} (${formattedPhone})`,
+      'UNIT_MODE'
+    );
+
     void registerLeadToCRM({
       name: cleanName,
       phone: formattedPhone,
       store: selectedStore,
-      subject: 'Em atendimento inicial no chat',
+      subject: 'Identificação inicial no chat',
       allMessages: nextMessages,
     });
 
@@ -760,67 +1000,16 @@ export function NortChatFloating({
   }
 
   /* ============================================================================
-   * ETAPA 2 — ESCOLHA DA UNIDADE (LOCALIZAÇÃO AUTOMÁTICA GPS + IP MAGALU, CEP OU LISTA)
+   * RETORNO DO VISITANTE (SEÇÃO 10)
    * ============================================================================ */
-  function syncHeaderLocation(loc: UserLocation) {
-    if (optionalLocationCtx) {
-      optionalLocationCtx.setLocation(loc);
-    } else {
-      saveStoredLocation(loc);
-    }
-  }
-
-  async function resolveSmartFallbackLocation(): Promise<{
-    store: CommercialStore;
-    regionLabel: string;
-    hasSpecificLocation: boolean;
-  }> {
-    // 1. Verifica se o usuário já possui uma localização salva no cabeçalho / localStorage
-    const currentHeaderLoc = optionalLocationCtx?.location || getStoredLocation();
-    if (currentHeaderLoc && currentHeaderLoc.source && currentHeaderLoc.source !== 'default') {
-      const store =
-        typeof currentHeaderLoc.lat === 'number' && typeof currentHeaderLoc.lng === 'number'
-          ? findNearestStoreByCoords(currentHeaderLoc.lat, currentHeaderLoc.lng)
-          : findNearestStoreByCep(currentHeaderLoc.cep || '66020-600');
-      const regionLabel =
-        currentHeaderLoc.neighborhood && currentHeaderLoc.city
-          ? `${currentHeaderLoc.neighborhood}, ${currentHeaderLoc.city}/${currentHeaderLoc.state}`
-          : currentHeaderLoc.shortLabel || `${currentHeaderLoc.city}/${currentHeaderLoc.state}`;
-      return { store, regionLabel, hasSpecificLocation: true };
-    }
-
-    // 2. Consulta automaticamente a localização por IP (igual Magazine Luiza quando abre o site)
-    const ipLoc = await detectLocationByIp();
-    if (ipLoc) {
-      syncHeaderLocation(ipLoc);
-      const store =
-        typeof ipLoc.lat === 'number' && typeof ipLoc.lng === 'number'
-          ? findNearestStoreByCoords(ipLoc.lat, ipLoc.lng)
-          : findNearestStoreByCep(ipLoc.cep || '66020-600');
-      return {
-        store,
-        regionLabel: ipLoc.shortLabel || `Região de ${ipLoc.city}/${ipLoc.state}`,
-        hasSpecificLocation: true,
-      };
-    }
-
-    // 3. Fallback usando a localização padrão do cabeçalho (Belém/PA)
-    const fallbackLoc = currentHeaderLoc || DEFAULT_LOCATION;
-    const store = findNearestStoreByCep(fallbackLoc.cep || '66093-005');
-    return {
-      store,
-      regionLabel: fallbackLoc.shortLabel || 'Região de Belém/PA',
-      hasSpecificLocation: Boolean(currentHeaderLoc),
-    };
-  }
-
   function handleResumePreviousConversation() {
-    if (!previousSession) return;
+    if (isTyping || !previousSession) return;
     const restoredStore = findStoreById(previousSession.selectedStoreId);
     setSelectedStore(restoredStore);
     setPendingStoreId(restoredStore.id);
     setChosenSubject(previousSession.chosenSubject || '');
     setMessages(previousSession.messages);
+    updateActiveTicketMessages(previousSession.messages);
     const targetStep =
       previousSession.step === 'IDENTIFY' || previousSession.step === 'RESUME_PROMPT'
         ? 'SERVICE'
@@ -828,6 +1017,7 @@ export function NortChatFloating({
     setStep(targetStep);
     setIsTyping(false);
     setInteractiveReady(true);
+    setExpandedCategory(null);
   }
 
   function handleStartNewAttendance() {
@@ -841,7 +1031,11 @@ export function NortChatFloating({
       quotedText: 'Como posso te ajudar agora?',
     };
     setMessages([userMsg]);
+    updateActiveTicketMessages([userMsg]);
     setStep('UNIT_MODE');
+    setExpandedCategory(null);
+
+    recordTicketEvent('start', 'Novo atendimento iniciado via boas-vindas', name, 'UNIT_MODE');
 
     scheduleBotSequence(
       [
@@ -852,10 +1046,153 @@ export function NortChatFloating({
     );
   }
 
+  /* ============================================================================
+   * SIDEBAR — CONFIRMAÇÃO DE NOVO ATENDIMENTO (SEÇÃO 4.1)
+   * ============================================================================ */
+  function handleConfirmNewTicketFromSidebar() {
+    clearScheduledTimers();
+    setIsSidebarOpen(false);
+
+    const now = Date.now();
+    const nextNum = 101 + tickets.length;
+    const newId = formatTicketNumber(nextNum);
+
+    const newTicket: NortTicket = {
+      id: newId,
+      numericId: nextNum,
+      customerName: customerName.trim(),
+      customerPhone: customerPhone.trim(),
+      customerEmail: customerEmail.trim() || undefined,
+      storeId: selectedStore.id,
+      storeName: selectedStore.shortTitle,
+      title: 'Novo atendimento',
+      category: 'Atendimento Geral',
+      status: 'in_progress',
+      step: customerName ? 'UNIT_MODE' : 'IDENTIFY',
+      createdAt: now,
+      updatedAt: now,
+      messages: [],
+      events: [
+        {
+          id: `ev-${now}-start`,
+          ticketId: newId,
+          timestamp: now,
+          timeFormatted: getFormattedTime(),
+          type: 'start',
+          actionText: 'Novo atendimento criado via menu de configurações',
+          details: customerName ? `Cliente: ${customerName}` : 'Visitante',
+          step: customerName ? 'UNIT_MODE' : 'IDENTIFY',
+        },
+      ],
+      origin: 'chat-nort-site',
+    };
+
+    setTickets((prev) => {
+      const updated = prev.map((t) =>
+        t.id === activeTicketId ? { ...t, status: 'finished' as const, finishedAt: now } : t
+      );
+      const finalTickets = [newTicket, ...updated];
+      saveStoredTickets(finalTickets);
+      return finalTickets;
+    });
+
+    setActiveTicketIdState(newId);
+    setActiveTicketId(newId);
+    setMessages([]);
+    setChosenSubject('');
+    setCustomMessageText('');
+    setStoreInfoVisible(false);
+    setExpandedCategory(null);
+
+    if (customerName && customerName.trim().length >= 2) {
+      setStep('UNIT_MODE');
+      scheduleBotSequence(
+        [
+          `Olá novamente, ${customerName}! 👋 Iniciamos um novo atendimento.`,
+          'Em qual unidade da Comercial do Norte você prefere ser atendido?',
+        ],
+        { withInteractiveWidget: true }
+      );
+    } else {
+      setStep('IDENTIFY');
+      scheduleBotSequence([WELCOME_MSG_1, WELCOME_MSG_2], { withInteractiveWidget: true });
+    }
+  }
+
+  function handleResumeTicketFromHistory(ticket: NortTicket) {
+    clearScheduledTimers();
+    setActiveTicketIdState(ticket.id);
+    setActiveTicketId(ticket.id);
+    setSelectedStore(findStoreById(ticket.storeId));
+    setPendingStoreId(ticket.storeId || DEFAULT_STORE.id);
+    setCustomerName(ticket.customerName || '');
+    setCustomerPhone(ticket.customerPhone || '');
+    setCustomerEmail(ticket.customerEmail || '');
+    setMessages(ticket.messages || []);
+    setStep(ticket.step === 'IDENTIFY' && ticket.customerName ? 'UNIT_MODE' : ticket.step);
+    setIsTyping(false);
+    setInteractiveReady(true);
+    setIsSidebarOpen(false);
+  }
+
+  function handleSaveProfileInSidebar(e: React.FormEvent) {
+    e.preventDefault();
+    const cleanName = editName.trim();
+    const phoneDigits = editPhone.replace(/\D/g, '');
+
+    if (cleanName.length < 2) {
+      setFormError('Por favor, informe seu nome.');
+      return;
+    }
+    if (phoneDigits.length < 10) {
+      setFormError('Informe um WhatsApp válido com DDD, ex: (91) 99999-9999.');
+      return;
+    }
+
+    setFormError('');
+    const formattedPhone = formatBrazilPhoneMask(phoneDigits);
+    setCustomerName(cleanName);
+    setCustomerPhone(formattedPhone);
+
+    setTickets((prev) => {
+      const updated = prev.map((t) =>
+        t.id === activeTicketId
+          ? {
+              ...t,
+              customerName: cleanName,
+              customerPhone: formattedPhone,
+              customerEmail: customerEmail.trim() || t.customerEmail,
+              updatedAt: Date.now(),
+            }
+          : t
+      );
+      saveStoredTickets(updated);
+      return updated;
+    });
+
+    recordTicketEvent(
+      'edit_data',
+      'Dados cadastrais atualizados via Configurações',
+      `${cleanName} (${formattedPhone})${customerEmail ? ` · ${customerEmail}` : ''}`
+    );
+
+    setProfileSuccessMsg(true);
+    window.setTimeout(() => setProfileSuccessMsg(false), 3500);
+  }
+
+  /* ============================================================================
+   * ETAPA 2 — ESCOLHA DA UNIDADE COM KM E PROXIMIDADE (SEÇÃO 10)
+   * ============================================================================ */
+  function syncHeaderLocation(loc: UserLocation) {
+    saveStoredLocation(loc);
+    if (optionalLocationCtx?.setLocation) {
+      optionalLocationCtx.setLocation(loc);
+    }
+  }
+
   async function handleFindNearestUnit() {
     if (isTyping) return;
 
-    // Detecta rótulo de localização para a mensagem do usuário (ex: Pedreira, Belém - PA)
     const currentLoc = optionalLocationCtx?.location || getStoredLocation();
     let locationText = '';
     if (currentLoc?.neighborhood && currentLoc?.city) {
@@ -871,16 +1208,25 @@ export function NortChatFloating({
       time: getFormattedTime(),
       quotedText: 'Agora me diz: em qual unidade da Comercial do Norte você gostaria de ser atendido?',
     };
-    setMessages((prev) => [...prev, userMsg]);
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
+    updateActiveTicketMessages(nextMessages);
 
-    // Resposta imediata do Nort dizendo que vai verificar
+    recordTicketEvent(
+      'select_unit',
+      'Solicitou busca da unidade mais próxima por proximidade',
+      locationText || 'Localização padrão'
+    );
+
     const waitMsg: ChatMessage = {
       id: `bot-wait-${Date.now()}`,
       sender: 'bot',
       text: 'Ah sim! Deixa eu verificar um momentinho... 🔍',
       time: getFormattedTime(),
     };
-    setMessages((prev) => [...prev, waitMsg]);
+    const waitMessages = [...nextMessages, waitMsg];
+    setMessages(waitMessages);
+    updateActiveTicketMessages(waitMessages);
     setIsTyping(true);
     setInteractiveReady(false);
 
@@ -926,11 +1272,9 @@ export function NortChatFloating({
       }
     }
 
-    // Calcula as 2 lojas mais próximas com a distância em km!
     const topStores = findTopNearestStores(targetLat, targetLng, 2);
     setNearbyStores(topStores);
 
-    // Delay humano e natural de verificação (2.6s)
     window.setTimeout(() => {
       setIsTyping(false);
       setStep('UNIT_NEARBY_CHOICE');
@@ -940,7 +1284,7 @@ export function NortChatFloating({
         : 'Olha, a unidade mais próxima de você tem estas opções:';
 
       scheduleBotSequence([introText], { withInteractiveWidget: true });
-    }, 2600);
+    }, 2200);
   }
 
   function handleSelectNearbyStore(store: StoreWithDistance | CommercialStore) {
@@ -956,7 +1300,16 @@ export function NortChatFloating({
 
     const nextMessages = [...messages, userMsg];
     setMessages(nextMessages);
+    updateActiveTicketMessages(nextMessages);
     setStep('SERVICE');
+    setExpandedCategory(null);
+
+    recordTicketEvent(
+      'select_unit',
+      'Unidade confirmada por proximidade',
+      store.shortTitle,
+      'SERVICE'
+    );
 
     void registerLeadToCRM({
       name: customerName || 'Cliente Site',
@@ -985,8 +1338,12 @@ export function NortChatFloating({
       time: getFormattedTime(),
       quotedText: 'Agora me diz: em qual unidade da Comercial do Norte você gostaria de ser atendido?',
     };
-    setMessages((prev) => [...prev, userMsg]);
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
+    updateActiveTicketMessages(nextMessages);
     setStep('UNIT_LIST');
+
+    recordTicketEvent('select_unit', 'Abriu lista manual de unidades', undefined, 'UNIT_LIST');
 
     scheduleBotSequence(
       ['Claro! Selecione abaixo em qual das nossas unidades você prefere ser atendido:'],
@@ -1011,9 +1368,7 @@ export function NortChatFloating({
     if (digits.length === 8) {
       void lookupLocationByCep(digits)
         .then((loc) => syncHeaderLocation(loc))
-        .catch(() => {
-          // Ignora falha de CEP externo
-        });
+        .catch(() => {});
     }
 
     const userMsg: ChatMessage = {
@@ -1024,8 +1379,17 @@ export function NortChatFloating({
     };
     const nextMessages = [...messages, userMsg];
     setMessages(nextMessages);
+    updateActiveTicketMessages(nextMessages);
     setSelectedStore(nearest);
     setStep('SERVICE');
+    setExpandedCategory(null);
+
+    recordTicketEvent(
+      'select_unit',
+      'Unidade localizada por CEP',
+      `${formattedCep} (${nearest.shortTitle})`,
+      'SERVICE'
+    );
 
     void registerLeadToCRM({
       name: customerName || 'Cliente Site',
@@ -1056,7 +1420,16 @@ export function NortChatFloating({
     };
     const nextMessages = [...messages, userMsg];
     setMessages(nextMessages);
+    updateActiveTicketMessages(nextMessages);
     setStep('SERVICE');
+    setExpandedCategory(null);
+
+    recordTicketEvent(
+      'select_unit',
+      'Unidade selecionada da lista',
+      store.shortTitle,
+      'SERVICE'
+    );
 
     void registerLeadToCRM({
       name: customerName || 'Cliente Site',
@@ -1066,28 +1439,16 @@ export function NortChatFloating({
       allMessages: nextMessages,
     });
 
-    if (customPrefix) {
-      scheduleBotSequence(
-        [
-          customPrefix,
-          `Perfeito, ${customerName || 'visitante'}! 💙`,
-          'Agora me conta, como posso te ajudar hoje?',
-        ],
-        { withInteractiveWidget: true }
-      );
-    } else {
-      scheduleBotSequence(
-        [
-          `Perfeito, ${customerName || 'visitante'}! 💙`,
-          'Agora me conta, como posso te ajudar hoje?',
-        ],
-        { withInteractiveWidget: true }
-      );
-    }
+    scheduleBotSequence(
+      customPrefix
+        ? [customPrefix, `Perfeito, ${customerName || 'visitante'}! 💙`, 'Agora me conta, como posso te ajudar hoje?']
+        : [`Perfeito, ${customerName || 'visitante'}! 💙`, 'Agora me conta, como posso te ajudar hoje?'],
+      { withInteractiveWidget: true }
+    );
   }
 
   /* ============================================================================
-   * ETAPA 3 — COMO PODEMOS AJUDAR? (SERVIÇOS E REDIRECIONAMENTO)
+   * ETAPA 3 — SERVIÇOS E REDIRECIONAMENTO COM REGISTRO DE TICKETS
    * ============================================================================ */
   function handleSelectService(serviceLabel: string, topicDetail: string) {
     if (isTyping) return;
@@ -1103,7 +1464,15 @@ export function NortChatFloating({
 
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
+    updateActiveTicketMessages(updatedMessages);
     setStep('FINISHED');
+
+    recordTicketEvent(
+      'select_service',
+      serviceLabel,
+      topicDetail,
+      'FINISHED'
+    );
 
     void registerLeadToCRM({
       name: customerName || 'Cliente Site',
@@ -1145,7 +1514,14 @@ export function NortChatFloating({
         text: '📍 Ver endereço e horários de funcionamento',
         time: getFormattedTime(),
       };
-      setMessages((prev) => [...prev, userMsg]);
+      const updated = [...messages, userMsg];
+      setMessages(updated);
+      updateActiveTicketMessages(updated);
+      recordTicketEvent(
+        'select_service',
+        'Consulta de endereços e horários de lojas',
+        selectedStore.shortTitle
+      );
     }
   }
 
@@ -1158,8 +1534,17 @@ export function NortChatFloating({
       time: getFormattedTime(),
       quotedText: 'Agora me conta: como podemos te ajudar hoje?',
     };
-    setMessages((prev) => [...prev, userMsg]);
+    const updated = [...messages, userMsg];
+    setMessages(updated);
+    updateActiveTicketMessages(updated);
     setStep('UNIT_CEP');
+
+    recordTicketEvent(
+      'select_service',
+      'Ajuda para alteração de CEP e entrega',
+      undefined,
+      'UNIT_CEP'
+    );
 
     scheduleBotSequence(
       [
@@ -1179,9 +1564,18 @@ export function NortChatFloating({
       time: getFormattedTime(),
       quotedText: 'Agora me conta: como podemos te ajudar hoje?',
     };
-    setMessages((prev) => [...prev, userMsg]);
+    const updated = [...messages, userMsg];
+    setMessages(updated);
+    updateActiveTicketMessages(updated);
     setStep('FINISHED');
     setChosenSubject('Recuperação de login e senha');
+
+    recordTicketEvent(
+      'select_service',
+      'Recuperação de login e senha da conta',
+      undefined,
+      'FINISHED'
+    );
 
     scheduleBotSequence(
       [
@@ -1201,9 +1595,18 @@ export function NortChatFloating({
       time: getFormattedTime(),
       quotedText: 'Agora me conta: como podemos te ajudar hoje?',
     };
-    setMessages((prev) => [...prev, userMsg]);
+    const updated = [...messages, userMsg];
+    setMessages(updated);
+    updateActiveTicketMessages(updated);
     setStep('FINISHED');
     setChosenSubject('Consulta de produtos no catálogo');
+
+    recordTicketEvent(
+      'select_service',
+      'Consulta de produtos e navegação no catálogo',
+      undefined,
+      'FINISHED'
+    );
 
     scheduleBotSequence(
       [
@@ -1223,9 +1626,18 @@ export function NortChatFloating({
       time: getFormattedTime(),
       quotedText: 'Agora me conta: como podemos te ajudar hoje?',
     };
-    setMessages((prev) => [...prev, userMsg]);
+    const updated = [...messages, userMsg];
+    setMessages(updated);
+    updateActiveTicketMessages(updated);
     setStep('FINISHED');
     setChosenSubject('Dúvidas com Lista de Cotação');
+
+    recordTicketEvent(
+      'select_service',
+      'Problemas ou dúvidas ao adicionar itens à cotação',
+      undefined,
+      'FINISHED'
+    );
 
     scheduleBotSequence(
       [
@@ -1249,6 +1661,9 @@ export function NortChatFloating({
     };
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
+    updateActiveTicketMessages(updatedMessages);
+
+    recordTicketEvent('finish', 'Mensagem enviada pelo cliente', text, 'FINISHED');
 
     const activePhone = selectedStore.whatsappDigits || whatsappDigits;
     const bodyText = customerName
@@ -1267,7 +1682,7 @@ export function NortChatFloating({
     if (step === 'UNIT_MODE') {
       setStep('IDENTIFY');
       setInteractiveReady(true);
-    } else if (step === 'UNIT_LIST' || step === 'UNIT_CEP') {
+    } else if (step === 'UNIT_LIST' || step === 'UNIT_CEP' || step === 'UNIT_NEARBY_CHOICE') {
       setStep('UNIT_MODE');
       setInteractiveReady(true);
     } else if (step === 'SERVICE') {
@@ -1325,9 +1740,16 @@ export function NortChatFloating({
 
     const nextMessages = [...messages, userMsg];
     setMessages(nextMessages);
+    updateActiveTicketMessages(nextMessages);
     setStep('SERVICE');
 
-    // Atualiza o MESMO lead no MiniCRM pelo visitorPublicId (não duplica no Kanban!)
+    recordTicketEvent(
+      'edit_data',
+      'Dados cadastrais atualizados no chat',
+      `${cleanName} (${formattedPhone})`,
+      'SERVICE'
+    );
+
     void registerLeadToCRM({
       name: cleanName,
       phone: formattedPhone,
@@ -1352,6 +1774,7 @@ export function NortChatFloating({
     setExpandedCategory(null);
     setCustomerName('');
     setCustomerPhone('');
+    setCustomerEmail('');
     setFormError('');
     setCepInput('');
     setCepError('');
@@ -1364,6 +1787,43 @@ export function NortChatFloating({
     setInteractiveReady(false);
     setHasInitializedIntro(true);
     setHasRestoredSession(false);
+    setIsSidebarOpen(false);
+
+    const now = Date.now();
+    const nextNum = 101 + tickets.length;
+    const newId = formatTicketNumber(nextNum);
+    const newTicket: NortTicket = {
+      id: newId,
+      numericId: nextNum,
+      customerName: '',
+      customerPhone: '',
+      storeId: DEFAULT_STORE.id,
+      storeName: DEFAULT_STORE.shortTitle,
+      title: 'Novo atendimento',
+      category: 'Atendimento Geral',
+      status: 'in_progress',
+      step: 'IDENTIFY',
+      createdAt: now,
+      updatedAt: now,
+      messages: [],
+      events: [
+        {
+          id: `ev-${now}-restart`,
+          ticketId: newId,
+          timestamp: now,
+          timeFormatted: getFormattedTime(),
+          type: 'start',
+          actionText: 'Atendimento reiniciado desde o início',
+          step: 'IDENTIFY',
+        },
+      ],
+      origin: 'chat-nort-site',
+    };
+    setTickets((prev) => [newTicket, ...prev]);
+    setActiveTicketIdState(newId);
+    setActiveTicketId(newId);
+    saveStoredTickets([newTicket, ...tickets]);
+
     scheduleBotSequence([WELCOME_MSG_1, WELCOME_MSG_2], { withInteractiveWidget: true });
   }
 
@@ -1498,16 +1958,58 @@ export function NortChatFloating({
     },
   ];
 
+  // Filtro de tickets no histórico
+  const filteredTickets = tickets.filter((t) => {
+    if (!ticketSearchTerm.trim()) return true;
+    const term = ticketSearchTerm.toLowerCase();
+    return (
+      t.id.toLowerCase().includes(term) ||
+      t.title.toLowerCase().includes(term) ||
+      t.category.toLowerCase().includes(term) ||
+      t.storeName.toLowerCase().includes(term)
+    );
+  });
+
+  const groupedTickets = groupTicketsChronologically(filteredTickets);
+  const activeTicket = tickets.find((t) => t.id === activeTicketId) || tickets[0];
+  const viewedTicket = tickets.find((t) => t.id === selectedTicketId) || activeTicket;
+
+  function handleSidebarBack() {
+    if (sidebarView === 'ticket_detail') {
+      setSidebarView('history');
+    } else if (sidebarView !== 'menu') {
+      setSidebarView('menu');
+    } else {
+      setIsSidebarOpen(false);
+    }
+  }
+
+  function getSidebarTitle() {
+    switch (sidebarView) {
+      case 'new_ticket':
+        return 'Novo Atendimento';
+      case 'history':
+        return 'Histórico de Atendimentos';
+      case 'ticket_detail':
+        return viewedTicket ? `Ticket ${viewedTicket.id}` : 'Detalhes do Ticket';
+      case 'profile':
+        return 'Meus Dados';
+      case 'help':
+        return 'Ajuda e Suporte';
+      default:
+        return 'Configurações';
+    }
+  }
+
   return (
     <>
-      {/* 0. BACKDROP ULTRA ESCURO (97%) EM TODA A PÁGINA QUANDO O CHAT ESTÁ ABERTO (FOCO TOTAL NO CHAT E ACIMA DO HEADER) */}
+      {/* 0. OVERLAY ESCURO E SUTIL NO FUNDO DA PÁGINA (60% COM BACKDROP BLUR) */}
       {isOpen && (
         <div
           aria-hidden="true"
-          className="fixed inset-0 z-[9990] bg-[#01030A]/[0.97] animate-in fade-in duration-200 cursor-pointer"
+          className="fixed inset-0 z-[9990] bg-[#01030A]/60 backdrop-blur-[2px] animate-in fade-in duration-200 cursor-pointer"
           data-testid="nort-chat-backdrop"
           onClick={() => setIsOpen(false)}
-          style={{ backgroundColor: 'rgba(1, 3, 10, 0.97)' }}
         />
       )}
 
@@ -1539,7 +2041,7 @@ export function NortChatFloating({
             >
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-bold text-[#111B21]">
-                  Nort | Comercial do Norte
+                  Nort
                 </span>
                 <span className="size-2 rounded-full bg-[#00A884] animate-pulse" />
               </div>
@@ -1570,644 +2072,1138 @@ export function NortChatFloating({
         </aside>
       )}
 
-      {/* 2. BOTÃO FLUTUANTE PRINCIPAL (COR SÓLIDA #00A884, SEM GRADIENTE) */}
-      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999]">
-        <button
-          aria-controls={id}
-          aria-expanded={isOpen}
-          aria-haspopup="dialog"
-          aria-label={isOpen ? 'Fechar chat do Norti' : 'Abrir chat com o Norti no WhatsApp'}
-          className="group relative flex size-14 sm:size-15 items-center justify-center rounded-full bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] shadow-[0_4px_14px_rgba(17,27,33,0.28)] transition-transform duration-200 hover:scale-105 active:scale-95 cursor-pointer border-2 border-[#FFFFFF]"
-          onClick={() => setIsOpen((prev) => !prev)}
-          type="button"
-        >
-          {isOpen ? (
-            <X className="size-6 text-[#FFFFFF]" />
-          ) : (
-            <>
-              <svg
-                aria-hidden="true"
-                className="size-7.5 fill-current text-[#FFFFFF]"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.64c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.25-1.5-1.4-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.38-.44.12-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.49-.4-.42-.56-.43h-.47c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1s.9 2.43 1.03 2.6c.13.17 1.77 2.7 4.29 3.78.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.22-.18-.47-.31" />
-              </svg>
-              <div className="absolute -top-1.5 -left-1.5 size-7 rounded-full bg-[#FFFFFF] p-0.5 border border-[#075844] overflow-hidden">
-                <Image
-                  alt="Nort Avatar"
-                  className="size-full object-contain"
-                  height={28}
-                  src="/assets/nort-avatar.png"
-                  unoptimized
-                  width={28}
-                />
-              </div>
-            </>
-          )}
-        </button>
-      </div>
-
-      {/* 3. JANELA DE CONVERSA WHATSAPP (CORES SÓLIDAS + WALLPAPER CLÁSSICO, ACIMA DE QUALQUER HEADER) */}
-      {isOpen && (
-        <section
-          id={id}
-          aria-label="Chat de atendimento com o mascote Norti"
-          className="fixed inset-x-0 bottom-0 sm:inset-auto sm:bottom-22 sm:right-6 z-[9995] w-full sm:w-[395px] h-[100dvh] sm:h-[580px] sm:max-h-[calc(100vh-105px)] bg-[#E4D8D3] sm:rounded-[14px] shadow-[0_20px_50px_rgba(0,0,0,0.65)] border border-[#D1D7DB] overflow-hidden flex flex-col animate-in fade-in duration-150"
-          role="dialog"
-        >
-          {/* CABEÇALHO SÓLIDO #075844 — PADRÃO WHATSAPP (ANEXOS 2 E 3) */}
-          <header className="bg-[#075844] text-[#FFFFFF] px-3 py-2.5 flex items-center justify-between shrink-0 border-b border-[#075844]">
-            <div className="flex items-center gap-2 min-w-0">
-              <button
-                aria-label={step !== 'IDENTIFY' ? 'Voltar etapa anterior' : 'Minimizar chat'}
-                className="flex size-7 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer shrink-0"
-                onClick={() => {
-                  if (step !== 'IDENTIFY') {
-                    handleStepBack();
-                  } else {
-                    setIsOpen(false);
-                  }
-                }}
-                type="button"
-              >
-                <ArrowLeft className="size-4.5" />
-              </button>
-
-              <NortAvatar alt="Nort | Comercial do Norte" size={38} />
-
-              <div className="min-w-0 leading-tight ml-0.5">
-                <div className="flex items-center gap-1">
-                  <h2 className="text-[14px] font-bold text-[#FFFFFF] truncate">
-                    Nort | Comercial do Norte
-                  </h2>
-                  <VerifiedBadge />
-                </div>
-                <p className="text-[11.5px] text-[#FFFFFF]/90 font-normal truncate mt-0.5">
-                  {isTyping ? 'digitando...' : 'online'}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-0.5 shrink-0">
-              <button
-                aria-label="Reiniciar conversa"
-                className="flex size-8 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer"
-                onClick={handleRestartChat}
-                title="Reiniciar conversa"
-                type="button"
-              >
-                <RotateCcw className="size-4" />
-              </button>
-              <button
-                aria-label="Minimizar chat"
-                className="hidden sm:flex size-8 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer"
-                onClick={() => setIsOpen(false)}
-                title="Minimizar"
-                type="button"
-              >
-                <Minimize2 className="size-4" />
-              </button>
-              <button
-                aria-label="Fechar chat do Norti"
-                className="flex size-8 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer"
-                onClick={() => setIsOpen(false)}
-                title="Fechar"
-                type="button"
-              >
-                <X className="size-4.5" />
-              </button>
-            </div>
-          </header>
-
-          {/* ÁREA DE MENSAGENS COM WALLPAPER CLÁSSICO DO WHATSAPP (#E4D8D3 + TEXTURA) */}
-          <div
-            ref={chatBodyRef}
-            className="relative flex-1 overflow-y-auto px-3 py-3 space-y-2.5 bg-[#E4D8D3]"
-            style={{
-              backgroundColor: 'var(--chat-background, #E4D8D3)',
-              backgroundImage: "url('/assets/whatsapp-wallpaper.jpg')",
-              backgroundRepeat: 'repeat',
-              backgroundSize: '340px auto',
-              backgroundAttachment: 'local',
-              backgroundBlendMode: 'multiply',
-            }}
+      {/* 2. BOTÃO FLUTUANTE DE ABERTURA NO CANTO INFERIOR DIREITO (QUANDO FECHADO) */}
+      {!isOpen && (
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999]">
+          <button
+            aria-controls={id}
+            aria-expanded={false}
+            aria-haspopup="dialog"
+            aria-label="Abrir chat com o Norti no WhatsApp"
+            className="group relative flex size-14 sm:size-15 items-center justify-center rounded-full bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] shadow-[0_4px_14px_rgba(17,27,33,0.28)] transition-transform duration-200 hover:scale-105 active:scale-95 cursor-pointer border-2 border-[#FFFFFF]"
+            onClick={() => setIsOpen(true)}
+            type="button"
           >
-            {/* Tag "Hoje" igual ao Anexo 1 & 2 */}
-            <div className="flex justify-center">
-              <span className="rounded-[7px] bg-[#FFFFFF] px-2.5 py-0.5 text-[11px] font-medium text-[#667781] shadow-[0_1px_1px_rgba(17,27,33,0.1)] border border-[#D1D7DB]/60">
-                Hoje
-              </span>
+            <svg
+              aria-hidden="true"
+              className="size-7.5 fill-current text-[#FFFFFF]"
+              viewBox="0 0 24 24"
+            >
+              <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.64c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.25-1.5-1.4-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.38-.44.12-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.49-.4-.42-.56-.43h-.47c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1s.9 2.43 1.03 2.6c.13.17 1.77 2.7 4.29 3.78.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.22-.18-.47-.31" />
+            </svg>
+            <div className="absolute -top-1.5 -left-1.5 size-7 rounded-full bg-[#FFFFFF] p-0.5 border border-[#075844] overflow-hidden">
+              <Image
+                alt="Nort Avatar"
+                className="size-full object-contain"
+                height={28}
+                src="/assets/nort-avatar.png"
+                unoptimized
+                width={28}
+              />
             </div>
+          </button>
+        </div>
+      )}
 
-            {/* Aviso de criptografia / privacidade LGPD no estilo clássico do WhatsApp */}
-            <div className="flex justify-center">
-              <div className="rounded-[8px] bg-[#FFF5C4] border border-[#E6DA9E] px-3 py-1.5 text-[11px] text-[#54656F] text-center max-w-[94%] leading-snug shadow-[0_1px_1px_rgba(17,27,33,0.08)]">
-                🔒 Suas informações (nome, WhatsApp e localização) são protegidas e usadas apenas para direcionar seu atendimento na Comercial do Norte.
-              </div>
-            </div>
+      {/* 3. JANELA CENTRALIZADA E AMPLIADA COM BOTÃO FLUTUANTE (X) EXTERNO NO TOPO DIREITO (SEÇÃO 2) */}
+      {isOpen && (
+        <div className="fixed inset-0 z-[9995] flex items-center justify-center p-0 sm:p-4 md:p-6 overflow-hidden pointer-events-none">
+          <div className="relative w-full sm:w-[540px] md:w-[580px] h-full sm:h-[660px] sm:max-h-[88vh] pointer-events-auto animate-in zoom-in-95 fade-in duration-200 flex flex-col">
+            {/* BOTÃO FLUTUANTE DE FECHAR (X) EXTERNO NO CANTO SUPERIOR DIREITO (CONFORME PRINT DE REFERÊNCIA) */}
+            <button
+              aria-label="Fechar chat do Norti"
+              className="absolute top-2.5 right-2.5 sm:-top-4 sm:-right-4 z-[9999] flex size-10 sm:size-12 items-center justify-center rounded-full bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] shadow-[0_4px_16px_rgba(0,0,0,0.35)] border-2 border-[#FFFFFF] transition-transform duration-150 hover:scale-105 active:scale-95 cursor-pointer"
+              onClick={() => setIsOpen(false)}
+              type="button"
+            >
+              <X className="size-5 sm:size-6 text-[#FFFFFF]" strokeWidth={2.5} />
+            </button>
 
-            {/* HISTÓRICO DE MENSAGENS (COM AGRUPAMENTO ESTILO ANEXOS 2, 3 E 4) */}
-            {messages.map((msg, idx) => {
-              const nextMsg = idx < messages.length - 1 ? messages[idx + 1] : null;
-              // Avatar aparece na última mensagem consecutiva do Nort (quando não está digitando outra em seguida), igual aos Anexos 2 e 4
-              const isLastInBotGroup =
-                msg.sender === 'bot' && (!nextMsg || nextMsg.sender !== 'bot') && !isTyping;
-              return (
-                <MessageBubble
-                  key={msg.id}
-                  message={msg}
-                  showAvatar={isLastInBotGroup}
-                  showTail={msg.sender === 'bot'}
-                />
-              );
-            })}
-
-            {/* INDICADOR DE DIGITAÇÃO (TRÊS PONTINHOS ANIMADOS) */}
-            {isTyping && <TypingIndicatorBubble />}
-
-            {/* RETORNO DO CLIENTE — OPÇÕES DE CONTINUAR CONVERSA OU INICIAR NOVO ATENDIMENTO */}
-            {step === 'RESUME_PROMPT' && !isTyping && interactiveReady && (
-              <div className="space-y-1.5 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                <QuickReplyButton onClick={handleResumePreviousConversation}>
-                  💬 Continuar conversa anterior
-                </QuickReplyButton>
-                <QuickReplyButton onClick={handleStartNewAttendance}>
-                  🆕 Iniciar novo atendimento
-                </QuickReplyButton>
-              </div>
-            )}
-
-            {/* =================================================================
-             * INTERAÇÃO 1 — FORMULÁRIO INTEGRADO (ANEXO 2 & ANEXO 5)
-             * Ocupa a largura limpa da conversa como no Anexo 2, sem barra cinza embaixo!
-             * ================================================================= */}
-            {step === 'IDENTIFY' && !isTyping && interactiveReady && (
-              <div className="pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                <form
-                  aria-label="Identificação rápida para atendimento"
-                  className="rounded-[12px] bg-[#FFFFFF] p-3.5 border border-[#D1D7DB] shadow-[0_2px_6px_rgba(17,27,33,0.12)] space-y-2.5"
-                  onSubmit={handleIdentifySubmit}
-                >
-                  <div>
-                    <label
-                      className="block text-[11.5px] font-semibold text-[#111B21] mb-1"
-                      htmlFor={`${id}-name`}
-                    >
-                      Seu nome
-                    </label>
-                    <input
-                      ref={nameInputRef}
-                      id={`${id}-name`}
-                      aria-label="Seu nome"
-                      className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
-                      onChange={(e) => {
-                        setCustomerName(e.target.value);
-                        if (formError) setFormError('');
-                      }}
-                      placeholder="Como posso te chamar?"
-                      type="text"
-                      value={customerName}
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      className="block text-[11.5px] font-semibold text-[#111B21] mb-1"
-                      htmlFor={`${id}-phone`}
-                    >
-                      WhatsApp
-                    </label>
-                    <input
-                      id={`${id}-phone`}
-                      aria-label="WhatsApp"
-                      className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
-                      inputMode="tel"
-                      onChange={(e) => {
-                        setCustomerPhone(formatBrazilPhoneMask(e.target.value));
-                        if (formError) setFormError('');
-                      }}
-                      placeholder="(91) 99999-9999"
-                      type="tel"
-                      value={customerPhone}
-                    />
-                  </div>
-
-                  {formError && (
-                    <p className="text-[11px] text-[#B91C1C] font-medium" role="alert">
-                      {formError}
-                    </p>
-                  )}
-
-                  <button
-                    className="w-full rounded-[8px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2.5 px-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-                    type="submit"
-                  >
-                    <span>Continuar no chat</span>
-                    <Send className="size-3.5" />
-                  </button>
-                </form>
-              </div>
-            )}
-
-            {/* =================================================================
-             * INTERAÇÃO 2 — ESCOLHA DA UNIDADE (BOTÕES DE RESPOSTA RÁPIDA)
-             * ================================================================= */}
-            {step === 'UNIT_MODE' && !isTyping && interactiveReady && (
-              <div className="space-y-1.5 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                <QuickReplyButton onClick={handleFindNearestUnit}>
-                  📍 Encontrar a mais próxima de mim
-                </QuickReplyButton>
-                <QuickReplyButton onClick={handleShowUnitList}>
-                  🏬 Escolher uma unidade
-                </QuickReplyButton>
-              </div>
-            )}
-
-            {/* ESCOLHA ENTRE AS UNIDADES MAIS PRÓXIMAS (COM DISTÂNCIA EM KM/METROS) */}
-            {step === 'UNIT_NEARBY_CHOICE' && !isTyping && interactiveReady && (
-              <div className="space-y-1.5 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                {nearbyStores.map((st) => (
-                  <QuickReplyButton
-                    key={st.id}
-                    onClick={() => handleSelectNearbyStore(st)}
-                  >
-                    🏪 {st.shortTitle} · a {st.formattedDistance}
-                  </QuickReplyButton>
-                ))}
-
-                <QuickReplyButton onClick={handleShowUnitList}>
-                  🏬 Ver lista completa de todas as unidades
-                </QuickReplyButton>
-
-                <QuickReplyButton onClick={() => setStep('UNIT_CEP')}>
-                  📮 Digitar outro CEP
-                </QuickReplyButton>
-              </div>
-            )}
-
-            {/* SUB-FLUXO 2A — UNIDADE SUGERIDA AUTOMATICAMENTE (ESTILO MAGALU) + OPÇÃO DE CEP EXATO */}
-            {step === 'UNIT_CEP' && !isTyping && interactiveReady && (
-              <div className="pt-1 space-y-1.5 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                <QuickReplyButton
-                  ariaLabel={`Continuar na ${autoSuggestedStore.shortTitle}`}
-                  onClick={() => confirmStoreSelection(autoSuggestedStore)}
-                >
-                  ✅ Continuar na {autoSuggestedStore.shortTitle}
-                </QuickReplyButton>
-
-                <form
-                  aria-label="Buscar unidade por CEP"
-                  className="rounded-[12px] bg-[#FFFFFF] p-3.5 border border-[#D1D7DB] shadow-[0_2px_6px_rgba(17,27,33,0.12)] space-y-2"
-                  onSubmit={handleCepSubmit}
-                >
-                  <label
-                    className="block text-[11.5px] font-semibold text-[#111B21]"
-                    htmlFor={`${id}-cep`}
-                  >
-                    Ou informe seu CEP para localizar pela sua rua exata
-                  </label>
-                  <input
-                    ref={cepInputRef}
-                    id={`${id}-cep`}
-                    aria-label="Informe seu CEP"
-                    className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
-                    inputMode="numeric"
-                    onChange={(e) => {
-                      setCepInput(formatCepMask(e.target.value));
-                      if (cepError) setCepError('');
-                    }}
-                    placeholder="Informe seu CEP..."
-                    type="text"
-                    value={cepInput}
-                  />
-                  {cepError && (
-                    <p className="text-[11px] text-[#B91C1C] font-medium" role="alert">
-                      {cepError}
-                    </p>
-                  )}
-                  <button
-                    className="w-full rounded-[8px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2 px-3 text-center transition-colors cursor-pointer"
-                    type="submit"
-                  >
-                    Localizar unidade mais próxima
-                  </button>
-                </form>
-
-                <QuickReplyButton onClick={() => setStep('UNIT_LIST')}>
-                  🏬 Ver lista de todas as unidades
-                </QuickReplyButton>
-              </div>
-            )}
-
-            {/* SUB-FLUXO 2B — LISTA INTERATIVA DE UNIDADES REAIS CADASTRADAS */}
-            {step === 'UNIT_LIST' && !isTyping && interactiveReady && (
-              <div className="pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                <div className="rounded-[12px] bg-[#FFFFFF] border border-[#D1D7DB] shadow-[0_2px_6px_rgba(17,27,33,0.12)] overflow-hidden">
-                  <div className="px-3.5 py-2 border-b border-[#D1D7DB] bg-[#F1F3F4]">
-                    <span className="text-[12px] font-bold text-[#111B21]">
-                      Selecione a unidade Comercial do Norte:
-                    </span>
-                  </div>
-                  <div className="divide-y divide-[#D1D7DB]">
-                    {COMMERCIAL_STORES.map((store) => {
-                      const isSelected = pendingStoreId === store.id;
-                      return (
-                        <label
-                          key={store.id}
-                          className="flex items-start gap-2.5 px-3.5 py-2 cursor-pointer hover:bg-[#F1F3F4]/60 transition-colors"
-                        >
-                          <input
-                            checked={isSelected}
-                            className="mt-1 accent-[#00A884] cursor-pointer"
-                            name="nort-store-choice"
-                            onChange={() => setPendingStoreId(store.id)}
-                            type="radio"
-                            value={store.id}
-                          />
-                          <div className="min-w-0 flex-1">
-                            <span className="block text-[12.5px] font-semibold text-[#111B21]">
-                              {store.shortTitle}
-                            </span>
-                            <span className="block text-[11px] text-[#667781] truncate">
-                              {store.address}
-                            </span>
-                          </div>
-                        </label>
-                      );
-                    })}
-                  </div>
-                  <div className="p-2.5 border-t border-[#D1D7DB] bg-[#FFFFFF]">
+            {/* CONTAINER PRINCIPAL DO CHAT */}
+            <section
+              id={id}
+              aria-label="Chat de atendimento com o mascote Norti"
+              className="size-full bg-[#E4D8D3] sm:rounded-[22px] shadow-[0_25px_60px_rgba(0,0,0,0.5)] border border-[#D1D7DB] overflow-hidden flex flex-col relative"
+              role="dialog"
+            >
+              {/* CABEÇALHO LIMPO E MINIMALISTA — EXCLUSIVAMENTE 'NORT' + ENGRENAGEM DE CONFIGURAÇÕES (SEÇÃO 3) */}
+              <header className="bg-[#075844] text-[#FFFFFF] px-3.5 py-2.5 flex items-center justify-between shrink-0 border-b border-[#075844] relative z-10">
+                <div className="flex items-center gap-2 min-w-0">
+                  {step !== 'IDENTIFY' && (
                     <button
-                      className="w-full rounded-[8px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2 px-3 text-center transition-colors cursor-pointer"
-                      onClick={() => {
-                        const chosen =
-                          COMMERCIAL_STORES.find((s) => s.id === pendingStoreId) ||
-                          DEFAULT_STORE;
-                        confirmStoreSelection(chosen);
-                      }}
+                      aria-label="Voltar etapa anterior"
+                      className="flex size-7 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer shrink-0"
+                      onClick={handleStepBack}
                       type="button"
                     >
-                      Confirmar unidade selecionada
+                      <ArrowLeft className="size-4.5" />
                     </button>
+                  )}
+
+                  <NortAvatar alt="Nort" size={38} />
+
+                  <div className="min-w-0 leading-tight ml-0.5">
+                    <div className="flex items-center gap-1">
+                      <h2 className="text-[15px] font-bold text-[#FFFFFF] truncate">
+                        Nort
+                      </h2>
+                      <VerifiedBadge />
+                    </div>
+                    <p className="text-[11.5px] text-[#FFFFFF]/90 font-normal truncate mt-0.5">
+                      {isTyping ? 'digitando...' : 'online'}
+                    </p>
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* =================================================================
-             * INTERAÇÃO 3 — CATEGORIAS DE ATENDIMENTO ESTILO SANFONA / ACCORDION
-             * Reduz a poluição visual: 3 categorias expansíveis (Atendimento, Produtos, Site)
-             * ================================================================= */}
-            {step === 'SERVICE' && !isTyping && interactiveReady && (
-              <div className="space-y-2 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                <div className="px-1 text-[11px] font-semibold text-[#54656F] flex items-center justify-between">
-                  <span>Sobre o que você precisa de ajuda?</span>
-                  <span className="text-[10px] text-[#667781] font-normal">Toque para ver opções</span>
+                {/* ÚNICO BOTÃO NO CANTO SUPERIOR DIREITO DO CABEÇALHO: CONFIGURAÇÕES E HISTÓRICO (SEÇÃO 3) */}
+                <button
+                  aria-label="Configurações e atendimentos"
+                  className="flex size-8.5 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer shrink-0"
+                  onClick={() => {
+                    setSidebarView('menu');
+                    setIsSidebarOpen(true);
+                  }}
+                  title="Configurações e atendimentos"
+                  type="button"
+                >
+                  <Settings className="size-5" />
+                </button>
+              </header>
+
+              {/* ÁREA DE MENSAGENS COM WALLPAPER CLÁSSICO DO WHATSAPP */}
+              <div
+                ref={chatBodyRef}
+                className="relative flex-1 overflow-y-auto px-3.5 py-3 space-y-2.5 bg-[#E4D8D3]"
+                style={{
+                  backgroundColor: 'var(--chat-background, #E4D8D3)',
+                  backgroundImage: "url('/assets/whatsapp-wallpaper.jpg')",
+                  backgroundRepeat: 'repeat',
+                  backgroundSize: '340px auto',
+                  backgroundAttachment: 'local',
+                  backgroundBlendMode: 'multiply',
+                }}
+              >
+                {/* Tag "Hoje" */}
+                <div className="flex justify-center">
+                  <span className="rounded-[7px] bg-[#FFFFFF] px-2.5 py-0.5 text-[11px] font-medium text-[#667781] shadow-[0_1px_1px_rgba(17,27,33,0.1)] border border-[#D1D7DB]/60">
+                    Hoje
+                  </span>
                 </div>
 
-                <div className="space-y-1.5">
-                  {serviceCategories.map((cat) => {
-                    const isExpanded = expandedCategory === cat.id;
-                    return (
-                      <div
-                        key={cat.id}
-                        className="rounded-[12px] bg-[#FFFFFF] border border-[#D1D7DB] shadow-[0_1px_2px_rgba(17,27,33,0.08)] overflow-hidden transition-all duration-200"
-                      >
-                        <button
-                          type="button"
-                          aria-expanded={isExpanded}
-                          onClick={() => setExpandedCategory(isExpanded ? null : cat.id)}
-                          className="w-full flex items-center justify-between p-3 text-left hover:bg-[#F8F9FA] active:bg-[#F1F3F4] transition-colors cursor-pointer select-none"
+                {/* Aviso de privacidade LGPD */}
+                <div className="flex justify-center">
+                  <div className="rounded-[8px] bg-[#FFF5C4] border border-[#E6DA9E] px-3 py-1.5 text-[11px] text-[#54656F] text-center max-w-[94%] leading-snug shadow-[0_1px_1px_rgba(17,27,33,0.08)]">
+                    🔒 Suas informações (nome, WhatsApp e localização) são protegidas e usadas apenas para direcionar seu atendimento na Comercial do Norte.
+                  </div>
+                </div>
+
+                {/* MENSAGENS TROCADAS */}
+                {messages.map((msg) =>
+                  msg.sender === 'bot' ? (
+                    <BotMessageBubble key={msg.id} message={msg} />
+                  ) : (
+                    <UserMessageBubble key={msg.id} message={msg} />
+                  )
+                )}
+
+                {/* INDICADOR DE DIGITAÇÃO COM OS 3 PONTINHOS ONDULANTES */}
+                {isTyping && <TypingIndicatorBubble />}
+
+                {/* RETORNO DO CLIENTE — OPÇÕES DE CONTINUAR CONVERSA OU INICIAR NOVO ATENDIMENTO */}
+                {step === 'RESUME_PROMPT' && !isTyping && interactiveReady && (
+                  <div className="space-y-1.5 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <QuickReplyButton onClick={handleResumePreviousConversation}>
+                      💬 Continuar conversa anterior
+                    </QuickReplyButton>
+                    <QuickReplyButton onClick={handleStartNewAttendance}>
+                      🆕 Iniciar novo atendimento
+                    </QuickReplyButton>
+                  </div>
+                )}
+
+                {/* INTERAÇÃO 1 — FORMULÁRIO INTEGRADO DE IDENTIFICAÇÃO */}
+                {step === 'IDENTIFY' && !isTyping && interactiveReady && (
+                  <div className="pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <form
+                      aria-label="Identificação do cliente"
+                      className="rounded-[12px] bg-[#FFFFFF] p-3.5 border border-[#D1D7DB] shadow-[0_2px_6px_rgba(17,27,33,0.12)] space-y-2.5"
+                      onSubmit={handleIdentifySubmit}
+                    >
+                      <div>
+                        <label
+                          className="block text-[11.5px] font-semibold text-[#111B21] mb-1"
+                          htmlFor={`${id}-name`}
                         >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <span className="flex size-8 items-center justify-center rounded-full bg-[#E0FBD4] text-[15px] shrink-0 border border-[#C6EDB9]">
-                              {cat.icon}
+                          Seu nome
+                        </label>
+                        <input
+                          ref={nameInputRef}
+                          id={`${id}-name`}
+                          aria-label="Seu nome"
+                          className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
+                          onChange={(e) => {
+                            setCustomerName(e.target.value);
+                            if (formError) setFormError('');
+                          }}
+                          placeholder="Como posso te chamar?"
+                          type="text"
+                          value={customerName}
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          className="block text-[11.5px] font-semibold text-[#111B21] mb-1"
+                          htmlFor={`${id}-phone`}
+                        >
+                          WhatsApp
+                        </label>
+                        <input
+                          id={`${id}-phone`}
+                          aria-label="WhatsApp"
+                          className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
+                          inputMode="tel"
+                          onChange={(e) => {
+                            setCustomerPhone(formatBrazilPhoneMask(e.target.value));
+                            if (formError) setFormError('');
+                          }}
+                          placeholder="(91) 99999-9999"
+                          type="tel"
+                          value={customerPhone}
+                        />
+                      </div>
+
+                      {formError && (
+                        <p className="text-[11px] text-[#B91C1C] font-medium" role="alert">
+                          {formError}
+                        </p>
+                      )}
+
+                      <button
+                        className="w-full rounded-[8px] bg-[#00A884] hover:bg-[#075844] active:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2.5 px-3 text-center shadow-[0_1px_2px_rgba(17,27,33,0.16)] transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                        type="submit"
+                      >
+                        <span>Continuar no chat</span>
+                        <Send className="size-3.5" />
+                      </button>
+                    </form>
+                  </div>
+                )}
+
+                {/* INTERAÇÃO 2 — ESCOLHA DA UNIDADE */}
+                {step === 'UNIT_MODE' && !isTyping && interactiveReady && (
+                  <div className="space-y-1.5 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <QuickReplyButton onClick={handleFindNearestUnit}>
+                      📍 Encontrar a mais próxima de mim
+                    </QuickReplyButton>
+                    <QuickReplyButton onClick={handleShowUnitList}>
+                      🏬 Escolher uma unidade
+                    </QuickReplyButton>
+                  </div>
+                )}
+
+                {/* ESCOLHA ENTRE AS UNIDADES MAIS PRÓXIMAS COM DISTÂNCIA EM KM */}
+                {step === 'UNIT_NEARBY_CHOICE' && !isTyping && interactiveReady && (
+                  <div className="space-y-1.5 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    {nearbyStores.map((st) => (
+                      <QuickReplyButton
+                        key={st.id}
+                        onClick={() => handleSelectNearbyStore(st)}
+                      >
+                        🏪 {st.shortTitle} · a {st.formattedDistance}
+                      </QuickReplyButton>
+                    ))}
+
+                    <QuickReplyButton onClick={handleShowUnitList}>
+                      🏬 Ver lista completa de todas as unidades
+                    </QuickReplyButton>
+
+                    <QuickReplyButton onClick={() => setStep('UNIT_CEP')}>
+                      📮 Digitar outro CEP
+                    </QuickReplyButton>
+                  </div>
+                )}
+
+                {/* BUSCA DE UNIDADE POR CEP */}
+                {step === 'UNIT_CEP' && !isTyping && interactiveReady && (
+                  <div className="pt-1 space-y-1.5 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <QuickReplyButton
+                      ariaLabel={`Continuar na ${autoSuggestedStore.shortTitle}`}
+                      onClick={() => confirmStoreSelection(autoSuggestedStore)}
+                    >
+                      ✅ Continuar na {autoSuggestedStore.shortTitle}
+                    </QuickReplyButton>
+
+                    <form
+                      aria-label="Buscar unidade por CEP"
+                      className="rounded-[12px] bg-[#FFFFFF] p-3.5 border border-[#D1D7DB] shadow-[0_2px_6px_rgba(17,27,33,0.12)] space-y-2"
+                      onSubmit={handleCepSubmit}
+                    >
+                      <label
+                        className="block text-[11.5px] font-semibold text-[#111B21]"
+                        htmlFor={`${id}-cep`}
+                      >
+                        Ou informe seu CEP para localizar pela sua rua exata
+                      </label>
+                      <input
+                        ref={cepInputRef}
+                        id={`${id}-cep`}
+                        aria-label="Informe seu CEP"
+                        className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
+                        inputMode="numeric"
+                        onChange={(e) => {
+                          setCepInput(formatCepMask(e.target.value));
+                          if (cepError) setCepError('');
+                        }}
+                        placeholder="Informe seu CEP..."
+                        type="text"
+                        value={cepInput}
+                      />
+                      {cepError && (
+                        <p className="text-[11px] text-[#B91C1C] font-medium" role="alert">
+                          {cepError}
+                        </p>
+                      )}
+                      <button
+                        className="w-full rounded-[8px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2 px-3 text-center transition-colors cursor-pointer"
+                        type="submit"
+                      >
+                        Localizar unidade mais próxima
+                      </button>
+                    </form>
+
+                    <QuickReplyButton onClick={() => setStep('UNIT_LIST')}>
+                      🏬 Ver lista de todas as unidades
+                    </QuickReplyButton>
+                  </div>
+                )}
+
+                {/* LISTA DE TODAS AS UNIDADES */}
+                {step === 'UNIT_LIST' && !isTyping && interactiveReady && (
+                  <div className="pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <div className="rounded-[12px] bg-[#FFFFFF] border border-[#D1D7DB] shadow-[0_2px_6px_rgba(17,27,33,0.12)] overflow-hidden">
+                      <div className="px-3.5 py-2 border-b border-[#D1D7DB] bg-[#F1F3F4]">
+                        <span className="text-[12px] font-bold text-[#111B21]">
+                          Selecione a unidade Comercial do Norte:
+                        </span>
+                      </div>
+                      <div className="divide-y divide-[#D1D7DB]">
+                        {COMMERCIAL_STORES.map((store) => {
+                          const isSelected = pendingStoreId === store.id;
+                          return (
+                            <label
+                              key={store.id}
+                              className="flex items-start gap-2.5 px-3.5 py-2 cursor-pointer hover:bg-[#F1F3F4]/60 transition-colors"
+                            >
+                              <input
+                                checked={isSelected}
+                                className="mt-1 accent-[#00A884] cursor-pointer"
+                                name="nort-store-choice"
+                                onChange={() => setPendingStoreId(store.id)}
+                                type="radio"
+                                value={store.id}
+                              />
+                              <div className="min-w-0 flex-1">
+                                <span className="block text-[12.5px] font-semibold text-[#111B21]">
+                                  {store.shortTitle}
+                                </span>
+                                <span className="block text-[11px] text-[#667781] truncate">
+                                  {store.address}
+                                </span>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                      <div className="p-2.5 border-t border-[#D1D7DB] bg-[#FFFFFF]">
+                        <button
+                          className="w-full rounded-[8px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2 px-3 text-center transition-colors cursor-pointer"
+                          onClick={() => {
+                            const chosen =
+                              COMMERCIAL_STORES.find((s) => s.id === pendingStoreId) ||
+                              DEFAULT_STORE;
+                            confirmStoreSelection(chosen);
+                          }}
+                          type="button"
+                        >
+                          Confirmar unidade selecionada
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* INTERAÇÃO 3 — CATEGORIAS DE ATENDIMENTO ESTILO SANFONA / ACCORDION */}
+                {step === 'SERVICE' && !isTyping && interactiveReady && (
+                  <div className="space-y-2 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <div className="px-1 text-[11px] font-semibold text-[#54656F] flex items-center justify-between">
+                      <span>Sobre o que você precisa de ajuda?</span>
+                      <span className="text-[10px] text-[#667781] font-normal">Toque para ver opções</span>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      {serviceCategories.map((cat) => {
+                        const isExpanded = expandedCategory === cat.id;
+                        return (
+                          <div
+                            key={cat.id}
+                            className="rounded-[12px] bg-[#FFFFFF] border border-[#D1D7DB] shadow-[0_1px_2px_rgba(17,27,33,0.08)] overflow-hidden transition-all duration-200"
+                          >
+                            <button
+                              aria-expanded={isExpanded}
+                              className="w-full flex items-center justify-between p-3 text-left hover:bg-[#F8F9FA] active:bg-[#F1F3F4] transition-colors cursor-pointer select-none"
+                              onClick={() => {
+                                const nextVal = isExpanded ? null : cat.id;
+                                setExpandedCategory(nextVal);
+                                if (nextVal) {
+                                  recordTicketEvent(
+                                    'select_category',
+                                    `Categoria expandida: ${cat.title}`,
+                                    cat.subtitle
+                                  );
+                                }
+                              }}
+                              type="button"
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <span className="flex size-8 items-center justify-center rounded-full bg-[#E0FBD4] text-[15px] shrink-0 border border-[#C6EDB9]">
+                                  {cat.icon}
+                                </span>
+                                <div className="min-w-0">
+                                  <span className="block text-[13px] font-bold text-[#111B21] truncate">
+                                    {cat.title}
+                                  </span>
+                                  <span className="block text-[11px] text-[#667781] truncate">
+                                    {cat.subtitle}
+                                  </span>
+                                </div>
+                              </div>
+                              <ChevronDown
+                                className={`size-4.5 text-[#667781] shrink-0 transition-transform duration-200 ${
+                                  isExpanded ? 'rotate-180 text-[#00A884]' : ''
+                                }`}
+                              />
+                            </button>
+
+                            {isExpanded && (
+                              <div className="px-2.5 pb-2.5 pt-1 space-y-1.5 border-t border-[#F1F3F4] bg-[#F8FAFC] animate-in fade-in slide-in-from-top-1 duration-150">
+                                {cat.items.map((item) => (
+                                  <button
+                                    key={item.id}
+                                    className="w-full rounded-[8px] bg-[#FFFFFF] hover:bg-[#E0FBD4]/70 active:bg-[#E0FBD4] text-[#111B21] hover:text-[#075844] font-medium text-[12px] py-2 px-2.5 text-left border border-[#E2E8F0] shadow-[0_1px_1px_rgba(0,0,0,0.04)] transition-all cursor-pointer flex items-center justify-between gap-2 group"
+                                    onClick={item.onClick}
+                                    type="button"
+                                  >
+                                    <span className="flex items-center gap-2 min-w-0">
+                                      <span className="text-[13px] shrink-0">{item.icon}</span>
+                                      <span className="truncate">{item.label}</span>
+                                    </span>
+                                    <span className="text-[10px] text-[#667781] group-hover:text-[#00A884] font-semibold shrink-0">
+                                      Acessar ›
+                                    </span>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="pt-0.5">
+                      <QuickReplyButton onClick={handleOpenEditData}>
+                        ✏️ Alterar meus dados (Nome / WhatsApp)
+                      </QuickReplyButton>
+                    </div>
+                  </div>
+                )}
+
+                {/* SUB-FLUXO DE EDIÇÃO DE DADOS */}
+                {step === 'EDIT_DATA' && !isTyping && interactiveReady && (
+                  <div className="pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <form
+                      aria-label="Alterar meus dados"
+                      className="rounded-[12px] bg-[#FFFFFF] p-3.5 border border-[#D1D7DB] shadow-[0_2px_6px_rgba(17,27,33,0.12)] space-y-2.5"
+                      onSubmit={handleSaveEditedData}
+                    >
+                      <div className="flex items-center justify-between border-b border-[#D1D7DB] pb-1.5 mb-1">
+                        <span className="text-[12px] font-bold text-[#111B21]">
+                          Alterar meus dados
+                        </span>
+                        <span className="text-[10px] text-[#667781]">Atualização cadastral</span>
+                      </div>
+
+                      <div>
+                        <label
+                          className="block text-[11.5px] font-semibold text-[#111B21] mb-1"
+                          htmlFor={`${id}-edit-name`}
+                        >
+                          Seu nome
+                        </label>
+                        <input
+                          id={`${id}-edit-name`}
+                          aria-label="Seu nome"
+                          className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
+                          onChange={(e) => {
+                            setEditName(e.target.value);
+                            if (formError) setFormError('');
+                          }}
+                          placeholder="Como posso te chamar?"
+                          type="text"
+                          value={editName}
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          className="block text-[11.5px] font-semibold text-[#111B21] mb-1"
+                          htmlFor={`${id}-edit-phone`}
+                        >
+                          WhatsApp
+                        </label>
+                        <input
+                          id={`${id}-edit-phone`}
+                          aria-label="WhatsApp"
+                          className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
+                          inputMode="tel"
+                          onChange={(e) => {
+                            setEditPhone(formatBrazilPhoneMask(e.target.value));
+                            if (formError) setFormError('');
+                          }}
+                          placeholder="(91) 99999-9999"
+                          type="tel"
+                          value={editPhone}
+                        />
+                      </div>
+
+                      {formError && (
+                        <p className="text-[11px] text-[#B91C1C] font-medium" role="alert">
+                          {formError}
+                        </p>
+                      )}
+
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          className="flex-1 rounded-[8px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2 px-3 text-center transition-colors cursor-pointer"
+                          type="submit"
+                        >
+                          Salvar alterações
+                        </button>
+                        <button
+                          className="rounded-[8px] border border-[#D1D7DB] bg-[#F1F3F4] hover:bg-[#E4D8D3] text-[#111B21] text-[12px] font-medium py-2 px-3 transition-colors cursor-pointer"
+                          onClick={() => setStep('SERVICE')}
+                          type="button"
+                        >
+                          Voltar
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                {/* INTERAÇÃO 4 — FINALIZADO */}
+                {step === 'FINISHED' && !isTyping && interactiveReady && (
+                  <div className="space-y-1.5 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <a
+                      className="w-full rounded-[10px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2.5 px-3 text-center shadow-[0_1px_2px_rgba(17,27,33,0.16)] transition-colors cursor-pointer flex items-center justify-center gap-2"
+                      href={finalWhatsAppUrl}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      <span>Abrir WhatsApp — {selectedStore.shortTitle}</span>
+                    </a>
+
+                    <QuickReplyButton onClick={() => setStep('UNIT_LIST')}>
+                      🏬 Alterar unidade selecionada
+                    </QuickReplyButton>
+
+                    <QuickReplyButton onClick={handleOpenEditData}>
+                      ✏️ Alterar meus dados (Nome / WhatsApp)
+                    </QuickReplyButton>
+                  </div>
+                )}
+
+                {/* PAINEL DE ENDEREÇOS E HORÁRIOS */}
+                {storeInfoVisible && (
+                  <div className="flex items-end gap-2 max-w-[92%] animate-in fade-in duration-150">
+                    <NortAvatar alt="Nort" size={30} />
+                    <div className="relative rounded-[10px] rounded-tl-none bg-[#F1F3F4] p-3 text-[12px] text-[#111B21] shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#D1D7DB]/60 leading-relaxed">
+                      <p className="font-bold text-[#075844] mb-1">
+                        📍 Nossas Unidades em Belém e Região:
+                      </p>
+                      <ul className="space-y-1.5 text-[11.5px] text-[#111B21]">
+                        {COMMERCIAL_STORES.map((st) => (
+                          <li
+                            key={st.id}
+                            className={`p-1.5 rounded-[6px] ${
+                              st.id === selectedStore.id
+                                ? 'bg-[#E0FBD4] border border-[#00A884]/40 font-medium'
+                                : 'bg-[#FFFFFF]/70'
+                            }`}
+                          >
+                            <span className="font-semibold text-[#075844]">{st.shortTitle}</span>
+                            <span className="block text-[11px] text-[#54656F]">{st.address}</span>
+                            <span className="block text-[10.5px] text-[#667781]">{st.hours}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* INPUT DE MENSAGEM LIVRE COMPLEMENTAR QUANDO FINALIZADO */}
+              {step === 'FINISHED' && (
+                <form
+                  className="bg-[#F0F2F5] px-3 py-2 flex items-center gap-2 border-t border-[#D1D7DB] shrink-0"
+                  onSubmit={handleSendCustomMessage}
+                >
+                  <input
+                    ref={customInputRef}
+                    aria-label="Mensagem para o WhatsApp"
+                    className="flex-1 rounded-[8px] bg-[#FFFFFF] px-3.5 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
+                    onChange={(e) => setCustomMessageText(e.target.value)}
+                    placeholder="Digitar mensagem adicional para o vendedor..."
+                    type="text"
+                    value={customMessageText}
+                  />
+                  <button
+                    aria-label="Enviar mensagem no WhatsApp"
+                    className="flex size-9 items-center justify-center rounded-full bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] shadow transition-colors cursor-pointer shrink-0"
+                    type="submit"
+                  >
+                    <Send className="size-4" />
+                  </button>
+                </form>
+              )}
+
+              {/* =================================================================
+               * 4. SIDEBAR DE CONFIGURAÇÕES E GESTÃO DE ATENDIMENTOS (SEÇÃO 4)
+               * Abre internamente com transição lateral suave sem perder o chat
+               * ================================================================= */}
+              <div
+                aria-label="Painel de configurações e histórico"
+                className={`absolute inset-0 z-30 bg-[#FFFFFF] flex flex-col transition-transform duration-300 ease-in-out ${
+                  isSidebarOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none'
+                }`}
+              >
+                {/* HEADER DA SIDEBAR */}
+                <div className="bg-[#075844] text-[#FFFFFF] px-3.5 py-3 flex items-center justify-between shrink-0 border-b border-[#075844]">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <button
+                      aria-label="Voltar"
+                      className="flex size-7.5 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer"
+                      onClick={handleSidebarBack}
+                      type="button"
+                    >
+                      <ArrowLeft className="size-4.5" />
+                    </button>
+                    <h3 className="text-[14.5px] font-bold text-[#FFFFFF] truncate">
+                      {getSidebarTitle()}
+                    </h3>
+                  </div>
+
+                  <button
+                    aria-label="Fechar configurações"
+                    className="flex size-7.5 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer"
+                    onClick={() => setIsSidebarOpen(false)}
+                    type="button"
+                  >
+                    <X className="size-4.5" />
+                  </button>
+                </div>
+
+                {/* CORPO DA SIDEBAR */}
+                <div className="flex-1 overflow-y-auto p-4 bg-[#F8FAFC]">
+                  {/* VIEW 1: MENU PRINCIPAL DE CONFIGURAÇÕES */}
+                  {sidebarView === 'menu' && (
+                    <div className="space-y-3 animate-in fade-in duration-150">
+                      {/* CARD DO CLIENTE / IDENTIFICAÇÃO */}
+                      <div className="rounded-[14px] bg-[#FFFFFF] p-3.5 border border-[#E2E8F0] shadow-sm flex items-center gap-3">
+                        <NortAvatar alt="Nort" size={42} />
+                        <div className="min-w-0 flex-1">
+                          <span className="block text-[14px] font-bold text-[#0F172A] truncate">
+                            {customerName || 'Visitante Comercial do Norte'}
+                          </span>
+                          <span className="block text-[12px] text-[#64748B] truncate">
+                            {customerPhone || 'Nenhum WhatsApp informado'}
+                          </span>
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <span className="inline-block size-2 rounded-full bg-[#00A884]" />
+                            <span className="text-[11px] text-[#075844] font-medium">
+                              🏪 {selectedStore.shortTitle}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* ITENS DO MENU */}
+                      <div className="rounded-[14px] bg-[#FFFFFF] border border-[#E2E8F0] shadow-sm overflow-hidden divide-y divide-[#F1F5F9]">
+                        <button
+                          className="w-full flex items-center justify-between p-3.5 hover:bg-[#F8FAFC] transition-colors cursor-pointer text-left group"
+                          onClick={() => setSidebarView('new_ticket')}
+                          type="button"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="flex size-9 items-center justify-center rounded-full bg-[#E0FBD4] text-[#075844] shrink-0">
+                              <PlusCircle className="size-5" />
                             </span>
                             <div className="min-w-0">
-                              <span className="block text-[13px] font-bold text-[#111B21] truncate">
-                                {cat.title}
+                              <span className="block text-[13px] font-bold text-[#0F172A]">
+                                Novo atendimento
                               </span>
-                              <span className="block text-[11px] text-[#667781] truncate">
-                                {cat.subtitle}
+                              <span className="block text-[11px] text-[#64748B]">
+                                Iniciar uma nova conversa do zero
                               </span>
                             </div>
                           </div>
-                          <ChevronDown
-                            className={`size-4.5 text-[#667781] shrink-0 transition-transform duration-200 ${
-                              isExpanded ? 'rotate-180 text-[#00A884]' : ''
-                            }`}
-                          />
+                          <ChevronRight className="size-4 text-[#94A3B8] group-hover:text-[#00A884] transition-colors" />
                         </button>
 
-                        {/* Subitens da sanfona expandida */}
-                        {isExpanded && (
-                          <div className="px-2.5 pb-2.5 pt-1 space-y-1.5 border-t border-[#F1F3F4] bg-[#F8FAFC] animate-in fade-in slide-in-from-top-1 duration-150">
-                            {cat.items.map((item) => (
-                              <button
-                                key={item.id}
-                                type="button"
-                                onClick={item.onClick}
-                                className="w-full rounded-[8px] bg-[#FFFFFF] hover:bg-[#E0FBD4]/70 active:bg-[#E0FBD4] text-[#111B21] hover:text-[#075844] font-medium text-[12px] py-2 px-2.5 text-left border border-[#E2E8F0] shadow-[0_1px_1px_rgba(0,0,0,0.04)] transition-all cursor-pointer flex items-center justify-between gap-2 group"
-                              >
-                                <span className="flex items-center gap-2 min-w-0">
-                                  <span className="text-[13px] shrink-0">{item.icon}</span>
-                                  <span className="truncate">{item.label}</span>
-                                </span>
-                                <span className="text-[10px] text-[#667781] group-hover:text-[#00A884] font-semibold shrink-0">
-                                  Acessar ›
-                                </span>
-                              </button>
-                            ))}
+                        <button
+                          className="w-full flex items-center justify-between p-3.5 hover:bg-[#F8FAFC] transition-colors cursor-pointer text-left group"
+                          onClick={() => setSidebarView('history')}
+                          type="button"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="flex size-9 items-center justify-center rounded-full bg-[#E0F2FE] text-[#0369A1] shrink-0">
+                              <History className="size-5" />
+                            </span>
+                            <div className="min-w-0">
+                              <span className="block text-[13px] font-bold text-[#0F172A]">
+                                Histórico de atendimentos
+                              </span>
+                              <span className="block text-[11px] text-[#64748B]">
+                                Consulte seus tickets anteriores
+                              </span>
+                            </div>
                           </div>
-                        )}
+                          <div className="flex items-center gap-1.5">
+                            <span className="rounded-full bg-[#F1F5F9] px-2 py-0.5 text-[11px] font-semibold text-[#475569]">
+                              {tickets.length}
+                            </span>
+                            <ChevronRight className="size-4 text-[#94A3B8] group-hover:text-[#00A884] transition-colors" />
+                          </div>
+                        </button>
+
+                        <button
+                          className="w-full flex items-center justify-between p-3.5 hover:bg-[#F8FAFC] transition-colors cursor-pointer text-left group"
+                          onClick={() => {
+                            setEditName(customerName);
+                            setEditPhone(customerPhone);
+                            setFormError('');
+                            setSidebarView('profile');
+                          }}
+                          type="button"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="flex size-9 items-center justify-center rounded-full bg-[#FEF3C7] text-[#B45309] shrink-0">
+                              <User className="size-5" />
+                            </span>
+                            <div className="min-w-0">
+                              <span className="block text-[13px] font-bold text-[#0F172A]">
+                                Meus dados
+                              </span>
+                              <span className="block text-[11px] text-[#64748B]">
+                                Nome, WhatsApp e preferências
+                              </span>
+                            </div>
+                          </div>
+                          <ChevronRight className="size-4 text-[#94A3B8] group-hover:text-[#00A884] transition-colors" />
+                        </button>
+
+                        <button
+                          className="w-full flex items-center justify-between p-3.5 hover:bg-[#F8FAFC] transition-colors cursor-pointer text-left group"
+                          onClick={() => setSidebarView('help')}
+                          type="button"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="flex size-9 items-center justify-center rounded-full bg-[#F3E8FF] text-[#7E22CE] shrink-0">
+                              <HelpCircle className="size-5" />
+                            </span>
+                            <div className="min-w-0">
+                              <span className="block text-[13px] font-bold text-[#0F172A]">
+                                Ajuda e suporte
+                              </span>
+                              <span className="block text-[11px] text-[#64748B]">
+                                Contatos e informações das lojas
+                              </span>
+                            </div>
+                          </div>
+                          <ChevronRight className="size-4 text-[#94A3B8] group-hover:text-[#00A884] transition-colors" />
+                        </button>
                       </div>
-                    );
-                  })}
-                </div>
 
-                {/* Opção rápida e discreta no rodapé para alterar dados cadastrados */}
-                <div className="pt-0.5">
-                  <QuickReplyButton onClick={handleOpenEditData}>
-                    ✏️ Alterar meus dados (Nome / WhatsApp)
-                  </QuickReplyButton>
-                </div>
-              </div>
-            )}
-
-            {/* SUB-FLUXO — EDIÇÃO DE DADOS CADASTRADOS (ATUALIZA O MESMO LEAD NO CRM SEM DUPLICAR) */}
-            {step === 'EDIT_DATA' && !isTyping && interactiveReady && (
-              <div className="pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                <form
-                  aria-label="Alterar meus dados"
-                  className="rounded-[12px] bg-[#FFFFFF] p-3.5 border border-[#D1D7DB] shadow-[0_2px_6px_rgba(17,27,33,0.12)] space-y-2.5"
-                  onSubmit={handleSaveEditedData}
-                >
-                  <div className="flex items-center justify-between border-b border-[#D1D7DB] pb-1.5 mb-1">
-                    <span className="text-[12px] font-bold text-[#111B21]">
-                      Alterar meus dados
-                    </span>
-                    <button
-                      className="text-[11px] text-[#00A884] font-medium hover:underline cursor-pointer"
-                      onClick={() => setStep('SERVICE')}
-                      type="button"
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-
-                  <div>
-                    <label
-                      className="block text-[11.5px] font-semibold text-[#111B21] mb-1"
-                      htmlFor={`${id}-edit-name`}
-                    >
-                      Seu nome
-                    </label>
-                    <input
-                      id={`${id}-edit-name`}
-                      aria-label="Seu nome"
-                      className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
-                      onChange={(e) => {
-                        setEditName(e.target.value);
-                        if (formError) setFormError('');
-                      }}
-                      placeholder="Como posso te chamar?"
-                      type="text"
-                      value={editName}
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      className="block text-[11.5px] font-semibold text-[#111B21] mb-1"
-                      htmlFor={`${id}-edit-phone`}
-                    >
-                      WhatsApp
-                    </label>
-                    <input
-                      id={`${id}-edit-phone`}
-                      aria-label="WhatsApp"
-                      className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
-                      inputMode="tel"
-                      onChange={(e) => {
-                        setEditPhone(formatBrazilPhoneMask(e.target.value));
-                        if (formError) setFormError('');
-                      }}
-                      placeholder="(91) 99999-9999"
-                      type="tel"
-                      value={editPhone}
-                    />
-                  </div>
-
-                  {formError && (
-                    <p className="text-[11px] text-[#B91C1C] font-medium" role="alert">
-                      {formError}
-                    </p>
+                      {/* BOTÃO PARA VOLTAR AO ATENDIMENTO */}
+                      <button
+                        className="w-full rounded-[10px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2.5 px-3 text-center transition-colors cursor-pointer"
+                        onClick={() => setIsSidebarOpen(false)}
+                        type="button"
+                      >
+                        Continuar atendimento
+                      </button>
+                    </div>
                   )}
 
-                  <div className="flex gap-2 pt-1">
-                    <button
-                      className="flex-1 rounded-[8px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2 px-3 text-center transition-colors cursor-pointer"
-                      type="submit"
+                  {/* VIEW 2: NOVO ATENDIMENTO COM CONFIRMAÇÃO (SEÇÃO 4.1) */}
+                  {sidebarView === 'new_ticket' && (
+                    <div className="space-y-4 animate-in fade-in duration-150">
+                      <div className="rounded-[16px] bg-[#FFFFFF] p-5 border border-[#E2E8F0] shadow-sm text-center">
+                        <span className="inline-flex size-14 items-center justify-center rounded-full bg-[#E0FBD4] text-[#075844] mb-3">
+                          <PlusCircle className="size-8" />
+                        </span>
+                        <h4 className="text-[16px] font-bold text-[#0F172A] mb-1">
+                          Iniciar novo atendimento?
+                        </h4>
+                        <p className="text-[12.5px] text-[#64748B] leading-relaxed mb-4">
+                          Sua conversa atual será arquivada com segurança no seu histórico de tickets. Seus dados cadastrais serão mantidos para agilizar seu próximo contato.
+                        </p>
+
+                        <div className="space-y-2">
+                          <button
+                            className="w-full rounded-[10px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2.5 px-3 transition-colors cursor-pointer"
+                            onClick={handleConfirmNewTicketFromSidebar}
+                            type="button"
+                          >
+                            Confirmar e iniciar novo
+                          </button>
+                          <button
+                            className="w-full rounded-[10px] border border-[#CBD5E1] bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#334155] font-medium text-[12.5px] py-2 px-3 transition-colors cursor-pointer"
+                            onClick={() => setSidebarView('menu')}
+                            type="button"
+                          >
+                            Voltar / Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* VIEW 3: HISTÓRICO DE ATENDIMENTOS E BUSCA (SEÇÃO 4.2) */}
+                  {sidebarView === 'history' && (
+                    <div className="space-y-3 animate-in fade-in duration-150">
+                      {/* CAMPO DE BUSCA SIMPLES */}
+                      <div className="relative">
+                        <Search className="absolute left-3 top-2.5 size-4 text-[#94A3B8]" />
+                        <input
+                          aria-label="Buscar atendimentos"
+                          className="w-full rounded-[10px] bg-[#FFFFFF] pl-9 pr-3 py-2 text-[12.5px] text-[#0F172A] placeholder-[#94A3B8] border border-[#CBD5E1] focus:outline-none focus:border-[#00A884]"
+                          onChange={(e) => setTicketSearchTerm(e.target.value)}
+                          placeholder="Buscar por título, ticket ou loja..."
+                          type="text"
+                          value={ticketSearchTerm}
+                        />
+                      </div>
+
+                      {/* AGRUPAMENTO CRONOLÓGICO */}
+                      {Object.entries(groupedTickets).map(([groupTitle, list]) => {
+                        if (list.length === 0) return null;
+                        return (
+                          <div key={groupTitle} className="space-y-2">
+                            <span className="inline-block text-[11px] font-bold text-[#64748B] uppercase tracking-wider px-1">
+                              {groupTitle}
+                            </span>
+                            <div className="space-y-1.5">
+                              {list.map((tk) => {
+                                const isCurrent = tk.id === activeTicketId;
+                                return (
+                                  <div
+                                    key={tk.id}
+                                    className={`rounded-[12px] bg-[#FFFFFF] p-3 border transition-all cursor-pointer hover:border-[#00A884] ${
+                                      isCurrent
+                                        ? 'border-[#00A884] shadow-sm ring-1 ring-[#00A884]/20'
+                                        : 'border-[#E2E8F0]'
+                                    }`}
+                                    onClick={() => {
+                                      setSelectedTicketId(tk.id);
+                                      setSidebarView('ticket_detail');
+                                    }}
+                                  >
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="text-[11.5px] font-bold text-[#075844]">
+                                        Ticket {tk.id}
+                                      </span>
+                                      <span
+                                        className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                                          tk.status === 'in_progress'
+                                            ? 'bg-[#E0FBD4] text-[#075844]'
+                                            : 'bg-[#F1F5F9] text-[#64748B]'
+                                        }`}
+                                      >
+                                        {tk.status === 'in_progress' ? 'Em andamento' : 'Finalizado'}
+                                      </span>
+                                    </div>
+                                    <span className="block text-[13px] font-semibold text-[#0F172A] truncate">
+                                      {tk.title}
+                                    </span>
+                                    <div className="flex items-center justify-between text-[11px] text-[#64748B] mt-1">
+                                      <span>{formatTicketDateTime(tk.updatedAt || tk.createdAt)}</span>
+                                      <span>🏪 {tk.storeName}</span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {filteredTickets.length === 0 && (
+                        <div className="rounded-[12px] bg-[#FFFFFF] p-6 text-center border border-[#E2E8F0] text-[12px] text-[#64748B]">
+                          Nenhum atendimento encontrado para esta busca.
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* VIEW 4: DETALHES DO TICKET E REGISTRO DE EVENTOS (SEÇÃO 4.2 & SEÇÃO 7) */}
+                  {sidebarView === 'ticket_detail' && viewedTicket && (
+                    <div className="space-y-3.5 animate-in fade-in duration-150">
+                      {/* CARD DO TICKET */}
+                      <div className="rounded-[14px] bg-[#FFFFFF] p-3.5 border border-[#E2E8F0] shadow-sm">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[13px] font-bold text-[#075844]">
+                            Ticket {viewedTicket.id}
+                          </span>
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[10.5px] font-bold ${
+                              viewedTicket.status === 'in_progress'
+                                ? 'bg-[#E0FBD4] text-[#075844]'
+                                : 'bg-[#F1F5F9] text-[#64748B]'
+                            }`}
+                          >
+                            {viewedTicket.status === 'in_progress' ? 'Em andamento' : 'Finalizado'}
+                          </span>
+                        </div>
+                        <h4 className="text-[14px] font-bold text-[#0F172A] mb-1">
+                          {viewedTicket.title}
+                        </h4>
+                        <div className="space-y-0.5 text-[11.5px] text-[#64748B]">
+                          <p>📅 Abertura: {formatTicketDateTime(viewedTicket.createdAt)}</p>
+                          <p>🏪 Unidade: {viewedTicket.storeName}</p>
+                          {viewedTicket.customerName && (
+                            <p>👤 Cliente: {viewedTicket.customerName} ({viewedTicket.customerPhone})</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* SEÇÃO 7: CAMINHO PERCORRIDO NO ATENDIMENTO (EVENT TRAIL) */}
+                      <div className="rounded-[14px] bg-[#FFFFFF] p-3.5 border border-[#E2E8F0] shadow-sm">
+                        <span className="block text-[12px] font-bold text-[#0F172A] mb-2">
+                          Caminho percorrido no atendimento:
+                        </span>
+                        {viewedTicket.events && viewedTicket.events.length > 0 ? (
+                          <div className="space-y-2 border-l-2 border-l-[#00A884]/40 ml-2 pl-3">
+                            {viewedTicket.events.map((ev) => (
+                              <div key={ev.id} className="relative text-[11.5px]">
+                                <span className="absolute -left-[19px] top-1.5 size-2 rounded-full bg-[#00A884]" />
+                                <span className="font-bold text-[#0F172A]">{ev.timeFormatted}</span>
+                                <span className="text-[#334155]"> — {ev.actionText}</span>
+                                {ev.details && (
+                                  <span className="block text-[10.5px] text-[#64748B]">
+                                    {ev.details}
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-[11.5px] text-[#64748B]">
+                            Nenhum evento registrado neste atendimento.
+                          </p>
+                        )}
+                      </div>
+
+                      {/* AÇÕES DO TICKET */}
+                      <div className="space-y-2 pt-1">
+                        {viewedTicket.status === 'in_progress' && (
+                          <button
+                            className="w-full rounded-[10px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2.5 px-3 transition-colors cursor-pointer"
+                            onClick={() => handleResumeTicketFromHistory(viewedTicket)}
+                            type="button"
+                          >
+                            Continuar este atendimento
+                          </button>
+                        )}
+                        <button
+                          className="w-full rounded-[10px] border border-[#CBD5E1] bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#334155] font-medium text-[12.5px] py-2 px-3 transition-colors cursor-pointer"
+                          onClick={() => setSidebarView('history')}
+                          type="button"
+                        >
+                          ← Voltar à lista de atendimentos
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* VIEW 5: MEUS DADOS CADASTRAIS (SEÇÃO 4.3) */}
+                  {sidebarView === 'profile' && (
+                    <form
+                      aria-label="Atualizar dados cadastrais"
+                      className="space-y-3.5 animate-in fade-in duration-150"
+                      onSubmit={handleSaveProfileInSidebar}
                     >
-                      Salvar alterações
-                    </button>
-                    <button
-                      className="rounded-[8px] border border-[#D1D7DB] bg-[#F1F3F4] hover:bg-[#E4D8D3] text-[#111B21] text-[12px] font-medium py-2 px-3 transition-colors cursor-pointer"
-                      onClick={() => setStep('SERVICE')}
-                      type="button"
-                    >
-                      Voltar
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
+                      <div className="rounded-[14px] bg-[#FFFFFF] p-4 border border-[#E2E8F0] shadow-sm space-y-3">
+                        {profileSuccessMsg && (
+                          <div className="rounded-[8px] bg-[#E0FBD4] border border-[#00A884]/40 p-2 text-[11.5px] font-semibold text-[#075844] text-center">
+                            ✅ Dados cadastrais atualizados com sucesso!
+                          </div>
+                        )}
 
-            {/* =================================================================
-             * INTERAÇÃO 4 — FINALIZADO / CONTINUAR NO WHATSAPP DA UNIDADE
-             * ================================================================= */}
-            {step === 'FINISHED' && !isTyping && interactiveReady && (
-              <div className="space-y-1.5 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                <a
-                  className="w-full rounded-[10px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2.5 px-3 text-center shadow-[0_1px_2px_rgba(17,27,33,0.16)] transition-colors cursor-pointer flex items-center justify-center gap-2"
-                  href={finalWhatsAppUrl}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <span>Abrir WhatsApp — {selectedStore.shortTitle}</span>
-                </a>
+                        <div>
+                          <label
+                            className="block text-[11.5px] font-semibold text-[#0F172A] mb-1"
+                            htmlFor="profile-name"
+                          >
+                            Seu nome completo
+                          </label>
+                          <input
+                            id="profile-name"
+                            className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[12.5px] text-[#0F172A] border border-[#CBD5E1] focus:outline-none focus:border-[#00A884]"
+                            onChange={(e) => setEditName(e.target.value)}
+                            placeholder="Como podemos te chamar?"
+                            type="text"
+                            value={editName}
+                          />
+                        </div>
 
-                <QuickReplyButton onClick={() => setStep('UNIT_LIST')}>
-                  🏬 Alterar unidade selecionada
-                </QuickReplyButton>
+                        <div>
+                          <label
+                            className="block text-[11.5px] font-semibold text-[#0F172A] mb-1"
+                            htmlFor="profile-phone"
+                          >
+                            Número do WhatsApp
+                          </label>
+                          <input
+                            id="profile-phone"
+                            className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[12.5px] text-[#0F172A] border border-[#CBD5E1] focus:outline-none focus:border-[#00A884]"
+                            inputMode="tel"
+                            onChange={(e) => setEditPhone(formatBrazilPhoneMask(e.target.value))}
+                            placeholder="(91) 99999-9999"
+                            type="tel"
+                            value={editPhone}
+                          />
+                        </div>
 
-                <QuickReplyButton onClick={handleOpenEditData}>
-                  ✏️ Alterar meus dados (Nome / WhatsApp)
-                </QuickReplyButton>
-              </div>
-            )}
+                        <div>
+                          <label
+                            className="block text-[11.5px] font-semibold text-[#0F172A] mb-1"
+                            htmlFor="profile-email"
+                          >
+                            E-mail (opcional)
+                          </label>
+                          <input
+                            id="profile-email"
+                            className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[12.5px] text-[#0F172A] border border-[#CBD5E1] focus:outline-none focus:border-[#00A884]"
+                            inputMode="email"
+                            onChange={(e) => setCustomerEmail(e.target.value)}
+                            placeholder="seuemail@exemplo.com"
+                            type="email"
+                            value={customerEmail}
+                          />
+                        </div>
 
-            {/* PAINEL DE ENDEREÇOS E HORÁRIOS REAIS INTEGRADO À CONVERSA */}
-            {storeInfoVisible && (
-              <div className="flex items-end gap-2 max-w-[92%] animate-in fade-in duration-150">
-                <NortAvatar alt="Nort" size={30} />
-                <div className="relative rounded-[10px] rounded-tl-none bg-[#F1F3F4] p-3 text-[12px] text-[#111B21] shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#D1D7DB]/60 leading-relaxed">
-                  <p className="font-bold text-[#075844] mb-1">
-                    📍 Nossas Unidades em Belém e Região:
-                  </p>
-                  <ul className="space-y-1.5 text-[11.5px] text-[#111B21]">
-                    <li>
-                      <strong>📍 Bernardo Sayão:</strong> Av. Bernardo Sayão, 608 — Guamá
-                    </li>
-                    <li>
-                      <strong>📍 Jurunas:</strong> Av. Bernardo Sayão, 2450 — Jurunas
-                    </li>
-                    <li>
-                      <strong>📍 Matriz São Brás:</strong> Av. Rômulo Maiorana, 115
-                    </li>
-                    <li>
-                      <strong>📍 Mauriti:</strong> Tv. Mauriti, 1124 — Pedreira
-                    </li>
-                    <li>
-                      <strong>📍 Cidade Nova:</strong> Tv. WE-59, 138 — Ananindeua
-                    </li>
-                    <li>
-                      <strong>📍 Online / Delivery:</strong> Tv. das Mercês, 158
-                    </li>
-                  </ul>
-                  <p className="mt-2 text-[11px] text-[#667781]">
-                    Segunda a Sexta: 07h às 19h | Sábado: 07h às 13h
-                  </p>
+                        <div>
+                          <label
+                            className="block text-[11.5px] font-semibold text-[#0F172A] mb-1"
+                            htmlFor="profile-store"
+                          >
+                            Unidade preferida
+                          </label>
+                          <select
+                            id="profile-store"
+                            className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[12.5px] text-[#0F172A] border border-[#CBD5E1] focus:outline-none focus:border-[#00A884]"
+                            onChange={(e) => {
+                              const chosen = findStoreById(e.target.value);
+                              setSelectedStore(chosen);
+                              setPendingStoreId(chosen.id);
+                            }}
+                            value={selectedStore.id}
+                          >
+                            {COMMERCIAL_STORES.map((st) => (
+                              <option key={st.id} value={st.id}>
+                                {st.shortTitle} — {st.address}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {formError && (
+                          <p className="text-[11px] text-[#B91C1C] font-medium" role="alert">
+                            {formError}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <button
+                          className="w-full rounded-[10px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2.5 px-3 transition-colors cursor-pointer"
+                          type="submit"
+                        >
+                          Salvar dados cadastrais
+                        </button>
+                        <button
+                          className="w-full rounded-[10px] border border-[#CBD5E1] bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#334155] font-medium text-[12.5px] py-2 px-3 transition-colors cursor-pointer"
+                          onClick={() => setSidebarView('menu')}
+                          type="button"
+                        >
+                          Voltar ao menu
+                        </button>
+                      </div>
+                    </form>
+                  )}
+
+                  {/* VIEW 6: AJUDA E SUPORTE (SEÇÃO 4.4) */}
+                  {sidebarView === 'help' && (
+                    <div className="space-y-3 animate-in fade-in duration-150">
+                      <div className="rounded-[14px] bg-[#FFFFFF] p-3.5 border border-[#E2E8F0] shadow-sm space-y-2.5">
+                        <span className="block text-[13px] font-bold text-[#0F172A]">
+                          Canais de Atendimento
+                        </span>
+
+                        <div className="rounded-[10px] bg-[#F8FAFC] p-2.5 border border-[#E2E8F0] text-[12px] space-y-1">
+                          <p className="font-semibold text-[#075844]">📞 Central Comercial do Norte:</p>
+                          <p className="text-[#334155]">(91) 4042-0513 · WhatsApp Vendas</p>
+                          <p className="text-[11px] text-[#64748B]">Seg a Sex: 07h às 18h | Sáb: 07h às 12h30</p>
+                        </div>
+
+                        <div className="rounded-[10px] bg-[#F8FAFC] p-2.5 border border-[#E2E8F0] text-[12px] space-y-1">
+                          <p className="font-semibold text-[#075844]">🏢 Matriz São Brás:</p>
+                          <p className="text-[#334155]">Av. Rômulo Maiorana, 115 — São Brás, Belém - PA</p>
+                        </div>
+
+                        <div className="rounded-[10px] bg-[#F8FAFC] p-2.5 border border-[#E2E8F0] text-[12px] space-y-1">
+                          <p className="font-semibold text-[#075844]">🏪 Filial Mauriti Pedreira:</p>
+                          <p className="text-[#334155]">Tv. Mauriti, 1124 — Pedreira, Belém - PA</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 pt-1">
+                        <button
+                          className="w-full rounded-[10px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2.5 px-3 transition-colors cursor-pointer"
+                          onClick={() => {
+                            setIsSidebarOpen(false);
+                            startTour();
+                          }}
+                          type="button"
+                        >
+                          🧭 Fazer Tour Guiado na Loja
+                        </button>
+                        <button
+                          className="w-full rounded-[10px] border border-[#CBD5E1] bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#334155] font-medium text-[12.5px] py-2 px-3 transition-colors cursor-pointer"
+                          onClick={() => setIsSidebarOpen(false)}
+                          type="button"
+                        >
+                          Voltar ao atendimento
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
+            </section>
           </div>
-
-          {/* RODAPÉ: SÓ APARECE NA ETAPA FINAL DE ATENDIMENTO LIVRE (REMOVIDA A BARRA DO ANEXO 1) */}
-          {step === 'FINISHED' && !isTyping && interactiveReady && (
-            <footer className="bg-[#F1F3F4] px-2.5 py-2 border-t border-[#D1D7DB] shrink-0">
-              <form className="flex items-center gap-2" onSubmit={handleSendCustomMessage}>
-                <input
-                  ref={customInputRef}
-                  aria-label="Digite sua mensagem para o atendimento"
-                  className="flex-1 rounded-full bg-[#FFFFFF] px-4 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
-                  onChange={(e) => setCustomMessageText(e.target.value)}
-                  placeholder="Digite sua mensagem..."
-                  type="text"
-                  value={customMessageText}
-                />
-                <button
-                  aria-label="Enviar mensagem no WhatsApp"
-                  className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] transition-colors cursor-pointer disabled:opacity-50"
-                  disabled={!customMessageText.trim()}
-                  type="submit"
-                >
-                  <Send className="size-4 ml-0.5" />
-                </button>
-              </form>
-            </footer>
-          )}
-        </section>
+        </div>
       )}
     </>
   );

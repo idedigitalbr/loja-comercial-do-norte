@@ -4,6 +4,7 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NortChatFloating } from './nort-chat-floating';
+import { generateTicketTitle, groupTicketsChronologically, TicketEvent } from '../lib/nort-tickets';
 
 const mockStartTour = vi.fn();
 vi.mock('./tour', () => ({
@@ -16,7 +17,7 @@ vi.mock('next/image', () => ({
   default: ({ fill, priority, unoptimized, ...props }: any) => <img {...props} />,
 }));
 
-describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () => {
+describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Modern Service Hub)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     window.localStorage.clear();
@@ -80,7 +81,7 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     ).toBeNull();
   });
 
-  it('ao abrir o chat: remove a barra inferior do Anexo 1, escurece o fundo (97%) e simula digitação lenta e humana etapa por etapa (Anexos 3, 4 e 5)', () => {
+  it('ao abrir o chat: renderiza janela centralizada, botão flutuante externo (X), remove barra inferior e simula digitação lenta etapa por etapa', () => {
     vi.useFakeTimers();
     render(<NortChatFloating whatsapp="5591983440880" />);
 
@@ -93,29 +94,34 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
       name: /chat de atendimento com o mascote norti/i,
     });
     expect(dialog).toBeDefined();
-    expect(dialog.className).toContain('z-[9995]');
 
-    // Garante que a barra inferior do Anexo 1 ("Informe seu nome e WhatsApp acima para iniciar") foi completamente removida
+    // Botão flutuante externo no topo direito com posicionamento absoluto e cantos arredondados
+    const closeBtn = screen.getByRole('button', { name: /fechar chat do norti/i });
+    expect(closeBtn).toBeDefined();
+    expect(closeBtn.className).toContain('sm:-top-4');
+    expect(closeBtn.className).toContain('sm:-right-4');
+
+    // Garante que a barra inferior do Anexo 1 foi completamente removida
     expect(screen.queryByText(/informe seu nome e whatsapp acima para iniciar/i)).toBeNull();
 
-    // Backdrop 97% escuro e scroll lock ativos
+    // Backdrop escuro e scroll lock ativos
     const backdrop = screen.getByTestId('nort-chat-backdrop');
     expect(backdrop).toBeDefined();
     expect(document.body.style.overflow).toBe('hidden');
 
-    // Etapa 1 (Anexo 3): Indicador de digitação aparece antes da 1ª mensagem (~2 a 4 segundos)
+    // Etapa 1: Indicador de digitação aparece antes da 1ª mensagem
     act(() => {
       vi.advanceTimersByTime(250);
     });
     expect(screen.getByText('digitando...')).toBeDefined();
-    expect(screen.getByLabelText('Nort está digitando')).toBeDefined();
+    expect(screen.getByRole('status', { name: /nort está digitando/i })).toBeDefined();
     expect(
       screen.queryByText(/olá! 👋 eu sou o nort, assistente virtual da comercial do norte!/i)
     ).toBeNull();
 
-    // Avança tempo de escrita da 1ª mensagem (~3.6s) -> 1ª mensagem aparece por completo (Anexo 3) e a 2ª ainda NÃO apareceu
+    // Avança tempo de escrita da 1ª mensagem (~2.2s) -> 1ª mensagem aparece por completo e a 2ª ainda NÃO apareceu
     act(() => {
-      vi.advanceTimersByTime(3700);
+      vi.advanceTimersByTime(2500);
     });
     expect(
       screen.getByText(/olá! 👋 eu sou o nort, assistente virtual da comercial do norte!/i)
@@ -124,37 +130,35 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
       screen.queryByText(/para começar, me conta: qual é o seu nome e número do whatsapp\?/i)
     ).toBeNull();
 
-    // Etapa 2 (Anexo 4): Após pausa natural de respiração (750ms), o indicador de digitação aparece para a 2ª mensagem
+    // Etapa 2: Após pausa natural de respiração (750ms), o indicador de digitação aparece para a 2ª mensagem
     act(() => {
       vi.advanceTimersByTime(800);
     });
     expect(screen.getByText('digitando...')).toBeDefined();
-    expect(screen.getByLabelText('Nort está digitando')).toBeDefined();
+    expect(screen.getByRole('status', { name: /nort está digitando/i })).toBeDefined();
 
-    // Avança o tempo de escrita da 2ª mensagem (~3.6s) -> 2ª mensagem aparece (Anexo 4), mas o formulário (Anexo 5) ainda aguarda seu ciclo de digitação
+    // Avança tempo de escrita da 2ª mensagem (~2.2s) -> 2ª mensagem aparece, mas o formulário ainda aguarda seu ciclo de digitação
     act(() => {
-      vi.advanceTimersByTime(3800);
+      vi.advanceTimersByTime(2000);
     });
     expect(
       screen.getByText(/para começar, me conta: qual é o seu nome e número do whatsapp\?/i)
     ).toBeDefined();
     expect(screen.queryByPlaceholderText('Como posso te chamar?')).toBeNull();
 
-    // Etapa 3 (Anexo 5): Indicador de digitação aparece antes do formulário e depois exibe o formulário limpo como no Anexo 2
+    // Etapa 3: Indicador de digitação aparece antes do formulário e depois exibe o formulário limpo
     act(() => {
       vi.advanceTimersByTime(700);
     });
-    expect(screen.getByLabelText('Nort está digitando')).toBeDefined();
+    expect(screen.getByRole('status', { name: /nort está digitando/i })).toBeDefined();
 
     act(() => {
       vi.advanceTimersByTime(2200);
     });
     expect(screen.getByText('online')).toBeDefined();
-    expect(screen.queryByLabelText('Nort está digitando')).toBeNull();
+    expect(screen.queryByRole('status', { name: /nort está digitando/i })).toBeNull();
     expect(screen.getByPlaceholderText('Como posso te chamar?')).toBeDefined();
     expect(screen.getByPlaceholderText('(91) 99999-9999')).toBeDefined();
-    // Continua sem nenhuma barra cinza embaixo (Anexo 2)
-    expect(screen.queryByText(/informe seu nome e whatsapp acima para iniciar/i)).toBeNull();
   });
 
   it('conduz o fluxo completo passo a passo com pausas humanas de digitação e só exibe as opções de serviço após escolher a unidade', () => {
@@ -187,7 +191,7 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     fireEvent.click(continueBtn);
 
     // Mensagem do usuário entra no chat e Nort começa a digitar lentamente
-    expect(screen.getByText(/carlos mendes/i)).toBeDefined();
+    expect(screen.getAllByText(/carlos mendes/i).length).toBeGreaterThanOrEqual(1);
     act(() => {
       vi.advanceTimersByTime(300);
     });
@@ -289,7 +293,6 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
       vi.advanceTimersByTime(12000);
     });
 
-    // Verifica que o chat calculou as unidades com distância formatada em km/metros
     expect(
       screen.getByText(/olha, a unidade mais próxima de você tem estas opções/i)
     ).toBeDefined();
@@ -355,7 +358,6 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
 
     expect(screen.getByText(/oi, roberto! 👋 bem-vindo\(a\) de volta!/i)).toBeDefined();
     expect(screen.getByText(/como posso te ajudar agora\?/i)).toBeDefined();
-    // NÃO pede o formulário inicial de Nome/WhatsApp de novo!
     expect(screen.queryByPlaceholderText('Como posso te chamar?')).toBeNull();
 
     // Apresenta as duas opções de UX limpa
@@ -442,7 +444,7 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     expect(document.body.style.overflow).toBe('');
   });
 
-  it('permite reiniciar o atendimento com sequência de digitação desde o início', () => {
+  it('permite reiniciar o atendimento a partir da sidebar de configurações (Novo atendimento) com arquivamento do ticket anterior', () => {
     vi.useFakeTimers();
     render(<NortChatFloating whatsapp="5591983440880" />);
 
@@ -453,8 +455,16 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
       vi.advanceTimersByTime(11000);
     });
 
-    const restartBtn = screen.getByRole('button', { name: /reiniciar conversa/i });
-    fireEvent.click(restartBtn);
+    // Abre a sidebar de configurações pelo único botão do cabeçalho
+    const settingsBtn = screen.getByRole('button', { name: /configurações e atendimentos/i });
+    fireEvent.click(settingsBtn);
+
+    // Clica em "Novo atendimento"
+    fireEvent.click(screen.getByText(/novo atendimento/i));
+
+    // Na tela de confirmação, clica em "Confirmar e iniciar novo"
+    const confirmBtn = screen.getByRole('button', { name: /confirmar e iniciar novo/i });
+    fireEvent.click(confirmBtn);
 
     act(() => {
       vi.advanceTimersByTime(11000);
@@ -530,5 +540,121 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     });
 
     expect(screen.getByPlaceholderText('Informe seu CEP...')).toBeDefined();
+  });
+
+  it('simplifica o cabeçalho exibindo exclusivamente "Nort", selo verificado e botão de configurações', () => {
+    vi.useFakeTimers();
+    render(<NortChatFloating whatsapp="5591983440880" />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
+    );
+
+    const dialog = screen.getByRole('dialog', {
+      name: /chat de atendimento com o mascote norti/i,
+    });
+    expect(dialog).toBeDefined();
+
+    // Nome principal exclusivo "Nort"
+    expect(screen.getByRole('heading', { level: 2, name: 'Nort' })).toBeDefined();
+    expect(screen.getByLabelText('Conta comercial verificada')).toBeDefined();
+
+    // Botão de configurações no canto superior direito
+    const settingsBtn = screen.getByRole('button', { name: /configurações e atendimentos/i });
+    expect(settingsBtn).toBeDefined();
+  });
+
+  it('navega por todas as 4 seções da sidebar: menu, histórico com busca, meus dados e ajuda/suporte', () => {
+    vi.useFakeTimers();
+    render(<NortChatFloating whatsapp="5591983440880" />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
+    );
+    act(() => {
+      vi.advanceTimersByTime(11000);
+    });
+
+    // Abre a sidebar
+    fireEvent.click(screen.getByRole('button', { name: /configurações e atendimentos/i }));
+
+    // View 1: Menu com as 4 opções
+    expect(screen.getByText(/novo atendimento/i)).toBeDefined();
+    expect(screen.getByText(/histórico de atendimentos/i)).toBeDefined();
+    expect(screen.getByText(/meus dados/i)).toBeDefined();
+    expect(screen.getByText(/ajuda e suporte/i)).toBeDefined();
+
+    // Navega para Histórico de Atendimentos
+    fireEvent.click(screen.getByText(/histórico de atendimentos/i));
+    expect(screen.getByPlaceholderText(/buscar por título, ticket ou loja\.\.\./i)).toBeDefined();
+
+    // Volta ao Menu
+    fireEvent.click(screen.getByRole('button', { name: /^voltar$/i }));
+    expect(screen.getByText(/novo atendimento/i)).toBeDefined();
+
+    // Navega para Meus Dados
+    fireEvent.click(screen.getByText(/meus dados/i));
+    expect(screen.getByLabelText(/seu nome completo/i)).toBeDefined();
+    expect(screen.getByLabelText(/número do whatsapp/i)).toBeDefined();
+
+    // Volta ao Menu
+    fireEvent.click(screen.getByRole('button', { name: /^voltar$/i }));
+
+    // Navega para Ajuda e Suporte
+    fireEvent.click(screen.getByText(/ajuda e suporte/i));
+    expect(screen.getByText(/central comercial do norte/i)).toBeDefined();
+    expect(screen.getByText(/fazer tour guiado na loja/i)).toBeDefined();
+
+    // Fecha a sidebar
+    fireEvent.click(screen.getByRole('button', { name: /fechar configurações/i }));
+  });
+
+  it('gera títulos determinísticos sem IA e agrupa tickets cronologicamente (lib nort-tickets)', () => {
+    const events: TicketEvent[] = [
+      {
+        id: 'ev-1',
+        ticketId: '#000101',
+        timestamp: Date.now() - 5000,
+        timeFormatted: '10:00',
+        type: 'start',
+        actionText: 'Atendimento iniciado',
+      },
+      {
+        id: 'ev-2',
+        ticketId: '#000101',
+        timestamp: Date.now(),
+        timeFormatted: '10:02',
+        type: 'select_service',
+        actionText: 'Quero solicitar uma cotação de produtos',
+        details: 'Lista de cotação',
+      },
+    ];
+
+    const generated = generateTicketTitle(events);
+    expect(generated.title).toBe('Solicitação de cotação de produtos');
+    expect(generated.category).toBe('Produtos & Cotação');
+
+    const grouped = groupTicketsChronologically([
+      {
+        id: '#000101',
+        numericId: 101,
+        customerName: 'Cliente Teste',
+        customerPhone: '(91) 98888-7777',
+        storeId: 'matriz',
+        storeName: 'Unidade São Brás',
+        title: generated.title,
+        category: generated.category,
+        status: 'in_progress',
+        step: 'SERVICE',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        messages: [],
+        events,
+        origin: 'chat-nort-site',
+      },
+    ]);
+
+    expect(grouped['Hoje'].length).toBe(1);
+    expect(grouped['Hoje'][0].id).toBe('#000101');
   });
 });
