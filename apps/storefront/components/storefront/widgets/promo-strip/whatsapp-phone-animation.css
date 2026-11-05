@@ -500,8 +500,9 @@
   flex-direction: column;
   gap: 10px;
   background-color: #efeae2;
-  background-image: radial-gradient(#d3c9bf 1px, transparent 1px);
-  background-size: 16px 16px;
+  background-image: url('/assets/whatsapp-wallpaper.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 /* Balões de Mensagem */
