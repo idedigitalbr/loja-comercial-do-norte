@@ -324,19 +324,19 @@ export function SegmentsCarouselWidget({
         <div className="relative rounded-[24px] bg-gradient-to-r from-[#002868] via-[#003E99] to-[#002B66] p-4 sm:p-0 sm:bg-transparent shadow-md sm:shadow-none sm:rounded-none">
           {/* Topo Azul Escuro: no desktop mantém o topo com pb-32 para os cards sobreporem */}
           <div className="relative sm:rounded-[24px] sm:bg-gradient-to-r sm:from-[#002868] sm:via-[#003E99] sm:to-[#002B66] sm:px-10 sm:pt-6 sm:pb-32 lg:pb-32 sm:shadow-md">
-            {/* Header Superior: Textos à esquerda e CTA à direita */}
-            <div className="relative z-20 flex flex-col justify-between gap-3.5 sm:gap-4 sm:flex-row sm:items-center">
+            {/* Header Superior: Textos e ações centralizados no mobile conforme solicitado, e distribuídos no desktop */}
+            <div className="relative z-20 flex flex-col items-center text-center justify-between gap-3.5 sm:gap-4 sm:flex-row sm:items-center sm:text-left">
               {/* Bloco Esquerda: Título, Subtítulo, Traço Vermelho e Botão Assista nosso vídeo */}
-              <div className="max-w-md">
-                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              <div className="max-w-md flex flex-col items-center sm:items-start">
+                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl text-center sm:text-left">
                   {title}
                 </h2>
-                <p className="mt-1 text-base font-medium text-white sm:text-lg">
+                <p className="mt-1 text-base font-medium text-white sm:text-lg text-center sm:text-left">
                   {subtitle}
                 </p>
-                <div className="mt-2 h-1 w-20 sm:w-24 rounded-full bg-[#E2091E]" />
+                <div className="mt-2 h-1 w-20 sm:w-24 rounded-full bg-[#E2091E] mx-auto sm:mx-0" />
 
-                <div className="mt-3.5 sm:mt-5 flex items-center gap-3">
+                <div className="mt-3.5 sm:mt-5 flex justify-center sm:justify-start items-center gap-3">
                   <button
                     type="button"
                     onClick={() => {
@@ -358,7 +358,7 @@ export function SegmentsCarouselWidget({
 
               {/* Bloco Direita: CTA Ver todos os segmentos */}
               <Link
-                className="inline-flex items-center gap-2 self-start rounded-xl border border-white/40 bg-[#002868]/70 px-4 py-2 sm:px-5 sm:py-2.5 text-xs font-bold text-white backdrop-blur-xs transition hover:bg-white/20 sm:self-center"
+                className="inline-flex items-center gap-2 self-center rounded-xl border border-white/40 bg-[#002868]/70 px-4 py-2 sm:px-5 sm:py-2.5 text-xs font-bold text-white backdrop-blur-xs transition hover:bg-white/20 sm:self-center"
                 href={ctaUrl}
                 onClick={(e) => {
                   if (isEditing && !previewMode) e.preventDefault();
@@ -369,11 +369,11 @@ export function SegmentsCarouselWidget({
               </Link>
             </div>
 
-            {/* Mascote Nort 3D Centralizado com Balão "Veja os produtos para seu segmento" */}
+            {/* Mascote Nort 3D Centralizado com Balão "Veja os produtos para seu segmento" (desce um pouco mais no mobile para apresentar os cards de perto) */}
             <div
               aria-hidden="true"
               data-testid="segments-nort-mascot"
-              className="pointer-events-none z-10 flex items-start justify-center select-none w-[240px] xs:w-[280px] sm:w-[410px] md:w-[450px] lg:w-[480px] xl:w-[500px] relative mx-auto mt-2 mb-2 sm:mt-0 sm:mb-0 sm:absolute sm:left-1/2 sm:-translate-x-1/2 sm:-top-7 md:-top-8"
+              className="pointer-events-none z-10 flex items-start justify-center select-none w-[240px] xs:w-[280px] sm:w-[410px] md:w-[450px] lg:w-[480px] xl:w-[500px] relative mx-auto mt-4 -mb-4 xs:-mb-5 sm:mt-0 sm:mb-0 sm:absolute sm:left-1/2 sm:-translate-x-1/2 sm:-top-7 md:-top-8"
             >
               <div className="relative w-full aspect-[1024/576]">
                 <Image

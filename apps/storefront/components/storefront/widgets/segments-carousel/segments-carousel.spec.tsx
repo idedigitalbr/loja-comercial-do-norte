@@ -259,6 +259,27 @@ describe('SegmentsCarouselWidget', () => {
     expect(mascotContainer.className).not.toContain('-mb-20');
   });
 
+  it('renderiza o cabeçalho superior centralizado no mobile com mascote posicionado próximo aos cards', () => {
+    const { container } = render(<SegmentsCarouselWidget items={mockItems} />);
+
+    // Header centralizado no mobile
+    const headerRow = container.querySelector('.relative.z-20.flex.flex-col');
+    expect(headerRow?.className).toContain('items-center');
+    expect(headerRow?.className).toContain('text-center');
+
+    // Traço vermelho centralizado com mx-auto
+    const redBar = container.querySelector('.bg-\\[\\#E2091E\\].h-1');
+    expect(redBar?.className).toContain('mx-auto');
+
+    // Botão CTA centralizado com self-center
+    const ctaBtn = screen.getByRole('link', { name: /ver todos os segmentos/i });
+    expect(ctaBtn.className).toContain('self-center');
+
+    // Mascote desce um pouco mais com -mb-4
+    const mascot = screen.getByTestId('segments-nort-mascot');
+    expect(mascot.className).toContain('-mb-4');
+  });
+
   it('dispara o evento para abrir o player de vídeo institucional em tela cheia ao clicar no botão', () => {
     const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
     render(<SegmentsCarouselWidget items={mockItems} />);
