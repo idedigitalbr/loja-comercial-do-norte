@@ -438,10 +438,55 @@
       }
     },
     {
+      "id": "s15b-workshops-confeitaria",
+      "type": "video-articles-carousel",
+      "enabled": true,
+      "order": 11,
+      "props": {
+        "variant": "confeitaria",
+        "title": "Workshops & Aulas Práticas de Confeitaria",
+        "subtitle": "Faça suas compras e ganhe treinamento gratuitamente.",
+        "viewAllLabel": "Ver todos",
+        "viewAllUrl": "/eventos/workshops/aulas-confeitaria",
+        "mascotImageUrl": "/assets/confeitaria/confeiteira-banner-cutout-trimmed.webp",
+        "bgImageUrl": "/assets/confeitaria/bg-confeitaria-banner.svg",
+        "items": [
+          {
+            "id": "conf-1",
+            "tags": [
+              "WORKSHOP",
+              "BOLOS DECORADOS"
+            ],
+            "title": "Técnicas de decoração para bolos e tortas",
+            "paragraphs": [
+              "Aprenda acabamento, recheio, montagem e apresentação com foco prático."
+            ],
+            "ctaLabel": "Ver Completo",
+            "ctaUrl": "/eventos/workshops/aulas-confeitaria",
+            "imageUrl": "/assets/confeitaria/card-tecnicas-decoracao.webp"
+          },
+          {
+            "id": "conf-2",
+            "tags": [
+              "AULA PRÁTICA",
+              "DOCES FINOS"
+            ],
+            "title": "Doces finos e sobremesas para vender",
+            "paragraphs": [
+              "Descubra receitas, finalização e embalagem para valorizar sua produção."
+            ],
+            "ctaLabel": "Ver Completo",
+            "ctaUrl": "/eventos/workshops/aulas-confeitaria",
+            "imageUrl": "/assets/confeitaria/card-doces-finos.webp"
+          }
+        ]
+      }
+    },
+    {
       "id": "s12-nossos-eventos",
       "type": "events-carousel",
       "enabled": true,
-      "order": 11,
+      "order": 12,
       "props": {
         "title": "Nossos Eventos",
         "subtitle": "Tudo que acontece no Comercial do Norte",
@@ -498,51 +543,6 @@
           }
         ],
         "topThumbUrl": "/assets/HOME Vitrine/S12-EVENTOS/s12-event-top-thumb.jpg"
-      }
-    },
-    {
-      "id": "s15b-workshops-confeitaria",
-      "type": "video-articles-carousel",
-      "enabled": true,
-      "order": 12,
-      "props": {
-        "variant": "confeitaria",
-        "title": "Workshops & Aulas Práticas de Confeitaria",
-        "subtitle": "Faça suas compras e ganhe treinamento gratuitamente.",
-        "viewAllLabel": "Ver todos",
-        "viewAllUrl": "/eventos/workshops/aulas-confeitaria",
-        "mascotImageUrl": "/assets/confeitaria/confeiteira-banner-cutout-trimmed.webp",
-        "bgImageUrl": "/assets/confeitaria/bg-confeitaria-banner.svg",
-        "items": [
-          {
-            "id": "conf-1",
-            "tags": [
-              "WORKSHOP",
-              "BOLOS DECORADOS"
-            ],
-            "title": "Técnicas de decoração para bolos e tortas",
-            "paragraphs": [
-              "Aprenda acabamento, recheio, montagem e apresentação com foco prático."
-            ],
-            "ctaLabel": "Ver Completo",
-            "ctaUrl": "/eventos/workshops/aulas-confeitaria",
-            "imageUrl": "/assets/confeitaria/card-tecnicas-decoracao.webp"
-          },
-          {
-            "id": "conf-2",
-            "tags": [
-              "AULA PRÁTICA",
-              "DOCES FINOS"
-            ],
-            "title": "Doces finos e sobremesas para vender",
-            "paragraphs": [
-              "Descubra receitas, finalização e embalagem para valorizar sua produção."
-            ],
-            "ctaLabel": "Ver Completo",
-            "ctaUrl": "/eventos/workshops/aulas-confeitaria",
-            "imageUrl": "/assets/confeitaria/card-doces-finos.webp"
-          }
-        ]
       }
     },
     {
