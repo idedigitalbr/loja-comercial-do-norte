@@ -37,6 +37,15 @@
 
 :root {
   color-scheme: light;
+  --chat-header: #075844;
+  --chat-background: #E4D8D3;
+  --chat-received: #F1F3F4;
+  --chat-sent: #E0FBD4;
+  --chat-button: #FFFFFF;
+  --chat-text: #111B21;
+  --chat-muted: #667781;
+  --chat-border: #D1D7DB;
+  --chat-accent: #00A884;
 }
 
 html,

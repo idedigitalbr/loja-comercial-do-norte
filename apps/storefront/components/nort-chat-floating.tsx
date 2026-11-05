@@ -2,21 +2,17 @@
 
 import React, { useEffect, useId, useRef, useState } from 'react';
 import Image from 'next/image';
+import { ArrowLeft, CheckCheck, Minimize2, RotateCcw, Send, X } from 'lucide-react';
 import {
-  Check,
-  CheckCheck,
-  Compass,
-  Headphones,
-  MapPin,
-  MessageCircle,
-  Minimize2,
-  RotateCcw,
-  Send,
-  ShoppingBag,
-  Sparkles,
-  X,
-} from 'lucide-react';
-import { COMMERCIAL_STORES, CommercialStore, DEFAULT_STORE, buildWhatsAppLink } from '../lib/stores-data';
+  COMMERCIAL_STORES,
+  CommercialStore,
+  DEFAULT_STORE,
+  buildWhatsAppLink,
+  findNearestStoreByCep,
+  findNearestStoreByCoords,
+  formatBrazilPhoneMask,
+  formatCepMask,
+} from '../lib/stores-data';
 import { useNortTour } from './tour';
 
 export type NortChatFloatingProps = {
@@ -24,48 +20,226 @@ export type NortChatFloatingProps = {
   phone?: string | null;
 };
 
-type Message = {
+export type ChatMessage = {
   id: string;
   sender: 'bot' | 'user';
   text: string;
   time: string;
+  quotedTitle?: string;
+  quotedText?: string;
 };
 
-type BotStep = 'NAME' | 'PHONE' | 'STORE' | 'SUBJECT' | 'FINISHED';
+export type BotStep =
+  | 'IDENTIFY'
+  | 'UNIT_MODE'
+  | 'UNIT_CEP'
+  | 'UNIT_LIST'
+  | 'SERVICE'
+  | 'FINISHED';
+
+const INITIAL_BOT_MESSAGE =
+  'Olá! 👋 Eu sou o Nort, assistente virtual da Comercial do Norte!\n\nPara começar, me conta: qual é o seu nome e número do WhatsApp?';
+
+/* ============================================================================
+ * SUBCOMPONENTES REUTILIZÁVEIS (PADRÃO WHATSAPP)
+ * ============================================================================ */
+
+function NortAvatar({ size = 30, alt = 'Nort' }: { size?: number; alt?: string }) {
+  return (
+    <div
+      className="relative shrink-0 rounded-full bg-[#FFFFFF] border border-[#D1D7DB] overflow-hidden"
+      style={{ width: size, height: size }}
+    >
+      <Image
+        alt={alt}
+        className="size-full object-contain"
+        height={size}
+        src="/assets/nort-avatar.png"
+        unoptimized
+        width={size}
+      />
+    </div>
+  );
+}
+
+function VerifiedBadge() {
+  return (
+    <svg
+      aria-label="Conta comercial verificada"
+      className="size-4 shrink-0 text-[#00A884]"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path d="M12 2l2.4 1.8 3-.3.9 2.9 2.7 1.3-.8 2.9 1.5 2.6-2.2 2.1.2 3-2.9.6-1.8 2.4-2.8-1.1-2.8 1.1-1.8-2.4-2.9-.6.2-3-2.2-2.1 1.5-2.6-.8-2.9 2.7-1.3.9-2.9 3 .3L12 2zm-1.1 13.4l5.3-5.3-1.4-1.4-3.9 3.9-1.9-1.9-1.4 1.4 3.3 3.3z" />
+    </svg>
+  );
+}
+
+function TypingIndicatorBubble() {
+  return (
+    <div
+      aria-label="Nort está digitando"
+      className="flex items-start gap-2 max-w-[85%] animate-in fade-in duration-150"
+    >
+      <NortAvatar alt="Nort digitando" size={30} />
+      <div className="relative rounded-[10px] rounded-tl-none bg-[#F1F3F4] px-3.5 py-2.5 shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#D1D7DB]/60">
+        {/* Tail superior esquerdo */}
+        <span
+          aria-hidden="true"
+          className="absolute -left-[6px] top-0 w-0 h-0 border-t-[8px] border-t-[#F1F3F4] border-l-[6px] border-l-transparent"
+        />
+        <div className="flex items-center gap-1.5 py-0.5">
+          <span className="size-2 rounded-full bg-[#667781] animate-bounce motion-reduce:animate-none" />
+          <span className="size-2 rounded-full bg-[#667781] animate-bounce [animation-delay:0.18s] motion-reduce:animate-none" />
+          <span className="size-2 rounded-full bg-[#667781] animate-bounce [animation-delay:0.36s] motion-reduce:animate-none" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MessageBubble({
+  message,
+  showAvatar,
+}: {
+  message: ChatMessage;
+  showAvatar: boolean;
+}) {
+  const isBot = message.sender === 'bot';
+
+  if (isBot) {
+    return (
+      <div className="flex items-start gap-2 max-w-[90%] animate-in fade-in duration-150">
+        {showAvatar ? (
+          <NortAvatar alt="Nort" size={30} />
+        ) : (
+          <div aria-hidden="true" className="w-[30px] shrink-0" />
+        )}
+        <div
+          className={`relative bg-[#F1F3F4] text-[#111B21] rounded-[10px] ${
+            showAvatar ? 'rounded-tl-none' : ''
+          } px-3 pt-2 pb-1.5 shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#D1D7DB]/50 text-[13px] leading-[1.42]`}
+        >
+          {showAvatar && (
+            <span
+              aria-hidden="true"
+              className="absolute -left-[6px] top-0 w-0 h-0 border-t-[8px] border-t-[#F1F3F4] border-l-[6px] border-l-transparent"
+            />
+          )}
+          <p className="whitespace-pre-wrap break-words pr-10">{message.text}</p>
+          <div className="flex justify-end -mt-1">
+            <span className="text-[10px] text-[#667781] leading-none select-none">
+              {message.time}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex justify-end w-full animate-in fade-in duration-150">
+      <div className="relative max-w-[85%] bg-[#E0FBD4] text-[#111B21] rounded-[10px] rounded-tr-none px-3 pt-2 pb-1.5 shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#D1D7DB]/50 text-[13px] leading-[1.42]">
+        <span
+          aria-hidden="true"
+          className="absolute -right-[6px] top-0 w-0 h-0 border-t-[8px] border-t-[#E0FBD4] border-r-[6px] border-r-transparent"
+        />
+        {message.quotedText && (
+          <div className="mb-1.5 rounded-[6px] bg-[#D1F4CC] border-l-[3px] border-l-[#075844] px-2 py-1 text-[11px] text-[#667781]">
+            <span className="block font-bold text-[#075844]">
+              {message.quotedTitle || 'Nort | Comercial do Norte'}
+            </span>
+            <span className="line-clamp-2">{message.quotedText}</span>
+          </div>
+        )}
+        <p className="whitespace-pre-wrap break-words pr-12">{message.text}</p>
+        <div className="flex items-center justify-end gap-1 -mt-1">
+          <span className="text-[10px] text-[#667781] leading-none select-none">
+            {message.time}
+          </span>
+          <CheckCheck aria-label="Mensagem entregue" className="size-3.5 text-[#00A884]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QuickReplyButton({
+  children,
+  onClick,
+  disabled,
+  ariaLabel,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  ariaLabel?: string;
+}) {
+  return (
+    <button
+      aria-label={ariaLabel}
+      className="w-full rounded-[10px] bg-[#FFFFFF] hover:bg-[#F8F9FA] active:bg-[#F1F3F4] text-[#00A884] font-semibold text-[13px] py-2.5 px-3 text-center shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#D1D7DB] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+      disabled={disabled}
+      onClick={onClick}
+      type="button"
+    >
+      {children}
+    </button>
+  );
+}
+
+/* ============================================================================
+ * COMPONENTE PRINCIPAL — CHAT DO NORT (ESTILO WHATSAPP CONVERSACIONAL GUIADO)
+ * ============================================================================ */
 
 export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
   const { startTour } = useNortTour();
   const [isOpen, setIsOpen] = useState(false);
   const [bubbleDismissed, setBubbleDismissed] = useState(false);
-  const [inputText, setInputText] = useState('');
-  const [storeInfoVisible, setStoreInfoVisible] = useState(false);
-  const [quickOptionsVisible, setQuickOptionsVisible] = useState(true);
 
-  // Typebot state
-  const [step, setStep] = useState<BotStep>('NAME');
+  // Etapas e estado do atendimento
+  const [step, setStep] = useState<BotStep>('IDENTIFY');
   const [isTyping, setIsTyping] = useState(false);
+
+  // Dados do cliente e escolhas
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [formError, setFormError] = useState('');
+  const [cepInput, setCepInput] = useState('');
+  const [cepError, setCepError] = useState('');
+  const [pendingStoreId, setPendingStoreId] = useState<string>(DEFAULT_STORE.id);
   const [selectedStore, setSelectedStore] = useState<CommercialStore>(DEFAULT_STORE);
   const [chosenSubject, setChosenSubject] = useState('');
+  const [customMessageText, setCustomMessageText] = useState('');
+  const [storeInfoVisible, setStoreInfoVisible] = useState(false);
 
-  const [messages, setMessages] = useState<Message[]>([
+  // Histórico de mensagens
+  const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome-1',
       sender: 'bot',
-      text: 'Oi! Eu sou o Norti! 👋 Sou o assistente virtual da Comercial do Norte. Como posso te chamar?',
+      text: INITIAL_BOT_MESSAGE,
       time: 'Agora',
     },
   ]);
 
   const chatBodyRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const cepInputRef = useRef<HTMLInputElement>(null);
+  const customInputRef = useRef<HTMLInputElement>(null);
+  const timersRef = useRef<number[]>([]);
   const id = useId();
 
   // Fallback digits
   const defaultWhatsapp = '5591983440880';
   const rawNumber = whatsapp || phone || defaultWhatsapp;
   const whatsappDigits = rawNumber.replace(/\D/g, '') || defaultWhatsapp;
+
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach((t) => window.clearTimeout(t));
+    };
+  }, []);
 
   useEffect(() => {
     function handleEscape(e: KeyboardEvent) {
@@ -79,34 +253,56 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
 
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-        chatBodyRef.current?.scrollTo({
-          top: chatBodyRef.current.scrollHeight,
-          behavior: 'smooth',
-        });
-      }, 100);
+      const scrollTimer = window.setTimeout(() => {
+        if (chatBodyRef.current && typeof chatBodyRef.current.scrollTo === 'function') {
+          chatBodyRef.current.scrollTo({
+            top: chatBodyRef.current.scrollHeight,
+            behavior: 'smooth',
+          });
+        }
+        if (step === 'IDENTIFY') {
+          nameInputRef.current?.focus();
+        } else if (step === 'UNIT_CEP') {
+          cepInputRef.current?.focus();
+        } else if (step === 'FINISHED') {
+          customInputRef.current?.focus();
+        }
+      }, 60);
+      return () => window.clearTimeout(scrollTimer);
     }
-  }, [isOpen, messages, isTyping, storeInfoVisible]);
+  }, [isOpen, messages, isTyping, step, storeInfoVisible]);
 
   function getFormattedTime() {
     return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   }
 
-  function addBotMessageWithDelay(text: string, delayMs = 700) {
+  function scheduleBotReply(text: string, onDone?: () => void) {
+    // Respeita movimento reduzido ou calcula tempo proporcional (800ms a 1400ms)
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const calculatedDelay = prefersReducedMotion
+      ? 150
+      : Math.min(1300, Math.max(800, text.length * 6));
+
     setIsTyping(true);
-    setTimeout(() => {
+    const timerId = window.setTimeout(() => {
       setIsTyping(false);
       setMessages((prev) => [
         ...prev,
         {
-          id: `bot-${Date.now()}-${Math.random()}`,
+          id: `bot-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           sender: 'bot',
           text,
           time: getFormattedTime(),
         },
       ]);
-    }, delayMs);
+      onDone?.();
+    }, calculatedDelay);
+
+    timersRef.current.push(timerId);
   }
 
   async function registerLeadToCRM(leadData: {
@@ -114,7 +310,7 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
     phone: string;
     store: CommercialStore;
     subject: string;
-    allMessages: Message[];
+    allMessages: ChatMessage[];
   }) {
     try {
       await fetch('/api/v1/crm/leads', {
@@ -135,61 +331,172 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
         }),
       });
     } catch {
-      // Ignora erro de rede em offline/fallback
+      // Ignora erro de rede em modo offline ou teste
     }
   }
 
-  function handleSendCustomMessage(e: React.FormEvent) {
+  /* ============================================================================
+   * ETAPA 1 — IDENTIFICAÇÃO (NOME + WHATSAPP)
+   * ============================================================================ */
+  function handleIdentifySubmit(e: React.FormEvent) {
     e.preventDefault();
-    const text = inputText.trim();
-    if (!text) return;
+    if (isTyping) return;
 
-    const userMsg: Message = { id: `user-${Date.now()}`, sender: 'user', text, time: getFormattedTime() };
+    const cleanName = customerName.trim();
+    const phoneDigits = customerPhone.replace(/\D/g, '');
+
+    if (cleanName.length < 2) {
+      setFormError('Por favor, informe seu nome.');
+      return;
+    }
+
+    if (phoneDigits.length < 10) {
+      setFormError('Informe um WhatsApp válido com DDD, ex: (91) 99999-9999.');
+      return;
+    }
+
+    setFormError('');
+    const formattedPhone = formatBrazilPhoneMask(phoneDigits);
+    setCustomerName(cleanName);
+    setCustomerPhone(formattedPhone);
+
+    const userMsg: ChatMessage = {
+      id: `user-id-${Date.now()}`,
+      sender: 'user',
+      text: `${cleanName}\n📱 ${formattedPhone}`,
+      time: getFormattedTime(),
+      quotedText: 'Para começar, me conta: qual é o seu nome e número do WhatsApp?',
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
+    setStep('UNIT_MODE');
+
+    scheduleBotReply(
+      `Prazer, ${cleanName}! 😊\n\nAgora me diz: em qual unidade da Comercial do Norte você gostaria de ser atendido?`
+    );
+  }
+
+  /* ============================================================================
+   * ETAPA 2 — ESCOLHA DA UNIDADE (LOCALIZAÇÃO, CEP OU LISTA)
+   * ============================================================================ */
+  function handleFindNearestUnit() {
+    if (isTyping) return;
+
+    const userMsg: ChatMessage = {
+      id: `user-near-${Date.now()}`,
+      sender: 'user',
+      text: '📍 Encontrar a mais próxima de mim',
+      time: getFormattedTime(),
+      quotedText: 'Agora me diz: em qual unidade da Comercial do Norte você gostaria de ser atendido?',
+    };
     setMessages((prev) => [...prev, userMsg]);
 
-    const activePhone = selectedStore.whatsappDigits || whatsappDigits;
-    const bodyText = customerName
-      ? `Olá, equipe Comercial do Norte (${selectedStore.shortTitle})! Meu nome é ${customerName}. ${text}`
-      : text;
-
-    const url = buildWhatsAppLink(activePhone, bodyText);
-    window.open(url, '_blank', 'noopener,noreferrer');
-    setInputText('');
-
-    if (step === 'NAME') {
-      setCustomerName(text);
-      setStep('PHONE');
-      addBotMessageWithDelay(
-        `Prazer! 🤝 Para direcionar sua solicitação, qual loja da Comercial do Norte fica mais próxima de você?`,
-        500
+    if (typeof navigator !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const nearest = findNearestStoreByCoords(
+            position.coords.latitude,
+            position.coords.longitude
+          );
+          confirmStoreSelection(
+            nearest,
+            `Encontrei a unidade mais próxima da sua localização: ${nearest.shortTitle} (${nearest.address}).`
+          );
+        },
+        () => {
+          setStep('UNIT_CEP');
+          scheduleBotReply(
+            'Não consegui acessar sua localização automática. Sem problemas! Informe seu CEP abaixo para eu localizar a unidade mais próxima:'
+          );
+        },
+        { timeout: 5000 }
+      );
+    } else {
+      setStep('UNIT_CEP');
+      scheduleBotReply(
+        'Para localizar a loja mais próxima, informe seu CEP abaixo:'
       );
     }
   }
 
-  function handleSelectStore(store: CommercialStore) {
-    setSelectedStore(store);
-    const userMsg: Message = {
-      id: `user-${Date.now()}`,
+  function handleShowUnitList() {
+    if (isTyping) return;
+
+    const userMsg: ChatMessage = {
+      id: `user-list-${Date.now()}`,
       sender: 'user',
-      text: `Loja mais próxima: ${store.shortTitle}`,
+      text: '🏬 Escolher uma unidade',
+      time: getFormattedTime(),
+      quotedText: 'Agora me diz: em qual unidade da Comercial do Norte você gostaria de ser atendido?',
+    };
+    setMessages((prev) => [...prev, userMsg]);
+    setStep('UNIT_LIST');
+  }
+
+  function handleCepSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (isTyping) return;
+
+    const digits = cepInput.replace(/\D/g, '');
+    if (digits.length < 5) {
+      setCepError('Informe um CEP válido (ex: 66093-005).');
+      return;
+    }
+
+    setCepError('');
+    const nearest = findNearestStoreByCep(digits);
+    const formattedCep = formatCepMask(digits);
+
+    const userMsg: ChatMessage = {
+      id: `user-cep-${Date.now()}`,
+      sender: 'user',
+      text: `CEP: ${formattedCep} (${nearest.shortTitle})`,
       time: getFormattedTime(),
     };
     setMessages((prev) => [...prev, userMsg]);
-    setStep('SUBJECT');
-    addBotMessageWithDelay(
-      `Perfeito! O atendimento da unidade ${store.shortTitle} é excelente. E o que você gostaria de resolver hoje?`,
-      650
+    setSelectedStore(nearest);
+    setStep('SERVICE');
+
+    scheduleBotReply(
+      `Perfeito, ${customerName || 'visitante'}! 💙 Identifiquei a ${nearest.shortTitle} como a mais próxima.\n\nAgora me conta, como posso te ajudar hoje?`
     );
   }
 
-  function handleSelectSubject(subject: string) {
-    setChosenSubject(subject);
-    const userMsg: Message = {
-      id: `user-${Date.now()}`,
+  function confirmStoreSelection(store: CommercialStore, customPrefix?: string) {
+    if (isTyping) return;
+    setSelectedStore(store);
+
+    const userMsg: ChatMessage = {
+      id: `user-store-${Date.now()}`,
       sender: 'user',
-      text: subject,
+      text: `🏬 ${store.shortTitle}`,
       time: getFormattedTime(),
     };
+    setMessages((prev) => [...prev, userMsg]);
+    setStep('SERVICE');
+
+    const replyText = customPrefix
+      ? `${customPrefix}\n\nPerfeito, ${customerName || 'visitante'}! 💙\nAgora me conta, como posso te ajudar hoje?`
+      : `Perfeito, ${customerName || 'visitante'}! 💙\n\nAgora me conta, como posso te ajudar hoje?`;
+
+    scheduleBotReply(replyText);
+  }
+
+  /* ============================================================================
+   * ETAPA 3 — COMO PODEMOS AJUDAR? (SERVIÇOS E REDIRECIONAMENTO)
+   * ============================================================================ */
+  function handleSelectService(serviceLabel: string, topicDetail: string) {
+    if (isTyping) return;
+    setChosenSubject(serviceLabel);
+
+    const userMsg: ChatMessage = {
+      id: `user-srv-${Date.now()}`,
+      sender: 'user',
+      text: serviceLabel,
+      time: getFormattedTime(),
+      quotedText: 'Agora me conta, como posso te ajudar hoje?',
+    };
+
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
     setStep('FINISHED');
@@ -198,37 +505,101 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
       name: customerName || 'Cliente Site',
       phone: customerPhone || '(91) 98344-0880',
       store: selectedStore,
-      subject,
+      subject: serviceLabel,
       allMessages: updatedMessages,
     });
 
-    addBotMessageWithDelay(
-      `Tudo pronto! Registrei seu atendimento em nosso CRM. 📋 Clique no botão abaixo para conversar no WhatsApp oficial da unidade ${selectedStore.shortTitle}:`,
-      650
+    const activePhone = selectedStore.whatsappDigits || whatsappDigits;
+    const bodyText = customerName
+      ? `Olá, equipe Comercial do Norte (${selectedStore.shortTitle})! Meu nome é ${customerName} (${customerPhone}). ${topicDetail}`
+      : `Olá! ${topicDetail}`;
+
+    const url = buildWhatsAppLink(activePhone, bodyText);
+    if (typeof window !== 'undefined' && typeof window.open === 'function') {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    scheduleBotReply(
+      `Tudo certo, ${customerName || 'visitante'}! Já preparei seu atendimento para a ${selectedStore.shortTitle}.\n\nSe a janela do WhatsApp não abriu automaticamente, toque no botão abaixo ou envie uma mensagem adicional:`
     );
   }
 
-  function openWhatsAppTopic(topicMessage: string) {
+  function handleShowAddressesInChat() {
+    if (isTyping) return;
+
+    const nextVisible = !storeInfoVisible;
+    setStoreInfoVisible(nextVisible);
+
+    if (nextVisible) {
+      const userMsg: ChatMessage = {
+        id: `user-addr-${Date.now()}`,
+        sender: 'user',
+        text: '📍 Endereço e horários',
+        time: getFormattedTime(),
+      };
+      setMessages((prev) => [...prev, userMsg]);
+    }
+  }
+
+  function handleSendCustomMessage(e: React.FormEvent) {
+    e.preventDefault();
+    const text = customMessageText.trim();
+    if (!text) return;
+
+    const userMsg: ChatMessage = {
+      id: `user-custom-${Date.now()}`,
+      sender: 'user',
+      text,
+      time: getFormattedTime(),
+    };
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
+
     const activePhone = selectedStore.whatsappDigits || whatsappDigits;
     const bodyText = customerName
-      ? `Olá! Meu nome é ${customerName}. ${topicMessage}`
-      : `Olá! ${topicMessage}`;
+      ? `Olá, equipe Comercial do Norte (${selectedStore.shortTitle})! Meu nome é ${customerName} (${customerPhone}). ${text}`
+      : text;
+
     const url = buildWhatsAppLink(activePhone, bodyText);
-    window.open(url, '_blank', 'noopener,noreferrer');
+    if (typeof window !== 'undefined' && typeof window.open === 'function') {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    setCustomMessageText('');
+  }
+
+  function handleStepBack() {
+    if (step === 'UNIT_MODE') {
+      setStep('IDENTIFY');
+    } else if (step === 'UNIT_LIST' || step === 'UNIT_CEP') {
+      setStep('UNIT_MODE');
+    } else if (step === 'SERVICE') {
+      setStep('UNIT_MODE');
+    } else if (step === 'FINISHED') {
+      setStep('SERVICE');
+    }
   }
 
   function handleRestartChat() {
-    setStep('NAME');
+    timersRef.current.forEach((t) => window.clearTimeout(t));
+    timersRef.current = [];
+    setStep('IDENTIFY');
     setCustomerName('');
     setCustomerPhone('');
+    setFormError('');
+    setCepInput('');
+    setCepError('');
     setSelectedStore(DEFAULT_STORE);
+    setPendingStoreId(DEFAULT_STORE.id);
     setChosenSubject('');
+    setCustomMessageText('');
+    setStoreInfoVisible(false);
     setIsTyping(false);
     setMessages([
       {
-        id: 'welcome-restart',
+        id: `welcome-${Date.now()}`,
         sender: 'bot',
-        text: 'Oi! Eu sou o Norti! 👋 Sou o assistente virtual da Comercial do Norte. Como posso te chamar?',
+        text: INITIAL_BOT_MESSAGE,
         time: getFormattedTime(),
       },
     ]);
@@ -236,33 +607,19 @@ export function NortChatFloating({ whatsapp, phone }: NortChatFloatingProps) {
 
   const finalWhatsAppUrl = buildWhatsAppLink(
     selectedStore.whatsappDigits || whatsappDigits,
-    `Olá, equipe Comercial do Norte (${selectedStore.name})!
-Meu nome é: ${customerName || 'Cliente'}
-WhatsApp: ${customerPhone || 'Informado no site'}
-Assunto: ${chosenSubject || 'Atendimento geral'}
-Loja de preferência: ${selectedStore.shortTitle}
-Gostaria de falar com um vendedor agora!`
+    `Olá, equipe Comercial do Norte (${selectedStore.name})!\nMeu nome é: ${customerName || 'Cliente'}\nWhatsApp: ${customerPhone || 'Informado no site'}\nAssunto: ${chosenSubject || 'Atendimento geral'}\nUnidade: ${selectedStore.shortTitle}`
   );
 
   return (
     <>
-      {/* 1. BALÃO FLUTUANTE DE PRÉVIA / CONVITE DO NORTI */}
+      {/* 1. BALÃO FLUTUANTE DE PRÉVIA / CONVITE DO NORT (SEM GRADIENTES) */}
       {!isOpen && !bubbleDismissed && (
         <aside
           aria-label="Convite de atendimento do Norti"
-          className="fixed bottom-20 right-4 sm:right-6 z-50 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-[280px] sm:max-w-[320px]"
+          className="fixed bottom-20 right-4 sm:right-6 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200 max-w-[290px] sm:max-w-[320px]"
         >
-          <div className="relative flex items-start gap-3 rounded-2xl bg-white p-3.5 shadow-[0_10px_30px_rgba(0,0,0,0.18)] border border-emerald-100 ring-1 ring-black/5">
-            <div className="relative size-10 shrink-0 rounded-full bg-emerald-500/10 p-0.5 ring-2 ring-emerald-500 overflow-hidden">
-              <Image
-                alt="Norti Atendente"
-                className="size-full object-contain"
-                height={40}
-                src="/assets/nort-avatar.png"
-                unoptimized
-                width={40}
-              />
-            </div>
+          <div className="relative flex items-start gap-2.5 rounded-[12px] bg-[#FFFFFF] p-3 shadow-[0_4px_16px_rgba(17,27,33,0.18)] border border-[#D1D7DB]">
+            <NortAvatar alt="Nort Atendente" size={38} />
 
             <div
               className="flex-1 min-w-0 cursor-pointer text-left"
@@ -274,20 +631,19 @@ Gostaria de falar com um vendedor agora!`
               tabIndex={0}
             >
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-slate-900">Norti</span>
-                <span className="flex size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] text-emerald-700 font-semibold uppercase tracking-wider">
-                  Online
+                <span className="text-xs font-bold text-[#111B21]">
+                  Nort | Comercial do Norte
                 </span>
+                <span className="size-2 rounded-full bg-[#00A884]" />
               </div>
-              <p className="mt-0.5 text-xs text-slate-600 leading-snug">
+              <p className="mt-0.5 text-xs text-[#667781] leading-snug">
                 Oi! Precisa de ajuda com cotação ou produtos? Fala comigo! 👋
               </p>
             </div>
 
             <button
               aria-label="Dispensar aviso do Norti"
-              className="text-slate-400 hover:text-slate-600 transition -mr-1 -mt-1 p-1 rounded-md"
+              className="text-[#667781] hover:text-[#111B21] transition -mr-1 -mt-1 p-1 rounded"
               onClick={(e) => {
                 e.stopPropagation();
                 setBubbleDismissed(true);
@@ -300,27 +656,31 @@ Gostaria de falar com um vendedor agora!`
         </aside>
       )}
 
-      {/* 2. BOTÃO FLUTUANTE PRINCIPAL (CANTO INFERIOR DIREITO) */}
+      {/* 2. BOTÃO FLUTUANTE PRINCIPAL (COR SÓLIDA #00A884, SEM GRADIENTE) */}
       <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
         <button
           aria-controls={id}
           aria-expanded={isOpen}
           aria-haspopup="dialog"
           aria-label={isOpen ? 'Fechar chat do Norti' : 'Abrir chat com o Norti no WhatsApp'}
-          className="group relative flex size-14 sm:size-15 items-center justify-center rounded-full bg-gradient-to-tr from-[#128C7E] via-[#25D366] to-[#25D366] text-white shadow-[0_8px_25px_rgba(37,211,102,0.45)] hover:shadow-[0_12px_32px_rgba(37,211,102,0.6)] transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ring-4 ring-white/90"
+          className="group relative flex size-14 sm:size-15 items-center justify-center rounded-full bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] shadow-[0_4px_14px_rgba(17,27,33,0.28)] transition-transform duration-200 hover:scale-105 active:scale-95 cursor-pointer border-2 border-[#FFFFFF]"
           onClick={() => setIsOpen((prev) => !prev)}
           type="button"
         >
           {isOpen ? (
-            <X className="size-6 text-white transition-transform group-hover:rotate-90 duration-200" />
+            <X className="size-6 text-[#FFFFFF]" />
           ) : (
             <>
-              <svg aria-hidden="true" className="size-7.5 fill-current text-white drop-shadow-xs" viewBox="0 0 24 24">
+              <svg
+                aria-hidden="true"
+                className="size-7.5 fill-current text-[#FFFFFF]"
+                viewBox="0 0 24 24"
+              >
                 <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.64c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.25-1.5-1.4-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.38-.44.12-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.49-.4-.42-.56-.43h-.47c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1s.9 2.43 1.03 2.6c.13.17 1.77 2.7 4.29 3.78.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.22-.18-.47-.31" />
               </svg>
-              <div className="absolute -top-1.5 -left-1.5 size-7 rounded-full bg-white p-0.5 shadow-md ring-2 ring-emerald-500 overflow-hidden">
+              <div className="absolute -top-1.5 -left-1.5 size-7 rounded-full bg-[#FFFFFF] p-0.5 border border-[#075844] overflow-hidden">
                 <Image
-                  alt="Norti Avatar"
+                  alt="Nort Avatar"
                   className="size-full object-contain"
                   height={28}
                   src="/assets/nort-avatar.png"
@@ -328,72 +688,76 @@ Gostaria de falar com um vendedor agora!`
                   width={28}
                 />
               </div>
-              <span className="absolute bottom-0.5 right-0.5 size-3.5 rounded-full bg-emerald-400 ring-2 ring-white animate-pulse" />
             </>
           )}
         </button>
       </div>
 
-      {/* 3. MODAL DE CHAT ESTILO WHATSAPP + TYPEBOT */}
+      {/* 3. JANELA DE CONVERSA WHATSAPP (CORES SÓLIDAS + WALLPAPER CLÁSSICO) */}
       {isOpen && (
         <section
           id={id}
           aria-label="Chat de atendimento com o mascote Norti"
-          className="fixed bottom-22 right-3 sm:right-6 z-50 w-[calc(100vw-24px)] sm:w-[400px] h-[550px] max-h-[calc(100vh-110px)] bg-[#ECE5DD] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-slate-200/80 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200"
+          className="fixed inset-x-0 bottom-0 sm:inset-auto sm:bottom-22 sm:right-6 z-50 w-full sm:w-[395px] h-[100dvh] sm:h-[580px] sm:max-h-[calc(100vh-105px)] bg-[#E4D8D3] sm:rounded-[14px] shadow-[0_12px_36px_rgba(17,27,33,0.28)] border border-[#D1D7DB] overflow-hidden flex flex-col animate-in fade-in duration-150"
           role="dialog"
         >
-          {/* CABEÇALHO WHATSAPP */}
-          <header className="bg-[#075E54] text-white px-4 py-3 flex items-center justify-between shrink-0 shadow-md">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="relative size-10.5 shrink-0 rounded-full bg-white/20 p-0.5 ring-2 ring-emerald-400/80 overflow-hidden">
-                <Image
-                  alt="Norti Mascote Oficial"
-                  className="size-full object-contain"
-                  height={42}
-                  src="/assets/nort-avatar.png"
-                  unoptimized
-                  width={42}
-                />
-              </div>
+          {/* CABEÇALHO SÓLIDO #075844 — PADRÃO WHATSAPP (ANEXOS 2 E 3) */}
+          <header className="bg-[#075844] text-[#FFFFFF] px-3 py-2.5 flex items-center justify-between shrink-0 border-b border-[#075844]">
+            <div className="flex items-center gap-2 min-w-0">
+              <button
+                aria-label={step !== 'IDENTIFY' ? 'Voltar etapa anterior' : 'Minimizar chat'}
+                className="flex size-7 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer shrink-0"
+                onClick={() => {
+                  if (step !== 'IDENTIFY') {
+                    handleStepBack();
+                  } else {
+                    setIsOpen(false);
+                  }
+                }}
+                type="button"
+              >
+                <ArrowLeft className="size-4.5" />
+              </button>
 
-              <div className="min-w-0 leading-tight">
-                <div className="flex items-center gap-1.5">
-                  <h2 className="text-sm font-bold text-white tracking-wide truncate">Norti</h2>
-                  <span className="rounded-full bg-emerald-500/30 border border-emerald-400/40 px-1.5 py-0.2 text-[9px] font-semibold text-emerald-200 uppercase tracking-wider">
-                    Atendente Oficial
-                  </span>
+              <NortAvatar alt="Nort | Comercial do Norte" size={38} />
+
+              <div className="min-w-0 leading-tight ml-0.5">
+                <div className="flex items-center gap-1">
+                  <h2 className="text-[14px] font-bold text-[#FFFFFF] truncate">
+                    Nort | Comercial do Norte
+                  </h2>
+                  <VerifiedBadge />
                 </div>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-[11px] text-emerald-100 font-medium">
-                    {isTyping ? 'digitando...' : 'Online agora • Comercial do Norte'}
-                  </span>
-                </div>
+                <p className="text-[11.5px] text-[#FFFFFF]/90 font-normal truncate mt-0.5">
+                  {isTyping ? 'digitando...' : 'online'}
+                </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5 shrink-0">
               <button
                 aria-label="Reiniciar conversa"
-                className="flex size-8 items-center justify-center rounded-full text-white/80 hover:bg-white/10 hover:text-white transition"
+                className="flex size-8 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer"
                 onClick={handleRestartChat}
                 title="Reiniciar conversa"
                 type="button"
               >
-                <RotateCcw className="size-3.5" />
+                <RotateCcw className="size-4" />
               </button>
               <button
                 aria-label="Minimizar chat"
-                className="flex size-8 items-center justify-center rounded-full text-white/80 hover:bg-white/10 hover:text-white transition"
+                className="hidden sm:flex size-8 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer"
                 onClick={() => setIsOpen(false)}
+                title="Minimizar"
                 type="button"
               >
                 <Minimize2 className="size-4" />
               </button>
               <button
                 aria-label="Fechar chat do Norti"
-                className="flex size-8 items-center justify-center rounded-full text-white/80 hover:bg-white/10 hover:text-white transition"
+                className="flex size-8 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer"
                 onClick={() => setIsOpen(false)}
+                title="Fechar"
                 type="button"
               >
                 <X className="size-4.5" />
@@ -401,266 +765,373 @@ Gostaria de falar com um vendedor agora!`
             </div>
           </header>
 
-          {/* CORPO DE MENSAGENS COM BALÕES ESTILO WHATSAPP + TYPEBOT */}
+          {/* ÁREA DE MENSAGENS COM WALLPAPER CLÁSSICO DO WHATSAPP (#E4D8D3 + TEXTURA) */}
           <div
             ref={chatBodyRef}
-            className="flex-1 overflow-y-auto p-3.5 space-y-3 bg-[#EFEAE2]/95"
+            className="relative flex-1 overflow-y-auto px-3 py-3 space-y-2.5 bg-[#E4D8D3]"
             style={{
-              backgroundImage:
-                'radial-gradient(rgba(7, 94, 84, 0.08) 1px, transparent 1px), radial-gradient(rgba(7, 94, 84, 0.08) 1px, #efeae2 1px)',
-              backgroundSize: '20px 20px',
-              backgroundPosition: '0 0, 10px 10px',
+              backgroundColor: 'var(--chat-background, #E4D8D3)',
+              backgroundImage: "url('/assets/whatsapp-wallpaper.jpg')",
+              backgroundRepeat: 'repeat',
+              backgroundSize: '340px auto',
+              backgroundAttachment: 'local',
+              backgroundBlendMode: 'multiply',
             }}
           >
-            {/* Tag Central de Criptografia / Confiança */}
+            {/* Tag "Hoje" igual ao Anexo 1 */}
             <div className="flex justify-center">
-              <span className="rounded-lg bg-amber-100/90 border border-amber-200 px-3 py-1 text-[10px] text-amber-900 shadow-xs text-center max-w-[90%]">
-                🔒 Atendimento oficial Comercial do Norte via WhatsApp &amp; CRM
+              <span className="rounded-[7px] bg-[#FFFFFF] px-2.5 py-0.5 text-[11px] font-medium text-[#667781] shadow-[0_1px_1px_rgba(17,27,33,0.1)] border border-[#D1D7DB]/60">
+                Hoje
               </span>
             </div>
 
-            {/* MENSAGENS TROCADAS NA CONVERSA */}
-            {messages.map((m) => {
-              const isBot = m.sender === 'bot';
+            {/* Aviso de criptografia / privacidade LGPD no estilo clássico do WhatsApp (Anexo 1) */}
+            <div className="flex justify-center">
+              <div className="rounded-[8px] bg-[#FFF5C4] border border-[#E6DA9E] px-3 py-1.5 text-[11px] text-[#54656F] text-center max-w-[94%] leading-snug shadow-[0_1px_1px_rgba(17,27,33,0.08)]">
+                🔒 Suas informações (nome, WhatsApp e localização) são protegidas e usadas apenas para direcionar seu atendimento na Comercial do Norte.
+              </div>
+            </div>
+
+            {/* HISTÓRICO DE MENSAGENS */}
+            {messages.map((msg, idx) => {
+              const prevMsg = idx > 0 ? messages[idx - 1] : null;
+              const showAvatar = msg.sender === 'bot' && (!prevMsg || prevMsg.sender !== 'bot');
               return (
-                <div
-                  key={m.id}
-                  className={`flex flex-col ${isBot ? 'items-start max-w-[90%]' : 'items-end ml-auto max-w-[90%]'}`}
-                >
-                  <div
-                    className={`relative rounded-2xl p-3 text-xs sm:text-[13px] shadow-sm leading-relaxed ${
-                      isBot
-                        ? 'rounded-tl-none bg-white text-slate-800 border border-slate-200/60'
-                        : 'rounded-tr-none bg-[#DCF8C6] text-slate-900 border border-emerald-200/60'
-                    }`}
-                  >
-                    {isBot && (
-                      <p className="font-bold text-[#004CB1] mb-1 flex items-center gap-1.5">
-                        <Sparkles className="size-3.5 text-amber-500" />
-                        Norti
-                      </p>
-                    )}
-                    <p className="whitespace-pre-wrap">{m.text}</p>
-                    <div className="mt-1 flex items-center justify-end gap-1 text-[10px] text-slate-400">
-                      <span>{m.time}</span>
-                      {!isBot && <CheckCheck className="size-3 text-[#34B7F1]" />}
-                    </div>
-                  </div>
-                </div>
+                <MessageBubble
+                  key={msg.id}
+                  message={msg}
+                  showAvatar={showAvatar}
+                />
               );
             })}
 
-            {/* ANIMAÇÃO DE DIGITANDO (TYPEBOT) */}
-            {isTyping && (
-              <div className="flex flex-col items-start max-w-[85%] animate-in fade-in duration-200">
-                <div className="relative rounded-2xl rounded-tl-none bg-white p-3 text-xs text-slate-600 shadow-sm border border-slate-200/60 flex items-center gap-2">
-                  <div className="flex space-x-1 items-center py-0.5">
-                    <span className="size-2 rounded-full bg-emerald-500 animate-bounce" />
-                    <span className="size-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:0.2s]" />
-                    <span className="size-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:0.4s]" />
-                  </div>
-                  <span className="text-[11px] text-slate-400 italic">Norti está digitando...</span>
-                </div>
-              </div>
-            )}
+            {/* INDICADOR DE DIGITAÇÃO (ANEXO 2) */}
+            {isTyping && <TypingIndicatorBubble />}
 
-            {/* SELEÇÃO DE LOJA MAIS PRÓXIMA (STEP: STORE) */}
-            {step === 'STORE' && !isTyping && (
-              <div className="flex flex-col items-start max-w-[98%] space-y-2 pt-1 animate-in fade-in duration-200">
-                <span className="text-[11px] font-bold text-slate-700 px-1 flex items-center gap-1">
-                  <MapPin className="size-3 text-emerald-600" />
-                  Selecione a loja mais próxima de você:
-                </span>
-                <div className="grid grid-cols-1 gap-1.5 w-full">
-                  {COMMERCIAL_STORES.map((st) => (
-                    <button
-                      key={st.id}
-                      className="w-full flex items-center justify-between gap-2 rounded-xl bg-white p-2.5 text-left text-xs text-slate-800 border border-slate-200 hover:border-emerald-600 hover:bg-emerald-50/60 transition shadow-xs cursor-pointer group"
-                      onClick={() => handleSelectStore(st)}
-                      type="button"
-                    >
-                      <div className="min-w-0">
-                        <strong className="block text-slate-900 group-hover:text-emerald-800 text-xs">
-                          {st.shortTitle}
-                        </strong>
-                        <span className="block text-[10.5px] text-slate-500 truncate">{st.address}</span>
-                      </div>
-                      <span className="text-[10px] text-emerald-700 font-bold shrink-0">Escolher &rarr;</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* SELEÇÃO DE MOTIVO / ASSUNTO (STEP: SUBJECT) */}
-            {step === 'SUBJECT' && !isTyping && (
-              <div className="flex flex-col items-start max-w-[98%] space-y-1.5 pt-1 animate-in fade-in duration-200">
-                <span className="text-[11px] font-bold text-slate-700 px-1">
-                  Escolha como a loja pode te ajudar:
-                </span>
-                <div className="grid grid-cols-1 gap-1.5 w-full">
-                  <button
-                    className="w-full flex items-center justify-between gap-2 rounded-xl bg-white p-2.5 text-left text-xs font-semibold text-slate-800 border border-blue-600/20 hover:border-blue-600 hover:bg-blue-50/70 transition shadow-xs cursor-pointer"
-                    onClick={() => handleSelectSubject('🏷️ Fazer Cotação de Produtos e Atacado')}
-                    type="button"
-                  >
-                    <span>Fazer Cotação de Produtos e Atacado</span>
-                    <span className="text-[10px] text-[#004CB1] font-bold">&rarr;</span>
-                  </button>
-                  <button
-                    className="w-full flex items-center justify-between gap-2 rounded-xl bg-white p-2.5 text-left text-xs font-semibold text-slate-800 border border-emerald-600/20 hover:border-emerald-600 hover:bg-emerald-50/70 transition shadow-xs cursor-pointer"
-                    onClick={() => handleSelectSubject('💬 Falar com Vendedor no WhatsApp')}
-                    type="button"
-                  >
-                    <span>Falar com Vendedor no WhatsApp</span>
-                    <span className="text-[10px] text-emerald-700 font-bold">&rarr;</span>
-                  </button>
-                  <button
-                    className="w-full flex items-center justify-between gap-2 rounded-xl bg-white p-2.5 text-left text-xs font-semibold text-slate-800 border border-purple-600/20 hover:border-purple-600 hover:bg-purple-50/70 transition shadow-xs cursor-pointer"
-                    onClick={() => handleSelectSubject('📦 Consultar Pedido / Entrega')}
-                    type="button"
-                  >
-                    <span>Consultar Pedido / Entrega</span>
-                    <span className="text-[10px] text-purple-700 font-bold">&rarr;</span>
-                  </button>
-                  <button
-                    className="w-full flex items-center justify-between gap-2 rounded-xl bg-white p-2.5 text-left text-xs font-semibold text-slate-800 border border-slate-300 hover:border-slate-500 hover:bg-slate-50 transition shadow-xs cursor-pointer"
-                    onClick={() => handleSelectSubject('🔄 Trocas, Devoluções e Pós-Venda')}
-                    type="button"
-                  >
-                    <span>Trocas, Devoluções e Pós-Venda</span>
-                    <span className="text-[10px] text-slate-600 font-bold">&rarr;</span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* BOTÃO FINAL WHATSAPP DA LOJA ESCOLHIDA (STEP: FINISHED) */}
-            {step === 'FINISHED' && !isTyping && (
-              <div className="flex flex-col items-center w-full space-y-2 pt-2 animate-in zoom-in-95 duration-200">
-                <a
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#128C7E] text-white p-3 text-center text-xs sm:text-sm font-bold shadow-md transition duration-200 cursor-pointer"
-                  href={finalWhatsAppUrl}
-                  rel="noreferrer"
-                  target="_blank"
+            {/* =================================================================
+             * INTERAÇÃO 1 — FORMULÁRIO INTEGRADO À CONVERSA (NOME + WHATSAPP)
+             * ================================================================= */}
+            {step === 'IDENTIFY' && !isTyping && (
+              <div className="pl-[38px] pr-1 pt-0.5 animate-in fade-in duration-150">
+                <form
+                  aria-label="Identificação rápida para atendimento"
+                  className="rounded-[10px] bg-[#FFFFFF] p-3 border border-[#D1D7DB] shadow-[0_1px_2px_rgba(17,27,33,0.12)] space-y-2"
+                  onSubmit={handleIdentifySubmit}
                 >
-                  <MessageCircle className="size-4" />
-                  Abrir WhatsApp da {selectedStore.shortTitle}
-                </a>
-                <span className="text-[10.5px] text-slate-500 text-center">
-                  A mensagem já vai pronta com seu nome, loja e assunto!
-                </span>
-              </div>
-            )}
+                  <div>
+                    <label
+                      className="block text-[11px] font-semibold text-[#111B21] mb-0.5"
+                      htmlFor={`${id}-name`}
+                    >
+                      Seu nome
+                    </label>
+                    <input
+                      ref={nameInputRef}
+                      id={`${id}-name`}
+                      aria-label="Seu nome"
+                      className="w-full rounded-[8px] bg-[#FFFFFF] px-2.5 py-1.5 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
+                      onChange={(e) => {
+                        setCustomerName(e.target.value);
+                        if (formError) setFormError('');
+                      }}
+                      placeholder="Como posso te chamar?"
+                      type="text"
+                      value={customerName}
+                    />
+                  </div>
 
-            {/* OPÇÕES ADICIONAIS / RETROCOMPATIBILIDADE DE TESTE */}
-            <div className="pt-2 border-t border-slate-200/60">
-              <button
-                className="w-full flex items-center justify-between text-[11px] font-semibold text-slate-500 hover:text-slate-800 py-1"
-                onClick={() => setQuickOptionsVisible((prev) => !prev)}
-                type="button"
-              >
-                <span>{quickOptionsVisible ? 'Ocultar atalhos rápidos' : 'Ver outros serviços da loja'}</span>
-                <span>{quickOptionsVisible ? '▲' : '▼'}</span>
-              </button>
+                  <div>
+                    <label
+                      className="block text-[11px] font-semibold text-[#111B21] mb-0.5"
+                      htmlFor={`${id}-phone`}
+                    >
+                      WhatsApp
+                    </label>
+                    <input
+                      id={`${id}-phone`}
+                      aria-label="WhatsApp"
+                      className="w-full rounded-[8px] bg-[#FFFFFF] px-2.5 py-1.5 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
+                      inputMode="tel"
+                      onChange={(e) => {
+                        setCustomerPhone(formatBrazilPhoneMask(e.target.value));
+                        if (formError) setFormError('');
+                      }}
+                      placeholder="(91) 99999-9999"
+                      type="tel"
+                      value={customerPhone}
+                    />
+                  </div>
 
-              {quickOptionsVisible && (
-                <div className="space-y-1.5 mt-1.5">
+                  {formError && (
+                    <p className="text-[11px] text-[#B91C1C] font-medium" role="alert">
+                      {formError}
+                    </p>
+                  )}
+
                   <button
-                    className="w-full flex items-center justify-between gap-2.5 rounded-xl bg-white p-2 text-left text-xs font-semibold text-slate-800 border border-emerald-600/20 hover:border-emerald-600 hover:bg-emerald-50/70 transition shadow-xs cursor-pointer"
-                    onClick={() =>
-                      openWhatsAppTopic(
-                        'Gostaria de falar com um vendedor da Comercial do Norte para tirar dúvidas sobre produtos e preços.'
-                      )
-                    }
-                    type="button"
+                    className="w-full rounded-[8px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2 px-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                    type="submit"
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-emerald-500 text-white">
-                        <MessageCircle className="size-3" />
-                      </div>
-                      <span>Falar com Vendas no WhatsApp</span>
-                    </div>
-                    <span className="text-[10px] text-emerald-700 font-bold">&rarr;</span>
+                    <span>Continuar no chat</span>
+                    <Send className="size-3.5" />
                   </button>
+                </form>
 
-                  <button
-                    className="w-full flex items-center justify-between gap-2.5 rounded-xl bg-white p-2 text-left text-xs font-semibold text-slate-800 border border-blue-600/20 hover:border-blue-600 hover:bg-blue-50/70 transition shadow-xs cursor-pointer"
-                    onClick={() =>
-                      openWhatsAppTopic('Preciso de ajuda com a minha lista de cotação de produtos na loja.')
-                    }
-                    type="button"
+                {/* Botões de resposta rápida do WhatsApp (Anexo 1) */}
+                <div className="mt-2 space-y-1.5">
+                  <QuickReplyButton
+                    onClick={() => {
+                      const activePhone = selectedStore.whatsappDigits || whatsappDigits;
+                      const url = buildWhatsAppLink(
+                        activePhone,
+                        'Olá! Gostaria de falar com vendas da Comercial do Norte para tirar dúvidas sobre produtos e preços.'
+                      );
+                      window.open(url, '_blank', 'noopener,noreferrer');
+                    }}
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-[#004CB1] text-white">
-                        <ShoppingBag className="size-3" />
-                      </div>
-                      <span>Ajuda com Lista de Cotação</span>
-                    </div>
-                    <span className="text-[10px] text-[#004CB1] font-bold">&rarr;</span>
-                  </button>
+                    💬 Falar com Vendas no WhatsApp
+                  </QuickReplyButton>
 
-                  <button
-                    className="w-full flex items-center justify-between gap-2.5 rounded-xl bg-white p-2 text-left text-xs font-semibold text-slate-800 border border-amber-500/25 hover:border-amber-500 hover:bg-amber-50/70 transition shadow-xs cursor-pointer"
+                  <QuickReplyButton
+                    onClick={() => {
+                      const activePhone = selectedStore.whatsappDigits || whatsappDigits;
+                      const url = buildWhatsAppLink(
+                        activePhone,
+                        'Olá! Preciso de ajuda com a minha lista de cotação de produtos na Comercial do Norte.'
+                      );
+                      window.open(url, '_blank', 'noopener,noreferrer');
+                    }}
+                  >
+                    📋 Ajuda com Lista de Cotação
+                  </QuickReplyButton>
+
+                  <QuickReplyButton
                     onClick={() => {
                       setIsOpen(false);
                       startTour();
                     }}
-                    type="button"
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-amber-500 text-white">
-                        <Compass className="size-3" />
-                      </div>
-                      <span>Fazer Tour Guiado na Loja</span>
-                    </div>
-                    <span className="text-[10px] text-amber-700 font-bold">&rarr;</span>
-                  </button>
+                    🧭 Fazer Tour Guiado na Loja
+                  </QuickReplyButton>
 
-                  <button
-                    className="w-full flex items-center justify-between gap-2.5 rounded-xl bg-white p-2 text-left text-xs font-semibold text-slate-800 border border-purple-500/20 hover:border-purple-500 hover:bg-purple-50/70 transition shadow-xs cursor-pointer"
-                    onClick={() => setStoreInfoVisible((prev) => !prev)}
-                    type="button"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-purple-600 text-white">
-                        <MapPin className="size-3" />
-                      </div>
-                      <span>Endereços e Horários das Lojas</span>
-                    </div>
-                    <span className="text-[10px] text-purple-700 font-bold">
-                      {storeInfoVisible ? 'Ocultar' : 'Ver'} &rarr;
-                    </span>
-                  </button>
+                  <QuickReplyButton onClick={handleShowAddressesInChat}>
+                    📍 Endereços e Horários das Lojas
+                  </QuickReplyButton>
 
-                  <button
-                    className="w-full flex items-center justify-between gap-2.5 rounded-xl bg-white p-2 text-left text-xs font-semibold text-slate-800 border border-slate-300 hover:border-slate-500 hover:bg-slate-50 transition shadow-xs cursor-pointer"
-                    onClick={() =>
-                      openWhatsAppTopic('Preciso de atendimento de pós-venda / suporte da Comercial do Norte.')
-                    }
-                    type="button"
+                  <QuickReplyButton
+                    onClick={() => {
+                      const activePhone = selectedStore.whatsappDigits || whatsappDigits;
+                      const url = buildWhatsAppLink(
+                        activePhone,
+                        'Olá! Preciso de atendimento de suporte e pós-venda da Comercial do Norte.'
+                      );
+                      window.open(url, '_blank', 'noopener,noreferrer');
+                    }}
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-slate-700 text-white">
-                        <Headphones className="size-3" />
-                      </div>
-                      <span>Suporte e Pós-Venda CRM</span>
-                    </div>
-                    <span className="text-[10px] text-slate-600 font-bold">&rarr;</span>
-                  </button>
+                    🎧 Suporte e Pós-Venda CRM
+                  </QuickReplyButton>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            {/* PAINEL DINÂMICO DE LOJAS FÍSICAS */}
+            {/* =================================================================
+             * INTERAÇÃO 2 — ESCOLHA DA UNIDADE (BOTÕES DE RESPOSTA RÁPIDA)
+             * ================================================================= */}
+            {step === 'UNIT_MODE' && !isTyping && (
+              <div className="pl-[38px] pr-1 space-y-1.5 pt-0.5 animate-in fade-in duration-150">
+                <QuickReplyButton onClick={handleFindNearestUnit}>
+                  📍 Encontrar a mais próxima de mim
+                </QuickReplyButton>
+                <QuickReplyButton onClick={handleShowUnitList}>
+                  🏬 Escolher uma unidade
+                </QuickReplyButton>
+              </div>
+            )}
+
+            {/* SUB-FLUXO 2A — INFORMAR CEP QUANDO GEOLOCALIZAÇÃO NÃO ESTÁ AUTORIZADA */}
+            {step === 'UNIT_CEP' && !isTyping && (
+              <div className="pl-[38px] pr-1 pt-0.5 space-y-1.5 animate-in fade-in duration-150">
+                <form
+                  aria-label="Buscar unidade por CEP"
+                  className="rounded-[10px] bg-[#FFFFFF] p-3 border border-[#D1D7DB] shadow-[0_1px_2px_rgba(17,27,33,0.12)] space-y-2"
+                  onSubmit={handleCepSubmit}
+                >
+                  <label
+                    className="block text-[11px] font-semibold text-[#111B21]"
+                    htmlFor={`${id}-cep`}
+                  >
+                    Informe seu CEP
+                  </label>
+                  <input
+                    ref={cepInputRef}
+                    id={`${id}-cep`}
+                    aria-label="Informe seu CEP"
+                    className="w-full rounded-[8px] bg-[#FFFFFF] px-2.5 py-1.5 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
+                    inputMode="numeric"
+                    onChange={(e) => {
+                      setCepInput(formatCepMask(e.target.value));
+                      if (cepError) setCepError('');
+                    }}
+                    placeholder="Informe seu CEP..."
+                    type="text"
+                    value={cepInput}
+                  />
+                  {cepError && (
+                    <p className="text-[11px] text-[#B91C1C] font-medium" role="alert">
+                      {cepError}
+                    </p>
+                  )}
+                  <button
+                    className="w-full rounded-[8px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2 px-3 text-center transition-colors cursor-pointer"
+                    type="submit"
+                  >
+                    Localizar unidade mais próxima
+                  </button>
+                </form>
+
+                <QuickReplyButton onClick={() => setStep('UNIT_LIST')}>
+                  🏬 Ver lista de todas as unidades
+                </QuickReplyButton>
+              </div>
+            )}
+
+            {/* SUB-FLUXO 2B — LISTA INTERATIVA DE UNIDADES REAIS CADASTRADAS */}
+            {step === 'UNIT_LIST' && !isTyping && (
+              <div className="pl-[38px] pr-1 pt-0.5 animate-in fade-in duration-150">
+                <div className="rounded-[10px] bg-[#FFFFFF] border border-[#D1D7DB] shadow-[0_1px_2px_rgba(17,27,33,0.12)] overflow-hidden">
+                  <div className="px-3 py-2 border-b border-[#D1D7DB] bg-[#F1F3F4]">
+                    <span className="text-[12px] font-bold text-[#111B21]">
+                      Selecione a unidade Comercial do Norte:
+                    </span>
+                  </div>
+                  <div className="divide-y divide-[#D1D7DB]">
+                    {COMMERCIAL_STORES.map((store) => {
+                      const isSelected = pendingStoreId === store.id;
+                      return (
+                        <label
+                          key={store.id}
+                          className="flex items-start gap-2.5 px-3 py-2 cursor-pointer hover:bg-[#F1F3F4]/60 transition-colors"
+                        >
+                          <input
+                            checked={isSelected}
+                            className="mt-1 accent-[#00A884] cursor-pointer"
+                            name="nort-store-choice"
+                            onChange={() => setPendingStoreId(store.id)}
+                            type="radio"
+                            value={store.id}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <span className="block text-[12.5px] font-semibold text-[#111B21]">
+                              {store.shortTitle}
+                            </span>
+                            <span className="block text-[11px] text-[#667781] truncate">
+                              {store.address}
+                            </span>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <div className="p-2.5 border-t border-[#D1D7DB] bg-[#FFFFFF]">
+                    <button
+                      className="w-full rounded-[8px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2 px-3 text-center transition-colors cursor-pointer"
+                      onClick={() => {
+                        const chosen =
+                          COMMERCIAL_STORES.find((s) => s.id === pendingStoreId) ||
+                          DEFAULT_STORE;
+                        confirmStoreSelection(chosen);
+                      }}
+                      type="button"
+                    >
+                      Confirmar unidade selecionada
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* =================================================================
+             * INTERAÇÃO 3 — COMO PODEMOS AJUDAR HOJE? (BOTÕES ESTILO WHATSAPP)
+             * ================================================================= */}
+            {step === 'SERVICE' && !isTyping && (
+              <div className="pl-[38px] pr-1 space-y-1.5 pt-0.5 animate-in fade-in duration-150">
+                <QuickReplyButton
+                  onClick={() =>
+                    handleSelectService(
+                      '🛍️ Consultar produtos',
+                      'Gostaria de consultar a disponibilidade e informações de produtos no catálogo.'
+                    )
+                  }
+                >
+                  🛍️ Consultar produtos
+                </QuickReplyButton>
+
+                <QuickReplyButton
+                  onClick={() =>
+                    handleSelectService(
+                      '📋 Solicitar uma cotação',
+                      'Gostaria de solicitar uma cotação de produtos na loja.'
+                    )
+                  }
+                >
+                  📋 Solicitar uma cotação
+                </QuickReplyButton>
+
+                <QuickReplyButton onClick={handleShowAddressesInChat}>
+                  📍 Endereço e horários
+                </QuickReplyButton>
+
+                <QuickReplyButton
+                  onClick={() =>
+                    handleSelectService(
+                      '💬 Falar com um atendente',
+                      'Gostaria de falar com um atendente da unidade.'
+                    )
+                  }
+                >
+                  💬 Falar com um atendente
+                </QuickReplyButton>
+
+                <QuickReplyButton
+                  onClick={() => {
+                    setIsOpen(false);
+                    startTour();
+                  }}
+                >
+                  🧭 Fazer Tour Guiado na Loja
+                </QuickReplyButton>
+              </div>
+            )}
+
+            {/* =================================================================
+             * INTERAÇÃO 4 — FINALIZADO / CONTINUAR NO WHATSAPP DA UNIDADE
+             * ================================================================= */}
+            {step === 'FINISHED' && !isTyping && (
+              <div className="pl-[38px] pr-1 space-y-1.5 pt-0.5 animate-in fade-in duration-150">
+                <a
+                  className="w-full rounded-[10px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2.5 px-3 text-center shadow-[0_1px_2px_rgba(17,27,33,0.16)] transition-colors cursor-pointer flex items-center justify-center gap-2"
+                  href={finalWhatsAppUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <span>Abrir WhatsApp — {selectedStore.shortTitle}</span>
+                </a>
+
+                <QuickReplyButton onClick={() => setStep('UNIT_LIST')}>
+                  🏬 Alterar unidade selecionada
+                </QuickReplyButton>
+              </div>
+            )}
+
+            {/* PAINEL DE ENDEREÇOS E HORÁRIOS REAIS INTEGRADO À CONVERSA */}
             {storeInfoVisible && (
-              <div className="flex flex-col items-start max-w-[95%] animate-in fade-in slide-in-from-bottom-2 duration-200">
-                <div className="relative rounded-2xl rounded-tl-none bg-white p-3 text-xs text-slate-800 shadow-sm border border-slate-200/60 leading-relaxed">
-                  <p className="font-bold text-purple-900 mb-1 flex items-center gap-1.5">
-                    <MapPin className="size-3.5 text-purple-600" />
-                    Nossas Unidades em Belém e Região:
+              <div className="flex items-start gap-2 max-w-[92%] animate-in fade-in duration-150">
+                <NortAvatar alt="Nort" size={30} />
+                <div className="relative rounded-[10px] rounded-tl-none bg-[#F1F3F4] p-3 text-[12px] text-[#111B21] shadow-[0_1px_1px_rgba(17,27,33,0.12)] border border-[#D1D7DB]/60 leading-relaxed">
+                  <p className="font-bold text-[#075844] mb-1">
+                    📍 Nossas Unidades em Belém e Região:
                   </p>
-                  <ul className="space-y-1.5 mt-2 text-[11px] text-slate-600">
+                  <ul className="space-y-1.5 text-[11.5px] text-[#111B21]">
                     <li>
                       <strong>📍 Bernardo Sayão:</strong> Av. Bernardo Sayão, 608 — Guamá
                     </li>
@@ -680,7 +1151,7 @@ Gostaria de falar com um vendedor agora!`
                       <strong>📍 Online / Delivery:</strong> Tv. das Mercês, 158
                     </li>
                   </ul>
-                  <p className="mt-2 text-[10.5px] text-slate-500">
+                  <p className="mt-2 text-[11px] text-[#667781]">
                     Segunda a Sexta: 07h às 19h | Sábado: 07h às 13h
                   </p>
                 </div>
@@ -688,33 +1159,40 @@ Gostaria de falar com um vendedor agora!`
             )}
           </div>
 
-          {/* RODAPÉ COM CAMPO DE MENSAGEM / RESPOSTA */}
-          <footer className="bg-[#F0F2F5] p-2.5 border-t border-slate-200/90 shrink-0">
-            <form className="flex items-center gap-2" onSubmit={handleSendCustomMessage}>
-              <input
-                ref={inputRef}
-                aria-label="Digite sua mensagem para o atendimento"
-                className="flex-1 rounded-full bg-white px-4 py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder={
-                  step === 'NAME'
-                    ? 'Digite seu nome completo...'
-                    : step === 'PHONE'
-                    ? 'Digite seu WhatsApp com DDD...'
-                    : 'Digite sua mensagem para o atendimento...'
-                }
-                type="text"
-                value={inputText}
-              />
-              <button
-                aria-label="Enviar mensagem no WhatsApp"
-                className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white hover:bg-[#128C7E] transition shadow-sm cursor-pointer disabled:opacity-50"
-                disabled={!inputText.trim()}
-                type="submit"
-              >
-                <Send className="size-4 ml-0.5" />
-              </button>
-            </form>
+          {/* RODAPÉ ADAPTATIVO CONFORME A ETAPA DA CONVERSA (SEÇÃO 7) */}
+          <footer className="bg-[#F1F3F4] px-2.5 py-2 border-t border-[#D1D7DB] shrink-0">
+            {step === 'UNIT_MODE' || step === 'UNIT_LIST' || step === 'SERVICE' ? (
+              <div className="flex items-center justify-between rounded-full bg-[#FFFFFF] px-3.5 py-2 border border-[#D1D7DB] text-[12px] text-[#667781]">
+                <span>Selecione uma das opções acima na conversa</span>
+                <button
+                  className="text-[11px] font-semibold text-[#00A884] hover:underline cursor-pointer ml-2"
+                  onClick={handleStepBack}
+                  type="button"
+                >
+                  Voltar
+                </button>
+              </div>
+            ) : (
+              <form className="flex items-center gap-2" onSubmit={handleSendCustomMessage}>
+                <input
+                  ref={customInputRef}
+                  aria-label="Digite sua mensagem para o atendimento"
+                  className="flex-1 rounded-full bg-[#FFFFFF] px-4 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
+                  onChange={(e) => setCustomMessageText(e.target.value)}
+                  placeholder="Digite sua mensagem..."
+                  type="text"
+                  value={customMessageText}
+                />
+                <button
+                  aria-label="Enviar mensagem no WhatsApp"
+                  className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] transition-colors cursor-pointer disabled:opacity-50"
+                  disabled={!customMessageText.trim()}
+                  type="submit"
+                >
+                  <Send className="size-4 ml-0.5" />
+                </button>
+              </form>
+            )}
           </footer>
         </section>
       )}
