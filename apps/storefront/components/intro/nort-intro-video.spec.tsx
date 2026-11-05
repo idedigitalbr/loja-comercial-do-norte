@@ -39,30 +39,35 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
   });
 
   describe('nort-intro-helpers', () => {
-    it('permite exibição para novos visitantes e respeita o limite de 3 vezes', () => {
-      expect(shouldShowNortIntro(window.localStorage)).toBe(true);
+    it('permite exibição para novos visitantes e respeita o limite de 3 vezes quando enforceLimit está ativo', () => {
+      expect(shouldShowNortIntro(window.localStorage, true)).toBe(true);
       expect(recordNortIntroView(window.localStorage)).toBe(1);
       expect(window.localStorage.getItem(STORAGE_KEY_INTRO_VIEWS)).toBe('1');
 
-      expect(shouldShowNortIntro(window.localStorage)).toBe(true);
+      expect(shouldShowNortIntro(window.localStorage, true)).toBe(true);
       expect(recordNortIntroView(window.localStorage)).toBe(2);
       expect(window.localStorage.getItem(STORAGE_KEY_INTRO_VIEWS)).toBe('2');
 
-      expect(shouldShowNortIntro(window.localStorage)).toBe(true);
+      expect(shouldShowNortIntro(window.localStorage, true)).toBe(true);
       expect(recordNortIntroView(window.localStorage)).toBe(3);
       expect(window.localStorage.getItem(STORAGE_KEY_INTRO_VIEWS)).toBe('3');
 
-      expect(shouldShowNortIntro(window.localStorage)).toBe(false);
+      expect(shouldShowNortIntro(window.localStorage, true)).toBe(false);
+    });
+
+    it('em pré-lançamento (enforceLimit=false), exibe sempre independentemente do número de visualizações', () => {
+      window.localStorage.setItem(STORAGE_KEY_INTRO_VIEWS, '10');
+      expect(shouldShowNortIntro(window.localStorage)).toBe(true);
     });
 
     it('permite override forçado via query param ?intro=1 mesmo após 3 exibições', () => {
       window.localStorage.setItem(STORAGE_KEY_INTRO_VIEWS, '3');
-      expect(shouldShowNortIntro(window.localStorage)).toBe(false);
+      expect(shouldShowNortIntro(window.localStorage, true)).toBe(false);
 
       delete (window as any).location;
       (window as any).location = new URL('https://lojacomercialdonorte.vercel.app/?intro=1');
 
-      expect(shouldShowNortIntro(window.localStorage)).toBe(true);
+      expect(shouldShowNortIntro(window.localStorage, true)).toBe(true);
     });
 
     it('reseta contagem quando query param ?reset-intro=1 é fornecido', () => {
@@ -329,8 +334,9 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       vi.useRealTimers();
     });
 
-    it('não renderiza se o visitante já visualizou 3 vezes e não há forceOpen', () => {
-      window.localStorage.setItem(STORAGE_KEY_INTRO_VIEWS, '3');
+    it('não renderiza quando o query param ?no-intro=1 está presente', () => {
+      delete (window as any).location;
+      (window as any).location = new URL('https://lojacomercialdonorte.vercel.app/?no-intro=1');
 
       render(<NortIntroVideo />);
 

@@ -1,6 +1,14 @@
 export const STORAGE_KEY_INTRO_VIEWS = 'cn_nort_intro_views_v1';
 export const MAX_INTRO_VIEWS = 3;
 
+/**
+ * Flag temporária de pré-lançamento:
+ * false: o vídeo é sempre exibido em todas as visitas (sem limite de 3 vezes).
+ * true: o vídeo respeita o limite de MAX_INTRO_VIEWS (3 vezes).
+ * (Reativar como true no lançamento oficial).
+ */
+export const ENFORCE_INTRO_VIEW_LIMIT = false;
+
 let introActiveState = false;
 
 /**
@@ -28,17 +36,22 @@ export function isIntroActive(): boolean {
 
 /**
  * Verifica se a animação em vídeo de introdução / loading do Nort deve ser exibida.
- * - Exibida pelas primeiras 3 vezes (visitas/cargas de página).
- * - Suporta override via query param (?intro=1 ou ?force-intro=1 ou ?reset-intro=1).
+ * - Por padrão durante a fase de pré-lançamento: sempre exibe em todas as visitas.
+ * - Quando enforceLimit for true: exibe pelas primeiras 3 vezes (visitas/cargas de página).
+ * - Suporta override via query param (?intro=1 ou ?force-intro=1 ou ?reset-intro=1 ou ?no-intro=1).
  */
 export function shouldShowNortIntro(
-  storage: Storage | null = typeof window !== 'undefined' ? window.localStorage : null
+  storage: Storage | null = typeof window !== 'undefined' ? window.localStorage : null,
+  enforceLimit: boolean = ENFORCE_INTRO_VIEW_LIMIT
 ): boolean {
   if (!storage) return false;
 
   try {
     if (typeof window !== 'undefined' && window.location?.search) {
       const params = new URLSearchParams(window.location.search);
+      if (params.get('skip-intro') === '1' || params.get('no-intro') === '1') {
+        return false;
+      }
       if (params.get('intro') === '1' || params.get('force-intro') === '1') {
         return true;
       }
@@ -46,6 +59,10 @@ export function shouldShowNortIntro(
         storage.removeItem(STORAGE_KEY_INTRO_VIEWS);
         return true;
       }
+    }
+
+    if (!enforceLimit) {
+      return true;
     }
 
     const raw = storage.getItem(STORAGE_KEY_INTRO_VIEWS);

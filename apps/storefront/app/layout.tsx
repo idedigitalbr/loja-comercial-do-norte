@@ -7,6 +7,7 @@ import { PostalCodeModal } from '@/components/postal-code-modal';
 import { QuoteCartProvider } from '@/components/quote-cart-provider';
 import { NortTourProvider } from '@/components/tour';
 import { NortIntroVideo } from '@/components/intro';
+import { NortChatFloating } from '@/components/nort-chat-floating';
 import { QuoteDrawer } from '@/components/quote-drawer';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
@@ -40,12 +41,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             __html: `(function(){
   try {
     var s = window.location.search || '';
-    var p = s.indexOf('intro=1') !== -1 || s.indexOf('force-intro=1') !== -1 || s.indexOf('reset-intro=1') !== -1;
-    var v = localStorage.getItem('cn_nort_intro_views_v1');
-    var count = v === null ? 0 : parseInt(v, 10);
-    if (p || isNaN(count) || count < 3) {
-      document.documentElement.classList.add('nort-intro-active');
-    }
+    if (s.indexOf('no-intro=1') !== -1 || s.indexOf('skip-intro=1') !== -1) return;
+    // Em pré-lançamento, a intro sempre exibe para todas as visitas.
+    // No lançamento oficial, reativar a checagem com o limite de 3 vezes:
+    // var p = s.indexOf('intro=1') !== -1 || s.indexOf('force-intro=1') !== -1 || s.indexOf('reset-intro=1') !== -1;
+    // var v = localStorage.getItem('cn_nort_intro_views_v1');
+    // var count = v === null ? 0 : parseInt(v, 10);
+    // if (p || isNaN(count) || count < 3) { document.documentElement.classList.add('nort-intro-active'); }
+    document.documentElement.classList.add('nort-intro-active');
   } catch (e) {}
 })();`,
           }}
@@ -118,6 +121,7 @@ html.nort-intro-active #nort-intro-ssr-curtain {
                       <main id="conteudo">{children}</main>
                       <QuoteDrawer />
                       <PostalCodeModal />
+                      <NortChatFloating whatsapp={site?.whatsapp ?? null} phone={site?.phone ?? null} />
                     </StorefrontShell>
                   </div>
                 </NortTourProvider>
