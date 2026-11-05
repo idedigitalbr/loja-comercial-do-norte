@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Facebook, Instagram, Music2 } from 'lucide-react';
+import { Facebook, Instagram, Music2, Youtube } from 'lucide-react';
 import type { SiteConfig } from '@/lib/types';
 
 type SiteFooterProps = {
@@ -52,6 +52,31 @@ export function SiteFooter({ site }: SiteFooterProps) {
               target="_blank"
             >
               <Facebook className="size-4" />
+            </a>
+            <a
+              aria-label="Canal Oficial no YouTube Comercial do Norte"
+              className="flex size-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition hover:border-white/40 hover:bg-white/15 hover:text-white"
+              href="https://www.youtube.com/@comercialdosplasticosdistr243"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <Youtube className="size-4" />
+            </a>
+            <a
+              aria-label="Podcast Universo Business"
+              className="flex size-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition hover:border-white/40 hover:bg-white/15 hover:text-white group p-2"
+              href="https://www.youtube.com/@universobusinesscast"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <Image
+                alt="Símbolo do Universo Business"
+                className="size-full object-contain transition-transform group-hover:scale-110"
+                height={20}
+                src="/logo-universo-business-transparente.png"
+                unoptimized
+                width={20}
+              />
             </a>
           </div>
         </div>
