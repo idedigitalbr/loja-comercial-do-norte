@@ -51,7 +51,7 @@ export function VideoArticlesCarouselWidget({
     viewAllUrl || (isConfeitaria ? '/eventos/workshops/aulas-confeitaria' : '/post');
 
   const bgContainerClass = isConfeitaria ? 'bg-[#3d1316]' : 'bg-[#cb001c]';
-  const navArrowClass = isConfeitaria ? 'text-[#b82344]' : 'text-[#e2091e]';
+  const navArrowClass = isConfeitaria ? 'text-[#c42646]' : 'text-[#e2091e]';
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget;
@@ -123,26 +123,32 @@ export function VideoArticlesCarouselWidget({
       )}
 
       {/* Coluna Esquerda: Título Oficial + Subtítulo Perfeitamente Diagramado */}
-      <div className="z-10 max-w-[210px] sm:max-w-[230px] lg:max-w-[215px] xl:max-w-[235px] lg:absolute lg:left-7 xl:left-8 lg:top-1/2 lg:-translate-y-1/2">
+      <div
+        className={`z-10 ${
+          isConfeitaria
+            ? 'max-w-[260px] sm:max-w-[270px] lg:max-w-[270px] xl:max-w-[285px]'
+            : 'max-w-[200px] sm:max-w-[220px] lg:max-w-[205px] xl:max-w-[225px]'
+        } lg:absolute lg:left-7 xl:left-8 lg:top-1/2 lg:-translate-y-1/2`}
+      >
         {isConfeitaria ? (
           <>
             <h2
-              className="text-2xl sm:text-[27px] lg:text-[29px] xl:text-[31px] font-bold leading-[1.04] tracking-tight"
+              className="text-2xl sm:text-[26px] lg:text-[27px] xl:text-[29px] font-bold leading-[1.08] tracking-tight"
               style={{ fontFamily: 'Georgia, "Playfair Display", serif' }}
             >
-              <span className="block text-white">Workshops &amp;</span>
-              <span className="block text-white">Aulas Práticas</span>
-              <span className="flex items-center gap-2 mt-0.5">
-                <span className="text-[#d87489]">de Confeitaria</span>
+              <span className="block text-white whitespace-nowrap">Workshops &amp;</span>
+              <span className="block text-white whitespace-nowrap">Aulas Práticas</span>
+              <span className="flex items-center gap-2 mt-0.5 whitespace-nowrap">
+                <span className="text-[#e26678]">de Confeitaria</span>
                 <span
                   aria-hidden="true"
-                  className="inline-flex size-6 sm:size-7 items-center justify-center rounded-full border-2 border-[#d87489] bg-[#d87489]/25 text-[#d87489] shadow-sm shrink-0"
+                  className="inline-flex size-6 sm:size-6.5 items-center justify-center rounded-full border-2 border-[#e26678] bg-[#e26678]/25 text-[#e26678] shadow-sm shrink-0"
                 >
-                  <Play className="size-3 sm:size-3.5 fill-[#d87489] ml-0.5 text-[#d87489]" />
+                  <Play className="size-2.5 sm:size-3 fill-white ml-0.5 text-white" />
                 </span>
               </span>
             </h2>
-            <div className="mt-3 border-l-2 border-[#d87489] pl-2.5 text-xs sm:text-[12px] xl:text-[12.5px] leading-snug text-white/95 font-normal">
+            <div className="mt-3 border-l-[2.5px] border-[#e26678] pl-2.5 sm:pl-3 text-xs sm:text-[12px] xl:text-[12.5px] leading-snug text-white/95 font-normal">
               <p className="block">Faça suas compras e ganhe</p>
               <p className="block">
                 treinamento <span className="font-bold text-white">gratuitamente.</span>
@@ -190,7 +196,7 @@ export function VideoArticlesCarouselWidget({
         aria-hidden="true"
         className={`hidden lg:block absolute bottom-0 ${
           isConfeitaria
-            ? 'left-[17.5%] xl:left-[18.5%] h-[97%] xl:h-[98%] w-[27%] max-w-[280px] min-w-[220px]'
+            ? 'left-[20.5%] xl:left-[21.5%] h-[95%] xl:h-[96%] w-[21.5%] max-w-[230px]'
             : 'left-[14.5%] xl:left-[15.5%] h-[92%] xl:h-[93%] w-[26%] max-w-[265px] min-w-[220px]'
         } z-10 pointer-events-none select-none`}
       >
@@ -206,7 +212,7 @@ export function VideoArticlesCarouselWidget({
       {/* Mascote compacto para tablets */}
       <div
         aria-hidden="true"
-        className="hidden md:block lg:hidden absolute top-3 right-24 h-24 w-24 pointer-events-none select-none z-10"
+        className="hidden md:block lg:hidden absolute top-2 right-28 h-24 w-24 pointer-events-none select-none z-10"
       >
         <Image
           src={resolvedMascotImage}

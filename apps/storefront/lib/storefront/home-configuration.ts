@@ -325,6 +325,17 @@ export const defaultHomeComposition: PageComposition = {
         mascotImageUrl: "/assets/nort-segmentos.png",
         items: [
           {
+            id: "seg-bar",
+            prefix: "Para",
+            title: "Bar & Distribuidora",
+            description:
+              "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
+            iconType: "bar",
+            imageUrl:
+              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-08-sustentaveis.jpg",
+            linkUrl: "/segmento/bar-distribuidora",
+          },
+          {
             id: "seg-lanchonete",
             prefix: "Para",
             title: "Lanchonete",
@@ -411,17 +422,6 @@ export const defaultHomeComposition: PageComposition = {
             imageUrl:
               "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-07-acai.jpg",
             linkUrl: "/segmento/sorveteria-acai",
-          },
-          {
-            id: "seg-bar",
-            prefix: "Para",
-            title: "Bar & Distribuidora",
-            description:
-              "Copos chopp e cerveja descartáveis, petisqueiras, guardanapos de balcão e sacolas reforçadas.",
-            iconType: "bar",
-            imageUrl:
-              "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-08-sustentaveis.jpg",
-            linkUrl: "/segmento/bar-distribuidora",
           },
         ],
       },
@@ -699,9 +699,7 @@ export const defaultHomeComposition: PageComposition = {
             tags: ["WORKSHOP", "BOLOS DECORADOS"],
             title: "Técnicas de decoração para bolos e tortas",
             paragraphs: [
-              "Aprenda acabamento, recheio,",
-              "montagem e apresentação",
-              "com foco prático.",
+              "Aprenda acabamento, recheio, montagem e apresentação com foco prático.",
             ],
             ctaLabel: "Ver Completo",
             ctaUrl: "/eventos/workshops/aulas-confeitaria",
@@ -712,9 +710,7 @@ export const defaultHomeComposition: PageComposition = {
             tags: ["AULA PRÁTICA", "DOCES FINOS"],
             title: "Doces finos e sobremesas para vender",
             paragraphs: [
-              "Descubra receitas, finalização",
-              "e embalagem para valorizar",
-              "sua produção.",
+              "Descubra receitas, finalização e embalagem para valorizar sua produção.",
             ],
             ctaLabel: "Ver Completo",
             ctaUrl: "/eventos/workshops/aulas-confeitaria",
