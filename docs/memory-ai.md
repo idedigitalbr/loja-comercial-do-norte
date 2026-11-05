@@ -7,6 +7,10 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **05/11/2026 — Sincronização de Produção na Vercel e Banco Neon (executorId: `antigravity-gemini`):**
+  - **Reatribuição de Alias Oficial Vercel:** O domínio com hífen `https://loja-comercialdonorte.vercel.app` foi reatribuído para o deploy mais recente (`loja-home-front-82r5s5eti-idedigital.vercel.app`, timestamp `v05-11-2026-12-02am`), alinhando com `lojacomercialdonorte.vercel.app`.
+  - **Sincronização da Composição no Banco Neon:** O registro `SiteConfiguration.homeComposition` no banco Neon de produção (`db_lojacomercialdonorte`) foi sincronizado com `apps/storefront/data/home-composition.json`, efetivando a remoção da seção `s11-triple-banners-2` e a inclusão do carrossel de confeitaria na API pública `/api/v1/site/composition`.
+
 - **04/11/2026 — Restauração do Mascote Nort no Cabeçalho (Remoção Apenas do Balão e Interação) (executorId: `antigravity-gemini`):**
   - **Presença Visual do Mascote Preservada:** O mascote Nort foi restaurado na Barra 02 do cabeçalho (`SiteHeader` / `NortHeader`), mantendo o loop de animação do sprite 3D e a respiração (`breathe`), ancorado na base da barra azul com o recuo adequado do logotipo (`md:pl-[88px] lg:pl-[94px]`) e preservando a ancoragem `#tour-header-nort` do tour guiado.
   - **Remoção Estrita de Balão e Interações Conflitantes:** Removidos o balão de fala pop-up (`bubbleWrap`), temporizadores de insistência de hover e gatilhos de clique/foco no cabeçalho, deixando a interação conversacional e atalho do tour guiado exclusivamente centralizados no chat flutuante do WhatsApp / Nort (`NortChatFloating`).
