@@ -343,6 +343,61 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     expect(screen.getByText(/📍 encontrar a mais próxima de mim/i)).toBeDefined();
   });
 
+  it('permite ao visitante alterar seus dados (nome e WhatsApp) sem duplicar lead no CRM', () => {
+    vi.useFakeTimers();
+    render(<NortChatFloating whatsapp="5591983440880" />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(11000);
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('Como posso te chamar?'), {
+      target: { value: 'Lucas' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('(91) 99999-9999'), {
+      target: { value: '91988112233' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /continuar no chat/i }));
+
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    // Escolhe uma loja
+    fireEvent.click(screen.getByText(/🏬 escolher uma unidade/i));
+    act(() => {
+      vi.advanceTimersByTime(7000);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /confirmar unidade selecionada/i }));
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    // Na etapa de serviços, clica em "Alterar meus dados"
+    const editBtn = screen.getByText(/✏️ alterar meus dados/i);
+    expect(editBtn).toBeDefined();
+    fireEvent.click(editBtn);
+
+    const editNameInput = screen.getByLabelText(/seu nome/i);
+    const editPhoneInput = screen.getByLabelText(/whatsapp/i);
+    expect((editNameInput as HTMLInputElement).value).toBe('Lucas');
+
+    // Modifica o nome para "Lucas Rocha" e salva
+    fireEvent.change(editNameInput, { target: { value: 'Lucas Rocha' } });
+    fireEvent.click(screen.getByRole('button', { name: /salvar alterações/i }));
+
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    expect(screen.getByText(/prontinho, lucas rocha! seus dados foram atualizados/i)).toBeDefined();
+  });
+
   it('fecha o chat e destrava o scroll da página ao pressionar Escape', () => {
     render(<NortChatFloating whatsapp="5591983440880" />);
 

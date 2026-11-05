@@ -46,11 +46,11 @@ export type ChatMessage = {
 export type BotStep =
   | 'IDENTIFY'
   | 'UNIT_MODE'
-  | 'UNIT_AUTO_CONFIRM'
   | 'UNIT_CEP'
   | 'UNIT_LIST'
   | 'SERVICE'
-  | 'FINISHED';
+  | 'FINISHED'
+  | 'EDIT_DATA';
 
 export const NORT_SESSION_STORAGE_KEY = 'cn_nort_chat_session_v1';
 export const NORT_VISITOR_COOKIE_KEY = 'cn_nort_visitor_id';
@@ -342,6 +342,8 @@ export function NortChatFloating({
   // Dados do cliente e escolhas
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
   const [formError, setFormError] = useState('');
   const [cepInput, setCepInput] = useState('');
   const [cepError, setCepError] = useState('');
@@ -1087,7 +1089,70 @@ export function NortChatFloating({
     } else if (step === 'FINISHED') {
       setStep('SERVICE');
       setInteractiveReady(true);
+    } else if (step === 'EDIT_DATA') {
+      setStep('SERVICE');
+      setInteractiveReady(true);
     }
+  }
+
+  function handleOpenEditData() {
+    if (isTyping) return;
+    setEditName(customerName);
+    setEditPhone(customerPhone);
+    setFormError('');
+    setStep('EDIT_DATA');
+    setInteractiveReady(true);
+  }
+
+  function handleSaveEditedData(e: React.FormEvent) {
+    e.preventDefault();
+    if (isTyping) return;
+
+    const cleanName = editName.trim();
+    const phoneDigits = editPhone.replace(/\D/g, '');
+
+    if (cleanName.length < 2) {
+      setFormError('Por favor, informe seu nome.');
+      return;
+    }
+
+    if (phoneDigits.length < 10) {
+      setFormError('Informe um WhatsApp válido com DDD, ex: (91) 99999-9999.');
+      return;
+    }
+
+    setFormError('');
+    const formattedPhone = formatBrazilPhoneMask(phoneDigits);
+    setCustomerName(cleanName);
+    setCustomerPhone(formattedPhone);
+
+    const userMsg: ChatMessage = {
+      id: `user-edit-${Date.now()}`,
+      sender: 'user',
+      text: `✏️ Dados atualizados:\n${cleanName}\n📱 ${formattedPhone}`,
+      time: getFormattedTime(),
+    };
+
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
+    setStep('SERVICE');
+
+    // Atualiza o MESMO lead no MiniCRM pelo visitorPublicId (não duplica no Kanban!)
+    void registerLeadToCRM({
+      name: cleanName,
+      phone: formattedPhone,
+      store: selectedStore,
+      subject: chosenSubject || 'Atualização cadastral no chat',
+      allMessages: nextMessages,
+    });
+
+    scheduleBotSequence(
+      [
+        `Prontinho, ${cleanName}! Seus dados foram atualizados com sucesso. 😊`,
+        'Como posso te ajudar agora?',
+      ],
+      { withInteractiveWidget: true }
+    );
   }
 
   function handleRestartChat() {
@@ -1621,6 +1686,99 @@ export function NortChatFloating({
                 >
                   🎧 Suporte e Pós-Venda CRM
                 </QuickReplyButton>
+
+                <QuickReplyButton onClick={handleOpenEditData}>
+                  ✏️ Alterar meus dados (Nome / WhatsApp)
+                </QuickReplyButton>
+              </div>
+            )}
+
+            {/* SUB-FLUXO — EDIÇÃO DE DADOS CADASTRADOS (ATUALIZA O MESMO LEAD NO CRM SEM DUPLICAR) */}
+            {step === 'EDIT_DATA' && !isTyping && interactiveReady && (
+              <div className="pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <form
+                  aria-label="Alterar meus dados"
+                  className="rounded-[12px] bg-[#FFFFFF] p-3.5 border border-[#D1D7DB] shadow-[0_2px_6px_rgba(17,27,33,0.12)] space-y-2.5"
+                  onSubmit={handleSaveEditedData}
+                >
+                  <div className="flex items-center justify-between border-b border-[#D1D7DB] pb-1.5 mb-1">
+                    <span className="text-[12px] font-bold text-[#111B21]">
+                      Alterar meus dados
+                    </span>
+                    <button
+                      className="text-[11px] text-[#00A884] font-medium hover:underline cursor-pointer"
+                      onClick={() => setStep('SERVICE')}
+                      type="button"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+
+                  <div>
+                    <label
+                      className="block text-[11.5px] font-semibold text-[#111B21] mb-1"
+                      htmlFor={`${id}-edit-name`}
+                    >
+                      Seu nome
+                    </label>
+                    <input
+                      id={`${id}-edit-name`}
+                      aria-label="Seu nome"
+                      className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
+                      onChange={(e) => {
+                        setEditName(e.target.value);
+                        if (formError) setFormError('');
+                      }}
+                      placeholder="Como posso te chamar?"
+                      type="text"
+                      value={editName}
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      className="block text-[11.5px] font-semibold text-[#111B21] mb-1"
+                      htmlFor={`${id}-edit-phone`}
+                    >
+                      WhatsApp
+                    </label>
+                    <input
+                      id={`${id}-edit-phone`}
+                      aria-label="WhatsApp"
+                      className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
+                      inputMode="tel"
+                      onChange={(e) => {
+                        setEditPhone(formatBrazilPhoneMask(e.target.value));
+                        if (formError) setFormError('');
+                      }}
+                      placeholder="(91) 99999-9999"
+                      type="tel"
+                      value={editPhone}
+                    />
+                  </div>
+
+                  {formError && (
+                    <p className="text-[11px] text-[#B91C1C] font-medium" role="alert">
+                      {formError}
+                    </p>
+                  )}
+
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      className="flex-1 rounded-[8px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2 px-3 text-center transition-colors cursor-pointer"
+                      type="submit"
+                    >
+                      Salvar alterações
+                    </button>
+                    <button
+                      className="rounded-[8px] border border-[#D1D7DB] bg-[#F1F3F4] hover:bg-[#E4D8D3] text-[#111B21] text-[12px] font-medium py-2 px-3 transition-colors cursor-pointer"
+                      onClick={() => setStep('SERVICE')}
+                      type="button"
+                    >
+                      Voltar
+                    </button>
+                  </div>
+                </form>
               </div>
             )}
 
@@ -1640,6 +1798,10 @@ export function NortChatFloating({
 
                 <QuickReplyButton onClick={() => setStep('UNIT_LIST')}>
                   🏬 Alterar unidade selecionada
+                </QuickReplyButton>
+
+                <QuickReplyButton onClick={handleOpenEditData}>
+                  ✏️ Alterar meus dados (Nome / WhatsApp)
                 </QuickReplyButton>
               </div>
             )}
