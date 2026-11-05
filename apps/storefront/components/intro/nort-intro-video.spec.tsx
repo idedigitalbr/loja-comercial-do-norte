@@ -39,25 +39,29 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
   });
 
   describe('nort-intro-helpers', () => {
+    it('por padrão, abertura automática ao abrir o site está desativada', () => {
+      expect(shouldShowNortIntro(window.localStorage)).toBe(false);
+    });
+
     it('permite exibição para novos visitantes e respeita o limite de 3 vezes quando enforceLimit está ativo', () => {
-      expect(shouldShowNortIntro(window.localStorage, true)).toBe(true);
+      expect(shouldShowNortIntro(window.localStorage, true, true)).toBe(true);
       expect(recordNortIntroView(window.localStorage)).toBe(1);
       expect(window.localStorage.getItem(STORAGE_KEY_INTRO_VIEWS)).toBe('1');
 
-      expect(shouldShowNortIntro(window.localStorage, true)).toBe(true);
+      expect(shouldShowNortIntro(window.localStorage, true, true)).toBe(true);
       expect(recordNortIntroView(window.localStorage)).toBe(2);
       expect(window.localStorage.getItem(STORAGE_KEY_INTRO_VIEWS)).toBe('2');
 
-      expect(shouldShowNortIntro(window.localStorage, true)).toBe(true);
+      expect(shouldShowNortIntro(window.localStorage, true, true)).toBe(true);
       expect(recordNortIntroView(window.localStorage)).toBe(3);
       expect(window.localStorage.getItem(STORAGE_KEY_INTRO_VIEWS)).toBe('3');
 
-      expect(shouldShowNortIntro(window.localStorage, true)).toBe(false);
+      expect(shouldShowNortIntro(window.localStorage, true, true)).toBe(false);
     });
 
-    it('em pré-lançamento (enforceLimit=false), exibe sempre independentemente do número de visualizações', () => {
+    it('quando auto-abertura está ativa e enforceLimit=false, exibe sempre independentemente do número de visualizações', () => {
       window.localStorage.setItem(STORAGE_KEY_INTRO_VIEWS, '10');
-      expect(shouldShowNortIntro(window.localStorage)).toBe(true);
+      expect(shouldShowNortIntro(window.localStorage, false, true)).toBe(true);
     });
 
     it('permite override forçado via query param ?intro=1 mesmo após 3 exibições', () => {

@@ -333,9 +333,9 @@ export function SegmentsCarouselWidget({
     <section aria-label={title} className="cn-container pt-4 pb-2 sm:pt-6 sm:pb-3">
       <div className="relative bg-transparent">
         {/* Topo Azul Escuro: compacto e encaixado perfeitamente com os cards e o mascote Nort */}
-        <div className="relative rounded-[24px] bg-gradient-to-r from-[#002868] via-[#003E99] to-[#002B66] px-6 pt-5 pb-28 sm:px-10 sm:pt-6 sm:pb-32 lg:pb-32 shadow-md">
+        <div className="relative rounded-[24px] bg-gradient-to-r from-[#002868] via-[#003E99] to-[#002B66] px-5 pt-5 pb-24 sm:px-10 sm:pt-6 sm:pb-32 lg:pb-32 shadow-md">
           {/* Header Superior: Textos à esquerda e CTA à direita */}
-          <div className="relative z-20 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="relative z-20 flex flex-col justify-between gap-3.5 sm:gap-4 sm:flex-row sm:items-center">
             {/* Bloco Esquerda: Título, Subtítulo, Traço Vermelho e Botão Assista nosso vídeo */}
             <div className="max-w-md">
               <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
@@ -352,7 +352,7 @@ export function SegmentsCarouselWidget({
                   if (isEditing && !previewMode) return;
                   setIsVideoModalOpen(true);
                 }}
-                className="mt-4 sm:mt-5 inline-flex items-center gap-2.5 cursor-pointer group select-none text-left transition hover:opacity-95"
+                className="mt-3.5 sm:mt-5 inline-flex items-center gap-2.5 cursor-pointer group select-none text-left transition hover:opacity-95"
                 aria-label={videoButtonLabel}
               >
                 <span className="flex size-8 sm:size-9 items-center justify-center rounded-full bg-[#E2091E] text-white shadow-md transition-transform duration-200 group-hover:scale-105 ring-2 ring-white/30 shrink-0">
@@ -366,7 +366,7 @@ export function SegmentsCarouselWidget({
 
             {/* Bloco Direita: CTA Ver todos os segmentos */}
             <Link
-              className="inline-flex items-center gap-2 self-start rounded-xl border border-white/40 bg-[#002868]/70 px-5 py-2.5 text-xs font-bold text-white backdrop-blur-xs transition hover:bg-white/20 sm:self-center"
+              className="inline-flex items-center gap-2 self-start rounded-xl border border-white/40 bg-[#002868]/70 px-4 py-2 sm:px-5 sm:py-2.5 text-xs font-bold text-white backdrop-blur-xs transition hover:bg-white/20 sm:self-center"
               href={ctaUrl}
               onClick={(e) => {
                 if (isEditing && !previewMode) e.preventDefault();
@@ -380,7 +380,8 @@ export function SegmentsCarouselWidget({
           {/* Mascote Nort 3D Centralizado com Balão "Veja os produtos para seu segmento" (Anexo 3) */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-6 sm:-top-7 md:-top-8 z-10 hidden sm:flex items-start justify-center w-[360px] sm:w-[410px] md:w-[450px] lg:w-[480px] xl:w-[500px] select-none"
+            data-testid="segments-nort-mascot"
+            className="pointer-events-none z-10 flex items-start justify-center select-none w-[270px] xs:w-[310px] sm:w-[410px] md:w-[450px] lg:w-[480px] xl:w-[500px] relative mx-auto mt-2 -mb-16 xs:-mb-20 sm:mt-0 sm:mb-0 sm:absolute sm:left-1/2 sm:-translate-x-1/2 sm:-top-7 md:-top-8"
           >
             <div className="relative w-full aspect-[1024/576]">
               <Image
@@ -388,7 +389,7 @@ export function SegmentsCarouselWidget({
                 className="size-full object-contain object-top drop-shadow-[0_10px_20px_rgba(0,0,0,0.25)]"
                 fill
                 priority
-                sizes="(max-width: 640px) 360px, (max-width: 768px) 410px, (max-width: 1024px) 450px, 500px"
+                sizes="(max-width: 640px) 310px, (max-width: 768px) 410px, (max-width: 1024px) 450px, 500px"
                 src={mascotImageUrl}
                 unoptimized
               />
@@ -573,14 +574,13 @@ export function SegmentsCarouselWidget({
 
             <div className="relative aspect-video w-full bg-black">
               <video
-                src={videoUrl}
                 controls
                 autoPlay
                 playsInline
                 className="size-full object-contain"
               >
-                {/* Vídeo original de alta qualidade (18.6 MB) ativo durante o desenvolvimento */}
-                <source src="/videos/nort-intro.mp4" type="video/mp4" />
+                <source src="/videos/nort-intro-compressed.webm" type="video/webm" />
+                <source src={videoUrl || '/videos/nort-intro.mp4'} type="video/mp4" />
                 Seu navegador não suporta a tag de vídeo.
               </video>
             </div>

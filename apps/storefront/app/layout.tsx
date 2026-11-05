@@ -42,13 +42,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   try {
     var s = window.location.search || '';
     if (s.indexOf('no-intro=1') !== -1 || s.indexOf('skip-intro=1') !== -1) return;
-    // Em pré-lançamento, a intro sempre exibe para todas as visitas.
-    // No lançamento oficial, reativar a checagem com o limite de 3 vezes:
-    // var p = s.indexOf('intro=1') !== -1 || s.indexOf('force-intro=1') !== -1 || s.indexOf('reset-intro=1') !== -1;
-    // var v = localStorage.getItem('cn_nort_intro_views_v1');
-    // var count = v === null ? 0 : parseInt(v, 10);
-    // if (p || isNaN(count) || count < 3) { document.documentElement.classList.add('nort-intro-active'); }
-    document.documentElement.classList.add('nort-intro-active');
+    // O vídeo de intro ao abrir o site foi desativado por solicitação do usuário.
+    // Ele só abre sob demanda ao clicar no botão "Assista nosso vídeo" ou via query ?intro=1 / ?force-intro=1
+    var p = s.indexOf('intro=1') !== -1 || s.indexOf('force-intro=1') !== -1;
+    if (p) {
+      document.documentElement.classList.add('nort-intro-active');
+    }
   } catch (e) {}
 })();`,
           }}

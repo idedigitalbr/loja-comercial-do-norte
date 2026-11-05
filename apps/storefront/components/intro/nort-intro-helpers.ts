@@ -9,6 +9,13 @@ export const MAX_INTRO_VIEWS = 3;
  */
 export const ENFORCE_INTRO_VIEW_LIMIT = false;
 
+/**
+ * Flag global de abertura automática do vídeo ao carregar o site:
+ * false: o vídeo NÃO abre automaticamente ao abrir o site (desativado conforme solicitação do cliente).
+ * true: o vídeo abre automaticamente ao abrir o site.
+ */
+export const AUTO_OPEN_INTRO_ON_SITE_LOAD = false;
+
 let introActiveState = false;
 
 /**
@@ -36,15 +43,16 @@ export function isIntroActive(): boolean {
 
 /**
  * Verifica se a animação em vídeo de introdução / loading do Nort deve ser exibida.
- * - Por padrão durante a fase de pré-lançamento: sempre exibe em todas as visitas.
- * - Quando enforceLimit for true: exibe pelas primeiras 3 vezes (visitas/cargas de página).
- * - Suporta override via query param (?intro=1 ou ?force-intro=1 ou ?reset-intro=1 ou ?no-intro=1).
+ * - Desativada por padrão ao carregar o site a pedido do cliente.
+ * - Suporta override sob demanda via query param (?intro=1 ou ?force-intro=1 ou ?reset-intro=1).
+ * - Suporta parâmetro opcional autoOpenOnLoad para testes de regras de frequência.
  */
 export function shouldShowNortIntro(
   storage: Storage | null = typeof window !== 'undefined' ? window.localStorage : null,
-  enforceLimit: boolean = ENFORCE_INTRO_VIEW_LIMIT
+  enforceLimit: boolean = ENFORCE_INTRO_VIEW_LIMIT,
+  autoOpenOnLoad: boolean = AUTO_OPEN_INTRO_ON_SITE_LOAD
 ): boolean {
-  if (!storage) return false;
+  if (!storage && typeof window === 'undefined') return false;
 
   try {
     if (typeof window !== 'undefined' && window.location?.search) {
@@ -56,16 +64,20 @@ export function shouldShowNortIntro(
         return true;
       }
       if (params.get('reset-intro') === '1') {
-        storage.removeItem(STORAGE_KEY_INTRO_VIEWS);
+        storage?.removeItem(STORAGE_KEY_INTRO_VIEWS);
         return true;
       }
+    }
+
+    if (!autoOpenOnLoad) {
+      return false;
     }
 
     if (!enforceLimit) {
       return true;
     }
 
-    const raw = storage.getItem(STORAGE_KEY_INTRO_VIEWS);
+    const raw = storage?.getItem(STORAGE_KEY_INTRO_VIEWS);
     if (raw === null || raw === undefined) return true;
     const count = parseInt(raw, 10);
     if (Number.isNaN(count)) return true;

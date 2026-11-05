@@ -239,7 +239,7 @@ describe('SegmentsCarouselWidget', () => {
     expect(track?.getAttribute('style')).toContain('var(--card-step)');
   });
 
-  it('renderiza o botão "Assista nosso vídeo" e o mascote Nort', () => {
+  it('renderiza o botão "Assista nosso vídeo" e o mascote Nort visível no mobile e desktop', () => {
     render(<SegmentsCarouselWidget items={mockItems} />);
 
     expect(screen.getByRole('button', { name: 'Assista nosso vídeo' })).toBeDefined();
@@ -247,6 +247,12 @@ describe('SegmentsCarouselWidget', () => {
 
     const mascotImg = screen.getByAltText(/Nort — Veja os produtos para seu segmento/i);
     expect(mascotImg).toBeDefined();
+
+    // Garante que o mascote NÃO fica oculto no mobile (sem hidden sm:flex)
+    const mascotContainer = screen.getByTestId('segments-nort-mascot');
+    expect(mascotContainer).toBeDefined();
+    expect(mascotContainer.className).not.toContain('hidden');
+    expect(mascotContainer.className).toContain('flex');
   });
 
   it('abre e fecha o modal de vídeo institucional dos segmentos', () => {
