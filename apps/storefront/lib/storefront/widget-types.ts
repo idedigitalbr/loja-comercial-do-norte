@@ -76,6 +76,19 @@ export interface BenefitsBarProps {
 }
 export type BenefitsBarWidgetConfig = BaseWidgetConfig<'benefits-bar', BenefitsBarProps>;
 
+export interface PromotionalCampaignOption {
+  id: string;
+  label: string;
+  title?: string;
+  subtitle?: string;
+  imageUrl: string;
+  linkUrl: string;
+  altText?: string;
+  source?: 'offers' | 'featured' | 'category' | 'recent';
+  categorySlug?: string;
+  searchKeyword?: string;
+}
+
 export interface ProductCarouselSideBanner {
   title: string;
   subtitle?: string;
@@ -83,6 +96,7 @@ export interface ProductCarouselSideBanner {
   imageUrl: string;
   linkUrl: string;
   altText?: string;
+  campaigns?: PromotionalCampaignOption[];
 }
 
 export interface ProductCarouselProps {
@@ -119,6 +133,8 @@ export interface CategoryGridProps {
   customItems?: CategoryIconItem[];
 }
 export type CategoryGridWidgetConfig = BaseWidgetConfig<'category-grid', CategoryGridProps>;
+
+export type BannerItem = PromotionalBanner;
 
 export interface PromotionalBanner {
   id: string;

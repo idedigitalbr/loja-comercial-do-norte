@@ -72,10 +72,18 @@ export function CategoryGridWidget({
 
     return (
       <section aria-label={title || 'Atalhos de categorias'} className="cn-container py-3 sm:py-4">
-        <div className={`grid grid-cols-4 gap-3 ${items.length === 7 ? "sm:grid-cols-7" : "sm:grid-cols-8"} sm:gap-4`}>
+        <div
+          className={`no-scrollbar -mx-4 flex flex-nowrap items-start gap-3 overflow-x-auto px-4 pb-1 touch-pan-x snap-x snap-mandatory sm:mx-0 sm:grid sm:overflow-visible sm:px-0 sm:pb-0 ${
+            items.length === 7 ? 'sm:grid-cols-7' : 'sm:grid-cols-8'
+          } sm:gap-4`}
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
           {items.map((item, idx) => (
-            <div className="group relative flex flex-col items-center text-center" key={item.id}>
-              <div className="relative size-[64px] overflow-hidden rounded-2xl bg-white shadow-xs transition duration-200 group-hover:-translate-y-1 group-hover:shadow-md sm:size-[74px]">
+            <div
+              className="group relative flex w-[76px] shrink-0 snap-start flex-col items-center text-center sm:w-auto sm:shrink"
+              key={item.id}
+            >
+              <div className="relative size-[64px] shrink-0 overflow-hidden rounded-2xl bg-white shadow-xs transition duration-200 group-hover:-translate-y-1 group-hover:shadow-md sm:size-[74px]">
                 <Link
                   className="flex size-full items-center justify-center"
                   href={item.linkUrl || '/loja'}

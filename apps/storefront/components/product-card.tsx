@@ -44,18 +44,18 @@ export function ProductCard({
 
   return (
     <article
-      className={`group relative flex w-full self-start flex-col rounded-[14px] border border-slate-200/90 bg-white shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition-all duration-300 ease-out hover:z-40 hover:-translate-y-14 sm:hover:-translate-y-[70px] hover:scale-[1.025] sm:hover:scale-[1.03] hover:border-[#004CB1]/40 hover:shadow-[0_22px_45px_rgba(0,76,177,0.20)] focus-within:z-40 focus-within:border-[#004CB1]/40 ${
+      className={`group relative flex h-full w-full min-w-0 flex-col rounded-[14px] border border-slate-200/90 bg-white shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition-all duration-300 ease-out hover:z-40 hover:-translate-y-14 sm:hover:-translate-y-[70px] hover:scale-[1.025] sm:hover:scale-[1.03] hover:border-[#004CB1]/40 hover:shadow-[0_22px_45px_rgba(0,76,177,0.20)] focus-within:z-40 focus-within:border-[#004CB1]/40 ${
         hasActions
           ? 'hover:rounded-b-none hover:border-b-transparent focus-within:rounded-b-none focus-within:border-b-transparent'
           : ''
       }`}
     >
       <Link
-        className="relative block aspect-[4/3] overflow-hidden rounded-t-[14px] bg-white px-4 pb-3 pt-10"
+        className="relative block aspect-[4/3] overflow-hidden rounded-t-[14px] bg-white px-2.5 pb-2 pt-9 sm:px-4 sm:pb-3 sm:pt-10"
         href={`/produto/${product.slug}`}
       >
         {/* Botão de Favoritar no Canto Superior Direito */}
-        <div className="absolute right-2.5 top-2.5 z-20">
+        <div className="absolute right-2 top-2 z-20 sm:right-2.5 sm:top-2.5">
           <FavoriteButton
             item={{
               id: product.id,
@@ -71,14 +71,14 @@ export function ProductCard({
         </div>
 
         {/* Badges empilhados no canto superior esquerdo */}
-        <div className="absolute left-3 top-2.5 z-10 flex flex-col items-start gap-1">
+        <div className="absolute left-2 top-2 z-10 flex flex-col items-start gap-1 sm:left-3 sm:top-2.5">
           {hasDiscount ? (
-            <span className="rounded-full bg-[#E2091E] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white shadow-[0_2px_8px_rgba(226,9,30,0.35)]">
+            <span className="rounded-full bg-[#E2091E] px-2 py-0.5 text-[9.5px] font-extrabold uppercase tracking-wide text-white shadow-[0_2px_8px_rgba(226,9,30,0.35)] sm:px-2.5 sm:text-[10px]">
               {discountPercent}% OFF
             </span>
           ) : null}
           {flashBadge ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#1E3A6E] px-2.5 py-0.5 text-[9.5px] font-extrabold uppercase tracking-wide text-white shadow-xs">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#1E3A6E] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-white shadow-xs sm:px-2.5 sm:text-[9.5px]">
               <Zap className="size-2.5 fill-white text-white" />
               RELÂMPAGO
             </span>
@@ -87,7 +87,7 @@ export function ProductCard({
 
         <Image
           alt={`${product.name} (Imagem ilustrativa)`}
-          className="size-full object-contain p-2 transition duration-300 group-hover:scale-105"
+          className="size-full object-contain p-1.5 sm:p-2 transition duration-300 group-hover:scale-105"
           height={250}
           src={image}
           unoptimized
@@ -95,40 +95,42 @@ export function ProductCard({
         />
       </Link>
 
-      <div className="flex flex-col border-t border-slate-100 px-3.5 pb-3.5 pt-3">
-        <Link
-          className="line-clamp-2 min-h-[2.4rem] text-[12.5px] font-bold leading-snug text-slate-800 transition-colors hover:text-[#004CB1]"
-          href={`/produto/${product.slug}`}
-        >
-          {product.name}
-        </Link>
+      <div className="flex flex-1 flex-col justify-between border-t border-slate-100 px-2.5 pb-3 pt-2.5 sm:px-3.5 sm:pb-3.5 sm:pt-3">
+        <div>
+          <Link
+            className="line-clamp-2 min-h-[2.3rem] text-[12px] font-bold leading-snug text-slate-800 transition-colors hover:text-[#004CB1] sm:min-h-[2.4rem] sm:text-[12.5px]"
+            href={`/produto/${product.slug}`}
+          >
+            {product.name}
+          </Link>
 
-        {/* 5 Estrelas abaixo do título */}
-        <div className="mt-1.5 flex items-center gap-1 text-[11px] text-slate-600">
-          <div className="flex items-center gap-0.5 text-amber-400">
-            {[0, 1, 2, 3, 4].map((s) => (
-              <Star className="size-3 fill-amber-400 text-amber-400" key={s} />
-            ))}
+          {/* 5 Estrelas abaixo do título */}
+          <div className="mt-1.5 flex items-center gap-1 text-[10.5px] text-slate-600 sm:text-[11px]">
+            <div className="flex items-center gap-0.5 text-amber-400">
+              {[0, 1, 2, 3, 4].map((s) => (
+                <Star className="size-2.5 sm:size-3 fill-amber-400 text-amber-400" key={s} />
+              ))}
+            </div>
+            <span className="font-semibold text-slate-600">4.7 (129)</span>
           </div>
-          <span className="font-semibold text-slate-600">4.7 (129)</span>
         </div>
 
         {/* Preço e nota de atacado conectados às estrelas sem vazio */}
-        <div className="mt-2.5">
+        <div className="mt-2 sm:mt-2.5">
           {variant ? (
             <div>
               {hasDiscount && compareAt ? (
-                <div className="text-[11px] text-slate-400 line-through">
+                <div className="text-[10.5px] text-slate-400 line-through sm:text-[11px]">
                   {formatMoney(compareAt)}
                 </div>
               ) : null}
-              <div className="mt-0.5 flex items-baseline gap-1">
-                <strong className="text-[19px] font-extrabold leading-none text-[#163264]">
+              <div className="mt-0.5 flex flex-wrap items-baseline gap-x-1 gap-y-0.5">
+                <strong className="text-[16px] font-extrabold leading-none text-[#163264] sm:text-[19px]">
                   {formatMoney(variant.priceCents)}
                 </strong>
-                <span className="text-[11px] font-normal text-slate-500">no pacote</span>
+                <span className="text-[10px] font-normal text-slate-500 sm:text-[11px]">no pacote</span>
               </div>
-              <p className="mt-1.5 min-h-[2rem] line-clamp-2 text-[11px] leading-snug text-slate-500">
+              <p className="mt-1.5 min-h-[1.9rem] line-clamp-2 text-[10.5px] leading-snug text-slate-500 sm:min-h-[2rem] sm:text-[11px]">
                 {footerNote}
               </p>
             </div>

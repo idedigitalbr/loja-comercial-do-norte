@@ -18,6 +18,7 @@ export function EventsCarouselWidget({
 }: EventsCarouselProps) {
   const { isEditing, previewMode } = useElementor();
   const [currentPage, setCurrentPage] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   if (!items || items.length === 0) return null;
 
@@ -33,6 +34,21 @@ export function EventsCarouselWidget({
   }
 
   const safeCurrentPage = Math.min(currentPage, Math.max(0, totalPages - 1));
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null || totalPages <= 1) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (diff > 45) {
+      setCurrentPage((p) => (p + 1) % totalPages);
+    } else if (diff < -45) {
+      setCurrentPage((p) => (p - 1 + totalPages) % totalPages);
+    }
+    setTouchStartX(null);
+  };
 
   return (
     <section aria-label={title} className="w-full py-3 sm:py-5">
@@ -62,8 +78,12 @@ export function EventsCarouselWidget({
             </Link>
           </div>
 
-          {/* Carrossel de 4 Cartazes Verticais por página */}
-          <div className="relative">
+          {/* Carrossel de 4 Cartazes Verticais por página (grade 2x2 no mobile, 4 colunas no desktop) */}
+          <div
+            className="relative"
+            onTouchEnd={handleTouchEnd}
+            onTouchStart={handleTouchStart}
+          >
             <div className="overflow-hidden">
               <div
                 className="flex transition-transform duration-500 ease-in-out"
@@ -71,15 +91,15 @@ export function EventsCarouselWidget({
               >
                 {pages.map((pageItems, pIdx) => (
                   <div
-                    className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-5 w-full shrink-0"
+                    className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-5 w-full shrink-0"
                     key={pIdx}
                   >
                     {pageItems.map((item, idx) => {
                       const globalIdx = pIdx * itemsPerPage + idx;
                       const hasLink = Boolean(
                         item.linkUrl &&
-                        item.linkUrl.trim() !== '' &&
-                        item.linkUrl !== '#'
+                          item.linkUrl.trim() !== '' &&
+                          item.linkUrl !== '#',
                       );
 
                       const imageElement = (

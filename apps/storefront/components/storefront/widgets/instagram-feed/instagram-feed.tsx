@@ -18,6 +18,7 @@ export function InstagramFeedWidget({
 }: InstagramFeedProps) {
   const { isEditing, previewMode } = useElementor();
   const [currentPage, setCurrentPage] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   if (!items || items.length === 0) return null;
 
@@ -30,6 +31,21 @@ export function InstagramFeedWidget({
   }
 
   const safeCurrentPage = Math.min(currentPage, Math.max(0, totalPages - 1));
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null || totalPages <= 1) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (diff > 45) {
+      setCurrentPage((p) => (p + 1) % totalPages);
+    } else if (diff < -45) {
+      setCurrentPage((p) => (p - 1 + totalPages) % totalPages);
+    }
+    setTouchStartX(null);
+  };
 
   return (
     <section aria-label={title} className="cn-container py-4 sm:py-6">
@@ -58,7 +74,11 @@ export function InstagramFeedWidget({
         </div>
 
         {/* Carrossel de Cards Verticais por página */}
-        <div className="relative">
+        <div
+          className="relative"
+          onTouchEnd={handleTouchEnd}
+          onTouchStart={handleTouchStart}
+        >
           <div className="overflow-hidden">
             <div
               className="flex transition-transform duration-500 ease-in-out"

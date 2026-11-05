@@ -192,7 +192,55 @@
           "tag": "Semana do Feirante",
           "imageUrl": "/assets/HOME Vitrine/S4-CARD-ESQ-Promocional/S4-CARD-ESQ-Promocional.webp",
           "linkUrl": "/loja?oferta=1",
-          "altText": "Semana do Feirante — Luva Nitrílica Comercial do Norte"
+          "altText": "Semana do Feirante — Luva Nitrílica Comercial do Norte",
+          "campaigns": [
+            {
+              "id": "camp-semana-feirante",
+              "label": "Semana do Feirante",
+              "title": "Ofertas",
+              "subtitle": "Mês de Outubro",
+              "imageUrl": "/assets/HOME Vitrine/S4-CARD-ESQ-Promocional/S4-CARD-ESQ-Promocional.webp",
+              "linkUrl": "/loja?oferta=1",
+              "altText": "Semana do Feirante — Luva Nitrílica Comercial do Norte",
+              "source": "offers"
+            },
+            {
+              "id": "camp-delivery-kraft",
+              "label": "Especial Delivery & Kraft",
+              "title": "Ofertas",
+              "subtitle": "Linha Delivery",
+              "imageUrl": "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/kraft.webp",
+              "linkUrl": "/segmento/delivery",
+              "altText": "Especial Delivery e Embalagens Kraft — Comercial do Norte",
+              "source": "category",
+              "categorySlug": "embalagens",
+              "searchKeyword": "marmita|pizza|hamburgueira|sacola|kraft"
+            },
+            {
+              "id": "camp-descartaveis-atacado",
+              "label": "Descartáveis no Atacado",
+              "title": "Ofertas",
+              "subtitle": "Fardos Fechados",
+              "imageUrl": "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/copos.webp",
+              "linkUrl": "/categoria/descartaveis",
+              "altText": "Descartáveis no Atacado — Copos e Pratos Comercial do Norte",
+              "source": "category",
+              "categorySlug": "descartaveis",
+              "searchKeyword": "copo|prato|descartavel|descartável"
+            },
+            {
+              "id": "camp-confeitaria-doces",
+              "label": "Festival de Confeitaria",
+              "title": "Ofertas",
+              "subtitle": "Doces & Festas",
+              "imageUrl": "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/doces.webp",
+              "linkUrl": "/segmento/confeitaria-bolos",
+              "altText": "Festival de Confeitaria e Doces — Comercial do Norte",
+              "source": "featured",
+              "categorySlug": "confeitaria",
+              "searchKeyword": "doce|bolo|festa|confeitaria|caixa|prato"
+            }
+          ]
         }
       }
     },
