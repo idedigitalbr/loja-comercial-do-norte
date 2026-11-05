@@ -5,7 +5,7 @@ describe('defaultHomeComposition (seções site-final + S0/S20)', () => {
   it('possui todas as seções de widgets habilitadas em ordem sequencial', () => {
     expect(defaultHomeComposition.page).toBe('home');
     expect(defaultHomeComposition.version).toBeGreaterThanOrEqual(2);
-    expect(defaultHomeComposition.widgets).toHaveLength(17);
+    expect(defaultHomeComposition.widgets).toHaveLength(16);
 
     defaultHomeComposition.widgets.forEach((widget, idx) => {
       expect(widget.enabled).toBe(true);
@@ -26,7 +26,6 @@ describe('defaultHomeComposition (seções site-final + S0/S20)', () => {
       'segments-carousel',
       'promo-strip',
       'product-carousel',
-      'banner-grid',
       'video-articles-carousel',
       'events-carousel',
       'product-carousel',

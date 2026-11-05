@@ -459,73 +459,12 @@ export const defaultHomeComposition: PageComposition = {
       },
     },
 
-    // 11 — SEÇÃO BANNERS TRIPLOS 02 (HAMBURGUEIRA, LUVA VERMELHO, LUVA AZUL)
-    {
-      id: "s11-triple-banners-2",
-      type: "banner-grid",
-      enabled: true,
-      order: 10,
-      props: {
-        columns: 3,
-        banners: [
-          {
-            id: "s11-b1",
-            title: "Semana do Feirante — Hamburgueira Isopor",
-            imageUrl:
-              "/assets/HOME Vitrine/S11-MINICARDS-Carrossel/5-mini-ard-azul.png.webp",
-            linkUrl: "",
-            altText: "Semana do Feirante Hamburgueira Isopor R$ 85,95",
-          },
-          {
-            id: "s11-b2",
-            title: "Semana do Feirante — Luva Nitrílica Vermelho",
-            imageUrl:
-              "/assets/HOME Vitrine/S11-MINICARDS-Carrossel/6-mini-card-red.png.webp",
-            linkUrl: "",
-            altText: "Semana do Feirante Luva Nitrílica R$ 27,10",
-          },
-          {
-            id: "s11-b3",
-            title: "Semana do Feirante — Luva Nitrílica Azul",
-            imageUrl:
-              "/assets/HOME Vitrine/S11-MINICARDS-Carrossel/7-mini-card-azul.png.webp",
-            linkUrl: "",
-            altText: "Semana do Feirante Luva Nitrílica Azul R$ 27,10",
-          },
-          {
-            id: "s11-b4",
-            title: "Filme PVC e Bobinas Térmicas",
-            imageUrl:
-              "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/1-mini-card-azul.png.webp",
-            linkUrl: "",
-            altText: "Filme PVC e Bobinas Térmicas no Comercial do Norte",
-          },
-          {
-            id: "s11-b5",
-            title: "Papel Toalha Interfolhado e Higiene",
-            imageUrl:
-              "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/4-mini-card-azul.png.webp",
-            linkUrl: "",
-            altText: "Papel Toalha e Higiene Profissional Comercial do Norte",
-          },
-          {
-            id: "s11-b6",
-            title: "Sacolas Kraft Reforçadas para Delivery",
-            imageUrl:
-              "/assets/HOME Vitrine/S5-MINICARDS-Carrossel/3-mini-card-azul-.png.webp",
-            linkUrl: "",
-            altText: "Sacolas Kraft Reforçadas Comercial do Norte",
-          },
-        ],
-      },
-    },
-
     // 15B — SEÇÃO WORKSHOPS & AULAS PRÁTICAS DE CONFEITARIA (DUPLICAÇÃO CUSTOMIZADA)
     {
       id: "s15b-workshops-confeitaria",
       type: "video-articles-carousel",
       enabled: true,
-      order: 11,
+      order: 10,
       props: {
         variant: "confeitaria",
         title: "Workshops & Aulas Práticas de Confeitaria",
@@ -566,7 +505,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s12-nossos-eventos",
       type: "events-carousel",
       enabled: true,
-      order: 12,
+      order: 11,
       props: {
         title: "Nossos Eventos",
         subtitle: "Tudo que acontece no Comercial do Norte",
@@ -640,7 +579,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s14-para-voce-2",
       type: "product-carousel",
       enabled: true,
-      order: 13,
+      order: 12,
       props: {
         variant: "standard-5col",
         title: "Para você",
@@ -655,7 +594,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s15-explica-ai-comercial",
       type: "video-articles-carousel",
       enabled: true,
-      order: 14,
+      order: 13,
       props: {
         title: "Explica Aí Nort",
         subtitle: "Dicas em vídeos e artigos para você usar no seu negócio.",
@@ -725,7 +664,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s16-instagram-feed",
       type: "instagram-feed",
       enabled: true,
-      order: 15,
+      order: 14,
       props: {
         title: "A Loja no Instagram",
         subtitle:
@@ -826,7 +765,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s18-avaliacoes-google",
       type: "testimonials-grid",
       enabled: true,
-      order: 16,
+      order: 15,
       props: {
         eyebrow: "AVALIAÇÕES NO GOOGLE",
         title: "O que nossos clientes dizem no Google.",
@@ -942,7 +881,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s19-unidades-mapa",
       type: "store-locations-map",
       enabled: true,
-      order: 17,
+      order: 16,
       props: {
         title: "Encontre nossas unidades",
         subtitle: "Lojas mais perto de você",
