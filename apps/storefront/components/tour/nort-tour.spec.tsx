@@ -12,7 +12,7 @@ import {
 } from './nort-tour-context';
 import { NortTourCard } from './nort-tour-card';
 import { NORT_TOUR_STEPS } from './nort-tour-steps';
-import { NortHeader } from '../nort-header';
+
 
 // Mock do next/image para renderizar img comum em testes
 vi.mock('next/image', () => ({
@@ -182,7 +182,7 @@ describe('Nort Guided Tour Engine', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('integração com NortHeader: clicar em "Ver tour guiado novamente" inicia o tour mesmo se cota automática expirou', () => {
+  it('acionamento manual: iniciar o tour manualmente mesmo se cota automática expirou', () => {
     // Simula que a cota automática dos 2 dias já expirou
     const today = new Date();
     const year = today.getFullYear();
@@ -196,21 +196,16 @@ describe('Nort Guided Tour Engine', () => {
 
     render(
       <NortTourProvider>
-        <NortHeader />
+        <TestConsumer />
       </NortTourProvider>
     );
 
     // O tour NÃO deve estar aberto automaticamente pois a cota foi atingida
     expect(screen.queryByRole('dialog')).toBeNull();
 
-    // Abre o balão do Nort no cabeçalho clicando no trigger
-    const nortButton = screen.getByRole('button', { name: /Conversar com o Nort/i });
-    fireEvent.click(nortButton);
-
-    // Clica no botão "Ver tour guiado novamente"
-    const tourButton = screen.getByRole('button', { name: /Ver tour guiado novamente/i });
+    // Dispara o tour manualmente via startTour()
+    const tourButton = screen.getByRole('button', { name: /Iniciar Tour/i });
     expect(tourButton).toBeTruthy();
-
     fireEvent.click(tourButton);
 
     // O tour deve abrir imediatamente sob comando manual

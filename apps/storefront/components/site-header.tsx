@@ -28,6 +28,7 @@ import { useUserLocation } from "./location-provider";
 import { useFavorites } from "./favorites-provider";
 import { useAuth } from "./auth-provider";
 import { UserMenuDropdown } from "./user-menu-dropdown";
+import { NortHeader } from "./nort-header";
 import { CategoryMegaMenu, CATEGORY_MENUS_DATA } from "./category-mega-menu";
 import { CategorySidebarDrawer } from "./category-sidebar-drawer";
 import type { ApiBrand, ApiCategory, ApiSegment, ApiTag } from "@/lib/types";
@@ -151,12 +152,15 @@ export function SiteHeader({
           </div>
         </div>
 
-        {/* BARRA 02: PRINCIPAL AZUL (#004CB1) COM LOGO, BUSCA E COTAÇÃO */}
+        {/* BARRA 02: PRINCIPAL AZUL (#004CB1) COM LOGO, MASCOTE NORT 3D, BUSCA E COTAÇÃO */}
         <div className="relative bg-[#004CB1] text-white min-h-[68px] sm:min-h-[72px] flex items-center w-full">
           <div className="w-full px-3 sm:px-4 md:px-6 relative flex items-center justify-between gap-3 md:gap-4 py-2.5 sm:py-3 md:py-3.5">
             
             {/* LADO ESQUERDO: HAMBURGER (MOBILE) + LOGO COM C VERMELHO E TEXTO BRANCO */}
-            <div className="flex items-center gap-2 sm:gap-3">
+            {/* MASCOTE NORT 3D OFICIAL (Ancorado na base da Barra 02 sem invadir a Barra 03, subindo até quase o teto da Barra 01) */}
+            <NortHeader />
+
+            <div className="flex items-center gap-2 sm:gap-3 md:pl-[88px] lg:pl-[94px]">
               {/* Botão Menu Hamburger Mobile */}
               <button
                 id="tour-header-mobile-menu"

@@ -7,6 +7,11 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **04/11/2026 — Restauração do Mascote Nort no Cabeçalho (Remoção Apenas do Balão e Interação) (executorId: `antigravity-gemini`):**
+  - **Presença Visual do Mascote Preservada:** O mascote Nort foi restaurado na Barra 02 do cabeçalho (`SiteHeader` / `NortHeader`), mantendo o loop de animação do sprite 3D e a respiração (`breathe`), ancorado na base da barra azul com o recuo adequado do logotipo (`md:pl-[88px] lg:pl-[94px]`) e preservando a ancoragem `#tour-header-nort` do tour guiado.
+  - **Remoção Estrita de Balão e Interações Conflitantes:** Removidos o balão de fala pop-up (`bubbleWrap`), temporizadores de insistência de hover e gatilhos de clique/foco no cabeçalho, deixando a interação conversacional e atalho do tour guiado exclusivamente centralizados no chat flutuante do WhatsApp / Nort (`NortChatFloating`).
+  - **Validação:** 204 testes unitários no Storefront aprovados, typecheck com 0 erros e linting 100% limpo.
+
 - **04/11/2026 — Vídeo Original Ativo e Remoção do Limite de 3 Exibições no Pré-Lançamento (executorId: `antigravity-gemini`):**
   - **Exibição Contínua:** Removido o limite de 3 visualizações (`ENFORCE_INTRO_VIEW_LIMIT = false`) durante a fase de desenvolvimento/pré-lançamento. O vídeo agora aparece sempre em todas as cargas normais de `http://localhost:3001/` sem depender de `?intro=1`. A regra de 3 exibições continua pronta no código e será reativada (`true`) no momento do lançamento oficial.
   - **Qualidade Máxima Original:** Reproduz o MP4 original de 18,6 MB (1080p H.264 com áudio cristalino e faststart para carregamento imediato).

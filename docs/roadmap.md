@@ -1,5 +1,10 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **04/11/2026 — Restauração do Mascote Nort no Cabeçalho (Remoção Apenas do Balão e Interação) (executorId: `antigravity-gemini`):**
+  - **Mascote Ativo no Header:** Mascote Nort 3D restabelecido na Barra 02 do cabeçalho oficial com sprite animado e espaçamento para o logotipo (`md:pl-[88px] lg:pl-[94px]`), garantindo a âncora `#tour-header-nort`.
+  - **Eliminação de Balão e Interações no Header:** Removidos o balão pop-up, temporizador de 4s e cliques no cabeçalho; interações conversacionais e atalho de tour concentrados no novo chat flutuante estilo WhatsApp.
+  - **Validação:** 204 testes unitários no Storefront aprovados, typecheck com 0 erros e linting 100% limpo.
+
 - **30/10/2026 — Rastreabilidade de Deploy: Tag de Versão e Timestamp Automático no Balão do Tour (executorId: `antigravity-gemini`):**
   - **Tag Automática de Versão:** Injeção automática em tempo de build (`next.config.ts` + `lib/version.ts`) gerando `vDD-MM-YYYY-H-MPM` (fuso de Brasília) gravada no bundle. Exibida no balão do mascote Nort como indicador visual de release em produção.
   - **Qualidade & Validação:** 174 testes unitários aprovados no Storefront, typecheck com 0 erros e build validado.
