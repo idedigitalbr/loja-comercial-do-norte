@@ -1,5 +1,10 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **05/11/2026 — Remoção do Item "Podcast Universo Business" do Menu de Navegação (executorId: `antigravity-gemini`):**
+  - **Menu Desktop e Gaveta Mobile:** Removido o link/botão "Podcast Universo Business" da Barra 03 de navegação do cabeçalho (`apps/storefront/components/site-header.tsx`) e também da listagem de links da gaveta mobile (`mobileMenuOpen`).
+  - **Limpeza de Dependências:** Removido o import não utilizado do ícone `Podcast` de `lucide-react`.
+  - **Validação:** Teste unitário em `site-header.spec.tsx` atualizado e aprovado, 214 testes unitários do Storefront verdes e typecheck 100% sem erros.
+
 - **05/11/2026 — Redesign do Chat Nort: Fidelidade Visual ao WhatsApp, Cores Sólidas, Wallpaper Clássico e Atendimento Conversacional Guiado (executorId: `antigravity-gemini`):**
   - **Paleta Sólida Obrigatória & Proibição de Gradientes (Seção 13):** Removidos todos os gradientes (`linear-gradient`, `radial-gradient`) e efeitos translúcidos do chat. Centralizadas as variáveis CSS em `apps/storefront/app/globals.css` (`--chat-header: #075844`, `--chat-background: #E4D8D3`, `--chat-received: #F1F3F4`, `--chat-sent: #E0FBD4`, `--chat-button: #FFFFFF`, `--chat-text: #111B21`, `--chat-muted: #667781`, `--chat-border: #D1D7DB`, `--chat-accent: #00A884`).
   - **Foco Teatral no Chat (Backdrop 97% Escuro, Acima do Header e Scroll Lock):** Ao abrir o chat, toda a página atrás dele (incluindo o cabeçalho `#siteHeader` que tinha `z-[60]`) recebe um backdrop escuro de `97%` (`rgba(1, 3, 10, 0.97)`, `z-[9990]`), a janela do chat fica em `z-[9995]` sem nunca ser cortada pelo cabeçalho e a rolagem da página (`body`/`html` overflow) fica travada enquanto o chat estiver aberto.

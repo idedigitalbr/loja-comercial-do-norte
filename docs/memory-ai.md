@@ -7,6 +7,11 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **05/11/2026 — Remoção do Item "Podcast Universo Business" do Menu de Navegação (executorId: `antigravity-gemini`):**
+  - **Menu Desktop e Gaveta Mobile:** Removido o link/botão "Podcast Universo Business" da Barra 03 de navegação do cabeçalho (`apps/storefront/components/site-header.tsx`) e também da listagem de links da gaveta mobile (`mobileMenuOpen`).
+  - **Limpeza de Dependências:** Removido o import não utilizado do ícone `Podcast` de `lucide-react`.
+  - **Validação:** Teste unitário em `site-header.spec.tsx` atualizado e aprovado, 214 testes unitários do Storefront verdes e typecheck 100% sem erros.
+
 - **05/11/2026 — Chat WhatsApp Estilo Typebot, Roteamento Multi-Lojas na Cotação e MiniCRM Kanban (executorId: `antigravity-gemini`):**
   - **Chat WhatsApp Estilo Typebot (`NortChatFloating`):** O chat flutuante do mascote Norti foi transformado em uma experiência conversacional interativa no estilo Typebot com interface idêntica ao WhatsApp (balões com timestamp, confirmação de leitura azul `✓✓` e animação de digitação realista `"Norti está digitando..."` com 3 pontos animados).
   - **Fluxo Guiado Conversacional & Captura de Leads:** Norti conduz uma conversa passo a passo perguntando Nome, WhatsApp com DDD, a loja mais próxima e o assunto de interesse, permitindo também digitação livre e envio direto.
