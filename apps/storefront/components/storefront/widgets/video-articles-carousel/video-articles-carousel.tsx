@@ -138,14 +138,8 @@ export function VideoArticlesCarouselWidget({
             >
               <span className="block text-white whitespace-nowrap">Workshops &amp;</span>
               <span className="block text-white whitespace-nowrap">Aulas Práticas</span>
-              <span className="flex items-center gap-2 mt-0.5 whitespace-nowrap">
-                <span className="text-[#e26678]">de Confeitaria</span>
-                <span
-                  aria-hidden="true"
-                  className="inline-flex size-6 sm:size-6.5 items-center justify-center rounded-full border-2 border-[#e26678] bg-[#e26678]/25 text-[#e26678] shadow-sm shrink-0"
-                >
-                  <Play className="size-2.5 sm:size-3 fill-white ml-0.5 text-white" />
-                </span>
+              <span className="block text-[#e26678] whitespace-nowrap mt-0.5">
+                de Confeitaria
               </span>
             </h2>
             <div className="mt-3 border-l-[2.5px] border-[#e26678] pl-2.5 sm:pl-3 text-xs sm:text-[12px] xl:text-[12.5px] leading-snug text-white/95 font-normal">

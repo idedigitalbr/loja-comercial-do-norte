@@ -7,6 +7,11 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **04/11/2026 — Ativação do Vídeo Original em Alta Qualidade no Pré-Lançamento (executorId: `antigravity-gemini`):**
+  - **Decisão de Produto:** Enquanto o site estiver em desenvolvimento/pré-lançamento, a reprodução da intro do mascote Nort e carrossel de segmentos utilizará o arquivo MP4 original com máxima fidelidade visual (18,6 MB, 1080p H.264 a ~5.8 Mbps, faststart habilitado para início imediato).
+  - **Preservação dos Arquivos Comprimidos:** Os arquivos otimizados gerados anteriormente foram salvos como `/videos/nort-intro-compressed.webm` (4,2 MB) e `/videos/nort-intro-compressed.mp4` (10,8 MB) para ativação imediata no momento do lançamento oficial da loja.
+  - **Validação:** 196 testes unitários no Storefront aprovados.
+
 - **04/11/2026 — Refinamento do Vídeo de Intro: Fullscreen Real, Áudio Ligado, Barra YouTube e Desacoplamento do Tour (executorId: `antigravity-gemini`):**
   - **Fullscreen Real de Ponta a Ponta:**
     - Removidos containers com largura/altura limitadas (`max-w-6xl`, `max-h-[76vh]`), bordas e paddings. O elemento `<video>` agora ocupa 100% da tela (`w-full h-full object-cover object-center`) em camada fullscreen absoluta `z-[9999999]`.

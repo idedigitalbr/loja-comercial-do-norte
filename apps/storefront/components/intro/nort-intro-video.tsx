@@ -454,7 +454,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         data-testid="nort-intro-video-element"
         className="absolute inset-0 w-full h-full object-cover object-center cursor-pointer"
       >
-        <source src="/videos/nort-intro.webm" type="video/webm" />
+        {/* Vídeo original de alta qualidade (18.6 MB) ativo durante o desenvolvimento. Ao lançar oficialmente, alternar para a versão otimizada (/videos/nort-intro-compressed.webm / .mp4) */}
         <source src="/videos/nort-intro.mp4" type="video/mp4" />
       </video>
 
