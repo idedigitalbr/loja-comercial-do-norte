@@ -16,7 +16,7 @@
 
 - **05/11/2026 — Desativação do Vídeo Automático na Abertura do Site e Exibição do Mascote Nort no Mobile (executorId: `antigravity-gemini`):**
   - **Desativação do Vídeo na Abertura do Site:** O vídeo em tela cheia na entrada do site foi desativado. Em `apps/storefront/app/layout.tsx`, a classe `nort-intro-active` só é adicionada com parâmetro explícito de teste (`?intro=1`), e `AUTO_OPEN_INTRO_ON_SITE_LOAD` foi configurado como `false`.
-  - **Abertura do Vídeo Sob Demanda:** O vídeo abre apenas quando o visitante clica no botão Play ("Assista nosso vídeo") na seção de Segmentos ("Para todos os Negócios"), exibindo o modal de vídeo institucional.
+  - **Abertura do Vídeo Sob Demanda em Tela Cheia:** O vídeo abre apenas quando o visitante clica no botão Play ("Assista nosso vídeo") na seção de Segmentos ("Para todos os Negócios"), exibindo o player original cinematográfico em tela cheia (`NortIntroVideo`) com controles YouTube e botão fechar.
   - **Mascote Nort Visível no Mobile:** Removido o ocultamento (`hidden sm:flex`) do mascote Nort na seção de Segmentos. O personagem agora é exibido de forma fluida e responsiva no mobile (`w-[270px] xs:w-[310px] sm:w-[410px]...`), posicionado com harmonia entre os botões de ação e os cards do carrossel.
   - **Validação:** Testes unitários do Storefront verdes, typecheck com 0 erros e build de produção Next.js 16 validado sem inconsistências.
 

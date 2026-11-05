@@ -10,6 +10,13 @@ import {
 } from './nort-intro-helpers';
 
 export const NORT_INTRO_FINISHED_EVENT = 'nort-intro-finished';
+export const OPEN_NORT_VIDEO_EVENT = 'open-nort-intro-video';
+
+export function openNortVideo() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(OPEN_NORT_VIDEO_EVENT));
+  }
+}
 
 export interface NortIntroVideoProps {
   /**
@@ -260,15 +267,40 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
     }
   }, [forceOpen]);
 
-  // Autoplay mutado garantido por padrão em conformidade com políticas dos navegadores
+  // Listener para abertura sob demanda (ao clicar no botão de Play na loja)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleOpen = () => {
+      finishedRef.current = false;
+      setIsFadingOut(false);
+      setIntroActive(true);
+      setIsOpen(true);
+      setIsPlaying(true);
+      setIsMuted(false);
+      setHasInteractedAudio(true);
+      if (typeof document !== 'undefined') {
+        document.documentElement.classList.add('nort-intro-active');
+        document.body.style.overflow = 'hidden';
+      }
+    };
+
+    window.addEventListener(OPEN_NORT_VIDEO_EVENT, handleOpen);
+    return () => {
+      window.removeEventListener(OPEN_NORT_VIDEO_EVENT, handleOpen);
+    };
+  }, []);
+
+  // Autoplay ao abrir (se desmutado por clique do usuário ou mutado por política de segurança)
   useEffect(() => {
     if (!isOpen) return;
 
     const vid = videoRef.current;
     if (vid) {
-      vid.muted = true;
-      setIsMuted(true);
-
+      if (!isMuted) {
+        vid.muted = false;
+        vid.volume = volume || 1;
+      }
       const playPromise = vid.play();
       if (playPromise !== undefined) {
         playPromise
@@ -276,11 +308,14 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
             setIsPlaying(true);
           })
           .catch(() => {
-            setIsPlaying(false);
+            // Se falhar com som por política restrita de autoplay, faz fallback mutado
+            vid.muted = true;
+            setIsMuted(true);
+            vid.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
           });
       }
     }
-  }, [isOpen]);
+  }, [isOpen, isMuted, volume]);
 
   // Loop a 60 FPS contínuo via requestAnimationFrame para fluidez total da barra e tempo
   useEffect(() => {
@@ -409,6 +444,34 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
+      {/* Botão de Fechar no canto superior direito visível a qualquer momento */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleFinish();
+        }}
+        aria-label="Fechar vídeo"
+        data-testid="nort-intro-close-button"
+        className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/65 hover:bg-black/90 text-white border border-white/20 backdrop-blur-md shadow-lg transition-all cursor-pointer active:scale-95 group/close"
+      >
+        <span className="text-xs font-semibold hidden sm:inline text-white/90 group-hover/close:text-white">
+          Fechar
+        </span>
+        <svg
+          className="size-4 text-white/90 group-hover/close:text-white"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+
       {/* VÍDEO FULLSCREEN TOTAL: Preenche 100% da viewport, sem molduras nem headers */}
       <video
         ref={videoRef}
@@ -455,6 +518,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         className="absolute inset-0 w-full h-full object-cover object-center cursor-pointer"
       >
         {/* Vídeo original de alta qualidade (18.6 MB) ativo durante o desenvolvimento. Ao lançar oficialmente, alternar para a versão otimizada (/videos/nort-intro-compressed.webm / .mp4) */}
+        <source src="/videos/nort-intro-compressed.webm" type="video/webm" />
         <source src="/videos/nort-intro.mp4" type="video/mp4" />
       </video>
 

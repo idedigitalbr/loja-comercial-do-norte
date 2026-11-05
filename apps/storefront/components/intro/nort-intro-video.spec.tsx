@@ -4,7 +4,7 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, cleanup, fireEvent, act } from '@testing-library/react';
-import { NortIntroVideo, NORT_INTRO_FINISHED_EVENT, formatTime } from './nort-intro-video';
+import { NortIntroVideo, NORT_INTRO_FINISHED_EVENT, formatTime, openNortVideo, OPEN_NORT_VIDEO_EVENT } from './nort-intro-video';
 import {
   STORAGE_KEY_INTRO_VIEWS,
   shouldShowNortIntro,
@@ -345,6 +345,23 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       render(<NortIntroVideo />);
 
       expect(screen.queryByTestId('nort-intro-video-overlay')).toBeNull();
+    });
+
+    it('abre o player em tela cheia ao receber o evento open-nort-intro-video e fecha pelo botão fechar', () => {
+      render(<NortIntroVideo />);
+      expect(screen.queryByTestId('nort-intro-video-overlay')).toBeNull();
+
+      act(() => {
+        openNortVideo();
+      });
+
+      expect(screen.getByTestId('nort-intro-video-overlay')).toBeDefined();
+      expect(screen.getByTestId('nort-intro-close-button')).toBeDefined();
+
+      const closeBtn = screen.getByTestId('nort-intro-close-button');
+      act(() => {
+        fireEvent.click(closeBtn);
+      });
     });
   });
 });

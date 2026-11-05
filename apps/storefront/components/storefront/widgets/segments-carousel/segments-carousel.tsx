@@ -17,8 +17,8 @@ import {
   Play,
   Soup,
   UtensilsCrossed,
-  X,
 } from 'lucide-react';
+import { openNortVideo } from '@/components/intro';
 import { useElementor } from '@/components/storefront/editor/elementor-editor-context';
 import { InlineImageEditorOverlay } from '@/components/storefront/editor/inline-image-editor-overlay';
 import type { SegmentCardItem, SegmentsCarouselProps } from '@/lib/storefront/widget-types';
@@ -123,18 +123,6 @@ export function SegmentsCarouselWidget({
   const [currentIndex, setCurrentIndex] = useState(() => (canLoop ? CLONE_COUNT : 0));
   const [isTransitionEnabled, setIsTransitionEnabled] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
-  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isVideoModalOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsVideoModalOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isVideoModalOpen]);
 
   const currentIndexRef = useRef(currentIndex);
   currentIndexRef.current = currentIndex;
@@ -350,7 +338,7 @@ export function SegmentsCarouselWidget({
                 type="button"
                 onClick={() => {
                   if (isEditing && !previewMode) return;
-                  setIsVideoModalOpen(true);
+                  openNortVideo();
                 }}
                 className="mt-3.5 sm:mt-5 inline-flex items-center gap-2.5 cursor-pointer group select-none text-left transition hover:opacity-95"
                 aria-label={videoButtonLabel}
@@ -540,53 +528,7 @@ export function SegmentsCarouselWidget({
         </div>
       </div>
 
-      {/* Modal de Vídeo Institucional dos Segmentos */}
-      {isVideoModalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Vídeo institucional dos segmentos"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-xs animate-in fade-in duration-200"
-          onClick={() => setIsVideoModalOpen(false)}
-        >
-          <div
-            className="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-zinc-800 bg-black shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/90 px-4 py-3 text-white">
-              <div className="flex items-center gap-2">
-                <span className="flex size-6 items-center justify-center rounded-full bg-[#E2091E] text-white">
-                  <Play className="size-3 fill-white ml-0.5" />
-                </span>
-                <span className="text-xs sm:text-sm font-bold">
-                  Comercial do Norte — Para todos os Negócios
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsVideoModalOpen(false)}
-                aria-label="Fechar vídeo"
-                className="flex size-8 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 transition hover:bg-zinc-700 hover:text-white cursor-pointer"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
 
-            <div className="relative aspect-video w-full bg-black">
-              <video
-                controls
-                autoPlay
-                playsInline
-                className="size-full object-contain"
-              >
-                <source src="/videos/nort-intro-compressed.webm" type="video/webm" />
-                <source src={videoUrl || '/videos/nort-intro.mp4'} type="video/mp4" />
-                Seu navegador não suporta a tag de vídeo.
-              </video>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

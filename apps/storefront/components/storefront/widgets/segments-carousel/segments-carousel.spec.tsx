@@ -255,24 +255,15 @@ describe('SegmentsCarouselWidget', () => {
     expect(mascotContainer.className).toContain('flex');
   });
 
-  it('abre e fecha o modal de vídeo institucional dos segmentos', () => {
+  it('dispara o evento para abrir o player de vídeo institucional em tela cheia ao clicar no botão', () => {
+    const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
     render(<SegmentsCarouselWidget items={mockItems} />);
 
-    // Inicialmente o modal está fechado
-    expect(screen.queryByRole('dialog', { name: 'Vídeo institucional dos segmentos' })).toBeNull();
-
-    // Clica no botão de vídeo
     const videoBtn = screen.getByRole('button', { name: 'Assista nosso vídeo' });
     fireEvent.click(videoBtn);
 
-    // O modal deve estar aberto
-    const modal = screen.getByRole('dialog', { name: 'Vídeo institucional dos segmentos' });
-    expect(modal).toBeDefined();
-
-    // Fecha o modal pelo botão fechar
-    const closeBtn = screen.getByRole('button', { name: 'Fechar vídeo' });
-    fireEvent.click(closeBtn);
-
-    expect(screen.queryByRole('dialog', { name: 'Vídeo institucional dos segmentos' })).toBeNull();
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'open-nort-intro-video' })
+    );
   });
 });
