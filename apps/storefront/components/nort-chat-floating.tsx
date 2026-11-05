@@ -10,9 +10,21 @@ import {
   buildWhatsAppLink,
   findNearestStoreByCep,
   findNearestStoreByCoords,
+  findStoreById,
   formatBrazilPhoneMask,
   formatCepMask,
 } from '../lib/stores-data';
+import {
+  DEFAULT_LOCATION,
+  cleanCep,
+  detectLocationByIp,
+  getStoredLocation,
+  lookupLocationByCep,
+  reverseGeocodeCoordinates,
+  saveStoredLocation,
+  type UserLocation,
+} from '../lib/location';
+import { useOptionalUserLocation } from './location-provider';
 import { useNortTour } from './tour';
 
 export type NortChatFloatingProps = {
@@ -34,10 +46,100 @@ export type ChatMessage = {
 export type BotStep =
   | 'IDENTIFY'
   | 'UNIT_MODE'
+  | 'UNIT_AUTO_CONFIRM'
   | 'UNIT_CEP'
   | 'UNIT_LIST'
   | 'SERVICE'
   | 'FINISHED';
+
+export const NORT_SESSION_STORAGE_KEY = 'cn_nort_chat_session_v1';
+export const NORT_VISITOR_COOKIE_KEY = 'cn_nort_visitor_id';
+
+export type StoredNortSession = {
+  publicId: string;
+  step: BotStep;
+  customerName: string;
+  customerPhone: string;
+  selectedStoreId: string;
+  chosenSubject: string;
+  messages: ChatMessage[];
+  updatedAt: number;
+};
+
+function getOrCreateVisitorPublicId(): string {
+  if (typeof window === 'undefined') return 'lead-ssr';
+  try {
+    const match = document.cookie.match(new RegExp(`(?:^|; )${NORT_VISITOR_COOKIE_KEY}=([^;]*)`));
+    if (match && match[1]) {
+      return decodeURIComponent(match[1]);
+    }
+    const existingRaw = window.localStorage.getItem(NORT_SESSION_STORAGE_KEY);
+    if (existingRaw) {
+      const parsed = JSON.parse(existingRaw);
+      if (parsed && typeof parsed.publicId === 'string' && parsed.publicId) {
+        return parsed.publicId;
+      }
+    }
+  } catch {
+    // Ignora erro de leitura
+  }
+
+  const generated = `lead-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+  try {
+    const maxAge = 60 * 60 * 24 * 365;
+    document.cookie = `${NORT_VISITOR_COOKIE_KEY}=${encodeURIComponent(generated)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+  } catch {
+    // Ignora erro de cookie
+  }
+  return generated;
+}
+
+function loadStoredNortSession(): StoredNortSession | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(NORT_SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredNortSession;
+    if (
+      parsed &&
+      Array.isArray(parsed.messages) &&
+      parsed.messages.length > 0 &&
+      typeof parsed.customerName === 'string' &&
+      parsed.customerName.trim().length >= 2
+    ) {
+      return parsed;
+    }
+  } catch {
+    // Ignora erro de JSON
+  }
+  return null;
+}
+
+function saveStoredNortSession(session: StoredNortSession): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(NORT_SESSION_STORAGE_KEY, JSON.stringify(session));
+  } catch {
+    // Ignora erro de quota
+  }
+  if (session.publicId) {
+    try {
+      const maxAge = 60 * 60 * 24 * 365;
+      document.cookie = `${NORT_VISITOR_COOKIE_KEY}=${encodeURIComponent(session.publicId)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+    } catch {
+      // Ignora erro de cookie
+    }
+  }
+}
+
+function clearStoredNortSession(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.removeItem(NORT_SESSION_STORAGE_KEY);
+  } catch {
+    // Ignora
+  }
+}
 
 const WELCOME_MSG_1 = 'Olá! 👋 Eu sou o Nort, assistente virtual da Comercial do Norte!';
 const WELCOME_MSG_2 = 'Para começar, me conta: qual é o seu nome e número do WhatsApp?';
@@ -217,6 +319,7 @@ export function NortChatFloating({
   previewDurationMs,
 }: NortChatFloatingProps) {
   const { startTour } = useNortTour();
+  const optionalLocationCtx = useOptionalUserLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [bubbleDismissed, setBubbleDismissed] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -229,10 +332,12 @@ export function NortChatFloating({
     'Oi! Precisa de ajuda com cotação ou produtos? Fala comigo! 👋';
 
   // Etapas e estado do atendimento
+  const [visitorPublicId, setVisitorPublicId] = useState<string>('lead-init');
   const [step, setStep] = useState<BotStep>('IDENTIFY');
   const [isTyping, setIsTyping] = useState(false);
   const [interactiveReady, setInteractiveReady] = useState(false);
   const [hasInitializedIntro, setHasInitializedIntro] = useState(false);
+  const [hasRestoredSession, setHasRestoredSession] = useState(false);
 
   // Dados do cliente e escolhas
   const [customerName, setCustomerName] = useState('');
@@ -242,6 +347,7 @@ export function NortChatFloating({
   const [cepError, setCepError] = useState('');
   const [pendingStoreId, setPendingStoreId] = useState<string>(DEFAULT_STORE.id);
   const [selectedStore, setSelectedStore] = useState<CommercialStore>(DEFAULT_STORE);
+  const [autoSuggestedStore, setAutoSuggestedStore] = useState<CommercialStore>(DEFAULT_STORE);
   const [chosenSubject, setChosenSubject] = useState('');
   const [customMessageText, setCustomMessageText] = useState('');
   const [storeInfoVisible, setStoreInfoVisible] = useState(false);
@@ -429,13 +535,114 @@ export function NortChatFloating({
     }
   }
 
-  // Ao abrir o chat pela primeira vez, dispara a sequência inicial conforme Anexos 3, 4 e 5
+  // Restaura sessão salva do cliente (localStorage / cookie / banco CRM) ao montar no navegador,
+  // para que ao dar F5 ou navegar pelo site ele não precise informar nome/WhatsApp novamente!
   useEffect(() => {
-    if (isOpen && !hasInitializedIntro) {
+    const pubId = getOrCreateVisitorPublicId();
+    setVisitorPublicId(pubId);
+
+    const localSession = loadStoredNortSession();
+    if (localSession) {
+      const restoredStore = findStoreById(localSession.selectedStoreId);
+      setCustomerName(localSession.customerName);
+      setCustomerPhone(localSession.customerPhone);
+      setSelectedStore(restoredStore);
+      setPendingStoreId(restoredStore.id);
+      setChosenSubject(localSession.chosenSubject || '');
+      setMessages(localSession.messages);
+      setStep(localSession.step === 'IDENTIFY' ? 'UNIT_MODE' : localSession.step);
+      setIsTyping(false);
+      setInteractiveReady(true);
+      setHasInitializedIntro(true);
+      setHasRestoredSession(true);
+      return;
+    }
+
+    // Caso o localStorage tenha sido limpo mas o cookie da sessão (publicId) exista no banco CRM, restaura do backend!
+    if (typeof window !== 'undefined' && document.cookie.includes(NORT_VISITOR_COOKIE_KEY)) {
+      void fetch(`/api/v1/crm/leads/session?publicId=${encodeURIComponent(pubId)}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.found && data.lead && data.lead.customerName) {
+            const lead = data.lead;
+            const restoredStore = findStoreById(lead.storeId);
+            const rawLog = Array.isArray(lead.conversationLog) ? lead.conversationLog : [];
+            const mappedMessages: ChatMessage[] =
+              rawLog.length > 0
+                ? rawLog.map((m: any, idx: number) => ({
+                    id: m.id || `restored-${idx}`,
+                    sender: m.sender === 'user' ? 'user' : 'bot',
+                    text: String(m.text || ''),
+                    time: String(m.timestamp || m.time || 'Agora'),
+                  }))
+                : [
+                    {
+                      id: 'restored-welcome',
+                      sender: 'bot',
+                      text: `Olá de volta, ${lead.customerName}! 👋 Como posso continuar te ajudando hoje na ${restoredStore.shortTitle}?`,
+                      time: 'Agora',
+                    },
+                  ];
+
+            setCustomerName(lead.customerName);
+            setCustomerPhone(lead.customerPhone || '');
+            setSelectedStore(restoredStore);
+            setPendingStoreId(restoredStore.id);
+            setChosenSubject(lead.subject || '');
+            setMessages(mappedMessages);
+            setStep('SERVICE');
+            setIsTyping(false);
+            setInteractiveReady(true);
+            setHasInitializedIntro(true);
+            setHasRestoredSession(true);
+          }
+        })
+        .catch(() => {
+          // Ignora falha de rede
+        });
+    }
+  }, []);
+
+  // Salva automaticamente o histórico e progresso da conversa no localStorage sempre que o usuário já se identificou
+  useEffect(() => {
+    if (!customerName || customerName.trim().length < 2) return;
+    if (messages.length === 0) return;
+
+    saveStoredNortSession({
+      publicId: visitorPublicId || getOrCreateVisitorPublicId(),
+      step,
+      customerName: customerName.trim(),
+      customerPhone,
+      selectedStoreId: selectedStore.id,
+      chosenSubject,
+      messages,
+      updatedAt: Date.now(),
+    });
+  }, [visitorPublicId, step, customerName, customerPhone, selectedStore, chosenSubject, messages]);
+
+  // Ao abrir o chat pela primeira vez (se não houver sessão anterior restaurada), dispara a sequência inicial conforme Anexos 3, 4 e 5
+  useEffect(() => {
+    if (isOpen && !hasInitializedIntro && !hasRestoredSession) {
+      const existing = loadStoredNortSession();
+      if (existing) {
+        const restoredStore = findStoreById(existing.selectedStoreId);
+        setCustomerName(existing.customerName);
+        setCustomerPhone(existing.customerPhone);
+        setSelectedStore(restoredStore);
+        setPendingStoreId(restoredStore.id);
+        setChosenSubject(existing.chosenSubject || '');
+        setMessages(existing.messages);
+        setStep(existing.step === 'IDENTIFY' ? 'UNIT_MODE' : existing.step);
+        setIsTyping(false);
+        setInteractiveReady(true);
+        setHasInitializedIntro(true);
+        setHasRestoredSession(true);
+        return;
+      }
       setHasInitializedIntro(true);
       scheduleBotSequence([WELCOME_MSG_1, WELCOME_MSG_2], { withInteractiveWidget: true });
     }
-  }, [isOpen, hasInitializedIntro]);
+  }, [isOpen, hasInitializedIntro, hasRestoredSession]);
 
   useEffect(() => {
     if (isOpen) {
@@ -467,11 +674,13 @@ export function NortChatFloating({
     subject: string;
     allMessages: ChatMessage[];
   }) {
+    const activePublicId = visitorPublicId || getOrCreateVisitorPublicId();
     try {
       await fetch('/api/v1/crm/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          publicId: activePublicId,
           customerName: leadData.name,
           customerPhone: leadData.phone,
           preferredStore: leadData.store.name,
@@ -523,8 +732,18 @@ export function NortChatFloating({
       quotedText: WELCOME_MSG_2,
     };
 
-    setMessages((prev) => [...prev, userMsg]);
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
     setStep('UNIT_MODE');
+
+    // Já registra a identificação inicial do lead na sessão do CRM para nunca perder o contato
+    void registerLeadToCRM({
+      name: cleanName,
+      phone: formattedPhone,
+      store: selectedStore,
+      subject: 'Em atendimento inicial no chat',
+      allMessages: nextMessages,
+    });
 
     scheduleBotSequence(
       [
@@ -536,8 +755,60 @@ export function NortChatFloating({
   }
 
   /* ============================================================================
-   * ETAPA 2 — ESCOLHA DA UNIDADE (LOCALIZAÇÃO, CEP OU LISTA)
+   * ETAPA 2 — ESCOLHA DA UNIDADE (LOCALIZAÇÃO AUTOMÁTICA GPS + IP MAGALU, CEP OU LISTA)
    * ============================================================================ */
+  function syncHeaderLocation(loc: UserLocation) {
+    if (optionalLocationCtx) {
+      optionalLocationCtx.setLocation(loc);
+    } else {
+      saveStoredLocation(loc);
+    }
+  }
+
+  async function resolveSmartFallbackLocation(): Promise<{
+    store: CommercialStore;
+    regionLabel: string;
+    hasSpecificLocation: boolean;
+  }> {
+    // 1. Verifica se o usuário já possui uma localização salva no cabeçalho / localStorage
+    const currentHeaderLoc = optionalLocationCtx?.location || getStoredLocation();
+    if (currentHeaderLoc && currentHeaderLoc.source && currentHeaderLoc.source !== 'default') {
+      const store =
+        typeof currentHeaderLoc.lat === 'number' && typeof currentHeaderLoc.lng === 'number'
+          ? findNearestStoreByCoords(currentHeaderLoc.lat, currentHeaderLoc.lng)
+          : findNearestStoreByCep(currentHeaderLoc.cep || '66020-600');
+      const regionLabel =
+        currentHeaderLoc.neighborhood && currentHeaderLoc.city
+          ? `${currentHeaderLoc.neighborhood}, ${currentHeaderLoc.city}/${currentHeaderLoc.state}`
+          : currentHeaderLoc.shortLabel || `${currentHeaderLoc.city}/${currentHeaderLoc.state}`;
+      return { store, regionLabel, hasSpecificLocation: true };
+    }
+
+    // 2. Consulta automaticamente a localização por IP (igual Magazine Luiza quando abre o site)
+    const ipLoc = await detectLocationByIp();
+    if (ipLoc) {
+      syncHeaderLocation(ipLoc);
+      const store =
+        typeof ipLoc.lat === 'number' && typeof ipLoc.lng === 'number'
+          ? findNearestStoreByCoords(ipLoc.lat, ipLoc.lng)
+          : findNearestStoreByCep(ipLoc.cep || '66020-600');
+      return {
+        store,
+        regionLabel: ipLoc.shortLabel || `Região de ${ipLoc.city}/${ipLoc.state}`,
+        hasSpecificLocation: true,
+      };
+    }
+
+    // 3. Fallback usando a localização padrão do cabeçalho (Belém/PA)
+    const fallbackLoc = currentHeaderLoc || DEFAULT_LOCATION;
+    const store = findNearestStoreByCep(fallbackLoc.cep || '66093-005');
+    return {
+      store,
+      regionLabel: fallbackLoc.shortLabel || 'Região de Belém/PA',
+      hasSpecificLocation: Boolean(currentHeaderLoc),
+    };
+  }
+
   function handleFindNearestUnit() {
     if (isTyping) return;
 
@@ -553,33 +824,52 @@ export function NortChatFloating({
     if (typeof navigator !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const nearest = findNearestStoreByCoords(
-            position.coords.latitude,
-            position.coords.longitude
-          );
+          const { latitude, longitude } = position.coords;
+          const nearest = findNearestStoreByCoords(latitude, longitude);
+
+          // Atualiza também o cabeçalho da loja com o bairro/cidade real do GPS!
+          void reverseGeocodeCoordinates(latitude, longitude).then((geoLoc) => {
+            if (geoLoc) {
+              syncHeaderLocation(geoLoc);
+            }
+          });
+
           confirmStoreSelection(
             nearest,
-            `Encontrei a unidade mais próxima da sua localização: ${nearest.shortTitle} (${nearest.address}).`
+            `Localização confirmada! 📍 A unidade mais próxima de você é a ${nearest.shortTitle} (${nearest.address}).`
           );
         },
-        () => {
+        async () => {
+          // Quando o navegador bloqueia ou oculta o popup de GPS ("Localização bloqueada"),
+          // usa detecção automática por IP / região do cabeçalho (estilo Magazine Luiza) + campo de CEP!
+          const autoResult = await resolveSmartFallbackLocation();
+          setAutoSuggestedStore(autoResult.store);
+          setSelectedStore(autoResult.store);
           setStep('UNIT_CEP');
+
           scheduleBotSequence(
             [
-              'Não consegui acessar sua localização automática. Sem problemas!',
-              'Informe seu CEP abaixo para eu localizar a unidade mais próxima:',
+              `Identifiquei automaticamente sua região (${autoResult.regionLabel})! 📍 Pela sua localização aproximada, a unidade sugerida é a ${autoResult.store.shortTitle} (${autoResult.store.address}).`,
+              'Você pode continuar direto nessa unidade ou digitar seu CEP abaixo para calcular pela sua rua exata:',
             ],
             { withInteractiveWidget: true }
           );
         },
-        { timeout: 5000 }
+        { timeout: 3500 }
       );
     } else {
-      setStep('UNIT_CEP');
-      scheduleBotSequence(
-        ['Para localizar a unidade mais próxima de você, informe seu CEP abaixo:'],
-        { withInteractiveWidget: true }
-      );
+      void resolveSmartFallbackLocation().then((autoResult) => {
+        setAutoSuggestedStore(autoResult.store);
+        setSelectedStore(autoResult.store);
+        setStep('UNIT_CEP');
+        scheduleBotSequence(
+          [
+            `Identifiquei automaticamente sua região (${autoResult.regionLabel})! 📍 A unidade sugerida para você é a ${autoResult.store.shortTitle}.`,
+            'Confirme abaixo para continuar nela ou informe seu CEP para localizar pela sua rua exata:',
+          ],
+          { withInteractiveWidget: true }
+        );
+      });
     }
   }
 
@@ -616,15 +906,32 @@ export function NortChatFloating({
     const nearest = findNearestStoreByCep(digits);
     const formattedCep = formatCepMask(digits);
 
+    if (digits.length === 8) {
+      void lookupLocationByCep(digits)
+        .then((loc) => syncHeaderLocation(loc))
+        .catch(() => {
+          // Ignora falha de CEP externo
+        });
+    }
+
     const userMsg: ChatMessage = {
       id: `user-cep-${Date.now()}`,
       sender: 'user',
       text: `CEP: ${formattedCep} (${nearest.shortTitle})`,
       time: getFormattedTime(),
     };
-    setMessages((prev) => [...prev, userMsg]);
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
     setSelectedStore(nearest);
     setStep('SERVICE');
+
+    void registerLeadToCRM({
+      name: customerName || 'Cliente Site',
+      phone: customerPhone || '(91) 98344-0880',
+      store: nearest,
+      subject: `Unidade escolhida por CEP (${formattedCep})`,
+      allMessages: nextMessages,
+    });
 
     scheduleBotSequence(
       [
@@ -645,8 +952,17 @@ export function NortChatFloating({
       text: `🏬 ${store.shortTitle}`,
       time: getFormattedTime(),
     };
-    setMessages((prev) => [...prev, userMsg]);
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
     setStep('SERVICE');
+
+    void registerLeadToCRM({
+      name: customerName || 'Cliente Site',
+      phone: customerPhone || '(91) 98344-0880',
+      store,
+      subject: `Unidade selecionada (${store.shortTitle})`,
+      allMessages: nextMessages,
+    });
 
     if (customPrefix) {
       scheduleBotSequence(
@@ -776,6 +1092,7 @@ export function NortChatFloating({
 
   function handleRestartChat() {
     clearScheduledTimers();
+    clearStoredNortSession();
     setStep('IDENTIFY');
     setCustomerName('');
     setCustomerPhone('');
@@ -790,6 +1107,7 @@ export function NortChatFloating({
     setMessages([]);
     setInteractiveReady(false);
     setHasInitializedIntro(true);
+    setHasRestoredSession(false);
     scheduleBotSequence([WELCOME_MSG_1, WELCOME_MSG_2], { withInteractiveWidget: true });
   }
 
@@ -1111,9 +1429,16 @@ export function NortChatFloating({
               </div>
             )}
 
-            {/* SUB-FLUXO 2A — INFORMAR CEP QUANDO GEOLOCALIZAÇÃO NÃO ESTÁ AUTORIZADA */}
+            {/* SUB-FLUXO 2A — UNIDADE SUGERIDA AUTOMATICAMENTE (ESTILO MAGALU) + OPÇÃO DE CEP EXATO */}
             {step === 'UNIT_CEP' && !isTyping && interactiveReady && (
               <div className="pt-1 space-y-1.5 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <QuickReplyButton
+                  ariaLabel={`Continuar na ${autoSuggestedStore.shortTitle}`}
+                  onClick={() => confirmStoreSelection(autoSuggestedStore)}
+                >
+                  ✅ Continuar na {autoSuggestedStore.shortTitle}
+                </QuickReplyButton>
+
                 <form
                   aria-label="Buscar unidade por CEP"
                   className="rounded-[12px] bg-[#FFFFFF] p-3.5 border border-[#D1D7DB] shadow-[0_2px_6px_rgba(17,27,33,0.12)] space-y-2"
@@ -1123,7 +1448,7 @@ export function NortChatFloating({
                     className="block text-[11.5px] font-semibold text-[#111B21]"
                     htmlFor={`${id}-cep`}
                   >
-                    Informe seu CEP
+                    Ou informe seu CEP para localizar pela sua rua exata
                   </label>
                   <input
                     ref={cepInputRef}

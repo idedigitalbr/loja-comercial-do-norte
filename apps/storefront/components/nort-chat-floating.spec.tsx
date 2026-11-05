@@ -19,6 +19,8 @@ vi.mock('next/image', () => ({
 describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.localStorage.clear();
+    document.cookie = 'cn_nort_visitor_id=; max-age=0; path=/';
     window.open = vi.fn();
     global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
     document.body.style.overflow = '';
@@ -27,6 +29,8 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
 
   afterEach(() => {
     cleanup();
+    window.localStorage.clear();
+    document.cookie = 'cn_nort_visitor_id=; max-age=0; path=/';
     vi.useRealTimers();
     document.body.style.overflow = '';
     document.documentElement.style.overflow = '';
@@ -245,7 +249,7 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     );
   });
 
-  it('oferece busca por CEP quando a localização do navegador não está disponível', () => {
+  it('detecta automaticamente a região por IP/cabeçalho (estilo Magazine Luiza) e oferece CEP exato quando a permissão de GPS do navegador não está disponível', async () => {
     vi.useFakeTimers();
     render(<NortChatFloating whatsapp="5591983440880" />);
 
@@ -269,11 +273,20 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
       vi.advanceTimersByTime(10000);
     });
 
-    fireEvent.click(screen.getByText(/📍 encontrar a mais próxima de mim/i));
+    await act(async () => {
+      fireEvent.click(screen.getByText(/📍 encontrar a mais próxima de mim/i));
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
 
     act(() => {
-      vi.advanceTimersByTime(7000);
+      vi.advanceTimersByTime(12000);
     });
+
+    // Verifica que o chat sugeriu automaticamente a unidade da região e também exibiu o campo de CEP
+    expect(screen.getByText(/identifiquei automaticamente sua região/i)).toBeDefined();
+    expect(screen.getByText(/✅ continuar na/i)).toBeDefined();
 
     const cepField = screen.getByPlaceholderText('Informe seu CEP...');
     expect(cepField).toBeDefined();
@@ -288,6 +301,46 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     });
 
     expect(screen.getByText(/identifiquei a unidade são brás/i)).toBeDefined();
+  });
+
+  it('persiste a conversa no navegador (F5 / reload) para não pedir nome e WhatsApp toda hora', () => {
+    vi.useFakeTimers();
+    const { unmount } = render(<NortChatFloating whatsapp="5591983440880" />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(11000);
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('Como posso te chamar?'), {
+      target: { value: 'Roberto' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('(91) 99999-9999'), {
+      target: { value: '91992223333' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /continuar no chat/i }));
+
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    expect(screen.getByText(/prazer, roberto! 😊/i)).toBeDefined();
+
+    // Simula F5 / recarregamento da página desmontando e montando novamente
+    unmount();
+
+    render(<NortChatFloating whatsapp="5591983440880" />);
+    fireEvent.click(
+      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
+    );
+
+    // Ao reabrir após F5, a conversa com Roberto já está salva e NÃO pede o formulário de Nome/WhatsApp de novo!
+    expect(screen.getByText(/prazer, roberto! 😊/i)).toBeDefined();
+    expect(screen.queryByPlaceholderText('Como posso te chamar?')).toBeNull();
+    expect(screen.getByText(/📍 encontrar a mais próxima de mim/i)).toBeDefined();
   });
 
   it('fecha o chat e destrava o scroll da página ao pressionar Escape', () => {

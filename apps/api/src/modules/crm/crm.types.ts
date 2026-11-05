@@ -17,6 +17,11 @@ export class ChatMessageDto {
 }
 
 export class CreateCrmLeadDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  publicId?: string;
+
   @IsString()
   @MaxLength(160)
   customerName!: string;

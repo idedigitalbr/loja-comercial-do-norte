@@ -9,10 +9,11 @@ import React, {
 } from 'react';
 import {
   DEFAULT_LOCATION,
+  detectLocationByIp,
   getStoredLocation,
   saveStoredLocation,
   type UserLocation,
-} from '@/lib/location';
+} from '../lib/location';
 
 type LocationContextValue = {
   location: UserLocation;
@@ -31,12 +32,26 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Inicializa a partir do localStorage / cookie ao montar no cliente
+  // Caso o visitante ainda não tenha definido uma localização manual, detecta automaticamente pelo IP (estilo Magazine Luiza)
   useEffect(() => {
+    let isCancelled = false;
     const stored = getStoredLocation();
+
     if (stored) {
       setLocationState(stored);
+      setIsHydrated(true);
+    } else {
+      setIsHydrated(true);
+      void detectLocationByIp().then((autoLoc) => {
+        if (isCancelled || !autoLoc) return;
+        // Só aplica a localização automática se o usuário não tiver salvo outra manualmente enquanto buscava
+        const latestStored = getStoredLocation();
+        if (!latestStored || latestStored.source === 'ip' || latestStored.source === 'default') {
+          setLocationState(autoLoc);
+          saveStoredLocation(autoLoc);
+        }
+      });
     }
-    setIsHydrated(true);
 
     function handleLocationChange(e: Event) {
       const customEvent = e as CustomEvent<UserLocation>;
@@ -47,13 +62,18 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
 
     window.addEventListener('cn-location-changed', handleLocationChange);
     return () => {
+      isCancelled = true;
       window.removeEventListener('cn-location-changed', handleLocationChange);
     };
   }, []);
 
   const setLocation = useCallback((newLoc: UserLocation) => {
-    setLocationState(newLoc);
-    saveStoredLocation(newLoc);
+    const manualLoc: UserLocation = {
+      ...newLoc,
+      source: newLoc.source || 'manual',
+    };
+    setLocationState(manualLoc);
+    saveStoredLocation(manualLoc);
   }, []);
 
   const openModal = useCallback(() => setIsModalOpen(true), []);
@@ -81,4 +101,8 @@ export function useUserLocation(): LocationContextValue {
     throw new Error('useUserLocation deve ser utilizado dentro de um <LocationProvider>');
   }
   return ctx;
+}
+
+export function useOptionalUserLocation(): LocationContextValue | null {
+  return useContext(LocationContext);
 }

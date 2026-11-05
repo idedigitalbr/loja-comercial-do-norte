@@ -1,5 +1,22 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **05/11/2026 — Detecção Automática de Localização por IP (Estilo Magazine Luiza) e Persistência da Conversa no Chat do Nort (executorId: `antigravity-gemini`):**
+  - **Localização Automática ao Abrir o Site (`LocationProvider` + `/api/location?mode=ip`):** Detecção silenciosa por IP/Edge Geo Headers logo ao abrir a loja (sem depender de permissão de GPS), atualizando o cabeçalho e coordenadas aproximadas.
+  - **Sugestão Automática de Unidade no Chat (`NortChatFloating`):** Quando o Chrome/navegador bloqueia o popup de geolocalização (`Localização bloqueada`), o botão `📍 Encontrar a mais próxima de mim` usa automaticamente a região do IP/cabeçalho para sugerir a unidade mais próxima com confirmação em 1 clique (`✅ Continuar na [Unidade]`) + opção de refinar por CEP exato.
+  - **Persistência de Conversa no Navegador e CRM (`cn_nort_chat_session_v1` + `GET /api/v1/crm/leads/session`):** Salva e restaura automaticamente o histórico de mensagens, nome, WhatsApp e etapa atual após F5/reload, evitando pedir os dados do cliente novamente e atualizando o mesmo registro no Kanban do MiniCRM via `publicId`.
+  - **Validação:** 19 testes unitários aprovados (`nort-chat-floating.spec.tsx` + `crm.service.spec.ts`) e `typecheck` 100% verde no Storefront e na API.
+
+- **05/11/2026 — Seção "Compre por Marca" na Home, Hierarquia de Marcas & Submarcas e Vitrine de Produtos por Marca (executorId: `antigravity-gemini`):**
+  - **Home ("Compre por Marca"):** Criado widget `BrandsCarouselWidget` (`s07-compre-por-marca`) com título centralizado, grid/carrossel de 6 cards brancos arredondados (`rounded-[28px]`) com logotipos, barra inferior colorida e bolinhas de paginação, registrado no `widget-registry.tsx` e no editor Elementor (`elementor-panel.tsx`, `elementor-navigator.tsx`, `elementor-add-section-box.tsx`).
+  - **Dados & Seed (`brands-data.ts` + `seed-catalog.ts`):** Alimentadas 10 marcas raiz e 29 submarcas com logotipos locais em `/assets/PRODUTOS/marcas-imgs/` e distribuição determinística de produtos no seed.
+  - **Página de Marca (`/marca/[slug]`, `/marcas`, `CatalogView`, `CatalogSidebar`):** Adicionada faixa superior de seleção rápida de marcas com logo + contador `(N)`, árvore expansível `+`/`-` de marcas e submarcas com checkboxes e botão `"Limpar Filtro"`, breadcrumbs hierárquicos (`Marcas / Marca Mãe / Submarca`) e fallback determinístico de produtos.
+
+- **05/11/2026 — Animações de Scroll Super Fluidas e Skeleton Shimmer nas Seções (executorId: `antigravity-gemini`):**
+  - **Skeleton Shimmer Proporcional por Seção:** Criado `apps/storefront/components/ui/scroll-skeleton-reveal.tsx` com skeletons dedicados para cada widget da vitrine (`product-carousel`, `split-banner`, `category-grid`, `banner-grid`, `segments-carousel`, `promo-strip`, `video-articles-carousel`, `events-carousel`, `instagram-feed`, `testimonials-grid`, `store-locations-map`) e para cards de produtos (`ProductCardSkeleton`).
+  - **Transição no Scroll com IntersectionObserver:** As seções iniciais (above-the-fold) abrem imediatamente, enquanto as seções seguintes exibem o efeito Skeleton Shimmer ao entrar na área de rolagem e transitam suavemente (`animate-cn-section-reveal` e `animate-cn-card-reveal` com curva `cubic-bezier(0.16, 1, 0.3, 1)`) para o conteúdo carregado.
+  - **Cobertura em Todo o Storefront:** Aplicado na Home (`ElementorSectionWrapper`), no grid de produtos do Catálogo (`CatalogView`), nas páginas de Segmento (`/segmento/[slug]`), na vitrine de Posts (`/post`), em Eventos e Workshops (`EventsView` e `ConfeitariaWorkshopsList`) e em Produtos Relacionados (`/produto/[slug]`).
+  - **Validação:** 48 arquivos de teste / 218 testes aprovados no Storefront e `typecheck` com 0 erros.
+
 - **05/11/2026 — Remoção do Item "Podcast Universo Business" do Menu de Navegação (executorId: `antigravity-gemini`):**
   - **Menu Desktop e Gaveta Mobile:** Removido o link/botão "Podcast Universo Business" da Barra 03 de navegação do cabeçalho (`apps/storefront/components/site-header.tsx`) e também da listagem de links da gaveta mobile (`mobileMenuOpen`).
   - **Limpeza de Dependências:** Removido o import não utilizado do ícone `Podcast` de `lucide-react`.

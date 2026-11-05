@@ -6,6 +6,9 @@ export type UserLocation = {
   state: string;
   formatted: string;
   shortLabel: string;
+  lat?: number;
+  lng?: number;
+  source?: 'manual' | 'gps' | 'ip' | 'default';
 };
 
 export const DEFAULT_LOCATION: UserLocation = {
@@ -16,6 +19,9 @@ export const DEFAULT_LOCATION: UserLocation = {
   state: 'PA',
   formatted: 'Cidade Velha, Belém - PA (66020-600)',
   shortLabel: 'Região de Belém/PA',
+  lat: -1.4558,
+  lng: -48.4902,
+  source: 'default',
 };
 
 export const BRAZIL_STATES: Array<{ uf: string; name: string }> = [
@@ -351,4 +357,178 @@ export async function lookupLocationByAddress(params: {
   }
 
   return list.slice(0, 15).map(normalizeViaCep);
+}
+
+/**
+ * Converte coordenadas GPS (latitude/longitude) em UserLocation (bairro/cidade/CEP)
+ * usando APIs públicas de geocodificação reversa (BigDataCloud + OpenStreetMap Nominatim).
+ */
+export async function reverseGeocodeCoordinates(
+  lat: number,
+  lng: number
+): Promise<UserLocation | null> {
+  // 1. Tenta BigDataCloud (rápido, sem chave de API, excelente cobertura de bairro/cidade no Brasil)
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const res = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=pt`,
+      { signal: controller.signal }
+    );
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const data = await res.json();
+      const city = data.city || data.locality || 'Belém';
+      const stateRaw =
+        typeof data.principalSubdivisionCode === 'string' &&
+        data.principalSubdivisionCode.includes('-')
+          ? data.principalSubdivisionCode.split('-')[1]
+          : 'PA';
+      const state = (stateRaw || 'PA').toUpperCase();
+      const neighborhood =
+        data.locality && data.locality !== city ? data.locality : '';
+      const postcode = data.postcode ? cleanCep(String(data.postcode)) : '';
+      const cep =
+        postcode.length === 8
+          ? formatCep(postcode)
+          : city.toLowerCase().includes('ananindeua')
+            ? '67000-000'
+            : '66020-600';
+
+      return {
+        cep,
+        street: '',
+        neighborhood,
+        city,
+        state,
+        formatted: buildFormattedAddress({ neighborhood, city, state, cep }),
+        shortLabel: buildShortLabel({ city, state, neighborhood }),
+        lat,
+        lng,
+        source: 'gps',
+      };
+    }
+  } catch {
+    // Segue para Nominatim
+  }
+
+  // 2. Fallback OpenStreetMap Nominatim
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`,
+      {
+        signal: controller.signal,
+        headers: { 'Accept-Language': 'pt-BR,pt;q=0.9' },
+      }
+    );
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const data = await res.json();
+      const addr = data?.address || {};
+      const postcode = addr.postcode ? cleanCep(String(addr.postcode)) : '';
+      const city = addr.city || addr.town || addr.municipality || 'Belém';
+      const state = (
+        addr['ISO3166-2-lvl4']?.replace('BR-', '') ||
+        addr.state_code ||
+        'PA'
+      ).toUpperCase();
+      const street = addr.road || '';
+      const neighborhood = addr.suburb || addr.neighbourhood || '';
+      const cep = postcode.length === 8 ? formatCep(postcode) : '66020-600';
+
+      return {
+        cep,
+        street,
+        neighborhood,
+        city,
+        state,
+        formatted: buildFormattedAddress({ street, neighborhood, city, state, cep }),
+        shortLabel: buildShortLabel({ city, state, neighborhood }),
+        lat,
+        lng,
+        source: 'gps',
+      };
+    }
+  } catch {
+    // Ignora falha
+  }
+
+  return null;
+}
+
+/**
+ * Detecta automaticamente a localização aproximada do visitante ao abrir o site (estilo Magazine Luiza),
+ * sem exigir popup de permissão do navegador, usando a rota /api/location?mode=ip e fallback de IP.
+ */
+export async function detectLocationByIp(): Promise<UserLocation | null> {
+  // 1. Tenta rota interna /api/location?mode=ip (lê headers geo da CDN/Vercel ou consulta serviço IP)
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const res = await fetch('/api/location?mode=ip', {
+      signal: controller.signal,
+      headers: { accept: 'application/json' },
+    });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const json = await res.json();
+      if (json && json.success && json.data && json.data.city) {
+        return {
+          ...(json.data as UserLocation),
+          source: 'ip',
+        };
+      }
+    }
+  } catch {
+    // Segue para fallback cliente
+  }
+
+  // 2. Fallback direto no cliente via ipwho.is (HTTPS gratuito, sem chave, retorna lat/lng/postal/city)
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const res = await fetch('https://ipwho.is/?lang=pt-BR', {
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.success !== false && data.city) {
+        const city = String(data.city || 'Belém');
+        const state = String(data.region_code || 'PA').toUpperCase();
+        const rawPostal = data.postal ? cleanCep(String(data.postal)) : '';
+        const cep =
+          rawPostal.length === 8
+            ? formatCep(rawPostal)
+            : city.toLowerCase().includes('ananindeua')
+              ? '67000-000'
+              : '66020-600';
+        const lat = typeof data.latitude === 'number' ? data.latitude : undefined;
+        const lng = typeof data.longitude === 'number' ? data.longitude : undefined;
+
+        return {
+          cep,
+          street: '',
+          neighborhood: '',
+          city,
+          state,
+          formatted: `Região de ${city} - ${state}`,
+          shortLabel: `Região de ${city}/${state}`,
+          lat,
+          lng,
+          source: 'ip',
+        };
+      }
+    }
+  } catch {
+    // Ignora falha em modo offline ou teste
+  }
+
+  return null;
 }

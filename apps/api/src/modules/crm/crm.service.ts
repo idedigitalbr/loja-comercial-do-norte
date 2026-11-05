@@ -35,10 +35,39 @@ export class CrmService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async createLead(input: CreateCrmLeadDto) {
-    const publicId = `lead-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+    const publicId =
+      input.publicId?.trim() ||
+      `lead-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
     const conversationLog = input.conversationLog ?? [];
 
     try {
+      // Se já existe um lead para esta sessão (publicId), atualiza-o com a última conversa para não duplicar no Kanban
+      if (input.publicId?.trim() && typeof this.prisma.crmLead.findUnique === 'function') {
+        const existing = await this.prisma.crmLead.findUnique({
+          where: { publicId },
+        });
+        if (existing) {
+          return await this.prisma.crmLead.update({
+            where: { publicId },
+            data: {
+              customerName: input.customerName.trim(),
+              customerPhone: input.customerPhone.trim(),
+              customerEmail: input.customerEmail?.trim() || existing.customerEmail,
+              preferredStore: input.preferredStore.trim(),
+              storeId: input.storeId?.trim() || existing.storeId,
+              subject: input.subject.trim(),
+              notes: input.notes?.trim() || existing.notes,
+              conversationLog: (conversationLog ?? []) as unknown as Prisma.InputJsonValue,
+            },
+            include: {
+              leadNotes: {
+                orderBy: { createdAt: 'desc' },
+              },
+            },
+          });
+        }
+      }
+
       const created = await this.prisma.crmLead.create({
         data: {
           publicId,
@@ -63,6 +92,19 @@ export class CrmService {
       return created;
     } catch (error) {
       this.logger.warn(`Prisma lead save failed, falling back to in-memory store: ${(error as Error).message}`);
+      const existingMem = Array.from(this.memoryLeads.values()).find(
+        (l) => l.publicId === publicId
+      );
+      if (existingMem) {
+        existingMem.customerName = input.customerName.trim();
+        existingMem.customerPhone = input.customerPhone.trim();
+        existingMem.preferredStore = input.preferredStore.trim();
+        existingMem.storeId = input.storeId?.trim() || existingMem.storeId;
+        existingMem.subject = input.subject.trim();
+        existingMem.conversationLog = conversationLog;
+        existingMem.updatedAt = new Date();
+        return existingMem;
+      }
       const fallback: InMemoryLead = {
         id: `local-${Date.now()}`,
         publicId,
@@ -83,6 +125,45 @@ export class CrmService {
       this.memoryLeads.set(fallback.id, fallback);
       return fallback;
     }
+  }
+
+  async getLeadSession(params: { publicId?: string; phone?: string }) {
+    const cleanPublicId = params.publicId?.trim();
+    const cleanPhone = params.phone?.replace(/\D/g, '');
+
+    try {
+      if (cleanPublicId && typeof this.prisma.crmLead.findUnique === 'function') {
+        const byPublicId = await this.prisma.crmLead.findUnique({
+          where: { publicId: cleanPublicId },
+        });
+        if (byPublicId) return byPublicId;
+      }
+
+      if (cleanPhone && cleanPhone.length >= 8 && typeof this.prisma.crmLead.findMany === 'function') {
+        const matches = await this.prisma.crmLead.findMany({
+          where: {
+            customerPhone: { contains: cleanPhone.slice(-8) },
+          },
+          orderBy: { updatedAt: 'desc' },
+          take: 1,
+        });
+        if (matches.length > 0) return matches[0];
+      }
+    } catch {
+      // Fallback para memória
+    }
+
+    if (cleanPublicId) {
+      const mem = Array.from(this.memoryLeads.values()).find((l) => l.publicId === cleanPublicId);
+      if (mem) return mem;
+    }
+    if (cleanPhone && cleanPhone.length >= 8) {
+      const mem = Array.from(this.memoryLeads.values()).find((l) =>
+        l.customerPhone.replace(/\D/g, '').endsWith(cleanPhone.slice(-8))
+      );
+      if (mem) return mem;
+    }
+    return null;
   }
 
   async listLeads(query: ListCrmLeadsQueryDto) {
