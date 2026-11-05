@@ -2003,11 +2003,11 @@ export function NortChatFloating({
 
   return (
     <>
-      {/* 0. OVERLAY ESCURO E SUTIL NO FUNDO DA PÁGINA (60% COM BACKDROP BLUR) */}
+      {/* 0. OVERLAY ESCURO E PROFUNDO NO FUNDO DA PÁGINA (95% DE ESCURIDÃO COM BACKDROP BLUR) */}
       {isOpen && (
         <div
           aria-hidden="true"
-          className="fixed inset-0 z-[9990] bg-[#01030A]/60 backdrop-blur-[2px] animate-in fade-in duration-200 cursor-pointer"
+          className="fixed inset-0 z-[9990] bg-[#000000]/95 backdrop-blur-[3px] animate-in fade-in duration-200 cursor-pointer"
           data-testid="nort-chat-backdrop"
           onClick={() => setIsOpen(false)}
         />
@@ -2105,25 +2105,25 @@ export function NortChatFloating({
         </div>
       )}
 
-      {/* 3. JANELA CENTRALIZADA E AMPLIADA COM BOTÃO FLUTUANTE (X) EXTERNO NO TOPO DIREITO (SEÇÃO 2) */}
+      {/* 3. JANELA CENTRALIZADA E AMPLIADA COM BOTÃO FLUTUANTE (X) EXTERNO DO LADO DE FORA */}
       {isOpen && (
-        <div className="fixed inset-0 z-[9995] flex items-center justify-center p-0 sm:p-4 md:p-6 overflow-hidden pointer-events-none">
-          <div className="relative w-full sm:w-[540px] md:w-[580px] h-full sm:h-[660px] sm:max-h-[88vh] pointer-events-auto animate-in zoom-in-95 fade-in duration-200 flex flex-col">
-            {/* BOTÃO FLUTUANTE DE FECHAR (X) EXTERNO NO CANTO SUPERIOR DIREITO (CONFORME PRINT DE REFERÊNCIA) */}
+        <div className="fixed inset-0 z-[9995] flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden pointer-events-none">
+          <div className="relative w-[calc(100%-64px)] sm:w-[540px] md:w-[580px] h-[92vh] sm:h-[660px] sm:max-h-[88vh] pointer-events-auto animate-in zoom-in-95 fade-in duration-200 flex flex-col">
+            {/* BOTÃO FLUTUANTE DE FECHAR (X) EXTERNO DO LADO DIREITO (SEM COBRIR A JANELA OU O ÍCONE DE CONFIGURAÇÕES) */}
             <button
               aria-label="Fechar chat do Norti"
-              className="absolute top-2.5 right-2.5 sm:-top-4 sm:-right-4 z-[9999] flex size-10 sm:size-12 items-center justify-center rounded-full bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] shadow-[0_4px_16px_rgba(0,0,0,0.35)] border-2 border-[#FFFFFF] transition-transform duration-150 hover:scale-105 active:scale-95 cursor-pointer"
+              className="absolute top-1 sm:top-2 left-[calc(100%+12px)] sm:left-[calc(100%+16px)] z-[9999] flex size-11 sm:size-12 items-center justify-center rounded-full bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] shadow-[0_6px_20px_rgba(0,0,0,0.6)] border-2 border-[#FFFFFF] transition-transform duration-150 hover:scale-105 active:scale-95 cursor-pointer pointer-events-auto shrink-0"
               onClick={() => setIsOpen(false)}
               type="button"
             >
-              <X className="size-5 sm:size-6 text-[#FFFFFF]" strokeWidth={2.5} />
+              <X className="size-5.5 sm:size-6 text-[#FFFFFF]" strokeWidth={2.5} />
             </button>
 
             {/* CONTAINER PRINCIPAL DO CHAT */}
             <section
               id={id}
               aria-label="Chat de atendimento com o mascote Norti"
-              className="size-full bg-[#E4D8D3] sm:rounded-[22px] shadow-[0_25px_60px_rgba(0,0,0,0.5)] border border-[#D1D7DB] overflow-hidden flex flex-col relative"
+              className="size-full bg-[#E4D8D3] rounded-[18px] sm:rounded-[22px] shadow-[0_25px_60px_rgba(0,0,0,0.6)] border border-[#D1D7DB] overflow-hidden flex flex-col relative"
               role="dialog"
             >
               {/* CABEÇALHO LIMPO E MINIMALISTA — EXCLUSIVAMENTE 'NORT' + ENGRENAGEM DE CONFIGURAÇÕES (SEÇÃO 3) */}

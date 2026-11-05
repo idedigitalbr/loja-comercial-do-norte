@@ -95,18 +95,19 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
     });
     expect(dialog).toBeDefined();
 
-    // Botão flutuante externo no topo direito com posicionamento absoluto e cantos arredondados
+    // Botão flutuante externo posicionado do lado de fora à direita, sem sobrepor o cabeçalho nem o ícone de configurações
     const closeBtn = screen.getByRole('button', { name: /fechar chat do norti/i });
     expect(closeBtn).toBeDefined();
-    expect(closeBtn.className).toContain('sm:-top-4');
-    expect(closeBtn.className).toContain('sm:-right-4');
+    expect(closeBtn.className).toContain('left-[calc(100%+12px)]');
+    expect(closeBtn.className).toContain('sm:left-[calc(100%+16px)]');
 
     // Garante que a barra inferior do Anexo 1 foi completamente removida
     expect(screen.queryByText(/informe seu nome e whatsapp acima para iniciar/i)).toBeNull();
 
-    // Backdrop escuro e scroll lock ativos
+    // Backdrop 95% escuro e scroll lock ativos
     const backdrop = screen.getByTestId('nort-chat-backdrop');
     expect(backdrop).toBeDefined();
+    expect(backdrop.className).toContain('bg-[#000000]/95');
     expect(document.body.style.overflow).toBe('hidden');
 
     // Etapa 1: Indicador de digitação aparece antes da 1ª mensagem
