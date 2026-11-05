@@ -1,5 +1,11 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **05/11/2026 — Otimização Mobile dos Carrosséis de Produtos: Passador Inferior e Limite de 4 Bolinhas (executorId: `antigravity-gemini`):**
+  - **Reposicionamento do Passador (Indicador de Carrossel):** O sinalizador/passador com pílula navy (`#101F3C`) foi movido do cabeçalho superior para a parte inferior centralizada (`mt-4 flex justify-center`), eliminando o bug de layout em dispositivos móveis onde o título "Para você" era espremido e quebrava em duas linhas ("Para \n você") ao disputar espaço com "Ver todos >" e o passador no topo.
+  - **Limite Máximo de 4 Bolinhas por Carrossel:** As vitrines de produtos da home (`ProductCarouselWidget`) agora limitam a exibição a no máximo 4 páginas (`MAX_CAROUSEL_PAGES = 4`), evitando que dezenas de bolinhas minúsculas poluam a tela. O passador exibe no máximo 4 bolinhas por passada com pílula ativa vermelha (`#E2091E`).
+  - **Cabeçalho Limpo e Tipografia sem Quebra:** O título da vitrine recebeu `whitespace-nowrap` e o link "Ver todos >" foi reposicionado com alinhamento flexível `justify-between`, garantindo visual limpo e arejado em qualquer celular.
+  - **Validação:** Testes unitários do Storefront aprovados (`product-carousel.spec.tsx` com 2 testes cobrindo navegação e limite estrito de 4 bolinhas), typecheck com 0 erros e linting 100% limpo.
+
 - **05/11/2026 — Desativação do Vídeo Automático na Abertura do Site e Exibição do Mascote Nort no Mobile (executorId: `antigravity-gemini`):**
   - **Desativação do Vídeo na Abertura do Site:** O vídeo em tela cheia na entrada do site foi desativado. Em `apps/storefront/app/layout.tsx`, a classe `nort-intro-active` só é adicionada com parâmetro explícito de teste (`?intro=1`), e `AUTO_OPEN_INTRO_ON_SITE_LOAD` foi configurado como `false`.
   - **Abertura do Vídeo Sob Demanda:** O vídeo abre apenas quando o visitante clica no botão Play ("Assista nosso vídeo") na seção de Segmentos ("Para todos os Negócios"), exibindo o modal de vídeo institucional.

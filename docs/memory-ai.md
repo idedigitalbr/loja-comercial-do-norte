@@ -7,6 +7,12 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **05/11/2026 — Otimização Mobile dos Carrosséis de Produtos: Passador Inferior e Limite de 4 Bolinhas (executorId: `antigravity-gemini`):**
+  - **Reposicionamento do Passador (Indicador de Carrossel):** O sinalizador/passador com pílula navy (`#101F3C`) foi movido do cabeçalho superior para a parte inferior centralizada (`mt-4 flex justify-center`), eliminando o bug de layout em dispositivos móveis onde o título "Para você" era espremido e quebrava em duas linhas ("Para \n você") ao disputar espaço com "Ver todos >" e o passador no topo.
+  - **Limite Máximo de 4 Bolinhas por Carrossel:** As vitrines de produtos da home (`ProductCarouselWidget`) agora limitam a exibição a no máximo 4 páginas (`MAX_CAROUSEL_PAGES = 4`), evitando que dezenas de bolinhas minúsculas poluam a tela. O passador exibe no máximo 4 bolinhas por passada com pílula ativa vermelha (`#E2091E`).
+  - **Cabeçalho Limpo e Tipografia sem Quebra:** O título da vitrine recebeu `whitespace-nowrap` e o link "Ver todos >" foi reposicionado com alinhamento flexível `justify-between`, garantindo visual limpo e arejado em qualquer celular.
+  - **Validação:** Testes unitários do Storefront aprovados (`product-carousel.spec.tsx` com 2 testes cobrindo navegação e limite estrito de 4 bolinhas), typecheck com 0 erros e linting 100% limpo.
+
 - **05/11/2026 — Desativação do Vídeo Automático na Abertura do Site e Exibição do Mascote Nort no Mobile (executorId: `antigravity-gemini`):**
   - **Desativação do Vídeo Automático ao Abrir:** O vídeo de introdução / loading screen fullscreen não abre mais automaticamente ao acessar o site. Em `layout.tsx`, a classe `nort-intro-active` só é adicionada sob demanda quando solicitado expressamente via query param (`?intro=1` ou `?force-intro=1`). Em `nort-intro-helpers.ts`, `AUTO_OPEN_INTRO_ON_SITE_LOAD` foi configurado como `false`.
   - **Abertura do Vídeo Sob Demanda:** O vídeo de apresentação agora abre exclusivamente quando o usuário clica no botão com ícone de play ("Assista nosso vídeo") na seção de Segmentos ("Para todos os Negócios"), exibindo o modal com controles completos de reprodução, som e fechamento.

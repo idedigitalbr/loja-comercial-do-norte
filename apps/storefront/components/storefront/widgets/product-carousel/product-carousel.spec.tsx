@@ -134,4 +134,66 @@ describe('ProductCarouselWidget', () => {
     fireEvent.click(prevBtn);
     expect(screen.getByText('Copo Descartável Transparente 300 ml')).toBeDefined();
   });
+
+  it('limita as bolinhas da vitrine Para você / Mais vendidos a no máximo 4 páginas na home', () => {
+    vi.spyOn(QuoteCartModule, 'useQuoteCart').mockReturnValue({
+      addItem: vi.fn(),
+      items: [],
+      removeItem: vi.fn(),
+      clearCart: vi.fn(),
+      totalItems: 0,
+    } as unknown as ReturnType<typeof QuoteCartModule.useQuoteCart>);
+
+    vi.spyOn(FavoritesModule, 'useFavorites').mockReturnValue({
+      isFavorite: vi.fn(() => false),
+      toggleFavorite: vi.fn(),
+      favorites: [],
+      totalCount: 0,
+    } as unknown as ReturnType<typeof FavoritesModule.useFavorites>);
+
+    // Gera 50 produtos para simular um catálogo extenso no contexto da home
+    const largeCatalog: ApiProduct[] = Array.from({ length: 50 }, (_, i) => ({
+      id: `prod-${i}`,
+      publicId: `prod-${i}`,
+      name: `Produto Catálogo ${i + 1}`,
+      slug: `produto-catalogo-${i + 1}`,
+      description: `Descrição do produto ${i + 1}`,
+      status: 'ACTIVE' as const,
+      brand: { id: 'b1', name: 'Marca Teste', slug: 'marca-teste' },
+      categories: [{ category: { id: 'c1', name: 'Geral', slug: 'geral' } }],
+      images: [{ id: `img-${i}`, path: '/assets/PRODUTOS/produtos-imgs/copo-300ml.png', altText: `Produto ${i + 1}`, isPrimary: true, sortOrder: 0, variantId: null }],
+      variants: [{ id: `v-${i}`, publicId: `v-${i}`, sku: `SKU-${i}`, priceCents: 1000 + i * 100, compareAtPriceCents: 1500, weightGrams: null, widthMm: null, heightMm: null, lengthMm: null, stockStatus: 'IN_STOCK' as const, status: 'ACTIVE' as const }],
+    }));
+
+    render(
+      <ProductCarouselWidget
+        contextData={{
+          offers: [],
+          products: largeCatalog,
+          categories: [],
+          brands: [],
+        }}
+        limit={5}
+        source="recent"
+        title="Para você"
+        variant="standard-5col"
+      />,
+    );
+
+    // 1. Título e link Ver todos presentes
+    const titleEl = screen.getByRole('heading', { name: 'Para você' });
+    expect(titleEl).toBeDefined();
+    expect(titleEl.className).toContain('whitespace-nowrap');
+
+    // 2. Garante que NÃO há um monte de bolinhas (máximo 4 bolinhas)
+    const pageButtons = screen.getAllByRole('button', { name: /Página \d+/ });
+    expect(pageButtons.length).toBeLessThanOrEqual(4);
+    expect(pageButtons.length).toBe(4);
+
+    expect(screen.getByLabelText('Página 1')).toBeDefined();
+    expect(screen.getByLabelText('Página 2')).toBeDefined();
+    expect(screen.getByLabelText('Página 3')).toBeDefined();
+    expect(screen.getByLabelText('Página 4')).toBeDefined();
+    expect(screen.queryByLabelText('Página 5')).toBeNull();
+  });
 });

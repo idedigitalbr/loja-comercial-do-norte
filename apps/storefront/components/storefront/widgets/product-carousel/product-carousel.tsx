@@ -239,7 +239,10 @@ export function ProductCarouselWidget({
   // Para vitrines de ofertas (source === 'offers'), prioriza as ofertas com desconto real
   // e complementa com produtos do catálogo e fallback para garantir que o carrossel tenha
   // sempre pelo menos 2 páginas navegáveis (mínimo de 6 produtos no split-banner).
+  const targetCount = limit ?? (variant === 'split-banner' ? 3 : 5);
+  const MAX_CAROUSEL_PAGES = 4;
   let baseList: ApiProduct[] = [];
+
   if (source === 'offers') {
     const offers = contextData?.offers ?? [];
     const catalog = contextData?.products ?? [];
@@ -267,13 +270,18 @@ export function ProductCarouselWidget({
     }
 
     // No split-banner (3 cards por página), mantém 6 produtos (2 páginas), garantindo carrossel com indicador de 2 pílulas
-    baseList = variant === 'split-banner' ? merged.slice(0, 6) : merged;
+    baseList = variant === 'split-banner'
+      ? merged.slice(0, 6)
+      : merged.slice(0, MAX_CAROUSEL_PAGES * targetCount);
   } else {
     const catalog = contextData?.products ?? [];
-    baseList = catalog.length > 0 ? catalog : FALLBACK_CATALOG_PRODUCTS;
+    const rawList = catalog.length > 0 ? catalog : FALLBACK_CATALOG_PRODUCTS;
+    baseList = rawList.slice(0, MAX_CAROUSEL_PAGES * targetCount);
   }
-  const targetCount = limit ?? (variant === 'split-banner' ? 3 : 5);
-  const totalPages = Math.max(1, Math.ceil(baseList.length / targetCount));
+  const totalPages = Math.min(
+    MAX_CAROUSEL_PAGES,
+    Math.max(1, Math.ceil(baseList.length / targetCount)),
+  );
   const safePage = Math.min(page, totalPages - 1);
 
   // Paginação real sem repetir itens na mesma página
@@ -311,7 +319,7 @@ export function ProductCarouselWidget({
             onClick={() => setEditingTitle(true)}
             title="Clique para editar o título"
           >
-            <h2 className="text-[19px] font-extrabold tracking-tight text-slate-900 sm:text-[21px]">
+            <h2 className="text-[19px] font-extrabold tracking-tight text-slate-900 sm:text-[21px] whitespace-nowrap">
               {title}
             </h2>
             <Edit2 className="size-3.5 text-[#004CB1] opacity-0 transition-opacity group-hover/title:opacity-100" />
@@ -319,16 +327,24 @@ export function ProductCarouselWidget({
         )}
       </div>
     ) : (
-      <h2 className="text-[19px] font-extrabold tracking-tight text-slate-900 sm:text-[21px]">
+      <h2 className="text-[19px] font-extrabold tracking-tight text-slate-900 sm:text-[21px] whitespace-nowrap">
         {title}
       </h2>
     );
 
   const renderDarkNavyPaginationPill = () => {
     if (totalPages <= 1) return null;
+    const MAX_VISIBLE_DOTS = 4;
+    let startIdx = 0;
+    if (totalPages > MAX_VISIBLE_DOTS) {
+      startIdx = Math.min(Math.max(0, safePage - 1), totalPages - MAX_VISIBLE_DOTS);
+    }
+    const count = Math.min(totalPages, MAX_VISIBLE_DOTS);
+    const dots = Array.from({ length: count }, (_, i) => startIdx + i);
+
     return (
-      <div className="inline-flex items-center gap-1.5 rounded-full bg-[#101F3C] px-3 py-1.5">
-        {Array.from({ length: totalPages }).map((_, dotIdx) => (
+      <div className="inline-flex items-center gap-1.5 rounded-full bg-[#101F3C] px-3 py-1.5 shadow-sm">
+        {dots.map((dotIdx) => (
           <button
             aria-label={`Página ${dotIdx + 1}`}
             className={`h-1.5 rounded-full transition-all cursor-pointer ${
@@ -421,19 +437,17 @@ export function ProductCarouselWidget({
 
           {/* Card Direito: Carrossel 3 Produtos em Promoção */}
           <div className="relative flex flex-col rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.04)] sm:p-5 lg:col-span-8">
-            <div className="mb-5 sm:mb-6 flex items-center justify-between gap-2">
-              <div className="flex items-baseline gap-2.5">
+            <div className="mb-4 sm:mb-5 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
                 {renderEditableTitle()}
-                <Link
-                  className="inline-flex items-center gap-0.5 text-xs font-semibold text-[#004CB1] hover:underline"
-                  href={viewAllLink}
-                >
-                  <span>Ver todos</span>
-                  <ChevronRight className="size-3.5" />
-                </Link>
               </div>
-
-              {renderDarkNavyPaginationPill()}
+              <Link
+                className="inline-flex shrink-0 items-center gap-0.5 text-xs font-semibold text-[#004CB1] hover:underline"
+                href={viewAllLink}
+              >
+                <span>Ver todos</span>
+                <ChevronRight className="size-3.5" />
+              </Link>
             </div>
 
             <div
@@ -477,29 +491,34 @@ export function ProductCarouselWidget({
                 </>
               )}
             </div>
+
+            {/* Passador centralizado embaixo dos produtos com no máximo 4 bolinhas */}
+            {totalPages > 1 && (
+              <div className="mt-4 flex justify-center">
+                {renderDarkNavyPaginationPill()}
+              </div>
+            )}
           </div>
         </div>
       </section>
     );
   }
 
-  // Variante 'standard-5col' (Mais vendidos / Para você)
+  // Variante 'standard-5col' (Mais vendidos / Para você) — Mobile Optimized
   return (
     <section aria-label={title} className="cn-container py-3 sm:py-4">
       <div className="relative rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.04)] sm:p-5">
-        <div className="mb-5 sm:mb-6 flex items-center justify-between gap-2">
-          <div className="flex items-baseline gap-2.5">
+        <div className="mb-4 sm:mb-5 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
             {renderEditableTitle()}
-            <Link
-              className="inline-flex items-center gap-0.5 text-xs font-semibold text-[#004CB1] hover:underline"
-              href={viewAllLink}
-            >
-              <span>Ver todos</span>
-              <ChevronRight className="size-3.5" />
-            </Link>
           </div>
-
-          {renderDarkNavyPaginationPill()}
+          <Link
+            className="inline-flex shrink-0 items-center gap-0.5 text-xs font-semibold text-[#004CB1] hover:underline"
+            href={viewAllLink}
+          >
+            <span>Ver todos</span>
+            <ChevronRight className="size-3.5" />
+          </Link>
         </div>
 
         <div
@@ -543,6 +562,13 @@ export function ProductCarouselWidget({
             </>
           )}
         </div>
+
+        {/* Passador centralizado embaixo dos produtos com no máximo 4 bolinhas */}
+        {totalPages > 1 && (
+          <div className="mt-4 flex justify-center">
+            {renderDarkNavyPaginationPill()}
+          </div>
+        )}
       </div>
     </section>
   );
