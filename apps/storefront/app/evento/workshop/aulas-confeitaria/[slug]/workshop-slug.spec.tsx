@@ -54,7 +54,7 @@ describe('Hierarchical Workshop Event Page (/evento/workshop/aulas-confeitaria/[
 
     render(Component);
 
-    const hubLink = screen.getByRole('link', { name: 'Workshops · Aulas Confeitaria' });
+    const hubLink = screen.getByRole('link', { name: /voltar/i });
     expect(hubLink).toBeDefined();
     expect(hubLink.getAttribute('href')).toBe('/eventos/workshops/aulas-confeitaria');
 
@@ -63,20 +63,27 @@ describe('Hierarchical Workshop Event Page (/evento/workshop/aulas-confeitaria/[
     ).toContain('Croquete de Charque com Maionese de Chicória');
   });
 
-  it('renders WhatsApp registration CTA with pre-filled message and tickets selector', async () => {
+  it('renders WhatsApp registration CTA with pre-filled message and countdown timer', async () => {
     const Component = await WorkshopEventPage({
       params: Promise.resolve({ slug: 'sabado-croquete-de-charque-para-trigo' }),
     });
 
     render(Component);
 
-    const whatsappBtn = screen.getByRole('link', { name: /Garantir Vaga no WhatsApp/i });
+    // Contador regressivo
+    expect(screen.getByText('Dias')).toBeDefined();
+    expect(screen.getByText('Horas')).toBeDefined();
+    expect(screen.getByText('Minutos')).toBeDefined();
+    expect(screen.getByText('Segundos')).toBeDefined();
+
+    // Botão de Obter Ingresso
+    const whatsappBtn = screen.getByRole('link', { name: /obter meu ingresso/i });
     expect(whatsappBtn).toBeDefined();
     expect(whatsappBtn.getAttribute('href')).toContain('wa.me/5591983440880');
     expect(whatsappBtn.getAttribute('href')).toContain('Croquete');
   });
 
-  it('renders workshop-doces-finos-brigadeiros-gourmet seamlessly with identical sections in light mode', async () => {
+  it('renders workshop-doces-finos-brigadeiros-gourmet with simplified layout matching the approved mockup', async () => {
     const meta = await generateMetadata({
       params: Promise.resolve({ slug: 'workshop-doces-finos-brigadeiros-gourmet' }),
     });
@@ -96,16 +103,24 @@ describe('Hierarchical Workshop Event Page (/evento/workshop/aulas-confeitaria/[
     const themedContainer = container.querySelector('[data-event-theme="light"]');
     expect(themedContainer).toBeDefined();
 
-    // Verify identical structure/sections as reference event
+    // Título no Topo
     expect(screen.getByRole('heading', { level: 1 }).textContent).toContain(
       'Doces Finos e Brigadeiros Gourmet'
     );
-    expect(screen.getByText('Garanta seu ingresso')).toBeDefined();
-    expect(screen.getByText('Programação')).toBeDefined();
-    expect(screen.getByText('Local do Evento')).toBeDefined();
-    expect(screen.getByText('O que te espera')).toBeDefined();
-    expect(screen.getByText('Veja como foi na última edição')).toBeDefined();
-    expect(screen.getByText('Ainda tem dúvidas?')).toBeDefined();
-    expect(screen.getByRole('link', { name: /Garantir Vaga no WhatsApp/i })).toBeDefined();
+
+    // Seção inferior de inscrição
+    expect(
+      screen.getByText('Garanta já seu ingresso e viva uma experiência única!')
+    ).toBeDefined();
+    expect(screen.getByText('Faça sua Inscrição')).toBeDefined();
+
+    // Sidebar com data, local, mapa e ajuda
+    expect(screen.getByText('Data e Horário')).toBeDefined();
+    expect(screen.getByText('Localização')).toBeDefined();
+    expect(screen.getByText('Compartilhar')).toBeDefined();
+    expect(screen.getByText('Precisa de ajuda?')).toBeDefined();
+
+    // Botão de conversão principal
+    expect(screen.getByRole('link', { name: /obter meu ingresso/i })).toBeDefined();
   });
 });
