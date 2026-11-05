@@ -1,5 +1,10 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **05/11/2026 — Ajuste da Seção Explica Aí Nort: Remoção do Player e Presença do Mascote Nort no Mobile (executorId: `antigravity-gemini`):**
+  - **Remoção do Ícone de Player:** Removido o ícone circular com botão play (`<Play />`) que ficava ao lado de "Nort!" no título da seção, mantendo a tipografia limpa em duas linhas ("Explica Aí" / "Nort!").
+  - **Mascote Nort Visível no Mobile e Tablet:** O mascote 3D Nort (`S14-Boneco3D-explica-ai-nort-trimmed.webp`) agora é exibido também no mobile e tablets (`block lg:hidden absolute top-7 right-3 ...`), garantindo a presença visual do personagem que dá nome à seção em todos os dispositivos.
+  - **Validação:** 209 testes unitários aprovados no Storefront e typecheck com 0 erros.
+
 - **04/11/2026 — Restauração do Mascote Nort no Cabeçalho (Remoção Apenas do Balão e Interação) (executorId: `antigravity-gemini`):**
   - **Mascote Ativo no Header:** Mascote Nort 3D restabelecido na Barra 02 do cabeçalho oficial com sprite animado e espaçamento para o logotipo (`md:pl-[88px] lg:pl-[94px]`), garantindo a âncora `#tour-header-nort`.
   - **Eliminação de Balão e Interações no Header:** Removidos o balão pop-up, temporizador de 4s e cliques no cabeçalho; interações conversacionais e atalho de tour concentrados no novo chat flutuante estilo WhatsApp.

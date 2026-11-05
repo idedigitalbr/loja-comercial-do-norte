@@ -7,6 +7,11 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **05/11/2026 — Ajuste da Seção Explica Aí Nort: Remoção do Player e Presença do Mascote Nort no Mobile (executorId: `antigravity-gemini`):**
+  - **Remoção do Ícone de Player:** Removido o ícone circular com botão play (`<Play />`) que ficava ao lado de "Nort!" no título da seção, mantendo a tipografia limpa em duas linhas ("Explica Aí" / "Nort!").
+  - **Mascote Nort Visível no Mobile e Tablet:** O mascote 3D Nort (`S14-Boneco3D-explica-ai-nort-trimmed.webp`) agora é exibido também no mobile e tablets (`block lg:hidden absolute top-7 right-3 ...`), garantindo a presença visual do personagem que dá nome à seção em todos os dispositivos.
+  - **Validação:** 209 testes unitários aprovados no Storefront e typecheck com 0 erros.
+
 - **05/11/2026 — Sincronização de Produção na Vercel e Banco Neon (executorId: `antigravity-gemini`):**
   - **Reatribuição de Alias Oficial Vercel:** O domínio com hífen `https://loja-comercialdonorte.vercel.app` foi reatribuído para o deploy mais recente (`loja-home-front-82r5s5eti-idedigital.vercel.app`, timestamp `v05-11-2026-12-02am`), alinhando com `lojacomercialdonorte.vercel.app`.
   - **Sincronização da Composição no Banco Neon:** O registro `SiteConfiguration.homeComposition` no banco Neon de produção (`db_lojacomercialdonorte`) foi sincronizado com `apps/storefront/data/home-composition.json`, efetivando a remoção da seção `s11-triple-banners-2` e a inclusão do carrossel de confeitaria na API pública `/api/v1/site/composition`.

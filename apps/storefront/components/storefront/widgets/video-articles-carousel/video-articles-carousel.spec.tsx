@@ -56,6 +56,10 @@ describe('VideoArticlesCarouselWidget (Explica Aí Nort)', () => {
       screen.getByText(/Dicas em vídeos e artigos/)
     ).toBeDefined();
     expect(screen.getByText('Ver todos')).toBeDefined();
+
+    // Garante que não há player de vídeo no título
+    const heading = screen.getByRole('heading', { level: 2 });
+    expect(heading.querySelector('svg')).toBeNull();
   });
 
   it('renderiza os cards com tags, títulos, parágrafos e botões de ação', () => {

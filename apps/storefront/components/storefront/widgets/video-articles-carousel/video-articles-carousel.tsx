@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { VideoArticleCard } from './video-article-card';
 import type { VideoArticlesCarouselProps } from '@/lib/storefront/widget-types';
 
@@ -155,26 +155,10 @@ export function VideoArticlesCarouselWidget({
               {isExplicaAi ? (
                 <>
                   <span className="block">Explica Aí</span>
-                  <span className="flex items-center gap-2 mt-0.5">
-                    <span>Nort!</span>
-                    <span
-                      aria-hidden="true"
-                      className="inline-flex size-6 sm:size-7 items-center justify-center rounded-full border-2 border-white/60 bg-white/20 text-white shadow-sm shrink-0"
-                    >
-                      <Play className="size-3 sm:size-3.5 fill-white ml-0.5" />
-                    </span>
-                  </span>
+                  <span className="block mt-0.5">Nort!</span>
                 </>
               ) : (
-                <span className="flex items-center gap-2">
-                  <span>{title}</span>
-                  <span
-                    aria-hidden="true"
-                    className="inline-flex size-6 sm:size-7 items-center justify-center rounded-full border-2 border-white/60 bg-white/20 text-white shadow-sm shrink-0"
-                  >
-                    <Play className="size-3 sm:size-3.5 fill-white ml-0.5" />
-                  </span>
-                </span>
+                <span>{title}</span>
               )}
             </h2>
             <div className="mt-2.5 sm:mt-3 text-xs sm:text-[12px] xl:text-[13px] leading-snug text-white/90 font-normal">
@@ -203,10 +187,10 @@ export function VideoArticlesCarouselWidget({
         />
       </div>
 
-      {/* Mascote compacto para tablets */}
+      {/* Mascote compacto para mobile e tablets */}
       <div
         aria-hidden="true"
-        className="hidden md:block lg:hidden absolute top-2 right-28 h-24 w-24 pointer-events-none select-none z-10"
+        className="block lg:hidden absolute top-7 right-3 sm:top-4 sm:right-20 md:top-2 md:right-28 h-22 w-22 sm:h-24 sm:w-24 pointer-events-none select-none z-10"
       >
         <Image
           src={resolvedMascotImage}
