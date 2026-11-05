@@ -8,6 +8,7 @@ import { TagsPage } from './features/catalog/tags-page';
 import { InventoryPage } from './features/inventory/inventory-page';
 import { OrdersListPage } from './features/orders/orders-list-page';
 import { QuotesPage } from './features/quotes/quotes-page';
+import { CRMPage } from './features/crm/crm-page';
 import { ReportsPage } from './features/reports/reports-page';
 import { CustomersPage } from './features/customers/customers-page';
 import { PromotionsPage } from './features/promotions/promotions-page';
@@ -21,6 +22,7 @@ import { EventEditorPage } from './features/content/event-editor-page';
 
 export type AdminSection =
   | 'overview'
+  | 'crm'
   | 'home-banners'
   | 'catalog'
   | 'posts'
@@ -46,6 +48,7 @@ const navigation: NavigationItem[] = [
   { id: 'posts', label: 'Posts', description: 'Artigos e dicas Explica Aí Nort', icon: 'file-text' },
   { id: 'events', label: 'Eventos', description: 'Workshops e acontecimentos', icon: 'calendar' },
   { id: 'quotes', label: 'Cotações', description: 'Solicitações da loja', icon: 'clipboard-list' },
+  { id: 'crm', label: 'MiniCRM (Leads)', description: 'Pipeline de leads e chat', icon: 'message-circle' },
   { id: 'orders', label: 'Pedidos', description: 'Venda e atendimento', icon: 'clipboard-list' },
   { id: 'inventory', label: 'Estoque', description: 'Saldos e ajustes', icon: 'warehouse' },
   { id: 'customers', label: 'Clientes', description: 'Base e relacionamento', icon: 'users' },
@@ -56,6 +59,7 @@ const navigation: NavigationItem[] = [
 
 const adminSectionRoutes: Record<AdminSection, string> = {
   overview: '/admin/',
+  crm: '/admin/crm',
   'home-banners': '/admin/banners-home',
   catalog: '/admin/catalogo/produtos',
   posts: '/admin/posts',
@@ -228,7 +232,10 @@ function readProductRoute(pathname = window.location.pathname): ProductRoute {
   return editProductMatch ? { mode: 'edit', id: decodeURIComponent(editProductMatch[1]) } : null;
 }
 
-function readBrandRoute(pathname = window.location.pathname, search = window.location.search): BrandRoute {
+function readBrandRoute(
+  pathname = typeof window !== 'undefined' ? window.location.pathname : '',
+  search = typeof window !== 'undefined' ? window.location.search : ''
+): BrandRoute {
   if (/^\/admin\/catalogo\/marcas\/nova\/?$/.test(pathname))
     return { mode: 'new', parentId: new URLSearchParams(search).get('parentId') ?? undefined };
   const editBrandMatch = pathname.match(/^\/admin\/catalogo\/marcas\/([^/]+)\/editar\/?$/);
@@ -289,6 +296,7 @@ function SectionContent({
         onEditBrand={onEditBrand}
       />
     );
+  if (section === 'crm') return <CRMPage />;
   if (section === 'quotes') return <QuotesPage />;
   if (section === 'orders') return <OrdersListPage />;
   if (section === 'inventory') return <InventoryPage />;

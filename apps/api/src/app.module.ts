@@ -21,6 +21,7 @@ import { PromotionsModule } from './modules/promotions/promotions.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { AccountModule } from './modules/account/account.module';
 import { QuotesModule } from './modules/quotes/quotes.module';
+import { CrmModule } from './modules/crm/crm.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { QuotesModule } from './modules/quotes/quotes.module';
     SettingsModule,
     AccountModule,
     QuotesModule,
+    CrmModule,
     PublicShellModule,
     SecurityModule,
   ],

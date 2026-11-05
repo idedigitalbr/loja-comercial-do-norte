@@ -2,12 +2,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, MessageCircle } from 'lucide-react';
 import { WebAlert, WebBadge, WebCard } from '@commerce/ui/web';
 import { getQuote, mediaUrl } from '@/lib/api';
 import { formatDate, formatMoney } from '@/lib/format';
 import { resolveProductImage } from '@/lib/product-placeholders';
 import { QUOTE_STATUS_LABELS } from '@/lib/types';
+import { COMMERCIAL_STORES, findStoreById, buildWhatsAppLink } from '@/lib/stores-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,11 +18,34 @@ export const metadata: Metadata = {
 };
 
 type Params = Promise<{ publicId: string }>;
+type SearchParams = Promise<{ storeId?: string }>;
 
-export default async function QuoteConfirmationPage({ params }: { params: Params }) {
+export default async function QuoteConfirmationPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams?: SearchParams;
+}) {
   const { publicId } = await params;
+  const query = searchParams ? await searchParams : {};
   const quote = await getQuote(publicId);
   if (!quote) notFound();
+
+  let store = findStoreById(query.storeId);
+  if (quote.notes) {
+    const match = quote.notes.match(/\[Unidade\/Loja mais próxima:\s*([^\]]+)\]/i);
+    if (match) {
+      const found = COMMERCIAL_STORES.find(
+        (s) => s.name.toLowerCase().includes(match[1].toLowerCase()) || s.shortTitle.toLowerCase().includes(match[1].toLowerCase())
+      );
+      if (found) store = found;
+    }
+  }
+
+  const itemsList = quote.items.map((i) => `• ${i.quantity}x ${i.productName} (SKU: ${i.sku})`).join('\n');
+  const whatsappMsg = `Olá, equipe Comercial do Norte (Loja ${store.shortTitle})!\nAcabei de registrar uma cotação pelo site.\n\nProtocolo: #${quote.publicId}\nCliente: ${quote.customerName}\nWhatsApp: ${quote.customerPhone}\nTotal de referência: ${formatMoney(quote.subtotalCents)} (${quote.itemsCount} itens)\n\nItens solicitados:\n${itemsList}\n\nGostaria de confirmar a disponibilidade e prazo de retirada/entrega!`;
+  const whatsappUrl = buildWhatsAppLink(store.whatsappDigits, whatsappMsg);
 
   return (
     <div className="cn-container py-10">
@@ -57,6 +81,10 @@ export default async function QuoteConfirmationPage({ params }: { params: Params
               </div>
             ) : null}
             <div className="rounded-md bg-surface-soft px-3 py-2">
+              <dt className="text-xs uppercase tracking-wide text-muted">Loja de Atendimento</dt>
+              <dd className="text-sm font-semibold text-[#004CB1]">📍 {store.shortTitle}</dd>
+            </div>
+            <div className="rounded-md bg-surface-soft px-3 py-2">
               <dt className="text-xs uppercase tracking-wide text-muted">Itens</dt>
               <dd className="text-sm font-semibold text-ink">{quote.itemsCount}</dd>
             </div>
@@ -86,6 +114,30 @@ export default async function QuoteConfirmationPage({ params }: { params: Params
           <div className="mt-4 flex items-center justify-between border-t border-line pt-3">
             <span className="text-sm text-muted">Total de referência</span>
             <strong className="text-lg font-extrabold text-brand">{formatMoney(quote.subtotalCents)}</strong>
+          </div>
+
+          {/* CARD DE AÇÃO RÁPIDA WHATSAPP COM A LOJA SELECIONADA */}
+          <div className="mt-6 rounded-2xl bg-emerald-50 border border-emerald-200 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                <strong className="text-sm font-bold text-emerald-950">
+                  Agilize seu atendimento no WhatsApp da Loja
+                </strong>
+              </div>
+              <p className="mt-1 text-xs text-emerald-800 leading-relaxed">
+                Envie a lista de cotação diretamente para a equipe da <strong>{store.shortTitle}</strong> ({store.address}) para fechar condições de atacado e entrega.
+              </p>
+            </div>
+            <a
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#128C7E] px-5 py-3 text-sm font-bold text-white shadow-sm transition whitespace-nowrap shrink-0"
+              href={whatsappUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <MessageCircle className="size-4.5" />
+              Enviar pelo WhatsApp da Loja
+            </a>
           </div>
 
           <WebAlert className="mt-6" title="Próximos passos" tone="info">

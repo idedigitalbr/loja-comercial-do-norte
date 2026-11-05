@@ -16,10 +16,11 @@ import {
 } from '@commerce/ui/web';
 import { useQuoteCart } from '@/components/quote-cart-provider';
 import { useAuth } from '@/components/auth-provider';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, MessageCircle } from 'lucide-react';
 import { API_URL, mediaUrl } from '@/lib/api';
 import { formatMoney } from '@/lib/format';
 import { resolveProductImage } from '@/lib/product-placeholders';
+import { COMMERCIAL_STORES, findStoreById, buildWhatsAppLink } from '@/lib/stores-data';
 
 type FieldErrors = Record<string, string[]>;
 
@@ -30,6 +31,7 @@ export default function QuoteFormPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [selectedStoreId, setSelectedStoreId] = useState('loja-jurunas');
   const [idempotencyKey] = useState(() => `quote-${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -40,6 +42,10 @@ export default function QuoteFormPage() {
     setError(null);
     setFieldErrors({});
 
+    const selectedStore = findStoreById(selectedStoreId);
+    const rawNotes = String(form.get('notes') ?? '').trim();
+    const finalNotes = `[Unidade/Loja mais próxima: ${selectedStore.name}]\n${rawNotes}`.trim();
+
     try {
       const response = await fetch(`${API_URL}/api/v1/quotes`, {
         method: 'POST',
@@ -49,7 +55,7 @@ export default function QuoteFormPage() {
           customerPhone: String(form.get('customerPhone') ?? ''),
           customerEmail: String(form.get('customerEmail') ?? '') || undefined,
           companyName: String(form.get('companyName') ?? '') || undefined,
-          notes: String(form.get('notes') ?? '') || undefined,
+          notes: finalNotes || undefined,
           idempotencyKey,
           items: items.map((item) => ({ variantId: item.variantId, quantity: item.quantity })),
         }),
@@ -78,6 +84,8 @@ export default function QuoteFormPage() {
             createdAt: new Date().toISOString(),
             status: 'ANALYSIS',
             statusLabel: 'Em Análise Comercial',
+            storeId: selectedStore.id,
+            storeName: selectedStore.shortTitle,
             itemsCount: items.length,
             subtotalCents,
             items: items.map((i) => ({
@@ -89,18 +97,27 @@ export default function QuoteFormPage() {
             })),
           };
           window.localStorage.setItem('cn.user_quotes', JSON.stringify([newQuote, ...existing]));
+          window.localStorage.setItem('cn.last_quote_store', selectedStore.id);
         } catch {
           // Silencioso em caso de restrição de storage
         }
       }
 
       clear();
-      router.push(`/cotacao/${payload.publicId}`);
+      router.push(`/cotacao/${payload.publicId}?storeId=${selectedStore.id}`);
     } catch {
       setError('Falha de conexão. Verifique sua internet e tente novamente.');
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function handleDirectWhatsAppQuote() {
+    const store = findStoreById(selectedStoreId);
+    const itemsList = items.map((i) => `• ${i.quantity}x ${i.name} (SKU: ${i.sku})`).join('\n');
+    const msg = `Olá, equipe Comercial do Norte (${store.shortTitle})!\nGostaria de solicitar uma cotação rápida para os seguintes itens:\n\n${itemsList}\n\nTotal de referência: ${formatMoney(subtotalCents)}\nQual a disponibilidade e prazo de retirada/entrega?`;
+    const url = buildWhatsAppLink(store.whatsappDigits, msg);
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   if (!ready) return <div className="cn-container py-16 text-sm text-muted">Carregando sua lista…</div>;
@@ -182,6 +199,41 @@ export default function QuoteFormPage() {
                 />
               </WebField>
 
+              {/* SELEÇÃO DA LOJA MAIS PRÓXIMA (MULTI-LOJAS) */}
+              <div className="sm:col-span-2 rounded-xl bg-slate-50 p-3.5 border border-slate-200">
+                <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1" htmlFor="preferredStoreId">
+                  📍 Qual a loja mais próxima de você? <span className="text-red-500">*</span>
+                </label>
+                <p className="text-xs text-slate-500 mb-3 leading-snug">
+                  Selecione a unidade responsável por atender sua cotação, garantir melhores preços de atacado e separar os itens para pronta-entrega ou retirada:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {COMMERCIAL_STORES.map((st) => (
+                    <label
+                      key={st.id}
+                      className={`flex items-start gap-2.5 p-2.5 rounded-xl border text-xs cursor-pointer transition ${
+                        selectedStoreId === st.id
+                          ? 'border-[#004CB1] bg-blue-50/70 ring-2 ring-[#004CB1]/20 shadow-xs'
+                          : 'border-slate-200 bg-white hover:bg-slate-50'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="preferredStoreId"
+                        value={st.id}
+                        checked={selectedStoreId === st.id}
+                        onChange={() => setSelectedStoreId(st.id)}
+                        className="mt-0.5 text-[#004CB1] focus:ring-[#004CB1]"
+                      />
+                      <div className="min-w-0">
+                        <strong className="block text-slate-900 font-bold">{st.shortTitle}</strong>
+                        <span className="block text-[11px] text-slate-500 leading-tight mt-0.5">{st.address}</span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               <WebField
                 error={fieldErrors.customerEmail?.join(' ')}
                 id="customerEmail"
@@ -229,6 +281,18 @@ export default function QuoteFormPage() {
             <p className="mt-2 text-center text-xs text-muted">
               Ao enviar, você concorda com o contato da equipe comercial sobre esta cotação.
             </p>
+
+            <div className="mt-4 pt-4 border-t border-slate-200 text-center">
+              <p className="text-xs text-slate-500 mb-2 font-medium">Prefere fechar agora pelo WhatsApp da loja?</p>
+              <button
+                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] hover:bg-[#128C7E] px-4 py-2.5 text-xs sm:text-sm font-bold text-white transition shadow-sm cursor-pointer"
+                onClick={handleDirectWhatsAppQuote}
+                type="button"
+              >
+                <MessageCircle className="size-4" />
+                Cotar direto no WhatsApp da {findStoreById(selectedStoreId).shortTitle}
+              </button>
+            </div>
           </form>
         </WebCard>
 

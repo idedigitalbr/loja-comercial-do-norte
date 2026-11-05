@@ -77,7 +77,7 @@ export default function AtendimentoPage() {
             </div>
             <a
               className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition"
-              href="https://wa.me/5591983440880"
+              href="https://wa.me/5591983440880?text=Ol%C3%A1%2C%20equipe%20Comercial%20do%20Norte!%20Gostaria%20de%20atendimento%20comercial%20e%20or%C3%A7amentos."
               rel="noreferrer"
               target="_blank"
             >

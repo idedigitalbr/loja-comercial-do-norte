@@ -218,7 +218,7 @@ export default function ContaOverviewPage() {
               <span className="block text-xs text-slate-500 mt-0.5">(91) 98344-0880</span>
               <a
                 className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-[#004CB1] hover:underline"
-                href="https://wa.me/5591983440880"
+                href="https://wa.me/5591983440880?text=Ol%C3%A1%2C%20equipe%20Comercial%20do%20Norte!%20Gostaria%20de%20atendimento%20sobre%20vendas%20e%20cota%C3%A7%C3%B5es."
                 rel="noreferrer"
                 target="_blank"
               >

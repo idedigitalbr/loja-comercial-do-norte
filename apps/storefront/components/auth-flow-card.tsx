@@ -867,7 +867,7 @@ export function AuthFlowCard() {
                     <span className="text-xs text-slate-500">Ou fale com a equipe comercial no WhatsApp:</span>
                     <a
                       className="mt-1 flex items-center justify-center gap-1.5 text-xs font-bold text-[#004CB1] hover:underline"
-                      href="https://wa.me/5591983440880"
+                      href="https://wa.me/5591983440880?text=Ol%C3%A1%2C%20equipe%20Comercial%20do%20Norte!%20Preciso%20de%20ajuda%20com%20meu%20acesso%20ou%20atendimento%20comercial."
                       rel="noreferrer"
                       target="_blank"
                     >

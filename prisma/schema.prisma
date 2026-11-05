@@ -1292,3 +1292,46 @@ model Event {
 
   @@index([status, sortOrder])
 }
+
+enum LeadStage {
+  NEW
+  CONTACTED
+  IN_PROGRESS
+  WON
+  LOST
+}
+
+/// Leads e contatos capturados pelo atendimento do Norti (Typebot WhatsApp)
+model CrmLead {
+  id              String        @id @default(cuid())
+  publicId        String        @unique @default(cuid())
+  customerName    String        @db.VarChar(160)
+  customerPhone   String        @db.VarChar(40)
+  customerEmail   String?       @db.VarChar(191)
+  preferredStore  String        @db.VarChar(100)
+  storeId         String?       @db.VarChar(50)
+  subject         String        @db.VarChar(200)
+  stage           LeadStage     @default(NEW)
+  origin          String        @default("chat-norti") @db.VarChar(40)
+  conversationLog Json?
+  notes           String?       @db.Text
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  leadNotes       CrmLeadNote[]
+
+  @@index([stage, createdAt])
+  @@index([customerPhone])
+  @@index([preferredStore])
+}
+
+/// Anotações internas e histórico da equipe de vendas sobre o lead
+model CrmLeadNote {
+  id         String   @id @default(cuid())
+  leadId     String
+  authorName String   @default("Atendente") @db.VarChar(120)
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+  lead       CrmLead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId, createdAt])
+}

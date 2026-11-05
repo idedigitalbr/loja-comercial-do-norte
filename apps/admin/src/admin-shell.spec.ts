@@ -21,6 +21,7 @@ describe('admin shell', () => {
       'posts',
       'events',
       'quotes',
+      'crm',
       'orders',
       'inventory',
       'customers',
@@ -35,6 +36,7 @@ describe('admin shell', () => {
       'file-text',
       'calendar',
       'clipboard-list',
+      'message-circle',
       'clipboard-list',
       'warehouse',
       'users',
@@ -57,6 +59,7 @@ describe('admin shell', () => {
     expect(getInitialAdminSection('/admin/promotions')).toBe('promotions');
     expect(getInitialAdminSection('/admin/banners-home/')).toBe('home-banners');
     expect(getInitialAdminSection('/admin/cotacoes')).toBe('quotes');
+    expect(getInitialAdminSection('/admin/crm')).toBe('crm');
     expect(getInitialAdminSection('/admin/orders')).toBe('orders');
     expect(getInitialAdminSection('/admin/catalogo/produtos')).toBe('catalog');
     expect(getInitialAdminSection('/admin/catalogo/categorias')).toBe('catalog');

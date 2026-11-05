@@ -189,4 +189,18 @@ describe('NortChatFloating Component (WhatsApp & CRM Floating Chat)', () => {
       })
     ).toBeNull();
   });
+
+  it('permite reiniciar o atendimento pelo botão de reiniciar', () => {
+    render(<NortChatFloating whatsapp="5591983440880" />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
+    );
+
+    const restartBtn = screen.getByRole('button', { name: /reiniciar conversa/i });
+    expect(restartBtn).toBeDefined();
+    fireEvent.click(restartBtn);
+
+    expect(screen.getByText(/oi! eu sou o norti! 👋/i)).toBeDefined();
+  });
 });

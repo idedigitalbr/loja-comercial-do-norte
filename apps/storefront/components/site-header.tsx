@@ -107,6 +107,9 @@ export function SiteHeader({
   const activeWhatsapp = whatsapp || "5591983440880";
   const whatsappDigits = activeWhatsapp.replace(/\D+/g, "");
   const whatsappDisplay = phone || "(91) 98344-0880";
+  const headerWhatsappText = encodeURIComponent(
+    "Olá, equipe Comercial do Norte! Vim através do site e gostaria de atendimento sobre produtos, cotações e preços."
+  );
 
   return (
     <>
@@ -141,7 +144,7 @@ export function SiteHeader({
               <a
                 id="tour-header-whatsapp"
                 className="inline-flex items-center gap-1.5 rounded-full bg-[#B80617] hover:bg-[#9E0514] px-3 py-0.5 font-bold text-white transition text-[11px]"
-                href={`https://wa.me/${whatsappDigits}`}
+                href={`https://wa.me/${whatsappDigits}?text=${headerWhatsappText}`}
                 rel="noreferrer"
                 target="_blank"
               >
@@ -712,7 +715,7 @@ export function SiteHeader({
                   </Link>
                   <a
                     className="flex items-center gap-2 py-1.5 text-[#004CB1] font-bold"
-                    href={`https://wa.me/${whatsappDigits}`}
+                    href={`https://wa.me/${whatsappDigits}?text=${headerWhatsappText}`}
                     rel="noreferrer"
                     target="_blank"
                   >
