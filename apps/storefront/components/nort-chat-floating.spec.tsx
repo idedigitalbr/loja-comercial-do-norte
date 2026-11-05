@@ -103,7 +103,7 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     expect(backdrop).toBeDefined();
     expect(document.body.style.overflow).toBe('hidden');
 
-    // Etapa 1 (Anexo 3): Indicador de digitação aparece antes da 1ª mensagem (~2 a 3 segundos)
+    // Etapa 1 (Anexo 3): Indicador de digitação aparece antes da 1ª mensagem (~2 a 4 segundos)
     act(() => {
       vi.advanceTimersByTime(250);
     });
@@ -113,9 +113,9 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
       screen.queryByText(/olá! 👋 eu sou o nort, assistente virtual da comercial do norte!/i)
     ).toBeNull();
 
-    // Avança ~3.2s -> 1ª mensagem aparece por completo (Anexo 3) e a 2ª ainda NÃO apareceu
+    // Avança tempo de escrita da 1ª mensagem (~3.6s) -> 1ª mensagem aparece por completo (Anexo 3) e a 2ª ainda NÃO apareceu
     act(() => {
-      vi.advanceTimersByTime(3200);
+      vi.advanceTimersByTime(3700);
     });
     expect(
       screen.getByText(/olá! 👋 eu sou o nort, assistente virtual da comercial do norte!/i)
@@ -124,16 +124,16 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
       screen.queryByText(/para começar, me conta: qual é o seu nome e número do whatsapp\?/i)
     ).toBeNull();
 
-    // Etapa 2 (Anexo 4): Após pequena pausa, o indicador de digitação aparece novamente para a 2ª mensagem
+    // Etapa 2 (Anexo 4): Após pausa natural de respiração (750ms), o indicador de digitação aparece para a 2ª mensagem
     act(() => {
-      vi.advanceTimersByTime(700);
+      vi.advanceTimersByTime(800);
     });
     expect(screen.getByText('digitando...')).toBeDefined();
     expect(screen.getByLabelText('Nort está digitando')).toBeDefined();
 
-    // Avança o tempo de escrita da 2ª mensagem -> 2ª mensagem aparece (Anexo 4), mas o formulário (Anexo 5) ainda aguarda seu ciclo de digitação
+    // Avança o tempo de escrita da 2ª mensagem (~3.6s) -> 2ª mensagem aparece (Anexo 4), mas o formulário (Anexo 5) ainda aguarda seu ciclo de digitação
     act(() => {
-      vi.advanceTimersByTime(3300);
+      vi.advanceTimersByTime(3800);
     });
     expect(
       screen.getByText(/para começar, me conta: qual é o seu nome e número do whatsapp\?/i)
@@ -228,16 +228,22 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
       vi.advanceTimersByTime(10000);
     });
 
-    // Etapa 3: aparecem os botões de serviço e atendimento
+    // Etapa 3: aparecem as 3 categorias organizadas estilo sanfona (Atendimento, Produtos, Site)
     expect(screen.getByText(/perfeito, carlos mendes! 💙/i)).toBeDefined();
     expect(screen.getByText(/agora me conta, como posso te ajudar hoje\?/i)).toBeDefined();
-    expect(screen.getByText(/🛍️ consultar produtos/i)).toBeDefined();
-    expect(screen.getByText(/📋 solicitar uma cotação/i)).toBeDefined();
-    expect(screen.getByText(/📍 endereço e horários/i)).toBeDefined();
-    expect(screen.getByText(/💬 falar com um atendente/i)).toBeDefined();
+    expect(screen.getByText(/atendimento & setores/i)).toBeDefined();
+    expect(screen.getByText(/produtos & cotação/i)).toBeDefined();
+    expect(screen.getByText(/site \/ loja virtual/i)).toBeDefined();
 
-    // Seleciona "Solicitar uma cotação" -> registra lead no CRM e abre WhatsApp
-    fireEvent.click(screen.getByText(/📋 solicitar uma cotação/i));
+    // Clica na categoria "Produtos & Cotação" para expandir a sanfona
+    fireEvent.click(screen.getByText(/produtos & cotação/i));
+    expect(screen.getByText(/quero solicitar uma cotação de produtos/i)).toBeDefined();
+    expect(screen.getByText(/como faço para consultar produtos no catálogo\?/i)).toBeDefined();
+    expect(screen.getByText(/não consigo adicionar itens à cotação/i)).toBeDefined();
+    expect(screen.getByText(/preciso tirar dúvidas de faturamento e pagamento/i)).toBeDefined();
+
+    // Seleciona "Quero solicitar uma cotação de produtos" -> registra lead no CRM e abre WhatsApp
+    fireEvent.click(screen.getByText(/quero solicitar uma cotação de produtos/i));
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/v1/crm/leads',
       expect.objectContaining({ method: 'POST' })
@@ -249,7 +255,7 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     );
   });
 
-  it('detecta automaticamente a região por IP/cabeçalho (estilo Magazine Luiza) e oferece CEP exato quando a permissão de GPS do navegador não está disponível', async () => {
+  it('detecta automaticamente a região por IP/cabeçalho (estilo Magazine Luiza) e oferece seleção de unidades próximas com distância em km e opção de CEP', async () => {
     vi.useFakeTimers();
     render(<NortChatFloating whatsapp="5591983440880" />);
 
@@ -276,17 +282,22 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     await act(async () => {
       fireEvent.click(screen.getByText(/📍 encontrar a mais próxima de mim/i));
       await Promise.resolve();
-      await Promise.resolve();
-      await Promise.resolve();
     });
 
+    // Avança o delay de verificação e a digitação completa das opções com distância
     act(() => {
       vi.advanceTimersByTime(12000);
     });
 
-    // Verifica que o chat sugeriu automaticamente a unidade da região e também exibiu o campo de CEP
-    expect(screen.getByText(/identifiquei automaticamente sua região/i)).toBeDefined();
-    expect(screen.getByText(/✅ continuar na/i)).toBeDefined();
+    // Verifica que o chat calculou as unidades com distância formatada em km/metros
+    expect(
+      screen.getByText(/olha, a unidade mais próxima de você tem estas opções/i)
+    ).toBeDefined();
+    expect(screen.getAllByText(/🏪/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/📮 digitar outro cep/i)).toBeDefined();
+
+    // Clica em "Digitar outro CEP" para testar o fallback manual por CEP
+    fireEvent.click(screen.getByText(/📮 digitar outro cep/i));
 
     const cepField = screen.getByPlaceholderText('Informe seu CEP...');
     expect(cepField).toBeDefined();
@@ -303,7 +314,7 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
     expect(screen.getByText(/identifiquei a unidade são brás/i)).toBeDefined();
   });
 
-  it('persiste a conversa no navegador (F5 / reload) para não pedir nome e WhatsApp toda hora', () => {
+  it('persiste a conversa no navegador (F5 / reload) com boas-vindas limpas e opções de continuar conversa anterior ou iniciar novo atendimento', () => {
     vi.useFakeTimers();
     const { unmount } = render(<NortChatFloating whatsapp="5591983440880" />);
 
@@ -337,10 +348,25 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
       screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
     );
 
-    // Ao reabrir após F5, a conversa com Roberto já está salva e NÃO pede o formulário de Nome/WhatsApp de novo!
-    expect(screen.getByText(/prazer, roberto! 😊/i)).toBeDefined();
+    // Ao reabrir após F5, o Nort cumprimenta calorosamente pelo nome com tela limpa
+    act(() => {
+      vi.advanceTimersByTime(12000);
+    });
+
+    expect(screen.getByText(/oi, roberto! 👋 bem-vindo\(a\) de volta!/i)).toBeDefined();
+    expect(screen.getByText(/como posso te ajudar agora\?/i)).toBeDefined();
+    // NÃO pede o formulário inicial de Nome/WhatsApp de novo!
     expect(screen.queryByPlaceholderText('Como posso te chamar?')).toBeNull();
-    expect(screen.getByText(/📍 encontrar a mais próxima de mim/i)).toBeDefined();
+
+    // Apresenta as duas opções de UX limpa
+    const resumeBtn = screen.getByText(/💬 continuar conversa anterior/i);
+    const newChatBtn = screen.getByText(/🆕 iniciar novo atendimento/i);
+    expect(resumeBtn).toBeDefined();
+    expect(newChatBtn).toBeDefined();
+
+    // Clica em "Continuar conversa anterior" e restaura os balões
+    fireEvent.click(resumeBtn);
+    expect(screen.getByText(/prazer, roberto! 😊/i)).toBeDefined();
   });
 
   it('permite ao visitante alterar seus dados (nome e WhatsApp) sem duplicar lead no CRM', () => {
@@ -439,5 +465,70 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat)', () 
         /olá! 👋 eu sou o nort, assistente virtual da comercial do norte!/i
       )
     ).toBeDefined();
+  });
+
+  it('organiza as opções em sanfona/accordion (Atendimento, Produtos, Site), permitindo expandir e colapsar cada categoria', () => {
+    vi.useFakeTimers();
+    render(<NortChatFloating whatsapp="5591983440880" />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(11000);
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('Como posso te chamar?'), {
+      target: { value: 'Helena' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('(91) 99999-9999'), {
+      target: { value: '91985554433' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /continuar no chat/i }));
+
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    // Escolhe uma loja
+    fireEvent.click(screen.getByText(/🏬 escolher uma unidade/i));
+    act(() => {
+      vi.advanceTimersByTime(7000);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /confirmar unidade selecionada/i }));
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    // Inicialmente os subitens das categorias estão colapsados
+    expect(screen.queryByText(/quero falar com o setor jurídico/i)).toBeNull();
+    expect(screen.queryByText(/quero ajuda para mudar meu cep de entrega/i)).toBeNull();
+
+    // Expande a categoria "Atendimento & Setores"
+    fireEvent.click(screen.getByText(/atendimento & setores/i));
+    expect(screen.getByText(/quero falar com um atendente humano \(whatsapp\)/i)).toBeDefined();
+    expect(screen.getByText(/quero falar com o setor jurídico \(whatsapp\)/i)).toBeDefined();
+    expect(screen.getByText(/quero falar com vendas no whatsapp/i)).toBeDefined();
+    expect(screen.getByText(/ver endereço e horários de funcionamento/i)).toBeDefined();
+
+    // Clica novamente na mesma categoria -> colapsa os subitens
+    fireEvent.click(screen.getByText(/atendimento & setores/i));
+    expect(screen.queryByText(/quero falar com o setor jurídico \(whatsapp\)/i)).toBeNull();
+
+    // Expande a categoria "Site / Loja Virtual"
+    fireEvent.click(screen.getByText(/site \/ loja virtual/i));
+    expect(screen.getByText(/quero ajuda para mudar meu cep de entrega/i)).toBeDefined();
+    expect(screen.getByText(/esqueci meu login e senha \(como recuperar\)/i)).toBeDefined();
+    expect(screen.getByText(/fazer tour guiado interativo pela loja/i)).toBeDefined();
+
+    // Ao clicar em "Quero ajuda para mudar meu CEP de entrega", o Nort responde e abre o campo de CEP
+    fireEvent.click(screen.getByText(/quero ajuda para mudar meu CEP de entrega/i));
+    act(() => {
+      vi.advanceTimersByTime(12000);
+    });
+
+    expect(screen.getByPlaceholderText('Informe seu CEP...')).toBeDefined();
   });
 });

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useId, useRef, useState } from 'react';
 import Image from 'next/image';
-import { ArrowLeft, CheckCheck, Minimize2, RotateCcw, Send, X } from 'lucide-react';
+import { ArrowLeft, CheckCheck, ChevronDown, Minimize2, RotateCcw, Send, X } from 'lucide-react';
 import {
   COMMERCIAL_STORES,
   CommercialStore,
@@ -11,8 +11,10 @@ import {
   findNearestStoreByCep,
   findNearestStoreByCoords,
   findStoreById,
+  findTopNearestStores,
   formatBrazilPhoneMask,
   formatCepMask,
+  type StoreWithDistance,
 } from '../lib/stores-data';
 import {
   DEFAULT_LOCATION,
@@ -45,7 +47,9 @@ export type ChatMessage = {
 
 export type BotStep =
   | 'IDENTIFY'
+  | 'RESUME_PROMPT'
   | 'UNIT_MODE'
+  | 'UNIT_NEARBY_CHOICE'
   | 'UNIT_CEP'
   | 'UNIT_LIST'
   | 'SERVICE'
@@ -192,10 +196,10 @@ function TypingIndicatorBubble() {
           aria-hidden="true"
           className="absolute -left-[6px] top-0 w-0 h-0 border-t-[8px] border-t-[#F1F3F4] border-l-[6px] border-l-transparent"
         />
-        <div className="flex items-center gap-1.5 py-0.5">
-          <span className="size-2 rounded-full bg-[#667781] animate-bounce motion-reduce:animate-none" />
-          <span className="size-2 rounded-full bg-[#667781] animate-bounce [animation-delay:0.18s] motion-reduce:animate-none" />
-          <span className="size-2 rounded-full bg-[#667781] animate-bounce [animation-delay:0.36s] motion-reduce:animate-none" />
+        <div className="flex items-center gap-1.5 py-1 px-0.5">
+          <span className="wa-typing-dot" />
+          <span className="wa-typing-dot" />
+          <span className="wa-typing-dot" />
         </div>
       </div>
     </div>
@@ -295,17 +299,15 @@ function QuickReplyButton({
 }
 
 /* ============================================================================
- * CÁLCULO DE TEMPO DE DIGITAÇÃO HUMANO, LENTO E NATURAL (SEÇÃO 2 & 3)
+ * CÁLCULO DE TEMPO DE DIGITAÇÃO HUMANO, LENTO E NATURAL (2 A 4 SEGUNDOS)
  * ============================================================================ */
 
-function calculateHumanTypingMs(text: string, index: number, prefersReducedMotion: boolean): number {
-  if (prefersReducedMotion) return 150;
-  // Ritmo lento, calmo e humano (~2.1s a 3.6s proporcional ao tamanho da mensagem + variação orgânica)
+function calculateHumanTypingMs(text: string, index: number): number {
+  // Ritmo humano realista, calmo e lento (estritamente entre 2.4s e 3.8s por mensagem)
   const charCount = text.trim().length;
-  const baseMs = 1550 + charCount * 22;
-  // Variação orgânica determinística + leve cadência para não ficar repetitivo
-  const naturalVariation = ((charCount * 53 + index * 190) % 480);
-  return Math.min(3600, Math.max(2100, baseMs + naturalVariation));
+  const baseMs = 2350 + Math.min(1000, charCount * 16);
+  const naturalCadence = ((charCount * 41 + index * 170) % 380);
+  return Math.min(3850, Math.max(2400, baseMs + naturalCadence));
 }
 
 /* ============================================================================
@@ -350,9 +352,12 @@ export function NortChatFloating({
   const [pendingStoreId, setPendingStoreId] = useState<string>(DEFAULT_STORE.id);
   const [selectedStore, setSelectedStore] = useState<CommercialStore>(DEFAULT_STORE);
   const [autoSuggestedStore, setAutoSuggestedStore] = useState<CommercialStore>(DEFAULT_STORE);
+  const [nearbyStores, setNearbyStores] = useState<StoreWithDistance[]>([]);
+  const [previousSession, setPreviousSession] = useState<StoredNortSession | null>(null);
   const [chosenSubject, setChosenSubject] = useState('');
   const [customMessageText, setCustomMessageText] = useState('');
   const [storeInfoVisible, setStoreInfoVisible] = useState(false);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
   // Histórico de mensagens
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -457,11 +462,11 @@ export function NortChatFloating({
   }
 
   /**
-   * Simulação realista e lenta de digitação humana (Seções 2, 3 e 4):
-   * - Indicador de digitação (...) -> espera proporcional (2 a 3.5s) -> exibe mensagem ->
-   *   pausa natural de respiração (650ms) -> próximo indicador de digitação -> próxima mensagem.
-   * - Ao final da última mensagem, aguarda uma pausa natural de digitação antes de exibir
-   *   o próximo bloco interativo (Anexo 5: formulário ou botões), para que nada apareça de chofre!
+   * Simulação realista e lenta de digitação humana (2 a 4 segundos por mensagem):
+   * - O indicador de digitação (...) e status "digitando..." ativam IMEDIATAMENTE no início.
+   * - Cada mensagem permanece em digitação por 2.4s a 3.8s.
+   * - Ao entregar a mensagem, ocorre pausa natural de respiração (750ms).
+   * - Antes de exibir o formulário ou botões interativos, o indicador de digitação volta por ~2.0s.
    */
   function scheduleBotSequence(
     texts: string[],
@@ -472,25 +477,24 @@ export function NortChatFloating({
   ) {
     clearScheduledTimers();
     setInteractiveReady(false);
-
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      typeof window.matchMedia === 'function' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Ativa status "digitando..." e o balão dos três pontinhos IMEDIATAMENTE
+    setIsTyping(true);
 
     let elapsed = 0;
 
     texts.forEach((text, index) => {
-      // Pausa natural entre o envio de uma mensagem e o início da digitação da próxima
-      const pauseBeforeTyping = index === 0 ? (prefersReducedMotion ? 20 : 180) : prefersReducedMotion ? 80 : 680;
-      elapsed += pauseBeforeTyping;
+      // Se for a partir da 2ª mensagem, há uma pausa de respiração antes de retomar a digitação
+      if (index > 0) {
+        const pauseBeforeTyping = 750;
+        elapsed += pauseBeforeTyping;
 
-      const startTypingTimer = window.setTimeout(() => {
-        setIsTyping(true);
-      }, elapsed);
-      timersRef.current.push(startTypingTimer);
+        const startTypingTimer = window.setTimeout(() => {
+          setIsTyping(true);
+        }, elapsed);
+        timersRef.current.push(startTypingTimer);
+      }
 
-      const typingDuration = calculateHumanTypingMs(text, index, prefersReducedMotion);
+      const typingDuration = calculateHumanTypingMs(text, index);
       elapsed += typingDuration;
 
       const deliverMsgTimer = window.setTimeout(() => {
@@ -508,10 +512,9 @@ export function NortChatFloating({
       timersRef.current.push(deliverMsgTimer);
     });
 
-    // Terceira etapa da sequência (ex: Anexo 5 — antes de exibir o card/formulário ou botões,
-    // mostra novamente o indicador de digitação por um intervalo lento e natural e só então apresenta)
+    // Antes de exibir o bloco interativo (formulário ou opções), mostra digitação por ~2s
     if (options?.withInteractiveWidget !== false) {
-      const pauseBeforeWidgetTyping = prefersReducedMotion ? 60 : 620;
+      const pauseBeforeWidgetTyping = 600;
       elapsed += pauseBeforeWidgetTyping;
 
       const startWidgetTypingTimer = window.setTimeout(() => {
@@ -519,7 +522,7 @@ export function NortChatFloating({
       }, elapsed);
       timersRef.current.push(startWidgetTypingTimer);
 
-      const widgetTypingDuration = prefersReducedMotion ? 120 : 1850;
+      const widgetTypingDuration = 2000;
       elapsed += widgetTypingDuration;
 
       const showWidgetTimer = window.setTimeout(() => {
@@ -537,25 +540,19 @@ export function NortChatFloating({
     }
   }
 
-  // Restaura sessão salva do cliente (localStorage / cookie / banco CRM) ao montar no navegador,
-  // para que ao dar F5 ou navegar pelo site ele não precise informar nome/WhatsApp novamente!
+  // Restaura sessão salva do cliente (localStorage / cookie / banco CRM) ao montar no navegador
   useEffect(() => {
     const pubId = getOrCreateVisitorPublicId();
     setVisitorPublicId(pubId);
 
     const localSession = loadStoredNortSession();
-    if (localSession) {
-      const restoredStore = findStoreById(localSession.selectedStoreId);
+    if (localSession && localSession.customerName?.trim().length >= 2) {
+      setPreviousSession(localSession);
       setCustomerName(localSession.customerName);
-      setCustomerPhone(localSession.customerPhone);
-      setSelectedStore(restoredStore);
-      setPendingStoreId(restoredStore.id);
+      setCustomerPhone(localSession.customerPhone || '');
+      setSelectedStore(findStoreById(localSession.selectedStoreId));
+      setPendingStoreId(localSession.selectedStoreId || DEFAULT_STORE.id);
       setChosenSubject(localSession.chosenSubject || '');
-      setMessages(localSession.messages);
-      setStep(localSession.step === 'IDENTIFY' ? 'UNIT_MODE' : localSession.step);
-      setIsTyping(false);
-      setInteractiveReady(true);
-      setHasInitializedIntro(true);
       setHasRestoredSession(true);
       return;
     }
@@ -577,25 +574,25 @@ export function NortChatFloating({
                     text: String(m.text || ''),
                     time: String(m.timestamp || m.time || 'Agora'),
                   }))
-                : [
-                    {
-                      id: 'restored-welcome',
-                      sender: 'bot',
-                      text: `Olá de volta, ${lead.customerName}! 👋 Como posso continuar te ajudando hoje na ${restoredStore.shortTitle}?`,
-                      time: 'Agora',
-                    },
-                  ];
+                : [];
 
+            const backendSession: StoredNortSession = {
+              publicId: lead.publicId || pubId,
+              step: 'SERVICE',
+              customerName: lead.customerName,
+              customerPhone: lead.customerPhone || '',
+              selectedStoreId: restoredStore.id,
+              chosenSubject: lead.subject || '',
+              messages: mappedMessages,
+              updatedAt: Date.now(),
+            };
+
+            setPreviousSession(backendSession);
             setCustomerName(lead.customerName);
             setCustomerPhone(lead.customerPhone || '');
             setSelectedStore(restoredStore);
             setPendingStoreId(restoredStore.id);
             setChosenSubject(lead.subject || '');
-            setMessages(mappedMessages);
-            setStep('SERVICE');
-            setIsTyping(false);
-            setInteractiveReady(true);
-            setHasInitializedIntro(true);
             setHasRestoredSession(true);
           }
         })
@@ -608,7 +605,7 @@ export function NortChatFloating({
   // Salva automaticamente o histórico e progresso da conversa no localStorage sempre que o usuário já se identificou
   useEffect(() => {
     if (!customerName || customerName.trim().length < 2) return;
-    if (messages.length === 0) return;
+    if (messages.length === 0 || step === 'RESUME_PROMPT') return;
 
     saveStoredNortSession({
       publicId: visitorPublicId || getOrCreateVisitorPublicId(),
@@ -622,29 +619,35 @@ export function NortChatFloating({
     });
   }, [visitorPublicId, step, customerName, customerPhone, selectedStore, chosenSubject, messages]);
 
-  // Ao abrir o chat pela primeira vez (se não houver sessão anterior restaurada), dispara a sequência inicial conforme Anexos 3, 4 e 5
+  // Ao abrir o chat pela primeira vez:
+  // Se for visitante de retorno: abre limpo com boas-vindas acolhedora e opções de continuar ou novo atendimento!
+  // Se for novo visitante: inicia identificação guiada
   useEffect(() => {
-    if (isOpen && !hasInitializedIntro && !hasRestoredSession) {
-      const existing = loadStoredNortSession();
-      if (existing) {
-        const restoredStore = findStoreById(existing.selectedStoreId);
-        setCustomerName(existing.customerName);
-        setCustomerPhone(existing.customerPhone);
-        setSelectedStore(restoredStore);
-        setPendingStoreId(restoredStore.id);
-        setChosenSubject(existing.chosenSubject || '');
-        setMessages(existing.messages);
-        setStep(existing.step === 'IDENTIFY' ? 'UNIT_MODE' : existing.step);
-        setIsTyping(false);
-        setInteractiveReady(true);
-        setHasInitializedIntro(true);
-        setHasRestoredSession(true);
-        return;
-      }
-      setHasInitializedIntro(true);
-      scheduleBotSequence([WELCOME_MSG_1, WELCOME_MSG_2], { withInteractiveWidget: true });
+    if (!isOpen || hasInitializedIntro) return;
+
+    setHasInitializedIntro(true);
+
+    const saved = previousSession || loadStoredNortSession();
+    if (saved && saved.customerName?.trim().length >= 2 && saved.messages?.length > 0) {
+      setPreviousSession(saved);
+      setCustomerName(saved.customerName);
+      setCustomerPhone(saved.customerPhone || '');
+      setStep('RESUME_PROMPT');
+      setMessages([]);
+      scheduleBotSequence(
+        [
+          `Oi, ${saved.customerName}! 👋 Bem-vindo(a) de volta!`,
+          'Como posso te ajudar agora?',
+        ],
+        { withInteractiveWidget: true }
+      );
+      return;
     }
-  }, [isOpen, hasInitializedIntro, hasRestoredSession]);
+
+    setStep('IDENTIFY');
+    setMessages([]);
+    scheduleBotSequence([WELCOME_MSG_1, WELCOME_MSG_2], { withInteractiveWidget: true });
+  }, [isOpen, hasInitializedIntro, previousSession]);
 
   useEffect(() => {
     if (isOpen) {
@@ -811,68 +814,165 @@ export function NortChatFloating({
     };
   }
 
-  function handleFindNearestUnit() {
+  function handleResumePreviousConversation() {
+    if (!previousSession) return;
+    const restoredStore = findStoreById(previousSession.selectedStoreId);
+    setSelectedStore(restoredStore);
+    setPendingStoreId(restoredStore.id);
+    setChosenSubject(previousSession.chosenSubject || '');
+    setMessages(previousSession.messages);
+    const targetStep =
+      previousSession.step === 'IDENTIFY' || previousSession.step === 'RESUME_PROMPT'
+        ? 'SERVICE'
+        : previousSession.step;
+    setStep(targetStep);
+    setIsTyping(false);
+    setInteractiveReady(true);
+  }
+
+  function handleStartNewAttendance() {
     if (isTyping) return;
+    const name = customerName || previousSession?.customerName || 'visitante';
+    const userMsg: ChatMessage = {
+      id: `user-new-att-${Date.now()}`,
+      sender: 'user',
+      text: '🆕 Iniciar novo atendimento',
+      time: getFormattedTime(),
+      quotedText: 'Como posso te ajudar agora?',
+    };
+    setMessages([userMsg]);
+    setStep('UNIT_MODE');
+
+    scheduleBotSequence(
+      [
+        `Combinado, ${name}! 😊`,
+        'Em qual unidade da Comercial do Norte você prefere ser atendido hoje?',
+      ],
+      { withInteractiveWidget: true }
+    );
+  }
+
+  async function handleFindNearestUnit() {
+    if (isTyping) return;
+
+    // Detecta rótulo de localização para a mensagem do usuário (ex: Pedreira, Belém - PA)
+    const currentLoc = optionalLocationCtx?.location || getStoredLocation();
+    let locationText = '';
+    if (currentLoc?.neighborhood && currentLoc?.city) {
+      locationText = ` (estou no bairro da ${currentLoc.neighborhood}, ${currentLoc.city} - ${currentLoc.state})`;
+    } else if (currentLoc?.city) {
+      locationText = ` (estou em ${currentLoc.city}/${currentLoc.state})`;
+    }
 
     const userMsg: ChatMessage = {
       id: `user-near-${Date.now()}`,
       sender: 'user',
-      text: '📍 Encontrar a mais próxima de mim',
+      text: `📍 A mais próxima de mim${locationText}`,
       time: getFormattedTime(),
       quotedText: 'Agora me diz: em qual unidade da Comercial do Norte você gostaria de ser atendido?',
     };
     setMessages((prev) => [...prev, userMsg]);
 
+    // Resposta imediata do Nort dizendo que vai verificar
+    const waitMsg: ChatMessage = {
+      id: `bot-wait-${Date.now()}`,
+      sender: 'bot',
+      text: 'Ah sim! Deixa eu verificar um momentinho... 🔍',
+      time: getFormattedTime(),
+    };
+    setMessages((prev) => [...prev, waitMsg]);
+    setIsTyping(true);
+    setInteractiveReady(false);
+
+    let targetLat = currentLoc?.lat ?? DEFAULT_LOCATION.lat ?? -1.4558;
+    let targetLng = currentLoc?.lng ?? DEFAULT_LOCATION.lng ?? -48.4902;
+    let neighborhoodName = currentLoc?.neighborhood || '';
+
     if (typeof navigator !== 'undefined' && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const nearest = findNearestStoreByCoords(latitude, longitude);
+      try {
+        const position = await new Promise<GeolocationPosition | null>((resolve) => {
+          const timeoutFallback = window.setTimeout(() => resolve(null), 1200);
+          try {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                window.clearTimeout(timeoutFallback);
+                resolve(pos);
+              },
+              () => {
+                window.clearTimeout(timeoutFallback);
+                resolve(null);
+              },
+              { timeout: 3000, enableHighAccuracy: false }
+            );
+          } catch {
+            window.clearTimeout(timeoutFallback);
+            resolve(null);
+          }
+        });
 
-          // Atualiza também o cabeçalho da loja com o bairro/cidade real do GPS!
-          void reverseGeocodeCoordinates(latitude, longitude).then((geoLoc) => {
-            if (geoLoc) {
-              syncHeaderLocation(geoLoc);
+        if (position) {
+          targetLat = position.coords.latitude;
+          targetLng = position.coords.longitude;
+          const reverse = await reverseGeocodeCoordinates(targetLat, targetLng);
+          if (reverse) {
+            syncHeaderLocation(reverse);
+            if (reverse.neighborhood) {
+              neighborhoodName = reverse.neighborhood;
             }
-          });
-
-          confirmStoreSelection(
-            nearest,
-            `Localização confirmada! 📍 A unidade mais próxima de você é a ${nearest.shortTitle} (${nearest.address}).`
-          );
-        },
-        async () => {
-          // Quando o navegador bloqueia ou oculta o popup de GPS ("Localização bloqueada"),
-          // usa detecção automática por IP / região do cabeçalho (estilo Magazine Luiza) + campo de CEP!
-          const autoResult = await resolveSmartFallbackLocation();
-          setAutoSuggestedStore(autoResult.store);
-          setSelectedStore(autoResult.store);
-          setStep('UNIT_CEP');
-
-          scheduleBotSequence(
-            [
-              `Identifiquei automaticamente sua região (${autoResult.regionLabel})! 📍 Pela sua localização aproximada, a unidade sugerida é a ${autoResult.store.shortTitle} (${autoResult.store.address}).`,
-              'Você pode continuar direto nessa unidade ou digitar seu CEP abaixo para calcular pela sua rua exata:',
-            ],
-            { withInteractiveWidget: true }
-          );
-        },
-        { timeout: 3500 }
-      );
-    } else {
-      void resolveSmartFallbackLocation().then((autoResult) => {
-        setAutoSuggestedStore(autoResult.store);
-        setSelectedStore(autoResult.store);
-        setStep('UNIT_CEP');
-        scheduleBotSequence(
-          [
-            `Identifiquei automaticamente sua região (${autoResult.regionLabel})! 📍 A unidade sugerida para você é a ${autoResult.store.shortTitle}.`,
-            'Confirme abaixo para continuar nela ou informe seu CEP para localizar pela sua rua exata:',
-          ],
-          { withInteractiveWidget: true }
-        );
-      });
+          }
+        }
+      } catch {
+        // Fallback
+      }
     }
+
+    // Calcula as 2 lojas mais próximas com a distância em km!
+    const topStores = findTopNearestStores(targetLat, targetLng, 2);
+    setNearbyStores(topStores);
+
+    // Delay humano e natural de verificação (2.6s)
+    window.setTimeout(() => {
+      setIsTyping(false);
+      setStep('UNIT_NEARBY_CHOICE');
+
+      const introText = neighborhoodName
+        ? `Olha, a unidade mais próxima de você tem estas opções aqui perto do bairro ${neighborhoodName}:`
+        : 'Olha, a unidade mais próxima de você tem estas opções:';
+
+      scheduleBotSequence([introText], { withInteractiveWidget: true });
+    }, 2600);
+  }
+
+  function handleSelectNearbyStore(store: StoreWithDistance | CommercialStore) {
+    if (isTyping) return;
+    setSelectedStore(store);
+
+    const userMsg: ChatMessage = {
+      id: `user-choose-${Date.now()}`,
+      sender: 'user',
+      text: `🏪 ${store.shortTitle}`,
+      time: getFormattedTime(),
+    };
+
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
+    setStep('SERVICE');
+
+    void registerLeadToCRM({
+      name: customerName || 'Cliente Site',
+      phone: customerPhone || '(91) 98344-0880',
+      store,
+      subject: `Atendimento direcionado para ${store.shortTitle}`,
+      allMessages: nextMessages,
+    });
+
+    scheduleBotSequence(
+      [
+        `Bacana, ${customerName || 'visitante'}! 💙 A partir daqui o seu atendimento é direcionado para a ${store.shortTitle} (${store.address}).`,
+        'Agora me conta: como podemos te ajudar hoje?',
+      ],
+      { withInteractiveWidget: true }
+    );
   }
 
   function handleShowUnitList() {
@@ -1042,11 +1142,98 @@ export function NortChatFloating({
       const userMsg: ChatMessage = {
         id: `user-addr-${Date.now()}`,
         sender: 'user',
-        text: '📍 Endereço e horários',
+        text: '📍 Ver endereço e horários de funcionamento',
         time: getFormattedTime(),
       };
       setMessages((prev) => [...prev, userMsg]);
     }
+  }
+
+  function handleSiteCepHelp() {
+    if (isTyping) return;
+    const userMsg: ChatMessage = {
+      id: `user-cep-help-${Date.now()}`,
+      sender: 'user',
+      text: '📍 Quero ajuda para mudar meu CEP de entrega',
+      time: getFormattedTime(),
+      quotedText: 'Agora me conta: como podemos te ajudar hoje?',
+    };
+    setMessages((prev) => [...prev, userMsg]);
+    setStep('UNIT_CEP');
+
+    scheduleBotSequence(
+      [
+        'Com certeza! Você pode atualizar seu CEP a qualquer momento para recalcularmos prazos e entregas para a sua região.',
+        'Informe seu CEP abaixo ou continue navegando com a unidade atual:',
+      ],
+      { withInteractiveWidget: true }
+    );
+  }
+
+  function handleSiteLoginHelp() {
+    if (isTyping) return;
+    const userMsg: ChatMessage = {
+      id: `user-login-help-${Date.now()}`,
+      sender: 'user',
+      text: '🔑 Esqueci meu login ou senha da minha conta',
+      time: getFormattedTime(),
+      quotedText: 'Agora me conta: como podemos te ajudar hoje?',
+    };
+    setMessages((prev) => [...prev, userMsg]);
+    setStep('FINISHED');
+    setChosenSubject('Recuperação de login e senha');
+
+    scheduleBotSequence(
+      [
+        'Sem problemas! Para recuperar sua senha, acesse "Entre ou Cadastre-se" no topo do site e clique em "Esqueci minha senha" informando seu e-mail cadastrado.',
+        'Se você preferir que nossa equipe verifique seu cadastro manualmente, toque no botão do WhatsApp abaixo!',
+      ],
+      { withInteractiveWidget: true }
+    );
+  }
+
+  function handleCatalogHelp() {
+    if (isTyping) return;
+    const userMsg: ChatMessage = {
+      id: `user-catalog-help-${Date.now()}`,
+      sender: 'user',
+      text: '🛍️ Como faço para consultar produtos no catálogo?',
+      time: getFormattedTime(),
+      quotedText: 'Agora me conta: como podemos te ajudar hoje?',
+    };
+    setMessages((prev) => [...prev, userMsg]);
+    setStep('FINISHED');
+    setChosenSubject('Consulta de produtos no catálogo');
+
+    scheduleBotSequence(
+      [
+        'Você pode navegar pelos departamentos no menu superior (Confeitaria, Descartáveis, Embalagens, etc.) ou buscar pelo nome do produto na barra de pesquisa no topo.',
+        'Todos os itens possuem botão direto "Adicionar à Cotação". Se preferir, nosso vendedor no WhatsApp pode montar o pedido para você!',
+      ],
+      { withInteractiveWidget: true }
+    );
+  }
+
+  function handleQuoteIssueHelp() {
+    if (isTyping) return;
+    const userMsg: ChatMessage = {
+      id: `user-quote-issue-${Date.now()}`,
+      sender: 'user',
+      text: '⚠️ Não consigo adicionar itens à cotação',
+      time: getFormattedTime(),
+      quotedText: 'Agora me conta: como podemos te ajudar hoje?',
+    };
+    setMessages((prev) => [...prev, userMsg]);
+    setStep('FINISHED');
+    setChosenSubject('Dúvidas com Lista de Cotação');
+
+    scheduleBotSequence(
+      [
+        'Poxa, vamos resolver isso já! Verifique se seu navegador está com cookies habilitados ou se a quantidade mínima do item foi selecionada.',
+        'Se preferir, envie os produtos diretamente para a equipe da loja pelo WhatsApp:',
+      ],
+      { withInteractiveWidget: true }
+    );
   }
 
   function handleSendCustomMessage(e: React.FormEvent) {
@@ -1084,12 +1271,15 @@ export function NortChatFloating({
       setStep('UNIT_MODE');
       setInteractiveReady(true);
     } else if (step === 'SERVICE') {
+      setExpandedCategory(null);
       setStep('UNIT_MODE');
       setInteractiveReady(true);
     } else if (step === 'FINISHED') {
+      setExpandedCategory(null);
       setStep('SERVICE');
       setInteractiveReady(true);
     } else if (step === 'EDIT_DATA') {
+      setExpandedCategory(null);
       setStep('SERVICE');
       setInteractiveReady(true);
     }
@@ -1159,6 +1349,7 @@ export function NortChatFloating({
     clearScheduledTimers();
     clearStoredNortSession();
     setStep('IDENTIFY');
+    setExpandedCategory(null);
     setCustomerName('');
     setCustomerPhone('');
     setFormError('');
@@ -1180,6 +1371,132 @@ export function NortChatFloating({
     selectedStore.whatsappDigits || whatsappDigits,
     `Olá, equipe Comercial do Norte (${selectedStore.name})!\nMeu nome é: ${customerName || 'Cliente'}\nWhatsApp: ${customerPhone || 'Informado no site'}\nAssunto: ${chosenSubject || 'Atendimento geral'}\nUnidade: ${selectedStore.shortTitle}`
   );
+
+  const serviceCategories = [
+    {
+      id: 'atendimento',
+      icon: '💬',
+      title: 'Atendimento & Setores',
+      subtitle: 'Atendente humano, setor jurídico, horários',
+      items: [
+        {
+          id: 'atendente-humano',
+          label: 'Quero falar com um atendente humano (WhatsApp)',
+          icon: '👤',
+          onClick: () =>
+            handleSelectService(
+              '👤 Falar com um atendente',
+              'Gostaria de falar com um atendente da Comercial do Norte para tirar dúvidas gerais.'
+            ),
+        },
+        {
+          id: 'setor-juridico',
+          label: 'Quero falar com o Setor Jurídico (WhatsApp)',
+          icon: '⚖️',
+          onClick: () =>
+            handleSelectService(
+              '⚖️ Falar com Setor Jurídico',
+              'Preciso de contato com o setor jurídico ou corporativo da Comercial do Norte.'
+            ),
+        },
+        {
+          id: 'vendas-whatsapp',
+          label: 'Quero falar com Vendas no WhatsApp',
+          icon: '💬',
+          onClick: () =>
+            handleSelectService(
+              '💬 Falar com Vendas no WhatsApp',
+              'Gostaria de falar com a equipe de vendas da Comercial do Norte para consultar produtos e preços.'
+            ),
+        },
+        {
+          id: 'endereco-horarios',
+          label: 'Ver endereço e horários de funcionamento',
+          icon: '📍',
+          onClick: handleShowAddressesInChat,
+        },
+      ],
+    },
+    {
+      id: 'produtos',
+      icon: '📦',
+      title: 'Produtos & Cotação',
+      subtitle: 'Solicitar cotação, catálogo, pagamento',
+      items: [
+        {
+          id: 'solicitar-cotacao',
+          label: 'Quero solicitar uma cotação de produtos',
+          icon: '📋',
+          onClick: () =>
+            handleSelectService(
+              '📋 Solicitar uma cotação',
+              'Gostaria de solicitar uma cotação de produtos (embalagens, descartáveis, confeitaria).'
+            ),
+        },
+        {
+          id: 'como-consultar-produtos',
+          label: 'Como faço para consultar produtos no catálogo?',
+          icon: '🛍️',
+          onClick: handleCatalogHelp,
+        },
+        {
+          id: 'problema-cotacao',
+          label: 'Não consigo adicionar itens à cotação',
+          icon: '⚠️',
+          onClick: handleQuoteIssueHelp,
+        },
+        {
+          id: 'duvidas-pagamento',
+          label: 'Preciso tirar dúvidas de faturamento e pagamento',
+          icon: '💳',
+          onClick: () =>
+            handleSelectService(
+              '💳 Dúvidas de Faturamento e Pagamento',
+              'Gostaria de tirar dúvidas sobre faturamento PJ, prazos de boleto ou formas de pagamento.'
+            ),
+        },
+      ],
+    },
+    {
+      id: 'site',
+      icon: '🌐',
+      title: 'Site / Loja Virtual',
+      subtitle: 'Alterar CEP, login e senha, tour guiado',
+      items: [
+        {
+          id: 'mudar-cep',
+          label: 'Quero ajuda para mudar meu CEP de entrega',
+          icon: '📍',
+          onClick: handleSiteCepHelp,
+        },
+        {
+          id: 'esqueci-login-senha',
+          label: 'Esqueci meu login e senha (como recuperar)',
+          icon: '🔑',
+          onClick: handleSiteLoginHelp,
+        },
+        {
+          id: 'tour-guiado',
+          label: 'Fazer tour guiado interativo pela loja',
+          icon: '🧭',
+          onClick: () => {
+            setIsOpen(false);
+            startTour();
+          },
+        },
+        {
+          id: 'suporte-site',
+          label: 'Suporte técnico sobre erro ou navegação no site',
+          icon: '🎧',
+          onClick: () =>
+            handleSelectService(
+              '🎧 Suporte da Loja Virtual',
+              'Estou precisando de suporte técnico com erro ou navegação na loja virtual.'
+            ),
+        },
+      ],
+    },
+  ];
 
   return (
     <>
@@ -1408,6 +1725,18 @@ export function NortChatFloating({
             {/* INDICADOR DE DIGITAÇÃO (TRÊS PONTINHOS ANIMADOS) */}
             {isTyping && <TypingIndicatorBubble />}
 
+            {/* RETORNO DO CLIENTE — OPÇÕES DE CONTINUAR CONVERSA OU INICIAR NOVO ATENDIMENTO */}
+            {step === 'RESUME_PROMPT' && !isTyping && interactiveReady && (
+              <div className="space-y-1.5 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <QuickReplyButton onClick={handleResumePreviousConversation}>
+                  💬 Continuar conversa anterior
+                </QuickReplyButton>
+                <QuickReplyButton onClick={handleStartNewAttendance}>
+                  🆕 Iniciar novo atendimento
+                </QuickReplyButton>
+              </div>
+            )}
+
             {/* =================================================================
              * INTERAÇÃO 1 — FORMULÁRIO INTEGRADO (ANEXO 2 & ANEXO 5)
              * Ocupa a largura limpa da conversa como no Anexo 2, sem barra cinza embaixo!
@@ -1490,6 +1819,28 @@ export function NortChatFloating({
                 </QuickReplyButton>
                 <QuickReplyButton onClick={handleShowUnitList}>
                   🏬 Escolher uma unidade
+                </QuickReplyButton>
+              </div>
+            )}
+
+            {/* ESCOLHA ENTRE AS UNIDADES MAIS PRÓXIMAS (COM DISTÂNCIA EM KM/METROS) */}
+            {step === 'UNIT_NEARBY_CHOICE' && !isTyping && interactiveReady && (
+              <div className="space-y-1.5 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                {nearbyStores.map((st) => (
+                  <QuickReplyButton
+                    key={st.id}
+                    onClick={() => handleSelectNearbyStore(st)}
+                  >
+                    🏪 {st.shortTitle} · a {st.formattedDistance}
+                  </QuickReplyButton>
+                ))}
+
+                <QuickReplyButton onClick={handleShowUnitList}>
+                  🏬 Ver lista completa de todas as unidades
+                </QuickReplyButton>
+
+                <QuickReplyButton onClick={() => setStep('UNIT_CEP')}>
+                  📮 Digitar outro CEP
                 </QuickReplyButton>
               </div>
             )}
@@ -1604,92 +1955,82 @@ export function NortChatFloating({
             )}
 
             {/* =================================================================
-             * INTERAÇÃO 3 — COMO PODEMOS AJUDAR HOJE? (BOTÕES ESTILO WHATSAPP)
+             * INTERAÇÃO 3 — CATEGORIAS DE ATENDIMENTO ESTILO SANFONA / ACCORDION
+             * Reduz a poluição visual: 3 categorias expansíveis (Atendimento, Produtos, Site)
              * ================================================================= */}
             {step === 'SERVICE' && !isTyping && interactiveReady && (
-              <div className="space-y-1.5 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                <QuickReplyButton
-                  onClick={() =>
-                    handleSelectService(
-                      '🛍️ Consultar produtos',
-                      'Gostaria de consultar a disponibilidade e informações de produtos no catálogo.'
-                    )
-                  }
-                >
-                  🛍️ Consultar produtos
-                </QuickReplyButton>
+              <div className="space-y-2 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <div className="px-1 text-[11px] font-semibold text-[#54656F] flex items-center justify-between">
+                  <span>Sobre o que você precisa de ajuda?</span>
+                  <span className="text-[10px] text-[#667781] font-normal">Toque para ver opções</span>
+                </div>
 
-                <QuickReplyButton
-                  onClick={() =>
-                    handleSelectService(
-                      '📋 Solicitar uma cotação',
-                      'Gostaria de solicitar uma cotação de produtos na loja.'
-                    )
-                  }
-                >
-                  📋 Solicitar uma cotação
-                </QuickReplyButton>
+                <div className="space-y-1.5">
+                  {serviceCategories.map((cat) => {
+                    const isExpanded = expandedCategory === cat.id;
+                    return (
+                      <div
+                        key={cat.id}
+                        className="rounded-[12px] bg-[#FFFFFF] border border-[#D1D7DB] shadow-[0_1px_2px_rgba(17,27,33,0.08)] overflow-hidden transition-all duration-200"
+                      >
+                        <button
+                          type="button"
+                          aria-expanded={isExpanded}
+                          onClick={() => setExpandedCategory(isExpanded ? null : cat.id)}
+                          className="w-full flex items-center justify-between p-3 text-left hover:bg-[#F8F9FA] active:bg-[#F1F3F4] transition-colors cursor-pointer select-none"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span className="flex size-8 items-center justify-center rounded-full bg-[#E0FBD4] text-[15px] shrink-0 border border-[#C6EDB9]">
+                              {cat.icon}
+                            </span>
+                            <div className="min-w-0">
+                              <span className="block text-[13px] font-bold text-[#111B21] truncate">
+                                {cat.title}
+                              </span>
+                              <span className="block text-[11px] text-[#667781] truncate">
+                                {cat.subtitle}
+                              </span>
+                            </div>
+                          </div>
+                          <ChevronDown
+                            className={`size-4.5 text-[#667781] shrink-0 transition-transform duration-200 ${
+                              isExpanded ? 'rotate-180 text-[#00A884]' : ''
+                            }`}
+                          />
+                        </button>
 
-                <QuickReplyButton onClick={handleShowAddressesInChat}>
-                  📍 Endereço e horários
-                </QuickReplyButton>
+                        {/* Subitens da sanfona expandida */}
+                        {isExpanded && (
+                          <div className="px-2.5 pb-2.5 pt-1 space-y-1.5 border-t border-[#F1F3F4] bg-[#F8FAFC] animate-in fade-in slide-in-from-top-1 duration-150">
+                            {cat.items.map((item) => (
+                              <button
+                                key={item.id}
+                                type="button"
+                                onClick={item.onClick}
+                                className="w-full rounded-[8px] bg-[#FFFFFF] hover:bg-[#E0FBD4]/70 active:bg-[#E0FBD4] text-[#111B21] hover:text-[#075844] font-medium text-[12px] py-2 px-2.5 text-left border border-[#E2E8F0] shadow-[0_1px_1px_rgba(0,0,0,0.04)] transition-all cursor-pointer flex items-center justify-between gap-2 group"
+                              >
+                                <span className="flex items-center gap-2 min-w-0">
+                                  <span className="text-[13px] shrink-0">{item.icon}</span>
+                                  <span className="truncate">{item.label}</span>
+                                </span>
+                                <span className="text-[10px] text-[#667781] group-hover:text-[#00A884] font-semibold shrink-0">
+                                  Acessar ›
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
 
-                <QuickReplyButton
-                  onClick={() =>
-                    handleSelectService(
-                      '💬 Falar com um atendente',
-                      'Gostaria de falar com um atendente da unidade.'
-                    )
-                  }
-                >
-                  💬 Falar com um atendente
-                </QuickReplyButton>
-
-                <QuickReplyButton
-                  onClick={() =>
-                    handleSelectService(
-                      '💬 Falar com Vendas no WhatsApp',
-                      'Gostaria de falar com um vendedor da Comercial do Norte para tirar dúvidas sobre produtos e preços.'
-                    )
-                  }
-                >
-                  💬 Falar com Vendas no WhatsApp
-                </QuickReplyButton>
-
-                <QuickReplyButton
-                  onClick={() =>
-                    handleSelectService(
-                      '📋 Ajuda com Lista de Cotação',
-                      'Preciso de ajuda com a minha lista de cotação de produtos na loja.'
-                    )
-                  }
-                >
-                  📋 Ajuda com Lista de Cotação
-                </QuickReplyButton>
-
-                <QuickReplyButton
-                  onClick={() => {
-                    setIsOpen(false);
-                    startTour();
-                  }}
-                >
-                  🧭 Fazer Tour Guiado na Loja
-                </QuickReplyButton>
-
-                <QuickReplyButton
-                  onClick={() =>
-                    handleSelectService(
-                      '🎧 Suporte e Pós-Venda CRM',
-                      'Preciso de atendimento de suporte e pós-venda da Comercial do Norte.'
-                    )
-                  }
-                >
-                  🎧 Suporte e Pós-Venda CRM
-                </QuickReplyButton>
-
-                <QuickReplyButton onClick={handleOpenEditData}>
-                  ✏️ Alterar meus dados (Nome / WhatsApp)
-                </QuickReplyButton>
+                {/* Opção rápida e discreta no rodapé para alterar dados cadastrados */}
+                <div className="pt-0.5">
+                  <QuickReplyButton onClick={handleOpenEditData}>
+                    ✏️ Alterar meus dados (Nome / WhatsApp)
+                  </QuickReplyButton>
+                </div>
               </div>
             )}
 

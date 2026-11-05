@@ -97,6 +97,52 @@ export const COMMERCIAL_STORES: CommercialStore[] = [
 
 export const DEFAULT_STORE = COMMERCIAL_STORES[0];
 
+export type StoreWithDistance = CommercialStore & {
+  distanceKm: number;
+  formattedDistance: string;
+};
+
+export function calculateDistanceKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const R = 6371; // Raio da Terra em km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+export function findTopNearestStores(
+  lat: number,
+  lng: number,
+  limit = 2
+): StoreWithDistance[] {
+  const mapped = COMMERCIAL_STORES.map((store) => {
+    const dist = calculateDistanceKm(lat, lng, store.lat, store.lng);
+    const formattedDistance =
+      dist < 1
+        ? `${Math.round(dist * 1000)} metros`
+        : `${dist.toFixed(1).replace('.', ',')} km`;
+    return {
+      ...store,
+      distanceKm: dist,
+      formattedDistance,
+    };
+  });
+
+  mapped.sort((a, b) => a.distanceKm - b.distanceKm);
+  return mapped.slice(0, limit);
+}
+
 export function findStoreById(id?: string | null): CommercialStore {
   if (!id) return DEFAULT_STORE;
   return COMMERCIAL_STORES.find((s) => s.id === id) || DEFAULT_STORE;

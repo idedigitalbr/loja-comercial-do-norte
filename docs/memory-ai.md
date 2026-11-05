@@ -7,6 +7,40 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **05/11/2026 — Redesign do Chat do Nort: Categorias em Sanfona/Accordion, Delay Humano Realista (2-4s) e Seleção de Unidades Próximas em KM (executorId: `antigravity-gemini`):**
+  - **Categorias de Atendimento em Sanfona/Accordion no WhatsApp (`NortChatFloating`):**
+    - Substituída a lista vertical estática de 9 botões soltos por um menu interativo e colapsável em 3 categorias principais compactas, com títulos marcantes, subtítulos descritivos e chevron rotacionável (`ChevronDown`):
+      1. *💬 Atendimento & Setores:* Quero falar com atendente humano (WhatsApp), Quero falar com o Setor Jurídico (WhatsApp), Falar com Vendas no WhatsApp e Ver endereço e horários de funcionamento.
+      2. *📦 Produtos & Cotação:* Quero solicitar uma cotação de produtos, Como faço para consultar produtos no catálogo?, Não consigo adicionar itens à cotação e Preciso tirar dúvidas de faturamento e pagamento.
+      3. *🌐 Site / Loja Virtual:* Quero ajuda para mudar meu CEP de entrega (abre formulário de CEP na hora), Esqueci meu login e senha (orienta recuperação com atalho para login), Fazer tour guiado interativo pela loja (`startTour()`) e Suporte técnico com erro no site.
+    - No rodapé das categorias, mantida a opção rápida e discreta: `"✏️ Alterar meus dados (Nome / WhatsApp)"`.
+  - **Ritmo de Digitação Humano Realista (2 a 4 segundos por mensagem):**
+    - Removido qualquer encurtamento prematuro de delay. Cada mensagem possui cálculo de tempo natural proporcional ao tamanho do texto (2.4s a 3.85s), com balão animado de 3 pontinhos ondulantes (`.wa-typing-dot` em `globals.css`) e status `"digitando..."` instantâneo no topo antes do envio de cada mensagem.
+  - **Tela Limpa de Boas-Vindas para Visitantes de Retorno (`RESUME_PROMPT`):**
+    - Ao reabrir o site após F5 ou fechar o navegador, o chat não despeja a conversa antiga inteira de uma vez. Norti cumprimenta com tela limpa: *"Oi [Nome]! 👋 Bem-vindo(a) de volta! Como posso te ajudar agora?"*, oferecendo duas opções de resposta rápida: `[💬 Continuar conversa anterior]` (que restaura todo o histórico) e `[🆕 Iniciar novo atendimento]`.
+  - **Seleção Conversacional da Unidade mais Próxima com Distância em KM (`findTopNearestStores`):**
+    - Implementada a Fórmula de Haversine em `stores-data.ts` (`calculateDistanceKm` e `findTopNearestStores`).
+    - Ao clicar em *"📍 Encontrar a mais próxima de mim"*, o balão do usuário envia `"📍 A mais próxima de mim (estou no bairro [Bairro], [Cidade] - [UF])"`, Nort responde *"Ah sim! Deixa eu verificar um momentinho... 🔍"*, aguarda a verificação e apresenta as 2 lojas mais próximas com a distância calculada (ex: `🏪 Unidade Mauriti (Pedreira) · a 800 metros`, `🏪 Unidade São Brás (Matriz) · a 1,9 km`), além de permitir ver todas as unidades ou digitar outro CEP.
+  - **Validação:** 10 testes unitários em `nort-chat-floating.spec.tsx` e 11 testes em `crm.service.spec.ts` 100% aprovados, e typecheck limpo em ambos os apps (`apps/storefront` e `apps/api`).
+
+- **05/11/2026 — Reorganização e Refinamento dos Filtros do Menu Lateral (`CatalogSidebar`), Eliminação de Redundâncias e Reposicionamento da Seção "Compre por Marca" (executorId: `antigravity-gemini`):**
+  - **Reorganização do Menu Lateral do Catálogo (`apps/storefront/components/catalog/catalog-sidebar.tsx`):**
+    - **Eliminação de Redundâncias:** Removida a listagem duplicada de marcas que existia no bloco inferior de filtros. O catálogo já conta com o bloco canônico `"VER POR: Marcas"` no topo com árvore hierárquica completa de submarcas, contadores de produtos e expansão `+` / `-`.
+    - **Identidade Visual Unificada nos Cards:** O 4º bloco deixou de se chamar genericamente "Filtros" (o que causava estranheza uma vez que toda a barra lateral é composta por filtros) e passou a integrar o mesmo padrão visual dos blocos de Marcas, Categorias e Segmentos:
+      - Card 1: `VER POR: Marcas` (ícone `Award` em badge azul-marinho `#00357B`)
+      - Card 2: `VER POR: Categorias` (ícone `Package` em badge vermelho `#E2091E`)
+      - Card 3: `VER POR: Segmentos` (ícone `Store` em badge azul `#004CB1`)
+      - Card 4: `REFINAR POR: Preço & Critérios` (ícone `SlidersHorizontal` em badge grafite `#1E293B`, com botão "Limpar" contextual quando há parâmetros ativos)
+    - **Hierarquia Interna Otimizada:**
+      1. *Faixa de Preço (Dual Slider):* Priorizada no topo com slider de duplo cursor, caixas de valor mínimo e máximo e botão "Resetar preço".
+      2. *Ordenar Produtos:* Pílulas selecionáveis de ordenação rápida (`Menor Preço`, `Maior Preço`, `Mais Vendidos`, `Novidades`, `Relevância`, `Mais Bem Avaliados`).
+      3. *Disponibilidade & Entrega:* Pílulas de condições (`Frete Grátis`, `Retirar na Loja`, `Pronta Entrega`).
+      4. *Avaliação dos Clientes:* Pílulas de classificação por estrelas (★ 5, ★ 4+, ★ 3+, ★ 2+).
+    - **Preservação de Filtros Cruzados ("Filtro do Filtro"):** O botão "Limpar Filtro de Marca" agora limpa apenas o parâmetro de marca sem perder outros filtros simultâneos selecionados (categoria, segmento, preço, etc.).
+  - **Reposicionamento da Seção "Compre por Marca" na Home (`s07-compre-por-marca`):**
+    - A seção foi movida para ficar posicionada imediatamente abaixo da barra de 7 ícones 3D de categorias em destaque (`s03-category-icons-bar`), assumindo `order: 4` em `home-configuration.ts` e `home-composition.json`.
+  - **Validação:** 3 testes de `home-configuration.spec.ts`, testes de `brands-carousel.spec.tsx` e `catalog-view.spec.tsx` 100% verdes; `typecheck` aprovado com 0 erros.
+
 - **05/11/2026 — Detecção Automática de Localização por IP (Estilo Magazine Luiza) e Persistência da Conversa no Chat do Nort (executorId: `antigravity-gemini`):**
   - **Detecção Automática ao Abrir o Site (`LocationProvider` + `/api/location?mode=ip`):** Ao acessar a loja sem uma localização manual salva, o Storefront detecta automaticamente a cidade/região aproximada do visitante via headers geo da CDN/Vercel (`x-vercel-ip-city`, `x-vercel-ip-latitude`, etc.) e fallback por IP (`ipwho.is`), preenchendo o cabeçalho (`Região de Belém/PA` ou cidade detectada) sem exigir popup de permissão do navegador.
   - **Fallback Inteligente no Chat Quando o Navegador Bloqueia o GPS:** No chat do Nort (`NortChatFloating`), ao tocar em `📍 Encontrar a mais próxima de mim`, caso o navegador tenha bloqueado ou ocultado o popup de localização (`Localização bloqueada`), o Nort não trava nem falha: ele utiliza automaticamente a localização aproximada do cabeçalho/IP para sugerir a unidade mais próxima (`✅ Continuar na [Unidade]`), oferecendo também o campo de CEP para refinar pela rua exata. Quando o GPS do navegador é permitido, também faz geocodificação reversa (`reverseGeocodeCoordinates`) para atualizar o bairro/cidade no cabeçalho do site.
@@ -22,11 +56,12 @@
     - **Árvore Lateral Expansível de Submarcas (`CatalogSidebar`):** Card `"Filtro Marcas & Submarcas"` na lateral esquerda com botão `"✕ Limpar Filtro"`, expansão `+` / `-`, checkboxes visuais para marca mãe e submarcas indentadas com contagens `(N)`.
     - **Backend NestJS (`CatalogService.listBrands`):** Enriquecido com `_count: { select: { products: true, children: true } }` nas marcas raiz e `_count: { select: { products: true } }` nas submarcas filhas.
 
-- **05/11/2026 — Animações de Scroll Super Fluidas e Skeleton Shimmer nas Seções (executorId: `antigravity-gemini`):**
+- **05/11/2026 — Animações de Scroll Super Fluidas e Skeleton Shadcn/UI nas Seções (executorId: `antigravity-gemini`):**
+  - **Padrão Oficial shadcn/ui & LinkedIn:** Skeleton 100% plano e sólido em `#CBD5E1` (slate-300 firme) com `cnPulse` (`animate-pulse` suave entre 100% e 55% de opacidade), sem nenhum gradiente linear ou listras artificiais. Cards brancos com bordas nítidas `border-slate-200/90` e sombras elegantes `shadow-[0_4px_20px_rgba(15,23,42,0.06)]` / `shadow-[0_2px_10px_rgba(15,23,42,0.07)]` para destaque limpo.
   - **Motor de Carregamento Progressivo no Scroll (`ScrollSkeletonSection`, `ScrollCatalogProductItem`, `ScrollRevealBlock`):** Implementado em `apps/storefront/components/ui/scroll-skeleton-reveal.tsx` e integrado a todas as seções da Home via `ElementorSectionWrapper`, além das páginas de Catálogo (`/loja`, `/categoria`, `/segmento`, `/marca`), Eventos (`/evento`), Workshops de Confeitaria (`/eventos/workshops/aulas-confeitaria`), Posts (`/post`) e Produtos Relacionados (`/produto/[slug]`).
-  - **Fluxo Skeleton -> Revelação Fluida:** Quando o visitante rola a página (seções below-the-fold), a seção aparece primeiro como um **Skeleton com Shimmer** (onda de brilho contínua em `globals.css`) nas proporções exatas de cada tipo de widget (carrossel de produtos, split-banner, categorias, banners triplos, segmentos dark, eventos, Instagram, depoimentos e mapa) sem causar Layout Shift (CLS = 0), e em seguida revela o conteúdo real com transição suave `cubic-bezier(0.16, 1, 0.3, 1)` (fade + slide-up + desfoque sutil).
+  - **Fluxo Skeleton -> Revelação Fluida:** Quando o visitante rola a página (seções below-the-fold), a seção aparece primeiro como um **Skeleton shadcn** nas proporções exatas de cada tipo de widget (`product-carousel`, `split-banner`, `category-grid`, `banner-grid`, `brands-carousel`, `segments-carousel`, `video-articles-carousel`, `events-carousel`, `instagram-feed`, `testimonials-grid` e `store-locations-map`) sem causar Layout Shift (CLS = 0), e em seguida revela o conteúdo real com transição suave `cubic-bezier(0.16, 1, 0.3, 1)` (fade + micro slide de 8px).
   - **Acessibilidade e SEO Preservados:** Respeito integral a `prefers-reduced-motion: reduce`, desativação automática no modo de edição inline do Elementor e preservação do conteúdo no DOM para leitores de tela, SEO e testes automatizados.
-  - **Validação:** 48 suítes de testes (218 testes unitários) aprovadas no Storefront (incluindo `scroll-skeleton-reveal.spec.tsx`) e `typecheck` 100% limpo.
+  - **Validação:** 49 suítes de testes (222 testes unitários) aprovadas no Storefront (incluindo `scroll-skeleton-reveal.spec.tsx`) e `typecheck` 100% limpo.
 
 - **05/11/2026 — Remoção do Item "Podcast Universo Business" do Menu de Navegação (executorId: `antigravity-gemini`):**
   - **Menu Desktop e Gaveta Mobile:** Removido o link/botão "Podcast Universo Business" da Barra 03 de navegação do cabeçalho (`apps/storefront/components/site-header.tsx`) e também da listagem de links da gaveta mobile (`mobileMenuOpen`).
