@@ -13,6 +13,7 @@ import {
   Menu,
   PanelLeft,
   Phone,
+  Podcast,
   Search,
   ShoppingBag,
   Sparkles,
@@ -385,6 +386,20 @@ export function SiteHeader({
                     AULAS CONFEITARIA
                   </span>
                 </Link>
+
+                {/* Podcast Universo Business */}
+                <a
+                  aria-label="Podcast Universo Business Oficial"
+                  className="flex items-center gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white hover:bg-white/10 transition-colors whitespace-nowrap shrink-0"
+                  href="https://www.youtube.com/@universobusinesscast"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <span>Podcast</span>
+                  <span className="rounded-full bg-[#7C3AED] px-1.5 py-0.5 text-[8px] sm:text-[8.5px] font-black uppercase text-white leading-none tracking-tight">
+                    UNIVERSO BUSINESS
+                  </span>
+                </a>
               </div>
 
               {/* Divisor vertical após Workshops */}
@@ -660,6 +675,17 @@ export function SiteHeader({
                     <Sparkles className="size-4 text-[#E2091E]" />
                     <span>Conteúdos — Explica Aí Nort!</span>
                   </Link>
+                  <a
+                    aria-label="Podcast Universo Business Oficial"
+                    className="flex items-center gap-2 py-1.5 text-slate-700 hover:text-[#004CB1]"
+                    href="https://www.youtube.com/@universobusinesscast"
+                    onClick={() => setMobileMenuOpen(false)}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <Podcast className="size-4 text-[#7C3AED]" />
+                    <span>Podcast — Universo Business</span>
+                  </a>
                   <Link
                     className="flex items-center justify-between py-1.5 text-slate-700"
                     href="/favoritos"

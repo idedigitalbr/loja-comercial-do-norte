@@ -154,4 +154,49 @@ describe("SiteHeader - Floating Toggle Button & Drawer", () => {
       screen.queryByRole("dialog", { name: "Menu de Navegação Lateral" })
     ).toBeNull();
   });
+
+  it("renderiza o link do Podcast Universo Business no menu principal e no menu mobile", () => {
+    render(
+      <SiteHeader
+        brands={mockBrands}
+        categories={mockCategories}
+        logoUrl="/logo.png"
+        phone="(91) 98344-0880"
+        segments={mockSegments}
+        siteName="Comercial do Norte"
+        tags={mockTags}
+        whatsapp="5591983440880"
+      />
+    );
+
+    // Link no menu desktop
+    const desktopPodcastLinks = screen.getAllByRole("link", {
+      name: /podcast universo business oficial/i,
+    });
+    expect(desktopPodcastLinks.length).toBeGreaterThanOrEqual(1);
+    const mainPodcastLink = desktopPodcastLinks[0];
+    expect(mainPodcastLink.getAttribute("href")).toBe(
+      "https://www.youtube.com/@universobusinesscast"
+    );
+    expect(mainPodcastLink.getAttribute("target")).toBe("_blank");
+    expect(mainPodcastLink.textContent).toContain("Podcast");
+    expect(mainPodcastLink.textContent).toContain("UNIVERSO BUSINESS");
+
+    // Abre o menu mobile para conferir se também está presente no drawer
+    const mobileMenuBtn = screen.getByRole("button", {
+      name: /abrir menu principal/i,
+    });
+    fireEvent.click(mobileMenuBtn);
+
+    const allPodcastLinks = screen.getAllByRole("link", {
+      name: /podcast universo business oficial/i,
+    });
+    // Deve haver agora o link desktop e o link mobile
+    expect(allPodcastLinks.length).toBe(2);
+    const mobilePodcastLink = allPodcastLinks[1];
+    expect(mobilePodcastLink.getAttribute("href")).toBe(
+      "https://www.youtube.com/@universobusinesscast"
+    );
+    expect(mobilePodcastLink.getAttribute("target")).toBe("_blank");
+  });
 });
