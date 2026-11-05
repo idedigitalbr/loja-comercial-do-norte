@@ -320,79 +320,83 @@ export function SegmentsCarouselWidget({
   return (
     <section aria-label={title} className="cn-container pt-4 pb-2 sm:pt-6 sm:pb-3">
       <div className="relative bg-transparent">
-        {/* Topo Azul Escuro: compacto e encaixado perfeitamente com os cards e o mascote Nort */}
-        <div className="relative rounded-[24px] bg-gradient-to-r from-[#002868] via-[#003E99] to-[#002B66] px-5 pt-5 pb-24 sm:px-10 sm:pt-6 sm:pb-32 lg:pb-32 shadow-md">
-          {/* Header Superior: Textos à esquerda e CTA à direita */}
-          <div className="relative z-20 flex flex-col justify-between gap-3.5 sm:gap-4 sm:flex-row sm:items-center">
-            {/* Bloco Esquerda: Título, Subtítulo, Traço Vermelho e Botão Assista nosso vídeo */}
-            <div className="max-w-md">
-              <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                {title}
-              </h2>
-              <p className="mt-1 text-base font-medium text-white sm:text-lg">
-                {subtitle}
-              </p>
-              <div className="mt-2 h-1 w-20 sm:w-24 rounded-full bg-[#E2091E]" />
+        {/* Container que no mobile envolve todo o widget com o fundo azul degradê e cantos arredondados */}
+        <div className="relative rounded-[24px] bg-gradient-to-r from-[#002868] via-[#003E99] to-[#002B66] p-4 sm:p-0 sm:bg-transparent shadow-md sm:shadow-none sm:rounded-none">
+          {/* Topo Azul Escuro: no desktop mantém o topo com pb-32 para os cards sobreporem */}
+          <div className="relative sm:rounded-[24px] sm:bg-gradient-to-r sm:from-[#002868] sm:via-[#003E99] sm:to-[#002B66] sm:px-10 sm:pt-6 sm:pb-32 lg:pb-32 sm:shadow-md">
+            {/* Header Superior: Textos à esquerda e CTA à direita */}
+            <div className="relative z-20 flex flex-col justify-between gap-3.5 sm:gap-4 sm:flex-row sm:items-center">
+              {/* Bloco Esquerda: Título, Subtítulo, Traço Vermelho e Botão Assista nosso vídeo */}
+              <div className="max-w-md">
+                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                  {title}
+                </h2>
+                <p className="mt-1 text-base font-medium text-white sm:text-lg">
+                  {subtitle}
+                </p>
+                <div className="mt-2 h-1 w-20 sm:w-24 rounded-full bg-[#E2091E]" />
 
-              <button
-                type="button"
-                onClick={() => {
-                  if (isEditing && !previewMode) return;
-                  openNortVideo();
+                <div className="mt-3.5 sm:mt-5 flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isEditing && !previewMode) return;
+                      openNortVideo();
+                    }}
+                    className="inline-flex items-center gap-2.5 cursor-pointer group select-none text-left transition hover:opacity-95"
+                    aria-label={videoButtonLabel}
+                  >
+                    <span className="flex size-8 sm:size-9 items-center justify-center rounded-full bg-[#E2091E] text-white shadow-md transition-transform duration-200 group-hover:scale-105 ring-2 ring-white/30 shrink-0">
+                      <Play className="size-3.5 sm:size-4 text-white fill-white ml-0.5" />
+                    </span>
+                    <span className="text-xs sm:text-sm font-semibold text-white tracking-wide group-hover:text-white/90 transition-colors">
+                      {videoButtonLabel}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Bloco Direita: CTA Ver todos os segmentos */}
+              <Link
+                className="inline-flex items-center gap-2 self-start rounded-xl border border-white/40 bg-[#002868]/70 px-4 py-2 sm:px-5 sm:py-2.5 text-xs font-bold text-white backdrop-blur-xs transition hover:bg-white/20 sm:self-center"
+                href={ctaUrl}
+                onClick={(e) => {
+                  if (isEditing && !previewMode) e.preventDefault();
                 }}
-                className="mt-3.5 sm:mt-5 inline-flex items-center gap-2.5 cursor-pointer group select-none text-left transition hover:opacity-95"
-                aria-label={videoButtonLabel}
               >
-                <span className="flex size-8 sm:size-9 items-center justify-center rounded-full bg-[#E2091E] text-white shadow-md transition-transform duration-200 group-hover:scale-105 ring-2 ring-white/30 shrink-0">
-                  <Play className="size-3.5 sm:size-4 text-white fill-white ml-0.5" />
-                </span>
-                <span className="text-xs sm:text-sm font-semibold text-white tracking-wide group-hover:text-white/90 transition-colors">
-                  {videoButtonLabel}
-                </span>
-              </button>
+                <span>{ctaLabel}</span>
+                <ArrowRight className="size-4" />
+              </Link>
             </div>
 
-            {/* Bloco Direita: CTA Ver todos os segmentos */}
-            <Link
-              className="inline-flex items-center gap-2 self-start rounded-xl border border-white/40 bg-[#002868]/70 px-4 py-2 sm:px-5 sm:py-2.5 text-xs font-bold text-white backdrop-blur-xs transition hover:bg-white/20 sm:self-center"
-              href={ctaUrl}
-              onClick={(e) => {
-                if (isEditing && !previewMode) e.preventDefault();
-              }}
+            {/* Mascote Nort 3D Centralizado com Balão "Veja os produtos para seu segmento" */}
+            <div
+              aria-hidden="true"
+              data-testid="segments-nort-mascot"
+              className="pointer-events-none z-10 flex items-start justify-center select-none w-[240px] xs:w-[280px] sm:w-[410px] md:w-[450px] lg:w-[480px] xl:w-[500px] relative mx-auto mt-2 mb-2 sm:mt-0 sm:mb-0 sm:absolute sm:left-1/2 sm:-translate-x-1/2 sm:-top-7 md:-top-8"
             >
-              <span>{ctaLabel}</span>
-              <ArrowRight className="size-4" />
-            </Link>
-          </div>
-
-          {/* Mascote Nort 3D Centralizado com Balão "Veja os produtos para seu segmento" (Anexo 3) */}
-          <div
-            aria-hidden="true"
-            data-testid="segments-nort-mascot"
-            className="pointer-events-none z-10 flex items-start justify-center select-none w-[270px] xs:w-[310px] sm:w-[410px] md:w-[450px] lg:w-[480px] xl:w-[500px] relative mx-auto mt-2 -mb-16 xs:-mb-20 sm:mt-0 sm:mb-0 sm:absolute sm:left-1/2 sm:-translate-x-1/2 sm:-top-7 md:-top-8"
-          >
-            <div className="relative w-full aspect-[1024/576]">
-              <Image
-                alt="Nort — Veja os produtos para seu segmento"
-                className="size-full object-contain object-top drop-shadow-[0_10px_20px_rgba(0,0,0,0.25)]"
-                fill
-                priority
-                sizes="(max-width: 640px) 310px, (max-width: 768px) 410px, (max-width: 1024px) 450px, 500px"
-                src={mascotImageUrl}
-                unoptimized
-              />
+              <div className="relative w-full aspect-[1024/576]">
+                <Image
+                  alt="Nort — Veja os produtos para seu segmento"
+                  className="size-full object-contain object-top drop-shadow-[0_10px_20px_rgba(0,0,0,0.25)]"
+                  fill
+                  priority
+                  sizes="(max-width: 640px) 280px, (max-width: 768px) 410px, (max-width: 1024px) 450px, 500px"
+                  src={mascotImageUrl}
+                  unoptimized
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Carrossel de Cards sobrepondo o fundo azul com base transparente (sem fundo branco na parte de baixo) */}
-        <div
-          className="relative -mt-28 px-5 pb-2 sm:px-9 z-20"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-          onTouchEnd={handleTouchEnd}
-          onTouchStart={handleTouchStart}
-        >
+          {/* Carrossel de Cards: no mobile fica integrado ao fundo azul; no desktop sobrepõe o topo com sm:-mt-28 */}
+          <div
+            className="relative mt-2 sm:-mt-28 px-0 sm:px-9 z-20"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onTouchEnd={handleTouchEnd}
+            onTouchStart={handleTouchStart}
+          >
           <div className="overflow-hidden py-3 -my-3">
             <div
               className={`flex -mx-2 [--card-step:100%] sm:[--card-step:50%] lg:[--card-step:25%] ${
@@ -527,8 +531,7 @@ export function SegmentsCarouselWidget({
           )}
         </div>
       </div>
-
-
-    </section>
-  );
+    </div>
+  </section>
+);
 }

@@ -84,36 +84,26 @@ export function VideoArticlesCarouselWidget({
         className="pointer-events-none select-none object-cover object-center -z-10"
       />
 
-      {/* Barra de Topo do Carrossel: Título Contextual ("Dicas para sua Lanchonete") e Link "Ver mais >" */}
-      {(topHeading || (showViewAll && viewAllLabel)) && (
-        <div
-          className={`flex items-center mb-3 lg:mb-0 lg:absolute z-20 ${
-            topHeading
-              ? 'relative justify-center lg:top-3.5 xl:top-4 lg:left-[43.5%] xl:left-[43%] lg:right-5 xl:right-6'
-              : 'justify-end lg:top-4 lg:right-6 xl:top-4.5 xl:right-7'
-          }`}
-        >
-          {topHeading && (
-            <h3 className="text-base sm:text-lg lg:text-[21px] xl:text-[22px] font-bold text-white tracking-tight text-center px-12 sm:px-0">
-              {typeof topHeading === 'string' ? (
-                topHeading
-              ) : (
-                <span>
-                  {topHeading.prefix}{' '}
-                  <span className="relative inline-block border-b-[3px] border-[#1552E6] pb-0.5 font-bold text-white">
-                    {topHeading.highlight}
-                  </span>
+      {/* Barra de Topo do Carrossel quando há topHeading Contextual ("Dicas para sua Lanchonete") */}
+      {topHeading && (
+        <div className="relative flex items-center justify-center mb-3 lg:mb-0 lg:absolute z-20 lg:top-3.5 xl:top-4 lg:left-[43.5%] xl:left-[43%] lg:right-5 xl:right-6">
+          <h3 className="text-base sm:text-lg lg:text-[21px] xl:text-[22px] font-bold text-white tracking-tight text-center px-12 sm:px-0">
+            {typeof topHeading === 'string' ? (
+              topHeading
+            ) : (
+              <span>
+                {topHeading.prefix}{' '}
+                <span className="relative inline-block border-b-[3px] border-[#1552E6] pb-0.5 font-bold text-white">
+                  {topHeading.highlight}
                 </span>
-              )}
-            </h3>
-          )}
+              </span>
+            )}
+          </h3>
 
           {showViewAll && viewAllLabel && (
             <Link
               href={resolvedViewAllUrl}
-              className={`${
-                topHeading ? 'absolute right-0 top-1/2 -translate-y-1/2' : 'ml-auto'
-              } inline-flex items-center gap-1 text-xs sm:text-[13px] font-semibold text-white/95 hover:text-white transition-opacity tracking-tight`}
+              className="absolute right-0 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 text-xs sm:text-[13px] font-semibold text-white/95 hover:text-white transition-opacity tracking-tight"
             >
               <span>{viewAllLabel}</span>
               <ChevronRight aria-hidden="true" className="size-3.5 stroke-[2.5]" />
@@ -126,8 +116,8 @@ export function VideoArticlesCarouselWidget({
       <div
         className={`z-10 ${
           isConfeitaria
-            ? 'max-w-[260px] sm:max-w-[270px] lg:max-w-[270px] xl:max-w-[285px]'
-            : 'max-w-[200px] sm:max-w-[220px] lg:max-w-[205px] xl:max-w-[225px]'
+            ? 'max-w-[220px] xs:max-w-[250px] sm:max-w-[270px] lg:max-w-[270px] xl:max-w-[285px]'
+            : 'max-w-[190px] xs:max-w-[210px] sm:max-w-[220px] lg:max-w-[205px] xl:max-w-[225px]'
         } lg:absolute lg:left-7 xl:left-8 lg:top-1/2 lg:-translate-y-1/2`}
       >
         {isConfeitaria ? (
@@ -169,7 +159,20 @@ export function VideoArticlesCarouselWidget({
         )}
       </div>
 
-      {/* Mascote 3D / Confeiteira */}
+      {/* Link "Ver todos / Ver mais": no mobile fica abaixo do bloco de título para não sobrepor o mascote; no desktop vai para o topo direito dos cards */}
+      {!topHeading && showViewAll && viewAllLabel && (
+        <div className="z-20 mt-2.5 lg:mt-0 lg:absolute lg:top-4 lg:right-6 xl:top-4.5 xl:right-7 flex justify-start lg:justify-end">
+          <Link
+            href={resolvedViewAllUrl}
+            className="inline-flex items-center gap-1 text-xs sm:text-[13px] font-semibold text-white/95 hover:text-white transition-opacity tracking-tight"
+          >
+            <span>{viewAllLabel}</span>
+            <ChevronRight aria-hidden="true" className="size-3.5 stroke-[2.5]" />
+          </Link>
+        </div>
+      )}
+
+      {/* Mascote 3D / Confeiteira (Desktop) */}
       <div
         aria-hidden="true"
         className={`hidden lg:block absolute bottom-0 ${
@@ -187,10 +190,10 @@ export function VideoArticlesCarouselWidget({
         />
       </div>
 
-      {/* Mascote compacto para mobile e tablets */}
+      {/* Mascote compacto para mobile e tablets: posicionado com folga no canto superior direito */}
       <div
         aria-hidden="true"
-        className="block lg:hidden absolute top-7 right-3 sm:top-4 sm:right-20 md:top-2 md:right-28 h-22 w-22 sm:h-24 sm:w-24 pointer-events-none select-none z-10"
+        className="block lg:hidden absolute top-3 right-2.5 sm:top-4 sm:right-20 md:top-2 md:right-28 h-24 w-24 xs:h-28 xs:w-28 sm:h-26 sm:w-26 pointer-events-none select-none z-10"
       >
         <Image
           src={resolvedMascotImage}
@@ -231,7 +234,7 @@ export function VideoArticlesCarouselWidget({
           ))}
         </div>
 
-        {/* Botões de Navegação Circular Brancos */}
+        {/* Botões de Navegação Circular Brancos - ocultos no mobile para não sobrepor fotos e textos */}
         {items.length > 1 && (
           <>
             <button
@@ -239,7 +242,7 @@ export function VideoArticlesCarouselWidget({
               disabled={edges.start}
               onClick={() => move(-1)}
               type="button"
-              className={`absolute -left-3.5 sm:-left-4 top-1/2 -translate-y-1/2 z-20 flex size-8 sm:size-9 items-center justify-center rounded-full bg-white ${navArrowClass} shadow-[0_2px_8px_rgba(0,0,0,0.18)] hover:scale-105 active:scale-95 transition-all disabled:opacity-90 disabled:cursor-default cursor-pointer`}
+              className={`absolute -left-3.5 sm:-left-4 top-1/2 -translate-y-1/2 z-20 hidden sm:flex size-8 sm:size-9 items-center justify-center rounded-full bg-white ${navArrowClass} shadow-[0_2px_8px_rgba(0,0,0,0.18)] hover:scale-105 active:scale-95 transition-all disabled:opacity-90 disabled:cursor-default cursor-pointer`}
             >
               <ChevronLeft aria-hidden="true" className="size-4 sm:size-4.5 stroke-[2.5]" />
             </button>
@@ -248,7 +251,7 @@ export function VideoArticlesCarouselWidget({
               disabled={edges.end}
               onClick={() => move(1)}
               type="button"
-              className={`absolute -right-2.5 sm:-right-3 top-1/2 -translate-y-1/2 z-20 flex size-8 sm:size-9 items-center justify-center rounded-full bg-white ${navArrowClass} shadow-[0_2px_8px_rgba(0,0,0,0.18)] hover:scale-105 active:scale-95 transition-all disabled:opacity-90 disabled:cursor-default cursor-pointer`}
+              className={`absolute -right-2.5 sm:-right-3 top-1/2 -translate-y-1/2 z-20 hidden sm:flex size-8 sm:size-9 items-center justify-center rounded-full bg-white ${navArrowClass} shadow-[0_2px_8px_rgba(0,0,0,0.18)] hover:scale-105 active:scale-95 transition-all disabled:opacity-90 disabled:cursor-default cursor-pointer`}
             >
               <ChevronRight aria-hidden="true" className="size-4 sm:size-4.5 stroke-[2.5]" />
             </button>

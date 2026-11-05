@@ -90,8 +90,8 @@ describe('SegmentsCarouselWidget', () => {
     expect(blueHeader?.className).toContain('bg-gradient-to-r');
     expect(blueHeader?.className).toContain('from-[#002868]');
 
-    // Os cards sobrepõem o topo azul com -mt-28
-    const carouselWrapper = container.querySelector('.-mt-28');
+    // Os cards sobrepõem o topo azul no desktop com sm:-mt-28
+    const carouselWrapper = container.querySelector('.sm\\:-mt-28, .-mt-28');
     expect(carouselWrapper).not.toBeNull();
   });
 
@@ -253,6 +253,10 @@ describe('SegmentsCarouselWidget', () => {
     expect(mascotContainer).toBeDefined();
     expect(mascotContainer.className).not.toContain('hidden');
     expect(mascotContainer.className).toContain('flex');
+
+    // Garante que no mobile o mascote não é cortado com margens negativas excessivas
+    expect(mascotContainer.className).not.toContain('-mb-16');
+    expect(mascotContainer.className).not.toContain('-mb-20');
   });
 
   it('dispara o evento para abrir o player de vídeo institucional em tela cheia ao clicar no botão', () => {

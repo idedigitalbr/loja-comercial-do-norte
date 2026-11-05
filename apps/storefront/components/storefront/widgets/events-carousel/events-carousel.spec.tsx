@@ -78,4 +78,30 @@ describe('EventsCarouselWidget', () => {
     const ctaLink = screen.getByRole('link', { name: /ver todos os eventos/i });
     expect(ctaLink.getAttribute('href')).toBe('/eventos');
   });
+
+  it('renderiza o cabeçalho centralizado no mobile e os cards em linha horizontal única com largura proporcional', () => {
+    const { container } = render(
+      <EventsCarouselWidget
+        items={mockItems}
+        subtitle="Tudo que acontece no Comercial do Norte"
+        title="Nossos Eventos"
+      />
+    );
+
+    // Header centralizado no mobile
+    const header = container.querySelector('.mb-8');
+    expect(header?.className).toContain('items-center');
+    expect(header?.className).toContain('text-center');
+
+    // Linha horizontal mobile com largura ~42% para exibir 2 cards + pedaço do 3º
+    const mobileContainer = container.querySelector('.lg\\:hidden');
+    expect(mobileContainer).toBeDefined();
+
+    const mobileTrack = mobileContainer?.querySelector('.overflow-x-auto');
+    expect(mobileTrack).toBeDefined();
+
+    const mobileCardWrappers = mobileContainer?.querySelectorAll('.snap-start');
+    expect(mobileCardWrappers?.length).toBe(mockItems.length);
+    expect(mobileCardWrappers?.[0].className).toContain('w-[42%]');
+  });
 });

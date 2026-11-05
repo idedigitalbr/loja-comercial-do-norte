@@ -194,4 +194,29 @@ describe('VideoArticlesCarouselWidget (Explica Aí Nort)', () => {
     expect(screen.getByLabelText('Workshop anterior')).toBeDefined();
     expect(screen.getByLabelText('Próximo workshop')).toBeDefined();
   });
+
+  it('oculta botões de navegação no mobile e posiciona o link sem colidir com o mascote', () => {
+    const { container } = render(
+      <VideoArticlesCarouselWidget
+        title="Explica Aí Nort"
+        subtitle="Dicas em vídeos e artigos para você usar no seu negócio."
+        viewAllLabel="Ver todos"
+        viewAllUrl="/post"
+        items={mockItems}
+      />
+    );
+
+    const prevButton = screen.getByLabelText('Dica anterior');
+    expect(prevButton.className).toContain('hidden');
+    expect(prevButton.className).toContain('sm:flex');
+
+    const nextButton = screen.getByLabelText('Próxima dica');
+    expect(nextButton.className).toContain('hidden');
+    expect(nextButton.className).toContain('sm:flex');
+
+    // Mascote compacto no mobile com classe de folga
+    const mobileMascot = container.querySelector('.block.lg\\:hidden');
+    expect(mobileMascot).toBeDefined();
+    expect(mobileMascot?.className).toContain('top-3');
+  });
 });
