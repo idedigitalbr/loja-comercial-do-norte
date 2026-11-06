@@ -12,7 +12,6 @@ import {
   lookupLocationByCep,
   normalizeBrasilApi,
   normalizeViaCep,
-  QUICK_LOCATIONS,
   saveStoredLocation,
   type UserLocation,
 } from './location';
@@ -156,11 +155,4 @@ describe('location helpers', () => {
     expect(getReferenceCepForNeighborhood('Bairro Inexistente')).toBe('');
   });
 
-  it('QUICK_LOCATIONS preserva as 4 regiões canônicas frequentes sem forçar atalho na Pedreira', () => {
-    const pedreira = QUICK_LOCATIONS.find((loc) => loc.neighborhood === 'Pedreira');
-    expect(pedreira).toBeUndefined();
-    expect(QUICK_LOCATIONS.length).toBe(4);
-    expect(QUICK_LOCATIONS.some((loc) => loc.neighborhood === 'Cidade Velha')).toBe(true);
-    expect(QUICK_LOCATIONS.some((loc) => loc.neighborhood === 'Jurunas')).toBe(true);
-  });
 });

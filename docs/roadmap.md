@@ -1,18 +1,17 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
-- **06/11/2026 — Refinamento da Escolha de Bairros no Chat do Nort e Restauração Canônica de `QUICK_LOCATIONS` (executorId: `antigravity-gemini`):**
-  - **Restauração de `QUICK_LOCATIONS` no Seletor de CEP (`apps/storefront/lib/location.ts`):**
-    - Mantidas as 4 regiões canônicas frequentes do seletor de CEP do cabeçalho da loja: Cidade Velha (`66020-600`), Jurunas (`66030-120`), Centro Ananindeua (`67000-000`) e Centro Marituba (`67200-000`).
-    - Removido o atalho de Pedreira do modal do topo para não alterar o fluxo padrão de frete/entrega.
+- **06/11/2026 — Eliminação de Atalhos Artificiais de Entrega Frequente no Modal de CEP e Refinamento de Bairros no Chat (executorId: `antigravity-gemini`):**
+  - **Eliminação Definitiva de Atalhos Artificiais de Regiões Frequentes (`PostalCodeModal` / `location.ts`):**
+    - Extinta a seção e constante de atalhos artificiais (`QUICK_LOCATIONS` / *"Regiões Frequentes (Comercial do Norte)"*).
+    - O modal de CEP (`PostalCodeModal`) opera de forma limpa, direta e sem indução: busca direta por CEP (com cálculo oficial ViaCEP/BrasilAPI), link "Não sei meu CEP" (busca textual por rua/cidade/UF) e "Usar localização atual" (com geocodificação reversa real via GPS, sem injeção de fallbacks forçados).
   - **Pergunta Direta de Bairro no Chat do Nort com Nomes Limpos (`NortChatFloating`):**
-    - Na pergunta *"em qual bairro você está?"* (`UNIT_NEIGHBORHOOD_CHOICE`), os botões de resposta rápida agora exibem exclusivamente os nomes dos bairros com unidades físicas: `📍 Pedreira`, `📍 São Brás`, `📍 Jurunas`, `📍 Guamá`, `📍 Cidade Nova`.
-    - Removidos nomes de avenidas e travessas dos botões (`(Tv. Mauriti)`, `(Av. Bernardo Sayão)` etc.).
-    - Removido o botão `🏬 Ver todas as unidades` da etapa de seleção de bairro, evitando induzir uma escolha de loja antes de identificar o bairro do usuário.
+    - Na pergunta *"em qual bairro você está?"* (`UNIT_NEIGHBORHOOD_CHOICE`), os botões de resposta rápida agora exibem exclusivamente os nomes limpos dos bairros onde há filiais da Comercial do Norte: `📍 Pedreira`, `📍 São Brás`, `📍 Jurunas`, `📍 Guamá`, `📍 Cidade Nova`.
+    - Removidos nomes de avenidas/travessas dos botões (`(Tv. Mauriti)`, `(Av. Bernardo Sayão)`).
+    - Removido o botão de fuga precoce `🏬 Ver todas as unidades` desta etapa de identificação de bairro.
   - **Opção Flexível para Outros Bairros e CEP:**
-    - Adicionado o botão `📍 Outro bairro (digite o nome do bairro ou CEP)` que direciona o usuário para o campo de texto.
-    - O campo de texto agora aceita tanto nomes de bairros digitados (ex: `Marco`, `Umarizal`, `Telégrafo`, `Nazaré`, `Campina`) quanto CEPs de rua via `findNearestStoreByNeighborhoodOrCep`.
+    - Adicionado o botão `📍 Outro bairro (digite o nome do bairro ou CEP)` que direciona para campo de texto que reconhece tanto bairros digitados (*Marco, Umarizal, Telégrafo, Nazaré, Campina*) quanto CEPs de rua via `findNearestStoreByNeighborhoodOrCep`.
   - **Validação Global:**
-    - 51/51 suítes de testes do Storefront aprovadas (246 testes), typecheck e lint executados com 0 erros.
+    - 51/51 suítes de testes do Storefront aprovadas (245 testes), typecheck (`turbo typecheck`) e lint (`turbo lint`) com 0 erros.
 
 - **06/11/2026 — Criação da Rota Dedicada `/video` para Compartilhamento Externo e WhatsApp (executorId: `antigravity-gemini`):**
   - **Rota Dedicada `/video` com Player em Tela Cheia e Vitrine de Ações:**

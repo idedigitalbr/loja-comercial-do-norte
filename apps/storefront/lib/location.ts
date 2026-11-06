@@ -52,45 +52,6 @@ export const BRAZIL_STATES: Array<{ uf: string; name: string }> = [
   { uf: 'TO', name: 'Tocantins' },
 ];
 
-export const QUICK_LOCATIONS: UserLocation[] = [
-  {
-    cep: '66020-600',
-    street: 'Rua Siqueira Mendes',
-    neighborhood: 'Cidade Velha',
-    city: 'Belém',
-    state: 'PA',
-    formatted: 'Cidade Velha, Belém - PA',
-    shortLabel: 'Belém (Centro/Cidade Velha)',
-  },
-  {
-    cep: '66030-120',
-    street: 'Avenida Bernardo Sayão',
-    neighborhood: 'Jurunas',
-    city: 'Belém',
-    state: 'PA',
-    formatted: 'Avenida Bernardo Sayão, Jurunas, Belém - PA',
-    shortLabel: 'Belém (Jurunas / Bernardo Sayão)',
-  },
-  {
-    cep: '67000-000',
-    street: '',
-    neighborhood: 'Centro',
-    city: 'Ananindeua',
-    state: 'PA',
-    formatted: 'Centro, Ananindeua - PA',
-    shortLabel: 'Ananindeua/PA',
-  },
-  {
-    cep: '67200-000',
-    street: '',
-    neighborhood: 'Centro',
-    city: 'Marituba',
-    state: 'PA',
-    formatted: 'Centro, Marituba - PA',
-    shortLabel: 'Marituba/PA',
-  },
-];
-
 export const LOCATION_STORAGE_KEY = 'cn_user_location';
 
 /**

@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Check,
   ChevronRight,
-  Compass,
   Loader2,
   MapPin,
   Navigation,
@@ -19,7 +18,6 @@ import {
   lookupLocationByAddress,
   lookupLocationByCep,
   reverseGeocodeCoordinates,
-  QUICK_LOCATIONS,
   type UserLocation,
 } from '@/lib/location';
 import { useUserLocation } from './location-provider';
@@ -201,10 +199,13 @@ export function PostalCodeModal() {
             confirmLocation(fullLoc);
             return;
           }
-          // Fallback para Pedreira se na região
-          confirmLocation(QUICK_LOCATIONS[0]);
+          setCepError(
+            'Não foi possível identificar o endereço exato pelas coordenadas. Por favor, digite seu CEP.'
+          );
         } catch {
-          confirmLocation(QUICK_LOCATIONS[0]);
+          setCepError(
+            'Não foi possível obter sua localização no momento. Por favor, digite seu CEP.'
+          );
         } finally {
           setLoadingCep(false);
         }
@@ -213,15 +214,15 @@ export function PostalCodeModal() {
         setLoadingCep(false);
         if (err.code === err.PERMISSION_DENIED) {
           setCepError(
-            'Permissão de localização negada pelo navegador. Você pode selecionar seu bairro abaixo ou digitar seu CEP.'
+            'Permissão de localização negada pelo navegador. Você pode pesquisar pelo nome da rua ou digitar seu CEP.'
           );
         } else if (err.code === err.POSITION_UNAVAILABLE) {
           setCepError(
-            'Localização indisponível no dispositivo. Você pode selecionar seu bairro abaixo ou digitar seu CEP.'
+            'Localização indisponível no dispositivo. Você pode pesquisar pelo nome da rua ou digitar seu CEP.'
           );
         } else {
           setCepError(
-            'Não foi possível obter sua localização no momento. Escolha seu bairro abaixo ou digite seu CEP.'
+            'Não foi possível obter sua localização no momento. Pesquise pelo nome da rua ou digite seu CEP.'
           );
         }
       },
@@ -565,32 +566,6 @@ export function PostalCodeModal() {
               )}
             </form>
           )}
-
-          {/* ATALHOS RÁPIDOS DA REGIÃO METROPOLITANA DE BELÉM */}
-          <div className="mt-5 border-t border-slate-100 pt-4">
-            <div className="flex items-center gap-1.5 text-slate-500 text-[11px] font-bold uppercase tracking-wider mb-2">
-              <Compass className="size-3.5 text-[#004CB1]" />
-              <span>Regiões Frequentes (Comercial do Norte)</span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              {QUICK_LOCATIONS.map((loc) => (
-                <button
-                  className="flex flex-col items-start rounded-xl border border-slate-200 bg-slate-50/80 p-2.5 text-left transition hover:border-[#004CB1] hover:bg-white cursor-pointer group"
-                  key={loc.cep}
-                  onClick={() => confirmLocation(loc)}
-                  type="button"
-                >
-                  <span className="font-semibold text-slate-800 text-[11px] group-hover:text-[#004CB1]">
-                    {loc.shortLabel}
-                  </span>
-                  <span className="text-[10px] text-slate-500 font-mono">
-                    CEP {loc.cep}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Rodapé com selo institucional de garantia */}
