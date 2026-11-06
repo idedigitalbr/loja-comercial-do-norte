@@ -18,6 +18,7 @@ import {
   cleanCep,
   lookupLocationByAddress,
   lookupLocationByCep,
+  reverseGeocodeCoordinates,
   QUICK_LOCATIONS,
   type UserLocation,
 } from '@/lib/location';
@@ -181,7 +182,7 @@ export function PostalCodeModal() {
     }, 600);
   }
 
-  // Geolocation do navegador
+  // Geolocation do navegador com geocodificação reversa inteligente
   function handleUseCurrentLocation() {
     if (!navigator.geolocation) {
       setCepError('Geolocalização não suportada neste navegador.');
@@ -194,53 +195,37 @@ export function PostalCodeModal() {
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         try {
-          // Consulta reverse geocoding via OpenStreetMap Nominatim
           const { latitude, longitude } = pos.coords;
-          const url = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`;
-          const res = await fetch(url, {
-            headers: { 'Accept-Language': 'pt-BR,pt;q=0.9' },
-          });
-
-          if (res.ok) {
-            const data = await res.json();
-            const addr = data.address || {};
-            const postcode = addr.postcode ? cleanCep(addr.postcode) : '';
-            const city = addr.city || addr.town || addr.municipality || 'Belém';
-            const state = addr['ISO3166-2-lvl4']?.replace('BR-', '') || addr.state || 'PA';
-            const street = addr.road || '';
-            const neighborhood = addr.suburb || addr.neighbourhood || '';
-
-            if (postcode && postcode.length === 8) {
-              const fullLoc = await lookupLocationByCep(postcode);
-              confirmLocation(fullLoc);
-              return;
-            }
-
-            const customLoc: UserLocation = {
-              cep: postcode ? formatCep(postcode) : '66020-600',
-              city,
-              state: state.toUpperCase(),
-              street,
-              neighborhood,
-              formatted: `${city} - ${state.toUpperCase()}`,
-              shortLabel: `Região de ${city}/${state.toUpperCase()}`,
-            };
-            confirmLocation(customLoc);
-          } else {
-            // Fallback Belém
-            confirmLocation(QUICK_LOCATIONS[0]);
+          const fullLoc = await reverseGeocodeCoordinates(latitude, longitude);
+          if (fullLoc) {
+            confirmLocation(fullLoc);
+            return;
           }
+          // Fallback para Pedreira se na região
+          confirmLocation(QUICK_LOCATIONS[0]);
         } catch {
           confirmLocation(QUICK_LOCATIONS[0]);
         } finally {
           setLoadingCep(false);
         }
       },
-      () => {
+      (err) => {
         setLoadingCep(false);
-        setCepError('Permissão de localização não concedida. Por favor, digite seu CEP.');
+        if (err.code === err.PERMISSION_DENIED) {
+          setCepError(
+            'Permissão de localização negada pelo navegador. Você pode selecionar seu bairro abaixo ou digitar seu CEP.'
+          );
+        } else if (err.code === err.POSITION_UNAVAILABLE) {
+          setCepError(
+            'Localização indisponível no dispositivo. Você pode selecionar seu bairro abaixo ou digitar seu CEP.'
+          );
+        } else {
+          setCepError(
+            'Não foi possível obter sua localização no momento. Escolha seu bairro abaixo ou digite seu CEP.'
+          );
+        }
       },
-      { timeout: 7000 }
+      { timeout: 8000, enableHighAccuracy: true }
     );
   }
 

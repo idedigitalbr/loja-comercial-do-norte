@@ -23,8 +23,8 @@ export const COMMERCIAL_STORES: CommercialStore[] = [
     phone: '(91) 98344-0880',
     whatsappDigits: '5591983440880',
     hours: 'Seg a Sex: 07h30 às 18h00 | Sáb: 07h30 às 14h00',
-    lat: -1.4718,
-    lng: -48.4945,
+    lat: -1.4754,
+    lng: -48.4641,
     cepPrefix: '66030',
   },
   {
@@ -36,8 +36,8 @@ export const COMMERCIAL_STORES: CommercialStore[] = [
     phone: '(91) 4042-0513',
     whatsappDigits: '5591983440880',
     hours: 'Seg a Sex: 06h30 às 18h00 | Sáb: 06h30 às 12h30',
-    lat: -1.4488,
-    lng: -48.4682,
+    lat: -1.4450,
+    lng: -48.4684,
     cepPrefix: '66093',
     isHeadquarter: true,
   },
@@ -50,8 +50,8 @@ export const COMMERCIAL_STORES: CommercialStore[] = [
     phone: '(91) 98344-0880',
     whatsappDigits: '5591983440880',
     hours: 'Seg a Sex: 07h00 às 18h00 | Sáb: 07h00 às 12h30',
-    lat: -1.4342,
-    lng: -48.4685,
+    lat: -1.4276,
+    lng: -48.4730,
     cepPrefix: '66080',
   },
   {
@@ -63,8 +63,8 @@ export const COMMERCIAL_STORES: CommercialStore[] = [
     phone: '(91) 98344-0880',
     whatsappDigits: '5591983440880',
     hours: 'Seg a Sex: 07h00 às 19h00 | Sáb: 07h00 às 19h00',
-    lat: -1.4648,
-    lng: -48.4721,
+    lat: -1.4693,
+    lng: -48.4684,
     cepPrefix: '66065',
   },
   {
@@ -76,8 +76,8 @@ export const COMMERCIAL_STORES: CommercialStore[] = [
     phone: '(91) 98344-0880',
     whatsappDigits: '5591983440880',
     hours: 'Seg a Sex: 07h00 às 19h00 | Sáb: 07h00 às 13h00',
-    lat: -1.3561,
-    lng: -48.4042,
+    lat: -1.3565,
+    lng: -48.3888,
     cepPrefix: '67133',
   },
   {
@@ -89,13 +89,95 @@ export const COMMERCIAL_STORES: CommercialStore[] = [
     phone: '(91) 98344-0880',
     whatsappDigits: '5591983440880',
     hours: 'Seg a Sex: 08h15 às 18h00 | Sáb: 07h30 às 12h00',
-    lat: -1.4512,
-    lng: -48.4715,
+    lat: -1.4455,
+    lng: -48.4674,
     cepPrefix: '66090',
   },
 ];
 
 export const DEFAULT_STORE = COMMERCIAL_STORES[0];
+
+export type NeighborhoodShortcut = {
+  id: string;
+  name: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  storeId: string;
+  storeTitle: string;
+  cep: string;
+  street: string;
+  lat: number;
+  lng: number;
+};
+
+export const NEIGHBORHOOD_STORE_SHORTCUTS: NeighborhoodShortcut[] = [
+  {
+    id: 'pedreira',
+    name: 'Pedreira (Tv. Mauriti)',
+    neighborhood: 'Pedreira',
+    city: 'Belém',
+    state: 'PA',
+    storeId: 'loja-pedreira-mauriti',
+    storeTitle: 'Unidade Mauriti (Pedreira)',
+    cep: '66080-650',
+    street: 'Travessa Mauriti',
+    lat: -1.4276,
+    lng: -48.4730,
+  },
+  {
+    id: 'sao-bras',
+    name: 'São Brás (Matriz - Av. Rômulo Maiorana)',
+    neighborhood: 'São Brás',
+    city: 'Belém',
+    state: 'PA',
+    storeId: 'loja-sao-bras',
+    storeTitle: 'Unidade São Brás (Matriz)',
+    cep: '66093-005',
+    street: 'Avenida Rômulo Maiorana',
+    lat: -1.4450,
+    lng: -48.4684,
+  },
+  {
+    id: 'jurunas',
+    name: 'Jurunas (Av. Bernardo Sayão)',
+    neighborhood: 'Jurunas',
+    city: 'Belém',
+    state: 'PA',
+    storeId: 'loja-jurunas',
+    storeTitle: 'Bernardo Sayão (Jurunas)',
+    cep: '66030-120',
+    street: 'Avenida Bernardo Sayão',
+    lat: -1.4754,
+    lng: -48.4641,
+  },
+  {
+    id: 'guama',
+    name: 'Guamá (Av. José Bonifácio)',
+    neighborhood: 'Guamá',
+    city: 'Belém',
+    state: 'PA',
+    storeId: 'loja-guama',
+    storeTitle: 'Unidade Guamá',
+    cep: '66065-360',
+    street: 'Avenida José Bonifácio',
+    lat: -1.4693,
+    lng: -48.4684,
+  },
+  {
+    id: 'cidade-nova',
+    name: 'Cidade Nova (Ananindeua - Tv. WE-59)',
+    neighborhood: 'Cidade Nova',
+    city: 'Ananindeua',
+    state: 'PA',
+    storeId: 'loja-cidade-nova',
+    storeTitle: 'Unidade Cidade Nova (Ananindeua)',
+    cep: '67133-013',
+    street: 'Travessa WE-59',
+    lat: -1.3565,
+    lng: -48.3888,
+  },
+];
 
 export type StoreWithDistance = CommercialStore & {
   distanceKm: number;

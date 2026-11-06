@@ -5,12 +5,14 @@ import {
   buildShortLabel,
   cleanCep,
   formatCep,
+  getReferenceCepForNeighborhood,
   getStoredLocation,
   LOCATION_STORAGE_KEY,
   lookupLocationByAddress,
   lookupLocationByCep,
   normalizeBrasilApi,
   normalizeViaCep,
+  QUICK_LOCATIONS,
   saveStoredLocation,
   type UserLocation,
 } from './location';
@@ -141,5 +143,25 @@ describe('location helpers', () => {
     await expect(lookupLocationByAddress({ uf: 'PA', city: 'Belém', street: 'Be' })).rejects.toThrow(
       'Informe o nome da rua ou avenida (mínimo 3 letras).'
     );
+  });
+
+  it('getReferenceCepForNeighborhood retorna CEP correto por bairro sem forçar Cidade Velha', () => {
+    expect(getReferenceCepForNeighborhood('Pedreira')).toBe('66080-650');
+    expect(getReferenceCepForNeighborhood('Sacramenta')).toBe('66080-650');
+    expect(getReferenceCepForNeighborhood('São Brás')).toBe('66093-005');
+    expect(getReferenceCepForNeighborhood('Jurunas')).toBe('66030-120');
+    expect(getReferenceCepForNeighborhood('Guamá')).toBe('66065-360');
+    expect(getReferenceCepForNeighborhood('Cidade Nova', 'Ananindeua')).toBe('67133-013');
+    expect(getReferenceCepForNeighborhood('Cidade Velha')).toBe('66020-600');
+    expect(getReferenceCepForNeighborhood('Bairro Inexistente')).toBe('');
+  });
+
+  it('QUICK_LOCATIONS inclui Pedreira com coordenadas e CEP corretos', () => {
+    const pedreira = QUICK_LOCATIONS.find((loc) => loc.neighborhood === 'Pedreira');
+    expect(pedreira).toBeDefined();
+    expect(pedreira?.cep).toBe('66080-650');
+    expect(pedreira?.street).toBe('Travessa Mauriti');
+    expect(pedreira?.lat).toBeCloseTo(-1.4276, 2);
+    expect(pedreira?.lng).toBeCloseTo(-48.473, 2);
   });
 });

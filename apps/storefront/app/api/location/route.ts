@@ -31,14 +31,9 @@ export async function GET(request: Request) {
       const city = decodeURIComponent(vercelCity);
       const state = (vercelRegion || 'PA').toUpperCase();
       const rawPostal = vercelPostal ? cleanCep(vercelPostal) : '';
-      const cep =
-        rawPostal.length === 8
-          ? formatCep(rawPostal)
-          : city.toLowerCase().includes('ananindeua')
-            ? '67000-000'
-            : '66020-600';
-      const lat = vercelLat ? Number(vercelLat) : DEFAULT_LOCATION.lat;
-      const lng = vercelLng ? Number(vercelLng) : DEFAULT_LOCATION.lng;
+      const cep = rawPostal.length === 8 ? formatCep(rawPostal) : '';
+      const lat = vercelLat ? Number(vercelLat) : undefined;
+      const lng = vercelLng ? Number(vercelLng) : undefined;
 
       const geoLoc: UserLocation = {
         cep,
@@ -83,14 +78,9 @@ export async function GET(request: Request) {
           const city = String(data.city || 'Belém');
           const state = String(data.region_code || 'PA').toUpperCase();
           const rawPostal = data.postal ? cleanCep(String(data.postal)) : '';
-          const cep =
-            rawPostal.length === 8
-              ? formatCep(rawPostal)
-              : city.toLowerCase().includes('ananindeua')
-                ? '67000-000'
-                : '66020-600';
-          const lat = typeof data.latitude === 'number' ? data.latitude : DEFAULT_LOCATION.lat;
-          const lng = typeof data.longitude === 'number' ? data.longitude : DEFAULT_LOCATION.lng;
+          const cep = rawPostal.length === 8 ? formatCep(rawPostal) : '';
+          const lat = typeof data.latitude === 'number' ? data.latitude : undefined;
+          const lng = typeof data.longitude === 'number' ? data.longitude : undefined;
 
           const ipLoc: UserLocation = {
             cep,

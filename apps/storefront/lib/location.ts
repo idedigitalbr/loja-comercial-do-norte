@@ -12,15 +12,13 @@ export type UserLocation = {
 };
 
 export const DEFAULT_LOCATION: UserLocation = {
-  cep: '66020-600',
-  street: 'Rua Siqueira Mendes',
-  neighborhood: 'Cidade Velha',
+  cep: '',
+  street: '',
+  neighborhood: '',
   city: 'Belém',
   state: 'PA',
-  formatted: 'Cidade Velha, Belém - PA (66020-600)',
+  formatted: 'Região de Belém - PA',
   shortLabel: 'Região de Belém/PA',
-  lat: -1.4558,
-  lng: -48.4902,
   source: 'default',
 };
 
@@ -56,13 +54,28 @@ export const BRAZIL_STATES: Array<{ uf: string; name: string }> = [
 
 export const QUICK_LOCATIONS: UserLocation[] = [
   {
-    cep: '66020-600',
-    street: 'Rua Siqueira Mendes',
-    neighborhood: 'Cidade Velha',
+    cep: '66080-650',
+    street: 'Travessa Mauriti',
+    neighborhood: 'Pedreira',
     city: 'Belém',
     state: 'PA',
-    formatted: 'Cidade Velha, Belém - PA',
-    shortLabel: 'Belém (Centro/Cidade Velha)',
+    formatted: 'Travessa Mauriti, Pedreira, Belém - PA',
+    shortLabel: 'Pedreira, Belém/PA',
+    lat: -1.4276,
+    lng: -48.4730,
+    source: 'manual',
+  },
+  {
+    cep: '66093-005',
+    street: 'Avenida Rômulo Maiorana',
+    neighborhood: 'São Brás',
+    city: 'Belém',
+    state: 'PA',
+    formatted: 'Avenida Rômulo Maiorana, São Brás, Belém - PA',
+    shortLabel: 'São Brás, Belém/PA',
+    lat: -1.4450,
+    lng: -48.4684,
+    source: 'manual',
   },
   {
     cep: '66030-120',
@@ -71,25 +84,46 @@ export const QUICK_LOCATIONS: UserLocation[] = [
     city: 'Belém',
     state: 'PA',
     formatted: 'Avenida Bernardo Sayão, Jurunas, Belém - PA',
-    shortLabel: 'Belém (Jurunas / Bernardo Sayão)',
+    shortLabel: 'Jurunas, Belém/PA',
+    lat: -1.4754,
+    lng: -48.4641,
+    source: 'manual',
   },
   {
-    cep: '67000-000',
-    street: '',
-    neighborhood: 'Centro',
+    cep: '66065-360',
+    street: 'Avenida José Bonifácio',
+    neighborhood: 'Guamá',
+    city: 'Belém',
+    state: 'PA',
+    formatted: 'Avenida José Bonifácio, Guamá, Belém - PA',
+    shortLabel: 'Guamá, Belém/PA',
+    lat: -1.4693,
+    lng: -48.4684,
+    source: 'manual',
+  },
+  {
+    cep: '67133-013',
+    street: 'Travessa WE-59',
+    neighborhood: 'Cidade Nova',
     city: 'Ananindeua',
     state: 'PA',
-    formatted: 'Centro, Ananindeua - PA',
-    shortLabel: 'Ananindeua/PA',
+    formatted: 'Travessa WE-59, Cidade Nova, Ananindeua - PA',
+    shortLabel: 'Cidade Nova, Ananindeua/PA',
+    lat: -1.3565,
+    lng: -48.3888,
+    source: 'manual',
   },
   {
-    cep: '67200-000',
-    street: '',
-    neighborhood: 'Centro',
-    city: 'Marituba',
+    cep: '66020-600',
+    street: 'Rua Siqueira Mendes',
+    neighborhood: 'Cidade Velha',
+    city: 'Belém',
     state: 'PA',
-    formatted: 'Centro, Marituba - PA',
-    shortLabel: 'Marituba/PA',
+    formatted: 'Cidade Velha, Belém - PA',
+    shortLabel: 'Cidade Velha, Belém/PA',
+    lat: -1.4558,
+    lng: -48.4902,
+    source: 'manual',
   },
 ];
 
@@ -360,6 +394,60 @@ export async function lookupLocationByAddress(params: {
 }
 
 /**
+ * Mapeia bairros conhecidos da Grande Belém para o CEP de referência da região
+ * para evitar atribuir CEP de outros bairros (ex: Cidade Velha) quando o GPS identifica o bairro real.
+ */
+export function getReferenceCepForNeighborhood(neighborhood: string, city = 'Belém'): string {
+  const norm = (neighborhood || '').toLowerCase().trim();
+  if (
+    norm.includes('pedreira') ||
+    norm.includes('sacramenta') ||
+    norm.includes('telégrafo') ||
+    norm.includes('telegrafo')
+  ) {
+    return '66080-650';
+  }
+  if (
+    norm.includes('são brás') ||
+    norm.includes('sao bras') ||
+    norm.includes('marco') ||
+    norm.includes('fátima') ||
+    norm.includes('fatima')
+  ) {
+    return '66093-005';
+  }
+  if (
+    norm.includes('jurunas') ||
+    norm.includes('batista campos') ||
+    norm.includes('cremação') ||
+    norm.includes('cremacao')
+  ) {
+    return '66030-120';
+  }
+  if (
+    norm.includes('guamá') ||
+    norm.includes('guama') ||
+    norm.includes('terra firme') ||
+    norm.includes('canudos')
+  ) {
+    return '66065-360';
+  }
+  if (norm.includes('cidade nova') || (city && city.toLowerCase().includes('ananindeua'))) {
+    return '67133-013';
+  }
+  if (
+    norm.includes('cidade velha') ||
+    norm.includes('reduto') ||
+    norm.includes('campina') ||
+    norm.includes('nazaré') ||
+    norm.includes('nazare')
+  ) {
+    return '66020-600';
+  }
+  return '';
+}
+
+/**
  * Converte coordenadas GPS (latitude/longitude) em UserLocation (bairro/cidade/CEP)
  * usando APIs públicas de geocodificação reversa (BigDataCloud + OpenStreetMap Nominatim).
  */
@@ -389,12 +477,10 @@ export async function reverseGeocodeCoordinates(
       const neighborhood =
         data.locality && data.locality !== city ? data.locality : '';
       const postcode = data.postcode ? cleanCep(String(data.postcode)) : '';
-      const cep =
-        postcode.length === 8
-          ? formatCep(postcode)
-          : city.toLowerCase().includes('ananindeua')
-            ? '67000-000'
-            : '66020-600';
+      const fallbackCep = neighborhood
+        ? getReferenceCepForNeighborhood(neighborhood, city)
+        : '';
+      const cep = postcode.length === 8 ? formatCep(postcode) : fallbackCep;
 
       return {
         cep,
@@ -438,7 +524,10 @@ export async function reverseGeocodeCoordinates(
       ).toUpperCase();
       const street = addr.road || '';
       const neighborhood = addr.suburb || addr.neighbourhood || '';
-      const cep = postcode.length === 8 ? formatCep(postcode) : '66020-600';
+      const fallbackCep = neighborhood
+        ? getReferenceCepForNeighborhood(neighborhood, city)
+        : '';
+      const cep = postcode.length === 8 ? formatCep(postcode) : fallbackCep;
 
       return {
         cep,
@@ -463,6 +552,7 @@ export async function reverseGeocodeCoordinates(
 /**
  * Detecta automaticamente a localização aproximada do visitante ao abrir o site (estilo Magazine Luiza),
  * sem exigir popup de permissão do navegador, usando a rota /api/location?mode=ip e fallback de IP.
+ * Se o provedor não informar bairro nem CEP exato, mantém vazio para evitar inventar CEP ou bairro errado.
  */
 export async function detectLocationByIp(): Promise<UserLocation | null> {
   // 1. Tenta rota interna /api/location?mode=ip (lê headers geo da CDN/Vercel ou consulta serviço IP)
@@ -503,12 +593,7 @@ export async function detectLocationByIp(): Promise<UserLocation | null> {
         const city = String(data.city || 'Belém');
         const state = String(data.region_code || 'PA').toUpperCase();
         const rawPostal = data.postal ? cleanCep(String(data.postal)) : '';
-        const cep =
-          rawPostal.length === 8
-            ? formatCep(rawPostal)
-            : city.toLowerCase().includes('ananindeua')
-              ? '67000-000'
-              : '66020-600';
+        const cep = rawPostal.length === 8 ? formatCep(rawPostal) : '';
         const lat = typeof data.latitude === 'number' ? data.latitude : undefined;
         const lng = typeof data.longitude === 'number' ? data.longitude : undefined;
 

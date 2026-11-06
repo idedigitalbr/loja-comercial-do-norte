@@ -260,7 +260,7 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
     );
   });
 
-  it('detecta automaticamente a região por IP/cabeçalho (estilo Magazine Luiza) e oferece seleção de unidades próximas com distância em km e opção de CEP', async () => {
+  it('detecta automaticamente a região por IP/cabeçalho (estilo Magazine Luiza) e oferece seleção inteligente de bairro sem chute de endereço', async () => {
     vi.useFakeTimers();
     render(<NortChatFloating whatsapp="5591983440880" />);
 
@@ -289,19 +289,19 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
       await Promise.resolve();
     });
 
-    // Avança o delay de verificação e a digitação completa das opções com distância
+    // Avança o delay de verificação e a digitação completa da resposta inteligente sem chute
     act(() => {
       vi.advanceTimersByTime(12000);
     });
 
     expect(
-      screen.getByText(/olha, a unidade mais próxima de você tem estas opções/i)
+      screen.getByText(/identifiquei que você está na região de belém\/pa/i)
     ).toBeDefined();
-    expect(screen.getAllByText(/🏪/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/📮 digitar outro cep/i)).toBeDefined();
+    expect(screen.getByText(/📍 pedreira/i)).toBeDefined();
+    expect(screen.getByText(/📮 digitar meu cep da rua/i)).toBeDefined();
 
-    // Clica em "Digitar outro CEP" para testar o fallback manual por CEP
-    fireEvent.click(screen.getByText(/📮 digitar outro cep/i));
+    // Clica em "Digitar meu CEP da rua" para testar o fallback manual por CEP
+    fireEvent.click(screen.getByText(/📮 digitar meu cep da rua/i));
 
     const cepField = screen.getByPlaceholderText('Informe seu CEP...');
     expect(cepField).toBeDefined();
@@ -316,6 +316,111 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
     });
 
     expect(screen.getByText(/identifiquei a unidade são brás/i)).toBeDefined();
+  });
+
+  it('quando o usuário está na Pedreira e clica no atalho do bairro, direciona imediatamente para a Unidade Mauriti (Pedreira)', async () => {
+    vi.useFakeTimers();
+    render(<NortChatFloating whatsapp="5591983440880" />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(11000);
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('Como posso te chamar?'), {
+      target: { value: 'João da Pedreira' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('(91) 99999-9999'), {
+      target: { value: '91988887777' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /continuar no chat/i }));
+
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText(/📍 encontrar a mais próxima de mim/i));
+      await Promise.resolve();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(12000);
+    });
+
+    // Clica no botão do bairro Pedreira (Tv. Mauriti)
+    const pedreiraBtn = screen.getByText(/📍 pedreira \(tv\. mauriti\)/i);
+    expect(pedreiraBtn).toBeDefined();
+    fireEvent.click(pedreiraBtn);
+
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    expect(
+      screen.getByText(/a nossa loja física mais próxima de você é a unidade mauriti \(pedreira\)/i)
+    ).toBeDefined();
+  });
+
+  it('quando o GPS do dispositivo é concedido e localiza a Pedreira, calcula a distância real e sugere a Unidade Mauriti (Pedreira)', async () => {
+    vi.useFakeTimers();
+
+    const mockGeolocation = {
+      getCurrentPosition: vi.fn().mockImplementation((success) => {
+        success({
+          coords: {
+            latitude: -1.4276,
+            longitude: -48.473,
+            accuracy: 10,
+          },
+        });
+      }),
+    };
+    vi.stubGlobal('navigator', {
+      ...window.navigator,
+      geolocation: mockGeolocation,
+    });
+
+    render(<NortChatFloating whatsapp="5591983440880" />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(11000);
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('Como posso te chamar?'), {
+      target: { value: 'Marcos' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('(91) 99999-9999'), {
+      target: { value: '91987654321' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /continuar no chat/i }));
+
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText(/📍 encontrar a mais próxima de mim/i));
+      await Promise.resolve();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(12000);
+    });
+
+    expect(
+      screen.getByText(/olha, consegui acessar sua localização com precisão!/i)
+    ).toBeDefined();
+    expect(screen.getByText(/unidade mauriti \(pedreira\)/i)).toBeDefined();
+
+    vi.unstubAllGlobals();
   });
 
   it('persiste a conversa no navegador (F5 / reload) com boas-vindas limpas e opções de continuar conversa anterior ou iniciar novo atendimento', () => {

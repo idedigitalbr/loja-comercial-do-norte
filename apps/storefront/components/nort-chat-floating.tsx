@@ -23,6 +23,8 @@ import {
   COMMERCIAL_STORES,
   CommercialStore,
   DEFAULT_STORE,
+  NEIGHBORHOOD_STORE_SHORTCUTS,
+  type NeighborhoodShortcut,
   buildWhatsAppLink,
   findNearestStoreByCep,
   findNearestStoreByCoords,
@@ -79,6 +81,7 @@ export type BotStep =
   | 'RESUME_PROMPT'
   | 'UNIT_MODE'
   | 'UNIT_NEARBY_CHOICE'
+  | 'UNIT_NEIGHBORHOOD_CHOICE'
   | 'UNIT_CEP'
   | 'UNIT_LIST'
   | 'SERVICE'
@@ -1208,7 +1211,7 @@ export function NortChatFloating({
     let locationText = '';
     if (currentLoc?.neighborhood && currentLoc?.city) {
       locationText = ` (estou no bairro da ${currentLoc.neighborhood}, ${currentLoc.city} - ${currentLoc.state})`;
-    } else if (currentLoc?.city) {
+    } else if (currentLoc?.city && currentLoc.source === 'gps') {
       locationText = ` (estou em ${currentLoc.city}/${currentLoc.state})`;
     }
 
@@ -1241,14 +1244,16 @@ export function NortChatFloating({
     setIsTyping(true);
     setInteractiveReady(false);
 
-    let targetLat = currentLoc?.lat ?? DEFAULT_LOCATION.lat ?? -1.4558;
-    let targetLng = currentLoc?.lng ?? DEFAULT_LOCATION.lng ?? -48.4902;
+    let targetLat: number | undefined = currentLoc?.lat;
+    let targetLng: number | undefined = currentLoc?.lng;
     let neighborhoodName = currentLoc?.neighborhood || '';
+    let gpsSuccess = false;
 
     if (typeof navigator !== 'undefined' && navigator.geolocation) {
       try {
         const position = await new Promise<GeolocationPosition | null>((resolve) => {
-          const timeoutFallback = window.setTimeout(() => resolve(null), 1200);
+          // Timeout de 6 segundos para dar tempo ao usuário ver a permissão e clicar em Permitir
+          const timeoutFallback = window.setTimeout(() => resolve(null), 6000);
           try {
             navigator.geolocation.getCurrentPosition(
               (pos) => {
@@ -1259,7 +1264,7 @@ export function NortChatFloating({
                 window.clearTimeout(timeoutFallback);
                 resolve(null);
               },
-              { timeout: 3000, enableHighAccuracy: false }
+              { timeout: 5500, enableHighAccuracy: true, maximumAge: 60000 }
             );
           } catch {
             window.clearTimeout(timeoutFallback);
@@ -1268,6 +1273,7 @@ export function NortChatFloating({
         });
 
         if (position) {
+          gpsSuccess = true;
           targetLat = position.coords.latitude;
           targetLng = position.coords.longitude;
           const reverse = await reverseGeocodeCoordinates(targetLat, targetLng);
@@ -1279,23 +1285,114 @@ export function NortChatFloating({
           }
         }
       } catch {
-        // Fallback
+        // Fallback resiliente
       }
     }
 
-    const topStores = findTopNearestStores(targetLat, targetLng, 2);
-    setNearbyStores(topStores);
+    // Cenário 1: GPS preciso obtido com sucesso
+    if (gpsSuccess && targetLat !== undefined && targetLng !== undefined) {
+      const topStores = findTopNearestStores(targetLat, targetLng, 2);
+      setNearbyStores(topStores);
 
+      window.setTimeout(() => {
+        setIsTyping(false);
+        setStep('UNIT_NEARBY_CHOICE');
+
+        const introText = neighborhoodName
+          ? `Olha, consegui acessar sua localização com precisão! A unidade mais próxima de você aqui perto do bairro ${neighborhoodName} tem estas opções:`
+          : 'Olha, consegui acessar sua localização com precisão! A unidade mais próxima de você tem estas opções:';
+
+        scheduleBotSequence([introText], { withInteractiveWidget: true });
+      }, 1500);
+      return;
+    }
+
+    // Cenário 2: Usuário já possui bairro confirmado (ex: Pedreira, São Brás)
+    if (neighborhoodName && targetLat !== undefined && targetLng !== undefined) {
+      const topStores = findTopNearestStores(targetLat, targetLng, 2);
+      setNearbyStores(topStores);
+
+      window.setTimeout(() => {
+        setIsTyping(false);
+        setStep('UNIT_NEARBY_CHOICE');
+
+        const introText = `Olha, a unidade mais próxima de você tem estas opções aqui perto do bairro ${neighborhoodName}:`;
+
+        scheduleBotSequence([introText], { withInteractiveWidget: true });
+      }, 1500);
+      return;
+    }
+
+    // Cenário 3 (CHAT INTELIGENTE SEM CHUTE): Não temos bairro exato nem GPS.
+    // Em vez de chutar Cidade Velha e mandar pro Jurunas, o Nort pergunta com simpatia e transparência!
     window.setTimeout(() => {
       setIsTyping(false);
-      setStep('UNIT_NEARBY_CHOICE');
+      setStep('UNIT_NEIGHBORHOOD_CHOICE');
 
-      const introText = neighborhoodName
-        ? `Olha, a unidade mais próxima de você tem estas opções aqui perto do bairro ${neighborhoodName}:`
-        : 'Olha, a unidade mais próxima de você tem estas opções:';
+      const cityName = currentLoc?.city || 'Belém';
+      const stateName = currentLoc?.state || 'PA';
+      const introText = `Identifiquei que você está na região de ${cityName}/${stateName}, mas não consegui acessar sua localização exata pelo navegador (pode estar desativada ou bloqueada no aparelho). Para eu não chutar seu endereço e te indicar a loja certinha mais perto de você, me conta: em qual bairro você está?`;
 
       scheduleBotSequence([introText], { withInteractiveWidget: true });
-    }, 2200);
+    }, 1500);
+  }
+
+  function handleSelectNeighborhood(item: NeighborhoodShortcut) {
+    if (isTyping) return;
+
+    const userMsg: ChatMessage = {
+      id: `user-neigh-${Date.now()}`,
+      sender: 'user',
+      text: `📍 Estou no bairro da ${item.neighborhood}`,
+      time: getFormattedTime(),
+      quotedText: 'Para eu não chutar seu endereço e te indicar a loja certinha mais perto de você, me conta: em qual bairro você está?',
+    };
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
+    updateActiveTicketMessages(nextMessages);
+
+    const store = findStoreById(item.storeId);
+    setSelectedStore(store);
+
+    const newLoc: UserLocation = {
+      cep: item.cep,
+      street: item.street,
+      neighborhood: item.neighborhood,
+      city: item.city,
+      state: item.state,
+      formatted: `${item.street}, ${item.neighborhood}, ${item.city} - ${item.state}`,
+      shortLabel: `${item.neighborhood}, ${item.city}/${item.state}`,
+      lat: item.lat,
+      lng: item.lng,
+      source: 'manual',
+    };
+    syncHeaderLocation(newLoc);
+
+    setStep('SERVICE');
+    setExpandedCategory(null);
+
+    recordTicketEvent(
+      'select_unit',
+      `Unidade confirmada via seleção do bairro ${item.neighborhood}`,
+      store.shortTitle,
+      'SERVICE'
+    );
+
+    void registerLeadToCRM({
+      name: customerName || 'Cliente Site',
+      phone: customerPhone || '(91) 98344-0880',
+      store,
+      subject: `Atendimento direcionado para ${store.shortTitle} (${item.neighborhood})`,
+      allMessages: nextMessages,
+    });
+
+    scheduleBotSequence(
+      [
+        `Excelente, ${customerName || 'visitante'}! 💙 A nossa loja física mais próxima de você é a ${store.shortTitle} (${store.address}).`,
+        'Agora me conta: como podemos te ajudar hoje?',
+      ],
+      { withInteractiveWidget: true }
+    );
   }
 
   function handleSelectNearbyStore(store: StoreWithDistance | CommercialStore) {
@@ -2303,12 +2400,43 @@ export function NortChatFloating({
                       </QuickReplyButton>
                     ))}
 
+                    <QuickReplyButton onClick={() => setStep('UNIT_NEIGHBORHOOD_CHOICE')}>
+                      📍 Escolher por bairro
+                    </QuickReplyButton>
+
                     <QuickReplyButton onClick={handleShowUnitList}>
                       🏬 Ver lista completa de todas as unidades
                     </QuickReplyButton>
 
                     <QuickReplyButton onClick={() => setStep('UNIT_CEP')}>
                       📮 Digitar outro CEP
+                    </QuickReplyButton>
+                  </div>
+                )}
+
+                {/* INTERAÇÃO 2.5 — ESCOLHA INTELIGENTE DE BAIRRO (CHAT SEM CHUTE DE ENDEREÇO) */}
+                {step === 'UNIT_NEIGHBORHOOD_CHOICE' && !isTyping && interactiveReady && (
+                  <div className="space-y-1.5 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <div className="rounded-[10px] bg-[#E8F5E9] border border-[#C8E6C9] p-2 text-[11px] text-[#2E7D32]">
+                      💡 Selecione seu bairro ou informe o CEP para ser atendido pela filial certa:
+                    </div>
+
+                    {NEIGHBORHOOD_STORE_SHORTCUTS.map((item) => (
+                      <QuickReplyButton
+                        key={item.id}
+                        ariaLabel={`Estou no bairro ${item.name}`}
+                        onClick={() => handleSelectNeighborhood(item)}
+                      >
+                        📍 {item.name}
+                      </QuickReplyButton>
+                    ))}
+
+                    <QuickReplyButton onClick={() => setStep('UNIT_CEP')}>
+                      📮 Digitar meu CEP da rua
+                    </QuickReplyButton>
+
+                    <QuickReplyButton onClick={handleShowUnitList}>
+                      🏬 Ver lista completa de todas as unidades
                     </QuickReplyButton>
                   </div>
                 )}
