@@ -2205,6 +2205,9 @@ export function NortChatFloating({
                     <QuickReplyButton onClick={handleStartNewAttendance}>
                       🆕 Iniciar novo atendimento
                     </QuickReplyButton>
+                    <QuickReplyButton onClick={handleStartTourFromChat}>
+                      🧭 Fazer tour guiado pela loja
+                    </QuickReplyButton>
                   </div>
                 )}
 
@@ -2274,6 +2277,16 @@ export function NortChatFloating({
                         <Send className="size-3.5" />
                       </button>
                     </form>
+
+                    <div className="pt-2">
+                      <button
+                        className="w-full rounded-[10px] bg-[#FFFFFF] hover:bg-[#E0FBD4] text-[#075844] font-semibold text-[12.5px] py-2 px-3 text-center border border-[#00A884]/40 shadow-sm transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                        onClick={handleStartTourFromChat}
+                        type="button"
+                      >
+                        <span>🧭 Fazer tour guiado pela loja</span>
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -3168,10 +3181,7 @@ export function NortChatFloating({
                       <div className="space-y-2 pt-1">
                         <button
                           className="w-full rounded-[10px] bg-[#00A884] hover:bg-[#075844] text-[#FFFFFF] font-semibold text-[13px] py-2.5 px-3 transition-colors cursor-pointer"
-                          onClick={() => {
-                            setIsSidebarOpen(false);
-                            startTour();
-                          }}
+                          onClick={handleStartTourFromChat}
                           type="button"
                         >
                           🧭 Fazer Tour Guiado na Loja

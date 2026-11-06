@@ -658,4 +658,55 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
     expect(grouped['Hoje'].length).toBe(1);
     expect(grouped['Hoje'][0].id).toBe('#000101');
   });
+
+  it('permite iniciar o tour guiado diretamente no chat na etapa de identificação', () => {
+    vi.useFakeTimers();
+    render(<NortChatFloating whatsapp="5591983440880" />);
+
+    // Abre o chat
+    fireEvent.click(
+      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
+    );
+
+    // Avança o tempo de digitação da mensagem inicial para liberar os botões interativos
+    act(() => {
+      vi.advanceTimersByTime(11000);
+    });
+
+    const tourBtn = screen.getByRole('button', { name: /fazer tour guiado pela loja/i });
+    expect(tourBtn).toBeDefined();
+
+    fireEvent.click(tourBtn);
+
+    // Garante que o startTour foi chamado e o chat foi fechado
+    expect(mockStartTour).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('dialog', { name: /chat de atendimento com o mascote norti/i })).toBeNull();
+  });
+
+  it('permite iniciar o tour guiado na sidebar através da opção Fazer Tour Guiado na Loja', () => {
+    vi.useFakeTimers();
+    render(<NortChatFloating whatsapp="5591983440880" />);
+
+    // Abre o chat
+    fireEvent.click(
+      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(11000);
+    });
+
+    // Abre a sidebar
+    fireEvent.click(screen.getByRole('button', { name: /configurações e atendimentos/i }));
+
+    // Navega para Ajuda e Suporte
+    fireEvent.click(screen.getByText(/ajuda e suporte/i));
+
+    const tourBtn = screen.getByRole('button', { name: /fazer tour guiado na loja/i });
+    expect(tourBtn).toBeDefined();
+
+    fireEvent.click(tourBtn);
+
+    expect(mockStartTour).toHaveBeenCalled();
+  });
 });
