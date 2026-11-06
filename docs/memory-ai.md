@@ -13,9 +13,10 @@
     - A função `checkAndRecordAutoOpen` em `nort-tour-context.tsx` foi atualizada para retornar estritamente `false`.
   - **Acesso ao Tour Estritamente nos Locais Canônicos Pré-Existentes do Chat do Nort (`NortChatFloating`):**
     - Por alinhamento direto com o responsável, **não** foram adicionados botões avulsos na etapa de identificação ou retorno, e **não** há gatilhos em mensagens livres.
-    - O acionamento do tour guiado fica restrito e consolidado estritamente nas opções canônicas do chat:
-      1. *Categorias de Atendimento (`step === 'SERVICE'`):* Item canônico `"🧭 Fazer tour guiado interativo pela loja"` dentro do accordion *Site / Loja Virtual*.
-      2. *Sidebar de Configurações (`sidebarView === 'menu'` / Ajuda):* Opção `"🧭 Fazer Tour Guiado na Loja"`, que fecha a sidebar, fecha a janela do chat e inicia o tour (`handleStartTourFromChat`).
+    - O acionamento do tour guiado fica restrito e consolidado estritamente nas seguintes opções do chat:
+      1. *Pílula Discreta no Topo do Chat (acima do aviso de privacidade LGPD):* Botão minimalista `🧭 Fazer tour interativo pela loja ›`, posicionado entre a tag "Hoje" e o aviso de privacidade, permitindo acesso discreto logo no topo.
+      2. *Categorias de Atendimento (`step === 'SERVICE'`):* Item canônico `"🧭 Fazer tour guiado interativo pela loja"` dentro do accordion *Site / Loja Virtual*.
+      3. *Sidebar de Configurações (`sidebarView === 'menu'` / Ajuda):* Opção `"🧭 Fazer Tour Guiado na Loja"`, que fecha a sidebar, fecha a janela do chat e inicia o tour (`handleStartTourFromChat`).
   - **Validação:**
     - Suíte `nort-tour.spec.tsx` atualizada para validar que o tour permanece fechado na entrada e abre sob solicitação manual.
     - Suíte `nort-chat-floating.spec.tsx` validando que a identificação não possui botão avulso e que o acionamento via menu de serviços e sidebar funciona com 100% de sucesso.

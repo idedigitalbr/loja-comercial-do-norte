@@ -730,4 +730,22 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
 
     expect(mockStartTour).toHaveBeenCalled();
   });
+
+  it('renderiza opção discreta de tour interativo acima do aviso de privacidade no topo do chat', () => {
+    vi.useFakeTimers();
+    render(<NortChatFloating whatsapp="5591983440880" />);
+
+    // Abre o chat
+    fireEvent.click(
+      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
+    );
+
+    const discreetTourBtn = screen.getByRole('button', {
+      name: /fazer tour interativo pela loja/i,
+    });
+    expect(discreetTourBtn).toBeDefined();
+
+    fireEvent.click(discreetTourBtn);
+    expect(mockStartTour).toHaveBeenCalled();
+  });
 });

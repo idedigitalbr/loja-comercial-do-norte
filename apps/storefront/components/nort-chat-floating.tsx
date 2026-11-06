@@ -2165,6 +2165,20 @@ export function NortChatFloating({
                   </span>
                 </div>
 
+                {/* Opção discreta de tour interativo pela loja acima do aviso de privacidade */}
+                <div className="flex justify-center">
+                  <button
+                    type="button"
+                    onClick={handleStartTourFromChat}
+                    className="group inline-flex items-center gap-1.5 rounded-[8px] bg-[#FFFFFF]/90 hover:bg-[#FFFFFF] text-[#075844] hover:text-[#00A884] px-3 py-1 text-[11px] font-medium shadow-[0_1px_1px_rgba(17,27,33,0.08)] border border-[#D1D7DB]/70 transition-all cursor-pointer select-none"
+                    title="Fazer tour interativo pela loja"
+                  >
+                    <span className="text-[12px]">🧭</span>
+                    <span>Fazer tour interativo pela loja</span>
+                    <span className="text-[10px] text-[#00A884] font-semibold group-hover:translate-x-0.5 transition-transform">›</span>
+                  </button>
+                </div>
+
                 {/* Aviso de privacidade LGPD */}
                 <div className="flex justify-center">
                   <div className="rounded-[8px] bg-[#FFF5C4] border border-[#E6DA9E] px-3 py-1.5 text-[11px] text-[#54656F] text-center max-w-[94%] leading-snug shadow-[0_1px_1px_rgba(17,27,33,0.08)]">
