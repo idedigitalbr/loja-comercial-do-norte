@@ -205,7 +205,7 @@ export function VideoArticlesCarouselWidget({
 
       {/* Carrossel de Cards à Direita */}
       <div
-        className={`relative mt-4 lg:mt-0 lg:absolute ${
+        className={`relative mt-5 -mr-4 sm:-mr-6 lg:mr-0 lg:mt-0 lg:absolute ${
           showViewAll ? 'lg:top-[48px] xl:top-[50px]' : 'lg:top-1/2 lg:-translate-y-1/2'
         } lg:bottom-4 xl:bottom-4.5 lg:left-[43.5%] xl:left-[43%] lg:right-5 xl:right-6 flex items-center z-10`}
       >
@@ -214,7 +214,7 @@ export function VideoArticlesCarouselWidget({
           aria-label={isConfeitaria ? 'Workshops e aulas' : 'Dicas e artigos'}
           onScroll={handleScroll}
           tabIndex={0}
-          className="no-scrollbar flex w-full snap-x snap-mandatory gap-2.5 lg:gap-3 overflow-x-auto py-1 px-0.5 focus:outline-none"
+          className="no-scrollbar flex w-full snap-x snap-mandatory gap-2.5 lg:gap-3 overflow-x-auto overscroll-x-contain py-1 pl-0.5 pr-4 sm:pr-5 lg:px-0.5 focus:outline-none"
         >
           {items.map((item, index) => (
             <VideoArticleCard
@@ -229,7 +229,7 @@ export function VideoArticlesCarouselWidget({
               widgetId={widgetId}
               index={index}
               variant={isConfeitaria ? 'confeitaria' : 'default'}
-              className="w-[85%] sm:w-[58%] lg:w-[calc(50%-6px)] shrink-0 snap-start shadow-md hover:shadow-lg"
+              className="w-[90%] min-[390px]:w-[88%] sm:w-[58%] lg:w-[calc(50%-6px)] shrink-0 snap-start shadow-md hover:shadow-lg"
             />
           ))}
         </div>
