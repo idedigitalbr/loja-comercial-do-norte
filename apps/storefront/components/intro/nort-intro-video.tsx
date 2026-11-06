@@ -105,7 +105,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
         document.documentElement.classList.remove('nort-intro-fading');
         document.body.style.overflow = '';
         const ssrCurtain = document.getElementById('nort-intro-ssr-curtain');
-        if (ssrCurtain) ssrCurtain.remove();
+        if (ssrCurtain) ssrCurtain.style.display = 'none';
       }
     }, 700);
 
@@ -260,9 +260,7 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
       if (typeof document !== 'undefined') {
         document.documentElement.classList.remove('nort-intro-active');
         const ssrCurtain = document.getElementById('nort-intro-ssr-curtain');
-        if (ssrCurtain) {
-          ssrCurtain.remove();
-        }
+        if (ssrCurtain) { ssrCurtain.style.display = 'none'; }
       }
     }
   }, [forceOpen]);

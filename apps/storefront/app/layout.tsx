@@ -40,42 +40,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           dangerouslySetInnerHTML={{
             __html: `(function(){
   try {
-    // 1. Desarmar a injeção do atributo bis_skin_checked / bis_* feita por extensões do Chrome (Bitdefender, Urban VPN, etc.)
-    // que causam hydration mismatch no React 19/Next.js
-    var proto = Element.prototype;
-    var origSetAttribute = proto.setAttribute;
-    proto.setAttribute = function(name, value) {
-      if (typeof name === 'string' && (name === 'bis_skin_checked' || name === 'bis_size' || name.indexOf('bis_') === 0)) {
-        return;
-      }
-      return origSetAttribute.apply(this, arguments);
-    };
-
-    function cleanBis(node) {
-      if (!node || !node.querySelectorAll) return;
-      var els = node.querySelectorAll('[bis_skin_checked], [bis_size]');
-      for (var i = 0; i < els.length; i++) {
-        els[i].removeAttribute('bis_skin_checked');
-        els[i].removeAttribute('bis_size');
-      }
-    }
-    cleanBis(document);
-
-    if (typeof MutationObserver !== 'undefined' && document.documentElement) {
-      var obs = new MutationObserver(function(mutations) {
-        for (var i = 0; i < mutations.length; i++) {
-          var m = mutations[i];
-          if (m.type === 'attributes' && m.attributeName && (m.attributeName === 'bis_skin_checked' || m.attributeName.indexOf('bis_') === 0)) {
-            m.target.removeAttribute(m.attributeName);
-          }
-        }
-      });
-      obs.observe(document.documentElement, {
-        attributes: true,
-        subtree: true,
-        attributeFilter: ['bis_skin_checked', 'bis_size']
-      });
-    }
 
     var s = window.location.search || '';
     if (s.indexOf('no-intro=1') !== -1 || s.indexOf('skip-intro=1') !== -1) return;
