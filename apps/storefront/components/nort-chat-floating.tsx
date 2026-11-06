@@ -602,6 +602,17 @@ export function NortChatFloating({
     });
   }
 
+  function handleStartTourFromChat() {
+    recordTicketEvent(
+      'select_service',
+      'Tour guiado iniciado',
+      'Solicitado pelo cliente no chat do Nort'
+    );
+    setIsOpen(false);
+    setIsSidebarOpen(false);
+    startTour();
+  }
+
   /**
    * Simulação realista de digitação humana com cálculo de tamanho proporcional (Seção 9).
    */
@@ -1653,6 +1664,18 @@ export function NortChatFloating({
     const text = customMessageText.trim();
     if (!text) return;
 
+    const lower = text.toLowerCase();
+    if (
+      lower.includes('tour') ||
+      lower.includes('guia') ||
+      lower.includes('conhecer a loja') ||
+      lower.includes('mostrar a loja')
+    ) {
+      setCustomMessageText('');
+      handleStartTourFromChat();
+      return;
+    }
+
     const userMsg: ChatMessage = {
       id: `user-custom-${Date.now()}`,
       sender: 'user',
@@ -1917,10 +1940,7 @@ export function NortChatFloating({
           id: 'tour-guiado',
           label: 'Fazer tour guiado interativo pela loja',
           icon: '🧭',
-          onClick: () => {
-            setIsOpen(false);
-            startTour();
-          },
+          onClick: handleStartTourFromChat,
         },
         {
           id: 'suporte-site',

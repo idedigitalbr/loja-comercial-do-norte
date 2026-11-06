@@ -11,7 +11,6 @@ import React, {
 import { NORT_TOUR_STEPS } from './nort-tour-steps';
 import { NortTourOverlay } from './nort-tour-overlay';
 import type { NortTourContextType, NortTourStep } from './nort-tour-types';
-import { isIntroActive } from '../intro/nort-intro-helpers';
 
 const STORAGE_KEY_SEEN = 'cn_nort_tour_completed_v1';
 export const STORAGE_KEY_FREQ = 'cn_nort_tour_freq_v1';
@@ -32,60 +31,15 @@ export function getTodayDateString(d: Date = new Date()): string {
 
 /**
  * Avalia se o tour guiado deve ser aberto automaticamente:
- * - Abre no máximo 2 vezes ao dia (1ª e 2ª carga de página daquele dia).
- * - Repete esse comportamento apenas nos primeiros 2 dias de visita do usuário.
- * - A partir do 3º dia em diante (ou na 3ª carga de página de cada um dos 2 dias),
- *   não abre mais automaticamente.
- * - Retorna true se deve abrir (e já incrementa e salva a contagem), false caso contrário.
+ * REGRA OFICIAL ATUALIZADA:
+ * O tour guiado NÃO abre automaticamente ao entrar no site (retorna sempre false).
+ * A abertura do tour ocorre exclusivamente sob solicitação direta do usuário no chat do Nort.
  */
 export function checkAndRecordAutoOpen(
-  storage: Storage | null = typeof window !== 'undefined' ? window.localStorage : null,
-  now: Date = new Date()
+  _storage: Storage | null = typeof window !== 'undefined' ? window.localStorage : null,
+  _now: Date = new Date()
 ): boolean {
-  if (!storage) return false;
-
-  try {
-    const raw = storage.getItem(STORAGE_KEY_FREQ);
-    let record: NortTourFrequencyRecord = { days: {} };
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        if (
-          parsed &&
-          typeof parsed === 'object' &&
-          parsed.days &&
-          typeof parsed.days === 'object'
-        ) {
-          record = parsed;
-        }
-      } catch {
-        record = { days: {} };
-      }
-    }
-
-    const today = getTodayDateString(now);
-    const recordedDays = Object.keys(record.days);
-    const hasToday = Object.prototype.hasOwnProperty.call(record.days, today);
-
-    // Se a data de hoje ainda não foi registrada e já existem MAX_TOUR_DAYS registrados anteriormente,
-    // o período de 2 dias do usuário já foi encerrado.
-    if (!hasToday && recordedDays.length >= MAX_TOUR_DAYS) {
-      return false;
-    }
-
-    const todayCount = record.days[today] ?? 0;
-    // Se hoje já atingiu a cota diária de MAX_OPENS_PER_DAY aberturas automáticas
-    if (todayCount >= MAX_OPENS_PER_DAY) {
-      return false;
-    }
-
-    // Registra a nova abertura automática de hoje e persiste no localStorage
-    record.days[today] = todayCount + 1;
-    storage.setItem(STORAGE_KEY_FREQ, JSON.stringify(record));
-    return true;
-  } catch {
-    return false;
-  }
+  return false;
 }
 
 const defaultNortTourContext: NortTourContextType = {
@@ -174,40 +128,11 @@ export function NortTourProvider({ children }: { children: ReactNode }) {
     } catch {}
   }, [startTour]);
 
-  // Ao montar no cliente: verifica se deve abrir automaticamente
-  // (máximo 2 vezes ao dia durante os 2 primeiros dias do visitante)
+  // O tour guiado NÃO abre automaticamente ao carregar a página.
+  // Permanece fechado e só abre mediante solicitação direta do usuário (ex: no chat do Nort).
   useEffect(() => {
-    try {
-      const shouldAutoOpen = checkAndRecordAutoOpen();
-      if (shouldAutoOpen) {
-        setHasSeenTour(false);
-
-        // Se o vídeo de intro estiver em reprodução, aguarda ele terminar antes de abrir o tour
-        if (isIntroActive()) {
-          const onFinished = () => {
-            window.removeEventListener('nort-intro-finished', onFinished);
-            const timer = setTimeout(() => {
-              startTour(0);
-            }, 300);
-            return () => clearTimeout(timer);
-          };
-          window.addEventListener('nort-intro-finished', onFinished);
-          return () => {
-            window.removeEventListener('nort-intro-finished', onFinished);
-          };
-        }
-
-        const timer = setTimeout(() => {
-          startTour(0);
-        }, 80);
-        return () => clearTimeout(timer);
-      } else {
-        setHasSeenTour(true);
-      }
-    } catch {
-      // Ignora falhas em ambientes sem acesso ao storage
-    }
-  }, [startTour]);
+    setHasSeenTour(true);
+  }, []);
 
   const currentStep: NortTourStep | null = isOpen ? (NORT_TOUR_STEPS[currentStepIndex] ?? null) : null;
 

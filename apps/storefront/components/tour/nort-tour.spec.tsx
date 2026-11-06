@@ -48,48 +48,12 @@ describe('Nort Guided Tour Engine', () => {
     cleanup();
   });
 
-  it('cumpre a regra de frequência: abre 2x ao dia apenas nos primeiros 2 dias de visita', () => {
-    const day1 = new Date(2026, 9, 30, 10, 0, 0); // 2026-10-30
-    const day2 = new Date(2026, 9, 31, 10, 0, 0); // 2026-10-31
-    const day3 = new Date(2026, 10, 1, 10, 0, 0); // 2026-11-01
-
-    // DIA 1: 1ª abertura
-    expect(checkAndRecordAutoOpen(window.localStorage, day1)).toBe(true);
-    let record = JSON.parse(window.localStorage.getItem(STORAGE_KEY_FREQ) || '{}');
-    expect(record.days['2026-10-30']).toBe(1);
-
-    // DIA 1: 2ª abertura
-    expect(checkAndRecordAutoOpen(window.localStorage, day1)).toBe(true);
-    record = JSON.parse(window.localStorage.getItem(STORAGE_KEY_FREQ) || '{}');
-    expect(record.days['2026-10-30']).toBe(2);
-
-    // DIA 1: 3ª carga de página (limite de 2x ao dia atingido) -> NÃO abre
+  it('garante que o tour guiado NÃO abre automaticamente ao entrar no site (checkAndRecordAutoOpen retorna false)', () => {
+    const day1 = new Date(2026, 9, 30, 10, 0, 0);
     expect(checkAndRecordAutoOpen(window.localStorage, day1)).toBe(false);
-    record = JSON.parse(window.localStorage.getItem(STORAGE_KEY_FREQ) || '{}');
-    expect(record.days['2026-10-30']).toBe(2);
-
-    // DIA 2: 1ª abertura
-    expect(checkAndRecordAutoOpen(window.localStorage, day2)).toBe(true);
-    record = JSON.parse(window.localStorage.getItem(STORAGE_KEY_FREQ) || '{}');
-    expect(record.days['2026-10-31']).toBe(1);
-
-    // DIA 2: 2ª abertura
-    expect(checkAndRecordAutoOpen(window.localStorage, day2)).toBe(true);
-    record = JSON.parse(window.localStorage.getItem(STORAGE_KEY_FREQ) || '{}');
-    expect(record.days['2026-10-31']).toBe(2);
-
-    // DIA 2: 3ª carga de página -> NÃO abre
-    expect(checkAndRecordAutoOpen(window.localStorage, day2)).toBe(false);
-
-    // DIA 3: usuário retorna no 3º dia -> NÃO abre mais automaticamente
-    expect(checkAndRecordAutoOpen(window.localStorage, day3)).toBe(false);
-
-    // DIA 4+: dias futuros continuam não abrindo automaticamente
-    const day4 = new Date(2026, 10, 5, 10, 0, 0);
-    expect(checkAndRecordAutoOpen(window.localStorage, day4)).toBe(false);
   });
 
-  it('inicia o tour automaticamente no carregamento da página para novos visitantes', () => {
+  it('não inicia o tour automaticamente no carregamento da página (permanece fechado na entrada)', () => {
     vi.useFakeTimers();
 
     // Novo visitante: ainda não completou o tour
@@ -101,14 +65,14 @@ describe('Nort Guided Tour Engine', () => {
       </NortTourProvider>
     );
 
-    // Avança o micro-timer de inicialização (80ms)
+    // Avança o tempo de possíveis timers
     act(() => {
-      vi.advanceTimersByTime(100);
+      vi.advanceTimersByTime(500);
     });
 
-    // O tour DEVE abrir imediatamente em tela cheia com o Nort
-    expect(screen.getByRole('dialog')).toBeTruthy();
-    expect(screen.getByText('Opa! Seja muito bem-vindo à Comercial do Norte! 👋')).toBeTruthy();
+    // O tour NÃO deve abrir automaticamente ao entrar no site
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.queryByText('Opa! Seja muito bem-vindo à Comercial do Norte! 👋')).toBeNull();
 
     vi.useRealTimers();
   });
