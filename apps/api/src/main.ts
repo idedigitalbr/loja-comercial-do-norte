@@ -36,7 +36,6 @@ export function configureApp(app: INestApplication): INestApplication {
 
   const authorizedOrigins = new Set<string>([
     'https://loja-comercialdonorte.vercel.app',
-    'https://lojacomercialdonorte.vercel.app',
     'https://admin-comercialdonorte.vercel.app',
     ...[process.env.APP_ORIGIN, process.env.ADMIN_ORIGIN]
       .flatMap((orig) => (orig ? orig.split(',').map((o) => o.trim()) : []))

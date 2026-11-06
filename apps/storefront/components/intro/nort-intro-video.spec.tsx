@@ -16,7 +16,7 @@ import {
 describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
   beforeEach(() => {
     delete (window as any).location;
-    (window as any).location = new URL('https://lojacomercialdonorte.vercel.app/');
+    (window as any).location = new URL('https://loja-comercialdonorte.vercel.app/');
     window.localStorage.clear();
     window.sessionStorage.clear();
     setIntroActive(false);
@@ -69,7 +69,7 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
       expect(shouldShowNortIntro(window.localStorage, true)).toBe(false);
 
       delete (window as any).location;
-      (window as any).location = new URL('https://lojacomercialdonorte.vercel.app/?intro=1');
+      (window as any).location = new URL('https://loja-comercialdonorte.vercel.app/?intro=1');
 
       expect(shouldShowNortIntro(window.localStorage, true)).toBe(true);
     });
@@ -77,7 +77,7 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
     it('reseta contagem quando query param ?reset-intro=1 é fornecido', () => {
       window.localStorage.setItem(STORAGE_KEY_INTRO_VIEWS, '5');
       delete (window as any).location;
-      (window as any).location = new URL('https://lojacomercialdonorte.vercel.app/?reset-intro=1');
+      (window as any).location = new URL('https://loja-comercialdonorte.vercel.app/?reset-intro=1');
 
       expect(shouldShowNortIntro(window.localStorage)).toBe(true);
       expect(window.localStorage.getItem(STORAGE_KEY_INTRO_VIEWS)).toBeNull();
@@ -340,7 +340,7 @@ describe('Nort Intro Video & YouTube-Style Minimal Loading Component', () => {
 
     it('não renderiza quando o query param ?no-intro=1 está presente', () => {
       delete (window as any).location;
-      (window as any).location = new URL('https://lojacomercialdonorte.vercel.app/?no-intro=1');
+      (window as any).location = new URL('https://loja-comercialdonorte.vercel.app/?no-intro=1');
 
       render(<NortIntroVideo />);
 

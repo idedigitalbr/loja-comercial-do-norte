@@ -46,7 +46,7 @@ describe('admin-guard (Segurança por Ambiente)', () => {
     (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
     process.env.VERCEL = '1';
 
-    const request = new Request('https://lojacomercialdonorte.vercel.app/api/storefront/composition', {
+    const request = new Request('https://loja-comercialdonorte.vercel.app/api/storefront/composition', {
       headers: {
         'x-admin-role': 'ADMIN',
       },
@@ -62,7 +62,7 @@ describe('admin-guard (Segurança por Ambiente)', () => {
     process.env.VERCEL = '1';
     process.env.CRON_SECRET = 'super-secret-service-token-123';
 
-    const request = new Request('https://lojacomercialdonorte.vercel.app/api/storefront/composition', {
+    const request = new Request('https://loja-comercialdonorte.vercel.app/api/storefront/composition', {
       headers: {
         'x-admin-secret': 'super-secret-service-token-123',
         'x-admin-name': 'Pipeline CI/CD',
