@@ -1,5 +1,21 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **06/11/2026 — Desativação da Abertura Automática do Tour Guiado ao Entrar no Site e Centralização Exclusiva Sob Demanda via Chat do Nort (executorId: `antigravity-gemini`):**
+  - **Fim da Abertura Automática Invasiva ao Entrar no Site:**
+    - O tour guiado (`NortTourProvider` / `NortTourOverlay`) não é mais disparado automaticamente ao carregar ou entrar na loja virtual.
+    - O overlay escuro de tela cheia com o mascote de braços abertos não bloqueia mais a navegação inicial do visitante.
+    - `checkAndRecordAutoOpen` atualizado para retornar estritamente `false`.
+  - **Acesso ao Tour Exclusivamente Sob Demanda pelo Chat do Nort (`NortChatFloating`):**
+    - A abertura do tour foi centralizada e facilitada no chat oficial do Nort:
+      1. *Identificação Inicial (`step === 'IDENTIFY'`):* Botão destacado `"🧭 Fazer tour guiado pela loja"` abaixo do formulário de identificação (permite iniciar sem precisar preencher dados).
+      2. *Boas-Vindas de Retorno (`step === 'RESUME_PROMPT'`):* Opção rápida `"🧭 Fazer tour guiado pela loja"`.
+      3. *Categorias de Atendimento (`step === 'SERVICE'`):* Item canônico `"🧭 Fazer tour guiado interativo pela loja"` em *Site / Loja Virtual*.
+      4. *Sidebar de Configurações (`sidebarView === 'menu'` / Ajuda):* Opção `"🧭 Fazer Tour Guiado na Loja"`, fechando a sidebar e a janela do chat antes de renderizar o tour.
+      5. *Mensagens Livres no Chat:* Reconhece termos como "tour", "guia guiado", "guia", "mostrar loja" ou "conhecer a loja".
+  - **Validação:**
+    - Suítes `nort-tour.spec.tsx` e `nort-chat-floating.spec.tsx` atualizadas.
+    - 232 testes unitários do Storefront aprovados (100% verde), `typecheck` e `lint` com 0 erros.
+
 - **05/11/2026 — Redesign do Chat do Nort: Categorias em Sanfona/Accordion, Delay Humano Realista (2-4s) e Seleção de Unidades Próximas em KM (executorId: `antigravity-gemini`):**
   - **Categorias de Atendimento em Sanfona/Accordion no WhatsApp (`NortChatFloating`):**
     - Redução drástica da poluição visual: substituídos os 9 botões soltos por 3 categorias principais expansíveis e colapsáveis com títulos, subtítulos descritivos e chevron rotacionável:

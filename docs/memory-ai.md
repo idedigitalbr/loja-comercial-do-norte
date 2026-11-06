@@ -7,6 +7,22 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **06/11/2026 — Desativação da Abertura Automática do Tour Guiado ao Entrar no Site e Centralização Exclusiva Sob Demanda via Chat do Nort (executorId: `antigravity-gemini`):**
+  - **Fim da Abertura Automática Invasiva ao Entrar no Site:**
+    - Por determinação expressa do responsável, o tour guiado (`NortTourProvider` / `NortTourOverlay`) **NÃO** abre mais de forma automática ao carregar a página inicial da loja virtual, extinguindo qualquer overlay ou popup com o mascote bloqueando o conteúdo ao entrar no site.
+    - A função `checkAndRecordAutoOpen` em `nort-tour-context.tsx` foi atualizada para retornar estritamente `false`.
+  - **Acesso ao Tour Exclusivamente Sob Demanda pelo Chat do Nort (`NortChatFloating`):**
+    - A abertura do tour passa a ser acionada única e exclusivamente quando solicitada pelo visitante dentro do chat do mascote Nort:
+      1. *Etapa de Identificação Inicial (`step === 'IDENTIFY'`):* Botão dedicado `"🧭 Fazer tour guiado pela loja"` posicionado logo abaixo do formulário de identificação, permitindo iniciar o tour diretamente sem necessidade de preencher dados.
+      2. *Boas-Vindas de Retorno (`step === 'RESUME_PROMPT'`):* Opção rápida `"🧭 Fazer tour guiado pela loja"`.
+      3. *Categorias de Atendimento (`step === 'SERVICE'`):* Item canônico `"🧭 Fazer tour guiado interativo pela loja"` dentro do accordion *Site / Loja Virtual*.
+      4. *Sidebar de Configurações (`sidebarView === 'menu'` / Ajuda):* Opção `"🧭 Fazer Tour Guiado na Loja"`, que fecha a sidebar, fecha a janela do chat e inicia o tour (`handleStartTourFromChat`).
+      5. *Mensagens Livres no Chat:* Caso o usuário digite "tour", "guia guiado", "guia", "mostrar loja" ou "conhecer a loja", o bot aciona o tour automaticamente.
+  - **Validação:**
+    - Suíte `nort-tour.spec.tsx` atualizada para validar que o tour permanece fechado na entrada e abre sob solicitação manual.
+    - Suíte `nort-chat-floating.spec.tsx` atualizada com testes validando o acionamento direto do tour no chat e fechamento do diálogo.
+    - 232 testes unitários do Storefront aprovados (100% verde), `typecheck` e `lint` com 0 erros.
+
 - **05/11/2026 — Redesign do Chat do Nort: Categorias em Sanfona/Accordion, Delay Humano Realista (2-4s) e Seleção de Unidades Próximas em KM (executorId: `antigravity-gemini`):**
   - **Categorias de Atendimento em Sanfona/Accordion no WhatsApp (`NortChatFloating`):**
     - Substituída a lista vertical estática de 9 botões soltos por um menu interativo e colapsável em 3 categorias principais compactas, com títulos marcantes, subtítulos descritivos e chevron rotacionável (`ChevronDown`):
