@@ -731,6 +731,7 @@ export function ElementorMediaModal({
     sizeFormatted: string;
   } | null>(null);
   const [customUrl, setCustomUrl] = useState("");
+  const [customUrlError, setCustomUrlError] = useState(false);
   const [selectedSource, setSelectedSource] = useState<"file" | "url" | null>(
     null,
   );
@@ -1205,6 +1206,7 @@ export function ElementorMediaModal({
                       className="w-full bg-transparent text-xs text-white placeholder-zinc-500 outline-none"
                       onChange={(e) => {
                         setCustomUrl(e.target.value);
+                        setCustomUrlError(false);
                         if (e.target.value.trim()) setSelectedSource("url");
                       }}
                       placeholder="https://suaimagem.com/banner-promocional.jpg"
@@ -1216,6 +1218,7 @@ export function ElementorMediaModal({
                         className="text-zinc-500 hover:text-white text-xs cursor-pointer"
                         onClick={() => {
                           setCustomUrl("");
+                          setCustomUrlError(false);
                           if (selectedSource === "url") setSelectedSource(null);
                         }}
                         type="button"
@@ -1237,27 +1240,20 @@ export function ElementorMediaModal({
                         </span>
                       </div>
                       <div className="relative aspect-video max-w-md min-h-[100px] overflow-hidden rounded-xl border border-zinc-800 bg-black">
-                        {/* eslint-disable-next-js/next/no-img-element */}
-                        <img
-                          alt="Pré-visualização da URL"
-                          className="absolute inset-0 size-full object-contain"
-                          onError={(e) => {
-                            e.currentTarget.style.display = "none";
-                            const parent = e.currentTarget.parentElement;
-                            if (
-                              parent &&
-                              !parent.querySelector(".url-error-badge")
-                            ) {
-                              const badge = document.createElement("div");
-                              badge.className =
-                                "url-error-badge flex h-full w-full flex-col items-center justify-center p-4 text-center text-xs text-rose-400";
-                              badge.innerHTML =
-                                '<span class="font-bold mb-1">Aviso: Imagem não encontrada</span><span>Verifique se o link é público e direto.</span>';
-                              parent.appendChild(badge);
-                            }
-                          }}
-                          src={customUrl.trim()}
-                        />
+                        {customUrlError ? (
+                          <div className="flex h-full w-full flex-col items-center justify-center p-4 text-center text-xs text-rose-400">
+                            <span className="font-bold mb-1">Aviso: Imagem não encontrada</span>
+                            <span>Verifique se o link é público e direto.</span>
+                          </div>
+                        ) : (
+                          /* eslint-disable-next-js/next/no-img-element */
+                          <img
+                            alt="Pré-visualização da URL"
+                            className="absolute inset-0 size-full object-contain"
+                            onError={() => setCustomUrlError(true)}
+                            src={customUrl.trim()}
+                          />
+                        )}
                       </div>
                     </div>
                   )}

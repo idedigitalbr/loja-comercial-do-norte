@@ -75,11 +75,6 @@ export function NortIntroVideo({ forceOpen = false, onFinish }: NortIntroVideoPr
   const animFrameRef = useRef<number | null>(null);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Sinaliza imediatamente para o ecossistema que a intro está ativa no client
-  if (typeof window !== 'undefined' && (forceOpen || shouldShowNortIntro())) {
-    setIntroActive(true);
-  }
-
   const handleFinish = useCallback(() => {
     if (finishedRef.current) return;
     finishedRef.current = true;

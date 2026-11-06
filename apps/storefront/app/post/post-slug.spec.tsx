@@ -13,7 +13,7 @@ afterEach(() => {
 // Mock Next.js Image e Link
 vi.mock('next/image', () => ({
   __esModule: true,
-  default: ({ fill, priority, ...props }: any) => {
+  default: ({ fill, priority, unoptimized, ...props }: any) => {
     return <img {...props} alt={props.alt || ''} />;
   },
 }));

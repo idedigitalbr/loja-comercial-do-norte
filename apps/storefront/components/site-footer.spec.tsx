@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SiteFooter } from './site-footer';
 
 vi.mock('next/image', () => ({
-  default: ({ fill, priority, ...props }: any) => <img {...props} />,
+  default: ({ fill, priority, unoptimized, ...props }: any) => <img {...props} />,
 }));
 
 describe('SiteFooter Component', () => {
