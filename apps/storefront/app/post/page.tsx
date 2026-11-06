@@ -9,7 +9,7 @@ import {
   VideoArticlesCarouselWidget,
 } from '@/components/storefront/widgets/video-articles-carousel/video-articles-carousel';
 import { ScrollRevealBlock, SkeletonBlock } from '@/components/ui/scroll-skeleton-reveal';
-import type { VideoArticleItem } from '@/lib/storefront/widget-types';
+import type { VideoArticleItem, VideoArticlesCarouselProps } from '@/lib/storefront/widget-types';
 
 export const dynamic = 'force-dynamic';
 
@@ -110,9 +110,17 @@ export default async function PostsPage({ searchParams }: { searchParams: Search
     getStorefrontComposition(),
   ]);
 
-  // Recupera as propriedades da seção Explica Aí Nort da home para reutilização 100% fiel
-  const homeVideoWidget = composition.widgets.find((w) => w.type === 'video-articles-carousel');
-  const bannerProps = homeVideoWidget?.props ?? {
+  // Recupera as propriedades da seção Explica Aí Nort da home para reutilização 100% fiel (ignora carrosséis de outras editorias como workshops/confeitaria)
+  const homeVideoWidget = composition.widgets.find(
+    (w) =>
+      w.id === 's15-explica-ai-comercial' ||
+      (w.type === 'video-articles-carousel' &&
+        w.id !== 's15b-workshops-confeitaria' &&
+        (w.props as { variant?: string })?.variant !== 'confeitaria' &&
+        !(w.props as { title?: string })?.title?.toLowerCase().includes('workshop') &&
+        !(w.props as { title?: string })?.title?.toLowerCase().includes('confeitaria'))
+  );
+  const bannerProps = (homeVideoWidget?.props as VideoArticlesCarouselProps | undefined) ?? {
     title: 'Explica Aí Nort',
     subtitle: 'Dicas em vídeos e artigos para você usar no seu negócio.',
     mascotImageUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-Boneco3D-explica-ai-nort-trimmed.webp',
@@ -149,13 +157,13 @@ export default async function PostsPage({ searchParams }: { searchParams: Search
     <div className="w-full bg-[#cfe4ec] min-h-screen pb-16">
       {/* 1. Banner Oficial Explica Aí Nort reutilizado da Home (Modo fullWidth e sem link Ver todos) */}
       <VideoArticlesCarouselWidget
-        bgImageUrl={bannerProps.bgImageUrl}
+        bgImageUrl={bannerProps.bgImageUrl || '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-bg-fundo-vermelho-geometrico-abstrato-hd.png'}
         fullWidth={true}
         items={bannerItems}
-        mascotImageUrl={bannerProps.mascotImageUrl}
+        mascotImageUrl={bannerProps.mascotImageUrl || '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/S14-Boneco3D-explica-ai-nort-trimmed.webp'}
         showViewAll={false}
-        subtitle={bannerProps.subtitle}
-        title={bannerProps.title}
+        subtitle={bannerProps.subtitle || 'Dicas em vídeos e artigos para você usar no seu negócio.'}
+        title={bannerProps.title || 'Explica Aí Nort'}
       />
 
       {/* 2. Container da Vitrine de Conteúdos */}

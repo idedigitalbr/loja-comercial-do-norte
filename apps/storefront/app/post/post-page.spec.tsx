@@ -52,6 +52,20 @@ vi.mock('@/lib/storefront/composition-storage', () => ({
   getStorefrontComposition: vi.fn().mockResolvedValue({
     widgets: [
       {
+        id: 's15b-workshops-confeitaria',
+        type: 'video-articles-carousel',
+        enabled: true,
+        order: 11,
+        props: {
+          variant: 'confeitaria',
+          title: 'Workshops & Aulas Práticas de Confeitaria',
+          subtitle: 'Faça suas compras e ganhe treinamento gratuitamente.',
+          viewAllLabel: 'Ver todos',
+          viewAllUrl: '/eventos/workshops/aulas-confeitaria',
+          items: [],
+        },
+      },
+      {
         id: 's15-explica-ai-comercial',
         type: 'video-articles-carousel',
         enabled: true,
@@ -90,7 +104,8 @@ describe('PostsPage (/post)', () => {
 
     render(pageComponent);
 
-    // Banner da Home reutilizado no topo
+    // Banner da Home reutilizado no topo (garante que não pegou o workshop de confeitaria)
+    expect(screen.queryByText('Workshops & Aulas Práticas de Confeitaria')).toBeNull();
     expect(screen.getAllByText('Explica Aí').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('Nort!').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/Dicas em vídeos e artigos/)).toBeDefined();

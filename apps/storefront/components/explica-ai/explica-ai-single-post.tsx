@@ -9,11 +9,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  ExternalLink,
   Play,
   X,
   Volume2,
   Maximize2,
 } from 'lucide-react';
+import { cn } from '@commerce/ui/web';
 import { VideoArticleCard } from '@/components/storefront/widgets/video-articles-carousel/video-article-card';
 import { ProductCard } from '@/components/product-card';
 import type { ApiProduct } from '@/lib/types';
@@ -143,9 +145,49 @@ const RELATED_VIDEO_ARTICLES = [
   },
 ];
 
+const DEFAULT_EXPLICA_VIDEO = 'https://www.youtube.com/shorts/m6drhnZQmCM';
+
+function parseYouTubeVideo(url?: string | null): {
+  embedUrl: string | null;
+  isShort: boolean;
+  directUrl: string | null;
+} {
+  const targetUrl = (url?.trim() || DEFAULT_EXPLICA_VIDEO).trim();
+
+  // YouTube Shorts: youtube.com/shorts/<id>
+  const shortsMatch = targetUrl.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/i);
+  if (shortsMatch?.[1]) {
+    const videoId = shortsMatch[1];
+    return {
+      embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1`,
+      isShort: true,
+      directUrl: `https://www.youtube.com/shorts/${videoId}`,
+    };
+  }
+
+  // YouTube watch ou youtu.be ou embed
+  const ytMatch = targetUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/i);
+  if (ytMatch?.[1]) {
+    const videoId = ytMatch[1];
+    return {
+      embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1`,
+      isShort: false,
+      directUrl: `https://www.youtube.com/watch?v=${videoId}`,
+    };
+  }
+
+  return {
+    embedUrl: targetUrl,
+    isShort: false,
+    directUrl: targetUrl,
+  };
+}
+
 export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps) {
   const [activeVideoModal, setActiveVideoModal] = useState(false);
   const carouselTrackRef = useRef<HTMLDivElement>(null);
+
+  const videoData = parseYouTubeVideo(post.videoUrl);
 
   const catalogProducts = products && products.length > 0 ? products : FALLBACK_PRODUCTS;
 
@@ -268,23 +310,39 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
                 </div>
               </div>
 
-              {/* Tela do Vídeo */}
-              <div className="relative w-full h-full rounded-[18px] sm:rounded-[22px] overflow-hidden bg-zinc-950">
+              {/* Tela do Vídeo (clicável para abrir e assistir ao vídeo) */}
+              <div
+                onClick={handleOpenVideo}
+                className="relative w-full h-full rounded-[18px] sm:rounded-[22px] overflow-hidden bg-zinc-950 cursor-pointer group"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleOpenVideo();
+                  }
+                }}
+                aria-label="Assistir ao vídeo explicativo"
+              >
                 <Image
                   src="/assets/explica-ai/video-screen-girl.png"
                   alt="Vídeo explicativo na prática"
                   fill
                   priority
                   sizes="(max-width: 767px) 200px, 232px"
-                  className="object-cover"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
 
                 {/* Gradiente escuro para legibilidade */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-black/25 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-black/25 pointer-events-none group-hover:bg-black/30 transition-colors" />
 
                 {/* Botão de Play Central Vermelho */}
                 <button
-                  onClick={handleOpenVideo}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenVideo();
+                  }}
                   aria-label="Assistir ao vídeo agora"
                   className={styles.play}
                 >
@@ -548,38 +606,60 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
         </section>
       </div>
 
-      {/* 6. Modal de Vídeo Interativo */}
+      {/* 6. Modal de Vídeo Interativo (Pixel-Perfect com YouTube Shorts & Vídeos) */}
       {activeVideoModal && (
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200"
           onClick={() => setActiveVideoModal(false)}
         >
           <div
-            className="relative w-full max-w-3xl overflow-hidden rounded-2xl bg-black shadow-2xl border border-zinc-800"
+            className={cn(
+              'relative w-full overflow-hidden rounded-2xl sm:rounded-3xl bg-zinc-950 shadow-2xl border border-white/10 flex flex-col',
+              videoData.isShort ? 'max-w-[400px] max-h-[92vh]' : 'max-w-3xl max-h-[90vh]'
+            )}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header do Modal com Botão Fechar */}
-            <div className="flex items-center justify-between p-3.5 bg-zinc-900 border-b border-zinc-800 text-white">
-              <span className="text-xs sm:text-sm font-bold line-clamp-1">{post.title}</span>
-              <button
-                onClick={() => setActiveVideoModal(false)}
-                className="flex size-7 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 transition cursor-pointer"
-                aria-label="Fechar vídeo"
-              >
-                <X className="size-4" />
-              </button>
+            {/* Header do Modal com Botão Fechar e Link Direto */}
+            <div className="flex items-center justify-between px-4 py-3 bg-zinc-900 border-b border-white/10 text-white shrink-0">
+              <span className="text-xs sm:text-sm font-bold line-clamp-1 pr-2">{post.title}</span>
+              <div className="flex items-center gap-2 shrink-0">
+                {videoData.directUrl && (
+                  <a
+                    href={videoData.directUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-300 hover:text-white bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-full transition"
+                    title="Assistir no YouTube"
+                  >
+                    <span>YouTube</span>
+                    <ExternalLink className="size-3" />
+                  </a>
+                )}
+                <button
+                  onClick={() => setActiveVideoModal(false)}
+                  className="flex size-7 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 transition cursor-pointer"
+                  aria-label="Fechar vídeo"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
             </div>
 
-            {/* Player de Vídeo Responsivo */}
-            <div className="relative aspect-[16/9] w-full bg-black flex items-center justify-center">
-              {post.videoUrl && post.videoUrl.includes('youtube') ? (
+            {/* Player de Vídeo Responsivo (Shorts em 9:16 ou vídeo tradicional em 16:9) */}
+            <div
+              className={cn(
+                'relative w-full bg-black flex items-center justify-center',
+                videoData.isShort ? 'aspect-[9/16] max-h-[82vh]' : 'aspect-[16/9]'
+              )}
+            >
+              {videoData.embedUrl ? (
                 <iframe
-                  className="size-full"
-                  src={`${post.videoUrl}${post.videoUrl.includes('?') ? '&' : '?'}autoplay=1`}
+                  className="size-full border-0"
+                  src={videoData.embedUrl}
                   title={post.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                 />
               ) : (

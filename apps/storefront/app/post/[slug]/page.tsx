@@ -16,8 +16,8 @@ const DEFAULT_PIZZA_POST = {
   content:
     '<p>A caixa de pizza não é apenas uma embalagem: é a extensão da qualidade da sua cozinha até a casa do cliente. Entenda como ela protege a massa, mantém o sabor e valoriza a sua marca.</p>',
   coverUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/pizza.webp',
-  videoUrl: null,
-  videoDuration: '5 min',
+  videoUrl: 'https://www.youtube.com/shorts/m6drhnZQmCM',
+  videoDuration: '2:18',
   authorName: 'Comercial do Norte',
   badges: ['PIZZARIAS', 'TRANSPORTE SEGURO'],
   status: 'ACTIVE',
@@ -58,6 +58,14 @@ export default async function SinglePostPage({ params }: { params: Params }) {
 
   if (!post) {
     notFound();
+  }
+
+  // Se o post vier do banco sem videoUrl, garante o vídeo oficial do YouTube fornecido
+  if (!post.videoUrl) {
+    post = {
+      ...post,
+      videoUrl: 'https://www.youtube.com/shorts/m6drhnZQmCM',
+    };
   }
 
   return <ExplicaAiSinglePost post={post} products={products} />;

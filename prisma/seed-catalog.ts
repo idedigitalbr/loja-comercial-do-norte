@@ -324,6 +324,8 @@ const demoPosts = [
     excerpt: 'Tudo sobre caixas oitavadas e quadradas, respiros térmicos e lacres invioláveis para sua pizzaria.',
     content: '<p>A caixa de pizza não é apenas uma embalagem: é a extensão da qualidade da sua cozinha até a casa do cliente. O acúmulo de vapor pode deixar a massa borrachuda e estragar a crocância.</p><h3>O que observar na escolha da caixa:</h3><ul><li><strong>Respiros de ar:</strong> garantem a saída controlada de vapor sem esfriar a pizza.</li><li><strong>Oitavadas vs Quadradas:</strong> as caixas oitavadas evitam que a pizza deslize dentro da caixa durante a moto-entrega.</li><li><strong>Lacre de segurança:</strong> obrigatório e indispensável para transmitir confiança ao cliente final.</li></ul>',
     coverUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/pizza.webp',
+    videoUrl: 'https://www.youtube.com/shorts/m6drhnZQmCM',
+    videoDuration: '2:18',
     categorySlug: 'embalagens-delivery',
     badges: ['PIZZARIAS', 'TRANSPORTE SEGURO'],
   },
@@ -449,6 +451,7 @@ async function seedCmsContent(prisma: PrismaClient): Promise<void> {
 
   for (const post of demoPosts) {
     const categoryId = postCatIdBySlug.get(post.categorySlug);
+    const postWithVideo = post as typeof post & { videoUrl?: string; videoDuration?: string };
     await prisma.post.upsert({
       where: { slug: post.slug },
       update: {
@@ -456,6 +459,8 @@ async function seedCmsContent(prisma: PrismaClient): Promise<void> {
         excerpt: post.excerpt,
         content: post.content,
         coverUrl: post.coverUrl,
+        videoUrl: postWithVideo.videoUrl || null,
+        videoDuration: postWithVideo.videoDuration || null,
         badges: post.badges,
         categoryId: categoryId || null,
         status: 'ACTIVE',
@@ -466,6 +471,8 @@ async function seedCmsContent(prisma: PrismaClient): Promise<void> {
         excerpt: post.excerpt,
         content: post.content,
         coverUrl: post.coverUrl,
+        videoUrl: postWithVideo.videoUrl || null,
+        videoDuration: postWithVideo.videoDuration || null,
         badges: post.badges,
         categoryId: categoryId || null,
         status: 'ACTIVE',
