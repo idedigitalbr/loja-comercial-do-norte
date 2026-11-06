@@ -114,7 +114,7 @@ export type NeighborhoodShortcut = {
 export const NEIGHBORHOOD_STORE_SHORTCUTS: NeighborhoodShortcut[] = [
   {
     id: 'pedreira',
-    name: 'Pedreira (Tv. Mauriti)',
+    name: 'Pedreira',
     neighborhood: 'Pedreira',
     city: 'Belém',
     state: 'PA',
@@ -127,7 +127,7 @@ export const NEIGHBORHOOD_STORE_SHORTCUTS: NeighborhoodShortcut[] = [
   },
   {
     id: 'sao-bras',
-    name: 'São Brás (Matriz - Av. Rômulo Maiorana)',
+    name: 'São Brás',
     neighborhood: 'São Brás',
     city: 'Belém',
     state: 'PA',
@@ -140,7 +140,7 @@ export const NEIGHBORHOOD_STORE_SHORTCUTS: NeighborhoodShortcut[] = [
   },
   {
     id: 'jurunas',
-    name: 'Jurunas (Av. Bernardo Sayão)',
+    name: 'Jurunas',
     neighborhood: 'Jurunas',
     city: 'Belém',
     state: 'PA',
@@ -153,7 +153,7 @@ export const NEIGHBORHOOD_STORE_SHORTCUTS: NeighborhoodShortcut[] = [
   },
   {
     id: 'guama',
-    name: 'Guamá (Av. José Bonifácio)',
+    name: 'Guamá',
     neighborhood: 'Guamá',
     city: 'Belém',
     state: 'PA',
@@ -166,7 +166,7 @@ export const NEIGHBORHOOD_STORE_SHORTCUTS: NeighborhoodShortcut[] = [
   },
   {
     id: 'cidade-nova',
-    name: 'Cidade Nova (Ananindeua - Tv. WE-59)',
+    name: 'Cidade Nova',
     neighborhood: 'Cidade Nova',
     city: 'Ananindeua',
     state: 'PA',
@@ -263,6 +263,113 @@ export function findNearestStoreByCep(cepRaw: string): CommercialStore {
     return COMMERCIAL_STORES.find((s) => s.id === 'loja-jurunas') || DEFAULT_STORE;
   }
   return COMMERCIAL_STORES.find((s) => s.id === 'loja-sao-bras') || DEFAULT_STORE;
+}
+
+/**
+ * Localiza a unidade mais próxima pelo nome do bairro digitado pelo cliente
+ * ou pelo número de CEP informado.
+ */
+export function findNearestStoreByNeighborhoodOrCep(input: string): {
+  store: CommercialStore;
+  neighborhoodName: string;
+  isCep: boolean;
+} {
+  const trimmed = input.trim();
+  const digits = trimmed.replace(/\D/g, '');
+
+  if (digits.length >= 5) {
+    const store = findNearestStoreByCep(digits);
+    return {
+      store,
+      neighborhoodName: store.neighborhood,
+      isCep: true,
+    };
+  }
+
+  const norm = trimmed.toLowerCase();
+  if (
+    norm.includes('pedreira') ||
+    norm.includes('sacramenta') ||
+    norm.includes('telégrafo') ||
+    norm.includes('telegrafo') ||
+    norm.includes('marambaia') ||
+    norm.includes('barreiro') ||
+    norm.includes('val-de-cans') ||
+    norm.includes('val de cans')
+  ) {
+    const store = findStoreById('loja-pedreira-mauriti');
+    return { store, neighborhoodName: trimmed, isCep: false };
+  }
+
+  if (
+    norm.includes('são brás') ||
+    norm.includes('sao bras') ||
+    norm.includes('marco') ||
+    norm.includes('fátima') ||
+    norm.includes('fatima') ||
+    norm.includes('canudos') ||
+    norm.includes('nazaré') ||
+    norm.includes('nazare') ||
+    norm.includes('umarizal') ||
+    norm.includes('reduto') ||
+    norm.includes('souza') ||
+    norm.includes('curió') ||
+    norm.includes('curio')
+  ) {
+    const store = findStoreById('loja-sao-bras');
+    return { store, neighborhoodName: trimmed, isCep: false };
+  }
+
+  if (
+    norm.includes('jurunas') ||
+    norm.includes('cremação') ||
+    norm.includes('cremacao') ||
+    norm.includes('batista campos') ||
+    norm.includes('cidade velha') ||
+    norm.includes('campina') ||
+    norm.includes('comércio') ||
+    norm.includes('comercio') ||
+    norm.includes('condor')
+  ) {
+    const store = findStoreById('loja-jurunas');
+    return { store, neighborhoodName: trimmed, isCep: false };
+  }
+
+  if (
+    norm.includes('guamá') ||
+    norm.includes('guama') ||
+    norm.includes('terra firme') ||
+    norm.includes('universitário') ||
+    norm.includes('montese')
+  ) {
+    const store = findStoreById('loja-guama');
+    return { store, neighborhoodName: trimmed, isCep: false };
+  }
+
+  if (
+    norm.includes('cidade nova') ||
+    norm.includes('ananindeua') ||
+    norm.includes('coqueiro') ||
+    norm.includes('marituba') ||
+    norm.includes('icoaraci') ||
+    norm.includes('tenoné') ||
+    norm.includes('tapanã') ||
+    norm.includes('tapana') ||
+    norm.includes('parque verde') ||
+    norm.includes('benguí') ||
+    norm.includes('bengui') ||
+    norm.includes('mangueirão') ||
+    norm.includes('mangueirao')
+  ) {
+    const store = findStoreById('loja-cidade-nova');
+    return { store, neighborhoodName: trimmed, isCep: false };
+  }
+
+  return {
+    store: findStoreById('loja-sao-bras'),
+    neighborhoodName: trimmed,
+    isCep: false,
+  };
 }
 
 export function formatBrazilPhoneMask(value: string): string {

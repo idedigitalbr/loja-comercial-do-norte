@@ -7,6 +7,25 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **06/11/2026 — Refinamento da Escolha de Bairros no Chat do Nort e Restauração Canônica de `QUICK_LOCATIONS` (executorId: `antigravity-gemini`):**
+  - **Restauração de `QUICK_LOCATIONS` no Seletor de CEP (`apps/storefront/lib/location.ts`):**
+    - Mantidas as 4 regiões canônicas frequentes do seletor de CEP do topo da loja: Cidade Velha (`66020-600`), Jurunas (`66030-120`), Centro Ananindeua (`67000-000`) e Centro Marituba (`67200-000`).
+    - Removido o atalho forçado de Pedreira do modal de CEP para não descaracterizar as opções canônicas de entrega rápida da loja.
+  - **Pergunta Direta de Bairro no Chat do Nort com Nomes Limpos (`NortChatFloating`):**
+    - Na pergunta *"em qual bairro você está?"* (`UNIT_NEIGHBORHOOD_CHOICE`), os botões de resposta rápida agora exibem exclusivamente os nomes limpos dos bairros onde há unidades físicas da Comercial do Norte:
+      - `📍 Pedreira`
+      - `📍 São Brás`
+      - `📍 Jurunas`
+      - `📍 Guamá`
+      - `📍 Cidade Nova`
+    - Removidos nomes de avenidas/travessas dos botões (ex: `(Tv. Mauriti)`, `(Av. Bernardo Sayão)`), mantendo a pergunta concisa e natural.
+    - Removido o botão de fuga precoce `🏬 Ver todas as unidades` desta etapa de identificação de bairro para não induzir escolha equivocada antes de saber a localização do cliente.
+  - **Opção Flexível para Outros Bairros e CEP:**
+    - Adicionado o botão `📍 Outro bairro (digite o nome do bairro ou CEP)` que direciona o usuário para o campo de texto.
+    - O campo de texto aceita tanto nomes de bairros digitados (ex: `Marco`, `Umarizal`, `Telégrafo`, `Nazaré`, `Campina`) quanto CEPs de rua. A função `findNearestStoreByNeighborhoodOrCep` em `stores-data.ts` resolve o bairro para o CEP de referência correspondente e encaminha o atendimento com precisão e transparência.
+  - **Validação Global:**
+    - 51/51 suítes de testes do Storefront aprovadas (246 testes), typecheck (`turbo typecheck`) e lint (`turbo lint`) com 0 erros.
+
 - **06/11/2026 — Criação da Rota Dedicada `/video` para Compartilhamento Externo e WhatsApp (executorId: `antigravity-gemini`):**
   - **Rota Dedicada `/video`:**
     - Criada a página `/video` (`apps/storefront/app/video/page.tsx` e `video-page-client.tsx`), permitindo que a apresentação em vídeo do Nort seja compartilhada diretamente via links externos (WhatsApp, redes sociais, bio do Instagram, etc.) no endereço canônico `https://loja-comercialdonorte.vercel.app/video`.

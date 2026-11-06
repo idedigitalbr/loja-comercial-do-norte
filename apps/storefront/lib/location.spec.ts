@@ -156,12 +156,11 @@ describe('location helpers', () => {
     expect(getReferenceCepForNeighborhood('Bairro Inexistente')).toBe('');
   });
 
-  it('QUICK_LOCATIONS inclui Pedreira com coordenadas e CEP corretos', () => {
+  it('QUICK_LOCATIONS preserva as 4 regiões canônicas frequentes sem forçar atalho na Pedreira', () => {
     const pedreira = QUICK_LOCATIONS.find((loc) => loc.neighborhood === 'Pedreira');
-    expect(pedreira).toBeDefined();
-    expect(pedreira?.cep).toBe('66080-650');
-    expect(pedreira?.street).toBe('Travessa Mauriti');
-    expect(pedreira?.lat).toBeCloseTo(-1.4276, 2);
-    expect(pedreira?.lng).toBeCloseTo(-48.473, 2);
+    expect(pedreira).toBeUndefined();
+    expect(QUICK_LOCATIONS.length).toBe(4);
+    expect(QUICK_LOCATIONS.some((loc) => loc.neighborhood === 'Cidade Velha')).toBe(true);
+    expect(QUICK_LOCATIONS.some((loc) => loc.neighborhood === 'Jurunas')).toBe(true);
   });
 });

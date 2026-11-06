@@ -5,7 +5,7 @@ import React from 'react';
 import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { VideoPageClient } from './video-page-client';
-import * as introModule from '@/components/intro';
+import * as introModule from '../../components/intro';
 
 vi.mock('next/image', () => ({
   default: ({ fill, priority, ...props }: any) => {

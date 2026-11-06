@@ -30,6 +30,7 @@ import {
   findNearestStoreByCoords,
   findStoreById,
   findTopNearestStores,
+  findNearestStoreByNeighborhoodOrCep,
   formatBrazilPhoneMask,
   formatCepMask,
   type StoreWithDistance,
@@ -38,6 +39,7 @@ import {
   DEFAULT_LOCATION,
   cleanCep,
   detectLocationByIp,
+  getReferenceCepForNeighborhood,
   getStoredLocation,
   lookupLocationByCep,
   reverseGeocodeCoordinates,
@@ -1463,26 +1465,45 @@ export function NortChatFloating({
     e.preventDefault();
     if (isTyping) return;
 
-    const digits = cepInput.replace(/\D/g, '');
-    if (digits.length < 5) {
-      setCepError('Informe um CEP válido (ex: 66093-005).');
+    const trimmed = cepInput.trim();
+    if (trimmed.length < 2) {
+      setCepError('Por favor, informe seu bairro ou CEP.');
       return;
     }
 
     setCepError('');
-    const nearest = findNearestStoreByCep(digits);
-    const formattedCep = formatCepMask(digits);
+    const result = findNearestStoreByNeighborhoodOrCep(trimmed);
+    const nearest = result.store;
+    const digits = trimmed.replace(/\D/g, '');
 
-    if (digits.length === 8) {
+    if (result.isCep && digits.length === 8) {
       void lookupLocationByCep(digits)
         .then((loc) => syncHeaderLocation(loc))
         .catch(() => {});
+    } else if (!result.isCep) {
+      const refCep = getReferenceCepForNeighborhood(result.neighborhoodName);
+      const newLoc: UserLocation = {
+        cep: refCep,
+        city: 'Belém',
+        state: 'PA',
+        neighborhood: result.neighborhoodName,
+        formatted: `${result.neighborhoodName}, Belém - PA`,
+        shortLabel: `${result.neighborhoodName}, Belém/PA`,
+        lat: nearest.lat,
+        lng: nearest.lng,
+        source: 'manual',
+      };
+      syncHeaderLocation(newLoc);
     }
+
+    const displayText = result.isCep
+      ? `Meu CEP é ${formatCepMask(digits)}`
+      : `Meu bairro é ${result.neighborhoodName}`;
 
     const userMsg: ChatMessage = {
       id: `user-cep-${Date.now()}`,
       sender: 'user',
-      text: `CEP: ${formattedCep} (${nearest.shortTitle})`,
+      text: displayText,
       time: getFormattedTime(),
     };
     const nextMessages = [...messages, userMsg];
@@ -1494,8 +1515,8 @@ export function NortChatFloating({
 
     recordTicketEvent(
       'select_unit',
-      'Unidade localizada por CEP',
-      `${formattedCep} (${nearest.shortTitle})`,
+      result.isCep ? 'Unidade localizada por CEP' : 'Unidade localizada por bairro digitado',
+      `${displayText} (${nearest.shortTitle})`,
       'SERVICE'
     );
 
@@ -1503,13 +1524,13 @@ export function NortChatFloating({
       name: customerName || 'Cliente Site',
       phone: customerPhone || '(91) 98344-0880',
       store: nearest,
-      subject: `Unidade escolhida por CEP (${formattedCep})`,
+      subject: `Unidade direcionada por ${result.isCep ? 'CEP' : 'bairro'} (${nearest.shortTitle})`,
       allMessages: nextMessages,
     });
 
     scheduleBotSequence(
       [
-        `Perfeito, ${customerName || 'visitante'}! 💙 Identifiquei a ${nearest.shortTitle} como a mais próxima.`,
+        `Perfeito, ${customerName || 'visitante'}! 💙 Identifiquei a ${nearest.shortTitle} (${nearest.address}) como a mais próxima para te atender.`,
         'Agora me conta, como posso te ajudar hoje?',
       ],
       { withInteractiveWidget: true }
@@ -2418,41 +2439,33 @@ export function NortChatFloating({
                 {step === 'UNIT_NEIGHBORHOOD_CHOICE' && !isTyping && interactiveReady && (
                   <div className="space-y-1.5 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
                     <div className="rounded-[10px] bg-[#E8F5E9] border border-[#C8E6C9] p-2 text-[11px] text-[#2E7D32]">
-                      💡 Selecione seu bairro ou informe o CEP para ser atendido pela filial certa:
+                      💡 Em qual bairro você está?
                     </div>
 
                     {NEIGHBORHOOD_STORE_SHORTCUTS.map((item) => (
                       <QuickReplyButton
                         key={item.id}
-                        ariaLabel={`Estou no bairro ${item.name}`}
+                        ariaLabel={`📍 ${item.name}`}
                         onClick={() => handleSelectNeighborhood(item)}
                       >
                         📍 {item.name}
                       </QuickReplyButton>
                     ))}
 
-                    <QuickReplyButton onClick={() => setStep('UNIT_CEP')}>
-                      📮 Digitar meu CEP da rua
-                    </QuickReplyButton>
-
-                    <QuickReplyButton onClick={handleShowUnitList}>
-                      🏬 Ver lista completa de todas as unidades
+                    <QuickReplyButton
+                      ariaLabel="📍 Outro bairro (digite o nome do bairro ou CEP)"
+                      onClick={() => setStep('UNIT_CEP')}
+                    >
+                      📍 Outro bairro (digite o nome do bairro ou CEP)
                     </QuickReplyButton>
                   </div>
                 )}
 
-                {/* BUSCA DE UNIDADE POR CEP */}
+                {/* BUSCA DE UNIDADE POR BAIRRO OU CEP */}
                 {step === 'UNIT_CEP' && !isTyping && interactiveReady && (
                   <div className="pt-1 space-y-1.5 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                    <QuickReplyButton
-                      ariaLabel={`Continuar na ${autoSuggestedStore.shortTitle}`}
-                      onClick={() => confirmStoreSelection(autoSuggestedStore)}
-                    >
-                      ✅ Continuar na {autoSuggestedStore.shortTitle}
-                    </QuickReplyButton>
-
                     <form
-                      aria-label="Buscar unidade por CEP"
+                      aria-label="Buscar unidade por bairro ou CEP"
                       className="rounded-[12px] bg-[#FFFFFF] p-3.5 border border-[#D1D7DB] shadow-[0_2px_6px_rgba(17,27,33,0.12)] space-y-2"
                       onSubmit={handleCepSubmit}
                     >
@@ -2460,19 +2473,18 @@ export function NortChatFloating({
                         className="block text-[11.5px] font-semibold text-[#111B21]"
                         htmlFor={`${id}-cep`}
                       >
-                        Ou informe seu CEP para localizar pela sua rua exata
+                        Digite o nome do seu bairro ou seu CEP:
                       </label>
                       <input
                         ref={cepInputRef}
                         id={`${id}-cep`}
-                        aria-label="Informe seu CEP"
+                        aria-label="Informe seu CEP ou bairro"
                         className="w-full rounded-[8px] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#111B21] placeholder-[#667781] border border-[#D1D7DB] focus:outline-none focus:border-[#00A884]"
-                        inputMode="numeric"
                         onChange={(e) => {
-                          setCepInput(formatCepMask(e.target.value));
+                          setCepInput(e.target.value);
                           if (cepError) setCepError('');
                         }}
-                        placeholder="Informe seu CEP..."
+                        placeholder="Informe seu CEP ou bairro..."
                         type="text"
                         value={cepInput}
                       />
@@ -2489,8 +2501,8 @@ export function NortChatFloating({
                       </button>
                     </form>
 
-                    <QuickReplyButton onClick={() => setStep('UNIT_LIST')}>
-                      🏬 Ver lista de todas as unidades
+                    <QuickReplyButton onClick={() => setStep('UNIT_NEIGHBORHOOD_CHOICE')}>
+                      ↩ Voltar para lista de bairros
                     </QuickReplyButton>
                   </div>
                 )}

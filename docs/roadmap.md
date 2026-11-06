@@ -1,5 +1,19 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **06/11/2026 — Refinamento da Escolha de Bairros no Chat do Nort e Restauração Canônica de `QUICK_LOCATIONS` (executorId: `antigravity-gemini`):**
+  - **Restauração de `QUICK_LOCATIONS` no Seletor de CEP (`apps/storefront/lib/location.ts`):**
+    - Mantidas as 4 regiões canônicas frequentes do seletor de CEP do cabeçalho da loja: Cidade Velha (`66020-600`), Jurunas (`66030-120`), Centro Ananindeua (`67000-000`) e Centro Marituba (`67200-000`).
+    - Removido o atalho de Pedreira do modal do topo para não alterar o fluxo padrão de frete/entrega.
+  - **Pergunta Direta de Bairro no Chat do Nort com Nomes Limpos (`NortChatFloating`):**
+    - Na pergunta *"em qual bairro você está?"* (`UNIT_NEIGHBORHOOD_CHOICE`), os botões de resposta rápida agora exibem exclusivamente os nomes dos bairros com unidades físicas: `📍 Pedreira`, `📍 São Brás`, `📍 Jurunas`, `📍 Guamá`, `📍 Cidade Nova`.
+    - Removidos nomes de avenidas e travessas dos botões (`(Tv. Mauriti)`, `(Av. Bernardo Sayão)` etc.).
+    - Removido o botão `🏬 Ver todas as unidades` da etapa de seleção de bairro, evitando induzir uma escolha de loja antes de identificar o bairro do usuário.
+  - **Opção Flexível para Outros Bairros e CEP:**
+    - Adicionado o botão `📍 Outro bairro (digite o nome do bairro ou CEP)` que direciona o usuário para o campo de texto.
+    - O campo de texto agora aceita tanto nomes de bairros digitados (ex: `Marco`, `Umarizal`, `Telégrafo`, `Nazaré`, `Campina`) quanto CEPs de rua via `findNearestStoreByNeighborhoodOrCep`.
+  - **Validação Global:**
+    - 51/51 suítes de testes do Storefront aprovadas (246 testes), typecheck e lint executados com 0 erros.
+
 - **06/11/2026 — Criação da Rota Dedicada `/video` para Compartilhamento Externo e WhatsApp (executorId: `antigravity-gemini`):**
   - **Rota Dedicada `/video` com Player em Tela Cheia e Vitrine de Ações:**
     - Criada a página `/video` (`apps/storefront/app/video/page.tsx` e `video-page-client.tsx`), permitindo compartilhar a apresentação oficial da Comercial do Norte via WhatsApp e redes sociais no link canônico `https://loja-comercialdonorte.vercel.app/video`.

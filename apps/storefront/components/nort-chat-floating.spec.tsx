@@ -22,6 +22,10 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
     vi.clearAllMocks();
     window.localStorage.clear();
     document.cookie = 'cn_nort_visitor_id=; max-age=0; path=/';
+    document.cookie = 'cn_user_location=; max-age=0; path=/';
+    vi.unstubAllGlobals();
+    document.cookie = 'cn_user_location=; max-age=0; path=/';
+    vi.unstubAllGlobals();
     window.open = vi.fn();
     global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
     document.body.style.overflow = '';
@@ -297,17 +301,16 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
     expect(
       screen.getByText(/identifiquei que você está na região de belém\/pa/i)
     ).toBeDefined();
-    expect(screen.getByText(/📍 pedreira/i)).toBeDefined();
-    expect(screen.getByText(/📮 digitar meu cep da rua/i)).toBeDefined();
+    expect(screen.getByRole('button', { name: /^📍 pedreira$/i })).toBeDefined();
+    expect(screen.getByText(/📍 outro bairro \(digite o nome do bairro ou cep\)/i)).toBeDefined();
 
-    // Clica em "Digitar meu CEP da rua" para testar o fallback manual por CEP
-    fireEvent.click(screen.getByText(/📮 digitar meu cep da rua/i));
+    // Clica em "Outro bairro (digite o nome do bairro ou CEP)" para testar a busca por bairro ou CEP
+    fireEvent.click(screen.getByText(/📍 outro bairro \(digite o nome do bairro ou cep\)/i));
 
-    const cepField = screen.getByPlaceholderText('Informe seu CEP...');
+    const cepField = screen.getByPlaceholderText(/informe seu cep/i);
     expect(cepField).toBeDefined();
 
     fireEvent.change(cepField, { target: { value: '66093005' } });
-    expect((cepField as HTMLInputElement).value).toBe('66093-005');
 
     fireEvent.click(screen.getByRole('button', { name: /localizar unidade mais próxima/i }));
 
@@ -352,7 +355,7 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
     });
 
     // Clica no botão do bairro Pedreira (Tv. Mauriti)
-    const pedreiraBtn = screen.getByText(/📍 pedreira \(tv\. mauriti\)/i);
+    const pedreiraBtn = screen.getByRole('button', { name: /^📍 pedreira$/i });
     expect(pedreiraBtn).toBeDefined();
     fireEvent.click(pedreiraBtn);
 
@@ -362,6 +365,55 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
 
     expect(
       screen.getByText(/a nossa loja física mais próxima de você é a unidade mauriti \(pedreira\)/i)
+    ).toBeDefined();
+  });
+
+  it('permite digitar o nome de outro bairro (ex: Marco) no campo de texto e direciona para a filial mais próxima', async () => {
+    vi.useFakeTimers();
+    render(<NortChatFloating whatsapp="5591983440880" />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(11000);
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('Como posso te chamar?'), {
+      target: { value: 'Clara' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('(91) 99999-9999'), {
+      target: { value: '91988112233' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /continuar no chat/i }));
+
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText(/📍 encontrar a mais próxima de mim/i));
+      await Promise.resolve();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(12000);
+    });
+
+    fireEvent.click(screen.getByText(/📍 outro bairro \(digite o nome do bairro ou cep\)/i));
+
+    const inputField = screen.getByPlaceholderText(/informe seu cep/i);
+    fireEvent.change(inputField, { target: { value: 'Marco' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /localizar unidade mais próxima/i }));
+
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    expect(
+      screen.getByText(/identifiquei a unidade são brás/i)
     ).toBeDefined();
   });
 
@@ -645,7 +697,7 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
       vi.advanceTimersByTime(12000);
     });
 
-    expect(screen.getByPlaceholderText('Informe seu CEP...')).toBeDefined();
+    expect(screen.getByPlaceholderText(/informe seu cep/i)).toBeDefined();
   });
 
   it('simplifica o cabeçalho exibindo exclusivamente "Nort", selo verificado e botão de configurações', () => {
