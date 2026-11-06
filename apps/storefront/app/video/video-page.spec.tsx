@@ -9,7 +9,6 @@ import * as introModule from '@/components/intro';
 
 vi.mock('next/image', () => ({
   default: ({ fill, priority, ...props }: any) => {
-    // eslint-disable-next-line @next/next/no-img-element
     return <img {...props} alt={props.alt || ''} />;
   },
 }));
