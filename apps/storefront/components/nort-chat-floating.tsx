@@ -1678,28 +1678,6 @@ export function NortChatFloating({
     setCustomMessageText('');
   }
 
-  function handleStepBack() {
-    if (step === 'UNIT_MODE') {
-      setStep('IDENTIFY');
-      setInteractiveReady(true);
-    } else if (step === 'UNIT_LIST' || step === 'UNIT_CEP' || step === 'UNIT_NEARBY_CHOICE') {
-      setStep('UNIT_MODE');
-      setInteractiveReady(true);
-    } else if (step === 'SERVICE') {
-      setExpandedCategory(null);
-      setStep('UNIT_MODE');
-      setInteractiveReady(true);
-    } else if (step === 'FINISHED') {
-      setExpandedCategory(null);
-      setStep('SERVICE');
-      setInteractiveReady(true);
-    } else if (step === 'EDIT_DATA') {
-      setExpandedCategory(null);
-      setStep('SERVICE');
-      setInteractiveReady(true);
-    }
-  }
-
   function handleOpenEditData() {
     if (isTyping) return;
     setEditName(customerName);
@@ -2129,17 +2107,6 @@ export function NortChatFloating({
               {/* CABEÇALHO LIMPO E MINIMALISTA — EXCLUSIVAMENTE 'NORT' + ENGRENAGEM DE CONFIGURAÇÕES (SEÇÃO 3) */}
               <header className="bg-[#075844] text-[#FFFFFF] px-3.5 py-2.5 flex items-center justify-between shrink-0 border-b border-[#075844] relative z-10">
                 <div className="flex items-center gap-2 min-w-0">
-                  {step !== 'IDENTIFY' && (
-                    <button
-                      aria-label="Voltar etapa anterior"
-                      className="flex size-7 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer shrink-0"
-                      onClick={handleStepBack}
-                      type="button"
-                    >
-                      <ArrowLeft className="size-4.5" />
-                    </button>
-                  )}
-
                   <NortAvatar alt="Nort" size={38} />
 
                   <div className="min-w-0 leading-tight ml-0.5">
