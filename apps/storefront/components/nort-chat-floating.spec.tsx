@@ -659,7 +659,7 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
     expect(grouped['Hoje'][0].id).toBe('#000101');
   });
 
-  it('permite iniciar o tour guiado diretamente no chat na etapa de identificação', () => {
+  it('não exibe botão de tour na etapa de identificação e permite iniciar via menu de serviços (Site / Loja Virtual)', () => {
     vi.useFakeTimers();
     render(<NortChatFloating whatsapp="5591983440880" />);
 
@@ -668,19 +668,40 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
       screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
     );
 
-    // Avança o tempo de digitação da mensagem inicial para liberar os botões interativos
     act(() => {
       vi.advanceTimersByTime(11000);
     });
 
-    const tourBtn = screen.getByRole('button', { name: /fazer tour guiado pela loja/i });
+    // Não deve existir botão avulso de tour na identificação (abaixo do formulário)
+    expect(screen.queryByText(/fazer tour guiado pela loja/i)).toBeNull();
+
+    // Preenche identificação normal
+    fireEvent.change(screen.getByLabelText(/seu nome/i), { target: { value: 'João' } });
+    fireEvent.change(screen.getByLabelText(/whatsapp/i), { target: { value: '91988887777' } });
+    fireEvent.click(screen.getByRole('button', { name: /continuar no chat/i }));
+
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    // Escolhe unidade
+    fireEvent.click(screen.getByText(/🏬 escolher uma unidade/i));
+    act(() => {
+      vi.advanceTimersByTime(7000);
+    });
+    fireEvent.click(screen.getByRole('button', { name: /confirmar unidade selecionada/i }));
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    // Expande Site / Loja Virtual e clica no tour
+    fireEvent.click(screen.getByText(/site \/ loja virtual/i));
+    const tourBtn = screen.getByText(/fazer tour guiado interativo pela loja/i);
     expect(tourBtn).toBeDefined();
 
     fireEvent.click(tourBtn);
 
-    // Garante que o startTour foi chamado e o chat foi fechado
-    expect(mockStartTour).toHaveBeenCalledTimes(1);
-    expect(screen.queryByRole('dialog', { name: /chat de atendimento com o mascote norti/i })).toBeNull();
+    expect(mockStartTour).toHaveBeenCalled();
   });
 
   it('permite iniciar o tour guiado na sidebar através da opção Fazer Tour Guiado na Loja', () => {

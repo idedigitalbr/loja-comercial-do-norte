@@ -5,13 +5,11 @@
     - O tour guiado (`NortTourProvider` / `NortTourOverlay`) não é mais disparado automaticamente ao carregar ou entrar na loja virtual.
     - O overlay escuro de tela cheia com o mascote de braços abertos não bloqueia mais a navegação inicial do visitante.
     - `checkAndRecordAutoOpen` atualizado para retornar estritamente `false`.
-  - **Acesso ao Tour Exclusivamente Sob Demanda pelo Chat do Nort (`NortChatFloating`):**
-    - A abertura do tour foi centralizada e facilitada no chat oficial do Nort:
-      1. *Identificação Inicial (`step === 'IDENTIFY'`):* Botão destacado `"🧭 Fazer tour guiado pela loja"` abaixo do formulário de identificação (permite iniciar sem precisar preencher dados).
-      2. *Boas-Vindas de Retorno (`step === 'RESUME_PROMPT'`):* Opção rápida `"🧭 Fazer tour guiado pela loja"`.
-      3. *Categorias de Atendimento (`step === 'SERVICE'`):* Item canônico `"🧭 Fazer tour guiado interativo pela loja"` em *Site / Loja Virtual*.
-      4. *Sidebar de Configurações (`sidebarView === 'menu'` / Ajuda):* Opção `"🧭 Fazer Tour Guiado na Loja"`, fechando a sidebar e a janela do chat antes de renderizar o tour.
-      5. *Mensagens Livres no Chat:* Reconhece termos como "tour", "guia guiado", "guia", "mostrar loja" ou "conhecer a loja".
+  - **Acesso ao Tour Estritamente nos Locais Canônicos Pré-Existentes do Chat do Nort (`NortChatFloating`):**
+    - Por alinhamento direto com o responsável, **não** foram adicionados botões avulsos na identificação ou retorno, e **não** há gatilhos em mensagens livres.
+    - O acionamento do tour guiado ocorre estritamente nos locais originais do chat:
+      1. *Categorias de Atendimento (`step === 'SERVICE'`):* Opção `"🧭 Fazer tour guiado interativo pela loja"` dentro do accordion *Site / Loja Virtual*.
+      2. *Sidebar de Configurações (`sidebarView === 'menu'` / Ajuda):* Opção `"🧭 Fazer Tour Guiado na Loja"`, fechando a sidebar e o chat antes de renderizar o tour (`handleStartTourFromChat`).
   - **Validação:**
     - Suítes `nort-tour.spec.tsx` e `nort-chat-floating.spec.tsx` atualizadas.
     - 232 testes unitários do Storefront aprovados (100% verde), `typecheck` e `lint` com 0 erros.

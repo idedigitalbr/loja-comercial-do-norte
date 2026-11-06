@@ -1664,18 +1664,6 @@ export function NortChatFloating({
     const text = customMessageText.trim();
     if (!text) return;
 
-    const lower = text.toLowerCase();
-    if (
-      lower.includes('tour') ||
-      lower.includes('guia') ||
-      lower.includes('conhecer a loja') ||
-      lower.includes('mostrar a loja')
-    ) {
-      setCustomMessageText('');
-      handleStartTourFromChat();
-      return;
-    }
-
     const userMsg: ChatMessage = {
       id: `user-custom-${Date.now()}`,
       sender: 'user',
@@ -2205,9 +2193,6 @@ export function NortChatFloating({
                     <QuickReplyButton onClick={handleStartNewAttendance}>
                       🆕 Iniciar novo atendimento
                     </QuickReplyButton>
-                    <QuickReplyButton onClick={handleStartTourFromChat}>
-                      🧭 Fazer tour guiado pela loja
-                    </QuickReplyButton>
                   </div>
                 )}
 
@@ -2277,16 +2262,6 @@ export function NortChatFloating({
                         <Send className="size-3.5" />
                       </button>
                     </form>
-
-                    <div className="pt-2">
-                      <button
-                        className="w-full rounded-[10px] bg-[#FFFFFF] hover:bg-[#E0FBD4] text-[#075844] font-semibold text-[12.5px] py-2 px-3 text-center border border-[#00A884]/40 shadow-sm transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-                        onClick={handleStartTourFromChat}
-                        type="button"
-                      >
-                        <span>🧭 Fazer tour guiado pela loja</span>
-                      </button>
-                    </div>
                   </div>
                 )}
 
