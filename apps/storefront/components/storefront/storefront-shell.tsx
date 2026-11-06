@@ -74,6 +74,15 @@ export function StorefrontShell({
 }) {
   const pathname = usePathname();
   const isAuthPage = pathname === '/login' || pathname?.startsWith('/login/');
+  const isVideoPage = pathname === '/video' || pathname?.startsWith('/video');
+
+  if (isVideoPage) {
+    return (
+      <div className="min-h-screen bg-[#001438] text-white">
+        {children}
+      </div>
+    );
+  }
 
   if (isAuthPage) {
     return (

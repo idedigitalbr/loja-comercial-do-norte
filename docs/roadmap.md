@@ -1,5 +1,15 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **06/11/2026 — Criação da Rota Dedicada `/video` para Compartilhamento Externo e WhatsApp (executorId: `antigravity-gemini`):**
+  - **Rota Dedicada `/video` com Player em Tela Cheia e Vitrine de Ações:**
+    - Criada a página `/video` (`apps/storefront/app/video/page.tsx` e `video-page-client.tsx`), permitindo compartilhar a apresentação oficial da Comercial do Norte via WhatsApp e redes sociais no link canônico `https://loja-comercialdonorte.vercel.app/video`.
+    - Ao acessar o endereço, dispara a exibição automática em tela cheia do player oficial (`NortIntroVideo`).
+    - Ao concluir ou fechar o vídeo, a página apresenta vitrine moderna no tema escuro `#001438` com thumbnail HD (`nort-intro-poster.jpg`), o Mascote Nort, atalhos de segmentos e botões de ação rápida: Assistir em Tela Cheia, Acessar Loja Virtual, Falar no WhatsApp e Compartilhar no WhatsApp.
+    - Metadados Open Graph & Twitter Cards otimizados para prévia do WhatsApp com título, descrição e thumbnail de 1200x630.
+    - Rota `/video` incluída no `sitemap.ts` e isolada no `StorefrontShell`.
+  - **Validação Global:**
+    - 51/51 suítes de testes do Storefront aprovadas (245 testes, incluindo `video-page.spec.tsx`), `turbo typecheck` com 0 erros e build de produção Next.js 16 (`next build`) aprovado.
+
 - **06/11/2026 — Correção do Banner Explica Aí Nort (/post) e Integração Oficial de Vídeo YouTube Shorts (executorId: `antigravity-gemini`):**
   - **Correção da Identificação de Banner em `/post`:**
     - Corrigida a colisão onde a página de listagem de posts (`/post`) puxava inadvertidamente o carrossel de *Workshops & Aulas de Confeitaria* ao buscar `composition.widgets.find(w => w.type === 'video-articles-carousel')`.

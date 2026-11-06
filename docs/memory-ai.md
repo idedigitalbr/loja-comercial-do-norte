@@ -7,6 +7,24 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **06/11/2026 — Criação da Rota Dedicada `/video` para Compartilhamento Externo e WhatsApp (executorId: `antigravity-gemini`):**
+  - **Rota Dedicada `/video`:**
+    - Criada a página `/video` (`apps/storefront/app/video/page.tsx` e `video-page-client.tsx`), permitindo que a apresentação em vídeo do Nort seja compartilhada diretamente via links externos (WhatsApp, redes sociais, bio do Instagram, etc.) no endereço canônico `https://loja-comercialdonorte.vercel.app/video`.
+    - Ao acessar o link, o player cinematográfico em tela cheia (`NortIntroVideo`) é iniciado automaticamente com o aviso de ativação de áudio flutuante, barra de progresso vermelha a 60 FPS, tempo decorrido, modo fullscreen e botão de fechar.
+  - **Hub de Ações Pós-Vídeo & Vitrine Institucional:**
+    - Quando o usuário conclui o vídeo ou clica em fechar, a página exibe uma vitrine institucional moderna com tema escuro exclusivo (`#001438`), thumbnail HD extraída do vídeo original (`nort-intro-poster.jpg`), o mascote 3D Nort com o balão "Veja os produtos para seu segmento!", atalhos para os principais segmentos (Lanchonetes, Pizzarias, Confeitarias, Delivery) e 4 botões de ação rápida:
+      1. *▶️ Assistir em Tela Cheia* (reabre o player cinematográfico instantaneamente);
+      2. *🛍️ Acessar Loja Virtual* (redireciona para o catálogo `/`);
+      3. *💬 Falar no WhatsApp* (abre conversa com mensagem personalizada de cotação);
+      4. *📲 Compartilhar no WhatsApp* (compartilha o link oficial do vídeo com 1 clique).
+  - **Open Graph & Twitter Cards Otimizados para WhatsApp:**
+    - Metadados completos com título atraente, descrição comercial, tags de vídeo MP4 e imagem de capa (`nort-intro-poster.jpg` a 1200x630 e menos de 100KB, respeitando os limites da prévia do WhatsApp).
+  - **Sitemap & Isolamento de Shell:**
+    - Rota `/video` incluída no `sitemap.ts` com prioridade 0.8.
+    - `StorefrontShell` atualizado para isolar a página `/video` sem poluir com header/footer da loja nem sobrepor o chat flutuante durante a reprodução.
+  - **Validação Global:**
+    - 51/51 suítes de testes do Storefront aprovadas (245 testes, incluindo `video-page.spec.tsx`), `turbo typecheck` com 0 erros e build Next.js 16 (`next build`) compilado com sucesso com a rota `/video` registrada.
+
 - **06/11/2026 — Correção do Banner Explica Aí Nort (/post) e Integração Oficial de Vídeo YouTube Shorts (executorId: `antigravity-gemini`):**
   - **Correção da Identificação de Banner em `/post`:**
     - Corrigida a colisão onde a página de listagem de posts (`/post`) puxava inadvertidamente o carrossel de *Workshops & Aulas de Confeitaria* ao buscar `composition.widgets.find(w => w.type === 'video-articles-carousel')`.

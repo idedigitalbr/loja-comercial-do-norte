@@ -22,6 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/eventos`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${siteUrl}/eventos/workshops/aulas-confeitaria`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${siteUrl}/post`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${siteUrl}/video`, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${siteUrl}/cotacao`, changeFrequency: 'monthly', priority: 0.3 },
   ];
 
