@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation';
 import { CatalogView } from '@/components/catalog/catalog-view';
 import { SegmentHeroBanner } from '@/components/segment-hero-banner';
 import { VideoArticlesCarouselWidget } from '@/components/storefront/widgets/video-articles-carousel/video-articles-carousel';
+import { ScrollSkeletonSection } from '@/components/ui/scroll-skeleton-reveal';
 import { getBrands, getCategories, getProductsPage, getSegments, getTags } from '@/lib/api';
+import { findBrandOrSubbrand } from '@/lib/brands-data';
 import { getSegmentContentSuggestions, getSegmentTipsHeading } from '@/lib/segment-content-data';
 import type { ApiSegment } from '@/lib/types';
 
@@ -38,6 +40,9 @@ function findSegment(segments: ApiSegment[], slug: string): ApiSegment | undefin
 type Params = Promise<{ slug: string }>;
 type SearchParams = Promise<{
   q?: string;
+  categoria?: string;
+  tag?: string;
+  marca?: string;
   ordem?: string;
   entrega?: string;
   avaliacao?: string;
@@ -72,6 +77,9 @@ export default async function SegmentPage({
   const { slug } = await params;
   const {
     q,
+    categoria,
+    tag,
+    marca,
     ordem,
     entrega,
     avaliacao,
@@ -92,6 +100,9 @@ export default async function SegmentPage({
     getBrands(),
     getProductsPage({
       segment: slug,
+      category: categoria,
+      tag,
+      brand: marca,
       search: q,
       page,
       pageSize: PAGE_SIZE,
@@ -102,6 +113,13 @@ export default async function SegmentPage({
 
   const segment = findSegment(segments, slug);
   if (!segment) notFound();
+
+  const activeCategory = categoria
+    ? categories.find((c) => c.slug === categoria) ??
+      categories.flatMap((c) => c.children ?? []).find((c) => c.slug === categoria)
+    : undefined;
+  const activeTag = tag ? tags.find((t) => t.slug === tag) : undefined;
+  const activeBrand = marca ? findBrandOrSubbrand(brands, marca)?.brand : undefined;
 
   let items = result.items;
   if (precoMin) {
@@ -131,7 +149,10 @@ export default async function SegmentPage({
       <SegmentHeroBanner segment={segment} />
 
       <CatalogView
+        activeBrand={activeBrand}
+        activeCategory={activeCategory}
         activeSegment={segment}
+        activeTag={activeTag}
         baseUrl={`/segmento/${slug}`}
         brands={brands}
         breadcrumbs={[
@@ -144,7 +165,10 @@ export default async function SegmentPage({
         products={items}
         searchParamsState={{
           q,
+          categoria,
           segmento: slug,
+          tag,
+          marca,
           ordem,
           entrega,
           avaliacao,
@@ -165,16 +189,18 @@ export default async function SegmentPage({
         aria-label={`Sugestões de conteúdo para ${segment.name}`}
         className="mt-2 pb-10 sm:pb-14"
       >
-        <VideoArticlesCarouselWidget
-          fullWidth={false}
-          items={contentSuggestions}
-          showViewAll={true}
-          subtitle="Dicas em vídeos e artigos para você usar no seu negócio."
-          title="Explica Aí Nort"
-          topHeading={tipsHeading}
-          viewAllLabel="Ver mais"
-          viewAllUrl="/post"
-        />
+        <ScrollSkeletonSection index={4} widgetType="video-articles-carousel">
+          <VideoArticlesCarouselWidget
+            fullWidth={false}
+            items={contentSuggestions}
+            showViewAll={true}
+            subtitle="Dicas em vídeos e artigos para você usar no seu negócio."
+            title="Explica Aí Nort"
+            topHeading={tipsHeading}
+            viewAllLabel="Ver mais"
+            viewAllUrl="/post"
+          />
+        </ScrollSkeletonSection>
       </section>
     </div>
   );

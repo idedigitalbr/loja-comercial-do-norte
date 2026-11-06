@@ -176,10 +176,20 @@
       }
     },
     {
+      "id": "s07-compre-por-marca",
+      "type": "brands-carousel",
+      "enabled": true,
+      "order": 4,
+      "props": {
+        "title": "Compre por Marca",
+        "viewAllLink": "/marcas"
+      }
+    },
+    {
       "id": "s04-split-offers-carousel",
       "type": "product-carousel",
       "enabled": true,
-      "order": 4,
+      "order": 5,
       "props": {
         "variant": "split-banner",
         "title": "Produtos em Promoção",
@@ -248,7 +258,7 @@
       "id": "s05-triple-banners-1",
       "type": "banner-grid",
       "enabled": true,
-      "order": 5,
+      "order": 6,
       "props": {
         "columns": 3,
         "banners": [
@@ -301,7 +311,7 @@
       "id": "s06-mais-vendidos",
       "type": "product-carousel",
       "enabled": true,
-      "order": 6,
+      "order": 7,
       "props": {
         "variant": "standard-5col",
         "title": "Mais vendidos",
@@ -314,7 +324,7 @@
       "id": "s08-segmentos-negocios",
       "type": "segments-carousel",
       "enabled": true,
-      "order": 7,
+      "order": 8,
       "props": {
         "title": "Para todos os Negócios",
         "subtitle": "De todos os tamanhos",
@@ -409,7 +419,7 @@
       "id": "s09-faixa-ofertas-imperdiveis",
       "type": "promo-strip",
       "enabled": true,
-      "order": 8,
+      "order": 9,
       "props": {
         "variant": "offers-strip",
         "highlightText": "OFERTAS IMPERDÍVEIS",
@@ -423,7 +433,7 @@
       "id": "s10-para-voce-1",
       "type": "product-carousel",
       "enabled": true,
-      "order": 9,
+      "order": 10,
       "props": {
         "variant": "standard-5col",
         "title": "Para você",
@@ -436,7 +446,7 @@
       "id": "s15b-workshops-confeitaria",
       "type": "video-articles-carousel",
       "enabled": true,
-      "order": 10,
+      "order": 11,
       "props": {
         "variant": "confeitaria",
         "title": "Workshops & Aulas Práticas de Confeitaria",
@@ -481,7 +491,7 @@
       "id": "s12-nossos-eventos",
       "type": "events-carousel",
       "enabled": true,
-      "order": 11,
+      "order": 12,
       "props": {
         "title": "Nossos Eventos",
         "subtitle": "Tudo que acontece no Comercial do Norte",
@@ -544,7 +554,7 @@
       "id": "s14-para-voce-2",
       "type": "product-carousel",
       "enabled": true,
-      "order": 12,
+      "order": 13,
       "props": {
         "variant": "standard-5col",
         "title": "Para você",
@@ -557,7 +567,7 @@
       "id": "s15-explica-ai-comercial",
       "type": "video-articles-carousel",
       "enabled": true,
-      "order": 13,
+      "order": 14,
       "props": {
         "title": "Explica Aí Nort",
         "subtitle": "Dicas em vídeos e artigos para você usar no seu negócio.",
@@ -637,7 +647,7 @@
       "id": "s16-instagram-feed",
       "type": "instagram-feed",
       "enabled": true,
-      "order": 14,
+      "order": 15,
       "props": {
         "title": "A Loja no Instagram",
         "subtitle": "Acompanhe bastidores, lançamentos e ações especiais nas nossas lojas físicas",
@@ -723,7 +733,7 @@
       "id": "s18-avaliacoes-google",
       "type": "testimonials-grid",
       "enabled": true,
-      "order": 15,
+      "order": 16,
       "props": {
         "eyebrow": "AVALIAÇÕES NO GOOGLE",
         "title": "O que nossos clientes dizem no Google.",
@@ -837,7 +847,7 @@
       "id": "s19-unidades-mapa",
       "type": "store-locations-map",
       "enabled": true,
-      "order": 16,
+      "order": 17,
       "props": {
         "title": "Encontre nossas unidades",
         "subtitle": "Lojas mais perto de você",

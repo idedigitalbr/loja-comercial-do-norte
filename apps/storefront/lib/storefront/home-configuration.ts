@@ -208,12 +208,24 @@ export const defaultHomeComposition: PageComposition = {
       },
     },
 
-    // 04 — SEÇÃO CARROSSEL DE PRODUTOS EM DESTAQUE (BANNER VERTICAL + 3 PRODUTOS EM PROMOÇÃO)
+    // 04 — SEÇÃO COMPRE POR MARCA (CARDS DE LOGOS DE MARCAS)
+    {
+      id: "s07-compre-por-marca",
+      type: "brands-carousel",
+      enabled: true,
+      order: 4,
+      props: {
+        title: "Compre por Marca",
+        viewAllLink: "/marcas",
+      },
+    },
+
+    // 05 — SEÇÃO CARROSSEL DE PRODUTOS EM DESTAQUE (BANNER VERTICAL + 3 PRODUTOS EM PROMOÇÃO)
     {
       id: "s04-split-offers-carousel",
       type: "product-carousel",
       enabled: true,
-      order: 4,
+      order: 5,
       props: {
         variant: "split-banner",
         title: "Produtos em Promoção",
@@ -228,16 +240,66 @@ export const defaultHomeComposition: PageComposition = {
             "/assets/HOME Vitrine/S4-CARD-ESQ-Promocional/S4-CARD-ESQ-Promocional.webp",
           linkUrl: "/loja?oferta=1",
           altText: "Semana do Feirante — Luva Nitrílica Comercial do Norte",
+          campaigns: [
+            {
+              id: "camp-semana-feirante",
+              label: "Semana do Feirante",
+              title: "Ofertas",
+              subtitle: "Mês de Outubro",
+              imageUrl:
+                "/assets/HOME Vitrine/S4-CARD-ESQ-Promocional/S4-CARD-ESQ-Promocional.webp",
+              linkUrl: "/loja?oferta=1",
+              altText: "Semana do Feirante — Luva Nitrílica Comercial do Norte",
+              source: "offers",
+            },
+            {
+              id: "camp-delivery-kraft",
+              label: "Especial Delivery & Kraft",
+              title: "Ofertas",
+              subtitle: "Linha Delivery",
+              imageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/kraft.webp",
+              linkUrl: "/segmento/delivery",
+              altText: "Especial Delivery e Embalagens Kraft — Comercial do Norte",
+              source: "category",
+              categorySlug: "embalagens",
+              searchKeyword: "marmita|pizza|hamburgueira|sacola|kraft",
+            },
+            {
+              id: "camp-descartaveis-atacado",
+              label: "Descartáveis no Atacado",
+              title: "Ofertas",
+              subtitle: "Fardos Fechados",
+              imageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/copos.webp",
+              linkUrl: "/categoria/descartaveis",
+              altText:
+                "Descartáveis no Atacado — Copos e Pratos Comercial do Norte",
+              source: "category",
+              categorySlug: "descartaveis",
+              searchKeyword: "copo|prato|descartavel|descartável",
+            },
+            {
+              id: "camp-confeitaria-doces",
+              label: "Festival de Confeitaria",
+              title: "Ofertas",
+              subtitle: "Doces & Festas",
+              imageUrl: "/assets/HOME Vitrine/S14-POSTS-ExplicaAi/doces.webp",
+              linkUrl: "/segmento/confeitaria-bolos",
+              altText: "Festival de Confeitaria e Doces — Comercial do Norte",
+              source: "featured",
+              categorySlug: "confeitaria",
+              searchKeyword: "doce|bolo|festa|confeitaria|caixa|prato",
+            },
+          ],
         },
       },
     },
 
-    // 05 — SEÇÃO BANNERS TRIPLOS 01 (LIMPEZA, SEMANA DO FEIRANTE, SACOS E SACOLAS)
+    // 06 — SEÇÃO BANNERS TRIPLOS 01 (LIMPEZA, SEMANA DO FEIRANTE, SACOS E SACOLAS)
     {
       id: "s05-triple-banners-1",
       type: "banner-grid",
       enabled: true,
-      order: 5,
+      order: 6,
       props: {
         columns: 3,
         banners: [
@@ -294,12 +356,12 @@ export const defaultHomeComposition: PageComposition = {
       },
     },
 
-    // 06 — SEÇÃO CARROSSEL DE PRODUTOS (MAIS VENDIDOS - 5 COLUNAS)
+    // 07 — SEÇÃO CARROSSEL DE PRODUTOS (MAIS VENDIDOS - 5 COLUNAS)
     {
       id: "s06-mais-vendidos",
       type: "product-carousel",
       enabled: true,
-      order: 6,
+      order: 7,
       props: {
         variant: "standard-5col",
         title: "Mais vendidos",
@@ -314,7 +376,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s08-segmentos-negocios",
       type: "segments-carousel",
       enabled: true,
-      order: 7,
+      order: 8,
       props: {
         title: "Para todos os Negócios",
         subtitle: "De todos os tamanhos",
@@ -432,7 +494,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s09-faixa-ofertas-imperdiveis",
       type: "promo-strip",
       enabled: true,
-      order: 8,
+      order: 9,
       props: {
         variant: "offers-strip",
         highlightText: "OFERTAS IMPERDÍVEIS",
@@ -449,7 +511,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s10-para-voce-1",
       type: "product-carousel",
       enabled: true,
-      order: 9,
+      order: 10,
       props: {
         variant: "standard-5col",
         title: "Para você",
@@ -464,7 +526,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s15b-workshops-confeitaria",
       type: "video-articles-carousel",
       enabled: true,
-      order: 10,
+      order: 11,
       props: {
         variant: "confeitaria",
         title: "Workshops & Aulas Práticas de Confeitaria",
@@ -505,7 +567,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s12-nossos-eventos",
       type: "events-carousel",
       enabled: true,
-      order: 11,
+      order: 12,
       props: {
         title: "Nossos Eventos",
         subtitle: "Tudo que acontece no Comercial do Norte",
@@ -579,7 +641,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s14-para-voce-2",
       type: "product-carousel",
       enabled: true,
-      order: 12,
+      order: 13,
       props: {
         variant: "standard-5col",
         title: "Para você",
@@ -594,7 +656,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s15-explica-ai-comercial",
       type: "video-articles-carousel",
       enabled: true,
-      order: 13,
+      order: 14,
       props: {
         title: "Explica Aí Nort",
         subtitle: "Dicas em vídeos e artigos para você usar no seu negócio.",
@@ -664,7 +726,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s16-instagram-feed",
       type: "instagram-feed",
       enabled: true,
-      order: 14,
+      order: 15,
       props: {
         title: "A Loja no Instagram",
         subtitle:
@@ -765,7 +827,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s18-avaliacoes-google",
       type: "testimonials-grid",
       enabled: true,
-      order: 15,
+      order: 16,
       props: {
         eyebrow: "AVALIAÇÕES NO GOOGLE",
         title: "O que nossos clientes dizem no Google.",
@@ -881,7 +943,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s19-unidades-mapa",
       type: "store-locations-map",
       enabled: true,
-      order: 16,
+      order: 17,
       props: {
         title: "Encontre nossas unidades",
         subtitle: "Lojas mais perto de você",

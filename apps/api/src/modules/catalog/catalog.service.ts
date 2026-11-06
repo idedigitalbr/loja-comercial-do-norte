@@ -515,7 +515,19 @@ export class CatalogService {
   }
 
   listBrands(status: RecordStatus | null = RecordStatus.ACTIVE) {
-    return this.prisma.brand.findMany({ where: status ? { status } : {}, orderBy: [{ parentId: 'asc' }, { name: 'asc' }], include: { parent: true, children: { where: status ? { status } : {}, orderBy: { name: 'asc' } } } });
+    return this.prisma.brand.findMany({
+      where: status ? { status } : {},
+      orderBy: [{ parentId: 'asc' }, { name: 'asc' }],
+      include: {
+        parent: true,
+        _count: { select: { products: true, children: true } },
+        children: {
+          where: status ? { status } : {},
+          orderBy: { name: 'asc' },
+          include: { _count: { select: { products: true } } },
+        },
+      },
+    });
   }
 
   listCategories(status: RecordStatus | null = RecordStatus.ACTIVE) {

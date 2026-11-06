@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Flame, PanelLeft, ShoppingBag, SlidersHorizontal, X } from "lucide-react";
+import { ChevronRight, Flame, PanelLeft, ShoppingBag, SlidersHorizontal, X } from "lucide-react";
 import { cn, WebButton, WebEmptyState } from "@commerce/ui/web";
 import { ProductCard } from "@/components/product-card";
+import { ScrollCatalogProductItem } from "@/components/ui/scroll-skeleton-reveal";
+import { buildEnrichedBrands, DEFAULT_BRAND_SHOWCASE } from "@/lib/brands-data";
+import { mediaUrl } from "@/lib/api";
 import type { ApiBrand, ApiCategory, ApiProduct, ApiSegment, ApiTag } from "@/lib/types";
 import { CatalogSidebar } from "./catalog-sidebar";
 
@@ -46,6 +49,7 @@ export type CatalogViewProps = {
   activeTag?: ApiTag;
   activeBrand?: ApiBrand;
   baseUrl?: string;
+  viewMode?: "products" | "brands";
 };
 
 export function CatalogView({
@@ -65,6 +69,7 @@ export function CatalogView({
   activeTag,
   activeBrand,
   baseUrl = "/loja",
+  viewMode = "products",
 }: CatalogViewProps) {
   const router = useRouter();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -87,6 +92,37 @@ export function CatalogView({
   const isOferta = oferta === "1" || oferta === "true" || promocao === "1";
   const isMaisVendidos = ordem === "mais_vendidos";
   const currentSort = ordem === "nome" ? "name_asc" : isMaisVendidos ? "mais_vendidos" : "newest";
+
+  const enrichedBrands = useMemo(() => buildEnrichedBrands(brands), [brands]);
+  const currentBrandSlug = activeBrand?.slug || marca || "";
+  const isBrandsDirectory = viewMode === "brands";
+  const isBrandContext = Boolean(
+    isBrandsDirectory || activeBrand || marca || baseUrl.startsWith("/marca")
+  );
+
+  const displayedBrandsInGrid = useMemo(() => {
+    if (!isBrandsDirectory) return [];
+    let list = [...enrichedBrands];
+    if (q) {
+      const term = q.trim().toLowerCase();
+      list = list.filter(
+        (b) =>
+          b.name.toLowerCase().includes(term) ||
+          b.slug.toLowerCase().includes(term) ||
+          b.children?.some(
+            (sub) =>
+              sub.name.toLowerCase().includes(term) ||
+              sub.slug.toLowerCase().includes(term)
+          )
+      );
+    }
+    if (ordem === "nome") {
+      list.sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+    } else if (ordem === "mais_vendidos") {
+      list.sort((a, b) => (b._count?.products ?? 0) - (a._count?.products ?? 0));
+    }
+    return list;
+  }, [isBrandsDirectory, enrichedBrands, q, ordem]);
 
   const buildHref = (overrides: Record<string, string | number | undefined>) => {
     const params = new URLSearchParams();
@@ -221,7 +257,9 @@ export function CatalogView({
                   {title}
                 </h1>
                 <span className="text-xs text-slate-500 font-medium">
-                  · {total} produto(s) publicado(s){q ? ` para “${q}”` : ""} · página {page} de {totalPages}
+                  {isBrandsDirectory
+                    ? `· ${displayedBrandsInGrid.length} marca(s) parceira(s)${q ? ` para “${q}”` : ""} · selecione uma marca para ver os produtos`
+                    : `· ${total} produto(s) publicado(s)${q ? ` para “${q}”` : ""} · página ${page} de ${totalPages}`}
                 </span>
               </div>
 
@@ -276,6 +314,78 @@ export function CatalogView({
               </div>
             </div>
 
+            {/* FAIXA DE CARDS DE MARCAS COM CONTAGEM (ESTILO VITRINE POR MARCA — ANEXO 2) */}
+            {isBrandContext && enrichedBrands.length > 0 ? (
+              <div
+                aria-label="Navegação rápida por marcas"
+                className="mb-6 flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none"
+              >
+                {enrichedBrands.map((b) => {
+                  const isParentSelected =
+                    currentBrandSlug === b.slug ||
+                    Boolean(b.children?.some((child) => child.slug === currentBrandSlug));
+                  const count = b._count?.products ?? 0;
+                  const rawImg = b.imagePath;
+                  const imgSrc = rawImg
+                    ? rawImg.startsWith("http") || rawImg.startsWith("/")
+                      ? rawImg
+                      : mediaUrl(rawImg)
+                    : null;
+
+                  return (
+                    <Link
+                      className="group flex shrink-0 items-center gap-2 focus:outline-none"
+                      href={
+                        baseUrl.startsWith("/marca") || baseUrl === "/marcas"
+                          ? buildHref({ marca: undefined, pagina: undefined }).replace(
+                              baseUrl,
+                              `/marca/${b.slug}`
+                            )
+                          : buildHref({
+                              marca: isParentSelected ? undefined : b.slug,
+                              pagina: undefined,
+                            })
+                      }
+                      key={b.id || b.slug}
+                      title={`Filtrar produtos da marca ${b.name}`}
+                    >
+                      <div
+                        className={cn(
+                          "flex size-16 sm:size-[70px] items-center justify-center rounded-2xl bg-white p-2.5 transition-all duration-200 shadow-2xs",
+                          isParentSelected
+                            ? "border-2 border-[#004CB1] ring-2 ring-[#004CB1]/15 shadow-sm scale-[1.02]"
+                            : "border border-slate-200/90 hover:border-[#004CB1]/60 hover:shadow-xs"
+                        )}
+                      >
+                        {imgSrc ? (
+                          <img
+                            alt={b.name}
+                            className="max-h-full max-w-full object-contain transition-transform duration-200 group-hover:scale-105"
+                            loading="lazy"
+                            src={imgSrc}
+                          />
+                        ) : (
+                          <span className="text-center text-[11px] font-black uppercase leading-tight text-slate-800">
+                            {b.name}
+                          </span>
+                        )}
+                      </div>
+                      <span
+                        className={cn(
+                          "text-xs tabular-nums transition",
+                          isParentSelected
+                            ? "font-extrabold text-[#004CB1]"
+                            : "font-medium text-slate-500 group-hover:text-slate-800"
+                        )}
+                      >
+                        ({count})
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : null}
+
             {/* FAIXA DE FILTROS ATIVOS COM BOTÃO DE REMOÇÃO */}
             {hasActiveFilters ? (
               <div className="mb-5 flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200/90 bg-white px-3.5 py-2.5 text-xs shadow-xs">
@@ -292,7 +402,14 @@ export function CatalogView({
                 {activeCategory ? (
                   <Link
                     className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium text-slate-800 transition hover:border-red-500 hover:text-red-600"
-                    href={buildHref({ categoria: undefined })}
+                    href={
+                      baseUrl.startsWith("/categoria/")
+                        ? buildHref({ categoria: undefined, pagina: undefined }).replace(
+                            baseUrl,
+                            "/loja"
+                          )
+                        : buildHref({ categoria: undefined, pagina: undefined })
+                    }
                     title="Remover filtro de categoria"
                   >
                     Categoria: {activeCategory.name}{" "}
@@ -302,7 +419,14 @@ export function CatalogView({
                 {activeSegment ? (
                   <Link
                     className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium text-slate-800 transition hover:border-red-500 hover:text-red-600"
-                    href={buildHref({ segmento: undefined })}
+                    href={
+                      baseUrl.startsWith("/segmento/")
+                        ? buildHref({ segmento: undefined, pagina: undefined }).replace(
+                            baseUrl,
+                            "/loja"
+                          )
+                        : buildHref({ segmento: undefined, pagina: undefined })
+                    }
                     title="Remover filtro de segmento"
                   >
                     Segmento: {activeSegment.name}{" "}
@@ -312,19 +436,33 @@ export function CatalogView({
                 {tag ? (
                   <Link
                     className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium text-slate-800 transition hover:border-red-500 hover:text-red-600"
-                    href={buildHref({ tag: undefined })}
+                    href={
+                      baseUrl.startsWith("/tag/")
+                        ? buildHref({ tag: undefined, pagina: undefined }).replace(
+                            baseUrl,
+                            "/loja"
+                          )
+                        : buildHref({ tag: undefined, pagina: undefined })
+                    }
                     title="Remover filtro de tag"
                   >
-                    Tag: #{tag} <span className="font-bold text-slate-400">×</span>
+                    Tag: #{activeTag?.name ?? tag} <span className="font-bold text-slate-400">×</span>
                   </Link>
                 ) : null}
                 {marca ? (
                   <Link
                     className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium text-slate-800 transition hover:border-red-500 hover:text-red-600"
-                    href={buildHref({ marca: undefined })}
+                    href={
+                      baseUrl.startsWith("/marca/")
+                        ? buildHref({ marca: undefined, pagina: undefined }).replace(
+                            baseUrl,
+                            "/loja"
+                          )
+                        : buildHref({ marca: undefined, pagina: undefined })
+                    }
                     title="Remover filtro de marca"
                   >
-                    Marca: {marca} <span className="font-bold text-slate-400">×</span>
+                    Marca: {activeBrand?.name ?? marca} <span className="font-bold text-slate-400">×</span>
                   </Link>
                 ) : null}
                 {entrega ? (
@@ -385,12 +523,152 @@ export function CatalogView({
               </div>
             ) : null}
 
-            {/* GRID DE PRODUTOS: EXATAMENTE 4 COLUNAS EM TELAS LARGAS */}
-            {products.length > 0 ? (
+            {/* GRID PRINCIPAL: 4 COLUNAS DE MARCAS (EM /marcas) OU 4 COLUNAS DE PRODUTOS */}
+            {isBrandsDirectory ? (
+              displayedBrandsInGrid.length > 0 ? (
+                <div
+                  aria-label="Grade de marcas em 4 colunas"
+                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4 items-stretch"
+                >
+                  {displayedBrandsInGrid.map((brand, index) => {
+                    const showcase = DEFAULT_BRAND_SHOWCASE.find(
+                      (s) => s.slug === brand.slug
+                    );
+                    const rawImg = brand.imagePath || showcase?.imagePath;
+                    const imgSrc = rawImg
+                      ? rawImg.startsWith("http") || rawImg.startsWith("/")
+                        ? rawImg
+                        : mediaUrl(rawImg)
+                      : null;
+                    const count = brand._count?.products ?? showcase?.productCount ?? 0;
+                    const subs = brand.children ?? [];
+                    const accentColor = showcase?.accentColor || "#004CB1";
+
+                    return (
+                      <ScrollCatalogProductItem index={index} key={brand.id || brand.slug}>
+                        <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-[#004CB1]/50 hover:shadow-md">
+                          {/* Barra superior discreta na cor da marca */}
+                          <span
+                            aria-hidden="true"
+                            className="absolute inset-x-0 top-0 h-1 transition-all duration-200 group-hover:h-1.5"
+                            style={{ backgroundColor: accentColor }}
+                          />
+
+                          <div>
+                            {/* Badge de quantidade no topo */}
+                            <div className="mb-2 flex items-center justify-between gap-2">
+                              <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-[10.5px] font-extrabold text-[#004CB1]">
+                                {count} produtos
+                              </span>
+                              {subs.length > 0 ? (
+                                <span className="text-[10.5px] font-semibold text-slate-400">
+                                  {subs.length} linhas
+                                </span>
+                              ) : null}
+                            </div>
+
+                            {/* Área quadrada do Logo (mesma proporção da foto do produto) */}
+                            <Link
+                              aria-label={`Ver produtos da marca ${brand.name}`}
+                              className="my-2 flex aspect-square w-full items-center justify-center rounded-xl border border-slate-100 bg-slate-50/60 p-5 transition group-hover:border-blue-100 group-hover:bg-white"
+                              href={`/marca/${brand.slug}`}
+                            >
+                              {imgSrc ? (
+                                <img
+                                  alt={brand.name}
+                                  className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                                  loading="lazy"
+                                  src={imgSrc}
+                                />
+                              ) : (
+                                <span className="text-center text-base font-black uppercase text-slate-800">
+                                  {brand.name}
+                                </span>
+                              )}
+                            </Link>
+
+                            {/* Nome e subtítulo da marca */}
+                            <Link
+                              className="mt-2 block"
+                              href={`/marca/${brand.slug}`}
+                            >
+                              <h2 className="text-sm sm:text-base font-black text-slate-900 transition group-hover:text-[#004CB1]">
+                                {brand.name}
+                              </h2>
+                              <p className="mt-0.5 line-clamp-1 text-[11.5px] font-medium text-slate-500">
+                                {showcase?.subtitle ||
+                                  brand.description ||
+                                  "Linha completa no atacado e varejo"}
+                              </p>
+                            </Link>
+
+                            {/* Submarcas rápidas dentro do card */}
+                            {subs.length > 0 && (
+                              <div className="mt-3 border-t border-slate-100 pt-2.5">
+                                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                  Submarcas:
+                                </span>
+                                <div className="mt-1.5 flex flex-wrap gap-1">
+                                  {subs.slice(0, 3).map((sub) => (
+                                    <Link
+                                      className="inline-flex items-center gap-1 rounded-md border border-slate-200/90 bg-slate-50 px-2 py-0.5 text-[10.5px] font-semibold text-slate-600 transition hover:border-[#004CB1] hover:bg-blue-50 hover:text-[#004CB1]"
+                                      href={`/marca/${sub.slug}`}
+                                      key={sub.id || sub.slug}
+                                    >
+                                      <span className="truncate max-w-[115px]">{sub.name}</span>
+                                      <span className="text-[9.5px] text-slate-400">
+                                        ({sub._count?.products ?? 0})
+                                      </span>
+                                    </Link>
+                                  ))}
+                                  {subs.length > 3 && (
+                                    <Link
+                                      className="inline-flex items-center rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 hover:text-[#004CB1]"
+                                      href={`/marca/${brand.slug}`}
+                                    >
+                                      +{subs.length - 3}
+                                    </Link>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* CTA Inferior no padrão dos cards do catálogo */}
+                          <Link
+                            className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#004CB1] px-3.5 py-2.5 text-xs font-bold text-white shadow-2xs transition hover:bg-[#00357B]"
+                            href={`/marca/${brand.slug}`}
+                          >
+                            <span>Ver Produtos</span>
+                            <ChevronRight className="size-3.5" />
+                          </Link>
+                        </div>
+                      </ScrollCatalogProductItem>
+                    );
+                  })}
+                </div>
+              ) : (
+                <WebEmptyState
+                  action={
+                    <Link
+                      className="inline-block rounded-full bg-[#004CB1] px-5 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-[#00357B]"
+                      href="/marcas"
+                    >
+                      Ver todas as marcas
+                    </Link>
+                  }
+                  className="mt-8 bg-white border border-slate-200/90 rounded-2xl p-8"
+                  description="Tente outros termos de busca para localizar a marca ou submarca desejada."
+                  title="Nenhuma marca encontrada."
+                />
+              )
+            ) : products.length > 0 ? (
               <>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4 items-start">
-                  {products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                  {products.map((product, index) => (
+                    <ScrollCatalogProductItem index={index} key={product.id}>
+                      <ProductCard product={product} />
+                    </ScrollCatalogProductItem>
                   ))}
                 </div>
 

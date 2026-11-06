@@ -2,12 +2,16 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CatalogView } from '@/components/catalog/catalog-view';
 import { getBrands, getCategories, getProductsPage, getSegments, getTags } from '@/lib/api';
+import { findBrandOrSubbrand } from '@/lib/brands-data';
 
 export const dynamic = 'force-dynamic';
 
 type Params = Promise<{ slug: string }>;
 type SearchParams = Promise<{
   q?: string;
+  segmento?: string;
+  tag?: string;
+  marca?: string;
   ordem?: string;
   entrega?: string;
   avaliacao?: string;
@@ -40,6 +44,9 @@ export default async function CategoryPage({
   const { slug } = await params;
   const {
     q,
+    segmento,
+    tag,
+    marca,
     ordem,
     entrega,
     avaliacao,
@@ -60,6 +67,9 @@ export default async function CategoryPage({
     getBrands(),
     getProductsPage({
       category: slug,
+      segment: segmento,
+      tag,
+      brand: marca,
       search: q,
       page,
       pageSize: PAGE_SIZE,
@@ -68,8 +78,14 @@ export default async function CategoryPage({
     }),
   ]);
 
-  const category = categories.find((item) => item.slug === slug);
+  const category =
+    categories.find((item) => item.slug === slug) ??
+    categories.flatMap((c) => c.children ?? []).find((item) => item.slug === slug);
   if (!category) notFound();
+
+  const activeSegment = segmento ? segments.find((s) => s.slug === segmento) : undefined;
+  const activeTag = tag ? tags.find((t) => t.slug === tag) : undefined;
+  const activeBrand = marca ? findBrandOrSubbrand(brands, marca)?.brand : undefined;
 
   let items = result.items;
   if (precoMin) {
@@ -92,7 +108,10 @@ export default async function CategoryPage({
 
   return (
     <CatalogView
+      activeBrand={activeBrand}
       activeCategory={category}
+      activeSegment={activeSegment}
+      activeTag={activeTag}
       baseUrl={`/categoria/${slug}`}
       brands={brands}
       breadcrumbs={[{ label: category.name }]}
@@ -103,6 +122,9 @@ export default async function CategoryPage({
       searchParamsState={{
         q,
         categoria: slug,
+        segmento,
+        tag,
+        marca,
         ordem,
         entrega,
         avaliacao,

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { CatalogView } from '@/components/catalog/catalog-view';
 import { getBrands, getCategories, getOffers, getProductsPage, getSegments, getTags } from '@/lib/api';
+import { findBrandOrSubbrand } from '@/lib/brands-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -102,7 +103,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
   const activeCategory = categories.find((c) => c.slug === categoria);
   const activeSegment = segments.find((s) => s.slug === segmento);
   const activeTag = tags.find((t) => t.slug === tag);
-  const activeBrand = brands.find((b) => b.slug === marca);
+  const activeBrand = marca ? findBrandOrSubbrand(brands, marca)?.brand ?? brands.find((b) => b.slug === marca) : undefined;
 
   let items = result.items;
 

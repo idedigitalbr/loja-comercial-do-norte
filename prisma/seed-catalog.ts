@@ -36,7 +36,107 @@ const categories: readonly DemoCategory[] = [
   { name: 'Velas e Suprimentos', slug: 'velas-e-suprimentos', parentSlug: 'artigos-para-festa' },
 ];
 
-const brands = [{ name: 'Marca Exemplo', slug: 'marca-exemplo' }] as const;
+type DemoBrand = {
+  name: string;
+  slug: string;
+  imagePath?: string;
+  description?: string;
+  parentSlug?: string;
+};
+
+const brands: readonly DemoBrand[] = [
+  { name: 'Marca Exemplo', slug: 'marca-exemplo' },
+  {
+    name: 'Copobras',
+    slug: 'copobras',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/copobras_logo.svg',
+    description: 'Embalagens descartáveis, copos, pratos e potes térmicos no atacado.',
+  },
+  {
+    name: 'Cristalcopo',
+    slug: 'cristalcopo',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/cristalcopo_logo.svg',
+    description: 'Copos ultra cristal, potes bolha e descartáveis resistentes.',
+  },
+  {
+    name: 'Wyda',
+    slug: 'wyda',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/wyda_logo.svg',
+    description: 'Bandejas de alumínio, filmes de PVC e papéis culinários.',
+  },
+  {
+    name: 'NortePlast',
+    slug: 'norteplast',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/norteplast_logo.svg',
+    description: 'Sacolas plásticas reforçadas, bobinas picotadas e linha kraft delivery.',
+  },
+  {
+    name: 'Mili Profissional',
+    slug: 'mili',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/mili_logo.png',
+    description: 'Papéis higiênicos, toalhas interfolhadas e guardanapos profissionais.',
+  },
+  {
+    name: 'Nestlé Professional',
+    slug: 'nestle',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/nestle_logo.png',
+    description: 'Chocolates, leite condensado Moça e bases para confeitaria e food service.',
+  },
+  {
+    name: 'Supermax',
+    slug: 'supermax',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/supermax_logo.svg',
+    description: 'Luvas nitrílicas, vinil e proteção profissional.',
+  },
+  {
+    name: 'Grandha',
+    slug: 'grandha',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/grandha_logo.svg',
+    description: 'Linha profissional de cuidados, óleos essenciais e tratamento.',
+  },
+  {
+    name: 'Maxiline',
+    slug: 'maxiline',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/maxiline_logo.svg',
+    description: 'Cosmética e tratamento profissional.',
+  },
+  {
+    name: 'Knut Hair Care',
+    slug: 'knut',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/knut_logo.svg',
+    description: 'Cuidado, nutrição e reparação diária.',
+  },
+  // Submarcas (exercitam hierarquia Brand -> children)
+  { name: 'Linha Cristal PP', slug: 'copobras-cristal-pp', parentSlug: 'copobras' },
+  { name: 'Linha Térmica EPS', slug: 'copobras-termica-eps', parentSlug: 'copobras' },
+  { name: 'Copobras Food Service', slug: 'copobras-food-service', parentSlug: 'copobras' },
+  { name: 'Pratos & Talheres Festa', slug: 'copobras-pratos-talheres', parentSlug: 'copobras' },
+  { name: 'Linha Copo Bolha', slug: 'cristalcopo-bolha', parentSlug: 'cristalcopo' },
+  { name: 'Linha Eco Biodegradável', slug: 'cristalcopo-eco', parentSlug: 'cristalcopo' },
+  { name: 'Linha Ultra Resistente', slug: 'cristalcopo-ultra', parentSlug: 'cristalcopo' },
+  { name: 'Bandejas & Marmitas Alumínio', slug: 'wyda-aluminio', parentSlug: 'wyda' },
+  { name: 'Filmes PVC & Esticáveis', slug: 'wyda-filmes-pvc', parentSlug: 'wyda' },
+  { name: 'Papel Assa Fácil & Manteiga', slug: 'wyda-assa-facil', parentSlug: 'wyda' },
+  { name: 'Sacolas Alça Camiseta', slug: 'norteplast-sacolas', parentSlug: 'norteplast' },
+  { name: 'Bobinas Picotadas Fundo Estrela', slug: 'norteplast-bobinas', parentSlug: 'norteplast' },
+  { name: 'Linha Kraft Delivery', slug: 'norteplast-kraft', parentSlug: 'norteplast' },
+  { name: 'Toalhas Interfolhadas', slug: 'mili-interfolhadas', parentSlug: 'mili' },
+  { name: 'Guardanapos Folha Dupla', slug: 'mili-guardanapos', parentSlug: 'mili' },
+  { name: 'Rolão Institucional', slug: 'mili-rolao', parentSlug: 'mili' },
+  { name: 'Linha Moça Profissional', slug: 'nestle-moca', parentSlug: 'nestle' },
+  { name: 'Coberturas & Chocolates Nobres', slug: 'nestle-chocolates', parentSlug: 'nestle' },
+  { name: 'Cremes & Bases Culinárias', slug: 'nestle-cremes', parentSlug: 'nestle' },
+  { name: 'Luvas Nitrílicas Sem Pó', slug: 'supermax-nitrilica', parentSlug: 'supermax' },
+  { name: 'Luvas de Vinil & Gastronomia', slug: 'supermax-vinil', parentSlug: 'supermax' },
+  { name: 'Alkymia di Grandha', slug: 'alkymia', parentSlug: 'grandha' },
+  { name: 'BBTox Absolute Repair', slug: 'bbtox-absolute-repair', parentSlug: 'grandha' },
+  { name: 'Fito Capillus', slug: 'fito-capillus', parentSlug: 'grandha' },
+  { name: 'Urbano Spa', slug: 'urbano-spa', parentSlug: 'grandha' },
+  { name: 'Linha Hidratação Intensa', slug: 'maxiline-hidratacao', parentSlug: 'maxiline' },
+  { name: 'Linha Finalizadores', slug: 'maxiline-finalizadores', parentSlug: 'maxiline' },
+  { name: 'Knut Amino Complex', slug: 'knut-amino', parentSlug: 'knut' },
+  { name: 'Knut Cachos & Ondas', slug: 'knut-cachos', parentSlug: 'knut' },
+];
 
 type DemoSegment = {
   name: string;
@@ -442,11 +542,45 @@ export async function seedCatalog(prisma: PrismaClient): Promise<{ categories: n
   }
 
   const brandIdBySlug = new Map<string, string>();
-  for (const brand of brands) {
+  for (const brand of brands.filter((item) => !item.parentSlug)) {
     const row = await prisma.brand.upsert({
       where: { slug: brand.slug },
-      update: { name: brand.name, status: 'ACTIVE' },
-      create: { name: brand.name, slug: brand.slug, status: 'ACTIVE', legacySource: DEMO_SOURCE, legacyId: brand.slug },
+      update: {
+        name: brand.name,
+        imagePath: brand.imagePath ?? null,
+        description: brand.description ?? null,
+        status: 'ACTIVE',
+      },
+      create: {
+        name: brand.name,
+        slug: brand.slug,
+        imagePath: brand.imagePath ?? null,
+        description: brand.description ?? null,
+        status: 'ACTIVE',
+        legacySource: DEMO_SOURCE,
+        legacyId: brand.slug,
+      },
+    });
+    brandIdBySlug.set(brand.slug, row.id);
+  }
+  for (const brand of brands.filter((item) => item.parentSlug)) {
+    const parentId = brandIdBySlug.get(brand.parentSlug ?? '');
+    if (!parentId) continue;
+    const row = await prisma.brand.upsert({
+      where: { slug: brand.slug },
+      update: {
+        name: brand.name,
+        parentId,
+        status: 'ACTIVE',
+      },
+      create: {
+        name: brand.name,
+        slug: brand.slug,
+        parentId,
+        status: 'ACTIVE',
+        legacySource: DEMO_SOURCE,
+        legacyId: brand.slug,
+      },
     });
     brandIdBySlug.set(brand.slug, row.id);
   }
@@ -492,22 +626,33 @@ export async function seedCatalog(prisma: PrismaClient): Promise<{ categories: n
     tagIdBySlug.set(tag.slug, row.id);
   }
 
-  for (const product of demoProducts) {
+  const subbrandSlugs = brands.filter((b) => b.parentSlug).map((b) => b.slug);
+
+  for (let idx = 0; idx < demoProducts.length; idx++) {
+    const product = demoProducts[idx];
     const imagePath = `uploads/seed-${product.slug}/960.webp`;
+    // Mantém os primeiros produtos em 'marca-exemplo' para compatibilidade de testes legados,
+    // e distribui o restante deterministicamente entre as marcas/submarcas do catálogo.
+    const assignedBrandSlug =
+      idx < 4
+        ? 'marca-exemplo'
+        : subbrandSlugs[idx % subbrandSlugs.length] ?? 'marca-exemplo';
+    const assignedBrandId = brandIdBySlug.get(assignedBrandSlug) ?? brandIdBySlug.get('marca-exemplo');
+
     const productRow = await prisma.product.upsert({
       where: { slug: product.slug },
       update: {
         name: product.name,
         description: product.description,
         status: product.status,
-        brandId: brandIdBySlug.get('marca-exemplo'),
+        brandId: assignedBrandId,
       },
       create: {
         name: product.name,
         slug: product.slug,
         description: product.description,
         status: product.status,
-        brandId: brandIdBySlug.get('marca-exemplo'),
+        brandId: assignedBrandId,
         legacySource: DEMO_SOURCE,
         legacyId: product.slug,
       },

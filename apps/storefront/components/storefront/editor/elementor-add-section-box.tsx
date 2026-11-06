@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Flame, Grid, Layout, Plus, Sparkles, Tv, X } from 'lucide-react';
+import { Award, Flame, Grid, Layout, Plus, Sparkles, Tv, X } from 'lucide-react';
 import { useElementor } from './elementor-editor-context';
 import type { WidgetType } from '@/lib/storefront/widget-types';
 
@@ -40,6 +40,12 @@ const quickWidgets: Array<{
     title: 'Carrossel de Produtos',
     desc: '5 colunas ou split com banner lateral + cotação',
     icon: Flame,
+  },
+  {
+    type: 'brands-carousel',
+    title: 'Compre por Marca',
+    desc: '6 cards de marcas com logos e link para vitrine por marca',
+    icon: Award,
   },
   {
     type: 'banner-grid',

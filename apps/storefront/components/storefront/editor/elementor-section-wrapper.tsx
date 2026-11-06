@@ -14,6 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import { useElementor } from './elementor-editor-context';
+import { ScrollSkeletonSection } from '@/components/ui/scroll-skeleton-reveal';
 import type { WidgetConfig } from '@/lib/storefront/widget-types';
 
 const widgetLabels: Record<string, string> = {
@@ -66,7 +67,23 @@ export function ElementorSectionWrapper({
 
   if (!isEditing || previewMode) {
     if (!widget.enabled) return null;
-    return <section id={`section-${widget.id}`}>{children}</section>;
+    const variantProp =
+      widget.props && typeof widget.props === 'object' && 'variant' in widget.props
+        ? String((widget.props as { variant?: unknown }).variant ?? '')
+        : undefined;
+
+    return (
+      <section id={`section-${widget.id}`}>
+        <ScrollSkeletonSection
+          disabled={isEditing}
+          index={index}
+          variant={variantProp}
+          widgetType={widget.type}
+        >
+          {children}
+        </ScrollSkeletonSection>
+      </section>
+    );
   }
 
   const isSelected = selectedWidgetId === widget.id;

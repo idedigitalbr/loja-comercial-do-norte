@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <rect width="240" height="240" rx="32" fill="#FFFFFF"/>
+  <rect x="52" y="66" width="136" height="50" rx="25" fill="#0D9488"/>
+  <text x="120" y="99" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="22" fill="#FFFFFF" letter-spacing="2">SUPERMAX</text>
+  <text x="120" y="156" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="15" fill="#0F172A" letter-spacing="1.5">PROFESSIONAL</text>
+  <text x="120" y="178" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="11" fill="#0D9488" letter-spacing="2">LUVAS &amp; HIGIENE</text>
+</svg>

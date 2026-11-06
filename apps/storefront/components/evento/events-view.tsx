@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import styles from './event-theme.module.css';
 import { cn } from '@commerce/ui/web';
+import { ScrollRevealBlock, SkeletonBlock } from '@/components/ui/scroll-skeleton-reveal';
 import type { EventItem } from '@/lib/events-data';
 
 export type EventsViewProps = {
@@ -402,20 +403,33 @@ export function EventsView({
         {/* Grid de 4 Colunas de Cartões de Eventos */}
         {displayedEvents.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {displayedEvents.map((event) => {
+            {displayedEvents.map((event, idx) => {
               const isBlue = event.buttonVariant === 'blue';
               const detailHref = `${detailBasePath}/${event.slug}`;
 
               return (
-                <article
-                  className={cn(
-                    'group flex flex-col rounded-2xl border transition-all duration-300 overflow-hidden',
-                    theme === 'light'
-                      ? 'bg-white border-slate-200 shadow-xs hover:shadow-xl hover:border-red-300 hover:-translate-y-1'
-                      : 'bg-[var(--event-surface,#0C1220)] border-[var(--event-border,#ffffff10)] hover:border-red-500/50 hover:shadow-[0_16px_40px_rgba(226,9,30,0.22)] hover:-translate-y-1'
-                  )}
+                <ScrollRevealBlock
+                  className="h-full"
+                  delayMs={(idx % 4) * 65}
                   key={event.id}
+                  skeleton={
+                    idx >= 4 ? (
+                      <SkeletonBlock
+                        className="h-[410px] w-full rounded-2xl"
+                        dark={theme !== 'light'}
+                      />
+                    ) : undefined
+                  }
+                  skeletonDurationMs={260}
                 >
+                  <article
+                    className={cn(
+                      'group flex h-full flex-col rounded-2xl border transition-all duration-300 overflow-hidden',
+                      theme === 'light'
+                        ? 'bg-white border-slate-200 shadow-xs hover:shadow-xl hover:border-red-300 hover:-translate-y-1'
+                        : 'bg-[var(--event-surface,#0C1220)] border-[var(--event-border,#ffffff10)] hover:border-red-500/50 hover:shadow-[0_16px_40px_rgba(226,9,30,0.22)] hover:-translate-y-1'
+                    )}
+                  >
                   {/* Cabeçalho de Imagem */}
                   <Link
                     className={cn(
@@ -526,7 +540,8 @@ export function EventsView({
                       </Link>
                     </div>
                   </div>
-                </article>
+                  </article>
+                </ScrollRevealBlock>
               );
             })}
           </div>

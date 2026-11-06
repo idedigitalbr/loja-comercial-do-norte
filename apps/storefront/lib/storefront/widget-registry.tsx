@@ -1,6 +1,7 @@
 import React from 'react';
 import { BannerGridWidget } from '@/components/storefront/widgets/banner-grid/banner-grid';
 import { BenefitsBarWidget } from '@/components/storefront/widgets/benefits-bar/benefits-bar';
+import { BrandsCarouselWidget } from '@/components/storefront/widgets/brands-carousel/brands-carousel';
 import { CategoryGridWidget } from '@/components/storefront/widgets/category-grid/category-grid';
 import { ContainedHeroWidget } from '@/components/storefront/widgets/contained-hero/contained-hero';
 import { EventsCarouselWidget } from '@/components/storefront/widgets/events-carousel/events-carousel';
@@ -31,6 +32,8 @@ export function renderWidget(widget: WidgetConfig, contextData: WidgetContextDat
       return <CategoryGridWidget contextData={contextData} key={widget.id} widgetId={widget.id} {...widget.props} />;
     case 'banner-grid':
       return <BannerGridWidget key={widget.id} widgetId={widget.id} {...widget.props} />;
+    case 'brands-carousel':
+      return <BrandsCarouselWidget contextData={contextData} key={widget.id} widgetId={widget.id} {...widget.props} />;
     case 'quote-steps-banner':
       return <QuoteStepsBannerWidget key={widget.id} widgetId={widget.id} {...widget.props} />;
     case 'segments-carousel':

@@ -81,6 +81,14 @@ const widgetDefinitions: Array<{
     desc: 'Departamentos da loja em grade',
     badge: 'GRID',
   },
+  {
+    type: 'brands-carousel',
+    title: 'Compre por Marca',
+    category: 'Pro',
+    icon: Grid,
+    desc: '6 cards de marcas parceiras com logos',
+    badge: 'MARCAS',
+  },
 ];
 
 export function ElementorPanel() {

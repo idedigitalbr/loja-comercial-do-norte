@@ -2,12 +2,16 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CatalogView } from '@/components/catalog/catalog-view';
 import { getBrands, getCategories, getProductsPage, getSegments, getTags } from '@/lib/api';
+import { findBrandOrSubbrand } from '@/lib/brands-data';
 
 export const dynamic = 'force-dynamic';
 
 type Params = Promise<{ slug: string }>;
 type SearchParams = Promise<{
   q?: string;
+  categoria?: string;
+  segmento?: string;
+  marca?: string;
   ordem?: string;
   entrega?: string;
   avaliacao?: string;
@@ -40,6 +44,9 @@ export default async function TagPage({
   const { slug } = await params;
   const {
     q,
+    categoria,
+    segmento,
+    marca,
     ordem,
     entrega,
     avaliacao,
@@ -60,6 +67,9 @@ export default async function TagPage({
     getBrands(),
     getProductsPage({
       tag: slug,
+      category: categoria,
+      segment: segmento,
+      brand: marca,
       search: q,
       page,
       pageSize: PAGE_SIZE,
@@ -70,6 +80,13 @@ export default async function TagPage({
 
   const tag = tags.find((item) => item.slug === slug);
   if (!tag) notFound();
+
+  const activeCategory = categoria
+    ? categories.find((c) => c.slug === categoria) ??
+      categories.flatMap((c) => c.children ?? []).find((c) => c.slug === categoria)
+    : undefined;
+  const activeSegment = segmento ? segments.find((s) => s.slug === segmento) : undefined;
+  const activeBrand = marca ? findBrandOrSubbrand(brands, marca)?.brand : undefined;
 
   let items = result.items;
   if (precoMin) {
@@ -92,6 +109,9 @@ export default async function TagPage({
 
   return (
     <CatalogView
+      activeBrand={activeBrand}
+      activeCategory={activeCategory}
+      activeSegment={activeSegment}
       activeTag={tag}
       baseUrl={`/tag/${slug}`}
       brands={brands}
@@ -105,7 +125,10 @@ export default async function TagPage({
       products={items}
       searchParamsState={{
         q,
+        categoria,
+        segmento,
         tag: slug,
+        marca,
         ordem,
         entrega,
         avaliacao,

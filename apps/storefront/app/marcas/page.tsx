@@ -1,39 +1,54 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
-import { getBrands } from '@/lib/api';
+import { CatalogView } from '@/components/catalog/catalog-view';
+import { getBrands, getCategories, getSegments, getTags } from '@/lib/api';
+import { buildEnrichedBrands } from '@/lib/brands-data';
 
 export const dynamic = 'force-dynamic';
 
+type SearchParams = Promise<{
+  q?: string;
+  ordem?: string;
+  pagina?: string;
+}>;
+
 export const metadata: Metadata = {
   title: 'Marcas | Comercial do Norte',
-  description: 'Marcas disponíveis no catálogo da Comercial do Norte.',
+  description: 'Compre por marca e submarca no catálogo da Comercial do Norte.',
   alternates: { canonical: '/marcas' },
 };
 
-export default async function BrandsPage() {
-  const brands = await getBrands();
-  return (
-    <div className="cn-container py-8">
-      <h1 className="text-2xl font-extrabold text-ink">Marcas</h1>
-      <p className="text-sm text-muted">Catálogo organizado por marca para facilitar sua cotação.</p>
+export default async function BrandsPage({ searchParams }: { searchParams: SearchParams }) {
+  const { q, ordem, pagina } = await searchParams;
 
-      {brands.length ? (
-        <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-          {brands.map((brand) => (
-            <Link
-              className="rounded-card border border-line bg-surface p-4 text-center shadow-card transition hover:-translate-y-0.5 hover:border-brand"
-              href={`/marca/${brand.slug}`}
-              key={brand.id}
-            >
-              <p className="text-sm font-bold text-ink">{brand.name}</p>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <p className="mt-8 rounded-card border border-dashed border-line bg-surface p-6 text-sm text-muted">
-          Nenhuma marca publicada até o momento.
-        </p>
-      )}
-    </div>
+  const [apiBrands, categories, segments, tags] = await Promise.all([
+    getBrands(),
+    getCategories(),
+    getSegments(),
+    getTags(),
+  ]);
+
+  const enrichedBrands = buildEnrichedBrands(apiBrands);
+
+  return (
+    <CatalogView
+      baseUrl="/marcas"
+      brands={enrichedBrands}
+      breadcrumbs={[{ label: 'Marcas' }]}
+      categories={categories}
+      page={1}
+      pageSize={20}
+      products={[]}
+      searchParamsState={{
+        q,
+        ordem,
+        pagina,
+      }}
+      segments={segments}
+      tags={tags}
+      title="Marcas"
+      total={enrichedBrands.length}
+      totalPages={1}
+      viewMode="brands"
+    />
   );
 }

@@ -188,4 +188,113 @@ describe("CatalogView", () => {
     expect(screen.getByTitle("Remover filtro de ofertas")).toBeDefined();
     expect(screen.getByTitle("Remover ordenação por mais vendidos")).toBeDefined();
   });
+
+  it("renders top brand logo strip and expanded subbrands tree when viewing a brand page", () => {
+    vi.spyOn(QuoteCartModule, "useQuoteCart").mockReturnValue({
+      items: [],
+      count: 0,
+      subtotalCents: 0,
+      ready: true,
+      drawerOpen: false,
+      add: vi.fn(),
+      updateQuantity: vi.fn(),
+      remove: vi.fn(),
+      clear: vi.fn(),
+      openDrawer: vi.fn(),
+      closeDrawer: vi.fn(),
+    });
+
+    vi.spyOn(FavoritesModule, "useFavorites").mockReturnValue({
+      favorites: [],
+      count: 0,
+      ready: true,
+      isFavorite: vi.fn(() => false),
+      add: vi.fn(),
+      remove: vi.fn(),
+      toggle: vi.fn(),
+      clear: vi.fn(),
+    });
+
+    render(
+      <CatalogView
+        activeBrand={{
+          id: "brand-grandha",
+          publicId: "brand-grandha",
+          name: "Grandha",
+          slug: "grandha",
+          imagePath: "/assets/PRODUTOS/marcas-imgs/grandha_logo.svg",
+          parentId: null,
+        }}
+        baseUrl="/marca/grandha"
+        brands={[]}
+        categories={mockCategories}
+        page={1}
+        products={[mockProduct]}
+        searchParamsState={{ marca: "grandha" }}
+        segments={mockSegments}
+        tags={mockTags}
+        title="Grandha"
+        total={22}
+        totalPages={2}
+      />
+    );
+
+    // Top brand navigation strip is rendered
+    expect(screen.getByLabelText("Navegação rápida por marcas")).toBeDefined();
+
+    // Sidebar header "VER POR: Marcas", Limpar Filtro button and Subbrands tree for Grandha are visible
+    expect(screen.getAllByText(/VER POR:/i)[0]).toBeDefined();
+    expect(screen.getAllByText(/Limpar Filtro/i)[0]).toBeDefined();
+    expect(screen.getAllByText(/Alkymia di Grandha/i)[0]).toBeDefined();
+    expect(screen.getAllByText(/BBTox Absolute Repair/i)[0]).toBeDefined();
+  });
+
+  it("renders 4-column brands grid in /marcas directory mode (viewMode='brands')", () => {
+    vi.spyOn(QuoteCartModule, "useQuoteCart").mockReturnValue({
+      items: [],
+      count: 0,
+      subtotalCents: 0,
+      ready: true,
+      drawerOpen: false,
+      add: vi.fn(),
+      updateQuantity: vi.fn(),
+      remove: vi.fn(),
+      clear: vi.fn(),
+      openDrawer: vi.fn(),
+      closeDrawer: vi.fn(),
+    });
+
+    vi.spyOn(FavoritesModule, "useFavorites").mockReturnValue({
+      favorites: [],
+      count: 0,
+      ready: true,
+      isFavorite: vi.fn(() => false),
+      add: vi.fn(),
+      remove: vi.fn(),
+      toggle: vi.fn(),
+      clear: vi.fn(),
+    });
+
+    render(
+      <CatalogView
+        baseUrl="/marcas"
+        brands={[]}
+        breadcrumbs={[{ label: "Marcas" }]}
+        categories={mockCategories}
+        page={1}
+        products={[]}
+        searchParamsState={{}}
+        segments={mockSegments}
+        tags={mockTags}
+        title="Marcas"
+        total={10}
+        totalPages={1}
+        viewMode="brands"
+      />
+    );
+
+    expect(screen.getByRole("heading", { name: "Marcas", level: 1 })).toBeDefined();
+    expect(screen.getByLabelText("Grade de marcas em 4 colunas")).toBeDefined();
+    expect(screen.getAllByText(/VER POR:/i)[0]).toBeDefined();
+  });
 });

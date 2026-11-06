@@ -18,6 +18,7 @@ export function HeroCarouselWidget({
   const { isEditing, previewMode } = useElementor();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   const isEditMode = isEditing && !previewMode;
 
@@ -30,6 +31,21 @@ export function HeroCarouselWidget({
     if (slides.length <= 1) return;
     setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
   }, [slides.length]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null || slides.length <= 1) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (diff > 45) {
+      nextSlide();
+    } else if (diff < -45) {
+      prevSlide();
+    }
+    setTouchStartX(null);
+  };
 
   useEffect(() => {
     if (isPaused || slides.length <= 1) return;
@@ -45,6 +61,8 @@ export function HeroCarouselWidget({
       className="relative w-full overflow-hidden select-none bg-[#EBEBEB]"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      onTouchEnd={handleTouchEnd}
+      onTouchStart={handleTouchStart}
     >
       <div
         className="relative w-full overflow-hidden rounded-b-[28px] sm:rounded-b-[36px] md:rounded-b-[44px] shadow-md"

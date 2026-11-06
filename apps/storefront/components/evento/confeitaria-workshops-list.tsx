@@ -22,6 +22,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import './confeitaria-tokens.css';
+import { ScrollRevealBlock, SkeletonBlock } from '@/components/ui/scroll-skeleton-reveal';
 import type { EventItem, EventCategoryKey } from '@/lib/events-data';
 
 export type ConfeitariaWorkshopsListProps = {
@@ -318,10 +319,20 @@ export function ConfeitariaWorkshopsList({
               const isFirstFeatured = idx === 0;
 
               return (
-                <article
-                  className="group flex flex-col rounded-3xl bg-white border border-[#EFE4DC] transition-all duration-300 overflow-hidden confeitaria-card-shadow hover:confeitaria-card-shadow-hover hover:-translate-y-1.5"
+                <ScrollRevealBlock
+                  className="h-full"
+                  delayMs={(idx % 4) * 65}
                   key={event.id}
+                  skeleton={
+                    idx >= 4 ? (
+                      <SkeletonBlock className="h-[410px] w-full rounded-3xl" />
+                    ) : undefined
+                  }
+                  skeletonDurationMs={260}
                 >
+                  <article
+                    className="group flex h-full flex-col rounded-3xl bg-white border border-[#EFE4DC] transition-all duration-300 overflow-hidden confeitaria-card-shadow hover:confeitaria-card-shadow-hover hover:-translate-y-1.5"
+                  >
                   {/* Foto do Card com Tag Flutuante */}
                   <Link className="relative aspect-[16/10] w-full overflow-hidden block bg-[#FAF6F0]" href={detailHref}>
                     {event.posterUrl ? (
@@ -402,7 +413,8 @@ export function ConfeitariaWorkshopsList({
                       </Link>
                     </div>
                   </div>
-                </article>
+                  </article>
+                </ScrollRevealBlock>
               );
             })}
           </div>

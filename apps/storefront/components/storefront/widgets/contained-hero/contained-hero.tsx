@@ -18,6 +18,7 @@ export function ContainedHeroWidget({
   const { isEditing, previewMode } = useElementor();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   const isEditMode = isEditing && !previewMode;
 
@@ -30,6 +31,21 @@ export function ContainedHeroWidget({
     if (slides.length <= 1) return;
     setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
   }, [slides.length]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null || slides.length <= 1) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (diff > 45) {
+      nextSlide();
+    } else if (diff < -45) {
+      prevSlide();
+    }
+    setTouchStartX(null);
+  };
 
   useEffect(() => {
     if (isPaused || slides.length <= 1) return;
@@ -48,9 +64,11 @@ export function ContainedHeroWidget({
       }`}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      onTouchEnd={handleTouchEnd}
+      onTouchStart={handleTouchStart}
     >
       <div className="group relative w-full overflow-hidden rounded-2xl border border-white/25 bg-[#122347] shadow-2xl md:rounded-3xl">
-        <div className="relative aspect-[2.8/1] min-h-[180px] w-full sm:aspect-[2.9/1] md:aspect-[3.1/1] md:min-h-[240px] lg:aspect-[3.2/1] lg:min-h-[270px] lg:max-h-[340px]">
+        <div className="relative aspect-[2.8/1] min-h-[160px] w-full sm:aspect-[2.9/1] sm:min-h-[180px] md:aspect-[3.1/1] md:min-h-[240px] lg:aspect-[3.2/1] lg:min-h-[270px] lg:max-h-[340px]">
           {slides.map((slide, index) => {
             const isActive = index === currentIndex;
             return (

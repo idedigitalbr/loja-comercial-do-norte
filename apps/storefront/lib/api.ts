@@ -3,8 +3,12 @@ import type { ApiBrand, ApiCategory, ApiProduct, ApiSegment, ApiTag, PublicQuote
 /**
  * URL da API NestJS (fonte única de regra de negócio). O storefront só consome
  * REST: nunca acessa banco nem duplica regra comercial.
+ * No Windows / Node 18+, 'localhost' resolve preferencialmente para IPv6 (::1).
+ * O uso de 127.0.0.1 garante conexão imediata via IPv4 e elimina ECONNREFUSED ::1:3000.
  */
-export const API_URL = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+const DEFAULT_API_URL = 'http://127.0.0.1:3000';
+const CONFIGURED_API_URL = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_URL;
+export const API_URL = CONFIGURED_API_URL.replace('//localhost:3000', '//127.0.0.1:3000');
 
 /** Janelas de cache ISR (segundos) e tags de revalidação por domínio. */
 export const REVALIDATE_WINDOWS = {

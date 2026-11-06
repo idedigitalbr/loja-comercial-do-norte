@@ -4,11 +4,12 @@ import React, { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  ArrowRight,
+  Award,
   Boxes,
   Bike,
   CakeSlice,
   Candy,
+  Check,
   ChevronDown,
   ChevronRight,
   ChevronUp,
@@ -17,12 +18,15 @@ import {
   Flame,
   IceCream2,
   Milk,
+  Minus,
   Package,
   PartyPopper,
   Pizza,
+  Plus,
   Sandwich,
   Search,
   ShoppingBag,
+  SlidersHorizontal,
   Sparkles,
   Star,
   Store,
@@ -32,6 +36,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@commerce/ui/web";
+import { buildEnrichedBrands } from "@/lib/brands-data";
 import type { ApiBrand, ApiCategory, ApiSegment, ApiTag } from "@/lib/types";
 import { CatalogPriceSlider } from "./catalog-price-slider";
 
@@ -127,19 +132,6 @@ const DEFAULT_FALLBACK_TAGS: ApiTag[] = [
   { id: "tag_termico", name: "Térmico", slug: "termico" },
   { id: "tag_transparente", name: "Transparente", slug: "transparente" },
   { id: "tag_microondas", name: "Vai ao Micro-ondas", slug: "vai-ao-micro-ondas" },
-];
-
-const DEMO_BRANDS = [
-  { id: "b_110v", name: "110v", slug: "110v" },
-  { id: "b_alianca", name: "Aliança", slug: "alianca" },
-  { id: "b_asaf", name: "Asaf", slug: "asaf" },
-  { id: "b_atlas", name: "Atlas", slug: "atlas" },
-  { id: "b_bases", name: "Bases e Cia", slug: "bases-e-cia" },
-  { id: "b_bellator", name: "Bellator", slug: "bellator" },
-  { id: "b_bivena", name: "Bivena", slug: "bivena" },
-  { id: "b_brastemp", name: "Brastemp", slug: "brastemp" },
-  { id: "b_brastemp_consul", name: "Brastemp e Consul", slug: "brastemp-e-consul" },
-  { id: "b_brastemp_consul_bar", name: "Brastemp/consul", slug: "brastemp-consul" },
 ];
 
 function getCategoryIcon(slug: string) {
@@ -238,7 +230,29 @@ export function CatalogSidebar({
   const activeSegments =
     segments && segments.length > 0 ? segments : DEFAULT_FALLBACK_SEGMENTS;
   const activeTags = tags && tags.length > 0 ? tags : DEFAULT_FALLBACK_TAGS;
-  const availableBrands = brands && brands.length > 0 ? brands : DEMO_BRANDS;
+  const availableBrands = useMemo(() => buildEnrichedBrands(brands ?? []), [brands]);
+
+  const [expandedBrands, setExpandedBrands] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (!currentMarca) return;
+    for (const root of availableBrands) {
+      if (root.slug === currentMarca || root.children?.some((c) => c.slug === currentMarca)) {
+        setExpandedBrands((prev) => ({ ...prev, [root.slug]: true }));
+      }
+    }
+  }, [currentMarca, availableBrands]);
+
+  function toggleBrandExpand(slug: string, e?: React.SyntheticEvent) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setExpandedBrands((prev) => ({
+      ...prev,
+      [slug]: !prev[slug],
+    }));
+  }
 
   // Filtragem dinâmica pela busca digitada na sidebar
   const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -279,11 +293,17 @@ export function CatalogSidebar({
 
   const filteredBrands = useMemo(() => {
     if (!normalizedQuery) return availableBrands;
-    return availableBrands.filter(
-      (brand) =>
+    return availableBrands.filter((brand) => {
+      const matchRoot =
         brand.name.toLowerCase().includes(normalizedQuery) ||
-        brand.slug.toLowerCase().includes(normalizedQuery)
-    );
+        brand.slug.toLowerCase().includes(normalizedQuery);
+      const matchSub = brand.children?.some(
+        (sub) =>
+          sub.name.toLowerCase().includes(normalizedQuery) ||
+          sub.slug.toLowerCase().includes(normalizedQuery)
+      );
+      return matchRoot || matchSub;
+    });
   }, [availableBrands, normalizedQuery]);
 
   // Segmentos visíveis: quando showAllSegments está ativo exibe todos, senão exibe 4 itens com 'VER MAIS'
@@ -313,7 +333,12 @@ export function CatalogSidebar({
     return base;
   }, [showAllCategories, normalizedQuery, filteredCategories, activeCategorySlug]);
 
-  const visibleBrands = showAllBrands || normalizedQuery ? filteredBrands : filteredBrands.slice(0, 5);
+  const visibleBrands = useMemo(() => {
+    if (showAllBrands || normalizedQuery || currentMarca || baseUrl.startsWith("/marca")) {
+      return filteredBrands;
+    }
+    return filteredBrands.slice(0, 6);
+  }, [showAllBrands, normalizedQuery, currentMarca, baseUrl, filteredBrands]);
 
   function toggleCategoryExpand(id: string, e?: React.SyntheticEvent) {
     if (e) {
@@ -367,8 +392,118 @@ export function CatalogSidebar({
     }
     params.delete("pagina");
     const query = params.toString();
+    const targetBaseUrl = baseUrl === "/marcas" ? "/loja" : baseUrl;
+    startTransition(() => {
+      router.push(query ? `${targetBaseUrl}?${query}` : targetBaseUrl, { scroll: false });
+    });
+    onItemClick?.();
+  }
+
+  function handleSelectBrandFilter(brandSlug: string) {
+    if (baseUrl === "/marcas" || baseUrl.startsWith("/marca/")) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("marca");
+      params.delete("pagina");
+      if (currentMarca === brandSlug) {
+        const query = params.toString();
+        startTransition(() => {
+          router.push(query ? `/loja?${query}` : "/loja", { scroll: false });
+        });
+      } else {
+        const query = params.toString();
+        startTransition(() => {
+          router.push(
+            query ? `/marca/${brandSlug}?${query}` : `/marca/${brandSlug}`,
+            { scroll: false }
+          );
+        });
+      }
+      onItemClick?.();
+      return;
+    }
+    toggleParam("marca", brandSlug);
+  }
+
+  function handleSelectCategoryFilter(catSlug: string) {
+    if (baseUrl.startsWith("/categoria/")) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("categoria");
+      params.delete("pagina");
+      if (activeCategorySlug === catSlug) {
+        const query = params.toString();
+        startTransition(() => {
+          router.push(query ? `/loja?${query}` : "/loja", { scroll: false });
+        });
+      } else {
+        const query = params.toString();
+        startTransition(() => {
+          router.push(
+            query ? `/categoria/${catSlug}?${query}` : `/categoria/${catSlug}`,
+            { scroll: false }
+          );
+        });
+      }
+      onItemClick?.();
+      return;
+    }
+    toggleParam("categoria", catSlug);
+  }
+
+  function handleSelectSegmentFilter(segSlug: string) {
+    if (baseUrl.startsWith("/segmento/")) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("segmento");
+      params.delete("pagina");
+      if (activeSegmentSlug === segSlug) {
+        const query = params.toString();
+        startTransition(() => {
+          router.push(query ? `/loja?${query}` : "/loja", { scroll: false });
+        });
+      } else {
+        const query = params.toString();
+        startTransition(() => {
+          router.push(
+            query ? `/segmento/${segSlug}?${query}` : `/segmento/${segSlug}`,
+            { scroll: false }
+          );
+        });
+      }
+      onItemClick?.();
+      return;
+    }
+    toggleParam("segmento", segSlug);
+  }
+
+  const hasRefinementActive = Boolean(
+    precoMin !== undefined ||
+    precoMax !== undefined ||
+    currentOrdem ||
+    currentEntrega ||
+    currentAvaliacao
+  );
+
+  function handleClearRefinements() {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("precoMin");
+    params.delete("precoMax");
+    params.delete("ordem");
+    params.delete("entrega");
+    params.delete("avaliacao");
+    params.delete("pagina");
+    const query = params.toString();
     startTransition(() => {
       router.push(query ? `${baseUrl}?${query}` : baseUrl, { scroll: false });
+    });
+    onItemClick?.();
+  }
+
+  function handleClearBrandFilter() {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("marca");
+    params.delete("pagina");
+    const query = params.toString();
+    startTransition(() => {
+      router.push(query ? `/loja?${query}` : "/loja", { scroll: false });
     });
     onItemClick?.();
   }
@@ -497,7 +632,181 @@ export function CatalogSidebar({
         </form>
       </div>
 
-      {/* CARD 01: Ver produtos por CATEGORIAS */}
+      {/* CARD 00: FILTRO DE MARCAS & SUBMARCAS (ESTILO ÁRVORE HIERÁRQUICA — ANEXO 2) */}
+      <div className="rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs transition">
+        {(currentMarca || baseUrl.startsWith("/marca")) && (
+          <div className="mb-3">
+            <button
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-bold text-[#004CB1] shadow-2xs transition hover:bg-blue-100"
+              onClick={handleClearBrandFilter}
+              type="button"
+            >
+              <X className="size-3.5 stroke-[2.5]" />
+              <span>Limpar Filtro de Marca</span>
+            </button>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between gap-2 p-1">
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#00357B] text-white shadow-xs">
+              <Award className="size-5" />
+            </div>
+            <div className="leading-tight">
+              <span className="block text-[10.5px] font-bold uppercase tracking-wider text-slate-400">
+                VER POR:
+              </span>
+              <span className="block text-base font-black text-slate-900">
+                Marcas
+              </span>
+            </div>
+          </div>
+          <Link
+            className="text-[11px] font-bold text-[#004CB1] hover:underline"
+            href="/marcas"
+            onClick={onItemClick}
+          >
+            Ver todas
+          </Link>
+        </div>
+
+        <div className="my-2.5 h-px w-full bg-slate-100" />
+
+        <div className="space-y-1">
+          {visibleBrands.map((brand) => {
+            const subs = brand.children ?? [];
+            const hasSubs = subs.length > 0;
+            const isParentActive = currentMarca === brand.slug;
+            const isChildActive = subs.some((s) => s.slug === currentMarca);
+            const isExpanded =
+              Boolean(expandedBrands[brand.slug]) ||
+              isParentActive ||
+              isChildActive ||
+              (Boolean(normalizedQuery) &&
+                subs.some((s) =>
+                  s.name.toLowerCase().includes(normalizedQuery)
+                ));
+            const brandCount = brand._count?.products ?? 0;
+
+            return (
+              <div className="rounded-xl transition" key={brand.id || brand.slug}>
+                <div
+                  className={cn(
+                    "group flex items-center justify-between gap-1.5 rounded-lg px-2 py-1.5 text-xs transition",
+                    isParentActive || isChildActive
+                      ? "bg-blue-50/80 text-[#004CB1] font-bold"
+                      : "text-slate-700 hover:bg-slate-100/80"
+                  )}
+                >
+                  <div className="flex min-w-0 flex-1 items-center gap-2">
+                    {hasSubs ? (
+                      <button
+                        aria-expanded={isExpanded}
+                        aria-label={
+                          isExpanded
+                            ? `Recolher submarcas de ${brand.name}`
+                            : `Expandir submarcas de ${brand.name}`
+                        }
+                        className="flex size-5 shrink-0 cursor-pointer items-center justify-center rounded text-slate-500 transition hover:bg-slate-200/70 hover:text-slate-900"
+                        onClick={(e) => toggleBrandExpand(brand.slug, e)}
+                        type="button"
+                      >
+                        {isExpanded ? (
+                          <Minus className="size-3.5 stroke-[2.5]" />
+                        ) : (
+                          <Plus className="size-3.5 stroke-[2.5]" />
+                        )}
+                      </button>
+                    ) : (
+                      <span className="size-5 shrink-0" />
+                    )}
+
+                    <button
+                      className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left"
+                      onClick={() => handleSelectBrandFilter(brand.slug)}
+                      type="button"
+                    >
+                      <span
+                        className={cn(
+                          "flex size-4 shrink-0 items-center justify-center rounded border transition",
+                          isParentActive || isChildActive
+                            ? "border-[#004CB1] bg-[#004CB1] text-white"
+                            : "border-slate-300 bg-white group-hover:border-[#004CB1]"
+                        )}
+                      >
+                        {(isParentActive || isChildActive) && (
+                          <Check className="size-3 stroke-[3]" />
+                        )}
+                      </span>
+                      <span className="truncate font-bold uppercase tracking-tight text-slate-800 group-hover:text-[#004CB1]">
+                        {brand.name}
+                      </span>
+                      <span className="shrink-0 text-[11px] font-medium text-slate-400">
+                        ({brandCount})
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Submarcas Indentadas */}
+                {hasSubs && isExpanded && (
+                  <div className="ml-6 mt-0.5 space-y-0.5 border-l-2 border-slate-100 pl-2.5 pb-1 animate-in fade-in">
+                    {subs.map((sub) => {
+                      const isSubSelected = currentMarca === sub.slug;
+                      const subCount = sub._count?.products ?? 0;
+                      return (
+                        <button
+                          className={cn(
+                            "group flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left text-[11.5px] transition",
+                            isSubSelected
+                              ? "bg-blue-100/70 font-bold text-[#004CB1]"
+                              : "font-medium text-slate-600 hover:bg-blue-50/60 hover:text-[#004CB1]"
+                          )}
+                          key={sub.id || sub.slug}
+                          onClick={() => handleSelectBrandFilter(sub.slug)}
+                          type="button"
+                        >
+                          <span
+                            className={cn(
+                              "flex size-3.5 shrink-0 items-center justify-center rounded border transition",
+                              isSubSelected
+                                ? "border-[#004CB1] bg-[#004CB1] text-white"
+                                : "border-slate-300 bg-white group-hover:border-[#004CB1]"
+                            )}
+                          >
+                            {isSubSelected && <Check className="size-2.5 stroke-[3]" />}
+                          </span>
+                          <span className="truncate">{sub.name}</span>
+                          <span className="shrink-0 text-[10.5px] text-slate-400">
+                            ({subCount})
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {!normalizedQuery && availableBrands.length > 6 && (
+          <button
+            className="mt-2.5 flex w-full cursor-pointer items-center justify-center gap-1 border-t border-slate-100 pt-2.5 text-[10.5px] font-black uppercase tracking-wider text-slate-500 transition hover:text-[#004CB1]"
+            onClick={() => setShowAllBrands(!showAllBrands)}
+            type="button"
+          >
+            <span>{showAllBrands ? "VER MENOS MARCAS" : "VER TODAS AS MARCAS"}</span>
+            {showAllBrands ? (
+              <ChevronUp className="size-3.5 stroke-[2.5]" />
+            ) : (
+              <ChevronDown className="size-3.5 stroke-[2.5]" />
+            )}
+          </button>
+        )}
+      </div>
+
+      {/* CARD 01: Ver produtos por CATEGORIAS (FILTRO COMBINÁVEL COM CHECKBOX) */}
       <div className="rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs transition">
         <div className="flex items-center gap-3 p-1">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#E2091E] text-white shadow-xs">
@@ -505,7 +814,7 @@ export function CatalogSidebar({
           </div>
           <div className="leading-tight">
             <span className="block text-[10.5px] font-bold uppercase tracking-wider text-slate-400">
-              Ver produtos por
+              VER POR:
             </span>
             <span className="block text-base font-black text-slate-900">
               Categorias
@@ -519,12 +828,16 @@ export function CatalogSidebar({
           {visibleCategories.map((cat) => {
             const IconComponent = getCategoryIcon(cat.slug);
             const hasSubs = cat.subcategories && cat.subcategories.length > 0;
-            const isCategoryActive =
-              activeCategorySlug === cat.slug ||
-              searchParams.get("categoria") === cat.slug;
+            const currentCatSlug = activeCategorySlug || searchParams.get("categoria") || "";
+            const isCategoryActive = currentCatSlug === cat.slug;
+            const isSubCategoryActive = cat.subcategories.some(
+              (s) => s.slug === currentCatSlug
+            );
 
             const isExpanded =
               !!expandedCategories[cat.id] ||
+              isCategoryActive ||
+              isSubCategoryActive ||
               (Boolean(normalizedQuery) &&
                 cat.subcategories.some((s) =>
                   s.name.toLowerCase().includes(normalizedQuery)
@@ -532,107 +845,92 @@ export function CatalogSidebar({
 
             return (
               <div className="rounded-xl transition" key={cat.id || cat.slug}>
-                {hasSubs ? (
-                  <div
-                    aria-expanded={isExpanded}
-                    className={cn(
-                      "group flex cursor-pointer items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 text-xs transition",
-                      isCategoryActive
-                        ? "bg-blue-50 font-bold text-[#004CB1]"
-                        : "text-slate-700 hover:bg-slate-100/80"
-                    )}
-                    onClick={() => toggleCategoryExpand(cat.id)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        toggleCategoryExpand(cat.id);
-                      }
-                    }}
+                <div
+                  className={cn(
+                    "group flex items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 text-xs transition",
+                    isCategoryActive || isSubCategoryActive
+                      ? "bg-blue-50 font-bold text-[#004CB1]"
+                      : "text-slate-700 hover:bg-slate-100/80"
+                  )}
+                >
+                  <button
+                    className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left"
+                    onClick={() => handleSelectCategoryFilter(cat.slug)}
+                    type="button"
                   >
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      <IconComponent
-                        className={cn(
-                          "size-4 shrink-0 transition",
-                          isCategoryActive
-                            ? "text-[#004CB1]"
-                            : "text-slate-400 group-hover:text-[#004CB1]"
-                        )}
-                      />
-                      <Link
-                        className="truncate font-semibold text-slate-800 transition hover:text-[#004CB1] hover:underline"
-                        href={`/categoria/${cat.slug}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onItemClick?.();
-                        }}
-                      >
-                        {cat.name}
-                      </Link>
-                    </div>
+                    <span
+                      className={cn(
+                        "flex size-4 shrink-0 items-center justify-center rounded border transition",
+                        isCategoryActive || isSubCategoryActive
+                          ? "border-[#004CB1] bg-[#004CB1] text-white"
+                          : "border-slate-300 bg-white group-hover:border-[#004CB1]"
+                      )}
+                    >
+                      {(isCategoryActive || isSubCategoryActive) && (
+                        <Check className="size-3 stroke-[3]" />
+                      )}
+                    </span>
+                    <IconComponent
+                      className={cn(
+                        "size-4 shrink-0 transition",
+                        isCategoryActive || isSubCategoryActive
+                          ? "text-[#004CB1]"
+                          : "text-slate-400 group-hover:text-[#004CB1]"
+                      )}
+                    />
+                    <span className="truncate font-semibold text-slate-800 transition group-hover:text-[#004CB1]">
+                      {cat.name}
+                    </span>
+                  </button>
 
-                    <div
+                  {hasSubs ? (
+                    <button
+                      aria-expanded={isExpanded}
                       aria-label={
                         isExpanded ? `Recolher ${cat.name}` : `Expandir ${cat.name}`
                       }
-                      className="flex size-6 shrink-0 items-center justify-center rounded-md text-slate-400 transition group-hover:text-slate-700"
+                      className="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-200/60 hover:text-slate-700"
+                      onClick={(e) => toggleCategoryExpand(cat.id, e)}
+                      type="button"
                     >
                       {isExpanded ? (
                         <ChevronUp className="size-3.5 stroke-[2.5]" />
                       ) : (
                         <ChevronDown className="size-3.5 stroke-[2.5]" />
                       )}
-                    </div>
-                  </div>
-                ) : (
-                  <Link
-                    className={cn(
-                      "group flex items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 text-xs transition",
-                      isCategoryActive
-                        ? "bg-blue-50 font-bold text-[#004CB1]"
-                        : "text-slate-700 hover:bg-slate-100/80 hover:text-[#004CB1]"
-                    )}
-                    href={`/categoria/${cat.slug}`}
-                    onClick={onItemClick}
-                  >
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      <IconComponent
-                        className={cn(
-                          "size-4 shrink-0 transition",
-                          isCategoryActive
-                            ? "text-[#004CB1]"
-                            : "text-slate-400 group-hover:text-[#004CB1]"
-                        )}
-                      />
-                      <span className="truncate font-semibold">{cat.name}</span>
-                    </div>
-                    <ChevronRight className="size-3 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-[#004CB1]" />
-                  </Link>
-                )}
+                    </button>
+                  ) : null}
+                </div>
 
                 {/* Subcategorias Indentadas */}
                 {hasSubs && isExpanded && (
                   <div className="ml-6 mt-0.5 space-y-0.5 border-l-2 border-slate-100 pl-2 pb-1 animate-in fade-in">
                     {cat.subcategories.map((sub) => {
-                      const isSubActive =
-                        activeCategorySlug === sub.slug ||
-                        searchParams.get("categoria") === sub.slug;
+                      const isSubActive = currentCatSlug === sub.slug;
                       return (
-                        <Link
+                        <button
                           className={cn(
-                            "flex items-center gap-1.5 rounded-md px-2 py-1 text-[11.5px] font-medium transition",
+                            "group flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left text-[11.5px] font-medium transition",
                             isSubActive
                               ? "bg-blue-100/70 text-[#004CB1] font-bold"
                               : "text-slate-600 hover:bg-blue-50/70 hover:text-[#004CB1]"
                           )}
-                          href={`/categoria/${sub.slug}`}
                           key={sub.slug}
-                          onClick={onItemClick}
+                          onClick={() => handleSelectCategoryFilter(sub.slug)}
+                          type="button"
                         >
-                          <span className="text-[10px] text-slate-300">-</span>
+                          <span
+                            className={cn(
+                              "flex size-3.5 shrink-0 items-center justify-center rounded border transition",
+                              isSubActive
+                                ? "border-[#004CB1] bg-[#004CB1] text-white"
+                                : "border-slate-300 bg-white group-hover:border-[#004CB1]"
+                            )}
+                          >
+                            {isSubActive && <Check className="size-2.5 stroke-[3]" />}
+                          </span>
                           <span className="truncate">{sub.name}</span>
-                        </Link>
+                        </button>
                       );
                     })}
                   </div>
@@ -648,7 +946,7 @@ export function CatalogSidebar({
           )}
         </div>
 
-        {/* Botão VER MENOS / VER MAIS de Categorias (Exatamente no estilo do print) */}
+        {/* Botão VER MENOS / VER MAIS de Categorias */}
         {!normalizedQuery && processedCategories.length > 2 && (
           <button
             className="mt-2.5 flex w-full cursor-pointer items-center justify-center gap-1 border-t border-slate-100 pt-2.5 text-[10.5px] font-black uppercase tracking-wider text-slate-500 transition hover:text-[#004CB1]"
@@ -665,7 +963,7 @@ export function CatalogSidebar({
         )}
       </div>
 
-      {/* CARD 02: Ver produtos por SEGMENTOS */}
+      {/* CARD 02: Ver produtos por SEGMENTOS (FILTRO COMBINÁVEL COM CHECKBOX) */}
       <div className="rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs transition">
         <div className="flex items-center gap-3 p-1">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#004CB1] text-white shadow-xs">
@@ -673,7 +971,7 @@ export function CatalogSidebar({
           </div>
           <div className="leading-tight">
             <span className="block text-[10.5px] font-bold uppercase tracking-wider text-slate-400">
-              Ver produtos por
+              VER POR:
             </span>
             <span className="block text-base font-black text-slate-900">
               Segmentos
@@ -691,18 +989,28 @@ export function CatalogSidebar({
               searchParams.get("segmento") === seg.slug;
 
             return (
-              <Link
+              <button
                 className={cn(
-                  "group flex items-center justify-between rounded-lg px-2 py-1.5 text-xs font-semibold transition",
+                  "group flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 text-left text-xs font-semibold transition",
                   isSegmentActive
                     ? "bg-blue-50 text-[#004CB1] font-bold"
                     : "text-slate-700 hover:bg-slate-50 hover:text-[#004CB1]"
                 )}
-                href={`/segmento/${encodeURIComponent(seg.slug)}`}
                 key={seg.id || seg.slug}
-                onClick={onItemClick}
+                onClick={() => handleSelectSegmentFilter(seg.slug)}
+                type="button"
               >
-                <div className="flex items-center gap-2.5 truncate">
+                <div className="flex items-center gap-2 truncate">
+                  <span
+                    className={cn(
+                      "flex size-4 shrink-0 items-center justify-center rounded border transition",
+                      isSegmentActive
+                        ? "border-[#004CB1] bg-[#004CB1] text-white"
+                        : "border-slate-300 bg-white group-hover:border-[#004CB1]"
+                    )}
+                  >
+                    {isSegmentActive && <Check className="size-3 stroke-[3]" />}
+                  </span>
                   <IconComponent
                     className={cn(
                       "size-4 shrink-0 transition",
@@ -713,8 +1021,7 @@ export function CatalogSidebar({
                   />
                   <span className="truncate">{seg.name}</span>
                 </div>
-                <ChevronRight className="size-3 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-[#004CB1]" />
-              </Link>
+              </button>
             );
           })}
 
@@ -742,34 +1049,90 @@ export function CatalogSidebar({
         )}
       </div>
 
-      {/* CARD 03: SEÇÃO DE FILTROS (Ordenar, Entrega, Marca, Preço, Avaliação) */}
-      <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs transition">
-        <h2 className="text-xl font-black tracking-tight text-slate-900">
-          Filtros
-        </h2>
+      {/* CARD 03: REFINAR POR: PREÇO & CRITÉRIOS (SEM MARCA REDUNDANTE) */}
+      <div className="rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs transition">
+        <div className="flex items-center justify-between gap-2 p-1">
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-white shadow-xs">
+              <SlidersHorizontal className="size-5" />
+            </div>
+            <div className="leading-tight">
+              <span className="block text-[10.5px] font-bold uppercase tracking-wider text-slate-400">
+                REFINAR POR:
+              </span>
+              <span className="block text-base font-black text-slate-900">
+                Preço &amp; Critérios
+              </span>
+            </div>
+          </div>
+          {hasRefinementActive && (
+            <button
+              className="text-[11px] font-bold text-[#004CB1] hover:underline cursor-pointer"
+              onClick={handleClearRefinements}
+              type="button"
+            >
+              Limpar
+            </button>
+          )}
+        </div>
 
-        {/* 1. Ordenar */}
-        <div className="mt-4">
-          <h3 className="text-sm font-bold text-slate-800 mb-2">Ordenar</h3>
+        <div className="my-2.5 h-px w-full bg-slate-100" />
+
+        {/* 1. Faixa de Preço */}
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">
+              Faixa de Preço
+            </h3>
+            {(precoMin !== undefined || precoMax !== undefined) && (
+              <button
+                className="cursor-pointer text-[10.5px] font-bold text-red-600 hover:underline"
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams.toString());
+                  params.delete("precoMin");
+                  params.delete("precoMax");
+                  params.delete("pagina");
+                  const q = params.toString();
+                  startTransition(() => {
+                    router.push(q ? `${baseUrl}?${q}` : baseUrl, { scroll: false });
+                  });
+                  onItemClick?.();
+                }}
+                type="button"
+              >
+                Resetar preço
+              </button>
+            )}
+          </div>
+          <CatalogPriceSlider
+            baseUrl={baseUrl}
+            initialMax={precoMax}
+            initialMin={precoMin}
+          />
+        </div>
+
+        {/* 2. Ordenar Produtos */}
+        <div className="mt-4 border-t border-slate-100 pt-3.5">
+          <h3 className="mb-2 text-xs font-black uppercase tracking-wider text-slate-700">
+            Ordenar Produtos
+          </h3>
           <div className="flex flex-wrap items-center gap-1.5">
             {[
-              { label: "Relevância", value: "relevancia" },
-              { label: "Menor Prazo", value: "prazo" },
-              { label: "Menor Preço com Frete", value: "menor_frete" },
               { label: "Menor Preço", value: "preco_asc" },
               { label: "Maior Preço", value: "preco_desc" },
               { label: "Mais Vendidos", value: "mais_vendidos" },
+              { label: "Novidades", value: "lancamento" },
+              { label: "Relevância", value: "relevancia" },
               { label: "Mais Bem Avaliados", value: "avaliacao" },
-              { label: "Lançamento", value: "lancamento" },
             ].map((opt) => {
               const isSelected = currentOrdem === opt.value;
               return (
                 <button
                   className={cn(
-                    "cursor-pointer rounded-full border px-3 py-1.5 text-xs transition shadow-2xs",
+                    "cursor-pointer rounded-full border px-2.5 py-1 text-[11px] font-medium transition shadow-2xs",
                     isSelected
-                      ? "border-[#004CB1] bg-[#004CB1] text-white font-semibold shadow-xs"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-[#004CB1] hover:text-[#004CB1]"
+                      ? "border-[#004CB1] bg-[#004CB1] text-white font-bold shadow-xs"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-[#004CB1] hover:text-[#004CB1]"
                   )}
                   key={opt.value}
                   onClick={() => toggleParam("ordem", opt.value)}
@@ -782,24 +1145,25 @@ export function CatalogSidebar({
           </div>
         </div>
 
-        {/* 2. Entrega */}
-        <div className="mt-5">
-          <h3 className="text-sm font-bold text-slate-800 mb-2">Entrega</h3>
+        {/* 3. Disponibilidade & Entrega */}
+        <div className="mt-4 border-t border-slate-100 pt-3.5">
+          <h3 className="mb-2 text-xs font-black uppercase tracking-wider text-slate-700">
+            Disponibilidade &amp; Entrega
+          </h3>
           <div className="flex flex-wrap items-center gap-1.5">
             {[
               { label: "Frete Grátis", value: "frete_gratis" },
-              { label: "Retire Grátis", value: "retire_gratis" },
-              { label: "Receba até Amanhã", value: "amanha" },
-              { label: "Full", value: "full" },
+              { label: "Retirar na Loja", value: "retire_gratis" },
+              { label: "Pronta Entrega", value: "pronta_entrega" },
             ].map((opt) => {
               const isSelected = currentEntrega === opt.value;
               return (
                 <button
                   className={cn(
-                    "cursor-pointer rounded-full border px-3 py-1.5 text-xs transition shadow-2xs",
+                    "cursor-pointer rounded-full border px-2.5 py-1 text-[11px] font-medium transition shadow-2xs",
                     isSelected
-                      ? "border-[#004CB1] bg-[#004CB1] text-white font-semibold"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-[#004CB1] hover:text-[#004CB1]"
+                      ? "border-[#004CB1] bg-[#004CB1] text-white font-bold shadow-xs"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-[#004CB1] hover:text-[#004CB1]"
                   )}
                   key={opt.value}
                   onClick={() => toggleParam("entrega", opt.value)}
@@ -812,66 +1176,29 @@ export function CatalogSidebar({
           </div>
         </div>
 
-        {/* 3. Marca */}
-        <div className="mt-5">
-          <h3 className="text-sm font-bold text-slate-800 mb-2">Marca</h3>
+        {/* 4. Avaliação dos Clientes */}
+        <div className="mt-4 border-t border-slate-100 pt-3.5">
+          <h3 className="mb-2 text-xs font-black uppercase tracking-wider text-slate-700">
+            Avaliação dos Clientes
+          </h3>
           <div className="flex flex-wrap items-center gap-1.5">
-            {visibleBrands.map((b) => {
-              const isSelected = currentMarca === b.slug;
+            {[
+              { label: "5", value: "5" },
+              { label: "4+", value: "4" },
+              { label: "3+", value: "3" },
+              { label: "2+", value: "2" },
+            ].map((starOpt) => {
+              const isSelected = currentAvaliacao === starOpt.value;
               return (
                 <button
                   className={cn(
-                    "cursor-pointer rounded-full border px-2.5 py-1 text-xs transition shadow-2xs",
-                    isSelected
-                      ? "border-[#004CB1] bg-[#004CB1] text-white font-semibold"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-[#004CB1] hover:text-[#004CB1]"
-                  )}
-                  key={b.id || b.slug}
-                  onClick={() => toggleParam("marca", b.slug)}
-                  type="button"
-                >
-                  {b.name}
-                </button>
-              );
-            })}
-          </div>
-
-          <button
-            className="mt-2.5 flex cursor-pointer items-center gap-1 text-xs font-semibold text-[#004CB1] hover:underline"
-            onClick={() => setShowAllBrands(!showAllBrands)}
-            type="button"
-          >
-            <span>{showAllBrands ? "Mostrar menos" : "Mostrar todos"}</span>
-            <ArrowRight className="size-3" />
-          </button>
-        </div>
-
-        {/* 4. Preço (Dual Range Slider) */}
-        <div className="mt-5">
-          <h3 className="text-sm font-bold text-slate-800 mb-2">Preço</h3>
-          <CatalogPriceSlider
-            baseUrl={baseUrl}
-            initialMax={precoMax}
-            initialMin={precoMin}
-          />
-        </div>
-
-        {/* 5. Avaliação */}
-        <div className="mt-5">
-          <h3 className="text-sm font-bold text-slate-800 mb-2">Avaliação</h3>
-          <div className="flex flex-wrap items-center gap-1.5">
-            {["5", "4", "3", "2"].map((stars) => {
-              const isSelected = currentAvaliacao === stars;
-              return (
-                <button
-                  className={cn(
-                    "flex cursor-pointer items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-semibold transition shadow-2xs",
+                    "flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition shadow-2xs",
                     isSelected
                       ? "border-[#004CB1] bg-[#004CB1] text-white font-bold"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-[#004CB1] hover:text-[#004CB1]"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-[#004CB1] hover:text-[#004CB1]"
                   )}
-                  key={stars}
-                  onClick={() => toggleParam("avaliacao", stars)}
+                  key={starOpt.value}
+                  onClick={() => toggleParam("avaliacao", starOpt.value)}
                   type="button"
                 >
                   <Star
@@ -880,7 +1207,7 @@ export function CatalogSidebar({
                       isSelected ? "fill-white text-white" : "fill-amber-400 text-amber-400"
                     )}
                   />
-                  <span>{stars}</span>
+                  <span>{starOpt.label}</span>
                 </button>
               );
             })}

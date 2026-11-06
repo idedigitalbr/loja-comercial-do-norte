@@ -152,11 +152,21 @@ export interface BannerGridProps {
 }
 export type BannerGridWidgetConfig = BaseWidgetConfig<'banner-grid', BannerGridProps>;
 
+export interface BrandCarouselItem {
+  id: string;
+  name: string;
+  slug: string;
+  imageUrl: string;
+  linkUrl?: string;
+  accentColor?: string;
+}
+
 export interface BrandsCarouselProps {
   widgetId?: string;
   title?: string;
   subtitle?: string;
   viewAllLink?: string;
+  items?: BrandCarouselItem[];
 }
 export type BrandsCarouselWidgetConfig = BaseWidgetConfig<'brands-carousel', BrandsCarouselProps>;
 

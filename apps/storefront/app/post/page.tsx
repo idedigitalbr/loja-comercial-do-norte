@@ -8,6 +8,7 @@ import {
   VideoArticleCard,
   VideoArticlesCarouselWidget,
 } from '@/components/storefront/widgets/video-articles-carousel/video-articles-carousel';
+import { ScrollRevealBlock, SkeletonBlock } from '@/components/ui/scroll-skeleton-reveal';
 import type { VideoArticleItem } from '@/lib/storefront/widget-types';
 
 export const dynamic = 'force-dynamic';
@@ -219,18 +220,24 @@ export default async function PostsPage({ searchParams }: { searchParams: Search
         {/* 3. Grid de Cards Pixel-Perfect Reutilizando o Mesmo Card da Home */}
         {displayPosts.length > 0 ? (
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 xl:gap-6">
-            {displayPosts.map((post) => (
-              <VideoArticleCard
-                className="w-full shadow-sm hover:shadow-md border border-slate-100/60"
-                ctaLabel={post.ctaLabel || 'Ver Completo'}
-                ctaUrl={post.ctaUrl}
-                id={post.id}
-                imageUrl={post.imageUrl}
+            {displayPosts.map((post, idx) => (
+              <ScrollRevealBlock
+                delayMs={(idx % 3) * 60}
                 key={post.id}
-                paragraphs={post.paragraphs}
-                tags={post.tags}
-                title={post.title}
-              />
+                skeleton={idx >= 3 ? <SkeletonBlock className="h-[210px] w-full rounded-2xl" /> : undefined}
+                skeletonDurationMs={250}
+              >
+                <VideoArticleCard
+                  className="w-full shadow-sm hover:shadow-md border border-slate-100/60"
+                  ctaLabel={post.ctaLabel || 'Ver Completo'}
+                  ctaUrl={post.ctaUrl}
+                  id={post.id}
+                  imageUrl={post.imageUrl}
+                  paragraphs={post.paragraphs}
+                  tags={post.tags}
+                  title={post.title}
+                />
+              </ScrollRevealBlock>
             ))}
           </div>
         ) : (

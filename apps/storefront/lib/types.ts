@@ -51,8 +51,15 @@ export type ApiBrand = {
   publicId: string;
   name: string;
   slug: string;
+  description?: string | null;
   imagePath: string | null;
   parentId: string | null;
+  parent?: { id: string; name: string; slug: string } | null;
+  children?: ApiBrand[];
+  _count?: {
+    products?: number;
+    children?: number;
+  };
 };
 
 export type ApiSegment = {

@@ -6,6 +6,7 @@ import { Package, Ruler, Truck } from 'lucide-react';
 import { WebBadge, WebCard } from '@commerce/ui/web';
 import { AddToQuoteButton } from '@/components/add-to-quote-button';
 import { ProductCard } from '@/components/product-card';
+import { ScrollCatalogProductItem } from '@/components/ui/scroll-skeleton-reveal';
 import { getProduct, getProducts, mediaUrl } from '@/lib/api';
 import { resolveProductImage } from '@/lib/product-placeholders';
 import { formatMoney } from '@/lib/format';
@@ -167,8 +168,10 @@ export default async function ProductPage({ params }: { params: Params }) {
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {related.map((item) => (
-              <ProductCard key={item.id} product={item} />
+            {related.map((item, idx) => (
+              <ScrollCatalogProductItem index={8 + idx} key={item.id}>
+                <ProductCard product={item} />
+              </ScrollCatalogProductItem>
             ))}
           </div>
         </section>

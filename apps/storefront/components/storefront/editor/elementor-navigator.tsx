@@ -25,6 +25,7 @@ const widgetIcons: Record<string, React.ElementType> = {
   'benefits-bar': Sparkles,
   'product-carousel': ShoppingBag,
   'category-grid': Grid,
+  'brands-carousel': Grid,
 };
 
 const widgetFriendlyNames: Record<string, string> = {
@@ -33,6 +34,7 @@ const widgetFriendlyNames: Record<string, string> = {
   'benefits-bar': 'Barra de Benefícios (4 Ícones)',
   'product-carousel': 'Vitrine de Produtos / Ofertas',
   'category-grid': 'Grade de Departamentos',
+  'brands-carousel': 'Compre por Marca',
 };
 
 export function ElementorNavigator() {

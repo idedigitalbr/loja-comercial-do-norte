@@ -60,14 +60,14 @@ export default function FavoritosPage() {
 
   if (!ready) {
     return (
-      <div className="cn-container py-16 text-center text-sm text-slate-500">
+      <div className="cn-container py-16 text-center text-sm text-slate-500" suppressHydrationWarning>
         Carregando seus favoritos…
       </div>
     );
   }
 
   return (
-    <div className="min-h-[70vh] bg-[#F4F7FB] pb-16 pt-6">
+    <div className="min-h-[70vh] bg-[#F4F7FB] pb-16 pt-6" suppressHydrationWarning>
       <div className="cn-container">
         {/* Título Principal */}
         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1D2433]">Favoritos</h1>
@@ -220,7 +220,8 @@ export default function FavoritosPage() {
                 {/* Grade de Produtos Favoritados */}
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
                   {favorites.map((item) => {
-                    const image = resolveProductImage(item.productSlug || item.id);
+                    const image = item.imagePath || resolveProductImage(item.productSlug || item.id);
+                    const productHref = `/produto/${item.productSlug || item.id}`;
                     return (
                       <article
                         className="group flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs transition hover:-translate-y-0.5 hover:border-[#004CB1]/40 hover:shadow-md"
@@ -229,7 +230,7 @@ export default function FavoritosPage() {
                         <div className="relative">
                           {/* Botão Remover dos Favoritos */}
                           <button
-                            aria-label={`Remover ${item.name} dos favoritos`}
+                            aria-label={`Remover ${item.name || 'produto'} dos favoritos`}
                             className="absolute right-1 top-1 z-10 flex size-8 items-center justify-center rounded-full bg-white/90 text-slate-400 shadow-xs transition hover:bg-rose-50 hover:text-[#E2091E] cursor-pointer"
                             onClick={() => remove(item.id)}
                             title="Remover dos favoritos"
@@ -241,10 +242,10 @@ export default function FavoritosPage() {
                           {/* Imagem do Produto */}
                           <Link
                             className="relative block aspect-square w-full overflow-hidden rounded-lg bg-slate-50"
-                            href={`/produto/${item.productSlug}`}
+                            href={productHref}
                           >
                             <Image
-                              alt={`${item.name} (Imagem ilustrativa)`}
+                              alt={`${item.name || 'Produto'} (Imagem ilustrativa)`}
                               className="size-full object-contain p-2 transition duration-200 group-hover:scale-105"
                               fill
                               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -258,14 +259,14 @@ export default function FavoritosPage() {
                           <div>
                             <Link
                               className="line-clamp-2 text-xs sm:text-sm font-bold text-slate-800 transition hover:text-[#004CB1]"
-                              href={`/produto/${item.productSlug}`}
+                              href={productHref}
                             >
-                              {item.name}
+                              {item.name || 'Produto sem título'}
                             </Link>
 
                             <div className="mt-2 flex items-baseline gap-1">
                               <strong className="text-base sm:text-lg font-extrabold text-[#163264]">
-                                {formatMoney(item.unitPriceCents)}
+                                {formatMoney(item.unitPriceCents ?? 0)}
                               </strong>
                               <span className="text-[11px] text-slate-500">no pacote</span>
                             </div>
