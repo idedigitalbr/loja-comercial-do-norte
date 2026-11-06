@@ -7,6 +7,36 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **06/11/2026 — Correção do Banner Explica Aí Nort (/post) e Integração Oficial de Vídeo YouTube Shorts (executorId: `antigravity-gemini`):**
+  - **Correção da Identificação de Banner em `/post`:**
+    - Corrigida a colisão onde a página de listagem de posts (`/post`) puxava inadvertidamente o carrossel de *Workshops & Aulas de Confeitaria* ao buscar `composition.widgets.find(w => w.type === 'video-articles-carousel')`.
+    - A busca agora é estritamente vinculada ao widget `s15-explica-ai-comercial` (ou variante não-confeitaria), restaurando o banner vermelho oficial com o mascote 3D Nort e fundo geométrico.
+  - **Integração de Vídeo YouTube Shorts no Explica Aí:**
+    - Vídeo oficial YouTube Shorts (`https://www.youtube.com/shorts/m6drhnZQmCM`) vinculado ao post de caixas de pizza (`caixas-de-pizza-formatos-e-respiros`) e catálogo.
+    - Implementado conversor robusto para URL embed segura (`youtube-nocookie.com/embed/...`) com proporção vertical adaptada (9:16) no modal.
+    - O mockup do smartphone e botão de play no Hero Banner agora são totalmente clicáveis com feedback visual ao passar o cursor, abrindo o modal com autoplay, botão de fechar e atalho para o YouTube.
+  - **Validação Global:**
+    - 50/50 suítes de testes do Storefront aprovadas (239 testes), 68/68 suítes da API aprovadas (176 testes) e suítes do Admin e Packages 100% aprovadas.
+    - Typecheck (`turbo typecheck`), Lint (`turbo lint`) e Build de produção (`turbo build`) executados com 0 erros.
+
+- **06/11/2026 — Chat Inteligente sem "Chute" de Endereço, Resiliência a Bloqueios de GPS/Windows e Atalho Oficial da Pedreira (executorId: `antigravity-gemini`):**
+  - **Chat Inteligente sem "Chute" de Endereço (`NortChatFloating`):**
+    - Quando o visitante clica em *"📍 Encontrar a mais próxima de mim"*, o Nort nunca mais assume cegamente a Cidade Velha e nem recomenda o Jurunas ou Central quando o usuário está na Pedreira ou em outro bairro.
+    - Se o GPS do navegador estiver bloqueado, desativado no Windows ou inacessível, e o usuário possuir apenas a localização aproximada por IP ("Belém/PA"), o Nort responde com transparência e empatia:
+      > *"Identifiquei que você está na região de Belém/PA, mas não consegui acessar sua localização exata pelo navegador (pode estar desativada ou bloqueada no aparelho). Para eu não chutar seu endereço e te indicar a loja certinha mais perto de você, me conta: em qual bairro você está?"*
+    - Exibe botões rápidos amigáveis dos bairros com filiais: `📍 Pedreira (Tv. Mauriti)`, `📍 São Brás (Matriz - Av. Rômulo Maiorana)`, `📍 Jurunas (Av. Bernardo Sayão)`, `📍 Guamá (Av. José Bonifácio)`, `📍 Cidade Nova (Ananindeua - Tv. WE-59)`, `📮 Digitar meu CEP da rua` e `🏬 Ver todas as unidades`.
+    - Ao selecionar **Pedreira**, o atendimento é imediatamente direcionado para a **Comercial do Norte — Filial Mauriti Pedreira (Tv. Mauriti, 1124)**, atualizando o cabeçalho e a sessão para o CEP `66080-650` e bairro Pedreira.
+  - **Tempo de Resposta Realista do GPS e LGPD:**
+    - Aumentado o timeout do GPS de 1,2s para 6s, dando tempo suficiente para o usuário visualizar o prompt do navegador e clicar em "Permitir".
+    - Totalmente compatível com a LGPD: se o usuário negar ou se o Windows/navegador bloquear, o sistema não trava, não chuta dados e oferece alternativas manuais amigáveis.
+  - **Fim da Injeção de CEP Falso de Cidade Velha (`66020-600`) na Detecção por IP:**
+    - Ajustadas as rotas e helpers (`location.ts`, `/api/location/route.ts` e `reverseGeocodeCoordinates`) para não injetar forçadamente o CEP `66020-600` de Cidade Velha na detecção inicial de IP. A detecção por IP mantém o CEP vazio ou referência real do bairro identificado via `getReferenceCepForNeighborhood`.
+  - **Inclusão da Pedreira e Filiais em `QUICK_LOCATIONS`:**
+    - `QUICK_LOCATIONS` atualizado para conter Pedreira (Tv. Mauriti, 1124 — CEP 66080-650) como primeira opção, seguida de São Brás, Jurunas, Guamá e Cidade Nova.
+  - **Validação:**
+    - 50 suítes de testes (239 testes) do Storefront 100% aprovados, incluindo testes de timeout e mock de GPS em `nort-chat-floating.spec.tsx` e `location.spec.ts`.
+    - `typecheck` e `lint` 100% limpos.
+
 - **06/11/2026 — Desativação da Abertura Automática do Tour Guiado ao Entrar no Site e Centralização Exclusiva Sob Demanda via Chat do Nort (executorId: `antigravity-gemini`):**
   - **Fim da Abertura Automática Invasiva ao Entrar no Site:**
     - Por determinação expressa do responsável, o tour guiado (`NortTourProvider` / `NortTourOverlay`) **NÃO** abre mais de forma automática ao carregar a página inicial da loja virtual, extinguindo qualquer overlay ou popup com o mascote bloqueando o conteúdo ao entrar no site.
