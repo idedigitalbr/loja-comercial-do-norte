@@ -1,10 +1,29 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **07/11/2026 — Substituição Canônica das Marcas Oficiais (12 Marcas e 24 Submarcas) e 120 Produtos Fictícios com Logos de Alta Resolução (executorId: `antigravity-gemini`):**
+  - **12 Marcas Canônicas do Setor:** Substituição integral das marcas antigas por: `Fasapel`, `Fonteplast`, `Knauf`, `Lanchero`, `Plasan`, `Prafesta`, `Segplast`, `Sicao`, `Techplast`, `Totalplast`, `Ultra Descartáveis` e `Vipel`.
+  - **Logos Oficiais:** Instalados os 12 logotipos em PNG de alta resolução em `apps/storefront/public/assets/PRODUTOS/marcas-imgs/` a partir de `LOGOS MARCA-S PALSTICO`.
+  - **Hierarquia de 24 Submarcas:** Cada marca foi estruturada com 2 submarcas ativas vinculadas com slugs e contagens de produtos próprias.
+  - **120 Produtos Fictícios Estruturados:** Criados 10 produtos de alta qualidade para cada uma das 12 marcas (total 120 produtos) com SKUs padronizados, dimensões, pesos, categorias e segmentos de mercado em `prisma/seed-catalog-data.ts`.
+  - **Seed com Auto-Purge de Legados:** `prisma/seed-catalog.ts` agora remove marcas e produtos de demonstração descontinuados de forma limpa e idempotente.
+  - **Validação:** 68/68 testes de API aprovados, 51/51 testes de Storefront aprovados (incluindo `brands-carousel.spec.tsx` e `catalog-view.spec.tsx`), `pnpm typecheck`, `pnpm typecheck:seed` e `pnpm build` com 100% de sucesso.
+
+
 - **07/11/2026 — Eliminação de "Região Belém/PA" Automática no Cabeçalho, "Informe seu CEP" como Padrão e GPS com Bairro Real via Nominatim (executorId: `antigravity-gemini`):**
   - **Cabeçalho Limpo:** Cabeçalho inicia como "Enviar para Informe seu CEP" sem forçar "Região de Belém/PA".
   - **Solicitação de GPS Nativo:** Ao entrar no site, solicita permissão nativa de geolocalização. Ao permitir, resolve o bairro real via Nominatim (ex: `Pedreira, Belém/PA`). Ao negar, permanece com `Informe seu CEP`.
   - **Limpeza de Armazenamento:** Adicionado `clearStoredLocation()` e desconsideração de `source: 'ip'` em localStorage/cookies.
   - **Validação:** 51/51 testes aprovados (252 testes), typecheck e lint 100% limpos.
+
+- **07/11/2026 — Redesign Circular da Seção "Compre por Marca" e Reposicionamento entre Banners Triplos e Mais Vendidos (executorId: `antigravity-gemini`):**
+  - **Reposicionamento Estratégico na Vitrine da Home (`s07-compre-por-marca`):**
+    - A seção "Compre por Marca" foi reposicionada para ficar alocada imediatamente abaixo da seção de Banners Triplos 01 (`s05-triple-banners-1`) e logo acima de Mais Vendidos (`s06-mais-vendidos`), assumindo a ordem 6 canônica em `home-configuration.ts`, `home-composition.json` e no PostgreSQL Neon oficial (`SiteConfiguration.homeComposition`).
+  - **Redesign Visual Circular 100% Fiel ao Mockup:**
+    - Cabeçalho com ícone Tag vermelho rotacionado a -45° (`Tag`), divisor vertical fino, título em azul marinho (`text-[#001A49]`), subtítulo `"As principais marcas em embalagens, descartáveis e muito mais."` e botão pill azul no topo direito `"Ver todas as marcas →"`.
+    - Cards de marcas 100% circulares (`rounded-full aspect-square bg-white border border-slate-100 shadow-[0_4px_20px_rgba(15,23,42,0.06)]`) com logotipos das marcas centralizados em destaque.
+    - Exibição de 6 marcas na página 1 idênticas ao mockup: `Lanchero`, `Fasapel`, `Segplast`, `Ultra Descartáveis`, `Knauf` e `Plasan`.
+    - Setas circulares brancas laterais e paginação discreta de 3 bolinhas abaixo com sincronização mobile/desktop.
+  - **Validação Global:** 51/51 testes do Storefront aprovados (253 testes verdes), typecheck limpo com 0 erros e banco Neon sincronizado.
 
 - **07/11/2026 — Eliminação de CEP Falso de Telecom no Modal em Abas Anônimas e Botão X de Limpeza Rápida (executorId: `antigravity-gemini`):**
   - **Eliminação de CEP Falso de Provedor (`66020-250`):** Detecção automática de geolocalização por IP (`/api/location` e `ipwho.is`) agora define `cep: ''` estritamente, evitando injeção indevida do CEP da central de telefonia no modal em abas anônimas ou visitas limpas.

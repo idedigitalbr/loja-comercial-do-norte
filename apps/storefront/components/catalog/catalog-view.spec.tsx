@@ -218,35 +218,35 @@ describe("CatalogView", () => {
     render(
       <CatalogView
         activeBrand={{
-          id: "brand-grandha",
-          publicId: "brand-grandha",
-          name: "Grandha",
-          slug: "grandha",
-          imagePath: "/assets/PRODUTOS/marcas-imgs/grandha_logo.svg",
+          id: "brand-fasapel",
+          publicId: "brand-fasapel",
+          name: "Fasapel",
+          slug: "fasapel",
+          imagePath: "/assets/PRODUTOS/marcas-imgs/marca-fasapel.png",
           parentId: null,
         }}
-        baseUrl="/marca/grandha"
+        baseUrl="/marca/fasapel"
         brands={[]}
         categories={mockCategories}
         page={1}
         products={[mockProduct]}
-        searchParamsState={{ marca: "grandha" }}
+        searchParamsState={{ marca: "fasapel" }}
         segments={mockSegments}
         tags={mockTags}
-        title="Grandha"
-        total={22}
-        totalPages={2}
+        title="Fasapel"
+        total={10}
+        totalPages={1}
       />
     );
 
     // Top brand navigation strip is rendered
     expect(screen.getByLabelText("Navegação rápida por marcas")).toBeDefined();
 
-    // Sidebar header "VER POR: Marcas", Limpar Filtro button and Subbrands tree for Grandha are visible
+    // Sidebar header "VER POR: Marcas", Limpar Filtro button and Subbrands tree for Fasapel are visible
     expect(screen.getAllByText(/VER POR:/i)[0]).toBeDefined();
     expect(screen.getAllByText(/Limpar Filtro/i)[0]).toBeDefined();
-    expect(screen.getAllByText(/Alkymia di Grandha/i)[0]).toBeDefined();
-    expect(screen.getAllByText(/BBTox Absolute Repair/i)[0]).toBeDefined();
+    expect(screen.getAllByText(/Guardanapos & Toalhas/i)[0]).toBeDefined();
+    expect(screen.getAllByText(/Papel Higiênico Institucional/i)[0]).toBeDefined();
   });
 
   it("renders 4-column brands grid in /marcas directory mode (viewMode='brands')", () => {

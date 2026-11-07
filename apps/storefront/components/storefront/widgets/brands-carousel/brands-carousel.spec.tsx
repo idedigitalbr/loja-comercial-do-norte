@@ -39,25 +39,28 @@ describe('BrandsCarouselWidget', () => {
 
     expect(screen.getByRole('heading', { name: 'Compre por Marca' })).toBeDefined();
 
-    // First 6 brands from DEFAULT_BRAND_SHOWCASE
-    expect(screen.getAllByRole('img', { name: 'Copobras' })[0]).toBeDefined();
-    expect(screen.getAllByRole('img', { name: 'Cristalcopo' })[0]).toBeDefined();
-    expect(screen.getAllByRole('img', { name: 'Wyda' })[0]).toBeDefined();
-    expect(screen.getAllByRole('img', { name: 'NortePlast' })[0]).toBeDefined();
-    expect(screen.getAllByRole('img', { name: 'Mili Profissional' })[0]).toBeDefined();
-    expect(screen.getAllByRole('img', { name: 'Nestlé Professional' })[0]).toBeDefined();
+    // First 6 brands from DEFAULT_BRAND_SHOWCASE (matching mockup)
+    expect(screen.getAllByRole('img', { name: 'Lanchero' })[0]).toBeDefined();
+    expect(screen.getAllByRole('img', { name: 'Fasapel' })[0]).toBeDefined();
+    expect(screen.getAllByRole('img', { name: 'Segplast' })[0]).toBeDefined();
+    expect(screen.getAllByRole('img', { name: 'Ultra Descartáveis' })[0]).toBeDefined();
+    expect(screen.getAllByRole('img', { name: 'Knauf' })[0]).toBeDefined();
+    expect(screen.getAllByRole('img', { name: 'Plasan' })[0]).toBeDefined();
 
     // Links point to /marca/[slug]
-    const copobrasLink = screen.getAllByRole('img', { name: 'Copobras' })[0]?.closest('a');
-    expect(copobrasLink?.getAttribute('href')).toBe('/marca/copobras');
+    const lancheroLink = screen.getAllByRole('img', { name: 'Lanchero' })[0]?.closest('a');
+    expect(lancheroLink?.getAttribute('href')).toBe('/marca/lanchero');
 
     // Pagination dots exist and can switch page
     const page2Dot = screen.getByRole('button', { name: 'Página de marcas 2' });
     expect(page2Dot).toBeDefined();
     fireEvent.click(page2Dot);
 
-    expect(screen.getAllByRole('img', { name: 'Grandha' })[0]).toBeDefined();
-    expect(screen.getAllByRole('img', { name: 'Maxiline' })[0]).toBeDefined();
-    expect(screen.getAllByRole('img', { name: 'Knut Hair Care' })[0]).toBeDefined();
+    expect(screen.getAllByRole('img', { name: 'Fonteplast' })[0]).toBeDefined();
+    expect(screen.getAllByRole('img', { name: 'Prafesta' })[0]).toBeDefined();
+    expect(screen.getAllByRole('img', { name: 'Sicao' })[0]).toBeDefined();
+    expect(screen.getAllByRole('img', { name: 'Techplast' })[0]).toBeDefined();
+    expect(screen.getAllByRole('img', { name: 'Totalplast' })[0]).toBeDefined();
+    expect(screen.getAllByRole('img', { name: 'Vipel' })[0]).toBeDefined();
   });
 });

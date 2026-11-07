@@ -21,9 +21,9 @@ describe('defaultHomeComposition (seções site-final + S0/S20)', () => {
       'hero-carousel',
       'contained-hero',
       'category-grid',
-      'brands-carousel',
       'product-carousel',
       'banner-grid',
+      'brands-carousel',
       'product-carousel',
       'segments-carousel',
       'promo-strip',
@@ -82,10 +82,10 @@ describe('reconcileComposition (auto-reconciliação inteligente)', () => {
     expect(brandWidget).toBeDefined();
     expect(brandWidget?.type).toBe('brands-carousel');
 
-    // Garante que brands-carousel foi inserido na posição canônica exata (após s03-category-icons-bar)
-    const s03Idx = reconciled.widgets.findIndex((w) => w.id === 's03-category-icons-bar');
+    // Garante que brands-carousel foi inserido na posição canônica exata (após s05-triple-banners-1)
+    const s05Idx = reconciled.widgets.findIndex((w) => w.id === 's05-triple-banners-1');
     const brandIdx = reconciled.widgets.findIndex((w) => w.id === 's07-compre-por-marca');
-    expect(brandIdx).toBe(s03Idx + 1);
+    expect(brandIdx).toBe(s05Idx + 1);
 
     // Garante normalização de ordem sequencial 1..17
     reconciled.widgets.forEach((w, idx) => {

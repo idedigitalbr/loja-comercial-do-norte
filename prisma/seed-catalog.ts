@@ -47,95 +47,102 @@ type DemoBrand = {
 const brands: readonly DemoBrand[] = [
   { name: 'Marca Exemplo', slug: 'marca-exemplo' },
   {
-    name: 'Copobras',
-    slug: 'copobras',
-    imagePath: '/assets/PRODUTOS/marcas-imgs/copobras_logo.svg',
-    description: 'Embalagens descartáveis, copos, pratos e potes térmicos no atacado.',
+    name: 'Fasapel',
+    slug: 'fasapel',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/marca-fasapel.png',
+    description: 'Papéis toalha interfolhados, guardanapos e bobinas de alta absorção para food service e higiene.',
   },
   {
-    name: 'Cristalcopo',
-    slug: 'cristalcopo',
-    imagePath: '/assets/PRODUTOS/marcas-imgs/cristalcopo_logo.svg',
-    description: 'Copos ultra cristal, potes bolha e descartáveis resistentes.',
+    name: 'Fonteplast',
+    slug: 'fonteplast',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/marca-fonteplast.png',
+    description: 'Sacolas plásticas reforçadas, bobinas picotadas e embalagens flexíveis para comércio e atacado.',
   },
   {
-    name: 'Wyda',
-    slug: 'wyda',
-    imagePath: '/assets/PRODUTOS/marcas-imgs/wyda_logo.svg',
-    description: 'Bandejas de alumínio, filmes de PVC e papéis culinários.',
+    name: 'Knauf',
+    slug: 'knauf',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/marca-knauf.png',
+    description: 'Caixas térmicas em EPS (isopor), isolamento de temperatura e embalagens conservadoras para alimentos e bebidas.',
   },
   {
-    name: 'NortePlast',
-    slug: 'norteplast',
-    imagePath: '/assets/PRODUTOS/marcas-imgs/norteplast_logo.svg',
-    description: 'Sacolas plásticas reforçadas, bobinas picotadas e linha kraft delivery.',
+    name: 'Lanchero',
+    slug: 'lanchero',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/marca-lanchero.png',
+    description: 'Hamburgueiras, caixas para porções, barcas para lanche e embalagens térmicas práticas para delivery.',
   },
   {
-    name: 'Mili Profissional',
-    slug: 'mili',
-    imagePath: '/assets/PRODUTOS/marcas-imgs/mili_logo.png',
-    description: 'Papéis higiênicos, toalhas interfolhadas e guardanapos profissionais.',
+    name: 'Plasan',
+    slug: 'plasan',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/marca-plasan.png',
+    description: 'Potes redondos, retangulares e tampas herméticas com fechamento seguro para molhos, sobremesas e alimentos.',
   },
   {
-    name: 'Nestlé Professional',
-    slug: 'nestle',
-    imagePath: '/assets/PRODUTOS/marcas-imgs/nestle_logo.png',
-    description: 'Chocolates, leite condensado Moça e bases para confeitaria e food service.',
+    name: 'Prafesta',
+    slug: 'prafesta',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/marca-prafesta.png',
+    description: 'Potes descartáveis resistentes a freezer e micro-ondas, marmitas práticas e descartáveis premium para festas.',
   },
   {
-    name: 'Supermax',
-    slug: 'supermax',
-    imagePath: '/assets/PRODUTOS/marcas-imgs/supermax_logo.svg',
-    description: 'Luvas nitrílicas, vinil e proteção profissional.',
+    name: 'Segplast',
+    slug: 'segplast',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/marca-segplast.png',
+    description: 'Filmes plásticos esticáveis, filmes de PVC culinário, fitas adesivas e soluções em fechamento seguro.',
   },
   {
-    name: 'Grandha',
-    slug: 'grandha',
-    imagePath: '/assets/PRODUTOS/marcas-imgs/grandha_logo.svg',
-    description: 'Linha profissional de cuidados, óleos essenciais e tratamento.',
+    name: 'Sicao',
+    slug: 'sicao',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/marca-sicao.png',
+    description: 'Chocolates nobres, coberturas fracionadas em gotas e barras, gotas forneáveis e cacau em pó da linha Barry Callebaut.',
   },
   {
-    name: 'Maxiline',
-    slug: 'maxiline',
-    imagePath: '/assets/PRODUTOS/marcas-imgs/maxiline_logo.svg',
-    description: 'Cosmética e tratamento profissional.',
+    name: 'Techplast',
+    slug: 'techplast',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/marca-techplast.png',
+    description: 'Copos plásticos PP e PS de alta transparência, pratos e talheres descartáveis resistentes para buffets e eventos.',
   },
   {
-    name: 'Knut Hair Care',
-    slug: 'knut',
-    imagePath: '/assets/PRODUTOS/marcas-imgs/knut_logo.svg',
-    description: 'Cuidado, nutrição e reparação diária.',
+    name: 'Totalplast',
+    slug: 'totalplast',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/marca-totalplast.png',
+    description: 'Copos térmicos, pratos térmicos, bandejas de isopor e embalagens EPS com conservação máxima de temperatura.',
   },
-  // Submarcas (exercitam hierarquia Brand -> children)
-  { name: 'Linha Cristal PP', slug: 'copobras-cristal-pp', parentSlug: 'copobras' },
-  { name: 'Linha Térmica EPS', slug: 'copobras-termica-eps', parentSlug: 'copobras' },
-  { name: 'Copobras Food Service', slug: 'copobras-food-service', parentSlug: 'copobras' },
-  { name: 'Pratos & Talheres Festa', slug: 'copobras-pratos-talheres', parentSlug: 'copobras' },
-  { name: 'Linha Copo Bolha', slug: 'cristalcopo-bolha', parentSlug: 'cristalcopo' },
-  { name: 'Linha Eco Biodegradável', slug: 'cristalcopo-eco', parentSlug: 'cristalcopo' },
-  { name: 'Linha Ultra Resistente', slug: 'cristalcopo-ultra', parentSlug: 'cristalcopo' },
-  { name: 'Bandejas & Marmitas Alumínio', slug: 'wyda-aluminio', parentSlug: 'wyda' },
-  { name: 'Filmes PVC & Esticáveis', slug: 'wyda-filmes-pvc', parentSlug: 'wyda' },
-  { name: 'Papel Assa Fácil & Manteiga', slug: 'wyda-assa-facil', parentSlug: 'wyda' },
-  { name: 'Sacolas Alça Camiseta', slug: 'norteplast-sacolas', parentSlug: 'norteplast' },
-  { name: 'Bobinas Picotadas Fundo Estrela', slug: 'norteplast-bobinas', parentSlug: 'norteplast' },
-  { name: 'Linha Kraft Delivery', slug: 'norteplast-kraft', parentSlug: 'norteplast' },
-  { name: 'Toalhas Interfolhadas', slug: 'mili-interfolhadas', parentSlug: 'mili' },
-  { name: 'Guardanapos Folha Dupla', slug: 'mili-guardanapos', parentSlug: 'mili' },
-  { name: 'Rolão Institucional', slug: 'mili-rolao', parentSlug: 'mili' },
-  { name: 'Linha Moça Profissional', slug: 'nestle-moca', parentSlug: 'nestle' },
-  { name: 'Coberturas & Chocolates Nobres', slug: 'nestle-chocolates', parentSlug: 'nestle' },
-  { name: 'Cremes & Bases Culinárias', slug: 'nestle-cremes', parentSlug: 'nestle' },
-  { name: 'Luvas Nitrílicas Sem Pó', slug: 'supermax-nitrilica', parentSlug: 'supermax' },
-  { name: 'Luvas de Vinil & Gastronomia', slug: 'supermax-vinil', parentSlug: 'supermax' },
-  { name: 'Alkymia di Grandha', slug: 'alkymia', parentSlug: 'grandha' },
-  { name: 'BBTox Absolute Repair', slug: 'bbtox-absolute-repair', parentSlug: 'grandha' },
-  { name: 'Fito Capillus', slug: 'fito-capillus', parentSlug: 'grandha' },
-  { name: 'Urbano Spa', slug: 'urbano-spa', parentSlug: 'grandha' },
-  { name: 'Linha Hidratação Intensa', slug: 'maxiline-hidratacao', parentSlug: 'maxiline' },
-  { name: 'Linha Finalizadores', slug: 'maxiline-finalizadores', parentSlug: 'maxiline' },
-  { name: 'Knut Amino Complex', slug: 'knut-amino', parentSlug: 'knut' },
-  { name: 'Knut Cachos & Ondas', slug: 'knut-cachos', parentSlug: 'knut' },
+  {
+    name: 'Ultra Descartáveis',
+    slug: 'ultra-descartaveis',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/marca-ultradescartaveis.png',
+    description: 'Copos ultra resistentes, copos para chopp e açaí, potes bolha e descartáveis reforçados de primeira linha.',
+  },
+  {
+    name: 'Vipel',
+    slug: 'vipel',
+    imagePath: '/assets/PRODUTOS/marcas-imgs/marca-vipel.png',
+    description: 'Sacos de papel kraft para delivery, sacolas ecológicas com alça, bobinas de papel e embalagens biodegradáveis.',
+  },
+  // Submarcas vinculadas
+  { name: 'Guardanapos & Toalhas', slug: 'fasapel-guardanapos-toalhas', parentSlug: 'fasapel' },
+  { name: 'Papel Higiênico Institucional', slug: 'fasapel-papel-institucional', parentSlug: 'fasapel' },
+  { name: 'Sacolas Alça Camiseta', slug: 'fonteplast-sacolas-camiseta', parentSlug: 'fonteplast' },
+  { name: 'Bobinas Picotadas Fundo Estrela', slug: 'fonteplast-bobinas-picotadas', parentSlug: 'fonteplast' },
+  { name: 'Caixas Térmicas EPS', slug: 'knauf-caixas-termicas', parentSlug: 'knauf' },
+  { name: 'Marmitas & Discos Térmicos', slug: 'knauf-marmitas-discos', parentSlug: 'knauf' },
+  { name: 'Hamburgueiras & Sanduíches', slug: 'lanchero-hamburgueiras', parentSlug: 'lanchero' },
+  { name: 'Barcas & Embalagens de Porção', slug: 'lanchero-barcas-porcoes', parentSlug: 'lanchero' },
+  { name: 'Potes Herméticos com Tampa', slug: 'plasan-potes-hermeticos', parentSlug: 'plasan' },
+  { name: 'Recipientes & Molheiras', slug: 'plasan-recipientes-molheiras', parentSlug: 'plasan' },
+  { name: 'Linha Freezer & Micro-ondas', slug: 'prafesta-freezer-microondas', parentSlug: 'prafesta' },
+  { name: 'Artigos de Festa & Refeição', slug: 'prafesta-artigos-festa', parentSlug: 'prafesta' },
+  { name: 'Filmes Stretch & PVC', slug: 'segplast-filmes-stretch-pvc', parentSlug: 'segplast' },
+  { name: 'Fitas Adesivas & Lacres', slug: 'segplast-fitas-adesivas', parentSlug: 'segplast' },
+  { name: 'Chocolates Nobres & Barras', slug: 'sicao-chocolates-barras', parentSlug: 'sicao' },
+  { name: 'Gotas Forneáveis & Coberturas', slug: 'sicao-gotas-coberturas', parentSlug: 'sicao' },
+  { name: 'Copos PP & PS Descartáveis', slug: 'techplast-copos-descartaveis', parentSlug: 'techplast' },
+  { name: 'Pratos & Talheres Reforçados', slug: 'techplast-pratos-talheres', parentSlug: 'techplast' },
+  { name: 'Copos & Potes Térmicos EPS', slug: 'totalplast-copos-potes-termicos', parentSlug: 'totalplast' },
+  { name: 'Bandejas & Discos de Isopor', slug: 'totalplast-bandejas-isopor', parentSlug: 'totalplast' },
+  { name: 'Copos Ultra Cristal & Chopp', slug: 'ultra-descartaveis-copos-cristal', parentSlug: 'ultra-descartaveis' },
+  { name: 'Potes Bolha & Sobremesa', slug: 'ultra-descartaveis-potes-bolha', parentSlug: 'ultra-descartaveis' },
+  { name: 'Sacolas & Sacos Kraft Delivery', slug: 'vipel-sacolas-kraft', parentSlug: 'vipel' },
+  { name: 'Bobinas de Papel & Papel Manteiga', slug: 'vipel-papel-culinario-bobinas', parentSlug: 'vipel' },
 ];
 
 type DemoSegment = {
@@ -527,6 +534,46 @@ async function seedCmsContent(prisma: PrismaClient): Promise<void> {
 export async function seedCatalog(prisma: PrismaClient): Promise<{ categories: number; products: number }> {
   await seedDemoMedia();
 
+  // Limpeza de marcas e produtos de demonstração legados que não fazem mais parte do seed atual
+  const currentBrandSlugs = new Set(brands.map((b) => b.slug));
+  const staleBrands = await prisma.brand.findMany({
+    where: { legacySource: DEMO_SOURCE, slug: { notIn: Array.from(currentBrandSlugs) } },
+    select: { id: true },
+  });
+  if (staleBrands.length > 0) {
+    const staleIds = staleBrands.map((b) => b.id);
+    await prisma.product.updateMany({
+      where: { brandId: { in: staleIds } },
+      data: { brandId: null },
+    });
+    await prisma.brand.deleteMany({
+      where: { id: { in: staleIds } },
+    });
+  }
+
+  const currentProductSlugs = new Set(demoProducts.map((p) => p.slug));
+  const staleProducts = await prisma.product.findMany({
+    where: { legacySource: DEMO_SOURCE, slug: { notIn: Array.from(currentProductSlugs) } },
+    select: { id: true },
+  });
+  if (staleProducts.length > 0) {
+    const staleIds = staleProducts.map((p) => p.id);
+    await prisma.productCategory.deleteMany({ where: { productId: { in: staleIds } } });
+    await prisma.productSegment.deleteMany({ where: { productId: { in: staleIds } } });
+    await prisma.productTag.deleteMany({ where: { productId: { in: staleIds } } });
+    await prisma.productImage.deleteMany({ where: { productId: { in: staleIds } } });
+    const variants = await prisma.productVariant.findMany({
+      where: { productId: { in: staleIds } },
+      select: { id: true },
+    });
+    if (variants.length > 0) {
+      const vIds = variants.map((v) => v.id);
+      await prisma.inventoryBalance.deleteMany({ where: { variantId: { in: vIds } } });
+      await prisma.productVariant.deleteMany({ where: { id: { in: vIds } } });
+    }
+    await prisma.product.deleteMany({ where: { id: { in: staleIds } } });
+  }
+
   const categoryIdBySlug = new Map<string, string>();
   // Duas passadas: categorias principais primeiro, depois as subcategorias com parentId.
   for (const category of categories.filter((item) => !item.parentSlug)) {
@@ -638,13 +685,8 @@ export async function seedCatalog(prisma: PrismaClient): Promise<{ categories: n
   for (let idx = 0; idx < demoProducts.length; idx++) {
     const product = demoProducts[idx];
     const imagePath = `uploads/seed-${product.slug}/960.webp`;
-    // Mantém os primeiros produtos em 'marca-exemplo' para compatibilidade de testes legados,
-    // e distribui o restante deterministicamente entre as marcas/submarcas do catálogo.
-    const assignedBrandSlug =
-      idx < 4
-        ? 'marca-exemplo'
-        : subbrandSlugs[idx % subbrandSlugs.length] ?? 'marca-exemplo';
-    const assignedBrandId = brandIdBySlug.get(assignedBrandSlug) ?? brandIdBySlug.get('marca-exemplo');
+    const assignedBrandSlug = product.brandSlug || 'fasapel';
+    const assignedBrandId = brandIdBySlug.get(assignedBrandSlug) ?? brandIdBySlug.get('fasapel');
 
     const productRow = await prisma.product.upsert({
       where: { slug: product.slug },

@@ -7,6 +7,46 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **07/11/2026 — Substituição Canônica das Marcas Oficiais (12 Marcas e 24 Submarcas) e 120 Produtos Fictícios com Logos de Alta Resolução (executorId: `antigravity-gemini`):**
+  - **Substituição Integral das Marcas Antigas pelas 12 Marcas Oficiais do Setor:**
+    - Removidas todas as marcas de exemplo anteriores (`Copobras`, `Cristalcopo`, `Wyda`, `NortePlast`, `Mili`, `Nestlé`, `Supermax`, `Grandha`, `Maxiline`, `Knut`).
+    - Instalados os 12 logotipos oficiais em alta resolução na pasta canônica `apps/storefront/public/assets/PRODUTOS/marcas-imgs/` a partir de `LOGOS MARCA-S PALSTICO`:
+      1. `Fasapel` (`marca-fasapel.png`): Papéis toalha interfolhados, guardanapos e bobinas de alta absorção.
+      2. `Fonteplast` (`marca-fonteplast.png`): Sacolas plásticas reforçadas, bobinas picotadas e embalagens flexíveis.
+      3. `Knauf` (`marca-knauf.png`): Caixas térmicas EPS (isopor), isolamento de temperatura e marmitas conservadoras.
+      4. `Lanchero` (`marca-lanchero.png`): Hamburgueiras térmicas, barcas para lanche e embalagens para porções e fast food.
+      5. `Plasan` (`marca-plasan.png`): Potes redondos, retangulares e recipientes herméticos para molhos e sobremesas.
+      6. `Prafesta` (`marca-prafesta.png`): Linha freezer e micro-ondas, marmitas práticas e descartáveis premium para festas.
+      7. `Segplast` (`marca-segplast.png`): Filmes stretch para paletização, filmes de PVC culinário e fitas de fechamento seguro.
+      8. `Sicao` (`marca-sicao.png`): Chocolates nobres, coberturas fracionadas, gotas forneáveis e cacau Barry Callebaut.
+      9. `Techplast` (`marca-techplast.png`): Copos descartáveis PP e PS translúcidos, pratos e talheres reforçados.
+      10. `Totalplast` (`marca-totalplast.png`): Copos térmicos EPS, marmitas térmicas e bandejas de isopor para frios e carnes.
+      11. `Ultra Descartáveis` (`marca-ultradescartaveis.png`): Copos ultra resistentes PP e PS, potes bolha para açaí e sobremesas.
+      12. `Vipel` (`marca-vipel.png`): Sacolas e sacos de papel kraft delivery, bobinas de papel e papéis acoplados.
+  - **Hierarquia de 24 Submarcas e Vitrine Canônica (`DEFAULT_BRAND_SHOWCASE`):**
+    - Cada marca conta com 2 submarcas ativas vinculadas (`fasapel-guardanapos-toalhas`, `fonteplast-sacolas-camiseta`, `knauf-caixas-termicas`, `lanchero-hamburgueiras`, `sicao-chocolates-barras`, etc.).
+    - Atualizados `DEFAULT_BRAND_SHOWCASE` em `apps/storefront/lib/brands-data.ts`, carrosséis de vitrine (`brands-carousel.tsx`, `product-carousel.tsx`) e seed idempotente (`seed-catalog.ts`).
+  - **Catálogo de 120 Produtos Fictícios Estruturados (10 Produtos por Marca):**
+    - Criados 120 produtos ricos com especificações completas de food service, atacado e delivery em `prisma/seed-catalog-data.ts`.
+    - Cada produto possui slug único, SKU oficial padronizado com prefixo da marca (`FAS-...`, `FON-...`, `KNA-...`, etc.), dimensões milimétricas, peso em gramas, categorias, segmentos de mercado (lanchonete, pizzaria, padaria, delivery, buffet) e tags técnicas (`reforcado`, `termico`, `vai-ao-micro-ondas`, `kraft`, `biodegradavel`).
+    - Limpeza automática de registros legados de seed (`legacySource = DEMO_SOURCE`) integrada em `prisma/seed-catalog.ts`.
+  - **Validação Global:**
+    - 68/68 arquivos de teste de API aprovados (177 testes).
+    - 51/51 arquivos de teste do Storefront aprovados (253 testes, incluindo `brands-carousel.spec.tsx` e `catalog-view.spec.tsx`).
+    - `pnpm typecheck`, `pnpm typecheck:seed` e `pnpm build` executados com 100% de sucesso.
+
+
+- **07/11/2026 — Redesign Circular da Seção "Compre por Marca" e Reposicionamento entre Banners Triplos e Mais Vendidos (executorId: `antigravity-gemini`):**
+  - **Reposicionamento Estratégico na Vitrine da Home (`s07-compre-por-marca`):**
+    - A seção "Compre por Marca" foi reposicionada para ficar alocada imediatamente abaixo da seção de Banners Triplos 01 (`s05-triple-banners-1`) e logo acima de Mais Vendidos (`s06-mais-vendidos`), assumindo a posição e ordem canônica 6 em `home-configuration.ts`, `home-composition.json` e sincronizada via SQL no PostgreSQL Neon oficial (`SiteConfiguration.homeComposition`).
+  - **Redesign Visual Circular de Alta Fidelidade ao Mockup de Referência:**
+    - **Cabeçalho:** Implementado layout alinhado com ícone de etiqueta vermelha inclinada (`Tag` com rotação de -45° e traço em `#E2091E`), separador vertical cinza suave, título em negrito azul marinho (`text-[#001A49]`), subtítulo descritivo `"As principais marcas em embalagens, descartáveis e muito mais."` e botão pill azul no canto superior direito `"Ver todas as marcas →"` (`bg-[#004CB1] rounded-full`).
+    - **Cards de Marcas 100% Circulares:** Substituídos os cards retangulares antigos por círculos perfeitos (`rounded-full aspect-square bg-white border border-slate-100 shadow-[0_4px_20px_rgba(15,23,42,0.06)]`) com logotipos das marcas centralizados em destaque e micro-animação fluida de elevação no hover (`hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,76,177,0.14)]`).
+    - **Fidelidade 1:1 das Marcas na Página 1:** A primeira página do carrossel agora exibe exatamente as 6 marcas do mockup fornecido pelo usuário: `Lanchero`, `Fasapel`, `Segplast`, `Ultra Descartáveis`, `Knauf` e `Plasan`.
+    - **Navegação & Paginação:** Setas circulares brancas laterais com efeito hover suave e paginação inferior de 3 bolinhas discretas (`size-2.5` e ativa em `#004CB1`) sincronizadas entre desktop e mobile com scroll touch/snap suave.
+    - **Skeleton Shadcn 0-CLS:** Atualizado o skeleton de `brands-carousel` em `scroll-skeleton-reveal.tsx` para reproduzir as proporções circulares e o cabeçalho idênticos.
+  - **Validação Global:** 51/51 arquivos de teste aprovados no Storefront (253 testes verdes, incluindo `brands-carousel.spec.tsx`, `catalog-view.spec.tsx` e `home-configuration.spec.ts`), `typecheck` com 0 erros e banco Neon sincronizado.
+
 - **07/11/2026 — Eliminação de "Região Belém/PA" Automática no Cabeçalho, "Informe seu CEP" como Padrão e GPS com Bairro Real via Nominatim (executorId: `antigravity-gemini`):**
   - **Eliminação de "Região Belém/PA" Automática no Cabeçalho:**
     - O cabeçalho exibia "Enviar para Região de Belém/PA" automaticamente para novos visitantes e em abas anônimas devido ao overwrite do `detectLocationByIp()` e ao fallback estático do `DEFAULT_LOCATION`.

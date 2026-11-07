@@ -196,27 +196,36 @@ export function WidgetSectionSkeleton({
 
     case 'brands-carousel':
       return (
-        <div aria-hidden="true" className="cn-container py-6 sm:py-8">
-          <div className="mb-6 flex flex-col items-center space-y-2">
-            <SkeletonBlock className="h-7 w-52 rounded-lg" />
-            <SkeletonBlock className="h-4 w-72 rounded-md" />
-          </div>
-          <div className="grid grid-cols-3 gap-3 md:grid-cols-6 sm:gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                className={`aspect-square w-full rounded-[24px] border border-slate-200/90 bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.06)] flex items-center justify-center ${
-                  i >= 3 ? 'hidden md:flex' : 'flex'
-                }`}
-                key={i}
-              >
-                <SkeletonBlock className="size-3/4 rounded-xl" />
+        <div aria-hidden="true" className="cn-container py-3 sm:py-5">
+          <div className="relative rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 lg:p-8 shadow-[0_2px_14px_rgba(15,23,42,0.04)]">
+            <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <SkeletonBlock className="size-8 rounded-lg" />
+                <div className="h-8 w-px bg-slate-200" />
+                <div className="space-y-1.5">
+                  <SkeletonBlock className="h-6 w-48 rounded-lg" />
+                  <SkeletonBlock className="h-3.5 w-64 rounded-md" />
+                </div>
               </div>
-            ))}
-          </div>
-          <div className="mt-5 flex justify-center gap-2">
-            <SkeletonBlock className="h-2.5 w-6 rounded-full" />
-            <SkeletonBlock className="h-2.5 w-2.5 rounded-full" />
-            <SkeletonBlock className="h-2.5 w-2.5 rounded-full" />
+              <SkeletonBlock className="h-10 w-44 rounded-full" />
+            </div>
+            <div className="grid grid-cols-3 gap-3 md:grid-cols-6 sm:gap-4 lg:gap-5">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  className={`aspect-square w-full rounded-full border border-slate-100 bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.06)] flex items-center justify-center ${
+                    i >= 3 ? 'hidden md:flex' : 'flex'
+                  }`}
+                  key={i}
+                >
+                  <SkeletonBlock className="size-3/4 rounded-full" />
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 flex justify-center gap-2">
+              <SkeletonBlock className="size-2.5 rounded-full" />
+              <SkeletonBlock className="size-2.5 rounded-full" />
+              <SkeletonBlock className="size-2.5 rounded-full" />
+            </div>
           </div>
         </div>
       );

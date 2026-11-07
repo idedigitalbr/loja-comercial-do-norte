@@ -1,6 +1,6 @@
 {
   "page": "home",
-  "version": 6,
+  "version": 7,
   "widgets": [
     {
       "id": "s01-hero-full-width",
@@ -176,20 +176,10 @@
       }
     },
     {
-      "id": "s07-compre-por-marca",
-      "type": "brands-carousel",
-      "enabled": true,
-      "order": 4,
-      "props": {
-        "title": "Compre por Marca",
-        "viewAllLink": "/marcas"
-      }
-    },
-    {
       "id": "s04-split-offers-carousel",
       "type": "product-carousel",
       "enabled": true,
-      "order": 5,
+      "order": 4,
       "props": {
         "variant": "split-banner",
         "title": "Produtos em Promoção",
@@ -258,7 +248,7 @@
       "id": "s05-triple-banners-1",
       "type": "banner-grid",
       "enabled": true,
-      "order": 6,
+      "order": 5,
       "props": {
         "columns": 3,
         "banners": [
@@ -305,6 +295,17 @@
             "altText": "Copos e Pratos Descartáveis no Comercial do Norte"
           }
         ]
+      }
+    },
+    {
+      "id": "s07-compre-por-marca",
+      "type": "brands-carousel",
+      "enabled": true,
+      "order": 6,
+      "props": {
+        "title": "Compre por Marca",
+        "viewAllLink": "/marcas",
+        "subtitle": "As principais marcas em embalagens, descartáveis e muito mais."
       }
     },
     {

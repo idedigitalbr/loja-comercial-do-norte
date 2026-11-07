@@ -6,6 +6,7 @@ export type DemoProduct = {
   categorySlugs?: readonly string[];
   segmentSlugs?: readonly string[];
   tagSlugs?: readonly string[];
+  brandSlug?: string;
   sku: string;
   priceCents: number;
   compareAtPriceCents?: number;
@@ -18,2221 +19,3277 @@ export type DemoProduct = {
 };
 
 export const demoProducts: readonly DemoProduct[] = [
-  // ==========================================
-  // DESCARTÁVEIS (COPOS, PRATOS, TALHERES, CANUDOS)
-  // ==========================================
-  {
-    slug: 'copo-descartavel-200ml',
-    name: 'Copo Descartável Transparente 200 ml',
-    description: 'Tira com 100 copos plásticos descartáveis 200 ml. Ideal para água, sucos e refrigerantes em escritórios e eventos.',
-    categorySlugs: ['descartaveis', 'copos'],
-    segmentSlugs: ['lanchonete', 'loja-de-festas', 'restaurante-buffet', 'bar-distribuidora', 'delivery'],
-    tagSlugs: ['descartavel', 'transparente'],
-    sku: 'DEMO-COP-200',
-    priceCents: 650,
-    compareAtPriceCents: 790,
-    weightGrams: 450,
-    widthMm: 200, heightMm: 300, lengthMm: 200,
-    physicalQuantity: 280,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'copo-descartavel-300ml',
-    name: 'Copo Descartável Transparente 300 ml',
-    description: 'Pacote com 100 unidades. Perfeito para sucos naturais, refrigerantes e chopp em comemorações e lanchonetes.',
-    categorySlugs: ['descartaveis', 'copos'],
-    segmentSlugs: ['lanchonete', 'bar-distribuidora', 'loja-de-festas', 'delivery', 'restaurante-buffet'],
-    tagSlugs: ['descartavel', 'transparente'],
-    sku: 'DEMO-COP-300',
-    priceCents: 890,
-    compareAtPriceCents: 1090,
-    weightGrams: 1200,
-    widthMm: 300, heightMm: 400, lengthMm: 300,
-    physicalQuantity: 180,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'copo-descartavel-500ml',
-    name: 'Copo Descartável 500 ml Chopp e Açaí',
-    description: 'Pacote com 50 unidades reforçadas. Capacidade de 500 ml ideal para chopp, açaí no copo, vitaminas e cervejas.',
-    categorySlugs: ['descartaveis', 'copos'],
-    segmentSlugs: ['bar-distribuidora', 'sorveteria-acai', 'lanchonete', 'loja-de-festas'],
-    tagSlugs: ['descartavel', 'reforcado', 'transparente'],
-    sku: 'DEMO-COP-500',
-    priceCents: 1450,
-    compareAtPriceCents: 1690,
-    weightGrams: 900,
-    widthMm: 250, heightMm: 350, lengthMm: 250,
-    physicalQuantity: 160,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'copo-termico-isopor-240ml',
-    name: 'Copo Térmico de Isopor 240 ml',
-    description: 'Pacote com 50 copos térmicos de isopor 240 ml. Mantém a temperatura quente de cafés, cappuccinos e chás sem queimar as mãos.',
-    categorySlugs: ['descartaveis', 'copos', 'embalagens'],
-    segmentSlugs: ['padaria', 'lanchonete', 'restaurante-buffet', 'delivery'],
-    tagSlugs: ['termico', 'descartavel'],
-    sku: 'DEMO-COP-TER-240',
-    priceCents: 1190,
-    weightGrams: 350,
-    widthMm: 200, heightMm: 250, lengthMm: 200,
-    physicalQuantity: 140,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'copo-papel-kraft-240ml',
-    name: 'Copo de Papel Kraft Biodegradável 240 ml',
-    description: 'Pacote com 50 copos sustentáveis de papel kraft com barreira antivazamento para bebidas quentes e frias.',
-    categorySlugs: ['descartaveis', 'copos', 'embalagens'],
-    segmentSlugs: ['padaria', 'lanchonete', 'delivery', 'restaurante-buffet'],
-    tagSlugs: ['kraft', 'biodegradavel', 'termico'],
-    sku: 'DEMO-COP-KRAFT-240',
-    priceCents: 1680,
-    compareAtPriceCents: 1990,
-    weightGrams: 420,
-    widthMm: 220, heightMm: 260, lengthMm: 220,
-    physicalQuantity: 130,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'copo-bolha-400ml-tampa',
-    name: 'Copo Bolha 400 ml com Tampa Bolha',
-    description: 'Pacote com 50 conjuntos de copo cristal e tampa bolha sem furo. Excelente para açaí em camadas, salada de frutas e sobremesas.',
-    categorySlugs: ['descartaveis', 'copos', 'embalagens'],
-    segmentSlugs: ['sorveteria-acai', 'confeitaria-bolos', 'lanchonete', 'delivery'],
-    tagSlugs: ['transparente', 'descartavel'],
-    sku: 'DEMO-COP-BOL-400',
-    priceCents: 2390,
-    compareAtPriceCents: 2750,
-    weightGrams: 750,
-    widthMm: 260, heightMm: 320, lengthMm: 260,
-    physicalQuantity: 175,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'copo-bolha-500ml-tampa',
-    name: 'Copo Bolha 500 ml com Tampa Bolha',
-    description: 'Pacote com 50 unidades completas com tampa domo cristal. Alta transparência e resistência para açaí turbinado e shakes.',
-    categorySlugs: ['descartaveis', 'copos', 'embalagens'],
-    segmentSlugs: ['sorveteria-acai', 'confeitaria-bolos', 'lanchonete', 'delivery'],
-    tagSlugs: ['transparente', 'reforcado'],
-    sku: 'DEMO-COP-BOL-500',
-    priceCents: 2850,
-    compareAtPriceCents: 3290,
-    weightGrams: 900,
-    widthMm: 280, heightMm: 350, lengthMm: 280,
-    physicalQuantity: 190,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'prato-descartavel-15cm',
-    name: 'Prato Descartável Branco 15 cm Sobremesa',
-    description: 'Pacote com 50 pratos plásticos de 15 cm. Tamanho ideal para fatias de bolo, tortas, docinhos e sobremesas em geral.',
-    categorySlugs: ['descartaveis', 'pratos', 'artigos-para-festa'],
-    segmentSlugs: ['loja-de-festas', 'confeitaria-bolos', 'padaria', 'restaurante-buffet'],
-    tagSlugs: ['descartavel'],
-    sku: 'DEMO-PRA-015',
-    priceCents: 790,
-    compareAtPriceCents: 950,
-    weightGrams: 480,
-    widthMm: 150, heightMm: 100, lengthMm: 150,
-    physicalQuantity: 220,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'prato-descartavel-21cm',
-    name: 'Prato Descartável Branco 21 cm Refeição',
-    description: 'Pacote com 50 unidades. Prato raso descartável reforçado para servir almoços, churrascos e eventos gastronômicos.',
-    categorySlugs: ['descartaveis', 'pratos', 'artigos-para-festa'],
-    segmentSlugs: ['loja-de-festas', 'restaurante-buffet', 'bar-distribuidora', 'pizzaria'],
-    tagSlugs: ['descartavel', 'reforcado'],
-    sku: 'DEMO-PRA-021',
-    priceCents: 1250,
-    weightGrams: 900,
-    widthMm: 210, heightMm: 120, lengthMm: 210,
-    physicalQuantity: 140,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'prato-descartavel-fundo-18cm',
-    name: 'Prato Descartável Fundo 18 cm para Caldos',
-    description: 'Pacote com 50 pratos fundos descartáveis. Perfeito para feijoadas, caldos, sopas e massas com molho.',
-    categorySlugs: ['descartaveis', 'pratos', 'embalagens'],
-    segmentSlugs: ['restaurante-buffet', 'lanchonete', 'loja-de-festas'],
-    tagSlugs: ['descartavel', 'reforcado'],
-    sku: 'DEMO-PRA-FUN-18',
-    priceCents: 1390,
-    weightGrams: 850,
-    widthMm: 180, heightMm: 140, lengthMm: 180,
-    physicalQuantity: 110,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'garfo-descartavel-reforcado',
-    name: 'Garfo Descartável Reforçado Transparente',
-    description: 'Pacote com 50 garfos plásticos cristal reforçados. Não dobra com facilidade e suporta carnes e pratos pesados.',
-    categorySlugs: ['descartaveis', 'artigos-para-festa'],
-    segmentSlugs: ['restaurante-buffet', 'loja-de-festas', 'lanchonete', 'delivery', 'bar-distribuidora'],
-    tagSlugs: ['descartavel', 'reforcado'],
-    sku: 'DEMO-GAR-REF-50',
-    priceCents: 980,
-    compareAtPriceCents: 1190,
-    weightGrams: 320,
-    widthMm: 180, heightMm: 60, lengthMm: 220,
-    physicalQuantity: 240,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'faca-descartavel-reforcada',
-    name: 'Faca Descartável Reforçada Transparente',
-    description: 'Pacote com 50 facas plásticas com serrilha eficiente para corte de carnes, pizzas e lanches em eventos.',
-    categorySlugs: ['descartaveis', 'artigos-para-festa'],
-    segmentSlugs: ['restaurante-buffet', 'loja-de-festas', 'pizzaria', 'lanchonete', 'delivery'],
-    tagSlugs: ['descartavel', 'reforcado'],
-    sku: 'DEMO-FAC-REF-50',
-    priceCents: 980,
-    compareAtPriceCents: 1190,
-    weightGrams: 320,
-    widthMm: 180, heightMm: 60, lengthMm: 220,
-    physicalQuantity: 230,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'colher-sobremesa-colorida',
-    name: 'Colher Descartável de Sobremesa Colorida',
-    description: 'Pacote com 100 unidades coloridas sortidas. Design alegre e resistente para doces de festa, sorvetes e gelatinas.',
-    categorySlugs: ['descartaveis', 'artigos-para-festa'],
-    segmentSlugs: ['loja-de-festas', 'sorveteria-acai', 'confeitaria-bolos'],
-    tagSlugs: ['descartavel'],
-    sku: 'DEMO-COL-SOB-100',
-    priceCents: 850,
-    weightGrams: 280,
-    widthMm: 160, heightMm: 70, lengthMm: 180,
-    physicalQuantity: 310,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'pazinha-sorvete-acai',
-    name: 'Pazinha de Sorvete e Açaí Colorida',
-    description: 'Pacote com 200 pás pequenas plásticas de cores vibrantes. Higiênica e no tamanho ideal para consumo imediato de açaí e gelato.',
-    categorySlugs: ['descartaveis', 'embalagens'],
-    segmentSlugs: ['sorveteria-acai', 'lanchonete', 'loja-de-festas'],
-    tagSlugs: ['descartavel'],
-    sku: 'DEMO-PAZ-SOR-200',
-    priceCents: 920,
-    compareAtPriceCents: 1090,
-    weightGrams: 260,
-    widthMm: 140, heightMm: 80, lengthMm: 160,
-    physicalQuantity: 400,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'canudo-biodegradavel-embalado',
-    name: 'Canudo de Papel Biodegradável Sachê',
-    description: 'Caixa com 500 canudos de papel kraft biodegradável embalados individualmente em sachê de papel protetor.',
-    categorySlugs: ['descartaveis', 'embalagens'],
-    segmentSlugs: ['lanchonete', 'restaurante-buffet', 'bar-distribuidora', 'delivery'],
-    tagSlugs: ['biodegradavel', 'descartavel'],
-    sku: 'DEMO-CAN-BIO-500',
-    priceCents: 2490,
-    compareAtPriceCents: 2890,
-    weightGrams: 850,
-    widthMm: 220, heightMm: 150, lengthMm: 240,
-    physicalQuantity: 180,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'canudo-grosso-milkshake-acai',
-    name: 'Canudo Grosso para Milk Shake e Açaí',
-    description: 'Pacote com 100 canudos de calibre largo (10 mm) embalados individualmente. Fluidez garantida para vitaminas e açaís cremosos.',
-    categorySlugs: ['descartaveis', 'embalagens'],
-    segmentSlugs: ['sorveteria-acai', 'lanchonete', 'delivery'],
-    tagSlugs: ['descartavel', 'reforcado'],
-    sku: 'DEMO-CAN-GRO-100',
-    priceCents: 1290,
-    weightGrams: 380,
-    widthMm: 180, heightMm: 90, lengthMm: 250,
-    physicalQuantity: 210,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'mexedor-cafe-madeira-11cm',
-    name: 'Mexedor de Café em Madeira 11 cm',
-    description: 'Caixa dispensadora com 500 mexedores de madeira de reflorestamento. Ecológico, liso e sem lascas para café e chá.',
-    categorySlugs: ['descartaveis', 'artigos-para-festa'],
-    segmentSlugs: ['padaria', 'lanchonete', 'restaurante-buffet', 'bar-distribuidora'],
-    tagSlugs: ['biodegradavel', 'descartavel'],
-    sku: 'DEMO-MEX-MAD-500',
-    priceCents: 1150,
-    weightGrams: 420,
-    widthMm: 120, heightMm: 100, lengthMm: 180,
-    physicalQuantity: 260,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'guardanapo-papel-24x24',
-    name: 'Guardanapo de Papel 24 x 24 cm Folha Simples',
-    description: 'Pacote com 50 unidades macias e altamente absorventes. Padrão consagrado para balcão, bandejas e mesas.',
-    categorySlugs: ['descartaveis', 'artigos-para-festa', 'embalagens'],
-    segmentSlugs: ['lanchonete', 'pizzaria', 'restaurante-buffet', 'delivery', 'bar-distribuidora', 'padaria'],
-    tagSlugs: ['biodegradavel'],
-    sku: 'DEMO-GUA-2424',
-    priceCents: 650,
-    weightGrams: 500,
-    widthMm: 240, heightMm: 80, lengthMm: 240,
-    physicalQuantity: 220,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'guardanapo-folha-dupla-snack',
-    name: 'Guardanapo Folha Dupla 30 x 30 cm Nobre',
-    description: 'Pacote com 50 guardanapos folha dupla premium de toque aveludado e alto poder de absorção para hamburguerias e buffets.',
-    categorySlugs: ['descartaveis', 'artigos-para-festa'],
-    segmentSlugs: ['lanchonete', 'restaurante-buffet', 'pizzaria', 'loja-de-festas'],
-    tagSlugs: ['biodegradavel', 'reforcado'],
-    sku: 'DEMO-GUA-FD-3030',
-    priceCents: 990,
-    compareAtPriceCents: 1190,
-    weightGrams: 450,
-    widthMm: 160, heightMm: 90, lengthMm: 160,
-    physicalQuantity: 190,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'toalha-mesa-descartavel-plastica',
-    name: 'Toalha de Mesa Plástica Descartável 1,20 x 1,80 m',
-    description: 'Pacote com 5 toalhas impermeáveis para mesas de buffet, festas e feijoadas. Praticidade total na limpeza pós-evento.',
-    categorySlugs: ['descartaveis', 'artigos-para-festa'],
-    segmentSlugs: ['loja-de-festas', 'restaurante-buffet', 'bar-distribuidora'],
-    tagSlugs: ['descartavel'],
-    sku: 'DEMO-TOA-PLA-5UN',
-    priceCents: 1850,
-    weightGrams: 600,
-    widthMm: 250, heightMm: 50, lengthMm: 350,
-    physicalQuantity: 110,
-    status: 'ACTIVE',
-  },
-
-  // ==========================================
-  // EMBALAGENS, CAIXAS, BANDEJAS, MARMITEX, ALUMÍNIO & FILME
-  // ==========================================
-  {
-    slug: 'caixa-pizza-25cm-oitavada',
-    name: 'Caixa de Pizza Oitavada 25 cm Brotinho',
-    description: 'Fardo com 25 unidades em papelão microondulado com excelente retenção de calor e fundo reforçado.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['pizzaria', 'delivery', 'lanchonete'],
-    tagSlugs: ['kraft', 'termico'],
-    sku: 'DEMO-CAI-PIZ-025',
-    priceCents: 2450,
-    weightGrams: 2100,
-    widthMm: 250, heightMm: 150, lengthMm: 250,
-    physicalQuantity: 160,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'caixa-pizza-35cm',
-    name: 'Caixa de Pizza Oitavada 35 cm Grande',
-    description: 'Fardo com 25 caixas em papelão resistente com respiros para vapor. A caixa oficial das pizzarias e deliveries de sucesso.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['pizzaria', 'delivery'],
-    tagSlugs: ['kraft', 'termico'],
-    sku: 'DEMO-CAI-035',
-    priceCents: 3990,
-    compareAtPriceCents: 4500,
-    weightGrams: 3400,
-    widthMm: 350, heightMm: 180, lengthMm: 350,
-    physicalQuantity: 300,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'caixa-pizza-quadrada-35cm',
-    name: 'Caixa de Pizza Quadrada 35 cm Kraft',
-    description: 'Fardo com 25 caixas quadradas em papelão virgem kraft. Visual rústico e sustentável muito valorizado por pizzarias artesanais.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['pizzaria', 'delivery'],
-    tagSlugs: ['kraft', 'biodegradavel', 'termico'],
-    sku: 'DEMO-CAI-PIZ-Q35',
-    priceCents: 4290,
-    weightGrams: 3600,
-    widthMm: 350, heightMm: 180, lengthMm: 350,
-    physicalQuantity: 140,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'disco-papelao-pizza-35cm',
-    name: 'Disco de Papelão Ondulado para Pizza 35 cm',
-    description: 'Pacote com 50 discos de apoio térmico e absorção para pizza. Evita que a base da pizza fique úmida no transporte.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['pizzaria', 'delivery'],
-    tagSlugs: ['kraft', 'termico'],
-    sku: 'DEMO-DIS-PIZ-035',
-    priceCents: 1990,
-    compareAtPriceCents: 2350,
-    weightGrams: 1600,
-    widthMm: 350, heightMm: 80, lengthMm: 350,
-    physicalQuantity: 210,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'caixa-esfiha-salgados-termica',
-    name: 'Caixa para Esfihas e Salgados Térmica',
-    description: 'Pacote com 50 caixas de papel cartão térmico com trava de fechamento fácil. Ideal para 20 a 30 esfihas ou salgadinhos.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['pizzaria', 'padaria', 'lanchonete', 'delivery'],
-    tagSlugs: ['termico', 'kraft'],
-    sku: 'DEMO-CAI-ESF-50',
-    priceCents: 3290,
-    weightGrams: 1800,
-    widthMm: 280, heightMm: 140, lengthMm: 280,
-    physicalQuantity: 150,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'bandeja-isopor-n2',
-    name: 'Bandeja de Isopor nº 2 Rasa',
-    description: 'Fardo com 100 bandejas EPS rasas para acondicionamento e pesagem de queijos, presuntos fatiados e porções.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['padaria', 'restaurante-buffet', 'delivery', 'pizzaria', 'lanchonete'],
-    tagSlugs: ['termico', 'descartavel'],
-    sku: 'DEMO-BAN-002',
-    priceCents: 990,
-    compareAtPriceCents: 1290,
-    weightGrams: 300,
-    widthMm: 250, heightMm: 30, lengthMm: 200,
-    physicalQuantity: 160,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'bandeja-isopor-n3-funda',
-    name: 'Bandeja de Isopor nº 3 Funda',
-    description: 'Fardo com 100 bandejas EPS com bordas elevadas para carnes, frangos, peixes e frios no balcão e açougue.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['padaria', 'restaurante-buffet', 'bar-distribuidora'],
-    tagSlugs: ['termico', 'descartavel'],
-    sku: 'DEMO-BAN-003',
-    priceCents: 1390,
-    weightGrams: 420,
-    widthMm: 270, heightMm: 50, lengthMm: 210,
-    physicalQuantity: 145,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'caixa-hamburguer-kraft-respiro',
-    name: 'Caixa para Hambúrguer Kraft com Respiro',
-    description: 'Pacote com 100 caixas em papel kraft anti-gordura com travas e orifícios de respiro para manter o pão crocante no delivery.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['lanchonete', 'delivery', 'bar-distribuidora'],
-    tagSlugs: ['kraft', 'biodegradavel', 'reforcado'],
-    sku: 'DEMO-CAI-BUR-100',
-    priceCents: 3890,
-    compareAtPriceCents: 4400,
-    weightGrams: 1600,
-    widthMm: 260, heightMm: 160, lengthMm: 260,
-    physicalQuantity: 210,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'barquinha-kraft-porcoes-batatas',
-    name: 'Barquinha Kraft para Porções e Batatas',
-    description: 'Pacote com 100 barcas em papel kraft resistente à gordura. Excelente para batata frita, nuggets, coxinhas e petiscos de boteco.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['lanchonete', 'bar-distribuidora', 'delivery', 'loja-de-festas'],
-    tagSlugs: ['kraft', 'biodegradavel'],
-    sku: 'DEMO-BAR-KRA-100',
-    priceCents: 2690,
-    weightGrams: 1100,
-    widthMm: 200, heightMm: 120, lengthMm: 220,
-    physicalQuantity: 230,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'pote-termico-molho-250ml',
-    name: 'Pote Térmico com Tampa Antivazamento 250 ml',
-    description: 'Pacote com 50 potes térmicos herméticos para caldos, sopas, feijão e molhos quentes sem risco de derramamento.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['delivery', 'restaurante-buffet', 'lanchonete', 'sorveteria-acai'],
-    tagSlugs: ['termico', 'descartavel'],
-    sku: 'DEMO-POT-TER-250',
-    priceCents: 1290,
-    compareAtPriceCents: 1550,
-    weightGrams: 450,
-    widthMm: 120, heightMm: 80, lengthMm: 120,
-    physicalQuantity: 180,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'pote-termico-molho-500ml',
-    name: 'Pote Térmico com Tampa Antivazamento 500 ml',
-    description: 'Pacote com 50 unidades de meio litro. Retenção térmica superior para sopas, caldos e açaí para viagem.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['delivery', 'restaurante-buffet', 'sorveteria-acai', 'lanchonete'],
-    tagSlugs: ['termico', 'descartavel', 'reforcado'],
-    sku: 'DEMO-POT-TER-500',
-    priceCents: 1950,
-    compareAtPriceCents: 2290,
-    weightGrams: 620,
-    widthMm: 140, heightMm: 120, lengthMm: 140,
-    physicalQuantity: 155,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'pote-redondo-molho-140ml',
-    name: 'Pote Redondo com Tampa Articulada 140 ml',
-    description: 'Pacote com 100 potes plásticos cristal com tampa acoplada. Vedação perfeita para molhos, vinagretes e sobremesas individuais.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['delivery', 'lanchonete', 'pizzaria', 'restaurante-buffet'],
-    tagSlugs: ['transparente', 'descartavel'],
-    sku: 'DEMO-POT-MOL-140',
-    priceCents: 1890,
-    weightGrams: 580,
-    widthMm: 180, heightMm: 110, lengthMm: 220,
-    physicalQuantity: 240,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'marmitex-aluminio-n8-tampa',
-    name: 'Marmitex de Alumínio nº 8 com Tampa Cartão',
-    description: 'Caixa com 100 recipientes redondos de alumínio descartável com tampa de papelão laminado. Mantém o prato quentinho e saboroso.',
-    categorySlugs: ['embalagens', 'filme-e-aluminio'],
-    segmentSlugs: ['restaurante-buffet', 'delivery', 'lanchonete'],
-    tagSlugs: ['termico', 'descartavel', 'reforcado'],
-    sku: 'DEMO-MAR-ALU-008',
-    priceCents: 6890,
-    compareAtPriceCents: 7600,
-    weightGrams: 2800,
-    widthMm: 220, heightMm: 250, lengthMm: 220,
-    physicalQuantity: 120,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'marmitex-aluminio-n9-divisoria',
-    name: 'Marmitex de Alumínio nº 9 com Divisórias',
-    description: 'Caixa com 100 marmitex com 3 divisórias internas para separar arroz, feijão e guarnição sem misturar caldos.',
-    categorySlugs: ['embalagens', 'filme-e-aluminio'],
-    segmentSlugs: ['restaurante-buffet', 'delivery'],
-    tagSlugs: ['termico', 'descartavel', 'reforcado'],
-    sku: 'DEMO-MAR-ALU-009',
-    priceCents: 8490,
-    weightGrams: 3200,
-    widthMm: 240, heightMm: 280, lengthMm: 240,
-    physicalQuantity: 110,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'embalagem-fatia-torta-triangular',
-    name: 'Embalagem Triangular para Fatia de Torta',
-    description: 'Pacote com 50 embalagens articuladas cristal com trava segura. Destaque total para a beleza das fatias de bolos e tortas.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria', 'loja-de-festas', 'delivery'],
-    tagSlugs: ['transparente', 'descartavel'],
-    sku: 'DEMO-EMB-FAT-050',
-    priceCents: 2190,
-    compareAtPriceCents: 2490,
-    weightGrams: 750,
-    widthMm: 190, heightMm: 120, lengthMm: 230,
-    physicalQuantity: 180,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'embalagem-redonda-bolo-g32',
-    name: 'Embalagem Redonda para Bolo Tampa Alta G-32',
-    description: 'Caixa com 20 conjuntos de base preta firme e cúpula transparente de alta visibilidade para bolos confeitados de até 2 kg.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria', 'loja-de-festas'],
-    tagSlugs: ['transparente', 'reforcado'],
-    sku: 'DEMO-EMB-BOL-G32',
-    priceCents: 4990,
-    weightGrams: 1600,
-    widthMm: 310, heightMm: 300, lengthMm: 310,
-    physicalQuantity: 95,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'embalagem-bento-cake-kraft',
-    name: 'Embalagem Bento Cake e Mini Bolo Kraft',
-    description: 'Pacote com 50 caixas quadradas articuladas em fibra de bagaço de cana/kraft biodegradável. O queridinho das mini confeitarias.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria', 'loja-de-festas', 'delivery'],
-    tagSlugs: ['kraft', 'biodegradavel', 'termico'],
-    sku: 'DEMO-EMB-BEN-050',
-    priceCents: 3490,
-    compareAtPriceCents: 3990,
-    weightGrams: 980,
-    widthMm: 220, heightMm: 140, lengthMm: 220,
-    physicalQuantity: 140,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'filme-pvc-30cm',
-    name: 'Filme PVC Esticável 30 cm x 100 m',
-    description: 'Rolo de filme plástico PVC transparente com alta aderência e elasticidade para proteção e conservação de alimentos.',
-    categorySlugs: ['embalagens', 'filme-e-aluminio'],
-    segmentSlugs: ['padaria', 'restaurante-buffet', 'pizzaria', 'lanchonete', 'bar-distribuidora'],
-    tagSlugs: ['transparente'],
-    sku: 'DEMO-FIL-030',
-    priceCents: 1890,
-    weightGrams: 350,
-    widthMm: 300, heightMm: 100, lengthMm: 100,
-    physicalQuantity: 145,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'filme-pvc-38cm-trilho-cortador',
-    name: 'Filme PVC 38 cm x 300 m com Trilho Cortador',
-    description: 'Caixa institucional profissional com trilho deslizante de corte rápido e seguro. Rendimento extremo para cozinhas comerciais.',
-    categorySlugs: ['embalagens', 'filme-e-aluminio'],
-    segmentSlugs: ['restaurante-buffet', 'padaria', 'pizzaria'],
-    tagSlugs: ['transparente', 'reforcado'],
-    sku: 'DEMO-FIL-38-300',
-    priceCents: 5290,
-    compareAtPriceCents: 5990,
-    weightGrams: 1400,
-    widthMm: 420, heightMm: 120, lengthMm: 130,
-    physicalQuantity: 80,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'papel-aluminio-45cm-100m',
-    name: 'Papel Alumínio Resistente 45 cm x 100 m',
-    description: 'Rolo de folha de alumínio de alta espessura. Suporta altas temperaturas no forno e churrasqueira sem rasgar.',
-    categorySlugs: ['embalagens', 'filme-e-aluminio'],
-    segmentSlugs: ['restaurante-buffet', 'pizzaria', 'lanchonete', 'delivery'],
-    tagSlugs: ['termico', 'reforcado'],
-    sku: 'DEMO-ALU-45-100',
-    priceCents: 4490,
-    weightGrams: 1250,
-    widthMm: 480, heightMm: 100, lengthMm: 100,
-    physicalQuantity: 105,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'lacre-seguranca-delivery',
-    name: 'Lacre de Segurança Inviolável para Delivery',
-    description: 'Rolo com 500 etiquetas adesivas picotadas de alta aderência. Rompe ao abrir, garantindo segurança alimentar comprovada.',
-    categorySlugs: ['embalagens', 'caixas-e-bandejas'],
-    segmentSlugs: ['delivery', 'pizzaria', 'lanchonete', 'sorveteria-acai', 'confeitaria-bolos', 'padaria'],
-    tagSlugs: ['reforcado', 'kraft'],
-    sku: 'DEMO-LAC-SEG-500',
-    priceCents: 1490,
-    compareAtPriceCents: 1790,
-    weightGrams: 280,
-    widthMm: 100, heightMm: 100, lengthMm: 45,
-    physicalQuantity: 240,
-    status: 'ACTIVE',
-  },
-
-  // ==========================================
-  // SACOS E SACOLAS
-  // ==========================================
-  {
-    slug: 'sacola-plastica-30x40',
-    name: 'Sacola Plástica Reforçada Branca 30 x 40 cm',
-    description: 'Fardo com 1 kg de sacolas tipo camiseta. Alta resistência mecânica para uso diário no balcão e caixas.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['lanchonete', 'padaria', 'bar-distribuidora', 'sorveteria-acai', 'loja-de-festas'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-SAC-3040',
-    priceCents: 1450,
-    weightGrams: 1000,
-    widthMm: 300, heightMm: 50, lengthMm: 400,
-    physicalQuantity: 120,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'sacola-plastica-40x50',
-    name: 'Sacola Plástica Reforçada Branca 40 x 50 cm',
-    description: 'Fardo com 1 kg de sacolas reforçadas. Espessura calibrada para compras pesadas sem esticar ou arrebentar a alça.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['lanchonete', 'pizzaria', 'padaria', 'bar-distribuidora', 'delivery', 'restaurante-buffet'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-SAC-4050',
-    priceCents: 1590,
-    compareAtPriceCents: 2035,
-    weightGrams: 1500,
-    widthMm: 400, heightMm: 60, lengthMm: 500,
-    physicalQuantity: 90,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'sacola-plastica-50x60',
-    name: 'Sacola Plástica Reforçada Verde 50 x 60 cm',
-    description: 'Fardo com 1 kg de sacolas grandes com alta micragem. Comporta caixas volumosas, fardos e embalagens térmicas.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['bar-distribuidora', 'pizzaria', 'padaria', 'restaurante-buffet'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-SAC-5060',
-    priceCents: 1690,
-    weightGrams: 1000,
-    widthMm: 500, heightMm: 60, lengthMm: 600,
-    physicalQuantity: 85,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'sacola-kraft-delivery-media',
-    name: 'Sacola de Papel Kraft Delivery Média 24 x 33 cm',
-    description: 'Pacote com 50 sacolas kraft com alça torcida resistente. Visual charmoso e ecológico para lanches, porções e cafés.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['delivery', 'lanchonete', 'padaria', 'confeitaria-bolos'],
-    tagSlugs: ['kraft', 'biodegradavel', 'reforcado'],
-    sku: 'DEMO-SAC-KRA-MED',
-    priceCents: 2490,
-    compareAtPriceCents: 2890,
-    weightGrams: 1100,
-    widthMm: 240, heightMm: 330, lengthMm: 120,
-    physicalQuantity: 170,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'sacola-kraft-delivery',
-    name: 'Sacola de Papel Kraft Delivery Grande 32 x 39 cm',
-    description: 'Pacote com 50 unidades. Fundo largo e reforçado ideal para marmitas, caixas de hambúrguer e pedidos com múltiplos itens.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['delivery', 'lanchonete', 'restaurante-buffet', 'sorveteria-acai', 'confeitaria-bolos'],
-    tagSlugs: ['kraft', 'biodegradavel', 'reforcado'],
-    sku: 'DEMO-SAC-KRAFT-DEL',
-    priceCents: 1890,
-    compareAtPriceCents: 2250,
-    weightGrams: 1400,
-    widthMm: 320, heightMm: 390, lengthMm: 180,
-    physicalQuantity: 150,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'saco-kraft-pao-n3',
-    name: 'Saco de Papel Kraft para Pão nº 3',
-    description: 'Fardo com 500 sacos de papel kraft virgem para até 5 pães franceses ou salgados assados. Mantém o alimento crocante.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['padaria', 'lanchonete', 'confeitaria-bolos'],
-    tagSlugs: ['kraft', 'biodegradavel'],
-    sku: 'DEMO-SAC-PAO-003',
-    priceCents: 2890,
-    weightGrams: 1300,
-    widthMm: 160, heightMm: 180, lengthMm: 280,
-    physicalQuantity: 180,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'saco-kraft-pao-n5',
-    name: 'Saco de Papel Kraft para Pão nº 5',
-    description: 'Fardo com 500 sacos kraft para até 10 pães, baguetes ou tortas salgadas. Respirável e 100% reciclável.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['padaria', 'lanchonete', 'confeitaria-bolos'],
-    tagSlugs: ['kraft', 'biodegradavel'],
-    sku: 'DEMO-SAC-PAO-005',
-    priceCents: 3790,
-    weightGrams: 1700,
-    widthMm: 180, heightMm: 220, lengthMm: 360,
-    physicalQuantity: 140,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'bobina-picotada-25x35',
-    name: 'Saco Plástico em Bobina Picotada 25 x 35 cm',
-    description: 'Rolo contínuo com 500 saquinhos plásticos picotados de fácil destaque. Indispensável para hortifrúti, pães e pesagem.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['padaria', 'restaurante-buffet', 'sorveteria-acai', 'bar-distribuidora'],
-    tagSlugs: ['transparente'],
-    sku: 'DEMO-BOB-PIC-2535',
-    priceCents: 1990,
-    weightGrams: 800,
-    widthMm: 250, heightMm: 100, lengthMm: 100,
-    physicalQuantity: 220,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'bobina-picotada-30x40',
-    name: 'Saco Plástico em Bobina Picotada 30 x 40 cm',
-    description: 'Rolo com 500 sacos picotados de alta capacidade. Filme alimentar higiênico para carnes, congelamento e armazenamento.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['padaria', 'restaurante-buffet', 'pizzaria', 'lanchonete'],
-    tagSlugs: ['transparente', 'reforcado'],
-    sku: 'DEMO-BOB-PIC-3040',
-    priceCents: 2490,
-    weightGrams: 1050,
-    widthMm: 300, heightMm: 110, lengthMm: 110,
-    physicalQuantity: 190,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'saco-termico-frango-assado',
-    name: 'Saco Térmico Metalizado para Frango Assado',
-    description: 'Pacote com 100 sacos metalizados com aba adesiva selante. Retém gordura e vapor mantendo o frango assado quente por horas.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['padaria', 'restaurante-buffet', 'delivery', 'lanchonete'],
-    tagSlugs: ['termico', 'reforcado'],
-    sku: 'DEMO-SAC-TER-FRA',
-    priceCents: 4190,
-    compareAtPriceCents: 4800,
-    weightGrams: 1300,
-    widthMm: 280, heightMm: 80, lengthMm: 380,
-    physicalQuantity: 110,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'saco-ziplock-multiuso-15x20',
-    name: 'Saco Zip Lock Hermético Multiuso 15 x 20 cm',
-    description: 'Pacote com 100 sacos com fecho hermético trilho ziplock. Reutilizável e resistente para congelar polpas, frutas e insumos.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['sorveteria-acai', 'confeitaria-bolos', 'bar-distribuidora', 'padaria'],
-    tagSlugs: ['transparente', 'reforcado'],
-    sku: 'DEMO-SAC-ZIP-1520',
-    priceCents: 1590,
-    weightGrams: 420,
-    widthMm: 150, heightMm: 50, lengthMm: 200,
-    physicalQuantity: 200,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'saco-lixo-reforcado-preto-100l',
-    name: 'Saco de Lixo Reforçado Preto 100 L',
-    description: 'Pacote com 100 sacos de lixo de micragem grossa para cozinhas comerciais, eventos e descarte sem vazamento ou rasgo.',
-    categorySlugs: ['sacos-e-sacolas', 'produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'pizzaria', 'lanchonete', 'bar-distribuidora', 'padaria', 'loja-de-festas'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-SAC-LIX-100L',
-    priceCents: 3290,
-    compareAtPriceCents: 3800,
-    weightGrams: 2800,
-    widthMm: 280, heightMm: 120, lengthMm: 380,
-    physicalQuantity: 180,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'saco-polipropileno-aba-adesiva-10x15',
-    name: 'Saco PP Cristal com Aba Adesiva 10 x 15 cm',
-    description: 'Pacote com 100 sacos transparentes brilhantes com fita adesiva reposicionável. Perfeito para doces finos, brownies e bijuterias.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['confeitaria-bolos', 'loja-de-festas', 'padaria'],
-    tagSlugs: ['transparente'],
-    sku: 'DEMO-SAC-PP-1015',
-    priceCents: 1190,
-    weightGrams: 220,
-    widthMm: 100, heightMm: 20, lengthMm: 150,
-    physicalQuantity: 250,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'saco-polipropileno-aba-adesiva-20x30',
-    name: 'Saco PP Cristal com Aba Adesiva 20 x 30 cm',
-    description: 'Pacote com 100 unidades em polipropileno ultratransparente para camisas, brindes, panetones e kits de festas.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['loja-de-festas', 'padaria', 'confeitaria-bolos'],
-    tagSlugs: ['transparente', 'reforcado'],
-    sku: 'DEMO-SAC-PP-2030',
-    priceCents: 1990,
-    weightGrams: 480,
-    widthMm: 200, heightMm: 30, lengthMm: 300,
-    physicalQuantity: 190,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'sacola-kraft-sos-n2',
-    name: 'Sacola Kraft SOS sem Alça para Delivery nº 2',
-    description: 'Pacote com 100 sacos SOS de fundo quadrado plano que param em pé sozinhos. Ideal para lanches rápidos e salgados.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['lanchonete', 'delivery', 'padaria'],
-    tagSlugs: ['kraft', 'biodegradavel'],
-    sku: 'DEMO-SAC-SOS-002',
-    priceCents: 2190,
-    weightGrams: 900,
-    widthMm: 180, heightMm: 240, lengthMm: 100,
-    physicalQuantity: 180,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'sacola-kraft-sos-n4',
-    name: 'Sacola Kraft SOS sem Alça para Delivery nº 4',
-    description: 'Pacote com 100 sacos SOS médios em papel kraft resistente. Suporta combos com refrigerante e batata sem rasgar o fundo.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['lanchonete', 'delivery', 'padaria'],
-    tagSlugs: ['kraft', 'biodegradavel'],
-    sku: 'DEMO-SAC-SOS-004',
-    priceCents: 2990,
-    weightGrams: 1300,
-    widthMm: 220, heightMm: 300, lengthMm: 120,
-    physicalQuantity: 160,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'saco-pipoca-kraft-estampado',
-    name: 'Saco de Pipoca Kraft Estampado Vintage',
-    description: 'Pacote com 100 saquinhos em papel kraft antigordura com estampa divertida de cinema para pipocas doces e salgadas.',
-    categorySlugs: ['sacos-e-sacolas', 'artigos-para-festa'],
-    segmentSlugs: ['loja-de-festas', 'lanchonete', 'bar-distribuidora'],
-    tagSlugs: ['kraft', 'biodegradavel'],
-    sku: 'DEMO-SAC-PIP-100',
-    priceCents: 1290,
-    weightGrams: 320,
-    widthMm: 120, heightMm: 180, lengthMm: 60,
-    physicalQuantity: 210,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'saco-hotdog-kraft-antigordura',
-    name: 'Saco para Hot Dog em Papel Kraft Antigordura',
-    description: 'Pacote com 100 saquinhos com barreira interna impermeabilizante para cachorro-quente sem vazar maionese e molho na mão.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['lanchonete', 'delivery', 'loja-de-festas'],
-    tagSlugs: ['kraft', 'biodegradavel'],
-    sku: 'DEMO-SAC-HOT-100',
-    priceCents: 1450,
-    weightGrams: 340,
-    widthMm: 120, heightMm: 220, lengthMm: 40,
-    physicalQuantity: 230,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'saco-gelo-5kg-fita-selante',
-    name: 'Saco Plástico para Gelo 5 kg com Fita (pct 100 un)',
-    description: 'Pacote com 100 sacos resistentes de polietileno virgem de alta espessura. Suporta peso e baixas temperaturas sem romper.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['bar-distribuidora', 'restaurante-buffet'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-SAC-GEL-05K',
-    priceCents: 2890,
-    weightGrams: 1400,
-    widthMm: 280, heightMm: 50, lengthMm: 550,
-    physicalQuantity: 120,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'sacola-boca-palhaco-branca-30x40',
-    name: 'Sacola Boca de Palhaço / Vazada Branca 30 x 40 cm',
-    description: 'Pacote com 100 sacolas com alça vazada em polietileno de alta densidade. Excelente acabamento visual para lojas e feiras.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['loja-de-festas', 'confeitaria-bolos', 'bar-distribuidora'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-SAC-PAL-3040',
-    priceCents: 2690,
-    weightGrams: 900,
-    widthMm: 300, heightMm: 40, lengthMm: 400,
-    physicalQuantity: 170,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'sacola-alca-fita-translucida-40x45',
-    name: 'Sacola Alça Fita Translúcida Fosca 40 x 45 cm',
-    description: 'Pacote com 50 sacolas sofisticadas com alça fita reforçada. Acabamento fosco aveludado muito procurado por confeitarias de luxo.',
-    categorySlugs: ['sacos-e-sacolas', 'embalagens'],
-    segmentSlugs: ['confeitaria-bolos', 'loja-de-festas', 'padaria'],
-    tagSlugs: ['transparente', 'reforcado'],
-    sku: 'DEMO-SAC-FIT-4045',
-    priceCents: 2890,
-    weightGrams: 850,
-    widthMm: 400, heightMm: 50, lengthMm: 450,
-    physicalQuantity: 130,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'saco-lixo-reforcado-preto-50l',
-    name: 'Saco de Lixo Reforçado Preto 50 L',
-    description: 'Pacote com 100 sacos de lixo de média capacidade com solda lateral vedada contra vazamento de chorume.',
-    categorySlugs: ['sacos-e-sacolas', 'produtos-de-limpeza'],
-    segmentSlugs: ['lanchonete', 'pizzaria', 'padaria', 'bar-distribuidora'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-SAC-LIX-050L',
-    priceCents: 2490,
-    weightGrams: 1800,
-    widthMm: 220, heightMm: 100, lengthMm: 320,
-    physicalQuantity: 160,
-    status: 'ACTIVE',
-  },
-
-  // ==========================================
-  // ARTIGOS PARA FESTA, VELAS E CONFEITARIA DECORATIVA
-  // ==========================================
-  {
-    slug: 'velas-aniversario-coloridas',
-    name: 'Velas de Aniversário Coloridas Espiral',
-    description: 'Cartela com 12 velas coloridas clássicas para parabéns com chama brilhante e sem resíduos no bolo.',
-    categorySlugs: ['artigos-para-festa', 'velas-e-suprimentos'],
-    segmentSlugs: ['loja-de-festas', 'confeitaria-bolos', 'padaria'],
-    tagSlugs: ['descartavel'],
-    sku: 'DEMO-VEL-0012',
-    priceCents: 420,
-    weightGrams: 120,
-    widthMm: 150, heightMm: 20, lengthMm: 100,
-    physicalQuantity: 75,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'vela-numeral-dourada-glitter',
-    name: 'Vela Numeral Dourada com Glitter',
-    description: 'Vela numérica com acabamento reluzente em glitter dourado nobre. O destaque impecável para fotos do topo de bolo.',
-    categorySlugs: ['artigos-para-festa', 'velas-e-suprimentos'],
-    segmentSlugs: ['loja-de-festas', 'confeitaria-bolos', 'padaria'],
-    tagSlugs: ['descartavel'],
-    sku: 'DEMO-VEL-NUM-DOU',
-    priceCents: 590,
-    weightGrams: 50,
-    widthMm: 80, heightMm: 15, lengthMm: 140,
-    physicalQuantity: 160,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'vela-sparkler-faisca-estrelinha',
-    name: 'Vela Sparkler Faísca Estrelinha 15 cm',
-    description: 'Pacote com 4 unidades de efeito faísca cintilante. Adiciona glamour e emoção em celebrações, casamentos e aniversários.',
-    categorySlugs: ['artigos-para-festa', 'velas-e-suprimentos'],
-    segmentSlugs: ['loja-de-festas', 'confeitaria-bolos', 'bar-distribuidora'],
-    tagSlugs: ['descartavel'],
-    sku: 'DEMO-VEL-SPA-015',
-    priceCents: 780,
-    weightGrams: 80,
-    widthMm: 60, heightMm: 15, lengthMm: 200,
-    physicalQuantity: 210,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'forminha-docinho-n5',
-    name: 'Forminha de Docinho nº 5 Tradicional',
-    description: 'Pacote com 100 forminhas de papel impermeável. O tamanho oficial e consagrado para brigadeiros e beijinhos.',
-    categorySlugs: ['artigos-para-festa', 'doces-e-bomboniere'],
-    segmentSlugs: ['confeitaria-bolos', 'loja-de-festas', 'padaria'],
-    tagSlugs: ['descartavel'],
-    sku: 'DEMO-FOR-005',
-    priceCents: 730,
-    weightGrams: 200,
-    widthMm: 200, heightMm: 60, lengthMm: 150,
-    physicalQuantity: 210,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'forminha-4-petalas-kraft-gourmet',
-    name: 'Forminha 4 Pétalas para Brigadeiro Gourmet Kraft',
-    description: 'Pacote com 100 forminhas articuladas em papel kraft com encaixe perfeito. Apresentação sofisticada para festas e vitrines.',
-    categorySlugs: ['artigos-para-festa', 'doces-e-bomboniere'],
-    segmentSlugs: ['confeitaria-bolos', 'loja-de-festas', 'padaria'],
-    tagSlugs: ['kraft', 'biodegradavel'],
-    sku: 'DEMO-FOR-4PET-KRA',
-    priceCents: 1190,
-    compareAtPriceCents: 1390,
-    weightGrams: 240,
-    widthMm: 120, heightMm: 80, lengthMm: 160,
-    physicalQuantity: 180,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'tapetinho-rendado-celofane-doces',
-    name: 'Tapetinho Rendado de Celofane para Doces',
-    description: 'Caixa com 500 tapetes transparentes rendados com acabamento ondulado. Realça o brilho e elegância dos docinhos de festa.',
-    categorySlugs: ['artigos-para-festa', 'doces-e-bomboniere'],
-    segmentSlugs: ['confeitaria-bolos', 'loja-de-festas'],
-    tagSlugs: ['transparente', 'descartavel'],
-    sku: 'DEMO-TAP-REN-500',
-    priceCents: 1280,
-    weightGrams: 190,
-    widthMm: 100, heightMm: 60, lengthMm: 100,
-    physicalQuantity: 240,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'prato-laminado-dourado-bolo-n6',
-    name: 'Prato Laminado Dourado para Bolo nº 6',
-    description: 'Pacote com 10 pratos de papelão laminado dourado impermeável. Base firme para transporte e corte de bolos confeitados.',
-    categorySlugs: ['artigos-para-festa', 'embalagens'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria', 'loja-de-festas'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-PRA-LAM-D06',
-    priceCents: 1650,
-    weightGrams: 550,
-    widthMm: 280, heightMm: 30, lengthMm: 280,
-    physicalQuantity: 130,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'prato-laminado-prateado-bolo-n8',
-    name: 'Prato Laminado Prateado para Bolo nº 8',
-    description: 'Pacote com 10 bases prateadas de alta densidade de 32 cm. Suporta bolos de andares e tortas de grandes eventos.',
-    categorySlugs: ['artigos-para-festa', 'embalagens'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria', 'loja-de-festas'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-PRA-LAM-P08',
-    priceCents: 2150,
-    weightGrams: 750,
-    widthMm: 320, heightMm: 35, lengthMm: 320,
-    physicalQuantity: 115,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'balao-latex-sortido-n9',
-    name: 'Balão de Látex Profissional nº 9 Cores Sortidas',
-    description: 'Pacote com 50 bexigas de látex 100% natural biodegradável. Cores vibrantes com alta retenção de ar e brilho duradouro.',
-    categorySlugs: ['artigos-para-festa'],
-    segmentSlugs: ['loja-de-festas', 'sorveteria-acai'],
-    tagSlugs: ['biodegradavel'],
-    sku: 'DEMO-BAL-LAT-009',
-    priceCents: 1590,
-    compareAtPriceCents: 1890,
-    weightGrams: 280,
-    widthMm: 180, heightMm: 50, lengthMm: 240,
-    physicalQuantity: 250,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'faixa-decorativa-parabens-metalizada',
-    name: 'Faixa Decorativa Parabéns Metalizada',
-    description: 'Faixa articulada em papel cartão metalizado de alto brilho com cordão para pendurar na parede ou mesa principal.',
-    categorySlugs: ['artigos-para-festa'],
-    segmentSlugs: ['loja-de-festas'],
-    tagSlugs: ['descartavel'],
-    sku: 'DEMO-FAI-PAR-MET',
-    priceCents: 990,
-    weightGrams: 110,
-    widthMm: 200, heightMm: 20, lengthMm: 250,
-    physicalQuantity: 190,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'chapeu-aniversario-classico',
-    name: 'Chapéu de Aniversário Infantil Clássico',
-    description: 'Pacote com 10 chapéus cônicos com elástico resistente e estampas alegres para animar as crianças e convidados.',
-    categorySlugs: ['artigos-para-festa'],
-    segmentSlugs: ['loja-de-festas'],
-    tagSlugs: ['descartavel'],
-    sku: 'DEMO-CHA-ANI-010',
-    priceCents: 890,
-    weightGrams: 160,
-    widthMm: 160, heightMm: 180, lengthMm: 160,
-    physicalQuantity: 170,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'tubete-plastico-lembrancinha-doces',
-    name: 'Tubete Plástico Cristal com Tampa Prata (cx 50 un)',
-    description: 'Caixa com 50 tubetes transparentes de 13 cm com tampa de rosca metálica. Ideal para confetes, confeitos e lembrancinhas.',
-    categorySlugs: ['artigos-para-festa', 'doces-e-bomboniere'],
-    segmentSlugs: ['loja-de-festas', 'confeitaria-bolos'],
-    tagSlugs: ['transparente'],
-    sku: 'DEMO-TUB-PLA-050',
-    priceCents: 1990,
-    weightGrams: 450,
-    widthMm: 150, heightMm: 140, lengthMm: 200,
-    physicalQuantity: 210,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'caixa-surpresa-lembrancinha-festa',
-    name: 'Caixa Surpresa Maletinha para Lembrancinhas (pct 10 un)',
-    description: 'Pacote com 10 maletinhas em papel cartão duplex resistente com alça embutida para doces, brinquedinhos e kits festa.',
-    categorySlugs: ['artigos-para-festa', 'embalagens'],
-    segmentSlugs: ['loja-de-festas', 'confeitaria-bolos'],
-    sku: 'DEMO-CAI-SUR-010',
-    priceCents: 1590,
-    weightGrams: 320,
-    widthMm: 160, heightMm: 140, lengthMm: 180,
-    physicalQuantity: 180,
-    status: 'ACTIVE',
-  },
-
-  // ==========================================
-  // DOCES, BOMBONIERE & INSUMOS DE CONFEITARIA
-  // ==========================================
-  {
-    slug: 'confeito-micanga-colorida-500g',
-    name: 'Confeito Miçanga Colorida 500 g',
-    description: 'Pacote de 500 g de miçangas crocantes coloridas. O acabamento favorito para brigadeiros, cupcakes e coberturas de açaí.',
-    categorySlugs: ['doces-e-bomboniere', 'artigos-para-festa'],
-    segmentSlugs: ['confeitaria-bolos', 'sorveteria-acai', 'loja-de-festas', 'padaria'],
-    tagSlugs: ['descartavel'],
-    sku: 'DEMO-DOC-MIC-500',
-    priceCents: 980,
-    weightGrams: 500,
-    widthMm: 120, heightMm: 180, lengthMm: 60,
-    physicalQuantity: 160,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'granulado-chocolate-macio-1kg',
-    name: 'Granulado de Chocolate Macio 1,01 kg',
-    description: 'Pacote de 1,01 kg com sabor irresistível de cacau. Textura macia que não derrete no manuseio e valoriza seus doces.',
-    categorySlugs: ['doces-e-bomboniere', 'mercearia'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria', 'sorveteria-acai', 'loja-de-festas'],
-    sku: 'DEMO-DOC-GRA-1KG',
-    priceCents: 1690,
-    compareAtPriceCents: 1950,
-    weightGrams: 1010,
-    widthMm: 160, heightMm: 220, lengthMm: 60,
-    physicalQuantity: 190,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'cobertura-gotas-chocolate-meio-amargo',
-    name: 'Cobertura em Gotas Chocolate Meio Amargo 1,05 kg',
-    description: 'Gotas de fracionado de alta fluidez. Não precisa de têmpera e entrega casquinhas finas e crocantes com brilho espelhado.',
-    categorySlugs: ['doces-e-bomboniere', 'mercearia'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria', 'sorveteria-acai'],
-    sku: 'DEMO-DOC-GOT-AMA',
-    priceCents: 2790,
-    compareAtPriceCents: 3190,
-    weightGrams: 1050,
-    widthMm: 180, heightMm: 240, lengthMm: 70,
-    physicalQuantity: 140,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'cobertura-gotas-chocolate-branco',
-    name: 'Cobertura em Gotas Chocolate Branco 1,05 kg',
-    description: 'Gotas fracionadas brancas cremosas de fácil derretimento em micro-ondas. Perfeita para raspas, banhos e decorações finas.',
-    categorySlugs: ['doces-e-bomboniere', 'mercearia'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria', 'sorveteria-acai'],
-    sku: 'DEMO-DOC-GOT-BRA',
-    priceCents: 2890,
-    weightGrams: 1050,
-    widthMm: 180, heightMm: 240, lengthMm: 70,
-    physicalQuantity: 135,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'doce-leite-cremoso-forneavel-1kg',
-    name: 'Doce de Leite Cremoso Forneável 1,01 kg',
-    description: 'Manga de confeitar com doce de leite de ponto consistente. Suporta altas temperaturas do forno sem escorrer ou ressecar.',
-    categorySlugs: ['doces-e-bomboniere', 'frios-e-laticinios', 'mercearia'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria', 'pizzaria', 'sorveteria-acai'],
-    sku: 'DEMO-DOC-LEI-1KG',
-    priceCents: 2190,
-    compareAtPriceCents: 2490,
-    weightGrams: 1010,
-    widthMm: 120, heightMm: 260, lengthMm: 70,
-    physicalQuantity: 170,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'recheio-brigadeiro-tradicional-1kg',
-    name: 'Recheio e Cobertura Sabor Brigadeiro 1,01 kg',
-    description: 'Pronto para uso com ponto perfeito para bico de confeitar e recheio de bolos, bombons e copos da felicidade.',
-    categorySlugs: ['doces-e-bomboniere', 'mercearia'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria', 'sorveteria-acai', 'loja-de-festas'],
-    sku: 'DEMO-DOC-BRI-1KG',
-    priceCents: 2350,
-    weightGrams: 1010,
-    widthMm: 120, heightMm: 260, lengthMm: 70,
-    physicalQuantity: 155,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'pacote-marshmallow-colorido-250g',
-    name: 'Marshmallow Baunilha Torção Colorido 250 g',
-    description: 'Marshmallows super fofos com sabor suave de baunilha. Encanto imediato em mesas de doces, cafés gourmets e fondues.',
-    categorySlugs: ['doces-e-bomboniere', 'artigos-para-festa'],
-    segmentSlugs: ['loja-de-festas', 'confeitaria-bolos', 'sorveteria-acai'],
-    sku: 'DEMO-DOC-MAR-250',
-    priceCents: 890,
-    weightGrams: 250,
-    widthMm: 140, heightMm: 200, lengthMm: 50,
-    physicalQuantity: 210,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'bala-goma-frutas-500g',
-    name: 'Balas de Goma Sortidas de Frutas 500 g',
-    description: 'Gominhas açucaradas macias com sabores intensos de frutas. Sucesso indispensável em lembrancinhas e saquinhos surpresa.',
-    categorySlugs: ['doces-e-bomboniere', 'artigos-para-festa'],
-    segmentSlugs: ['loja-de-festas', 'bar-distribuidora', 'sorveteria-acai'],
-    sku: 'DEMO-DOC-GOM-500',
-    priceCents: 950,
-    weightGrams: 500,
-    widthMm: 130, heightMm: 190, lengthMm: 45,
-    physicalQuantity: 220,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'pirulito-colorido-psicodelico-20un',
-    name: 'Pirulito Colorido Psicodélico Gigante 20 un',
-    description: 'Pacote com 20 pirulitos espirais grandes de visual nostálgico e festivo para enfeitar mesas temáticas de aniversário.',
-    categorySlugs: ['doces-e-bomboniere', 'artigos-para-festa'],
-    segmentSlugs: ['loja-de-festas', 'bar-distribuidora'],
-    sku: 'DEMO-DOC-PIR-020',
-    priceCents: 1490,
-    weightGrams: 450,
-    widthMm: 150, heightMm: 220, lengthMm: 60,
-    physicalQuantity: 180,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'pasta-americana-branca-800g',
-    name: 'Pasta Americana Tradicional Branca 800 g',
-    description: 'Massa elástica e aveludada para cobrir bolos artísticos e modelar personagens e flores decorativas sem rachaduras.',
-    categorySlugs: ['doces-e-bomboniere', 'mercearia'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria'],
-    sku: 'DEMO-DOC-PAS-800',
-    priceCents: 1790,
-    weightGrams: 800,
-    widthMm: 140, heightMm: 100, lengthMm: 140,
-    physicalQuantity: 125,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'chocolate-nobre-barra-blend-1kg',
-    name: 'Barra de Chocolate Nobre Blend 1,05 kg',
-    description: 'Chocolate nobre com puro cacau e leite. Sabor refinado e brilho sedoso para ganaches finas, trufas e ovos de páscoa.',
-    categorySlugs: ['doces-e-bomboniere', 'mercearia'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria', 'loja-de-festas'],
-    sku: 'DEMO-DOC-CHO-BLE',
-    priceCents: 3890,
-    compareAtPriceCents: 4390,
-    weightGrams: 1050,
-    widthMm: 140, heightMm: 250, lengthMm: 30,
-    physicalQuantity: 95,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'biscoito-champagne-cristal-150g',
-    name: 'Biscoito Champagne com Açúcar Cristal 150 g',
-    description: 'Pacote de 150 g leve e aerado. A base crocante clássica e insubstituível para pavês, charlottes e tiramisù artesanais.',
-    categorySlugs: ['doces-e-bomboniere', 'mercearia'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria'],
-    sku: 'DEMO-DOC-BIS-CHA',
-    priceCents: 690,
-    weightGrams: 150,
-    widthMm: 120, heightMm: 220, lengthMm: 40,
-    physicalQuantity: 190,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'bala-coco-artesanal-derrete-400g',
-    name: 'Bala de Coco Tradicional Artesanal 400 g',
-    description: 'Pacote com 400 g de balas de coco que derretem na boca. O doce mais afetivo das festas infantis e bodas.',
-    categorySlugs: ['doces-e-bomboniere', 'artigos-para-festa'],
-    segmentSlugs: ['loja-de-festas', 'confeitaria-bolos'],
-    sku: 'DEMO-DOC-BAL-COC',
-    priceCents: 1290,
-    weightGrams: 400,
-    widthMm: 140, heightMm: 180, lengthMm: 50,
-    physicalQuantity: 160,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'doce-goiabada-cascao-barra-1kg',
-    name: 'Goiabada Cascão Tradicional em Barra 1 kg',
-    description: 'Barra cremosa com pedacinhos da casca de goiaba. Combinação clássica mineira com queijo e excelente recheio de bolos.',
-    categorySlugs: ['doces-e-bomboniere', 'mercearia'],
-    segmentSlugs: ['padaria', 'confeitaria-bolos', 'pizzaria'],
-    sku: 'DEMO-DOC-GOI-1KG',
-    priceCents: 1590,
-    weightGrams: 1000,
-    widthMm: 110, heightMm: 50, lengthMm: 220,
-    physicalQuantity: 140,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'copinho-chocolate-trufa-30un',
-    name: 'Copinho de Chocolate Meio Amargo para Licor (cx 30 un)',
-    description: 'Caixa com 30 copinhos comestíveis de chocolate puro para servir licores, cafés espressos e rechear com brigadeiro gourmet.',
-    categorySlugs: ['doces-e-bomboniere', 'artigos-para-festa'],
-    segmentSlugs: ['confeitaria-bolos', 'loja-de-festas', 'bar-distribuidora'],
-    sku: 'DEMO-DOC-COP-CHO',
-    priceCents: 2190,
-    weightGrams: 280,
-    widthMm: 180, heightMm: 60, lengthMm: 240,
-    physicalQuantity: 110,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'pingo-leite-tradicional-pote-500g',
-    name: 'Pingo de Leite Tradicional Pote 500 g',
-    description: 'Pote com 500 g de docinhos artesanais de leite com casquinha crocante e interior cremoso. Gostinho de infância.',
-    categorySlugs: ['doces-e-bomboniere', 'mercearia'],
-    segmentSlugs: ['padaria', 'loja-de-festas', 'bar-distribuidora'],
-    sku: 'DEMO-DOC-PIN-500',
-    priceCents: 1390,
-    weightGrams: 500,
-    widthMm: 120, heightMm: 140, lengthMm: 120,
-    physicalQuantity: 150,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'guarda-chuvinha-chocolate-50un',
-    name: 'Guarda-Chuvinha de Chocolate ao Leite (cx 50 un)',
-    description: 'Display retrô com 50 guarda-chuvinhas com cabo colorido. O clássico inconfundível para lembranças e aniversários.',
-    categorySlugs: ['doces-e-bomboniere', 'artigos-para-festa'],
-    segmentSlugs: ['loja-de-festas', 'bar-distribuidora'],
-    sku: 'DEMO-DOC-GUA-050',
-    priceCents: 2490,
-    weightGrams: 750,
-    widthMm: 180, heightMm: 220, lengthMm: 180,
-    physicalQuantity: 130,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'bombom-sortido-caixa-250g',
-    name: 'Caixa de Bombons Sortidos Tradicionais 250 g',
-    description: 'Caixa com sortimento consagrado de bombons recheados com castanhas, caramelo e frutas. Excelente para cestas de presentes.',
-    categorySlugs: ['doces-e-bomboniere', 'mercearia'],
-    segmentSlugs: ['loja-de-festas', 'padaria', 'confeitaria-bolos'],
-    sku: 'DEMO-DOC-BOM-250',
-    priceCents: 1490,
-    weightGrams: 250,
-    widthMm: 200, heightMm: 50, lengthMm: 240,
-    physicalQuantity: 160,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'po-glace-real-confeiteiro-1kg',
-    name: 'Pó para Preparo de Glacê Real 1 kg',
-    description: 'Mistura profissional para glacê firme e secagem rápida. Traços nítidos e acabamento acetinado para biscoitos e detalhes de bolos.',
-    categorySlugs: ['doces-e-bomboniere', 'mercearia'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria'],
-    sku: 'DEMO-DOC-GLA-1KG',
-    priceCents: 1890,
-    weightGrams: 1000,
-    widthMm: 140, heightMm: 220, lengthMm: 60,
-    physicalQuantity: 140,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'corante-gel-soft-kit-sortido',
-    name: 'Kit Corante em Gel Soft Concentrado 8 Cores',
-    description: 'Kit com 8 frascos dosadores de 25 g. Cores vivas e intensas que não amargam chantilly, pasta americana e massas.',
-    categorySlugs: ['doces-e-bomboniere', 'artigos-para-festa'],
-    segmentSlugs: ['confeitaria-bolos', 'loja-de-festas', 'padaria'],
-    sku: 'DEMO-DOC-COR-8UN',
-    priceCents: 3290,
-    weightGrams: 280,
-    widthMm: 160, heightMm: 60, lengthMm: 200,
-    physicalQuantity: 110,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'coco-ralado-umido-adocicado-1kg',
-    name: 'Coco Ralado Úmido e Adoçado Médio 1 kg',
-    description: 'Pacote de 1 kg com flocos brancos suculentos. O clássico indispensável para beijinhos de festa e recheio de bolos gelados.',
-    categorySlugs: ['doces-e-bomboniere', 'mercearia'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria', 'loja-de-festas', 'sorveteria-acai'],
-    sku: 'DEMO-DOC-COC-1KG',
-    priceCents: 2690,
-    weightGrams: 1000,
-    widthMm: 180, heightMm: 280, lengthMm: 60,
-    physicalQuantity: 130,
-    status: 'ACTIVE',
-  },
-
-  // ==========================================
-  // PRODUTOS DE LIMPEZA E HIGIENE INSTITUCIONAL
-  // ==========================================
-  {
-    slug: 'detergente-neutro-5l',
-    name: 'Detergente Neutro Concentrado 5 L',
-    description: 'Galão de 5 litros com alto poder desengordurante e pH neutro. Rende centenas de lavagens sem agredir as mãos dos operadores.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'padaria', 'lanchonete', 'pizzaria', 'bar-distribuidora', 'sorveteria-acai'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-DET-005L',
-    priceCents: 2490,
-    compareAtPriceCents: 2790,
-    weightGrams: 5200,
-    widthMm: 200, heightMm: 300, lengthMm: 150,
-    physicalQuantity: 60,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'desinfetante-floral-5l',
-    name: 'Desinfetante Perfumado Floral 5 L',
-    description: 'Galão de 5 L bactericida com aroma prolongado de limpeza. Desinfeta pisos, banheiros e bancadas com máxima eficiência.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'bar-distribuidora', 'lanchonete', 'pizzaria', 'padaria'],
-    sku: 'DEMO-LIM-DES-05L',
-    priceCents: 2190,
-    weightGrams: 5200,
-    widthMm: 200, heightMm: 300, lengthMm: 150,
-    physicalQuantity: 80,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'agua-sanitaria-hospitalar-5l',
-    name: 'Água Sanitária Clorada Institucional 5 L',
-    description: 'Galão de 5 litros com teor ativo de cloro para desinfecção profunda de ralos, cozinhas, louças e sanitários comerciais.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'pizzaria', 'lanchonete', 'padaria'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-LIM-AGU-05L',
-    priceCents: 1890,
-    weightGrams: 5300,
-    widthMm: 200, heightMm: 300, lengthMm: 150,
-    physicalQuantity: 95,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'sabonete-liquido-erva-doce-5l',
-    name: 'Sabonete Líquido Erva Doce para Dispenser 5 L',
-    description: 'Galão de 5 litros com formulação cremosa hidratante e aroma suave. Ideal para reposição de saboneteiras em banheiros públicos.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'bar-distribuidora', 'lanchonete', 'loja-de-festas', 'padaria'],
-    sku: 'DEMO-LIM-SAB-05L',
-    priceCents: 2990,
-    compareAtPriceCents: 3390,
-    weightGrams: 5200,
-    widthMm: 200, heightMm: 300, lengthMm: 150,
-    physicalQuantity: 70,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'alcool-gel-70-higienizador-5l',
-    name: 'Álcool em Gel 70% Antisséptico 5 L',
-    description: 'Galão de 5 L para totens e dispensers. Elimina 99,9% dos germes com secagem rápida sem deixar resíduo pegajoso nas mãos.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'lanchonete', 'padaria', 'pizzaria', 'loja-de-festas'],
-    sku: 'DEMO-LIM-ALC-05L',
-    priceCents: 3990,
-    weightGrams: 5000,
-    widthMm: 200, heightMm: 300, lengthMm: 150,
-    physicalQuantity: 65,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'desengordurante-industrial-5l',
-    name: 'Desengordurante Industrial Cozinha Pesada 5 L',
-    description: 'Fórmula alcalina concentrada para dissolver gorduras carbonizadas em chapas, coifas, fornos de pizza e fritadeiras.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['lanchonete', 'pizzaria', 'restaurante-buffet', 'padaria'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-LIM-DEG-05L',
-    priceCents: 4890,
-    compareAtPriceCents: 5490,
-    weightGrams: 5300,
-    widthMm: 200, heightMm: 300, lengthMm: 150,
-    physicalQuantity: 55,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'papel-toalha-interfolhado-1000fls',
-    name: 'Papel Toalha Interfolhado 100% Celulose 1000 Folhas',
-    description: 'Fardo com 1000 folhas interfolhadas brancas com alto poder de absorção. Seca as mãos com apenas duas folhas.',
-    categorySlugs: ['produtos-de-limpeza', 'descartaveis'],
-    segmentSlugs: ['restaurante-buffet', 'lanchonete', 'pizzaria', 'padaria', 'bar-distribuidora', 'sorveteria-acai'],
-    tagSlugs: ['biodegradavel', 'reforcado'],
-    sku: 'DEMO-PAP-TOA-1000',
-    priceCents: 2490,
-    weightGrams: 1600,
-    widthMm: 220, heightMm: 220, lengthMm: 220,
-    physicalQuantity: 210,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'papel-higienico-rolao-300m',
-    name: 'Papel Higiênico Institucional Rolão 300 m',
-    description: 'Fardo com 8 rolos de 300 metros cada. Economia extrema e menos trocas em banheiros de restaurantes e bares movimentados.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['bar-distribuidora', 'restaurante-buffet', 'lanchonete', 'pizzaria'],
-    tagSlugs: ['biodegradavel'],
-    sku: 'DEMO-PAP-HIG-300M',
-    priceCents: 5690,
-    weightGrams: 4200,
-    widthMm: 460, heightMm: 240, lengthMm: 460,
-    physicalQuantity: 90,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'saco-lixo-hospitalar-branco-50l',
-    name: 'Saco para Lixo Hospitalar Branco 50 L',
-    description: 'Pacote com 100 sacos leitosos com símbolo infectante para descarte sanitário regulamentado e seguro.',
-    categorySlugs: ['produtos-de-limpeza', 'sacos-e-sacolas'],
-    segmentSlugs: ['restaurante-buffet', 'lanchonete', 'padaria'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-SAC-HOS-050L',
-    priceCents: 3890,
-    weightGrams: 2100,
-    widthMm: 240, heightMm: 100, lengthMm: 340,
-    physicalQuantity: 110,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'luva-nitrilica-sem-po-tam-m',
-    name: 'Luva Nitrílica Descartável Sem Pó Tamanho M',
-    description: 'Caixa com 100 luvas pretas de alta sensibilidade tátil e resistência química. O padrão ouro dos chefs e manipuladores.',
-    categorySlugs: ['produtos-de-limpeza', 'descartaveis'],
-    segmentSlugs: ['lanchonete', 'pizzaria', 'restaurante-buffet', 'padaria', 'confeitaria-bolos', 'sorveteria-acai'],
-    tagSlugs: ['descartavel', 'reforcado'],
-    sku: 'DEMO-LUV-NIT-MED',
-    priceCents: 3690,
-    compareAtPriceCents: 4190,
-    weightGrams: 550,
-    widthMm: 220, heightMm: 70, lengthMm: 120,
-    physicalQuantity: 170,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'pano-multiuso-rolo-300m',
-    name: 'Pano Multiuso Limpeza Pesada Rolo 300 m',
-    description: 'Bobina com 600 panos perfurados com tecnologia antibacteriana. Não solta fiapos em copos, pratos e balcões inox.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'bar-distribuidora', 'lanchonete', 'pizzaria', 'padaria'],
-    sku: 'DEMO-PAN-MUL-300M',
-    priceCents: 6490,
-    weightGrams: 2100,
-    widthMm: 300, heightMm: 250, lengthMm: 250,
-    physicalQuantity: 80,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'esponja-dupla-face-limpeza-10un',
-    name: 'Esponja Dupla Face Limpeza Pesada (pct 10 un)',
-    description: 'Pacote com 10 esponjas de alta durabilidade com fibra abrasiva verde e espuma macia amarela para louças e panelas.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'lanchonete', 'pizzaria', 'padaria', 'bar-distribuidora'],
-    sku: 'DEMO-LIM-ESP-010',
-    priceCents: 1190,
-    weightGrams: 180,
-    widthMm: 150, heightMm: 80, lengthMm: 220,
-    physicalQuantity: 260,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'palha-aco-inox-cozinhas-8un',
-    name: 'Palha de Aço Inox Cozinha Industrial (pct 8 un)',
-    description: 'Pacote com 8 esponjas de malha de aço inoxidável. Não enferruja e remove crostas difíceis de grelhas e caldeirões.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'pizzaria', 'lanchonete'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-LIM-PAL-008',
-    priceCents: 1390,
-    weightGrams: 240,
-    widthMm: 140, heightMm: 70, lengthMm: 200,
-    physicalQuantity: 210,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'fibra-limpeza-pesada-verde-10un',
-    name: 'Fibra de Limpeza Sintética Pesada (pct 10 un)',
-    description: 'Pacote com 10 mantas abrasivas industriais para remoção profunda de sujeiras encardidas sem riscar pisos vitrificados.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'padaria', 'pizzaria'],
-    sku: 'DEMO-LIM-FIB-010',
-    priceCents: 1690,
-    weightGrams: 220,
-    widthMm: 120, heightMm: 80, lengthMm: 230,
-    physicalQuantity: 180,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'limpa-vidros-espelhos-5l',
-    name: 'Limpa Vidros e Espelhos Antiembaçante 5 L',
-    description: 'Galão de 5 litros com fórmula de secagem ultra rápida que remove marcas de dedos e poeira sem deixar manchas ou estrias.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'padaria', 'lanchonete', 'bar-distribuidora'],
-    sku: 'DEMO-LIM-VID-05L',
-    priceCents: 2690,
-    weightGrams: 5100,
-    widthMm: 200, heightMm: 300, lengthMm: 150,
-    physicalQuantity: 75,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'cloro-ativo-concentrado-5l',
-    name: 'Cloro Ativo Concentrado Desinfetante 5 L',
-    description: 'Galão com alto poder oxidante e alvejante para lavagem pesada de pisos antiderrapantes, pátios de carga e calçadas.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'bar-distribuidora', 'padaria'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-LIM-CLO-05L',
-    priceCents: 2290,
-    weightGrams: 5300,
-    widthMm: 200, heightMm: 300, lengthMm: 150,
-    physicalQuantity: 85,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'cera-liquida-autobrilho-5l',
-    name: 'Cera Líquida Auto Brilho Incolor 5 L',
-    description: 'Galão de 5 L protetor para pisos laváveis. Forma filme transparente resistente ao tráfego com brilho molhado duradouro.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'padaria', 'bar-distribuidora'],
-    sku: 'DEMO-LIM-CER-05L',
-    priceCents: 3490,
-    weightGrams: 5200,
-    widthMm: 200, heightMm: 300, lengthMm: 150,
-    physicalQuantity: 65,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'odorizador-ambiente-aerossol-400ml',
-    name: 'Odorizador de Ambientes Seco Lavanda 400 ml',
-    description: 'Frasco aerossol com jato seco que neutraliza odores e perfuma salas, recepções e toaletes sem molhar superfícies.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'loja-de-festas', 'bar-distribuidora', 'padaria'],
-    sku: 'DEMO-LIM-ODO-400',
-    priceCents: 1490,
-    weightGrams: 350,
-    widthMm: 65, heightMm: 240, lengthMm: 65,
-    physicalQuantity: 180,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'lustra-moveis-silicone-500ml',
-    name: 'Lustra Móveis com Silicone Protetor 500 ml',
-    description: 'Frasco de 500 ml com aroma agradável. Cria película protetora antiestática contra poeira em móveis, mesas e balcões de madeira.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'loja-de-festas', 'padaria'],
-    sku: 'DEMO-LIM-LUS-500',
-    priceCents: 1190,
-    weightGrams: 520,
-    widthMm: 70, heightMm: 230, lengthMm: 70,
-    physicalQuantity: 140,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'rodo-borracha-dupla-aluminio-40cm',
-    name: 'Rodo Borracha Dupla Alumínio Profissional 40 cm',
-    description: 'Estrutura metálica leve de alta rigidez com borracha dupla macia de puxada uniforme sem riscar ou saltar no piso molhado.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'lanchonete', 'pizzaria', 'bar-distribuidora'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-LIM-ROD-040',
-    priceCents: 2790,
-    weightGrams: 480,
-    widthMm: 400, heightMm: 80, lengthMm: 120,
-    physicalQuantity: 110,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'vassoura-pelo-macio-salao-pro',
-    name: 'Vassoura Cerdas Macias para Salão e Cozinha',
-    description: 'Vassoura com cerdas longas e densas que capturam pó fino e migalhas sem levantar poeira ou riscar porcelanatos.',
-    categorySlugs: ['produtos-de-limpeza'],
-    segmentSlugs: ['restaurante-buffet', 'padaria', 'lanchonete', 'bar-distribuidora'],
-    sku: 'DEMO-LIM-VAS-SAL',
-    priceCents: 2190,
-    weightGrams: 420,
-    widthMm: 320, heightMm: 100, lengthMm: 80,
-    physicalQuantity: 130,
-    status: 'ACTIVE',
-  },
-
-  // ==========================================
-  // MERCEARIA & INSUMOS ESSENCIAIS
-  // ==========================================
-  {
-    slug: 'leite-condensado-395g',
-    name: 'Leite Condensado Semidesnatado 395 g',
-    description: 'Lata com 395 g de consistência ideal e riqueza de sabor. O ingrediente indispensável para doces, pudins e coberturas.',
-    categorySlugs: ['mercearia', 'frios-e-laticinios', 'doces-e-bomboniere'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria', 'sorveteria-acai', 'loja-de-festas'],
-    sku: 'DEMO-LEI-395',
-    priceCents: 749,
-    compareAtPriceCents: 959,
-    weightGrams: 400,
-    widthMm: 80, heightMm: 110, lengthMm: 80,
-    physicalQuantity: 320,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'creme-leite-uht-200g-pro',
-    name: 'Creme de Leite UHT Profissional 200 g',
-    description: 'Caixa de 200 g com 17% de gordura. Homogeneidade perfeita para mousses, ganaches, strogonoff e molhos salgados.',
-    categorySlugs: ['mercearia', 'frios-e-laticinios'],
-    segmentSlugs: ['confeitaria-bolos', 'restaurante-buffet', 'padaria', 'pizzaria'],
-    sku: 'DEMO-CRE-LEI-200',
-    priceCents: 389,
-    weightGrams: 220,
-    widthMm: 70, heightMm: 100, lengthMm: 50,
-    physicalQuantity: 340,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'acucar-cristal-especial-5kg',
-    name: 'Açúcar Cristal Especial Pacote 5 kg',
-    description: 'Fardo de 5 kg com cristais brancos soltinhos de rápida dissolução. Alto rendimento para padarias e docerias.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['padaria', 'confeitaria-bolos', 'sorveteria-acai', 'lanchonete'],
-    sku: 'DEMO-ACU-CRI-5KG',
-    priceCents: 1990,
-    weightGrams: 5000,
-    widthMm: 240, heightMm: 360, lengthMm: 120,
-    physicalQuantity: 150,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'farinha-trigo-especial-5kg',
-    name: 'Farinha de Trigo Especial sem Fermento 5 kg',
-    description: 'Pacote de 5 kg de moagem fina e alta taxa de glúten. Desenvolve massas elásticas perfeitas para pizzas, pães e salgados.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['pizzaria', 'padaria', 'lanchonete', 'confeitaria-bolos'],
-    sku: 'DEMO-FAR-TRI-5KG',
-    priceCents: 2190,
-    weightGrams: 5000,
-    widthMm: 240, heightMm: 380, lengthMm: 130,
-    physicalQuantity: 130,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'cafe-torrado-moido-tradicional-500g',
-    name: 'Café Torrado e Moído Tradicional 500 g',
-    description: 'Pacote a vácuo de 500 g com blend equilibrado e aroma marcante. O companheiro diário do pão quentinho no balcão.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['padaria', 'lanchonete', 'restaurante-buffet', 'bar-distribuidora'],
-    sku: 'DEMO-CAF-TOR-500',
-    priceCents: 1850,
-    weightGrams: 500,
-    widthMm: 100, heightMm: 160, lengthMm: 60,
-    physicalQuantity: 190,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'azeite-oliva-extra-virgem-sache-200un',
-    name: 'Azeite de Oliva Extravirgem Sachê 4 ml (cx 200 un)',
-    description: 'Caixa com 200 sachês individuais de 4 ml. Higiene, sabor autêntico e sem desperdício para pizzas e saladas no delivery.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['pizzaria', 'delivery', 'restaurante-buffet'],
-    sku: 'DEMO-AZE-SAC-200',
-    priceCents: 4290,
-    weightGrams: 1100,
-    widthMm: 180, heightMm: 120, lengthMm: 220,
-    physicalQuantity: 110,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'catchup-mostarda-sache-200un',
-    name: 'Catchup e Mostarda Sachê 7 g (cx 200 un)',
-    description: 'Caixa mista com 200 sachês individuais. Praticidade total e conformidade sanitária para acompanhamento de lanches e salgados.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['lanchonete', 'delivery', 'pizzaria', 'bar-distribuidora'],
-    sku: 'DEMO-CAT-MOS-200',
-    priceCents: 2290,
-    weightGrams: 1600,
-    widthMm: 200, heightMm: 140, lengthMm: 240,
-    physicalQuantity: 175,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'maionese-temperada-sache-200un',
-    name: 'Maionese Especial Sachê 7 g (cx 200 un)',
-    description: 'Caixa com 200 sachês individuais de maionese cremosa. Embalagem higiênica e inviolável ideal para delivery de hambúrgueres.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['lanchonete', 'delivery', 'restaurante-buffet'],
-    sku: 'DEMO-MAI-SAC-200',
-    priceCents: 2390,
-    weightGrams: 1600,
-    widthMm: 200, heightMm: 140, lengthMm: 240,
-    physicalQuantity: 160,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'molho-tomate-tradicional-bag-2kg',
-    name: 'Molho de Tomate Tradicional Pouch Bag 2 kg',
-    description: 'Bag econômica de 2 kg com bico dosador. Molho encorpado e temperado pronto para pizzas, massas e cachorros-quentes.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['pizzaria', 'lanchonete', 'restaurante-buffet', 'padaria'],
-    sku: 'DEMO-MOL-TOM-2KG',
-    priceCents: 1590,
-    weightGrams: 2050,
-    widthMm: 180, heightMm: 260, lengthMm: 90,
-    physicalQuantity: 140,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'fuba-mimoso-milho-1kg',
-    name: 'Fubá Mimoso Especial de Milho 1 kg',
-    description: 'Pacote de 1 kg moído fininho. Ideal para broas aeradas, bolos de milho da tarde e polentas cremosas.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['padaria', 'confeitaria-bolos', 'restaurante-buffet'],
-    sku: 'DEMO-MER-FUB-1KG',
-    priceCents: 550,
-    weightGrams: 1000,
-    widthMm: 120, heightMm: 180, lengthMm: 70,
-    physicalQuantity: 180,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'amido-milho-tradicional-1kg',
-    name: 'Amido de Milho Tradicional Caixa 1 kg',
-    description: 'Caixa de 1 kg com textura finíssima para espessamento de cremes de confeitaria, mingaus e maciez de bolos.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria', 'restaurante-buffet'],
-    sku: 'DEMO-MER-AMI-1KG',
-    priceCents: 990,
-    weightGrams: 1000,
-    widthMm: 130, heightMm: 190, lengthMm: 70,
-    physicalQuantity: 160,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'batata-palha-extrafina-500g',
-    name: 'Batata Palha Extra Fina Crocante 500 g',
-    description: 'Pacote de 500 g sequinha e crocante sem excesso de sal. Acompanhamento perfeito para strogonoff, cachorros-quentes e salpicão.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['lanchonete', 'restaurante-buffet', 'delivery', 'loja-de-festas'],
-    sku: 'DEMO-MER-BAT-500',
-    priceCents: 1490,
-    weightGrams: 500,
-    widthMm: 180, heightMm: 300, lengthMm: 90,
-    physicalQuantity: 150,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'azeitona-verde-fatiada-balde-2kg',
-    name: 'Azeitona Verde Fatiada sem Caroço Balde 2 kg',
-    description: 'Balde de 2 kg em conserva aromática. Economia de tempo no preparo de coberturas de pizzas, empadões e salgados de festa.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['pizzaria', 'padaria', 'restaurante-buffet'],
-    sku: 'DEMO-MER-AZE-2KG',
-    priceCents: 3990,
-    weightGrams: 2800,
-    widthMm: 160, heightMm: 180, lengthMm: 160,
-    physicalQuantity: 85,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'extrato-tomate-concentrado-850g',
-    name: 'Extrato de Tomate Concentrado Puro Lata 850 g',
-    description: 'Lata de 850 g de extrato espesso e vermelho intenso. Dá cor e consistência encorpada aos molhos de caldeirão.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['pizzaria', 'restaurante-buffet', 'lanchonete'],
-    sku: 'DEMO-MER-EXT-850',
-    priceCents: 1190,
-    weightGrams: 950,
-    widthMm: 100, heightMm: 120, lengthMm: 100,
-    physicalQuantity: 170,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'palmito-picado-conserva-1-8kg',
-    name: 'Palmito Picado em Salmoura Balde 1,8 kg',
-    description: 'Balde de 1,8 kg de palmito macio e claro. Recheio sofisticado pronto para empadas, pastéis e pizzas vegetarianas.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['pizzaria', 'padaria', 'restaurante-buffet'],
-    sku: 'DEMO-MER-PAL-18K',
-    priceCents: 5490,
-    weightGrams: 2400,
-    widthMm: 160, heightMm: 180, lengthMm: 160,
-    physicalQuantity: 60,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'sal-refinado-iodado-pacote-1kg',
-    name: 'Sal Refinado Extra Iodado Pacote 1 kg',
-    description: 'Pacote de 1 kg de granulação uniforme e alta pureza. O tempero mineral fundamental de qualquer cozinha.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['restaurante-buffet', 'padaria', 'pizzaria', 'lanchonete'],
-    sku: 'DEMO-MER-SAL-1KG',
-    priceCents: 250,
-    weightGrams: 1000,
-    widthMm: 110, heightMm: 160, lengthMm: 50,
-    physicalQuantity: 280,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'milho-verde-conserva-lata-1-7kg',
-    name: 'Milho Verde em Conserva Grãos Lata 1,7 kg',
-    description: 'Lata institucional com 1,7 kg de grãos crocantes e naturalmente doces para saladas, pizzas, recheios e pamonhas.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['pizzaria', 'lanchonete', 'restaurante-buffet', 'padaria'],
-    sku: 'DEMO-MER-MIL-17K',
-    priceCents: 1990,
-    weightGrams: 2000,
-    widthMm: 150, heightMm: 180, lengthMm: 150,
-    physicalQuantity: 120,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'ervilha-conserva-lata-1-7kg',
-    name: 'Ervilha em Conserva Tenra Lata 1,7 kg',
-    description: 'Lata econômica com 1,7 kg de grãos macios e frescos para guarnições de arroz, maioneses e pizzas à portuguesa.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['pizzaria', 'restaurante-buffet', 'lanchonete'],
-    sku: 'DEMO-MER-ERV-17K',
-    priceCents: 1890,
-    weightGrams: 2000,
-    widthMm: 150, heightMm: 180, lengthMm: 150,
-    physicalQuantity: 115,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'fermento-quimico-po-250g',
-    name: 'Fermento Químico em Pó Pote 250 g',
-    description: 'Pote hermético de 250 g com dupla ação de crescimento contínuo no forno para bolos fofos e panquecas aeradas.',
-    categorySlugs: ['mercearia'],
-    segmentSlugs: ['confeitaria-bolos', 'padaria'],
-    sku: 'DEMO-MER-FER-250',
-    priceCents: 690,
-    weightGrams: 280,
-    widthMm: 70, heightMm: 110, lengthMm: 70,
-    physicalQuantity: 210,
-    status: 'ACTIVE',
-  },
-
-  // ==========================================
-  // FRIOS, LATICÍNIOS & PROTEÍNAS
-  // ==========================================
-  {
-    slug: 'queijo-mussarela-fatiado-1kg',
-    name: 'Queijo Mussarela Fatiado Interfolhado 1 kg',
-    description: 'Pacote de 1 kg fatiado na medida exata com filmes plásticos separadores. Descongelamento rápido e derretimento uniforme.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['pizzaria', 'lanchonete', 'padaria', 'restaurante-buffet', 'delivery'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-QUE-001',
-    priceCents: 3990,
-    compareAtPriceCents: 4500,
-    weightGrams: 1000,
-    widthMm: 250, heightMm: 60, lengthMm: 200,
-    physicalQuantity: 120,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'queijo-mussarela-barra-4kg',
-    name: 'Queijo Mussarela Peça em Barra 4 kg',
-    description: 'Barra de 4 kg com baixo teor de umidade e alto rendimento na ralagem para bordas recheadas e pizzas gratinadas.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['pizzaria', 'padaria', 'restaurante-buffet'],
-    tagSlugs: ['reforcado'],
-    sku: 'DEMO-QUE-BAR-4KG',
-    priceCents: 14900,
-    weightGrams: 4000,
-    widthMm: 120, heightMm: 120, lengthMm: 320,
-    physicalQuantity: 40,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'requeijao-cremoso-bisnaga-1-8kg',
-    name: 'Requeijão Culinário Bisnaga 1,8 kg',
-    description: 'Bisnaga dosadora resistente de 1,8 kg. Ponto firme e forneável que não vaza nem resseca nas bordas de pizzas e salgados.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['pizzaria', 'lanchonete', 'padaria', 'confeitaria-bolos'],
-    sku: 'DEMO-REQ-BIS-18K',
-    priceCents: 3490,
-    compareAtPriceCents: 3990,
-    weightGrams: 1850,
-    widthMm: 110, heightMm: 340, lengthMm: 110,
-    physicalQuantity: 90,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'queijo-parmesao-ralado-1kg',
-    name: 'Queijo Parmesão Ralado Desidratado 1 kg',
-    description: 'Pacote econômico de 1 kg com sabor marcante e cura perfeita. O toque final que eleva massas e molhos artesanais.',
-    categorySlugs: ['frios-e-laticinios', 'mercearia'],
-    segmentSlugs: ['restaurante-buffet', 'pizzaria', 'lanchonete'],
-    sku: 'DEMO-QUE-PAR-1KG',
-    priceCents: 4990,
-    weightGrams: 1000,
-    widthMm: 200, heightMm: 280, lengthMm: 60,
-    physicalQuantity: 80,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'calabresa-fatiada-defumada-1kg',
-    name: 'Linguiça Calabresa Fatiada Defumada 1 kg',
-    description: 'Pacote de 1 kg congelado e fatiado em rodelas uniformes. Sabor autêntico defumado na medida certa para pizzas e porções.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['pizzaria', 'lanchonete', 'restaurante-buffet', 'bar-distribuidora'],
-    sku: 'DEMO-CAL-FAT-1KG',
-    priceCents: 3290,
-    weightGrams: 1000,
-    widthMm: 220, heightMm: 50, lengthMm: 300,
-    physicalQuantity: 110,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'bacon-cubos-congelado-1kg',
-    name: 'Bacon em Cubos Congelado 1 kg',
-    description: 'Pacote de 1 kg de bacon curado e cortado em cubos regulares. Praticidade extrema para hamburguerias, molhos e recheios.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['lanchonete', 'pizzaria', 'restaurante-buffet'],
-    sku: 'DEMO-BAC-CUB-1KG',
-    priceCents: 3690,
-    compareAtPriceCents: 4190,
-    weightGrams: 1000,
-    widthMm: 200, heightMm: 60, lengthMm: 260,
-    physicalQuantity: 95,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'manteiga-sem-sal-barra-500g',
-    name: 'Manteiga de Primeira Qualidade sem Sal 500 g',
-    description: 'Barra de 500 g com 82% de lipídios. Textura aveludada e ponto ideal de folhagem para croissants, massas e confeitarias.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['padaria', 'confeitaria-bolos', 'restaurante-buffet'],
-    sku: 'DEMO-MAN-SEM-500',
-    priceCents: 1990,
-    weightGrams: 500,
-    widthMm: 80, heightMm: 70, lengthMm: 140,
-    physicalQuantity: 130,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'creme-culinario-para-molhos-1kg',
-    name: 'Creme Culinário Base para Molhos 1 kg',
-    description: 'Caixa de 1 kg UHT. Não talha ao ferver e aceita adição de ácidos (limão, vinagre, tomate) sem perder a consistência cremosa.',
-    categorySlugs: ['frios-e-laticinios', 'mercearia'],
-    segmentSlugs: ['restaurante-buffet', 'confeitaria-bolos', 'pizzaria', 'padaria'],
-    sku: 'DEMO-CRE-CUL-1KG',
-    priceCents: 1490,
-    weightGrams: 1020,
-    widthMm: 90, heightMm: 190, lengthMm: 60,
-    physicalQuantity: 140,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'queijo-cheddar-cremoso-bisnaga-1-8kg',
-    name: 'Queijo Cheddar Cremoso Bisnaga 1,8 kg',
-    description: 'Bisnaga de 1,8 kg de sabor intenso e cor alaranjada característica. O complemento favorito das hamburguerias artesanais e batatas recheadas.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['lanchonete', 'pizzaria', 'delivery', 'bar-distribuidora'],
-    sku: 'DEMO-CHE-BIS-18K',
-    priceCents: 3890,
-    compareAtPriceCents: 4390,
-    weightGrams: 1850,
-    widthMm: 110, heightMm: 340, lengthMm: 110,
-    physicalQuantity: 95,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'presunto-cozido-fatiado-1kg',
-    name: 'Presunto Cozido sem Capa de Gordura Fatiado 1 kg',
-    description: 'Pacote de 1 kg fatiado fino e interfolhado. Baixo teor calórico e sabor suave para sanduíches naturais, mistos e pizzas.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['padaria', 'lanchonete', 'pizzaria', 'restaurante-buffet'],
-    sku: 'DEMO-PRE-COZ-1KG',
-    priceCents: 2690,
-    weightGrams: 1000,
-    widthMm: 220, heightMm: 50, lengthMm: 280,
-    physicalQuantity: 120,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'peito-peru-defumado-fatiado-1kg',
-    name: 'Peito de Peru Defumado Fatiado 1 kg',
-    description: 'Pacote com 1 kg de fatias nobres defumadas. A escolha requintada para lanches naturais, tábuas de frios e café da manhã.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['padaria', 'restaurante-buffet', 'lanchonete'],
-    sku: 'DEMO-PEI-PER-1KG',
-    priceCents: 4890,
-    weightGrams: 1000,
-    widthMm: 220, heightMm: 50, lengthMm: 280,
-    physicalQuantity: 70,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'queijo-provolone-defumado-1kg',
-    name: 'Queijo Provolone Defumado Fracionado 1 kg',
-    description: 'Peça de 1 kg com cura equilibrada e defumação natural em lenha nobre. Excelente para petiscos de boteco e gratinados.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['pizzaria', 'bar-distribuidora', 'restaurante-buffet'],
-    sku: 'DEMO-QUE-PRO-1KG',
-    priceCents: 5890,
-    weightGrams: 1000,
-    widthMm: 140, heightMm: 120, lengthMm: 180,
-    physicalQuantity: 65,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'salame-italiano-fatiado-500g',
-    name: 'Salame Italiano Tipo Aperitivo Fatiado 500 g',
-    description: 'Pacote de 500 g com fatias ultrafinas maturadas e condimentadas com vinho e pimenta em grãos. Perfeito para tábuas de frios.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['bar-distribuidora', 'pizzaria', 'restaurante-buffet', 'loja-de-festas'],
-    sku: 'DEMO-SAL-ITA-500',
-    priceCents: 3490,
-    weightGrams: 500,
-    widthMm: 180, heightMm: 40, lengthMm: 240,
-    physicalQuantity: 85,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'margarina-culinaria-balde-3kg',
-    name: 'Margarina Culinária 80% Lipídios Balde 3 kg',
-    description: 'Balde profissional de 3 kg sem sal. Alto poder de aeração e textura macia para massas de salgados, empadas e folhados.',
-    categorySlugs: ['frios-e-laticinios', 'mercearia'],
-    segmentSlugs: ['padaria', 'confeitaria-bolos', 'lanchonete', 'pizzaria'],
-    sku: 'DEMO-MAR-CUL-3KG',
-    priceCents: 4190,
-    weightGrams: 3100,
-    widthMm: 200, heightMm: 180, lengthMm: 200,
-    physicalQuantity: 90,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'queijo-minas-padrao-1kg',
-    name: 'Queijo Minas Meia Cura Tradicional 1 kg',
-    description: 'Peça de 1 kg artesanal. Casca dourada fina e massa macia com acidez suave, perfeito para pão de queijo e pasteis.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['padaria', 'lanchonete', 'confeitaria-bolos'],
-    sku: 'DEMO-QUE-MIN-1KG',
-    priceCents: 4390,
-    weightGrams: 1000,
-    widthMm: 160, heightMm: 80, lengthMm: 160,
-    physicalQuantity: 75,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'queijo-gorgonzola-fracionado-1kg',
-    name: 'Queijo Gorgonzola com Mofo Azul Fracionado 1 kg',
-    description: 'Cunha de 1 kg com veios azuis intensos e textura cremosa untuosa. Essencial para pizzas 4 queijos, risotos e molhos nobres.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['pizzaria', 'restaurante-buffet', 'bar-distribuidora'],
-    sku: 'DEMO-QUE-GOR-1KG',
-    priceCents: 6290,
-    weightGrams: 1000,
-    widthMm: 150, heightMm: 90, lengthMm: 180,
-    physicalQuantity: 50,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'queijo-ricota-fresca-500g',
-    name: 'Queijo Ricota Fresca Pedaço 500 g',
-    description: 'Pedaço de 500 g leve e de baixo teor de sódio. Excelente para recheios leves de massas, canelones e tortas salgadas.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['padaria', 'restaurante-buffet', 'pizzaria'],
-    sku: 'DEMO-QUE-RIC-500',
-    priceCents: 1290,
-    weightGrams: 500,
-    widthMm: 110, heightMm: 60, lengthMm: 110,
-    physicalQuantity: 90,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'lombo-suino-canadense-fatiado-1kg',
-    name: 'Lombo Suíno Canadense Defumado Fatiado 1 kg',
-    description: 'Pacote com 1 kg fatiado fino. Carne magra tenra e suculenta para pizzas gourmet, beirutes e canapés sofisticados.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['pizzaria', 'lanchonete', 'restaurante-buffet'],
-    sku: 'DEMO-LOM-CAN-1KG',
-    priceCents: 4590,
-    weightGrams: 1000,
-    widthMm: 220, heightMm: 50, lengthMm: 280,
-    physicalQuantity: 75,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'requeijao-balde-forneavel-3-6kg',
-    name: 'Requeijão Cremoso Balde Forneável 3,6 kg',
-    description: 'Balde econômico de 3,6 kg para alto giro. Textura firme de fácil espalhamento para coxinhas, pastéis e bordas de pizza.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['pizzaria', 'padaria', 'lanchonete'],
-    sku: 'DEMO-REQ-BAL-36K',
-    priceCents: 6790,
-    weightGrams: 3800,
-    widthMm: 210, heightMm: 200, lengthMm: 210,
-    physicalQuantity: 60,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'hamburguer-bovino-120g-caixa-30un',
-    name: 'Hambúrguer Bovino Carnes Nobres 120 g (cx 30 un)',
-    description: 'Caixa com 30 hambúrgueres congelados e interfolhados. Blend equilibrado de fraldinha e peito com suculência inigualável.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['lanchonete', 'delivery', 'bar-distribuidora'],
-    sku: 'DEMO-HAM-BOV-030',
-    priceCents: 7890,
-    compareAtPriceCents: 8700,
-    weightGrams: 3600,
-    widthMm: 240, heightMm: 160, lengthMm: 320,
-    physicalQuantity: 70,
-    status: 'ACTIVE',
-  },
-  {
-    slug: 'queijo-coalho-espeto-pacote-700g',
-    name: 'Queijo de Coalho Tradicional no Espeto 700 g',
-    description: 'Pacote com 7 espetos artesanais. Destaque para a casquinha dourada crocante na brasa ou chapa sem derreter em excesso.',
-    categorySlugs: ['frios-e-laticinios'],
-    segmentSlugs: ['bar-distribuidora', 'restaurante-buffet', 'lanchonete'],
-    sku: 'DEMO-QUE-COA-700',
-    priceCents: 2990,
-    weightGrams: 700,
-    widthMm: 140, heightMm: 50, lengthMm: 260,
-    physicalQuantity: 85,
-    status: 'ACTIVE',
-  },
+  {
+  "slug": "fasapel-papel-toalha-interfolhado-2-dobras-luxo",
+  "name": "Papel Toalha Interfolhado 2 Dobras 100% Celulose Fasapel",
+  "description": "Fardo com 1.000 folhas duplas 100% celulose virgem de altíssima absorção e maciez. Não esfarela ao secar as mãos.",
+  "categorySlugs": [
+    "descartaveis",
+    "produtos-de-limpeza"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "lanchonete",
+    "padaria",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "reforcado",
+    "descartavel",
+    "biodegradavel"
+  ],
+  "brandSlug": "fasapel-guardanapos-toalhas",
+  "sku": "FAS-TOA-2D-1000",
+  "priceCents": 2490,
+  "compareAtPriceCents": 2990,
+  "weightGrams": 1800,
+  "widthMm": 210,
+  "heightMm": 220,
+  "lengthMm": 300,
+  "physicalQuantity": 350,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fasapel-toalha-bobina-autocorte-200m",
+  "name": "Papel Toalha Bobina Auto Corte 200 m Fasapel",
+  "description": "Rolo industrial de 200 metros para dispensador autocorte. Gramatura uniforme com máxima retenção de umidade.",
+  "categorySlugs": [
+    "descartaveis",
+    "produtos-de-limpeza"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "lanchonete",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "fasapel-guardanapos-toalhas",
+  "sku": "FAS-BOB-200M",
+  "priceCents": 1990,
+  "compareAtPriceCents": 2350,
+  "weightGrams": 1200,
+  "widthMm": 200,
+  "heightMm": 200,
+  "lengthMm": 200,
+  "physicalQuantity": 280,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fasapel-guardanapo-folha-dupla-33x33",
+  "name": "Guardanapo de Papel Folha Dupla 33x33 cm Fasapel",
+  "description": "Pacote com 50 unidades folha dupla em relevo especial. Toque suave e absorção premium para mesas de restaurantes e eventos.",
+  "categorySlugs": [
+    "descartaveis",
+    "artigos-para-festa"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "loja-de-festas",
+    "delivery",
+    "pizzaria"
+  ],
+  "tagSlugs": [
+    "descartavel",
+    "biodegradavel"
+  ],
+  "brandSlug": "fasapel-guardanapos-toalhas",
+  "sku": "FAS-GUA-FD-33",
+  "priceCents": 750,
+  "compareAtPriceCents": 920,
+  "weightGrams": 280,
+  "widthMm": 165,
+  "heightMm": 165,
+  "lengthMm": 50,
+  "physicalQuantity": 420,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fasapel-guardanapo-cocktail-24x24-festa",
+  "name": "Guardanapo Cocktail Especial 24x24 cm Fasapel",
+  "description": "Pacote com 100 guardanapos compactos especiais para drinks, finger foods e mesas de buffet requintadas.",
+  "categorySlugs": [
+    "artigos-para-festa",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "bar-distribuidora",
+    "loja-de-festas",
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "descartavel"
+  ],
+  "brandSlug": "fasapel-guardanapos-toalhas",
+  "sku": "FAS-GUA-COCK-24",
+  "priceCents": 620,
+  "compareAtPriceCents": 780,
+  "weightGrams": 210,
+  "widthMm": 120,
+  "heightMm": 120,
+  "lengthMm": 60,
+  "physicalQuantity": 310,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fasapel-guardanapo-tv-lanchonete-14x14",
+  "name": "Guardanapo Sachê TV para Suporte 14x14 cm Fasapel",
+  "description": "Fardo com 2.000 folhas tipo sachê sanfonado para porta-guardanapos de mesa e balcão em lanchonetes e bares.",
+  "categorySlugs": [
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "pizzaria",
+    "bar-distribuidora",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "descartavel"
+  ],
+  "brandSlug": "fasapel-guardanapos-toalhas",
+  "sku": "FAS-GUA-TV-14",
+  "priceCents": 1650,
+  "compareAtPriceCents": 1980,
+  "weightGrams": 950,
+  "widthMm": 140,
+  "heightMm": 140,
+  "lengthMm": 250,
+  "physicalQuantity": 500,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fasapel-papel-higienico-rolao-folha-dupla-300m",
+  "name": "Papel Higiênico Institucional Rolão Folha Dupla 300 m Fasapel",
+  "description": "Fardo com 8 rolos de 300 metros cada, folha dupla 100% celulose. Reduz a frequência de trocas em sanitários de alto fluxo.",
+  "categorySlugs": [
+    "produtos-de-limpeza"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "lanchonete",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "descartavel",
+    "reforcado"
+  ],
+  "brandSlug": "fasapel-papel-institucional",
+  "sku": "FAS-ROL-FD-300",
+  "priceCents": 5890,
+  "compareAtPriceCents": 6800,
+  "weightGrams": 4800,
+  "widthMm": 450,
+  "heightMm": 450,
+  "lengthMm": 230,
+  "physicalQuantity": 180,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fasapel-papel-higienico-rolao-folha-simples-500m",
+  "name": "Papel Higiênico Rolão Jumbo 500 m Fasapel",
+  "description": "Fardo com 8 rolos industriais jumbo de 500 metros. Máxima economia e rendimento operacional para empresas e comércios.",
+  "categorySlugs": [
+    "produtos-de-limpeza"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "lanchonete",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "descartavel"
+  ],
+  "brandSlug": "fasapel-papel-institucional",
+  "sku": "FAS-ROL-FS-500",
+  "priceCents": 4990,
+  "compareAtPriceCents": 5690,
+  "weightGrams": 5200,
+  "widthMm": 480,
+  "heightMm": 480,
+  "lengthMm": 240,
+  "physicalQuantity": 210,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fasapel-lencol-hospitalar-papel-70x50",
+  "name": "Lençol de Papel Hospitalar Descartável 70 cm x 50 m Fasapel",
+  "description": "Rolo de lençol descartável em celulose virgem com picote a cada 50 cm. Higiene garantida para macas e consultórios.",
+  "categorySlugs": [
+    "produtos-de-limpeza",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "descartavel"
+  ],
+  "brandSlug": "fasapel-papel-institucional",
+  "sku": "FAS-LEN-7050",
+  "priceCents": 2290,
+  "weightGrams": 1100,
+  "widthMm": 120,
+  "heightMm": 700,
+  "lengthMm": 120,
+  "physicalQuantity": 140,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fasapel-protetor-assento-sanitario-refil",
+  "name": "Refil de Protetor de Assento Sanitário Descartável Fasapel",
+  "description": "Caixa com 60 unidades descartáveis em papel biodegradável solúvel em água. Proteção e assepsia para clientes.",
+  "categorySlugs": [
+    "produtos-de-limpeza"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "lanchonete",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "descartavel",
+    "biodegradavel"
+  ],
+  "brandSlug": "fasapel-papel-institucional",
+  "sku": "FAS-PROT-SAN-60",
+  "priceCents": 1490,
+  "weightGrams": 350,
+  "widthMm": 280,
+  "heightMm": 380,
+  "lengthMm": 30,
+  "physicalQuantity": 260,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fasapel-pano-multiuso-wypall-tipo-bobina",
+  "name": "Rolo de Pano Multiuso com Picote 300 Folhas Fasapel",
+  "description": "Bobina com 300 panos semi-descartáveis não tecidos antibacterianos para limpeza pesada em cozinhas profissionais.",
+  "categorySlugs": [
+    "produtos-de-limpeza"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "lanchonete",
+    "pizzaria",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "fasapel-guardanapos-toalhas",
+  "sku": "FAS-PANO-ROLL",
+  "priceCents": 3890,
+  "compareAtPriceCents": 4500,
+  "weightGrams": 1400,
+  "widthMm": 250,
+  "heightMm": 250,
+  "lengthMm": 280,
+  "physicalQuantity": 190,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fonteplast-sacola-plastica-reforcada-30x40",
+  "name": "Sacola Plástica Reforçada Branca 30x40 cm Fonteplast",
+  "description": "Fardo com 1.000 sacolas alça camiseta em PEAD virgem. Suporta até 4 kg com excelente resistência a rasgos.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "lanchonete",
+    "delivery",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "fonteplast-sacolas-camiseta",
+  "sku": "FON-SAC-3040",
+  "priceCents": 4290,
+  "compareAtPriceCents": 4990,
+  "weightGrams": 3000,
+  "widthMm": 300,
+  "heightMm": 400,
+  "lengthMm": 150,
+  "physicalQuantity": 400,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fonteplast-sacola-plastica-reforcada-40x50",
+  "name": "Sacola Plástica Alça Camiseta 40x50 cm Fonteplast",
+  "description": "Fardo com 1.000 unidades tamanho médio padrão comércio. Excelente elasticidade e resistência a peso.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "restaurante-buffet",
+    "delivery",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "fonteplast-sacolas-camiseta",
+  "sku": "FON-SAC-4050",
+  "priceCents": 5990,
+  "compareAtPriceCents": 6890,
+  "weightGrams": 4200,
+  "widthMm": 400,
+  "heightMm": 500,
+  "lengthMm": 160,
+  "physicalQuantity": 320,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fonteplast-sacola-supermercado-50x60",
+  "name": "Sacola Plástica Extra Forte 50x60 cm Fonteplast",
+  "description": "Fardo com 500 sacolas grandes com reforço estrutural nas alças para compras pesadas e mercadorias volumosas.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "bar-distribuidora",
+    "padaria",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "fonteplast-sacolas-camiseta",
+  "sku": "FON-SAC-5060",
+  "priceCents": 6490,
+  "weightGrams": 4900,
+  "widthMm": 500,
+  "heightMm": 600,
+  "lengthMm": 180,
+  "physicalQuantity": 250,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fonteplast-sacola-verde-reciclada-60x80",
+  "name": "Sacola Recuperada Resistente 60x80 cm Fardo Fonteplast",
+  "description": "Fardo com 250 sacolas extra grandes ecológicas de material reciclado reforçado para grandes volumes.",
+  "categorySlugs": [
+    "sacos-e-sacolas"
+  ],
+  "segmentSlugs": [
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "fonteplast-sacolas-camiseta",
+  "sku": "FON-SAC-REC-6080",
+  "priceCents": 4890,
+  "weightGrams": 4500,
+  "widthMm": 600,
+  "heightMm": 800,
+  "lengthMm": 150,
+  "physicalQuantity": 210,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fonteplast-sacola-alca-vazada-boca-palhaco-20x30",
+  "name": "Sacola Alça Vazada Boca de Palhaço 20x30 cm Fonteplast",
+  "description": "Pacote com 100 unidades em polietileno de alta densidade brilhante para lembrancinhas, cosméticos e festas.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "artigos-para-festa"
+  ],
+  "segmentSlugs": [
+    "loja-de-festas",
+    "confeitaria-bolos"
+  ],
+  "tagSlugs": [
+    "descartavel"
+  ],
+  "brandSlug": "fonteplast-sacolas-camiseta",
+  "sku": "FON-SAC-VAZ-2030",
+  "priceCents": 1890,
+  "compareAtPriceCents": 2200,
+  "weightGrams": 600,
+  "widthMm": 200,
+  "heightMm": 300,
+  "lengthMm": 40,
+  "physicalQuantity": 340,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fonteplast-bobina-picotada-fundo-estrela-28x40",
+  "name": "Bobina Picotada Fundo Estrela 28x40 cm Fonteplast",
+  "description": "Rolo com 500 sacos picotados transparentes com solda estrela anti-vazamento para carnes, frutas e feiras.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "restaurante-buffet",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "fonteplast-bobinas-picotadas",
+  "sku": "FON-BOB-PIC-2840",
+  "priceCents": 2190,
+  "compareAtPriceCents": 2590,
+  "weightGrams": 1400,
+  "widthMm": 120,
+  "heightMm": 280,
+  "lengthMm": 120,
+  "physicalQuantity": 450,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fonteplast-bobina-picotada-fundo-reto-35x50",
+  "name": "Bobina Picotada Rolo Hortifrúti 35x50 cm Fonteplast",
+  "description": "Rolo com 500 sacos picotados grandes para açougues, mercados e distribuição de alimentos frescos.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "padaria",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "fonteplast-bobinas-picotadas",
+  "sku": "FON-BOB-HORT-3550",
+  "priceCents": 2890,
+  "compareAtPriceCents": 3350,
+  "weightGrams": 2100,
+  "widthMm": 130,
+  "heightMm": 350,
+  "lengthMm": 130,
+  "physicalQuantity": 380,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fonteplast-saco-plastico-transparente-pead-15x25",
+  "name": "Saco Plástico Transparente PEAD 15x25 cm Fardo 1kg Fonteplast",
+  "description": "Pacote de 1 kg com sacos transparentes atóxicos próprios para contato direto com pães, doces e salgados.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "confeitaria-bolos",
+    "lanchonete"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "fonteplast-bobinas-picotadas",
+  "sku": "FON-SAC-PEAD-1525",
+  "priceCents": 1750,
+  "weightGrams": 1000,
+  "widthMm": 150,
+  "heightMm": 250,
+  "lengthMm": 50,
+  "physicalQuantity": 290,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fonteplast-saco-para-congelamento-freezer-20x30",
+  "name": "Saco para Congelamento e Freezer 20x30 cm Fonteplast",
+  "description": "Pacote com 100 unidades em polietileno resistente a temperaturas negativas sem ressecar ou rasgar.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "confeitaria-bolos",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "reforcado"
+  ],
+  "brandSlug": "fonteplast-bobinas-picotadas",
+  "sku": "FON-SAC-FREEZ-2030",
+  "priceCents": 1290,
+  "weightGrams": 550,
+  "widthMm": 200,
+  "heightMm": 300,
+  "lengthMm": 30,
+  "physicalQuantity": 270,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "fonteplast-saco-de-lixo-reforcado-100l-preto",
+  "name": "Saco de Lixo Industrial Reforçado 100 L Fardo Fonteplast",
+  "description": "Fardo com 100 sacos de lixo super reforçados com solda lateral dupla para suportar resíduos úmidos e pesados.",
+  "categorySlugs": [
+    "produtos-de-limpeza",
+    "sacos-e-sacolas"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "lanchonete",
+    "pizzaria",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "fonteplast-bobinas-picotadas",
+  "sku": "FON-LIXO-100L",
+  "priceCents": 3490,
+  "compareAtPriceCents": 4100,
+  "weightGrams": 2800,
+  "widthMm": 300,
+  "heightMm": 450,
+  "lengthMm": 120,
+  "physicalQuantity": 310,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "knauf-caixa-termica-isopor-12-litros",
+  "name": "Caixa Térmica de Isopor EPS 12 Litros Knauf",
+  "description": "Caixa térmica com tampa de vedação hermética para transporte de sobremesas geladas, vacinas e pequenos lanches.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "sorveteria-acai",
+    "delivery",
+    "confeitaria-bolos"
+  ],
+  "tagSlugs": [
+    "termico"
+  ],
+  "brandSlug": "knauf-caixas-termicas",
+  "sku": "KNA-CX-12L",
+  "priceCents": 1690,
+  "compareAtPriceCents": 1990,
+  "weightGrams": 320,
+  "widthMm": 300,
+  "heightMm": 220,
+  "lengthMm": 380,
+  "physicalQuantity": 150,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "knauf-caixa-termica-isopor-20-litros",
+  "name": "Caixa Térmica de Isopor EPS 20 Litros Knauf",
+  "description": "Caixa conservadora térmica para garrafas, latas, refeições quentes e açaí. Excelente espessura de parede.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "bar-distribuidora",
+    "sorveteria-acai",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "termico"
+  ],
+  "brandSlug": "knauf-caixas-termicas",
+  "sku": "KNA-CX-20L",
+  "priceCents": 2390,
+  "compareAtPriceCents": 2850,
+  "weightGrams": 490,
+  "widthMm": 340,
+  "heightMm": 290,
+  "lengthMm": 420,
+  "physicalQuantity": 180,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "knauf-caixa-termica-isopor-45-litros",
+  "name": "Caixa Térmica de Isopor EPS 45 Litros com Alça Knauf",
+  "description": "Caixa com parede grossa e canaleta para tiracolo. Preserva gelo por até 24 horas em eventos e transporte comercial.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "bar-distribuidora",
+    "restaurante-buffet",
+    "loja-de-festas"
+  ],
+  "tagSlugs": [
+    "termico",
+    "reforcado"
+  ],
+  "brandSlug": "knauf-caixas-termicas",
+  "sku": "KNA-CX-45L",
+  "priceCents": 4250,
+  "compareAtPriceCents": 4990,
+  "weightGrams": 850,
+  "widthMm": 420,
+  "heightMm": 380,
+  "lengthMm": 580,
+  "physicalQuantity": 130,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "knauf-caixa-termica-isopor-80-litros-pesca",
+  "name": "Caixa Térmica Reforçada EPS 80 Litros Knauf",
+  "description": "Caixa de alta densidade para transporte de pescados frescos, carnes e grandes volumes de bebidas em buffet.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "termico",
+    "reforcado"
+  ],
+  "brandSlug": "knauf-caixas-termicas",
+  "sku": "KNA-CX-80L",
+  "priceCents": 7890,
+  "compareAtPriceCents": 8990,
+  "weightGrams": 1600,
+  "widthMm": 500,
+  "heightMm": 460,
+  "lengthMm": 750,
+  "physicalQuantity": 90,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "knauf-caixa-termica-isopor-120-litros-industrial",
+  "name": "Caixa Térmica Extra Grande EPS 120 Litros Knauf",
+  "description": "Capacidade máxima de estocagem isotérmica. Paredes de 45 mm ideais para logística refrigerada profissional.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "termico",
+    "reforcado"
+  ],
+  "brandSlug": "knauf-caixas-termicas",
+  "sku": "KNA-CX-120L",
+  "priceCents": 11900,
+  "weightGrams": 2300,
+  "widthMm": 580,
+  "heightMm": 520,
+  "lengthMm": 890,
+  "physicalQuantity": 60,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "knauf-marmita-termica-isopor-redonda-n8",
+  "name": "Marmita Térmica de Isopor Redonda Nº 8 Knauf",
+  "description": "Fardo com 100 marmitas térmicas de 700 ml com diâmetro 19 cm. Mantém o almoço fumegante no delivery.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "delivery",
+    "lanchonete"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel"
+  ],
+  "brandSlug": "knauf-marmitas-discos",
+  "sku": "KNA-MAR-RED-N8",
+  "priceCents": 3890,
+  "compareAtPriceCents": 4400,
+  "weightGrams": 850,
+  "widthMm": 200,
+  "heightMm": 450,
+  "lengthMm": 200,
+  "physicalQuantity": 240,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "knauf-marmita-termica-isopor-redonda-n9",
+  "name": "Marmita Térmica de Isopor Redonda Nº 9 Grande Knauf",
+  "description": "Fardo com 100 unidades tamanho grande 900 ml. Perfeita para refeições completas com carnes, feijão e acompanhamentos.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel"
+  ],
+  "brandSlug": "knauf-marmitas-discos",
+  "sku": "KNA-MAR-RED-N9",
+  "priceCents": 4590,
+  "compareAtPriceCents": 5200,
+  "weightGrams": 980,
+  "widthMm": 220,
+  "heightMm": 480,
+  "lengthMm": 220,
+  "physicalQuantity": 210,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "knauf-disco-isopor-para-pizza-35cm",
+  "name": "Disco Separador Térmico de Isopor para Pizza 35 cm Knauf",
+  "description": "Pacote com 100 discos de isopor para posicionar sob a pizza. Evita que o fundo da caixa amoleça e mantém a massa crocante.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "pizzaria",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel"
+  ],
+  "brandSlug": "knauf-marmitas-discos",
+  "sku": "KNA-DISC-PIZ-35",
+  "priceCents": 3290,
+  "compareAtPriceCents": 3800,
+  "weightGrams": 650,
+  "widthMm": 350,
+  "heightMm": 120,
+  "lengthMm": 350,
+  "physicalQuantity": 300,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "knauf-placa-isopor-isolamento-termico-20mm",
+  "name": "Placa de Isopor EPS Isolamento Térmico 100x50 cm 20 mm Knauf",
+  "description": "Fardo com 10 placas térmicas EPS para isolamento de câmaras frias, forros, proteção de produtos e artesanato.",
+  "categorySlugs": [
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "termico"
+  ],
+  "brandSlug": "knauf-marmitas-discos",
+  "sku": "KNA-PLA-EPS-20MM",
+  "priceCents": 4990,
+  "weightGrams": 1400,
+  "widthMm": 500,
+  "heightMm": 200,
+  "lengthMm": 1000,
+  "physicalQuantity": 110,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "knauf-porta-garrafa-litrao-termico-eps",
+  "name": "Porta Garrafa Térmico EPS Litrão e Cerveja Knauf",
+  "description": "Pacote com 12 porta-garrafas térmicos para garrafas de 600 ml e 1 litro. Mantém a temperatura no serviço de mesa.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "bar-distribuidora",
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "termico"
+  ],
+  "brandSlug": "knauf-caixas-termicas",
+  "sku": "KNA-PORT-GAR-1L",
+  "priceCents": 2790,
+  "weightGrams": 420,
+  "widthMm": 250,
+  "heightMm": 300,
+  "lengthMm": 350,
+  "physicalQuantity": 160,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "lanchero-hamburgueira-termica-h01-lanche",
+  "name": "Hamburgueira Térmica Simples H-01 Lanchero",
+  "description": "Fardo com 100 embalagens térmicas articuladas para hambúrguer simples e cheeseburger. Preserva o queijo derretido.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel"
+  ],
+  "brandSlug": "lanchero-hamburgueiras",
+  "sku": "LAN-HAM-H01",
+  "priceCents": 2890,
+  "compareAtPriceCents": 3400,
+  "weightGrams": 650,
+  "widthMm": 150,
+  "heightMm": 280,
+  "lengthMm": 300,
+  "physicalQuantity": 420,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "lanchero-hamburgueira-termica-h02-dupla-articulada",
+  "name": "Hamburgueira Térmica Articulada H-02 Grande Lanchero",
+  "description": "Fardo com 100 unidades tamanho H-02. Ideal para smash burgers duplos, lanches no prato e beirutes.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel"
+  ],
+  "brandSlug": "lanchero-hamburgueiras",
+  "sku": "LAN-HAM-H02",
+  "priceCents": 3490,
+  "compareAtPriceCents": 3990,
+  "weightGrams": 780,
+  "widthMm": 170,
+  "heightMm": 300,
+  "lengthMm": 340,
+  "physicalQuantity": 380,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "lanchero-hamburgueira-termica-h03-artesanal-monster",
+  "name": "Hamburgueira Monster para Burger Artesanal H-03 Lanchero",
+  "description": "Fardo com 100 embalagens altas especiais para hambúrguer gourmet artesanal com anéis de cebola e fritas.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "termico",
+    "reforcado"
+  ],
+  "brandSlug": "lanchero-hamburgueiras",
+  "sku": "LAN-HAM-H03",
+  "priceCents": 4190,
+  "compareAtPriceCents": 4800,
+  "weightGrams": 920,
+  "widthMm": 190,
+  "heightMm": 320,
+  "lengthMm": 380,
+  "physicalQuantity": 290,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "lanchero-embalagem-hot-dog-termica-articulada",
+  "name": "Embalagem Térmica para Hot Dog Articulada Lanchero",
+  "description": "Fardo com 100 embalagens compridas térmicas com trava de segurança para cachorro-quente prensado e tradicional.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel"
+  ],
+  "brandSlug": "lanchero-hamburgueiras",
+  "sku": "LAN-EMB-HOTDOG",
+  "priceCents": 2990,
+  "weightGrams": 600,
+  "widthMm": 120,
+  "heightMm": 260,
+  "lengthMm": 240,
+  "physicalQuantity": 350,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "lanchero-caixa-combo-hamburguer-e-fritas",
+  "name": "Caixa Combo Hambúrguer e Batata Frita Lanchero",
+  "description": "Pacote com 100 caixas em papel cartão kraft com divisória interna para hambúrguer e fritas juntos sem misturar.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "kraft",
+    "descartavel"
+  ],
+  "brandSlug": "lanchero-hamburgueiras",
+  "sku": "LAN-CX-COMBO",
+  "priceCents": 4890,
+  "compareAtPriceCents": 5600,
+  "weightGrams": 1600,
+  "widthMm": 240,
+  "heightMm": 120,
+  "lengthMm": 300,
+  "physicalQuantity": 220,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "lanchero-barca-para-lanches-e-petiscos-m",
+  "name": "Barca Descartável para Lanches e Petiscos M Lanchero",
+  "description": "Pacote com 50 barcas resistentes para servir porções de batata frita, calabresa e lanches no balcão ou delivery.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "bar-distribuidora",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "descartavel",
+    "reforcado"
+  ],
+  "brandSlug": "lanchero-barcas-porcoes",
+  "sku": "LAN-BARCA-MED",
+  "priceCents": 2350,
+  "compareAtPriceCents": 2790,
+  "weightGrams": 750,
+  "widthMm": 160,
+  "heightMm": 80,
+  "lengthMm": 280,
+  "physicalQuantity": 310,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "lanchero-barca-para-lanches-e-porcoes-g",
+  "name": "Barca para Mega Porções e Frango a Passarinho G Lanchero",
+  "description": "Pacote com 50 barcas grandes com borda reforçada anti-vazamento de gordura para porções familiares.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "bar-distribuidora",
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "descartavel",
+    "reforcado"
+  ],
+  "brandSlug": "lanchero-barcas-porcoes",
+  "sku": "LAN-BARCA-G",
+  "priceCents": 3190,
+  "weightGrams": 1050,
+  "widthMm": 200,
+  "heightMm": 90,
+  "lengthMm": 340,
+  "physicalQuantity": 240,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "lanchero-cone-para-batata-frita-com-porta-molho",
+  "name": "Cone Descartável para Batata Frita com Porta Molho Lanchero",
+  "description": "Pacote com 100 cones em papel cartão antigordura com encaixe lateral para copinho de maionese ou ketchup.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "delivery",
+    "loja-de-festas"
+  ],
+  "tagSlugs": [
+    "descartavel",
+    "biodegradavel"
+  ],
+  "brandSlug": "lanchero-barcas-porcoes",
+  "sku": "LAN-CONE-FRITA",
+  "priceCents": 2190,
+  "compareAtPriceCents": 2600,
+  "weightGrams": 620,
+  "widthMm": 180,
+  "heightMm": 60,
+  "lengthMm": 220,
+  "physicalQuantity": 360,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "lanchero-embalagem-porcao-fritas-e-nuggets-p",
+  "name": "Embalagem Pote para Fritas e Porções P Lanchero",
+  "description": "Pacote com 100 caixinhas estilo fast food com respiros para manter a batata frita crocante no trajeto.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "descartavel"
+  ],
+  "brandSlug": "lanchero-barcas-porcoes",
+  "sku": "LAN-PORC-FRIT-P",
+  "priceCents": 1790,
+  "weightGrams": 480,
+  "widthMm": 110,
+  "heightMm": 130,
+  "lengthMm": 60,
+  "physicalQuantity": 410,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "lanchero-saco-kraft-delivery-lanche-pequeno",
+  "name": "Saco Kraft SOS para Lanche e Hambúrguer P Lanchero",
+  "description": "Pacote com 250 sacos de papel kraft resistente 80g com fundo quadrado plano para acomodar até 2 lanches.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "delivery",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "kraft",
+    "biodegradavel",
+    "descartavel"
+  ],
+  "brandSlug": "lanchero-barcas-porcoes",
+  "sku": "LAN-SAC-KRAFT-P",
+  "priceCents": 3290,
+  "compareAtPriceCents": 3800,
+  "weightGrams": 1500,
+  "widthMm": 180,
+  "heightMm": 280,
+  "lengthMm": 100,
+  "physicalQuantity": 320,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "plasan-pote-redondo-com-tampa-250ml",
+  "name": "Pote Plástico Redondo com Tampa 250 ml Plasan",
+  "description": "Caixa com 100 potes redondos cristal com tampa hermética de alta vedação para doces em calda e sobremesas.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "confeitaria-bolos",
+    "padaria",
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel",
+    "vai-ao-micro-ondas"
+  ],
+  "brandSlug": "plasan-potes-hermeticos",
+  "sku": "PLA-POT-RED-250",
+  "priceCents": 3490,
+  "compareAtPriceCents": 3990,
+  "weightGrams": 900,
+  "widthMm": 110,
+  "heightMm": 350,
+  "lengthMm": 110,
+  "physicalQuantity": 360,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "plasan-pote-redondo-com-tampa-500ml",
+  "name": "Pote Redondo Hermético com Tampa 500 ml Plasan",
+  "description": "Caixa com 100 potes multiuso resistentes para caldos, sopas, doces e conservas com excelente fechamento.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "delivery",
+    "confeitaria-bolos"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel",
+    "vai-ao-micro-ondas"
+  ],
+  "brandSlug": "plasan-potes-hermeticos",
+  "sku": "PLA-POT-RED-500",
+  "priceCents": 4690,
+  "compareAtPriceCents": 5350,
+  "weightGrams": 1350,
+  "widthMm": 125,
+  "heightMm": 420,
+  "lengthMm": 125,
+  "physicalQuantity": 280,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "plasan-pote-redondo-com-tampa-1000ml",
+  "name": "Pote Redondo para Alimentos e Sopas 1.000 ml Plasan",
+  "description": "Caixa com 100 potes redondos de 1 litro com tampa antivazamento. Ideal para feijoada, caldos e alimentos congelados.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel",
+    "vai-ao-micro-ondas",
+    "reforcado"
+  ],
+  "brandSlug": "plasan-potes-hermeticos",
+  "sku": "PLA-POT-RED-1000",
+  "priceCents": 6290,
+  "compareAtPriceCents": 7100,
+  "weightGrams": 1900,
+  "widthMm": 145,
+  "heightMm": 500,
+  "lengthMm": 145,
+  "physicalQuantity": 210,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "plasan-pote-retangular-freezer-micro-500ml",
+  "name": "Pote Retangular com Tampa Lacre 500 ml Plasan",
+  "description": "Pacote com 50 potes retangulares empilháveis com lacre de segurança no bico. Transparência cristalina.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "delivery",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "vai-ao-micro-ondas"
+  ],
+  "brandSlug": "plasan-potes-hermeticos",
+  "sku": "PLA-POT-RET-500",
+  "priceCents": 2890,
+  "weightGrams": 780,
+  "widthMm": 130,
+  "heightMm": 280,
+  "lengthMm": 180,
+  "physicalQuantity": 330,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "plasan-pote-retangular-com-divisoria-refeicao",
+  "name": "Pote Retangular com 2 Divisórias para Refeição Plasan",
+  "description": "Pacote com 50 unidades com tampa de vedação precisa para separar arroz/feijão da guarnição sem vazar.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "vai-ao-micro-ondas",
+    "reforcado"
+  ],
+  "brandSlug": "plasan-potes-hermeticos",
+  "sku": "PLA-POT-DIV-2",
+  "priceCents": 3690,
+  "compareAtPriceCents": 4200,
+  "weightGrams": 980,
+  "widthMm": 160,
+  "heightMm": 300,
+  "lengthMm": 220,
+  "physicalQuantity": 250,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "plasan-molheira-com-tampa-30ml-sushi",
+  "name": "Molheira Descartável com Tampa Articulada 30 ml Plasan",
+  "description": "Pacote com 100 molheiras pequenas com tampa flip acoplada para shoyu, barbecue, molho tártaro e alho.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "delivery",
+    "lanchonete",
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "plasan-recipientes-molheiras",
+  "sku": "PLA-MOL-30ML",
+  "priceCents": 1190,
+  "compareAtPriceCents": 1450,
+  "weightGrams": 280,
+  "widthMm": 60,
+  "heightMm": 220,
+  "lengthMm": 60,
+  "physicalQuantity": 480,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "plasan-molheira-com-tampa-60ml-molhos",
+  "name": "Pote para Molhos e Shoyu com Tampa 60 ml Plasan",
+  "description": "Pacote com 100 unidades em polipropileno cristalino com fechamento por pressão estanque anti-vazamento.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "delivery",
+    "lanchonete",
+    "pizzaria"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "plasan-recipientes-molheiras",
+  "sku": "PLA-MOL-60ML",
+  "priceCents": 1490,
+  "compareAtPriceCents": 1780,
+  "weightGrams": 360,
+  "widthMm": 75,
+  "heightMm": 240,
+  "lengthMm": 75,
+  "physicalQuantity": 420,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "plasan-molheira-com-tampa-100ml-maionese",
+  "name": "Pote Multiuso para Maionese e Patês 100 ml Plasan",
+  "description": "Pacote com 100 potes de 100 ml com tampa para porções generosas de maionese caseira, vinagrete e farofa.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "restaurante-buffet",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "plasan-recipientes-molheiras",
+  "sku": "PLA-MOL-100ML",
+  "priceCents": 1890,
+  "weightGrams": 450,
+  "widthMm": 85,
+  "heightMm": 260,
+  "lengthMm": 85,
+  "physicalQuantity": 370,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "plasan-tubete-cilindrico-para-especiarias",
+  "name": "Recipiente Cilíndrico com Tampa de Pressão 120 ml Plasan",
+  "description": "Pacote com 50 recipientes cilíndricos para temperos, castanhas, confeitos de confeitaria e guloseimas.",
+  "categorySlugs": [
+    "embalagens",
+    "artigos-para-festa"
+  ],
+  "segmentSlugs": [
+    "confeitaria-bolos",
+    "loja-de-festas"
+  ],
+  "tagSlugs": [
+    "transparente"
+  ],
+  "brandSlug": "plasan-recipientes-molheiras",
+  "sku": "PLA-CIL-120ML",
+  "priceCents": 1650,
+  "weightGrams": 400,
+  "widthMm": 50,
+  "heightMm": 200,
+  "lengthMm": 50,
+  "physicalQuantity": 290,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "plasan-embalagem-articulada-sanduiche-triangular",
+  "name": "Embalagem Articulada Triangular para Sanduíche Natural Plasan",
+  "description": "Pacote com 100 embalagens em formato triângulo com travas nas bordas para expor e vender sanduíches naturais.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "lanchonete",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "plasan-recipientes-molheiras",
+  "sku": "PLA-EMB-TRIANG",
+  "priceCents": 2790,
+  "compareAtPriceCents": 3200,
+  "weightGrams": 820,
+  "widthMm": 140,
+  "heightMm": 280,
+  "lengthMm": 160,
+  "physicalQuantity": 310,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "prafesta-pote-retangular-freezer-microondas-500ml",
+  "name": "Pote Retangular Freezer e Micro-ondas 500 ml Prafesta",
+  "description": "Caixa com 100 unidades em polipropileno atóxico livre de BPA. Suporta variações térmicas extremas sem trincar.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "delivery",
+    "confeitaria-bolos"
+  ],
+  "tagSlugs": [
+    "vai-ao-micro-ondas",
+    "transparente",
+    "reforcado"
+  ],
+  "brandSlug": "prafesta-freezer-microondas",
+  "sku": "PRA-RET-500",
+  "priceCents": 4490,
+  "compareAtPriceCents": 5190,
+  "weightGrams": 1400,
+  "widthMm": 140,
+  "heightMm": 380,
+  "lengthMm": 190,
+  "physicalQuantity": 400,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "prafesta-pote-retangular-freezer-microondas-750ml",
+  "name": "Pote Retangular Freezer e Micro-ondas 750 ml Prafesta",
+  "description": "Caixa com 100 potes com tampa de vedação profissional para marmitas congeladas fitness e refeições completas.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "vai-ao-micro-ondas",
+    "transparente",
+    "reforcado"
+  ],
+  "brandSlug": "prafesta-freezer-microondas",
+  "sku": "PRA-RET-750",
+  "priceCents": 5290,
+  "compareAtPriceCents": 5990,
+  "weightGrams": 1680,
+  "widthMm": 140,
+  "heightMm": 420,
+  "lengthMm": 190,
+  "physicalQuantity": 350,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "prafesta-pote-retangular-freezer-microondas-1000ml",
+  "name": "Pote Retangular Freezer e Micro-ondas 1.000 ml Prafesta",
+  "description": "Caixa com 100 potes grandes de 1 litro para lasanhas, escondidinhos, massas e comida caseira no delivery.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "delivery",
+    "pizzaria"
+  ],
+  "tagSlugs": [
+    "vai-ao-micro-ondas",
+    "transparente",
+    "reforcado"
+  ],
+  "brandSlug": "prafesta-freezer-microondas",
+  "sku": "PRA-RET-1000",
+  "priceCents": 6390,
+  "compareAtPriceCents": 7200,
+  "weightGrams": 2100,
+  "widthMm": 150,
+  "heightMm": 460,
+  "lengthMm": 210,
+  "physicalQuantity": 280,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "prafesta-pote-redondo-com-tampa-250ml-linha-gold",
+  "name": "Pote Redondo Sobremesa Linha Gold 250 ml Prafesta",
+  "description": "Pacote com 50 potes redondos ultra cristalinos para mousses, bolos de pote e pavês de confeitaria requintada.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "confeitaria-bolos",
+    "padaria",
+    "loja-de-festas"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "prafesta-freezer-microondas",
+  "sku": "PRA-RED-250",
+  "priceCents": 1990,
+  "compareAtPriceCents": 2390,
+  "weightGrams": 520,
+  "widthMm": 105,
+  "heightMm": 280,
+  "lengthMm": 105,
+  "physicalQuantity": 360,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "prafesta-pote-redondo-com-tampa-500ml-linha-gold",
+  "name": "Pote Redondo Sobremesa Linha Gold 500 ml Prafesta",
+  "description": "Pacote com 50 unidades de meio litro com tampa hermética. Visual brilhante valoriza a apresentação do doce.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "confeitaria-bolos",
+    "padaria",
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "prafesta-freezer-microondas",
+  "sku": "PRA-RED-500",
+  "priceCents": 2690,
+  "weightGrams": 740,
+  "widthMm": 120,
+  "heightMm": 320,
+  "lengthMm": 120,
+  "physicalQuantity": 310,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "prafesta-prato-plastico-raso-15cm-festa",
+  "name": "Prato Plástico Descartável Raso 15 cm Sobremesa Prafesta",
+  "description": "Pacote com 50 pratinhos plásticos resistentes brancos para bolos de aniversário e salgadinhos em comemorações.",
+  "categorySlugs": [
+    "artigos-para-festa",
+    "descartaveis",
+    "pratos"
+  ],
+  "segmentSlugs": [
+    "loja-de-festas",
+    "confeitaria-bolos",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "descartavel"
+  ],
+  "brandSlug": "prafesta-artigos-festa",
+  "sku": "PRA-PRA-15CM",
+  "priceCents": 650,
+  "compareAtPriceCents": 850,
+  "weightGrams": 280,
+  "widthMm": 150,
+  "heightMm": 80,
+  "lengthMm": 150,
+  "physicalQuantity": 550,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "prafesta-prato-plastico-refeicao-21cm-reforcado",
+  "name": "Prato Plástico Reforçado Refeição 21 cm Prafesta",
+  "description": "Pacote com 50 pratos fundos/refeição extra resistentes. Suporta alimentos pesados e molhos sem dobrar.",
+  "categorySlugs": [
+    "descartaveis",
+    "pratos",
+    "artigos-para-festa"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "loja-de-festas",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "prafesta-artigos-festa",
+  "sku": "PRA-PRA-21CM",
+  "priceCents": 1490,
+  "compareAtPriceCents": 1790,
+  "weightGrams": 580,
+  "widthMm": 210,
+  "heightMm": 110,
+  "lengthMm": 210,
+  "physicalQuantity": 440,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "prafesta-garfo-refeicao-reforcado-cristal",
+  "name": "Garfo Descartável Linha Cristal Refeição Prafesta",
+  "description": "Pacote com 50 garfos transparentes em poliestireno virgem premium. Dentes afiados e firmeza ao cortar carnes.",
+  "categorySlugs": [
+    "descartaveis",
+    "artigos-para-festa"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "loja-de-festas",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "prafesta-artigos-festa",
+  "sku": "PRA-GARF-CRIS",
+  "priceCents": 990,
+  "compareAtPriceCents": 1250,
+  "weightGrams": 260,
+  "widthMm": 100,
+  "heightMm": 40,
+  "lengthMm": 190,
+  "physicalQuantity": 480,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "prafesta-faca-refeicao-reforcada-cristal",
+  "name": "Faca Descartável Linha Cristal Reforçada Prafesta",
+  "description": "Pacote com 50 facas de corte com serra precisa. Alta rigidez para churrascos, eventos e delivery.",
+  "categorySlugs": [
+    "descartaveis",
+    "artigos-para-festa"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "loja-de-festas",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "prafesta-artigos-festa",
+  "sku": "PRA-FAC-CRIS",
+  "priceCents": 990,
+  "compareAtPriceCents": 1250,
+  "weightGrams": 270,
+  "widthMm": 100,
+  "heightMm": 40,
+  "lengthMm": 190,
+  "physicalQuantity": 460,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "prafesta-colher-sobremesa-linha-cristal",
+  "name": "Colher de Sobremesa Descartável Cristal Prafesta",
+  "description": "Pacote com 50 colheres cristal resistente para tortas, açaí, mousses e sorvetes com bordas arredondadas e confortáveis.",
+  "categorySlugs": [
+    "descartaveis",
+    "artigos-para-festa"
+  ],
+  "segmentSlugs": [
+    "sorveteria-acai",
+    "confeitaria-bolos",
+    "loja-de-festas"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "prafesta-artigos-festa",
+  "sku": "PRA-COL-CRIS",
+  "priceCents": 850,
+  "weightGrams": 220,
+  "widthMm": 90,
+  "heightMm": 40,
+  "lengthMm": 160,
+  "physicalQuantity": 510,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "segplast-filme-pvc-esticavel-28cm-100m",
+  "name": "Filme de PVC Esticável Culinário 28 cm x 100 m Segplast",
+  "description": "Caixa com trilho e lâmina de corte deslizante. Aderência instantânea e barreira de oxigênio para manter alimentos frescos.",
+  "categorySlugs": [
+    "embalagens",
+    "filme-e-aluminio"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "restaurante-buffet",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "reforcado"
+  ],
+  "brandSlug": "segplast-filmes-stretch-pvc",
+  "sku": "SEG-PVC-28-100",
+  "priceCents": 1390,
+  "compareAtPriceCents": 1650,
+  "weightGrams": 420,
+  "widthMm": 310,
+  "heightMm": 60,
+  "lengthMm": 60,
+  "physicalQuantity": 380,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "segplast-filme-pvc-esticavel-38cm-300m",
+  "name": "Filme de PVC Esticável Profissional 38 cm x 300 m Segplast",
+  "description": "Rolo profissional de 300 metros para embaladoras manuais de supermercados, padarias e açougues.",
+  "categorySlugs": [
+    "embalagens",
+    "filme-e-aluminio"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "restaurante-buffet",
+    "pizzaria"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "reforcado"
+  ],
+  "brandSlug": "segplast-filmes-stretch-pvc",
+  "sku": "SEG-PVC-38-300",
+  "priceCents": 2990,
+  "compareAtPriceCents": 3500,
+  "weightGrams": 1450,
+  "widthMm": 100,
+  "heightMm": 410,
+  "lengthMm": 100,
+  "physicalQuantity": 290,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "segplast-filme-pvc-esticavel-45cm-1000m-bobina",
+  "name": "Bobina Filme de PVC Industrial 45 cm x 1.000 m Segplast",
+  "description": "Bobina pesada de 1.000 metros de alta extensão para máquinas automáticas e seladoras industriais.",
+  "categorySlugs": [
+    "embalagens",
+    "filme-e-aluminio"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "segplast-filmes-stretch-pvc",
+  "sku": "SEG-PVC-45-1000",
+  "priceCents": 7490,
+  "compareAtPriceCents": 8500,
+  "weightGrams": 4800,
+  "widthMm": 150,
+  "heightMm": 480,
+  "lengthMm": 150,
+  "physicalQuantity": 140,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "segplast-filme-stretch-manual-com-tubete-500mm",
+  "name": "Filme Stretch Manual para Paletização 500 mm x 25 mic Segplast",
+  "description": "Bobina de filme stretch virgem com tubete de papelão. Alta retenção de carga e resistência contra perfuração de cantoneiras.",
+  "categorySlugs": [
+    "embalagens",
+    "filme-e-aluminio"
+  ],
+  "segmentSlugs": [
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "segplast-filmes-stretch-pvc",
+  "sku": "SEG-STR-MAN-500",
+  "priceCents": 4390,
+  "compareAtPriceCents": 4990,
+  "weightGrams": 3200,
+  "widthMm": 120,
+  "heightMm": 520,
+  "lengthMm": 120,
+  "physicalQuantity": 220,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "segplast-filme-stretch-sem-tubete-ecologico",
+  "name": "Filme Stretch Ecológico sem Tubete Coreless Segplast",
+  "description": "Rolo de filme stretch sem tubete de papelão interno. 100% do peso em plástico útil, sem resíduos sólidos descartados.",
+  "categorySlugs": [
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "reforcado",
+    "biodegradavel"
+  ],
+  "brandSlug": "segplast-filmes-stretch-pvc",
+  "sku": "SEG-STR-ECO-500",
+  "priceCents": 4190,
+  "weightGrams": 3000,
+  "widthMm": 110,
+  "heightMm": 500,
+  "lengthMm": 110,
+  "physicalQuantity": 180,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "segplast-fita-adesiva-transparente-48mm-45m",
+  "name": "Fita Adesiva Transparente para Embalagem 48 mm x 45 m Segplast",
+  "description": "Pacote com 6 rolos de fita adesiva acrílica transparente com alto poder de fixação em caixas de papelão.",
+  "categorySlugs": [
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "delivery",
+    "padaria",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "segplast-fitas-adesivas",
+  "sku": "SEG-FIT-TRA-4845",
+  "priceCents": 2190,
+  "compareAtPriceCents": 2600,
+  "weightGrams": 750,
+  "widthMm": 100,
+  "heightMm": 290,
+  "lengthMm": 100,
+  "physicalQuantity": 410,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "segplast-fita-adesiva-marrom-kraft-48mm-100m",
+  "name": "Fita Adesiva Marrom para Fechamento de Caixas 48 mm x 100 m Segplast",
+  "description": "Pacote com 6 rolos de fita marrom para empacotamento seguro e vedação discreta em caixas de papelão.",
+  "categorySlugs": [
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "delivery",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "segplast-fitas-adesivas",
+  "sku": "SEG-FIT-MAR-48100",
+  "priceCents": 3890,
+  "weightGrams": 1400,
+  "widthMm": 120,
+  "heightMm": 290,
+  "lengthMm": 120,
+  "physicalQuantity": 270,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "segplast-fita-gomada-com-reforco-de-nylon-70mm",
+  "name": "Fita Gomada com Reforço de Fios de Nylon 70 mm Segplast",
+  "description": "Rolo de 150 metros de papel kraft gomado com filamentos de fibra de vidro trançada. Fechamento inviolável.",
+  "categorySlugs": [
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "delivery",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "kraft",
+    "reforcado"
+  ],
+  "brandSlug": "segplast-fitas-adesivas",
+  "sku": "SEG-FIT-GOM-70",
+  "priceCents": 3490,
+  "compareAtPriceCents": 4100,
+  "weightGrams": 1100,
+  "widthMm": 180,
+  "heightMm": 70,
+  "lengthMm": 180,
+  "physicalQuantity": 190,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "segplast-lacre-de-seguranca-inviolavel-delivery",
+  "name": "Rolo de Lacre de Segurança Inviolável Delivery Segplast",
+  "description": "Rolo com 1.000 etiquetas adesivas picotadas que rasgam ao tentar abrir. Transmite confiança total ao cliente final.",
+  "categorySlugs": [
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "delivery",
+    "pizzaria",
+    "lanchonete"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "segplast-fitas-adesivas",
+  "sku": "SEG-LAC-DELIV-1000",
+  "priceCents": 2650,
+  "compareAtPriceCents": 3100,
+  "weightGrams": 450,
+  "widthMm": 100,
+  "heightMm": 100,
+  "lengthMm": 40,
+  "physicalQuantity": 380,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "segplast-fita-demarcacao-de-solo-zebrada-50mm",
+  "name": "Fita de Demarcação e Sinalização Zebrada 50 mm x 30 m Segplast",
+  "description": "Rolo de fita adesiva amarela e preta em PVC emborrachado resistente ao atrito de empilhadeiras e fluxo de pedestres.",
+  "categorySlugs": [
+    "embalagens",
+    "produtos-de-limpeza"
+  ],
+  "segmentSlugs": [
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "segplast-fitas-adesivas",
+  "sku": "SEG-FIT-ZEB-5030",
+  "priceCents": 2490,
+  "weightGrams": 350,
+  "widthMm": 110,
+  "heightMm": 50,
+  "lengthMm": 110,
+  "physicalQuantity": 160,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "sicao-chocolate-nobre-ao-leite-barra-1kg",
+  "name": "Chocolate Nobre em Barra Ao Leite 1,01 kg Sicao",
+  "description": "Barra de chocolate nobre puro cacau sabor suave e aveludado. Ideal para moldar bombons, trufas e ovos de Páscoa.",
+  "categorySlugs": [
+    "doces-e-bomboniere",
+    "mercearia"
+  ],
+  "segmentSlugs": [
+    "confeitaria-bolos",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "sicao-chocolates-barras",
+  "sku": "SIC-NOB-LEI-1KG",
+  "priceCents": 4490,
+  "compareAtPriceCents": 5190,
+  "weightGrams": 1010,
+  "widthMm": 140,
+  "heightMm": 25,
+  "lengthMm": 280,
+  "physicalQuantity": 300,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "sicao-chocolate-nobre-meio-amargo-barra-1kg",
+  "name": "Chocolate Nobre Meio Amargo Barra 1,01 kg Sicao",
+  "description": "Barra de chocolate nobre com teor equilibrado de cacau. Proporciona brilho excepcional e quebra perfeita na têmpera.",
+  "categorySlugs": [
+    "doces-e-bomboniere",
+    "mercearia"
+  ],
+  "segmentSlugs": [
+    "confeitaria-bolos",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "sicao-chocolates-barras",
+  "sku": "SIC-NOB-MAM-1KG",
+  "priceCents": 4590,
+  "compareAtPriceCents": 5290,
+  "weightGrams": 1010,
+  "widthMm": 140,
+  "heightMm": 25,
+  "lengthMm": 280,
+  "physicalQuantity": 280,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "sicao-chocolate-nobre-branco-barra-1kg",
+  "name": "Chocolate Nobre Branco Puro Cacau Barra 1,01 kg Sicao",
+  "description": "Barra de chocolate branco com manteiga de cacau de primeira qualidade e notas pronunciadas de baunilha.",
+  "categorySlugs": [
+    "doces-e-bomboniere",
+    "mercearia"
+  ],
+  "segmentSlugs": [
+    "confeitaria-bolos",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "sicao-chocolates-barras",
+  "sku": "SIC-NOB-BRA-1KG",
+  "priceCents": 4790,
+  "weightGrams": 1010,
+  "widthMm": 140,
+  "heightMm": 25,
+  "lengthMm": 280,
+  "physicalQuantity": 220,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "sicao-cobertura-fracionada-gotas-ao-leite-1kg",
+  "name": "Cobertura Fracionada Mais Gotas Ao Leite 1,01 kg Sicao",
+  "description": "Gotas fracionadas fáceis de dosar e derreter. Não necessita têmpera; oferece secagem rápida e brilho duradouro.",
+  "categorySlugs": [
+    "doces-e-bomboniere",
+    "mercearia"
+  ],
+  "segmentSlugs": [
+    "confeitaria-bolos",
+    "padaria",
+    "loja-de-festas"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "sicao-chocolates-barras",
+  "sku": "SIC-COB-LEI-1KG",
+  "priceCents": 2990,
+  "compareAtPriceCents": 3450,
+  "weightGrams": 1010,
+  "widthMm": 160,
+  "heightMm": 45,
+  "lengthMm": 240,
+  "physicalQuantity": 420,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "sicao-cobertura-fracionada-gotas-meio-amargo-1kg",
+  "name": "Cobertura Fracionada Mais Gotas Meio Amargo 1,01 kg Sicao",
+  "description": "Gotas fracionadas com sabor intenso de cacau. Perfeita para banho em pães de mel, cones recheados e espetinhos de frutas.",
+  "categorySlugs": [
+    "doces-e-bomboniere",
+    "mercearia"
+  ],
+  "segmentSlugs": [
+    "confeitaria-bolos",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "sicao-chocolates-barras",
+  "sku": "SIC-COB-MAM-1KG",
+  "priceCents": 2990,
+  "compareAtPriceCents": 3450,
+  "weightGrams": 1010,
+  "widthMm": 160,
+  "heightMm": 45,
+  "lengthMm": 240,
+  "physicalQuantity": 390,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "sicao-gotas-de-chocolate-forneaveis-ao-leite-1kg",
+  "name": "Gotas de Chocolate Forneáveis Ao Leite 1,01 kg Sicao",
+  "description": "Gotas especiais que mantêm o formato perfeito e textura macia no forno até 200°C. Indispensável para panetones e cookies.",
+  "categorySlugs": [
+    "doces-e-bomboniere",
+    "mercearia"
+  ],
+  "segmentSlugs": [
+    "confeitaria-bolos",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "sicao-gotas-coberturas",
+  "sku": "SIC-GOT-FORN-1KG",
+  "priceCents": 3590,
+  "compareAtPriceCents": 4100,
+  "weightGrams": 1010,
+  "widthMm": 160,
+  "heightMm": 50,
+  "lengthMm": 240,
+  "physicalQuantity": 340,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "sicao-gotas-de-chocolate-forneaveis-amargo-1kg",
+  "name": "Gotas de Chocolate Forneáveis Amargas 1,01 kg Sicao",
+  "description": "Gotas de chocolate meio amargo resistentes a altas temperaturas para bolos mesclados, muffins e pães doces artesanais.",
+  "categorySlugs": [
+    "doces-e-bomboniere",
+    "mercearia"
+  ],
+  "segmentSlugs": [
+    "confeitaria-bolos",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "sicao-gotas-coberturas",
+  "sku": "SIC-GOT-FORN-AM-1KG",
+  "priceCents": 3690,
+  "weightGrams": 1010,
+  "widthMm": 160,
+  "heightMm": 50,
+  "lengthMm": 240,
+  "physicalQuantity": 310,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "sicao-cacau-em-po-100-puro-alcalino-500g",
+  "name": "Cacau em Pó 100% Puro Alcalino 500 g Sicao",
+  "description": "Cacau alcalino com cor castanho-escura profunda e alta solubilidade em massas, caldas, brigadeiros gourmet e brownies.",
+  "categorySlugs": [
+    "doces-e-bomboniere",
+    "mercearia"
+  ],
+  "segmentSlugs": [
+    "confeitaria-bolos",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "sicao-gotas-coberturas",
+  "sku": "SIC-CACAU-100-500G",
+  "priceCents": 2790,
+  "compareAtPriceCents": 3200,
+  "weightGrams": 500,
+  "widthMm": 130,
+  "heightMm": 210,
+  "lengthMm": 60,
+  "physicalQuantity": 280,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "sicao-chocolate-em-po-50-cacau-1kg",
+  "name": "Chocolate em Pó Solúvel 50% Cacau 1,01 kg Sicao",
+  "description": "Blend equilibrado de cacau e açúcar para recheios, coberturas, bebidas achocolatadas e massas de bolo fofinhas.",
+  "categorySlugs": [
+    "doces-e-bomboniere",
+    "mercearia"
+  ],
+  "segmentSlugs": [
+    "confeitaria-bolos",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "sicao-gotas-coberturas",
+  "sku": "SIC-CHO-50-1KG",
+  "priceCents": 3150,
+  "weightGrams": 1010,
+  "widthMm": 150,
+  "heightMm": 240,
+  "lengthMm": 70,
+  "physicalQuantity": 290,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "sicao-pasta-recheio-forneavel-avela-1kg",
+  "name": "Creme de Chocolate com Avelã Forneável 1,01 kg Sicao",
+  "description": "Recheio cremoso pronto com avelãs selecionadas. Estável ao forneamento em pizzas doces, pastéis e croissants.",
+  "categorySlugs": [
+    "doces-e-bomboniere",
+    "mercearia"
+  ],
+  "segmentSlugs": [
+    "pizzaria",
+    "confeitaria-bolos",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "reforcado"
+  ],
+  "brandSlug": "sicao-gotas-coberturas",
+  "sku": "SIC-CRE-AVE-1KG",
+  "priceCents": 4190,
+  "compareAtPriceCents": 4890,
+  "weightGrams": 1010,
+  "widthMm": 120,
+  "heightMm": 140,
+  "lengthMm": 120,
+  "physicalQuantity": 250,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "techplast-copo-descartavel-pp-180ml-agua",
+  "name": "Copo Plástico Descartável PP 180 ml com 100 unid Techplast",
+  "description": "Tira com 100 copos plásticos translúcidos em polipropileno de alta maleabilidade para dispensadores de água em empresas.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "lanchonete",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "techplast-copos-descartaveis",
+  "sku": "TEC-COP-180ML",
+  "priceCents": 590,
+  "compareAtPriceCents": 750,
+  "weightGrams": 380,
+  "widthMm": 180,
+  "heightMm": 280,
+  "lengthMm": 180,
+  "physicalQuantity": 600,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "techplast-copo-descartavel-pp-200ml-transparente",
+  "name": "Copo Descartável PP 200 ml Transparente Techplast",
+  "description": "Tira com 100 copos com frisos anatômicos reforçados. Ideal para água, sucos e refrigerantes em escritórios e eventos.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "loja-de-festas",
+    "restaurante-buffet",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "descartavel",
+    "transparente"
+  ],
+  "brandSlug": "techplast-copos-descartaveis",
+  "sku": "TEC-COP-200ML",
+  "priceCents": 680,
+  "compareAtPriceCents": 820,
+  "weightGrams": 420,
+  "widthMm": 200,
+  "heightMm": 300,
+  "lengthMm": 200,
+  "physicalQuantity": 550,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "techplast-copo-descartavel-pp-300ml-suco",
+  "name": "Copo Descartável PP 300 ml para Sucos Techplast",
+  "description": "Pacote com 100 unidades com diâmetro padrão e boa rigidez nas bordas para consumo imediato de refrigerantes e refrescos.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "bar-distribuidora",
+    "loja-de-festas"
+  ],
+  "tagSlugs": [
+    "descartavel",
+    "transparente"
+  ],
+  "brandSlug": "techplast-copos-descartaveis",
+  "sku": "TEC-COP-300ML",
+  "priceCents": 950,
+  "compareAtPriceCents": 1150,
+  "weightGrams": 590,
+  "widthMm": 240,
+  "heightMm": 350,
+  "lengthMm": 240,
+  "physicalQuantity": 420,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "techplast-copo-descartavel-ps-cristal-500ml",
+  "name": "Copo Descartável PS Cristal Reforçado 500 ml Techplast",
+  "description": "Pacote com 50 copos em poliestireno ultra rígido com transparência total de vidro para chopp, cerveja e caipirinhas.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos"
+  ],
+  "segmentSlugs": [
+    "bar-distribuidora",
+    "loja-de-festas",
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "techplast-copos-descartaveis",
+  "sku": "TEC-COP-500ML",
+  "priceCents": 1590,
+  "compareAtPriceCents": 1890,
+  "weightGrams": 750,
+  "widthMm": 260,
+  "heightMm": 360,
+  "lengthMm": 260,
+  "physicalQuantity": 360,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "techplast-tampa-reta-com-furo-copo-300-500ml",
+  "name": "Tampa Plástica Reta com Furo para Copos Techplast",
+  "description": "Pacote com 100 tampas retas com furo em cruz para canudo. Encaixe firme que evita vazamentos em copos de suco e refri.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "delivery",
+    "bar-distribuidora"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "techplast-copos-descartaveis",
+  "sku": "TEC-TAM-RETA-FURO",
+  "priceCents": 890,
+  "weightGrams": 280,
+  "widthMm": 180,
+  "heightMm": 220,
+  "lengthMm": 180,
+  "physicalQuantity": 410,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "techplast-prato-festa-raso-18cm-reforcado",
+  "name": "Prato Descartável Raso para Refeição 18 cm Techplast",
+  "description": "Pacote com 50 pratos plásticos brancos reforçados com abas reforçadas para almoço, jantares e eventos corporativos.",
+  "categorySlugs": [
+    "descartaveis",
+    "pratos"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "loja-de-festas"
+  ],
+  "tagSlugs": [
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "techplast-pratos-talheres",
+  "sku": "TEC-PRA-18CM",
+  "priceCents": 1190,
+  "compareAtPriceCents": 1400,
+  "weightGrams": 450,
+  "widthMm": 180,
+  "heightMm": 90,
+  "lengthMm": 180,
+  "physicalQuantity": 380,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "techplast-prato-festa-fundo-15cm-caldos",
+  "name": "Prato Plástico Fundo 15 cm para Caldos e Sopas Techplast",
+  "description": "Pacote com 50 pratos fundos descartáveis resistentes a líquidos aquecidos. Ideal para canjas, tacacá e caldos.",
+  "categorySlugs": [
+    "descartaveis",
+    "pratos"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "lanchonete"
+  ],
+  "tagSlugs": [
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "techplast-pratos-talheres",
+  "sku": "TEC-PRA-FND-15CM",
+  "priceCents": 990,
+  "weightGrams": 390,
+  "widthMm": 150,
+  "heightMm": 80,
+  "lengthMm": 150,
+  "physicalQuantity": 340,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "techplast-garfo-master-refeicao-fardo-50un",
+  "name": "Garfo Descartável Linha Master Reforçado Techplast",
+  "description": "Pacote com 50 garfos brancos pesados master com dentes estruturados para refeições completas.",
+  "categorySlugs": [
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "lanchonete",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "techplast-pratos-talheres",
+  "sku": "TEC-GAR-MAST-50",
+  "priceCents": 790,
+  "compareAtPriceCents": 980,
+  "weightGrams": 240,
+  "widthMm": 80,
+  "heightMm": 35,
+  "lengthMm": 180,
+  "physicalQuantity": 520,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "techplast-faca-master-refeicao-fardo-50un",
+  "name": "Faca Descartável Linha Master de Corte Techplast",
+  "description": "Pacote com 50 facas de corte reforçado que cortam carnes com eficiência sem vergadura excessiva.",
+  "categorySlugs": [
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "lanchonete",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "techplast-pratos-talheres",
+  "sku": "TEC-FAC-MAST-50",
+  "priceCents": 790,
+  "compareAtPriceCents": 980,
+  "weightGrams": 250,
+  "widthMm": 80,
+  "heightMm": 35,
+  "lengthMm": 180,
+  "physicalQuantity": 500,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "techplast-colher-master-sopa-fardo-50un",
+  "name": "Colher Descartável Linha Master Refeição Techplast",
+  "description": "Pacote com 50 colheres grandes para caldos, sopas e sobremesas com concha profunda.",
+  "categorySlugs": [
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "lanchonete"
+  ],
+  "tagSlugs": [
+    "descartavel"
+  ],
+  "brandSlug": "techplast-pratos-talheres",
+  "sku": "TEC-COL-MAST-50",
+  "priceCents": 750,
+  "weightGrams": 230,
+  "widthMm": 80,
+  "heightMm": 35,
+  "lengthMm": 170,
+  "physicalQuantity": 470,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "totalplast-copo-termico-eps-180ml-cafe",
+  "name": "Copo Térmico EPS 180 ml para Bebidas Quentes Totalplast",
+  "description": "Pacote com 50 copos térmicos de isopor 180 ml. Mantém o café quente sem queimar as mãos de quem segura.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "lanchonete",
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel"
+  ],
+  "brandSlug": "totalplast-copos-potes-termicos",
+  "sku": "TOT-COP-TER-180",
+  "priceCents": 990,
+  "compareAtPriceCents": 1200,
+  "weightGrams": 290,
+  "widthMm": 160,
+  "heightMm": 240,
+  "lengthMm": 160,
+  "physicalQuantity": 410,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "totalplast-copo-termico-eps-240ml-cappuccino",
+  "name": "Copo Térmico EPS 240 ml com Isolamento Totalplast",
+  "description": "Pacote com 50 copos de 240 ml. Perfeito para cappuccinos, chás e caldos individuais em cafeterias e delivery.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "lanchonete",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel"
+  ],
+  "brandSlug": "totalplast-copos-potes-termicos",
+  "sku": "TOT-COP-TER-240",
+  "priceCents": 1190,
+  "compareAtPriceCents": 1450,
+  "weightGrams": 350,
+  "widthMm": 180,
+  "heightMm": 260,
+  "lengthMm": 180,
+  "physicalQuantity": 370,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "totalplast-copo-termico-eps-300ml-caldos",
+  "name": "Copo Térmico EPS 300 ml para Caldos e Sopas Totalplast",
+  "description": "Pacote com 50 unidades de 300 ml com parede reforçada isotérmica. Mantém quente até o momento do consumo no delivery.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "delivery",
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel",
+    "reforcado"
+  ],
+  "brandSlug": "totalplast-copos-potes-termicos",
+  "sku": "TOT-COP-TER-300",
+  "priceCents": 1450,
+  "compareAtPriceCents": 1720,
+  "weightGrams": 420,
+  "widthMm": 200,
+  "heightMm": 280,
+  "lengthMm": 200,
+  "physicalQuantity": 320,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "totalplast-pote-termico-eps-500ml-com-tampa",
+  "name": "Pote Térmico EPS 500 ml com Tampa Térmica Totalplast",
+  "description": "Pacote com 25 conjuntos de pote e tampa em isopor para sopas, caldos verdes e açaí com excelente retenção de temperatura.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "sorveteria-acai",
+    "delivery",
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel"
+  ],
+  "brandSlug": "totalplast-copos-potes-termicos",
+  "sku": "TOT-POT-TER-500",
+  "priceCents": 1790,
+  "compareAtPriceCents": 2100,
+  "weightGrams": 380,
+  "widthMm": 220,
+  "heightMm": 260,
+  "lengthMm": 220,
+  "physicalQuantity": 300,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "totalplast-tampa-bico-viagem-copo-termico-240ml",
+  "name": "Tampa com Bico Viagem para Copo Térmico Totalplast",
+  "description": "Pacote com 100 tampas plásticas tipo viagem (sip lid) com abertura para beber direto no copo sem derramar.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "lanchonete",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "descartavel"
+  ],
+  "brandSlug": "totalplast-copos-potes-termicos",
+  "sku": "TOT-TAM-BICO-240",
+  "priceCents": 1390,
+  "weightGrams": 280,
+  "widthMm": 160,
+  "heightMm": 200,
+  "lengthMm": 160,
+  "physicalQuantity": 360,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "totalplast-bandeja-isopor-rasa-b01",
+  "name": "Bandeja de Isopor EPS Rasa B-01 Fardo com 400 Totalplast",
+  "description": "Fardo com 400 bandejas brancas rasas de 15x15 cm para frios fatiados, queijos, presuntos e frutas embaladas.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "frios-e-laticinios",
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel"
+  ],
+  "brandSlug": "totalplast-bandejas-isopor",
+  "sku": "TOT-BAN-B01",
+  "priceCents": 3790,
+  "compareAtPriceCents": 4350,
+  "weightGrams": 1500,
+  "widthMm": 320,
+  "heightMm": 450,
+  "lengthMm": 320,
+  "physicalQuantity": 280,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "totalplast-bandeja-isopor-funda-b02",
+  "name": "Bandeja de Isopor EPS Funda B-02 para Carnes Totalplast",
+  "description": "Fardo com 400 bandejas fundas com abas para retenção de líquidos de carnes frescas, frangos e peixes embalados com filme.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel"
+  ],
+  "brandSlug": "totalplast-bandejas-isopor",
+  "sku": "TOT-BAN-B02",
+  "priceCents": 4490,
+  "compareAtPriceCents": 5100,
+  "weightGrams": 1800,
+  "widthMm": 340,
+  "heightMm": 480,
+  "lengthMm": 340,
+  "physicalQuantity": 240,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "totalplast-bandeja-isopor-b03-frios-e-hortifruti",
+  "name": "Bandeja de Isopor EPS Grande B-03 Hortifrúti Totalplast",
+  "description": "Fardo com 400 unidades de tamanho amplo 23x18 cm para legumes picados, cortes especiais e mix de queijos.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel"
+  ],
+  "brandSlug": "totalplast-bandejas-isopor",
+  "sku": "TOT-BAN-B03",
+  "priceCents": 5190,
+  "weightGrams": 2100,
+  "widthMm": 380,
+  "heightMm": 500,
+  "lengthMm": 380,
+  "physicalQuantity": 210,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "totalplast-hamburgueira-eps-termica-th01",
+  "name": "Hamburgueira Térmica Articulada TH-01 Totalplast",
+  "description": "Fardo com 100 embalagens térmicas de isopor com trava click para hambúrguer e lanches quentes.",
+  "categorySlugs": [
+    "embalagens",
+    "caixas-e-bandejas"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel"
+  ],
+  "brandSlug": "totalplast-bandejas-isopor",
+  "sku": "TOT-HAM-TH01",
+  "priceCents": 2690,
+  "compareAtPriceCents": 3100,
+  "weightGrams": 620,
+  "widthMm": 150,
+  "heightMm": 270,
+  "lengthMm": 310,
+  "physicalQuantity": 390,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "totalplast-prato-termico-eps-refeicao-festa",
+  "name": "Prato Térmico EPS 22 cm Fundo Branco Totalplast",
+  "description": "Pacote com 50 pratos térmicos em isopor. Não transfere calor para o colo e preserva a comida quente do buffet.",
+  "categorySlugs": [
+    "descartaveis",
+    "pratos"
+  ],
+  "segmentSlugs": [
+    "restaurante-buffet",
+    "loja-de-festas"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel"
+  ],
+  "brandSlug": "totalplast-bandejas-isopor",
+  "sku": "TOT-PRA-TER-22",
+  "priceCents": 1290,
+  "weightGrams": 340,
+  "widthMm": 220,
+  "heightMm": 120,
+  "lengthMm": 220,
+  "physicalQuantity": 360,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "ultra-descartaveis-copo-pp-ultra-transparente-300ml",
+  "name": "Copo Ultra PP Super Transparente 300 ml Ultra Descartáveis",
+  "description": "Pacote com 100 copos de alta transparência e flexibilidade para sucos de polpa, refrigerantes e água.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "bar-distribuidora",
+    "loja-de-festas"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "ultra-descartaveis-copos-cristal",
+  "sku": "ULT-COP-300-PP",
+  "priceCents": 980,
+  "compareAtPriceCents": 1190,
+  "weightGrams": 550,
+  "widthMm": 220,
+  "heightMm": 340,
+  "lengthMm": 220,
+  "physicalQuantity": 440,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "ultra-descartaveis-copo-pp-ultra-transparente-400ml",
+  "name": "Copo Ultra PP Chopp e Bebidas 400 ml Ultra Descartáveis",
+  "description": "Pacote com 50 copos reforçados em PP cristalino. Capacidade ideal para chopp tirado na hora e drinks com gelo.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos"
+  ],
+  "segmentSlugs": [
+    "bar-distribuidora",
+    "loja-de-festas",
+    "lanchonete"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "ultra-descartaveis-copos-cristal",
+  "sku": "ULT-COP-400-PP",
+  "priceCents": 1190,
+  "compareAtPriceCents": 1390,
+  "weightGrams": 610,
+  "widthMm": 240,
+  "heightMm": 350,
+  "lengthMm": 240,
+  "physicalQuantity": 390,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "ultra-descartaveis-copo-pp-ultra-transparente-500ml",
+  "name": "Copo Ultra PP Chopp e Açaí 500 ml Ultra Descartáveis",
+  "description": "Pacote com 50 copos super resistentes de 500 ml com frisos estruturais. O preferido das açaíterias e festivais.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos"
+  ],
+  "segmentSlugs": [
+    "sorveteria-acai",
+    "bar-distribuidora",
+    "lanchonete"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "ultra-descartaveis-copos-cristal",
+  "sku": "ULT-COP-500-PP",
+  "priceCents": 1480,
+  "compareAtPriceCents": 1720,
+  "weightGrams": 760,
+  "widthMm": 260,
+  "heightMm": 360,
+  "lengthMm": 260,
+  "physicalQuantity": 420,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "ultra-descartaveis-copo-pp-ultra-resistente-700ml",
+  "name": "Copo Ultra PP Mega 700 ml Drink & Chopp Ultra Descartáveis",
+  "description": "Pacote com 50 copos gigantes reforçados para mega drinks, chopp em dobro e açaí com muitas camadas de acompanhamentos.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos"
+  ],
+  "segmentSlugs": [
+    "bar-distribuidora",
+    "sorveteria-acai",
+    "loja-de-festas"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "reforcado",
+    "descartavel"
+  ],
+  "brandSlug": "ultra-descartaveis-copos-cristal",
+  "sku": "ULT-COP-700-PP",
+  "priceCents": 2190,
+  "compareAtPriceCents": 2590,
+  "weightGrams": 980,
+  "widthMm": 280,
+  "heightMm": 400,
+  "lengthMm": 280,
+  "physicalQuantity": 280,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "ultra-descartaveis-canudo-biodegradavel-embalado-individualmente",
+  "name": "Canudo Biodegradável Embalado Individualmente Ultra Descartáveis",
+  "description": "Caixa com 500 canudos biodegradáveis embalados um a um em papel para higiene máxima em bares e restaurantes.",
+  "categorySlugs": [
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "bar-distribuidora",
+    "sorveteria-acai"
+  ],
+  "tagSlugs": [
+    "biodegradavel",
+    "descartavel"
+  ],
+  "brandSlug": "ultra-descartaveis-copos-cristal",
+  "sku": "ULT-CAN-BIO-IND",
+  "priceCents": 1690,
+  "compareAtPriceCents": 1990,
+  "weightGrams": 420,
+  "widthMm": 150,
+  "heightMm": 220,
+  "lengthMm": 220,
+  "physicalQuantity": 450,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "ultra-descartaveis-copo-bolha-pet-350ml-com-tampa",
+  "name": "Copo Bolha PET Cristal 350 ml com Tampa Bolha Ultra Descartáveis",
+  "description": "Pacote com 50 conjuntos copo + tampa bolha sem furo em PET ultra transparente brilhante. Ideal para açaí e sobremesas.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "sorveteria-acai",
+    "confeitaria-bolos",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel",
+    "reforcado"
+  ],
+  "brandSlug": "ultra-descartaveis-potes-bolha",
+  "sku": "ULT-BOL-350-PET",
+  "priceCents": 3290,
+  "compareAtPriceCents": 3800,
+  "weightGrams": 950,
+  "widthMm": 210,
+  "heightMm": 340,
+  "lengthMm": 210,
+  "physicalQuantity": 360,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "ultra-descartaveis-copo-bolha-pet-400ml-com-tampa",
+  "name": "Copo Bolha PET Cristal 400 ml com Tampa Bolha Ultra Descartáveis",
+  "description": "Pacote com 50 conjuntos. O campeão de vendas para milk-shakes, cafés gelados, açaí e sobremesas com chantilly.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "sorveteria-acai",
+    "confeitaria-bolos",
+    "lanchonete"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel",
+    "reforcado"
+  ],
+  "brandSlug": "ultra-descartaveis-potes-bolha",
+  "sku": "ULT-BOL-400-PET",
+  "priceCents": 3690,
+  "compareAtPriceCents": 4200,
+  "weightGrams": 1080,
+  "widthMm": 220,
+  "heightMm": 360,
+  "lengthMm": 220,
+  "physicalQuantity": 330,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "ultra-descartaveis-copo-bolha-pet-500ml-com-berco-divisorio",
+  "name": "Copo Bolha 500 ml com Berço Inserção para Granola Ultra Descartáveis",
+  "description": "Pacote com 50 kits: copo 500 ml + tampa bolha + berço inserção para separar leite condensado, cereais ou paçoca do açaí.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "sorveteria-acai",
+    "delivery",
+    "confeitaria-bolos"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel",
+    "reforcado"
+  ],
+  "brandSlug": "ultra-descartaveis-potes-bolha",
+  "sku": "ULT-BOL-500-BER",
+  "priceCents": 4790,
+  "compareAtPriceCents": 5490,
+  "weightGrams": 1350,
+  "widthMm": 230,
+  "heightMm": 380,
+  "lengthMm": 230,
+  "physicalQuantity": 280,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "ultra-descartaveis-pote-sobremesa-bolha-200ml",
+  "name": "Pote Sobremesa PET Bolha 200 ml Ultra Descartáveis",
+  "description": "Pacote com 50 potes redondos compactos com tampa bolha alta para mini sobremesas, pudins e pavês de vitrine.",
+  "categorySlugs": [
+    "embalagens",
+    "descartaveis"
+  ],
+  "segmentSlugs": [
+    "confeitaria-bolos",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "ultra-descartaveis-potes-bolha",
+  "sku": "ULT-POT-200-PET",
+  "priceCents": 2490,
+  "compareAtPriceCents": 2890,
+  "weightGrams": 680,
+  "widthMm": 180,
+  "heightMm": 300,
+  "lengthMm": 180,
+  "physicalQuantity": 310,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "ultra-descartaveis-tampa-bolha-sem-furo-universal",
+  "name": "Tampa Bolha sem Furo PET Universal Ultra Descartáveis",
+  "description": "Pacote com 100 tampas bolha sem furo compatíveis com copos de diâmetro 92 mm e 98 mm. Altura generosa para coberturas.",
+  "categorySlugs": [
+    "descartaveis",
+    "copos"
+  ],
+  "segmentSlugs": [
+    "sorveteria-acai",
+    "confeitaria-bolos"
+  ],
+  "tagSlugs": [
+    "transparente",
+    "descartavel"
+  ],
+  "brandSlug": "ultra-descartaveis-potes-bolha",
+  "sku": "ULT-TAM-BOL-SF",
+  "priceCents": 1990,
+  "weightGrams": 450,
+  "widthMm": 190,
+  "heightMm": 240,
+  "lengthMm": 190,
+  "physicalQuantity": 400,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "vipel-sacola-kraft-delivery-pequena-alca-torcida",
+  "name": "Sacola de Papel Kraft Delivery P com Alça Torcida Vipel",
+  "description": "Pacote com 50 sacolas em papel kraft natural 100g com alça torcida colada com reforço interno. Ideal para marmitas e pequenos pedidos.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "delivery",
+    "lanchonete",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "kraft",
+    "biodegradavel",
+    "reforcado"
+  ],
+  "brandSlug": "vipel-sacolas-kraft",
+  "sku": "VIP-SAC-KRA-P",
+  "priceCents": 3490,
+  "compareAtPriceCents": 3990,
+  "weightGrams": 1450,
+  "widthMm": 220,
+  "heightMm": 280,
+  "lengthMm": 100,
+  "physicalQuantity": 360,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "vipel-sacola-kraft-delivery-media-alca-torcida",
+  "name": "Sacola de Papel Kraft Delivery M Alça Torcida Vipel",
+  "description": "Pacote com 50 sacolas tamanho padrão delivery (28x32x14 cm). Comporta até 2 caixas de comida e refrigerante.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "delivery",
+    "restaurante-buffet",
+    "lanchonete"
+  ],
+  "tagSlugs": [
+    "kraft",
+    "biodegradavel",
+    "reforcado"
+  ],
+  "brandSlug": "vipel-sacolas-kraft",
+  "sku": "VIP-SAC-KRA-M",
+  "priceCents": 4290,
+  "compareAtPriceCents": 4890,
+  "weightGrams": 1850,
+  "widthMm": 280,
+  "heightMm": 320,
+  "lengthMm": 140,
+  "physicalQuantity": 320,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "vipel-sacola-kraft-delivery-grande-alca-plana",
+  "name": "Sacola Kraft Delivery G Fundo Largo Alça Plana Vipel",
+  "description": "Pacote com 50 sacolas de fundo extra largo para caixas de pizza até 35 cm e embalagens quadradas que não podem tombar.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "delivery",
+    "pizzaria",
+    "restaurante-buffet"
+  ],
+  "tagSlugs": [
+    "kraft",
+    "biodegradavel",
+    "reforcado"
+  ],
+  "brandSlug": "vipel-sacolas-kraft",
+  "sku": "VIP-SAC-KRA-G",
+  "priceCents": 5490,
+  "compareAtPriceCents": 6200,
+  "weightGrams": 2300,
+  "widthMm": 360,
+  "heightMm": 360,
+  "lengthMm": 200,
+  "physicalQuantity": 270,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "vipel-saco-kraft-sos-pipoca-lanche-n2",
+  "name": "Saco de Papel Kraft SOS Fundo Reto Nº 2 Vipel",
+  "description": "Pacote com 250 sacos de papel kraft natural 60g com fundo retangular rígido para batatas fritas, pães e doces.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "lanchonete",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "kraft",
+    "biodegradavel",
+    "descartavel"
+  ],
+  "brandSlug": "vipel-sacolas-kraft",
+  "sku": "VIP-SOS-N2",
+  "priceCents": 2190,
+  "compareAtPriceCents": 2550,
+  "weightGrams": 1100,
+  "widthMm": 150,
+  "heightMm": 240,
+  "lengthMm": 90,
+  "physicalQuantity": 410,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "vipel-saco-kraft-sos-hamburguer-artesanal-n4",
+  "name": "Saco Kraft SOS para Hambúrguer e Combos Nº 4 Vipel",
+  "description": "Pacote com 250 sacos reforçados para delivery sem alça. Ideal para acomodar combo de hambúrguer, fritas e refrigerante lata.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "kraft",
+    "biodegradavel",
+    "reforcado"
+  ],
+  "brandSlug": "vipel-sacolas-kraft",
+  "sku": "VIP-SOS-N4",
+  "priceCents": 3690,
+  "compareAtPriceCents": 4200,
+  "weightGrams": 1800,
+  "widthMm": 200,
+  "heightMm": 320,
+  "lengthMm": 120,
+  "physicalQuantity": 340,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "vipel-saco-de-papel-pipoca-padaria-1kg",
+  "name": "Saco de Papel Branco Monolúcido para Pães 1 kg Vipel",
+  "description": "Fardo com 500 saquinhos brancos de papel kraft monolúcido virgem para pão francês e quitutes de padaria.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "confeitaria-bolos"
+  ],
+  "tagSlugs": [
+    "kraft",
+    "biodegradavel",
+    "descartavel"
+  ],
+  "brandSlug": "vipel-papel-culinario-bobinas",
+  "sku": "VIP-SAC-PAD-1KG",
+  "priceCents": 2690,
+  "compareAtPriceCents": 3100,
+  "weightGrams": 1600,
+  "widthMm": 120,
+  "heightMm": 280,
+  "lengthMm": 60,
+  "physicalQuantity": 480,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "vipel-saco-de-papel-pipoca-padaria-3kg",
+  "name": "Saco de Papel Pão Monolúcido 3 kg Vipel",
+  "description": "Fardo com 500 saquinhos de papel para 10 a 15 pães franceses ou pacotes de broas e biscoitos caseiros.",
+  "categorySlugs": [
+    "sacos-e-sacolas",
+    "embalagens"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "confeitaria-bolos"
+  ],
+  "tagSlugs": [
+    "kraft",
+    "biodegradavel",
+    "descartavel"
+  ],
+  "brandSlug": "vipel-papel-culinario-bobinas",
+  "sku": "VIP-SAC-PAD-3KG",
+  "priceCents": 3690,
+  "weightGrams": 2400,
+  "widthMm": 150,
+  "heightMm": 360,
+  "lengthMm": 80,
+  "physicalQuantity": 390,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "vipel-bobina-papel-kraft-puro-60cm-pesado",
+  "name": "Bobina de Papel Kraft Natural Puro 60 cm 80g Vipel",
+  "description": "Rolo de papel kraft pesado com 150 metros. Indicado para forração de mesas, proteção de produtos e embrulhos de encomendas.",
+  "categorySlugs": [
+    "embalagens",
+    "filme-e-aluminio"
+  ],
+  "segmentSlugs": [
+    "bar-distribuidora",
+    "delivery"
+  ],
+  "tagSlugs": [
+    "kraft",
+    "biodegradavel",
+    "reforcado"
+  ],
+  "brandSlug": "vipel-papel-culinario-bobinas",
+  "sku": "VIP-BOB-KRA-60CM",
+  "priceCents": 4990,
+  "compareAtPriceCents": 5800,
+  "weightGrams": 7200,
+  "widthMm": 160,
+  "heightMm": 600,
+  "lengthMm": 160,
+  "physicalQuantity": 150,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "vipel-papel-manteiga-culinario-forno-bobina-30m",
+  "name": "Bobina de Papel Manteiga Culinário Antiaderente 30 m Vipel",
+  "description": "Rolo com 30 metros de papel manteiga profissional com barreira de desmoldagem para assadeiras de doces e bolos.",
+  "categorySlugs": [
+    "embalagens",
+    "filme-e-aluminio"
+  ],
+  "segmentSlugs": [
+    "padaria",
+    "confeitaria-bolos",
+    "pizzaria"
+  ],
+  "tagSlugs": [
+    "biodegradavel"
+  ],
+  "brandSlug": "vipel-papel-culinario-bobinas",
+  "sku": "VIP-PAP-MAN-30M",
+  "priceCents": 1590,
+  "weightGrams": 480,
+  "widthMm": 60,
+  "heightMm": 300,
+  "lengthMm": 60,
+  "physicalQuantity": 330,
+  "status": "ACTIVE"
+},
+  {
+  "slug": "vipel-papel-acoplado-termico-para-lanche-fardo",
+  "name": "Papel Acoplado Térmico para Envolver Hambúrguer Vipel",
+  "description": "Caixa com 500 folhas de papel acoplado com película plástica interna. Retém a umidade e calor sem vazar molho na embalagem.",
+  "categorySlugs": [
+    "embalagens",
+    "filme-e-aluminio"
+  ],
+  "segmentSlugs": [
+    "lanchonete",
+    "delivery",
+    "padaria"
+  ],
+  "tagSlugs": [
+    "termico",
+    "descartavel",
+    "reforcado"
+  ],
+  "brandSlug": "vipel-papel-culinario-bobinas",
+  "sku": "VIP-PAP-ACOP-500",
+  "priceCents": 3890,
+  "compareAtPriceCents": 4450,
+  "weightGrams": 1600,
+  "widthMm": 300,
+  "heightMm": 380,
+  "lengthMm": 70,
+  "physicalQuantity": 350,
+  "status": "ACTIVE"
+},
 ];

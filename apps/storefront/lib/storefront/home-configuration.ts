@@ -6,7 +6,7 @@ import type { PageComposition } from "./widget-types";
  */
 export const defaultHomeComposition: PageComposition = {
   page: "home",
-  version: 6,
+  version: 7,
   widgets: [
     // 01 — SEÇÃO CARROSSEL LARGURA TOTAL (HERO FULL-WIDTH)
     {
@@ -208,24 +208,13 @@ export const defaultHomeComposition: PageComposition = {
       },
     },
 
-    // 04 — SEÇÃO COMPRE POR MARCA (CARDS DE LOGOS DE MARCAS)
-    {
-      id: "s07-compre-por-marca",
-      type: "brands-carousel",
-      enabled: true,
-      order: 4,
-      props: {
-        title: "Compre por Marca",
-        viewAllLink: "/marcas",
-      },
-    },
 
-    // 05 — SEÇÃO CARROSSEL DE PRODUTOS EM DESTAQUE (BANNER VERTICAL + 3 PRODUTOS EM PROMOÇÃO)
+    // 04 — SEÇÃO CARROSSEL DE PRODUTOS EM DESTAQUE (BANNER VERTICAL + 3 PRODUTOS EM PROMOÇÃO)
     {
       id: "s04-split-offers-carousel",
       type: "product-carousel",
       enabled: true,
-      order: 5,
+      order: 4,
       props: {
         variant: "split-banner",
         title: "Produtos em Promoção",
@@ -294,12 +283,12 @@ export const defaultHomeComposition: PageComposition = {
       },
     },
 
-    // 06 — SEÇÃO BANNERS TRIPLOS 01 (LIMPEZA, SEMANA DO FEIRANTE, SACOS E SACOLAS)
+    // 05 — SEÇÃO BANNERS TRIPLOS 01 (LIMPEZA, SEMANA DO FEIRANTE, SACOS E SACOLAS)
     {
       id: "s05-triple-banners-1",
       type: "banner-grid",
       enabled: true,
-      order: 6,
+      order: 5,
       props: {
         columns: 3,
         banners: [
@@ -353,6 +342,19 @@ export const defaultHomeComposition: PageComposition = {
             altText: "Copos e Pratos Descartáveis no Comercial do Norte",
           },
         ],
+      },
+    },
+
+    // 06 — SEÇÃO COMPRE POR MARCA (CARDS DE LOGOS DE MARCAS)
+    {
+      id: "s07-compre-por-marca",
+      type: "brands-carousel",
+      enabled: true,
+      order: 6,
+      props: {
+        title: "Compre por Marca",
+        subtitle: "As principais marcas em embalagens, descartáveis e muito mais.",
+        viewAllLink: "/marcas",
       },
     },
 
