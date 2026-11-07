@@ -30,8 +30,8 @@ export async function GET(request: Request) {
     if (vercelCity) {
       const city = decodeURIComponent(vercelCity);
       const state = (vercelRegion || 'PA').toUpperCase();
-      const rawPostal = vercelPostal ? cleanCep(vercelPostal) : '';
-      const cep = rawPostal.length === 8 ? formatCep(rawPostal) : '';
+      // Na detecção automática por IP, nunca injeta CEP genérico de provedor/telecom
+      const cep = '';
       const lat = vercelLat ? Number(vercelLat) : undefined;
       const lng = vercelLng ? Number(vercelLng) : undefined;
 
@@ -77,8 +77,8 @@ export async function GET(request: Request) {
         if (data && data.success !== false && data.city) {
           const city = String(data.city || 'Belém');
           const state = String(data.region_code || 'PA').toUpperCase();
-          const rawPostal = data.postal ? cleanCep(String(data.postal)) : '';
-          const cep = rawPostal.length === 8 ? formatCep(rawPostal) : '';
+          // Na detecção automática por IP, nunca injeta CEP genérico de provedor/telecom
+          const cep = '';
           const lat = typeof data.latitude === 'number' ? data.latitude : undefined;
           const lng = typeof data.longitude === 'number' ? data.longitude : undefined;
 

@@ -520,8 +520,8 @@ export async function detectLocationByIp(): Promise<UserLocation | null> {
       if (data && data.success !== false && data.city) {
         const city = String(data.city || 'Belém');
         const state = String(data.region_code || 'PA').toUpperCase();
-        const rawPostal = data.postal ? cleanCep(String(data.postal)) : '';
-        const cep = rawPostal.length === 8 ? formatCep(rawPostal) : '';
+        // Na detecção automática por IP, nunca injeta CEP genérico da telecom/provedor (ex: 66020-250)
+        const cep = '';
         const lat = typeof data.latitude === 'number' ? data.latitude : undefined;
         const lng = typeof data.longitude === 'number' ? data.longitude : undefined;
 

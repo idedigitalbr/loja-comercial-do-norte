@@ -1,5 +1,11 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **07/11/2026 — Eliminação de CEP Falso de Telecom no Modal em Abas Anônimas e Botão X de Limpeza Rápida (executorId: `antigravity-gemini`):**
+  - **Eliminação de CEP Falso de Provedor (`66020-250`):** Detecção automática de geolocalização por IP (`/api/location` e `ipwho.is`) agora define `cep: ''` estritamente, evitando injeção indevida do CEP da central de telefonia no modal em abas anônimas ou visitas limpas.
+  - **Inicialização Limpa do Modal de CEP:** `PostalCodeModal` verifica se há um CEP genuíno (inserido manualmente pelo usuário ou via GPS). Se for IP ou default, o campo abre vazio com placeholder `Digite seu CEP (ex: 66080-650)`.
+  - **Botão X de Limpeza e Redefinição de Região:** Inserido botão `X` de limpeza rápida no input do CEP e botão `Remover CEP salvo e restaurar região padrão` para fácil gerenciamento pelo usuário.
+  - **Validação:** 51/51 testes aprovados (252 testes), typecheck e lint 100% limpos.
+
 - **07/11/2026 — Confirmação Transparente de Localização no Nort Chat sem Chute Automático e Precisão de Bairros via Nominatim (executorId: `antigravity-gemini`):**
   - **Problema Diagnosticado:** Ao clicar em *"📍 A mais próxima de mim"*, o chat alegava *"Olha, consegui acessar sua localização com precisão!"* e cravava São Brás ou Central para usuários na Pedreira, deixando o cabeçalho do site como "Belém/PA" genérico.
   - **Resolução de Bairros com Nominatim:** `reverseGeocodeCoordinates` agora consulta o OpenStreetMap Nominatim primeiro, obtendo bairro real (`Pedreira`, `São Brás`, etc.), logradouro e CEP sem lacunas.

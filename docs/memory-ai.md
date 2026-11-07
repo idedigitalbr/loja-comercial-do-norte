@@ -7,6 +7,17 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **07/11/2026 — Eliminação de CEP Falso de Telecom no Modal em Abas Anônimas e Botão X de Limpeza Rápida (executorId: `antigravity-gemini`):**
+  - **Eliminação de CEP Falso de IP (`66020-250`):**
+    - Identificado que a detecção de localização por IP (`ipwho.is` e headers Vercel) retornava o CEP da central do provedor de internet (`66020-250`), pré-preenchendo indevidamente o modal de CEP mesmo para visitantes novos ou em abas anônimas.
+    - Atualizados `apps/storefront/app/api/location/route.ts` e `apps/storefront/lib/location.ts` para fixar `cep: ''` em qualquer detecção por IP, preservando apenas cidade e UF para a região padrão.
+    - No modal `PostalCodeModal` (`postal-code-modal.tsx`), o input só inicializa preenchido se o usuário tiver inserido ou confirmado manualmente um CEP ou via GPS (`source !== 'ip' && source !== 'default'`). Em abas anônimas ou novos visitantes, o campo inicia 100% limpo com placeholder intuitivo.
+  - **Botão de Limpeza Rápida (`X`) e Botão de Redefinição de Região:**
+    - Adicionado botão interativo `X` dentro do campo de input do CEP quando há caracteres digitados. Ao clicar, o valor é apagado imediatamente e o foco retorna ao input.
+    - Adicionada a ação `Remover CEP salvo e restaurar região padrão` quando há localização manual salva, permitindo ao usuário redefinir seu endereço com 1 clique e retornar para a região padrão.
+  - **Validação:**
+    - 51/51 arquivos de teste aprovados (252 testes), typecheck e lint 100% limpos.
+
 - **07/11/2026 — Confirmação Transparente de Localização no Nort Chat sem Chute Automático e Precisão de Bairros via Nominatim (executorId: `antigravity-gemini`):**
   - **Problema Diagnosticado:** Ao clicar em *"📍 A mais próxima de mim"*, o chat alegava *"Olha, consegui acessar sua localização com precisão!"* e despejava opções calculadas sem perguntar onde o usuário realmente estava. Em desktops/notebooks com geolocalização Wi-Fi/IP imprecisa, apontava para São Brás enquanto o visitante estava na Pedreira, deixando o cabeçalho do site com o genérico "Belém/PA" devido ao BigDataCloud não fornecer o bairro.
   - **Prioridade para OpenStreetMap Nominatim em `reverseGeocodeCoordinates`:** Nominatim agora é consultado primeiro com headers apropriados (`Accept-Language: pt-BR` e `User-Agent`), garantindo resolução real de bairro (`addr.suburb`), rua (`addr.road`) e CEP oficial (`addr.postcode`) para Belém e Ananindeua (Pedreira, São Brás, Jurunas, Guamá, Marco, Nazaré, Cidade Nova, etc.). O cabeçalho exibe o bairro e cidade com precisão (ex: `Pedreira, Belém/PA`).

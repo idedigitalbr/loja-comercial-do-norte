@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import {
   BRAZIL_STATES,
+  DEFAULT_LOCATION,
   formatCep,
   cleanCep,
   lookupLocationByAddress,
@@ -48,21 +49,49 @@ export function PostalCodeModal() {
   // Ref para focar no input
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Inicializa o input com o CEP atual quando o modal abre
+  // Inicializa o input com o CEP atual quando o modal abre (somente se for um CEP real inserido/confirmado)
   useEffect(() => {
     if (isModalOpen) {
-      setCepInput(location?.cep ? formatCep(location.cep) : '');
-      setResolvedLocation(location || null);
+      const hasRealCep = Boolean(
+        location?.cep &&
+        location.source !== 'ip' &&
+        location.source !== 'default'
+      );
+      setCepInput(hasRealCep ? formatCep(location.cep) : '');
+      setResolvedLocation(hasRealCep ? location : null);
       setCepError(null);
       setAddressError(null);
       setSuccessMessage(null);
       setMode('cep');
       setTimeout(() => {
         inputRef.current?.focus();
-        inputRef.current?.select();
+        if (hasRealCep) {
+          inputRef.current?.select();
+        }
       }, 100);
     }
   }, [isModalOpen, location]);
+
+  // Limpa o campo do CEP
+  function handleClearCep() {
+    setCepInput('');
+    setResolvedLocation(null);
+    setCepError(null);
+    setSuccessMessage(null);
+    inputRef.current?.focus();
+  }
+
+  // Redefine a localização para a padrão (exclui o CEP salvo)
+  function handleResetLocation() {
+    setLocation(DEFAULT_LOCATION);
+    setCepInput('');
+    setResolvedLocation(null);
+    setCepError(null);
+    setSuccessMessage('Localização redefinida para a região padrão.');
+    setTimeout(() => {
+      closeModal();
+    }, 600);
+  }
 
   // Fecha no ESC
   useEffect(() => {
@@ -339,11 +368,21 @@ export function PostalCodeModal() {
                     type="text"
                     value={cepInput}
                   />
-                  {loadingCep && (
-                    <div className="absolute right-3">
+                  {loadingCep ? (
+                    <div className="absolute right-3 flex items-center">
                       <Loader2 className="size-5 animate-spin text-[#004CB1]" />
                     </div>
-                  )}
+                  ) : cepInput ? (
+                    <button
+                      aria-label="Limpar CEP digitado"
+                      className="absolute right-3 flex size-6 items-center justify-center rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition cursor-pointer"
+                      onClick={handleClearCep}
+                      title="Limpar CEP"
+                      type="button"
+                    >
+                      <X className="size-3.5 stroke-[2.5]" />
+                    </button>
+                  ) : null}
                 </div>
 
                 {/* Link "Não sei o meu CEP" no estilo Magalu */}
@@ -403,6 +442,19 @@ export function PostalCodeModal() {
                       </p>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Opção para remover CEP e voltar ao padrão */}
+              {Boolean(location?.cep && (location.source === 'manual' || location.source === 'gps')) && (
+                <div className="text-center pt-1">
+                  <button
+                    className="text-[11.5px] font-medium text-slate-500 hover:text-rose-600 hover:underline transition cursor-pointer"
+                    onClick={handleResetLocation}
+                    type="button"
+                  >
+                    Remover CEP salvo e restaurar região padrão
+                  </button>
                 </div>
               )}
 
