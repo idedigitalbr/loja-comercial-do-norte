@@ -196,12 +196,12 @@ export function WidgetSectionSkeleton({
 
     case 'brands-carousel':
       return (
-        <div aria-hidden="true" className="cn-container py-3 sm:py-5">
-          <div className="relative rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 lg:p-8 shadow-[0_2px_14px_rgba(15,23,42,0.04)]">
-            <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div aria-hidden="true" className="cn-container py-4 sm:py-6">
+          <div className="relative">
+            <div className="mb-5 sm:mb-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-2 sm:gap-3">
                 <SkeletonBlock className="size-8 rounded-lg" />
-                <div className="h-8 w-px bg-slate-200" />
+                <div className="h-8 w-px bg-slate-300/80" />
                 <div className="space-y-1.5">
                   <SkeletonBlock className="h-6 w-48 rounded-lg" />
                   <SkeletonBlock className="h-3.5 w-64 rounded-md" />
@@ -212,7 +212,7 @@ export function WidgetSectionSkeleton({
             <div className="grid grid-cols-3 gap-3 md:grid-cols-6 sm:gap-4 lg:gap-5">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
-                  className={`aspect-square w-full rounded-full border border-slate-100 bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.06)] flex items-center justify-center ${
+                  className={`aspect-square w-full rounded-full border border-slate-200/80 bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.06)] flex items-center justify-center ${
                     i >= 3 ? 'hidden md:flex' : 'flex'
                   }`}
                   key={i}

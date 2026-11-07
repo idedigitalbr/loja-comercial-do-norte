@@ -82,12 +82,12 @@ export function BrandsCarouselWidget({
   return (
     <section
       aria-label={title || 'Compre por Marca'}
-      className="cn-container py-3 sm:py-5"
+      className="cn-container py-4 sm:py-6"
       data-testid="brands-carousel-section"
     >
-      <div className="relative rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 lg:p-8 shadow-[0_2px_14px_rgba(15,23,42,0.04)]">
-        {/* CABEÇALHO OFICIAL ESTILO MOCKUP: ÍCONE TAG VERMELHO + TÍTULO/SUBTÍTULO + BOTÃO PILL AZUL */}
-        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="relative">
+        {/* CABEÇALHO OFICIAL: ÍCONE TAG VERMELHO + TÍTULO/SUBTÍTULO + BOTÃO PILL AZUL */}
+        <div className="mb-5 sm:mb-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             {/* Ícone Tag Vermelha rotacionada estilo preço */}
             <div className="flex shrink-0 items-center justify-center">
@@ -95,7 +95,7 @@ export function BrandsCarouselWidget({
             </div>
 
             {/* Divisor vertical sutil */}
-            <div className="h-7 sm:h-8 lg:h-9 w-px bg-slate-200 shrink-0 mx-1 sm:mx-1.5" />
+            <div className="h-7 sm:h-8 lg:h-9 w-px bg-slate-300/80 shrink-0 mx-1 sm:mx-1.5" />
 
             {/* Bloco de Título e Subtítulo */}
             <div className="min-w-0">
@@ -116,7 +116,7 @@ export function BrandsCarouselWidget({
                     />
                   ) : (
                     <div
-                      className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-0.5 transition hover:bg-slate-100"
+                      className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-0.5 transition hover:bg-slate-200/60"
                       onClick={() => setEditingTitle(true)}
                       title="Clique para editar o título"
                     >
@@ -134,7 +134,7 @@ export function BrandsCarouselWidget({
               )}
 
               {subtitle ? (
-                <p className="mt-0.5 text-xs sm:text-sm font-normal text-slate-500">
+                <p className="mt-0.5 text-xs sm:text-sm font-normal text-slate-600">
                   {subtitle}
                 </p>
               ) : null}
@@ -165,7 +165,7 @@ export function BrandsCarouselWidget({
             {brandItems.map((brand) => (
               <Link
                 aria-label={`Ver produtos da marca ${brand.name}`}
-                className="group relative flex aspect-square w-[116px] sm:w-[132px] shrink-0 snap-start items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.06)] transition-all duration-200 active:scale-95"
+                className="group relative flex aspect-square w-[116px] sm:w-[132px] shrink-0 snap-start items-center justify-center overflow-hidden rounded-full border border-slate-200/80 bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.08)] transition-all duration-200 active:scale-95"
                 href={brand.linkUrl || `/marca/${brand.slug}`}
                 key={`mob-${brand.id}`}
                 onClick={(e) => {
@@ -186,12 +186,12 @@ export function BrandsCarouselWidget({
             ))}
           </div>
 
-          {/* DESKTOP (md+): Grid de 6 cards 100% CIRCULARES idênticos ao print mockup */}
+          {/* DESKTOP (md+): Grid de 6 cards 100% CIRCULARES flutuando sobre o fundo da loja */}
           <div className="hidden md:grid md:grid-cols-6 md:gap-4 lg:gap-5">
             {desktopVisibleItems.map((brand) => (
               <Link
                 aria-label={`Ver produtos da marca ${brand.name}`}
-                className="group relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-white p-5 sm:p-6 lg:p-7 shadow-[0_4px_20px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-1.5 hover:border-[#004CB1]/30 hover:shadow-[0_12px_30px_rgba(0,76,177,0.14)]"
+                className="group relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-full border border-slate-200/80 bg-white p-5 sm:p-6 lg:p-7 shadow-[0_6px_22px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-1.5 hover:border-[#004CB1]/40 hover:shadow-[0_14px_32px_rgba(0,76,177,0.18)]"
                 href={brand.linkUrl || `/marca/${brand.slug}`}
                 key={`desk-${brand.id}`}
                 onClick={(e) => {

@@ -20,7 +20,7 @@
     - A seção "Compre por Marca" foi reposicionada para ficar alocada imediatamente abaixo da seção de Banners Triplos 01 (`s05-triple-banners-1`) e logo acima de Mais Vendidos (`s06-mais-vendidos`), assumindo a ordem 6 canônica em `home-configuration.ts`, `home-composition.json` e no PostgreSQL Neon oficial (`SiteConfiguration.homeComposition`).
   - **Redesign Visual Circular 100% Fiel ao Mockup:**
     - Cabeçalho com ícone Tag vermelho rotacionado a -45° (`Tag`), divisor vertical fino, título em azul marinho (`text-[#001A49]`), subtítulo `"As principais marcas em embalagens, descartáveis e muito mais."` e botão pill azul no topo direito `"Ver todas as marcas →"`.
-    - Cards de marcas 100% circulares (`rounded-full aspect-square bg-white border border-slate-100 shadow-[0_4px_20px_rgba(15,23,42,0.06)]`) com logotipos das marcas centralizados em destaque.
+    - Container transparente sem card de fundo branco, permitindo que exclusivamente as bolas circulares (`rounded-full aspect-square bg-white border border-slate-200/80 shadow-[0_6px_22px_rgba(15,23,42,0.08)]`) flutuem em contraste limpo com o fundo da loja.
     - Exibição de 6 marcas na página 1 idênticas ao mockup: `Lanchero`, `Fasapel`, `Segplast`, `Ultra Descartáveis`, `Knauf` e `Plasan`.
     - Setas circulares brancas laterais e paginação discreta de 3 bolinhas abaixo com sincronização mobile/desktop.
   - **Validação Global:** 51/51 testes do Storefront aprovados (253 testes verdes), typecheck limpo com 0 erros e banco Neon sincronizado.
