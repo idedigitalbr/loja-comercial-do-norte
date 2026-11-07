@@ -18,7 +18,7 @@ export const DEFAULT_LOCATION: UserLocation = {
   city: 'Belém',
   state: 'PA',
   formatted: 'Região de Belém - PA',
-  shortLabel: 'Região de Belém/PA',
+  shortLabel: 'Informe seu CEP',
   source: 'default',
 };
 
@@ -108,7 +108,12 @@ export function getStoredLocation(): UserLocation | null {
     const rawLocal = window.localStorage.getItem(LOCATION_STORAGE_KEY);
     if (rawLocal) {
       const parsed = JSON.parse(rawLocal);
-      if (parsed && parsed.city && parsed.state) {
+      if (
+        parsed &&
+        (parsed.city || parsed.shortLabel) &&
+        parsed.source !== 'ip' &&
+        parsed.source !== 'default'
+      ) {
         return parsed as UserLocation;
       }
     }
@@ -120,7 +125,12 @@ export function getStoredLocation(): UserLocation | null {
     const match = document.cookie.match(new RegExp(`(?:^|; )${LOCATION_STORAGE_KEY}=([^;]*)`));
     if (match && match[1]) {
       const parsed = JSON.parse(decodeURIComponent(match[1]));
-      if (parsed && parsed.city && parsed.state) {
+      if (
+        parsed &&
+        (parsed.city || parsed.shortLabel) &&
+        parsed.source !== 'ip' &&
+        parsed.source !== 'default'
+      ) {
         return parsed as UserLocation;
       }
     }
@@ -132,10 +142,40 @@ export function getStoredLocation(): UserLocation | null {
 }
 
 /**
+ * Remove a localização gravada no localStorage e cookie e notifica a aplicação
+ */
+export function clearStoredLocation(): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    window.localStorage.removeItem(LOCATION_STORAGE_KEY);
+  } catch {
+    // Falha silenciosa
+  }
+
+  try {
+    document.cookie = `${LOCATION_STORAGE_KEY}=; path=/; max-age=0; SameSite=Lax`;
+  } catch {
+    // Falha silenciosa
+  }
+
+  try {
+    window.dispatchEvent(new CustomEvent('cn-location-changed', { detail: DEFAULT_LOCATION }));
+  } catch {
+    // Falha silenciosa
+  }
+}
+
+/**
  * Grava a localização no localStorage e cookie (válido por 1 ano)
  */
 export function saveStoredLocation(loc: UserLocation): void {
   if (typeof window === 'undefined') return;
+
+  if (loc.source === 'default') {
+    clearStoredLocation();
+    return;
+  }
 
   try {
     window.localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(loc));

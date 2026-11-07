@@ -7,6 +7,22 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **07/11/2026 — Eliminação de "Região Belém/PA" Automática no Cabeçalho, "Informe seu CEP" como Padrão e GPS com Bairro Real via Nominatim (executorId: `antigravity-gemini`):**
+  - **Eliminação de "Região Belém/PA" Automática no Cabeçalho:**
+    - O cabeçalho exibia "Enviar para Região de Belém/PA" automaticamente para novos visitantes e em abas anônimas devido ao overwrite do `detectLocationByIp()` e ao fallback estático do `DEFAULT_LOCATION`.
+    - Atualizado o `DEFAULT_LOCATION.shortLabel` para `'Informe seu CEP'` (estilo Mercado Livre / Magazine Luiza).
+    - Removida a sobreposição silenciosa por IP em `LocationProvider`.
+    - Localizações legadas com `source === 'ip'` ou `source === 'default'` gravadas em cookies ou localStorage são ignoradas em `getStoredLocation()`.
+  - **Solicitação Automática de Geolocalização com Bairro Real via Nominatim:**
+    - Ao carregar o site para novos visitantes, o sistema solicita a permissão nativa de geolocalização do navegador (`navigator.geolocation.getCurrentPosition`).
+    - Se o usuário permitir com 1 clique, o OpenStreetMap Nominatim resolve com precisão o bairro real (ex: `Pedreira, Belém/PA`, `São Brás, Belém/PA`, `Jurunas, Belém/PA`), gravando com `source: 'gps'`.
+    - Se o usuário recusar ou ignorar, o cabeçalho permanece estritamente em `Enviar para Informe seu CEP`, sem palpites artificiais.
+  - **Eliminação de CEP Falso de IP (`66020-250`) e Botão X de Limpeza:**
+    - Modal de CEP abre 100% limpo em abas anônimas, sem nenhum card de entrega pré-selecionado.
+    - Adicionado botão interativo `X` para limpar o CEP digitado e botão `Remover localização salva` com `clearStoredLocation()`.
+  - **Validação:**
+    - 51/51 arquivos de teste aprovados (252 testes), typecheck e lint 100% limpos.
+
 - **07/11/2026 — Eliminação de CEP Falso de Telecom no Modal em Abas Anônimas e Botão X de Limpeza Rápida (executorId: `antigravity-gemini`):**
   - **Eliminação de CEP Falso de IP (`66020-250`):**
     - Identificado que a detecção de localização por IP (`ipwho.is` e headers Vercel) retornava o CEP da central do provedor de internet (`66020-250`), pré-preenchendo indevidamente o modal de CEP mesmo para visitantes novos ou em abas anônimas.

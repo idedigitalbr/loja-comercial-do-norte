@@ -1,5 +1,11 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **07/11/2026 — Eliminação de "Região Belém/PA" Automática no Cabeçalho, "Informe seu CEP" como Padrão e GPS com Bairro Real via Nominatim (executorId: `antigravity-gemini`):**
+  - **Cabeçalho Limpo:** Cabeçalho inicia como "Enviar para Informe seu CEP" sem forçar "Região de Belém/PA".
+  - **Solicitação de GPS Nativo:** Ao entrar no site, solicita permissão nativa de geolocalização. Ao permitir, resolve o bairro real via Nominatim (ex: `Pedreira, Belém/PA`). Ao negar, permanece com `Informe seu CEP`.
+  - **Limpeza de Armazenamento:** Adicionado `clearStoredLocation()` e desconsideração de `source: 'ip'` em localStorage/cookies.
+  - **Validação:** 51/51 testes aprovados (252 testes), typecheck e lint 100% limpos.
+
 - **07/11/2026 — Eliminação de CEP Falso de Telecom no Modal em Abas Anônimas e Botão X de Limpeza Rápida (executorId: `antigravity-gemini`):**
   - **Eliminação de CEP Falso de Provedor (`66020-250`):** Detecção automática de geolocalização por IP (`/api/location` e `ipwho.is`) agora define `cep: ''` estritamente, evitando injeção indevida do CEP da central de telefonia no modal em abas anônimas ou visitas limpas.
   - **Inicialização Limpa do Modal de CEP:** `PostalCodeModal` verifica se há um CEP genuíno (inserido manualmente pelo usuário ou via GPS). Se for IP ou default, o campo abre vazio com placeholder `Digite seu CEP (ex: 66080-650)`.

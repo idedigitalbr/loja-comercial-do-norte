@@ -212,7 +212,7 @@ export function SiteHeader({
                   Enviar para
                 </span>
                 <div className="flex items-center gap-1">
-                  <span className="font-bold truncate text-white max-w-[145px]">
+                  <span className="font-bold truncate text-white max-w-[160px]">
                     {location.shortLabel}
                   </span>
                   <ChevronDown className="size-3 text-white/70 transition-transform group-hover:translate-y-0.5 shrink-0" />
@@ -325,7 +325,7 @@ export function SiteHeader({
             onClick={openModal}
             type="button"
           >
-            Trocar CEP
+            {location.source !== 'default' ? 'Trocar CEP' : 'Informar CEP'}
           </button>
         </div>
 
@@ -575,7 +575,7 @@ export function SiteHeader({
                   }}
                   type="button"
                 >
-                  Alterar
+                  {location.source !== 'default' ? 'Alterar' : 'Informar'}
                 </button>
               </div>
             </div>

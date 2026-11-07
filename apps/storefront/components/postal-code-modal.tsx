@@ -14,6 +14,7 @@ import {
 import {
   BRAZIL_STATES,
   DEFAULT_LOCATION,
+  clearStoredLocation,
   formatCep,
   cleanCep,
   lookupLocationByAddress,
@@ -83,11 +84,12 @@ export function PostalCodeModal() {
 
   // Redefine a localização para a padrão (exclui o CEP salvo)
   function handleResetLocation() {
+    clearStoredLocation();
     setLocation(DEFAULT_LOCATION);
     setCepInput('');
     setResolvedLocation(null);
     setCepError(null);
-    setSuccessMessage('Localização redefinida para a região padrão.');
+    setSuccessMessage('Localização redefinida.');
     setTimeout(() => {
       closeModal();
     }, 600);
@@ -446,14 +448,14 @@ export function PostalCodeModal() {
               )}
 
               {/* Opção para remover CEP e voltar ao padrão */}
-              {Boolean(location?.cep && (location.source === 'manual' || location.source === 'gps')) && (
+              {Boolean((location?.source === 'manual' || location?.source === 'gps')) && (
                 <div className="text-center pt-1">
                   <button
                     className="text-[11.5px] font-medium text-slate-500 hover:text-rose-600 hover:underline transition cursor-pointer"
                     onClick={handleResetLocation}
                     type="button"
                   >
-                    Remover CEP salvo e restaurar região padrão
+                    Remover localização salva
                   </button>
                 </div>
               )}

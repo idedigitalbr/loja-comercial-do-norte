@@ -9,8 +9,9 @@ import React, {
 } from 'react';
 import {
   DEFAULT_LOCATION,
-  detectLocationByIp,
+  clearStoredLocation,
   getStoredLocation,
+  reverseGeocodeCoordinates,
   saveStoredLocation,
   type UserLocation,
 } from '../lib/location';
@@ -32,25 +33,41 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Inicializa a partir do localStorage / cookie ao montar no cliente
-  // Caso o visitante ainda não tenha definido uma localização manual, detecta automaticamente pelo IP (estilo Magazine Luiza)
+  // Se ainda não houver localização salva, solicita permissão nativa de GPS ao entrar no site
   useEffect(() => {
     let isCancelled = false;
     const stored = getStoredLocation();
 
-    if (stored) {
+    if (stored && stored.source !== 'default' && stored.source !== 'ip') {
       setLocationState(stored);
       setIsHydrated(true);
     } else {
       setIsHydrated(true);
-      void detectLocationByIp().then((autoLoc) => {
-        if (isCancelled || !autoLoc) return;
-        // Só aplica a localização automática se o usuário não tiver salvo outra manualmente enquanto buscava
-        const latestStored = getStoredLocation();
-        if (!latestStored || latestStored.source === 'ip' || latestStored.source === 'default') {
-          setLocationState(autoLoc);
-          saveStoredLocation(autoLoc);
-        }
-      });
+      // Solicita a localização do navegador (GPS de alta precisão com OpenStreetMap/Nominatim para identificar o bairro real)
+      if (typeof window !== 'undefined' && 'geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            if (isCancelled) return;
+            try {
+              const { latitude, longitude } = pos.coords;
+              const fullLoc = await reverseGeocodeCoordinates(latitude, longitude);
+              if (!isCancelled && fullLoc) {
+                const latestStored = getStoredLocation();
+                if (!latestStored || latestStored.source === 'default' || latestStored.source === 'ip') {
+                  setLocationState(fullLoc);
+                  saveStoredLocation(fullLoc);
+                }
+              }
+            } catch {
+              // Permanece com 'Informe seu CEP'
+            }
+          },
+          () => {
+            // Permissão negada ou ignorada: permanece com 'Informe seu CEP'
+          },
+          { timeout: 8000, enableHighAccuracy: true }
+        );
+      }
     }
 
     function handleLocationChange(e: Event) {
@@ -68,6 +85,11 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const setLocation = useCallback((newLoc: UserLocation) => {
+    if (newLoc.source === 'default') {
+      setLocationState(DEFAULT_LOCATION);
+      clearStoredLocation();
+      return;
+    }
     const manualLoc: UserLocation = {
       ...newLoc,
       source: newLoc.source || 'manual',
