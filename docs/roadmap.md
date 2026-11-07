@@ -1,5 +1,23 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **06/11/2026 — Reorganização do Botão Alterar Dados no Chat do Nort e Badge de Unidade com Menu Seletivo e Sincronização no Site (executorId: `antigravity-gemini`):**
+  - **Botão "Alterar meus dados" dentro de "Site / Loja Virtual":**
+    - Removido o botão avulso do rodapé das categorias no chat do Nort.
+    - A opção `"✏️ Alterar meus dados (Nome / WhatsApp)"` foi transferida e organizada como o primeiro item da categoria sanfona **"🌐 Site / Loja Virtual"**, mantendo a interface limpa e focada nas 3 categorias principais.
+  - **Badge de Unidade de Atendimento no Cabeçalho do Chat:**
+    - Posicionado no topo do chat, imediatamente à esquerda do botão de engrenagem (configurações), exibindo o ícone `📍` e o nome da unidade atual (ex: `📍 Bernardo Sayão (Jurunas)` ou `📍 Unidade Cidade Nova (Ananindeua)`).
+    - O badge permanece visível assim que uma unidade é selecionada ou ativada no fluxo de atendimento.
+  - **Menu Seletivo de Troca Rápida de Unidade:**
+    - Ao clicar no badge, abre-se uma janela/modal de seleção de unidade dentro do chat.
+    - No topo do seletor, destaca o card informativo canônico:
+      `Seu atendimento atual é para a unidade: [Nome da Unidade] ([Endereço])` (ex: `Unidade Cidade Nova (Ananindeua-PA) (Tv. WE-59, 138)`).
+    - Apresenta todas as unidades da Comercial do Norte com endereço, horários e indicação da unidade atual.
+    - Ao selecionar uma nova loja, o atendimento é atualizado, uma confirmação é registrada no chat e no lead do CRM, e o modal fecha.
+  - **Sincronização Automática com o Cabeçalho do Site (`LocationProvider`):**
+    - Sempre que o Nort define ou altera a unidade física (seja por bairro, CEP, proximidade ou pelo seletor rápido), o local é sincronizado instantaneamente com o cabeçalho do site (`location.shortLabel`, ex: `Cidade Nova, Ananindeua/PA` / `Cidade Nova, Ananinde...`), mantendo a loja e o chat 100% integrados em tempo real.
+  - **Validação:**
+    - 51/51 arquivos de teste do Storefront aprovados (252 testes, incluindo `nort-chat-floating.spec.tsx`), typecheck limpo com 0 erros.
+
 - **06/11/2026 — Eliminação de Atalhos Artificiais de Entrega Frequente no Modal de CEP e Refinamento de Bairros no Chat (executorId: `antigravity-gemini`):**
   - **Eliminação Definitiva de Atalhos Artificiais de Regiões Frequentes (`PostalCodeModal` / `location.ts`):**
     - Extinta a seção e constante de atalhos artificiais (`QUICK_LOCATIONS` / *"Regiões Frequentes (Comercial do Norte)"*).

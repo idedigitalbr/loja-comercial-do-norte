@@ -33,6 +33,8 @@ import {
   findNearestStoreByNeighborhoodOrCep,
   formatBrazilPhoneMask,
   formatCepMask,
+  formatCurrentUnitDisplay,
+  storeToUserLocation,
   type StoreWithDistance,
 } from '../lib/stores-data';
 import {
@@ -400,6 +402,8 @@ export function NortChatFloating({
   const [cepError, setCepError] = useState('');
   const [pendingStoreId, setPendingStoreId] = useState<string>(DEFAULT_STORE.id);
   const [selectedStore, setSelectedStore] = useState<CommercialStore>(DEFAULT_STORE);
+  const [isUnitSelectorOpen, setIsUnitSelectorOpen] = useState(false);
+  const [isStoreActivated, setIsStoreActivated] = useState(false);
   const [autoSuggestedStore, setAutoSuggestedStore] = useState<CommercialStore>(DEFAULT_STORE);
   const [nearbyStores, setNearbyStores] = useState<StoreWithDistance[]>([]);
   const [previousSession, setPreviousSession] = useState<StoredNortSession | null>(null);
@@ -741,6 +745,7 @@ export function NortChatFloating({
       setCustomerPhone(localSession.customerPhone || '');
       setSelectedStore(findStoreById(localSession.selectedStoreId));
       setPendingStoreId(localSession.selectedStoreId || DEFAULT_STORE.id);
+      setIsStoreActivated(true);
       setChosenSubject(localSession.chosenSubject || '');
       setHasRestoredSession(true);
 
@@ -801,7 +806,9 @@ export function NortChatFloating({
             setCustomerName(lead.customerName);
             setCustomerPhone(lead.customerPhone || '');
             setSelectedStore(restoredStore);
-            setPendingStoreId(restoredStore.id);
+    setPendingStoreId(restoredStore.id);
+    setIsStoreActivated(true);
+    syncHeaderLocation(storeToUserLocation(restoredStore));
             setChosenSubject(lead.subject || '');
             setHasRestoredSession(true);
 
@@ -1023,6 +1030,8 @@ export function NortChatFloating({
     const restoredStore = findStoreById(previousSession.selectedStoreId);
     setSelectedStore(restoredStore);
     setPendingStoreId(restoredStore.id);
+    setIsStoreActivated(true);
+    syncHeaderLocation(storeToUserLocation(restoredStore));
     setChosenSubject(previousSession.chosenSubject || '');
     setMessages(previousSession.messages);
     updateActiveTicketMessages(previousSession.messages);
@@ -1204,6 +1213,9 @@ export function NortChatFloating({
     if (optionalLocationCtx?.setLocation) {
       optionalLocationCtx.setLocation(loc);
     }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cn-location-changed', { detail: loc }));
+    }
   }
 
   async function handleFindNearestUnit() {
@@ -1355,6 +1367,7 @@ export function NortChatFloating({
 
     const store = findStoreById(item.storeId);
     setSelectedStore(store);
+    setIsStoreActivated(true);
 
     const newLoc: UserLocation = {
       cep: item.cep,
@@ -1400,6 +1413,8 @@ export function NortChatFloating({
   function handleSelectNearbyStore(store: StoreWithDistance | CommercialStore) {
     if (isTyping) return;
     setSelectedStore(store);
+    setIsStoreActivated(true);
+    syncHeaderLocation(storeToUserLocation(store));
 
     const userMsg: ChatMessage = {
       id: `user-choose-${Date.now()}`,
@@ -1510,6 +1525,7 @@ export function NortChatFloating({
     setMessages(nextMessages);
     updateActiveTicketMessages(nextMessages);
     setSelectedStore(nearest);
+    setIsStoreActivated(true);
     setStep('SERVICE');
     setExpandedCategory(null);
 
@@ -1540,6 +1556,8 @@ export function NortChatFloating({
   function confirmStoreSelection(store: CommercialStore, customPrefix?: string) {
     if (isTyping) return;
     setSelectedStore(store);
+    setIsStoreActivated(true);
+    syncHeaderLocation(storeToUserLocation(store));
 
     const userMsg: ChatMessage = {
       id: `user-store-${Date.now()}`,
@@ -2028,8 +2046,14 @@ export function NortChatFloating({
       id: 'site',
       icon: '🌐',
       title: 'Site / Loja Virtual',
-      subtitle: 'Alterar CEP, login e senha, tour guiado',
+      subtitle: 'Alterar dados, CEP, login e tour',
       items: [
+        {
+          id: 'alterar-dados',
+          label: 'Alterar meus dados (Nome / WhatsApp)',
+          icon: '✏️',
+          onClick: handleOpenEditData,
+        },
         {
           id: 'mudar-cep',
           label: 'Quero ajuda para mudar meu CEP de entrega',
@@ -2104,6 +2128,53 @@ export function NortChatFloating({
         return 'Configurações';
     }
   }
+  function handleSwitchStoreFromBadge(store: CommercialStore) {
+    setSelectedStore(store);
+    setPendingStoreId(store.id);
+    setIsStoreActivated(true);
+    syncHeaderLocation(storeToUserLocation(store));
+
+    const userMsg: ChatMessage = {
+      id: `user-unit-switch-${Date.now()}`,
+      sender: 'user',
+      text: `🏬 Trocar atendimento para ${store.shortTitle}`,
+      time: getFormattedTime(),
+    };
+    const botConfirmMsg: ChatMessage = {
+      id: `bot-unit-switch-${Date.now() + 1}`,
+      sender: 'bot',
+      text: `Perfeito! Atualizei seu atendimento para a ${store.shortTitle} (${store.address}).`,
+      time: getFormattedTime(),
+    };
+    const nextMessages = [...messages, userMsg, botConfirmMsg];
+    setMessages(nextMessages);
+    updateActiveTicketMessages(nextMessages);
+
+    recordTicketEvent(
+      'select_unit',
+      'Unidade alterada pelo seletor rápido no topo',
+      store.shortTitle,
+      step
+    );
+
+    void registerLeadToCRM({
+      name: customerName || 'Cliente Site',
+      phone: customerPhone || '(91) 98344-0880',
+      store,
+      subject: `Unidade alterada para ${store.shortTitle}`,
+      allMessages: nextMessages,
+    });
+
+    setIsUnitSelectorOpen(false);
+  }
+
+  const currentUnitDisplay = formatCurrentUnitDisplay(selectedStore);
+  const showStoreBadge =
+    isStoreActivated ||
+    step === 'SERVICE' ||
+    step === 'FINISHED' ||
+    step === 'EDIT_DATA' ||
+    (Boolean(previousSession) && step !== 'IDENTIFY' && step !== 'UNIT_MODE');
 
   return (
     <>
@@ -2248,19 +2319,35 @@ export function NortChatFloating({
                   </div>
                 </div>
 
-                {/* ÚNICO BOTÃO NO CANTO SUPERIOR DIREITO DO CABEÇALHO: CONFIGURAÇÕES E HISTÓRICO (SEÇÃO 3) */}
-                <button
-                  aria-label="Configurações e atendimentos"
-                  className="flex size-8.5 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer shrink-0"
-                  onClick={() => {
-                    setSidebarView('menu');
-                    setIsSidebarOpen(true);
-                  }}
-                  title="Configurações e atendimentos"
-                  type="button"
-                >
-                  <Settings className="size-5" />
-                </button>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {showStoreBadge && (
+                    <button
+                      aria-label={`Unidade de atendimento: ${selectedStore.shortTitle}. Clique para trocar.`}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#0B8E69] hover:bg-[#097758] active:bg-[#075844] border border-white/25 text-[#FFFFFF] text-[11px] font-semibold transition cursor-pointer max-w-[130px] sm:max-w-[175px] shrink shadow-xs group"
+                      onClick={() => setIsUnitSelectorOpen(true)}
+                      title={`Seu atendimento atual é para a unidade: ${currentUnitDisplay.full}`}
+                      type="button"
+                    >
+                      <span className="text-[11px] shrink-0">📍</span>
+                      <span className="truncate">{selectedStore.shortTitle}</span>
+                      <ChevronDown className="size-3 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                  )}
+
+                  {/* ÚNICO BOTÃO NO CANTO SUPERIOR DIREITO DO CABEÇALHO: CONFIGURAÇÕES E HISTÓRICO (SEÇÃO 3) */}
+                  <button
+                    aria-label="Configurações e atendimentos"
+                    className="flex size-8.5 items-center justify-center rounded-full text-[#FFFFFF] hover:bg-[#0B8E69] transition cursor-pointer shrink-0"
+                    onClick={() => {
+                      setSidebarView('menu');
+                      setIsSidebarOpen(true);
+                    }}
+                    title="Configurações e atendimentos"
+                    type="button"
+                  >
+                    <Settings className="size-5" />
+                  </button>
+                </div>
               </header>
 
               {/* ÁREA DE MENSAGENS COM WALLPAPER CLÁSSICO DO WHATSAPP */}
@@ -2639,11 +2726,7 @@ export function NortChatFloating({
                       })}
                     </div>
 
-                    <div className="pt-0.5">
-                      <QuickReplyButton onClick={handleOpenEditData}>
-                        ✏️ Alterar meus dados (Nome / WhatsApp)
-                      </QuickReplyButton>
-                    </div>
+
                   </div>
                 )}
 
@@ -3246,6 +3329,8 @@ export function NortChatFloating({
                               const chosen = findStoreById(e.target.value);
                               setSelectedStore(chosen);
                               setPendingStoreId(chosen.id);
+                              setIsStoreActivated(true);
+                              syncHeaderLocation(storeToUserLocation(chosen));
                             }}
                             value={selectedStore.id}
                           >
@@ -3327,7 +3412,109 @@ export function NortChatFloating({
                   )}
                 </div>
               </div>
-            </section>
+            
+              {/* MODAL SELETIVO DE TROCA RÁPIDA DE UNIDADE (ACIONADO PELO BADGE SUPERIOR) */}
+              {isUnitSelectorOpen && (
+                <div
+                  aria-label="Trocar unidade de atendimento"
+                  aria-modal="true"
+                  className="absolute inset-0 z-30 bg-[#111B21]/60 backdrop-blur-xs flex flex-col justify-end sm:justify-center p-0 sm:p-3 animate-in fade-in duration-150"
+                  role="dialog"
+                >
+                  <div className="bg-[#FFFFFF] rounded-t-[18px] sm:rounded-[16px] shadow-2xl border border-[#D1D7DB] max-h-[90%] flex flex-col overflow-hidden animate-in slide-in-from-bottom-3 duration-200">
+                    <div className="px-3.5 py-2.5 bg-[#075844] text-[#FFFFFF] flex items-center justify-between shrink-0">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-[15px]">🏬</span>
+                        <span className="text-[13px] font-bold truncate">
+                          Trocar unidade de atendimento
+                        </span>
+                      </div>
+                      <button
+                        aria-label="Fechar seletor de unidade"
+                        className="size-7 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                        onClick={() => setIsUnitSelectorOpen(false)}
+                        type="button"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </div>
+
+                    <div className="p-3.5 space-y-3 overflow-y-auto">
+                      <div className="rounded-[10px] bg-[#E0FBD4] p-3 border border-[#00A884]/40 text-[#075844]">
+                        <span className="block text-[11px] font-bold uppercase tracking-wide text-[#075844]">
+                          Seu atendimento atual é para a unidade:
+                        </span>
+                        <span className="block text-[12.5px] font-extrabold text-[#111B21] mt-0.5 leading-snug">
+                          {currentUnitDisplay.full}
+                        </span>
+                      </div>
+
+                      <p className="text-[11.5px] text-[#54656F] font-medium px-0.5">
+                        Escolha a unidade que prefere para continuar seu atendimento:
+                      </p>
+
+                      <div className="space-y-1.5 max-h-[260px] overflow-y-auto pr-0.5">
+                        {COMMERCIAL_STORES.map((st) => {
+                          const isCurrent = st.id === selectedStore.id;
+                          return (
+                            <button
+                              key={st.id}
+                              className={`w-full text-left p-2.5 rounded-[10px] transition cursor-pointer flex items-start justify-between gap-2 border ${
+                                isCurrent
+                                  ? 'bg-[#E0FBD4]/60 border-[#00A884] shadow-xs'
+                                  : 'bg-[#FFFFFF] hover:bg-[#F8FAFC] border-[#E2E8F0]'
+                              }`}
+                              onClick={() => handleSwitchStoreFromBadge(st)}
+                              type="button"
+                            >
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="text-[12.5px] font-bold text-[#111B21] truncate">
+                                    {st.shortTitle}
+                                  </span>
+                                  {isCurrent && (
+                                    <span className="text-[9.5px] bg-[#00A884] text-white font-bold px-1.5 py-0.5 rounded-full">
+                                      Unidade atual
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="block text-[11px] text-[#667781] truncate mt-0.5">
+                                  {st.address}
+                                </span>
+                                <span className="block text-[10px] text-[#8696A0] mt-0.5">
+                                  🕒 {st.hours}
+                                </span>
+                              </div>
+                              <div className="pt-1 shrink-0">
+                                {isCurrent ? (
+                                  <span className="size-5 rounded-full bg-[#00A884] text-white flex items-center justify-center text-[11px] font-bold">
+                                    ✓
+                                  </span>
+                                ) : (
+                                  <span className="size-5 rounded-full border border-[#D1D7DB] flex items-center justify-center text-[10px] text-[#8696A0]">
+                                    ›
+                                  </span>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="pt-1 border-t border-[#F1F3F4]">
+                        <button
+                          className="w-full rounded-[8px] border border-[#CBD5E1] bg-[#F8FAFC] hover:bg-[#E2E8F0] text-[#334155] font-semibold text-[12px] py-2 px-3 text-center transition cursor-pointer"
+                          onClick={() => setIsUnitSelectorOpen(false)}
+                          type="button"
+                        >
+                          Manter unidade atual
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+</section>
           </div>
         </div>
       )}

@@ -393,3 +393,61 @@ export function buildWhatsAppLink(phone: string, text: string): string {
   const digits = phone.replace(/\D/g, '') || DEFAULT_STORE.whatsappDigits;
   return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
 }
+
+
+export function formatCurrentUnitDisplay(store: CommercialStore): {
+  title: string;
+  street: string;
+  full: string;
+} {
+  const street = store.address.includes('—')
+    ? store.address.split('—')[0].trim()
+    : store.address;
+  const isAnanindeua =
+    store.id === 'loja-cidade-nova' ||
+    store.address.toLowerCase().includes('ananindeua') ||
+    store.neighborhood.toLowerCase().includes('ananindeua');
+  const cityUf = isAnanindeua ? 'Ananindeua-PA' : 'Belém-PA';
+
+  let title = store.shortTitle;
+  if (store.id === 'loja-cidade-nova' || title.includes('Ananindeua')) {
+    title = title.replace('Ananindeua', 'Ananindeua-PA');
+  } else if (!title.includes('(')) {
+    title = `${title} (${cityUf})`;
+  }
+
+  return {
+    title,
+    street,
+    full: `${title} (${street})`,
+  };
+}
+
+export function storeToUserLocation(store: CommercialStore) {
+  const isAnanindeua =
+    store.id === 'loja-cidade-nova' ||
+    store.address.toLowerCase().includes('ananindeua') ||
+    store.neighborhood.toLowerCase().includes('ananindeua');
+  const city = isAnanindeua ? 'Ananindeua' : 'Belém';
+  const state = 'PA';
+
+  const cleanNeighborhood =
+    store.neighborhood
+      .replace(/\s*\(.*?\)/g, '')
+      .split('/')[0]
+      .trim() || store.neighborhood;
+
+  const shortLabel = `${cleanNeighborhood}, ${city}/${state}`;
+
+  return {
+    cep: `${store.cepPrefix}000`,
+    neighborhood: cleanNeighborhood,
+    city,
+    state,
+    formatted: store.address,
+    shortLabel,
+    lat: store.lat,
+    lng: store.lng,
+    source: 'manual' as const,
+  };
+}

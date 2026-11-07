@@ -198,11 +198,42 @@ export function CatalogSidebar({
   const currentOrdem = searchParams.get("ordem") ?? "";
   const currentOferta = searchParams.get("oferta") === "1" || searchParams.get("promocao") === "1";
   const currentEntrega = searchParams.get("entrega") ?? "";
-  const currentMarca = activeBrandSlug ?? searchParams.get("marca") ?? "";
   const currentAvaliacao = searchParams.get("avaliacao") ?? "";
-  const currentTag = activeTagSlug ?? searchParams.get("tag") ?? "";
   const precoMin = searchParams.get("precoMin") ? Number(searchParams.get("precoMin")) : undefined;
   const precoMax = searchParams.get("precoMax") ? Number(searchParams.get("precoMax")) : undefined;
+
+  // Filtros selecionados em formato de lista (multi-select)
+  const selectedBrands = useMemo(() => {
+    const raw = searchParams.get("marca") ?? activeBrandSlug ?? "";
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }, [searchParams, activeBrandSlug]);
+
+  const selectedCategories = useMemo(() => {
+    const raw = searchParams.get("categoria") ?? activeCategorySlug ?? "";
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }, [searchParams, activeCategorySlug]);
+
+  const selectedSegments = useMemo(() => {
+    const raw = searchParams.get("segmento") ?? activeSegmentSlug ?? "";
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }, [searchParams, activeSegmentSlug]);
+
+  const selectedTags = useMemo(() => {
+    const raw = searchParams.get("tag") ?? activeTagSlug ?? "";
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }, [searchParams, activeTagSlug]);
 
   // Processa hierarquia de categorias
   const processedCategories = useMemo(() => {
@@ -235,13 +266,28 @@ export function CatalogSidebar({
   const [expandedBrands, setExpandedBrands] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    if (!currentMarca) return;
+    if (selectedBrands.length === 0) return;
     for (const root of availableBrands) {
-      if (root.slug === currentMarca || root.children?.some((c) => c.slug === currentMarca)) {
+      if (
+        selectedBrands.includes(root.slug) ||
+        root.children?.some((c) => selectedBrands.includes(c.slug))
+      ) {
         setExpandedBrands((prev) => ({ ...prev, [root.slug]: true }));
       }
     }
-  }, [currentMarca, availableBrands]);
+  }, [selectedBrands, availableBrands]);
+
+  useEffect(() => {
+    if (selectedCategories.length === 0) return;
+    for (const cat of processedCategories) {
+      if (
+        selectedCategories.includes(cat.slug) ||
+        cat.subcategories?.some((s) => selectedCategories.includes(s.slug))
+      ) {
+        setExpandedCategories((prev) => ({ ...prev, [cat.id]: true }));
+      }
+    }
+  }, [selectedCategories, processedCategories]);
 
   function toggleBrandExpand(slug: string, e?: React.SyntheticEvent) {
     if (e) {

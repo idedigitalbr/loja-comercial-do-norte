@@ -564,8 +564,9 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
       vi.advanceTimersByTime(10000);
     });
 
-    // Na etapa de serviços, clica em "Alterar meus dados"
-    const editBtn = screen.getByText(/✏️ alterar meus dados/i);
+    // Na etapa de serviços, expande a categoria "Site / Loja Virtual" e clica em "Alterar meus dados"
+    fireEvent.click(screen.getByText(/site \/ loja virtual/i));
+    const editBtn = screen.getByText(/alterar meus dados/i);
     expect(editBtn).toBeDefined();
     fireEvent.click(editBtn);
 
@@ -905,4 +906,75 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
     fireEvent.click(discreetTourBtn);
     expect(mockStartTour).toHaveBeenCalled();
   });
+  it('exibe o badge da unidade no cabeçalho à esquerda da engrenagem e permite trocar de unidade pelo menu seletivo', () => {
+    vi.useFakeTimers();
+    render(<NortChatFloating whatsapp="5591983440880" />);
+
+    // Abre o chat
+    fireEvent.click(
+      screen.getByRole('button', { name: /abrir chat com o norti no whatsapp/i })
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(11000);
+    });
+
+    // Identificação
+    fireEvent.change(screen.getByPlaceholderText('Como posso te chamar?'), {
+      target: { value: 'Xilombo' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('(91) 99999-9999'), {
+      target: { value: '91988887777' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /continuar no chat/i }));
+
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    // Escolhe "Escolher uma unidade"
+    fireEvent.click(screen.getByText(/🏬 escolher uma unidade/i));
+    act(() => {
+      vi.advanceTimersByTime(7000);
+    });
+
+    // Confirma unidade selecionada
+    fireEvent.click(screen.getByRole('button', { name: /confirmar unidade selecionada/i }));
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    // 1. Badge no topo à esquerda da engrenagem está presente
+    const unitBadge = screen.getByRole('button', {
+      name: /unidade de atendimento:.*clique para trocar/i,
+    });
+    expect(unitBadge).toBeDefined();
+
+    // 2. Clica no badge para abrir o menu seletivo
+    fireEvent.click(unitBadge);
+
+    expect(screen.getByText(/seu atendimento atual é para a unidade:/i)).toBeDefined();
+
+    // 3. Escolhe a filial Cidade Nova na lista
+    const cidadeNovaBtn = screen.getByRole('button', {
+      name: /unidade cidade nova \(ananindeua\)/i,
+    });
+    expect(cidadeNovaBtn).toBeDefined();
+    fireEvent.click(cidadeNovaBtn);
+
+    // 4. Modal fecha e badge atualiza para Cidade Nova
+    expect(screen.queryByText(/escolha a unidade que prefere para continuar seu atendimento/i)).toBeNull();
+    expect(
+      screen.getByRole('button', {
+        name: /unidade de atendimento: unidade cidade nova \(ananindeua\)\. clique para trocar/i,
+      })
+    ).toBeDefined();
+
+    // 5. Chat exibe mensagens de troca de atendimento
+    expect(screen.getByText(/trocar atendimento para unidade cidade nova/i)).toBeDefined();
+    expect(
+      screen.getByText(/perfeito! atualizei seu atendimento para a unidade cidade nova/i)
+    ).toBeDefined();
+  });
+
 });
