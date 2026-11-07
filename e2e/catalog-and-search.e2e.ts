@@ -8,7 +8,7 @@ test('catalog renders the fixture product with a quote CTA',async({page})=>{
 });
 test('category filter changes the URL and selected heading',async({page})=>{
  await page.goto('/loja');
- await page.locator('a[href*="embalagens-teste"]').first().click();
+ await page.locator('button, a').filter({ hasText: 'Embalagens de Teste' }).first().click();
  await expect(page).toHaveURL(/embalagens-teste/);
  await expect(page.getByRole('heading',{level:1})).toHaveText('Embalagens de Teste');
 });

@@ -79,7 +79,7 @@ function start() {
   // `postgres` roda em foreground; aqui ele vira processo destacado com log em arquivo.
   const log = openSync(logFile, 'a');
   const child = spawn(binary('postgres'), ['-D', dataDir, '-p', port, '-c', 'listen_addresses=127.0.0.1'], {
-    detached: process.platform !== 'win32',
+    detached: true,
     windowsHide: true,
     stdio: ['ignore', log, log],
   });
