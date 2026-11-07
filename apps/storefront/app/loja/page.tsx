@@ -100,10 +100,22 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
     getBrands(),
   ]);
 
-  const activeCategory = categories.find((c) => c.slug === categoria);
-  const activeSegment = segments.find((s) => s.slug === segmento);
-  const activeTag = tags.find((t) => t.slug === tag);
-  const activeBrand = marca ? findBrandOrSubbrand(brands, marca)?.brand ?? brands.find((b) => b.slug === marca) : undefined;
+  const selectedBrandSlugs = marca ? marca.split(',').filter(Boolean) : [];
+  const selectedCategorySlugs = categoria ? categoria.split(',').filter(Boolean) : [];
+  const selectedSegmentSlugs = segmento ? segmento.split(',').filter(Boolean) : [];
+  const selectedTagSlugs = tag ? tag.split(',').filter(Boolean) : [];
+
+  const activeCategory =
+    selectedCategorySlugs.length === 1
+      ? categories.find((c) => c.slug === selectedCategorySlugs[0]) ??
+        categories.flatMap((c) => c.children ?? []).find((c) => c.slug === selectedCategorySlugs[0])
+      : undefined;
+  const activeSegment = selectedSegmentSlugs.length === 1 ? segments.find((s) => s.slug === selectedSegmentSlugs[0]) : undefined;
+  const activeTag = selectedTagSlugs.length === 1 ? tags.find((t) => t.slug === selectedTagSlugs[0]) : undefined;
+  const activeBrand =
+    selectedBrandSlugs.length === 1
+      ? findBrandOrSubbrand(brands, selectedBrandSlugs[0])?.brand ?? brands.find((b) => b.slug === selectedBrandSlugs[0])
+      : undefined;
 
   let items = result.items;
 
@@ -146,24 +158,36 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
   const pageTitle = isOferta
     ? activeCategory
       ? `Ofertas: ${activeCategory.name}`
-      : activeSegment
-        ? `Ofertas: ${activeSegment.name}`
-        : 'Ofertas do Dia'
+      : selectedCategorySlugs.length > 1
+        ? `Ofertas: ${selectedCategorySlugs.length} categorias`
+        : activeSegment
+          ? `Ofertas: ${activeSegment.name}`
+          : 'Ofertas do Dia'
     : isMaisVendidos
       ? activeCategory
         ? `Mais Vendidos: ${activeCategory.name}`
-        : activeSegment
-          ? `Mais Vendidos: ${activeSegment.name}`
-          : 'Mais Vendidos'
+        : selectedCategorySlugs.length > 1
+          ? `Mais Vendidos: ${selectedCategorySlugs.length} categorias`
+          : activeSegment
+            ? `Mais Vendidos: ${activeSegment.name}`
+            : 'Mais Vendidos'
       : activeSegment
         ? `Segmento: ${activeSegment.name}`
-        : activeCategory
-          ? activeCategory.name
-          : activeTag
-            ? `Tag: #${activeTag.name}`
-            : activeBrand
-              ? `Marca: ${activeBrand.name}`
-              : 'Catálogo completo';
+        : selectedSegmentSlugs.length > 1
+          ? `Segmentos: ${selectedSegmentSlugs.length} selecionados`
+          : activeCategory
+            ? activeCategory.name
+            : selectedCategorySlugs.length > 1
+              ? `Categorias: ${selectedCategorySlugs.length} selecionadas`
+              : activeTag
+                ? `Tag: #${activeTag.name}`
+                : selectedTagSlugs.length > 1
+                  ? `Tags: ${selectedTagSlugs.length} selecionadas`
+                  : activeBrand
+                    ? `Marca: ${activeBrand.name}`
+                    : selectedBrandSlugs.length > 1
+                      ? `Marcas: ${selectedBrandSlugs.length} selecionadas`
+                      : 'Catálogo completo';
 
   const breadcrumbs = isOferta
     ? [{ label: 'Ofertas do Dia' }]

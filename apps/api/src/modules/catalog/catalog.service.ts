@@ -72,6 +72,20 @@ const productRelations = {
   images: { orderBy: { sortOrder: 'asc' as const } },
 } as const;
 
+function parseFilterList(value: unknown): string[] {
+  if (!value) return [];
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => parseFilterList(item));
+  }
+  if (typeof value === 'string') {
+    return value
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
 @Injectable()
 export class CatalogService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
@@ -317,14 +331,14 @@ export class CatalogService {
 
   async listProducts(input: {
     search?: string;
-    brandId?: string;
-    categoryId?: string;
-    segmentId?: string;
-    tagId?: string;
-    segment?: string;
-    tag?: string;
-    brand?: string;
-    category?: string;
+    brandId?: string | string[];
+    categoryId?: string | string[];
+    segmentId?: string | string[];
+    tagId?: string | string[];
+    segment?: string | string[];
+    tag?: string | string[];
+    brand?: string | string[];
+    category?: string | string[];
     status?: RecordStatus | null;
   } = {}) {
     const where = await this.buildPublicWhere(input);
@@ -358,10 +372,10 @@ export class CatalogService {
    */
   async searchProducts(input: {
     search?: string;
-    brand?: string;
-    category?: string;
-    segment?: string;
-    tag?: string;
+    brand?: string | string[];
+    category?: string | string[];
+    segment?: string | string[];
+    tag?: string | string[];
     page?: number;
     pageSize?: number;
     sort?: 'newest' | 'name_asc' | 'mais_vendidos';
@@ -407,46 +421,143 @@ export class CatalogService {
   /** Filtro público compartilhado: nunca expõe produto fora de ACTIVE. */
   private async buildPublicWhere(input: {
     search?: string;
-    brandId?: string;
-    categoryId?: string;
-    segmentId?: string;
-    tagId?: string;
-    brand?: string;
-    category?: string;
-    segment?: string;
-    tag?: string;
+    brandId?: string | string[];
+    categoryId?: string | string[];
+    segmentId?: string | string[];
+    tagId?: string | string[];
+    brand?: string | string[];
+    category?: string | string[];
+    segment?: string | string[];
+    tag?: string | string[];
     status?: RecordStatus | null;
   }): Promise<Prisma.ProductWhereInput> {
-    const [brand, category, segment, tag] = await Promise.all([
-      input.brand || input.brandId
-        ? this.prisma.brand.findUnique({ where: input.brandId ? { id: input.brandId } : { slug: input.brand }, select: { id: true, children: { select: { id: true } } } })
-        : null,
-      input.category && !input.categoryId
-        ? this.prisma.category.findUnique({ where: { slug: input.category }, select: { id: true } })
-        : null,
-      input.segment && !input.segmentId
-        ? this.prisma.segment.findUnique({ where: { slug: input.segment }, select: { id: true } })
-        : null,
-      input.tag && !input.tagId
-        ? this.prisma.tag.findUnique({ where: { slug: input.tag }, select: { id: true } })
-        : null,
+    const brandSlugs = parseFilterList(input.brand);
+    const brandIds = parseFilterList(input.brandId);
+    const categorySlugs = parseFilterList(input.category);
+    const categoryIds = parseFilterList(input.categoryId);
+    const segmentSlugs = parseFilterList(input.segment);
+    const segmentIds = parseFilterList(input.segmentId);
+    const tagSlugs = parseFilterList(input.tag);
+    const tagIds = parseFilterList(input.tagId);
+
+    const resolveBrand = async (slugOrId: { slug?: string; id?: string }) => {
+      if (slugOrId.id) {
+        return this.prisma.brand.findUnique({
+          where: { id: slugOrId.id },
+          select: { id: true, children: { select: { id: true } } },
+        });
+      }
+      if (slugOrId.slug) {
+        return this.prisma.brand.findUnique({
+          where: { slug: slugOrId.slug },
+          select: { id: true, children: { select: { id: true } } },
+        });
+      }
+      return null;
+    };
+
+    const resolveCategory = async (slugOrId: { slug?: string; id?: string }) => {
+      if (slugOrId.id) {
+        return this.prisma.category.findUnique({
+          where: { id: slugOrId.id },
+          select: { id: true },
+        });
+      }
+      if (slugOrId.slug) {
+        return this.prisma.category.findUnique({
+          where: { slug: slugOrId.slug },
+          select: { id: true },
+        });
+      }
+      return null;
+    };
+
+    const resolveSegment = async (slugOrId: { slug?: string; id?: string }) => {
+      if (slugOrId.id) {
+        return this.prisma.segment.findUnique({
+          where: { id: slugOrId.id },
+          select: { id: true },
+        });
+      }
+      if (slugOrId.slug) {
+        return this.prisma.segment.findUnique({
+          where: { slug: slugOrId.slug },
+          select: { id: true },
+        });
+      }
+      return null;
+    };
+
+    const resolveTag = async (slugOrId: { slug?: string; id?: string }) => {
+      if (slugOrId.id) {
+        return this.prisma.tag.findUnique({
+          where: { id: slugOrId.id },
+          select: { id: true },
+        });
+      }
+      if (slugOrId.slug) {
+        return this.prisma.tag.findUnique({
+          where: { slug: slugOrId.slug },
+          select: { id: true },
+        });
+      }
+      return null;
+    };
+
+    const [brands, categories, segments, tags] = await Promise.all([
+      Promise.all([
+        ...brandIds.map((id) => resolveBrand({ id })),
+        ...brandSlugs.map((slug) => resolveBrand({ slug })),
+      ]),
+      Promise.all([
+        ...categoryIds.map((id) => resolveCategory({ id })),
+        ...categorySlugs.map((slug) => resolveCategory({ slug })),
+      ]),
+      Promise.all([
+        ...segmentIds.map((id) => resolveSegment({ id })),
+        ...segmentSlugs.map((slug) => resolveSegment({ slug })),
+      ]),
+      Promise.all([
+        ...tagIds.map((id) => resolveTag({ id })),
+        ...tagSlugs.map((slug) => resolveTag({ slug })),
+      ]),
     ]);
-    const resolvedBrandIds = brand ? [brand.id, ...(brand.children?.map((child) => child.id) ?? [])] : input.brand || input.brandId ? ['__unknown_brand__'] : [];
-    const categoryId = input.categoryId ?? (input.category ? category?.id : undefined);
-    const resolvedCategoryIds = categoryId
-      ? await this.categoryIdsWithDescendants(categoryId)
-      : input.category || input.categoryId
-        ? ['__unknown_category__']
-        : [];
-    const resolvedSegmentId = input.segmentId ?? (input.segment ? segment?.id : undefined);
-    const resolvedTagId = input.tagId ?? (input.tag ? tag?.id : undefined);
+
+    const validBrands = brands.filter((b): b is NonNullable<typeof b> => Boolean(b));
+    const resolvedBrandIds = Array.from(
+      new Set(validBrands.flatMap((b) => [b.id, ...(b.children?.map((child) => child.id) ?? [])]))
+    );
+    if ((brandSlugs.length > 0 || brandIds.length > 0) && resolvedBrandIds.length === 0) {
+      resolvedBrandIds.push('__unknown_brand__');
+    }
+
+    const validCategories = categories.filter((c): c is NonNullable<typeof c> => Boolean(c));
+    const allDescendantLists = await Promise.all(
+      validCategories.map((c) => this.categoryIdsWithDescendants(c.id))
+    );
+    const resolvedCategoryIds = Array.from(new Set(allDescendantLists.flat()));
+    if ((categorySlugs.length > 0 || categoryIds.length > 0) && resolvedCategoryIds.length === 0) {
+      resolvedCategoryIds.push('__unknown_category__');
+    }
+
+    const validSegments = segments.filter((s): s is NonNullable<typeof s> => Boolean(s));
+    const resolvedSegmentIds = Array.from(new Set(validSegments.map((s) => s.id)));
+    if ((segmentSlugs.length > 0 || segmentIds.length > 0) && resolvedSegmentIds.length === 0) {
+      resolvedSegmentIds.push('__unknown_segment__');
+    }
+
+    const validTags = tags.filter((t): t is NonNullable<typeof t> => Boolean(t));
+    const resolvedTagIds = Array.from(new Set(validTags.map((t) => t.id)));
+    if ((tagSlugs.length > 0 || tagIds.length > 0) && resolvedTagIds.length === 0) {
+      resolvedTagIds.push('__unknown_tag__');
+    }
 
     return {
       ...(input.status === undefined ? { status: RecordStatus.ACTIVE } : input.status ? { status: input.status } : {}),
       ...(resolvedBrandIds.length === 1 ? { brandId: resolvedBrandIds[0] } : resolvedBrandIds.length > 1 ? { brandId: { in: resolvedBrandIds } } : {}),
-      ...(resolvedCategoryIds.length ? { categories: { some: { categoryId: { in: resolvedCategoryIds } } } } : {}),
-      ...(resolvedSegmentId ? { segments: { some: { segmentId: resolvedSegmentId } } } : (input.segment || input.segmentId) ? { segments: { some: { segmentId: '__unknown_segment__' } } } : {}),
-      ...(resolvedTagId ? { tags: { some: { tagId: resolvedTagId } } } : (input.tag || input.tagId) ? { tags: { some: { tagId: '__unknown_tag__' } } } : {}),
+      ...(resolvedCategoryIds.length ? { categories: { some: { categoryId: { in: resolvedCategoryIds } } } } : (categorySlugs.length || categoryIds.length) ? { categories: { some: { categoryId: '__unknown_category__' } } } : {}),
+      ...(resolvedSegmentIds.length === 1 ? { segments: { some: { segmentId: resolvedSegmentIds[0] } } } : resolvedSegmentIds.length > 1 ? { segments: { some: { segmentId: { in: resolvedSegmentIds } } } } : (segmentSlugs.length || segmentIds.length) ? { segments: { some: { segmentId: '__unknown_segment__' } } } : {}),
+      ...(resolvedTagIds.length === 1 ? { tags: { some: { tagId: resolvedTagIds[0] } } } : resolvedTagIds.length > 1 ? { tags: { some: { tagId: { in: resolvedTagIds } } } } : (tagSlugs.length || tagIds.length) ? { tags: { some: { tagId: '__unknown_tag__' } } } : {}),
       ...(input.search?.trim()
         ? {
             OR: [

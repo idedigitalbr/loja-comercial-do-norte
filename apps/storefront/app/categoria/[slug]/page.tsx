@@ -9,6 +9,7 @@ export const dynamic = 'force-dynamic';
 type Params = Promise<{ slug: string }>;
 type SearchParams = Promise<{
   q?: string;
+  categoria?: string;
   segmento?: string;
   tag?: string;
   marca?: string;
@@ -44,6 +45,7 @@ export default async function CategoryPage({
   const { slug } = await params;
   const {
     q,
+    categoria,
     segmento,
     tag,
     marca,
@@ -59,6 +61,7 @@ export default async function CategoryPage({
   const isOferta = oferta === '1' || oferta === 'true';
   const page = Math.max(1, Number.parseInt(pagina ?? '1', 10) || 1);
   const sort = ordem === 'nome' ? 'name_asc' : ordem === 'mais_vendidos' ? 'mais_vendidos' : 'newest';
+  const effectiveCategory = categoria || slug;
 
   const [categories, segments, tags, brands, result] = await Promise.all([
     getCategories(),
@@ -66,7 +69,7 @@ export default async function CategoryPage({
     getTags(),
     getBrands(),
     getProductsPage({
-      category: slug,
+      category: effectiveCategory,
       segment: segmento,
       tag,
       brand: marca,
@@ -121,7 +124,7 @@ export default async function CategoryPage({
       products={items}
       searchParamsState={{
         q,
-        categoria: slug,
+        categoria: effectiveCategory,
         segmento,
         tag,
         marca,

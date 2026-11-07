@@ -7,7 +7,7 @@ import { ChevronRight, Flame, PanelLeft, ShoppingBag, SlidersHorizontal, X } fro
 import { cn, WebButton, WebEmptyState } from "@commerce/ui/web";
 import { ProductCard } from "@/components/product-card";
 import { ScrollCatalogProductItem } from "@/components/ui/scroll-skeleton-reveal";
-import { buildEnrichedBrands, DEFAULT_BRAND_SHOWCASE } from "@/lib/brands-data";
+import { buildEnrichedBrands, DEFAULT_BRAND_SHOWCASE, findBrandOrSubbrand } from "@/lib/brands-data";
 import { mediaUrl } from "@/lib/api";
 import type { ApiBrand, ApiCategory, ApiProduct, ApiSegment, ApiTag } from "@/lib/types";
 import { CatalogSidebar } from "./catalog-sidebar";
@@ -94,10 +94,42 @@ export function CatalogView({
   const currentSort = ordem === "nome" ? "name_asc" : isMaisVendidos ? "mais_vendidos" : "newest";
 
   const enrichedBrands = useMemo(() => buildEnrichedBrands(brands), [brands]);
-  const currentBrandSlug = activeBrand?.slug || marca || "";
   const isBrandsDirectory = viewMode === "brands";
+
+  const selectedBrands = useMemo(() => {
+    const raw = marca ?? activeBrand?.slug ?? "";
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }, [marca, activeBrand]);
+
+  const selectedCategories = useMemo(() => {
+    const raw = categoria ?? activeCategory?.slug ?? "";
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }, [categoria, activeCategory]);
+
+  const selectedSegments = useMemo(() => {
+    const raw = segmento ?? activeSegment?.slug ?? "";
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }, [segmento, activeSegment]);
+
+  const selectedTags = useMemo(() => {
+    const raw = tag ?? activeTag?.slug ?? "";
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }, [tag, activeTag]);
+
   const isBrandContext = Boolean(
-    isBrandsDirectory || activeBrand || marca || baseUrl.startsWith("/marca")
+    isBrandsDirectory || activeBrand || selectedBrands.length > 0 || baseUrl.startsWith("/marca")
   );
 
   const displayedBrandsInGrid = useMemo(() => {
@@ -322,8 +354,8 @@ export function CatalogView({
               >
                 {enrichedBrands.map((b) => {
                   const isParentSelected =
-                    currentBrandSlug === b.slug ||
-                    Boolean(b.children?.some((child) => child.slug === currentBrandSlug));
+                    selectedBrands.includes(b.slug) ||
+                    Boolean(b.children?.some((child) => selectedBrands.includes(child.slug)));
                   const count = b._count?.products ?? 0;
                   const rawImg = b.imagePath;
                   const imgSrc = rawImg
@@ -342,7 +374,9 @@ export function CatalogView({
                               `/marca/${b.slug}`
                             )
                           : buildHref({
-                              marca: isParentSelected ? undefined : b.slug,
+                              marca: isParentSelected
+                                ? selectedBrands.filter((s) => s !== b.slug && !b.children?.some((c) => c.slug === s)).join(",") || undefined
+                                : [...selectedBrands, b.slug].join(","),
                               pagina: undefined,
                             })
                       }
@@ -399,72 +433,103 @@ export function CatalogView({
                     Busca: “{q}” <span className="font-bold text-slate-400">×</span>
                   </Link>
                 ) : null}
-                {activeCategory ? (
-                  <Link
-                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium text-slate-800 transition hover:border-red-500 hover:text-red-600"
-                    href={
-                      baseUrl.startsWith("/categoria/")
-                        ? buildHref({ categoria: undefined, pagina: undefined }).replace(
-                            baseUrl,
-                            "/loja"
-                          )
-                        : buildHref({ categoria: undefined, pagina: undefined })
-                    }
-                    title="Remover filtro de categoria"
-                  >
-                    Categoria: {activeCategory.name}{" "}
-                    <span className="font-bold text-slate-400">×</span>
-                  </Link>
-                ) : null}
-                {activeSegment ? (
-                  <Link
-                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium text-slate-800 transition hover:border-red-500 hover:text-red-600"
-                    href={
-                      baseUrl.startsWith("/segmento/")
-                        ? buildHref({ segmento: undefined, pagina: undefined }).replace(
-                            baseUrl,
-                            "/loja"
-                          )
-                        : buildHref({ segmento: undefined, pagina: undefined })
-                    }
-                    title="Remover filtro de segmento"
-                  >
-                    Segmento: {activeSegment.name}{" "}
-                    <span className="font-bold text-slate-400">×</span>
-                  </Link>
-                ) : null}
-                {tag ? (
-                  <Link
-                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium text-slate-800 transition hover:border-red-500 hover:text-red-600"
-                    href={
-                      baseUrl.startsWith("/tag/")
-                        ? buildHref({ tag: undefined, pagina: undefined }).replace(
-                            baseUrl,
-                            "/loja"
-                          )
-                        : buildHref({ tag: undefined, pagina: undefined })
-                    }
-                    title="Remover filtro de tag"
-                  >
-                    Tag: #{activeTag?.name ?? tag} <span className="font-bold text-slate-400">×</span>
-                  </Link>
-                ) : null}
-                {marca ? (
-                  <Link
-                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium text-slate-800 transition hover:border-red-500 hover:text-red-600"
-                    href={
-                      baseUrl.startsWith("/marca/")
-                        ? buildHref({ marca: undefined, pagina: undefined }).replace(
-                            baseUrl,
-                            "/loja"
-                          )
-                        : buildHref({ marca: undefined, pagina: undefined })
-                    }
-                    title="Remover filtro de marca"
-                  >
-                    Marca: {activeBrand?.name ?? marca} <span className="font-bold text-slate-400">×</span>
-                  </Link>
-                ) : null}
+                {selectedCategories.map((catSlug) => {
+                  const cat =
+                    categories.find((c) => c.slug === catSlug) ??
+                    categories.flatMap((c) => c.children ?? []).find((c) => c.slug === catSlug);
+                  const name = cat?.name ?? catSlug;
+                  const remaining = selectedCategories.filter((c) => c !== catSlug);
+                  const nextCat = remaining.length > 0 ? remaining.join(",") : undefined;
+                  return (
+                    <Link
+                      className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium text-slate-800 transition hover:border-red-500 hover:text-red-600"
+                      href={
+                        baseUrl.startsWith("/categoria/")
+                          ? buildHref({ categoria: nextCat, pagina: undefined }).replace(
+                              baseUrl,
+                              nextCat ? baseUrl : "/loja"
+                            )
+                          : buildHref({ categoria: nextCat, pagina: undefined })
+                      }
+                      key={catSlug}
+                      title={`Remover filtro de categoria ${name}`}
+                    >
+                      Categoria: {name} <span className="font-bold text-slate-400">×</span>
+                    </Link>
+                  );
+                })}
+
+                {selectedSegments.map((segSlug) => {
+                  const seg = segments.find((s) => s.slug === segSlug);
+                  const name = seg?.name ?? segSlug;
+                  const remaining = selectedSegments.filter((s) => s !== segSlug);
+                  const nextSeg = remaining.length > 0 ? remaining.join(",") : undefined;
+                  return (
+                    <Link
+                      className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium text-slate-800 transition hover:border-red-500 hover:text-red-600"
+                      href={
+                        baseUrl.startsWith("/segmento/")
+                          ? buildHref({ segmento: nextSeg, pagina: undefined }).replace(
+                              baseUrl,
+                              nextSeg ? baseUrl : "/loja"
+                            )
+                          : buildHref({ segmento: nextSeg, pagina: undefined })
+                      }
+                      key={segSlug}
+                      title={`Remover filtro de segmento ${name}`}
+                    >
+                      Segmento: {name} <span className="font-bold text-slate-400">×</span>
+                    </Link>
+                  );
+                })}
+
+                {selectedTags.map((tagSlug) => {
+                  const t = tags.find((item) => item.slug === tagSlug);
+                  const name = t?.name ?? tagSlug;
+                  const remaining = selectedTags.filter((s) => s !== tagSlug);
+                  const nextTag = remaining.length > 0 ? remaining.join(",") : undefined;
+                  return (
+                    <Link
+                      className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium text-slate-800 transition hover:border-red-500 hover:text-red-600"
+                      href={
+                        baseUrl.startsWith("/tag/")
+                          ? buildHref({ tag: nextTag, pagina: undefined }).replace(
+                              baseUrl,
+                              nextTag ? baseUrl : "/loja"
+                            )
+                          : buildHref({ tag: nextTag, pagina: undefined })
+                      }
+                      key={tagSlug}
+                      title={`Remover filtro de tag #${name}`}
+                    >
+                      Tag: #{name} <span className="font-bold text-slate-400">×</span>
+                    </Link>
+                  );
+                })}
+
+                {selectedBrands.map((brandSlug) => {
+                  const brandInfo = findBrandOrSubbrand(enrichedBrands, brandSlug);
+                  const name = brandInfo?.brand.name ?? brandSlug;
+                  const remaining = selectedBrands.filter((b) => b !== brandSlug);
+                  const nextMarca = remaining.length > 0 ? remaining.join(",") : undefined;
+                  return (
+                    <Link
+                      className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium text-slate-800 transition hover:border-red-500 hover:text-red-600"
+                      href={
+                        baseUrl.startsWith("/marca/")
+                          ? buildHref({ marca: nextMarca, pagina: undefined }).replace(
+                              baseUrl,
+                              nextMarca ? baseUrl : "/loja"
+                            )
+                          : buildHref({ marca: nextMarca, pagina: undefined })
+                      }
+                      key={brandSlug}
+                      title={`Remover filtro de marca ${name}`}
+                    >
+                      Marca: {name} <span className="font-bold text-slate-400">×</span>
+                    </Link>
+                  );
+                })}
                 {entrega ? (
                   <Link
                     className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium text-slate-800 transition hover:border-red-500 hover:text-red-600"

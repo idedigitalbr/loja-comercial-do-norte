@@ -203,37 +203,42 @@ export function CatalogSidebar({
   const precoMax = searchParams.get("precoMax") ? Number(searchParams.get("precoMax")) : undefined;
 
   // Filtros selecionados em formato de lista (multi-select)
+  const rawMarcaParam = searchParams.get("marca") ?? "";
+  const rawCategoriaParam = searchParams.get("categoria") ?? "";
+  const rawSegmentoParam = searchParams.get("segmento") ?? "";
+  const rawTagParam = searchParams.get("tag") ?? "";
+
   const selectedBrands = useMemo(() => {
-    const raw = searchParams.get("marca") ?? activeBrandSlug ?? "";
+    const raw = rawMarcaParam || activeBrandSlug || "";
     return raw
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-  }, [searchParams, activeBrandSlug]);
+  }, [rawMarcaParam, activeBrandSlug]);
 
   const selectedCategories = useMemo(() => {
-    const raw = searchParams.get("categoria") ?? activeCategorySlug ?? "";
+    const raw = rawCategoriaParam || activeCategorySlug || "";
     return raw
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-  }, [searchParams, activeCategorySlug]);
+  }, [rawCategoriaParam, activeCategorySlug]);
 
   const selectedSegments = useMemo(() => {
-    const raw = searchParams.get("segmento") ?? activeSegmentSlug ?? "";
+    const raw = rawSegmentoParam || activeSegmentSlug || "";
     return raw
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-  }, [searchParams, activeSegmentSlug]);
+  }, [rawSegmentoParam, activeSegmentSlug]);
 
   const selectedTags = useMemo(() => {
-    const raw = searchParams.get("tag") ?? activeTagSlug ?? "";
+    const raw = rawTagParam || activeTagSlug || "";
     return raw
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-  }, [searchParams, activeTagSlug]);
+  }, [rawTagParam, activeTagSlug]);
 
   // Processa hierarquia de categorias
   const processedCategories = useMemo(() => {
@@ -265,29 +270,45 @@ export function CatalogSidebar({
 
   const [expandedBrands, setExpandedBrands] = useState<Record<string, boolean>>({});
 
+  const selectedBrandsKey = selectedBrands.join(",");
   useEffect(() => {
     if (selectedBrands.length === 0) return;
-    for (const root of availableBrands) {
-      if (
-        selectedBrands.includes(root.slug) ||
-        root.children?.some((c) => selectedBrands.includes(c.slug))
-      ) {
-        setExpandedBrands((prev) => ({ ...prev, [root.slug]: true }));
+    setExpandedBrands((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      for (const root of availableBrands) {
+        if (
+          (selectedBrands.includes(root.slug) ||
+            root.children?.some((c) => selectedBrands.includes(c.slug))) &&
+          !next[root.slug]
+        ) {
+          next[root.slug] = true;
+          changed = true;
+        }
       }
-    }
-  }, [selectedBrands, availableBrands]);
+      return changed ? next : prev;
+    });
+  }, [selectedBrandsKey, availableBrands]);
 
+  const selectedCategoriesKey = selectedCategories.join(",");
   useEffect(() => {
     if (selectedCategories.length === 0) return;
-    for (const cat of processedCategories) {
-      if (
-        selectedCategories.includes(cat.slug) ||
-        cat.subcategories?.some((s) => selectedCategories.includes(s.slug))
-      ) {
-        setExpandedCategories((prev) => ({ ...prev, [cat.id]: true }));
+    setExpandedCategories((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      for (const cat of processedCategories) {
+        if (
+          (selectedCategories.includes(cat.slug) ||
+            cat.subcategories?.some((s) => selectedCategories.includes(s.slug))) &&
+          !next[cat.id]
+        ) {
+          next[cat.id] = true;
+          changed = true;
+        }
       }
-    }
-  }, [selectedCategories, processedCategories]);
+      return changed ? next : prev;
+    });
+  }, [selectedCategoriesKey, processedCategories]);
 
   function toggleBrandExpand(slug: string, e?: React.SyntheticEvent) {
     if (e) {
@@ -356,13 +377,14 @@ export function CatalogSidebar({
   const visibleSegments = useMemo(() => {
     if (showAllSegments || normalizedQuery) return filteredSegments;
     const base = filteredSegments.slice(0, 4);
-    // Garante que o segmento ativo selecionado sempre apareça mesmo em modo recolhido
-    if (activeSegmentSlug && !base.some((s) => s.slug === activeSegmentSlug)) {
-      const active = filteredSegments.find((s) => s.slug === activeSegmentSlug);
-      if (active) base.push(active);
-    }
+    selectedSegments.forEach((slug) => {
+      if (!base.some((s) => s.slug === slug)) {
+        const active = filteredSegments.find((s) => s.slug === slug);
+        if (active) base.push(active);
+      }
+    });
     return base;
-  }, [showAllSegments, normalizedQuery, filteredSegments, activeSegmentSlug]);
+  }, [showAllSegments, normalizedQuery, filteredSegments, selectedSegments]);
 
   // Tags visíveis: quando buscando exibe todas as encontradas, senão 3 inicialmente com +4 mais / ver menos
   const visibleTags = showAllTags || normalizedQuery ? filteredTags : filteredTags.slice(0, 3);
@@ -371,20 +393,23 @@ export function CatalogSidebar({
   const visibleCategories = useMemo(() => {
     if (showAllCategories || normalizedQuery) return filteredCategories;
     const base = filteredCategories.slice(0, 4);
-    // Garante que a categoria ativa selecionada sempre apareça mesmo em modo recolhido
-    if (activeCategorySlug && !base.some((c) => c.slug === activeCategorySlug)) {
-      const active = filteredCategories.find((c) => c.slug === activeCategorySlug);
-      if (active) base.push(active);
-    }
+    selectedCategories.forEach((slug) => {
+      if (!base.some((c) => c.slug === slug || c.subcategories.some((s) => s.slug === slug))) {
+        const found = filteredCategories.find(
+          (c) => c.slug === slug || c.subcategories.some((s) => s.slug === slug)
+        );
+        if (found && !base.some((b) => b.id === found.id)) base.push(found);
+      }
+    });
     return base;
-  }, [showAllCategories, normalizedQuery, filteredCategories, activeCategorySlug]);
+  }, [showAllCategories, normalizedQuery, filteredCategories, selectedCategories]);
 
   const visibleBrands = useMemo(() => {
-    if (showAllBrands || normalizedQuery || currentMarca || baseUrl.startsWith("/marca")) {
+    if (showAllBrands || normalizedQuery || selectedBrands.length > 0 || baseUrl.startsWith("/marca")) {
       return filteredBrands;
     }
     return filteredBrands.slice(0, 6);
-  }, [showAllBrands, normalizedQuery, currentMarca, baseUrl, filteredBrands]);
+  }, [showAllBrands, normalizedQuery, selectedBrands, baseUrl, filteredBrands]);
 
   function toggleCategoryExpand(id: string, e?: React.SyntheticEvent) {
     if (e) {
@@ -428,96 +453,195 @@ export function CatalogSidebar({
     }
   }
 
-  function toggleParam(key: string, value: string) {
+  function toggleMultiParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
-    const current = params.get(key);
-    if (current === value) {
+    const current = (params.get(key) ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    let next: string[];
+    if (current.includes(value)) {
+      next = current.filter((v) => v !== value);
+    } else {
+      next = [...current, value];
+    }
+
+    if (next.length === 0) {
       params.delete(key);
     } else {
-      params.set(key, value);
+      params.set(key, next.join(","));
     }
     params.delete("pagina");
+
     const query = params.toString();
-    const targetBaseUrl = baseUrl === "/marcas" ? "/loja" : baseUrl;
+    const targetBaseUrl =
+      baseUrl === "/marcas" || baseUrl.startsWith("/marca/") || baseUrl.startsWith("/categoria/") || baseUrl.startsWith("/segmento/") || baseUrl.startsWith("/tag/")
+        ? "/loja"
+        : baseUrl;
+
     startTransition(() => {
       router.push(query ? `${targetBaseUrl}?${query}` : targetBaseUrl, { scroll: false });
     });
-    onItemClick?.();
   }
 
-  function handleSelectBrandFilter(brandSlug: string) {
-    if (baseUrl === "/marcas" || baseUrl.startsWith("/marca/")) {
-      const params = new URLSearchParams(searchParams.toString());
+  function toggleParam(key: string, value: string) {
+    toggleMultiParam(key, value);
+  }
+
+  function handleSelectBrandGroup(brand: ApiBrand) {
+    const subs = brand.children ?? [];
+    if (subs.length === 0) {
+      toggleMultiParam("marca", brand.slug);
+      return;
+    }
+
+    const subSlugs = subs.map((s) => s.slug);
+    const params = new URLSearchParams(searchParams.toString());
+    const current = (params.get("marca") ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const hasParent = current.includes(brand.slug);
+    const allSubsSelected = subSlugs.every((s) => current.includes(s));
+
+    let next: string[];
+    if (hasParent || allSubsSelected) {
+      next = current.filter((v) => v !== brand.slug && !subSlugs.includes(v));
+    } else {
+      const other = current.filter((v) => v !== brand.slug && !subSlugs.includes(v));
+      next = [...other, ...subSlugs];
+    }
+
+    if (next.length === 0) {
       params.delete("marca");
-      params.delete("pagina");
-      if (currentMarca === brandSlug) {
-        const query = params.toString();
-        startTransition(() => {
-          router.push(query ? `/loja?${query}` : "/loja", { scroll: false });
-        });
-      } else {
-        const query = params.toString();
-        startTransition(() => {
-          router.push(
-            query ? `/marca/${brandSlug}?${query}` : `/marca/${brandSlug}`,
-            { scroll: false }
-          );
-        });
-      }
-      onItemClick?.();
-      return;
+    } else {
+      params.set("marca", next.join(","));
     }
-    toggleParam("marca", brandSlug);
+    params.delete("pagina");
+
+    const query = params.toString();
+    const targetBaseUrl =
+      baseUrl === "/marcas" || baseUrl.startsWith("/marca/") ? "/loja" : baseUrl;
+    startTransition(() => {
+      router.push(query ? `${targetBaseUrl}?${query}` : targetBaseUrl, { scroll: false });
+    });
   }
 
-  function handleSelectCategoryFilter(catSlug: string) {
-    if (baseUrl.startsWith("/categoria/")) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete("categoria");
-      params.delete("pagina");
-      if (activeCategorySlug === catSlug) {
-        const query = params.toString();
-        startTransition(() => {
-          router.push(query ? `/loja?${query}` : "/loja", { scroll: false });
-        });
-      } else {
-        const query = params.toString();
-        startTransition(() => {
-          router.push(
-            query ? `/categoria/${catSlug}?${query}` : `/categoria/${catSlug}`,
-            { scroll: false }
-          );
-        });
-      }
-      onItemClick?.();
+  function handleSelectSubBrand(brand: ApiBrand, subSlug: string) {
+    const subs = brand.children ?? [];
+    const subSlugs = subs.map((s) => s.slug);
+    const params = new URLSearchParams(searchParams.toString());
+    let current = (params.get("marca") ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    if (current.includes(brand.slug)) {
+      current = current.filter((v) => v !== brand.slug);
+      subSlugs.forEach((s) => {
+        if (s !== subSlug && !current.includes(s)) {
+          current.push(s);
+        }
+      });
+    } else if (current.includes(subSlug)) {
+      current = current.filter((v) => v !== subSlug);
+    } else {
+      current.push(subSlug);
+    }
+
+    if (current.length === 0) {
+      params.delete("marca");
+    } else {
+      params.set("marca", current.join(","));
+    }
+    params.delete("pagina");
+
+    const query = params.toString();
+    const targetBaseUrl =
+      baseUrl === "/marcas" || baseUrl.startsWith("/marca/") ? "/loja" : baseUrl;
+    startTransition(() => {
+      router.push(query ? `${targetBaseUrl}?${query}` : targetBaseUrl, { scroll: false });
+    });
+  }
+
+  function handleSelectCategoryGroup(cat: { id: string; name: string; slug: string; subcategories: { name: string; slug: string }[] }) {
+    const subs = cat.subcategories;
+    if (subs.length === 0) {
+      toggleMultiParam("categoria", cat.slug);
       return;
     }
-    toggleParam("categoria", catSlug);
+    const subSlugs = subs.map((s) => s.slug);
+    const params = new URLSearchParams(searchParams.toString());
+    const current = (params.get("categoria") ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const hasParent = current.includes(cat.slug);
+    const allSubsSelected = subSlugs.every((s) => current.includes(s));
+
+    let next: string[];
+    if (hasParent || allSubsSelected) {
+      next = current.filter((v) => v !== cat.slug && !subSlugs.includes(v));
+    } else {
+      const other = current.filter((v) => v !== cat.slug && !subSlugs.includes(v));
+      next = [...other, ...subSlugs];
+    }
+
+    if (next.length === 0) {
+      params.delete("categoria");
+    } else {
+      params.set("categoria", next.join(","));
+    }
+    params.delete("pagina");
+
+    const query = params.toString();
+    const targetBaseUrl = baseUrl.startsWith("/categoria/") ? "/loja" : baseUrl;
+    startTransition(() => {
+      router.push(query ? `${targetBaseUrl}?${query}` : targetBaseUrl, { scroll: false });
+    });
+  }
+
+  function handleSelectSubCategory(cat: { id: string; name: string; slug: string; subcategories: { name: string; slug: string }[] }, subSlug: string) {
+    const subs = cat.subcategories;
+    const subSlugs = subs.map((s) => s.slug);
+    const params = new URLSearchParams(searchParams.toString());
+    let current = (params.get("categoria") ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    if (current.includes(cat.slug)) {
+      current = current.filter((v) => v !== cat.slug);
+      subSlugs.forEach((s) => {
+        if (s !== subSlug && !current.includes(s)) {
+          current.push(s);
+        }
+      });
+    } else if (current.includes(subSlug)) {
+      current = current.filter((v) => v !== subSlug);
+    } else {
+      current.push(subSlug);
+    }
+
+    if (current.length === 0) {
+      params.delete("categoria");
+    } else {
+      params.set("categoria", current.join(","));
+    }
+    params.delete("pagina");
+
+    const query = params.toString();
+    const targetBaseUrl = baseUrl.startsWith("/categoria/") ? "/loja" : baseUrl;
+    startTransition(() => {
+      router.push(query ? `${targetBaseUrl}?${query}` : targetBaseUrl, { scroll: false });
+    });
   }
 
   function handleSelectSegmentFilter(segSlug: string) {
-    if (baseUrl.startsWith("/segmento/")) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete("segmento");
-      params.delete("pagina");
-      if (activeSegmentSlug === segSlug) {
-        const query = params.toString();
-        startTransition(() => {
-          router.push(query ? `/loja?${query}` : "/loja", { scroll: false });
-        });
-      } else {
-        const query = params.toString();
-        startTransition(() => {
-          router.push(
-            query ? `/segmento/${segSlug}?${query}` : `/segmento/${segSlug}`,
-            { scroll: false }
-          );
-        });
-      }
-      onItemClick?.();
-      return;
-    }
-    toggleParam("segmento", segSlug);
+    toggleMultiParam("segmento", segSlug);
   }
 
   const hasRefinementActive = Boolean(
@@ -546,6 +670,17 @@ export function CatalogSidebar({
   function handleClearBrandFilter() {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("marca");
+    params.delete("pagina");
+    const query = params.toString();
+    startTransition(() => {
+      router.push(query ? `/loja?${query}` : "/loja", { scroll: false });
+    });
+    onItemClick?.();
+  }
+
+  function handleClearCategoryFilter() {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("categoria");
     params.delete("pagina");
     const query = params.toString();
     startTransition(() => {
@@ -600,7 +735,7 @@ export function CatalogSidebar({
           </button>
 
           {visibleTags.map((tag) => {
-            const isTagActive = currentTag === tag.slug;
+            const isTagActive = selectedTags.includes(tag.slug);
             return (
               <button
                 className={cn(
@@ -610,7 +745,7 @@ export function CatalogSidebar({
                     : "border-slate-200 bg-white text-slate-600 hover:border-[#004CB1] hover:text-[#004CB1]"
                 )}
                 key={tag.id || tag.slug}
-                onClick={() => toggleParam("tag", tag.slug)}
+                onClick={() => toggleMultiParam("tag", tag.slug)}
                 type="button"
               >
                 <span className={cn("text-[10px]", isTagActive ? "text-white/80" : "text-slate-400")}>
@@ -680,7 +815,7 @@ export function CatalogSidebar({
 
       {/* CARD 00: FILTRO DE MARCAS & SUBMARCAS (ESTILO ÁRVORE HIERÁRQUICA — ANEXO 2) */}
       <div className="rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs transition">
-        {(currentMarca || baseUrl.startsWith("/marca")) && (
+        {(selectedBrands.length > 0 || baseUrl.startsWith("/marca")) && (
           <div className="mb-3">
             <button
               className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-bold text-[#004CB1] shadow-2xs transition hover:bg-blue-100"
@@ -722,12 +857,17 @@ export function CatalogSidebar({
           {visibleBrands.map((brand) => {
             const subs = brand.children ?? [];
             const hasSubs = subs.length > 0;
-            const isParentActive = currentMarca === brand.slug;
-            const isChildActive = subs.some((s) => s.slug === currentMarca);
+            const isParentDirectlyActive = selectedBrands.includes(brand.slug);
+            const activeChildren = subs.filter((s) => selectedBrands.includes(s.slug));
+            const allChildrenActive = hasSubs && activeChildren.length === subs.length;
+            const someChildrenActive = hasSubs && activeChildren.length > 0 && activeChildren.length < subs.length;
+
+            const isParentChecked = isParentDirectlyActive || allChildrenActive;
+            const isParentActive = isParentChecked || someChildrenActive;
+
             const isExpanded =
               Boolean(expandedBrands[brand.slug]) ||
               isParentActive ||
-              isChildActive ||
               (Boolean(normalizedQuery) &&
                 subs.some((s) =>
                   s.name.toLowerCase().includes(normalizedQuery)
@@ -739,7 +879,7 @@ export function CatalogSidebar({
                 <div
                   className={cn(
                     "group flex items-center justify-between gap-1.5 rounded-lg px-2 py-1.5 text-xs transition",
-                    isParentActive || isChildActive
+                    isParentActive
                       ? "bg-blue-50/80 text-[#004CB1] font-bold"
                       : "text-slate-700 hover:bg-slate-100/80"
                   )}
@@ -769,20 +909,22 @@ export function CatalogSidebar({
 
                     <button
                       className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left"
-                      onClick={() => handleSelectBrandFilter(brand.slug)}
+                      onClick={() => handleSelectBrandGroup(brand)}
                       type="button"
                     >
                       <span
                         className={cn(
                           "flex size-4 shrink-0 items-center justify-center rounded border transition",
-                          isParentActive || isChildActive
+                          isParentActive
                             ? "border-[#004CB1] bg-[#004CB1] text-white"
                             : "border-slate-300 bg-white group-hover:border-[#004CB1]"
                         )}
                       >
-                        {(isParentActive || isChildActive) && (
+                        {isParentChecked ? (
                           <Check className="size-3 stroke-[3]" />
-                        )}
+                        ) : someChildrenActive ? (
+                          <Minus className="size-3 stroke-[3]" />
+                        ) : null}
                       </span>
                       <span className="truncate font-bold uppercase tracking-tight text-slate-800 group-hover:text-[#004CB1]">
                         {brand.name}
@@ -798,7 +940,8 @@ export function CatalogSidebar({
                 {hasSubs && isExpanded && (
                   <div className="ml-6 mt-0.5 space-y-0.5 border-l-2 border-slate-100 pl-2.5 pb-1 animate-in fade-in">
                     {subs.map((sub) => {
-                      const isSubSelected = currentMarca === sub.slug;
+                      const isSubSelected =
+                        selectedBrands.includes(sub.slug) || isParentDirectlyActive;
                       const subCount = sub._count?.products ?? 0;
                       return (
                         <button
@@ -809,7 +952,7 @@ export function CatalogSidebar({
                               : "font-medium text-slate-600 hover:bg-blue-50/60 hover:text-[#004CB1]"
                           )}
                           key={sub.id || sub.slug}
-                          onClick={() => handleSelectBrandFilter(sub.slug)}
+                          onClick={() => handleSelectSubBrand(brand, sub.slug)}
                           type="button"
                         >
                           <span
@@ -854,6 +997,19 @@ export function CatalogSidebar({
 
       {/* CARD 01: Ver produtos por CATEGORIAS (FILTRO COMBINÁVEL COM CHECKBOX) */}
       <div className="rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs transition">
+        {(selectedCategories.length > 0 || baseUrl.startsWith("/categoria")) && (
+          <div className="mb-3">
+            <button
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-bold text-[#E2091E] shadow-2xs transition hover:bg-red-100"
+              onClick={handleClearCategoryFilter}
+              type="button"
+            >
+              <X className="size-3.5 stroke-[2.5]" />
+              <span>Limpar Filtro de Categoria</span>
+            </button>
+          </div>
+        )}
+
         <div className="flex items-center gap-3 p-1">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#E2091E] text-white shadow-xs">
             <Package className="size-5" />
@@ -873,19 +1029,21 @@ export function CatalogSidebar({
         <div className="space-y-1">
           {visibleCategories.map((cat) => {
             const IconComponent = getCategoryIcon(cat.slug);
-            const hasSubs = cat.subcategories && cat.subcategories.length > 0;
-            const currentCatSlug = activeCategorySlug || searchParams.get("categoria") || "";
-            const isCategoryActive = currentCatSlug === cat.slug;
-            const isSubCategoryActive = cat.subcategories.some(
-              (s) => s.slug === currentCatSlug
-            );
+            const subs = cat.subcategories && cat.subcategories.length > 0 ? cat.subcategories : [];
+            const hasSubs = subs.length > 0;
+            const isParentDirectlyActive = selectedCategories.includes(cat.slug);
+            const activeChildren = subs.filter((s) => selectedCategories.includes(s.slug));
+            const allChildrenActive = hasSubs && activeChildren.length === subs.length;
+            const someChildrenActive = hasSubs && activeChildren.length > 0 && activeChildren.length < subs.length;
+
+            const isParentChecked = isParentDirectlyActive || allChildrenActive;
+            const isCategoryActive = isParentChecked || someChildrenActive;
 
             const isExpanded =
               !!expandedCategories[cat.id] ||
               isCategoryActive ||
-              isSubCategoryActive ||
               (Boolean(normalizedQuery) &&
-                cat.subcategories.some((s) =>
+                subs.some((s) =>
                   s.name.toLowerCase().includes(normalizedQuery)
                 ));
 
@@ -894,32 +1052,34 @@ export function CatalogSidebar({
                 <div
                   className={cn(
                     "group flex items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 text-xs transition",
-                    isCategoryActive || isSubCategoryActive
+                    isCategoryActive
                       ? "bg-blue-50 font-bold text-[#004CB1]"
                       : "text-slate-700 hover:bg-slate-100/80"
                   )}
                 >
                   <button
                     className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left"
-                    onClick={() => handleSelectCategoryFilter(cat.slug)}
+                    onClick={() => handleSelectCategoryGroup(cat)}
                     type="button"
                   >
                     <span
                       className={cn(
                         "flex size-4 shrink-0 items-center justify-center rounded border transition",
-                        isCategoryActive || isSubCategoryActive
+                        isCategoryActive
                           ? "border-[#004CB1] bg-[#004CB1] text-white"
                           : "border-slate-300 bg-white group-hover:border-[#004CB1]"
                       )}
                     >
-                      {(isCategoryActive || isSubCategoryActive) && (
+                      {isParentChecked ? (
                         <Check className="size-3 stroke-[3]" />
-                      )}
+                      ) : someChildrenActive ? (
+                        <Minus className="size-3 stroke-[3]" />
+                      ) : null}
                     </span>
                     <IconComponent
                       className={cn(
                         "size-4 shrink-0 transition",
-                        isCategoryActive || isSubCategoryActive
+                        isCategoryActive
                           ? "text-[#004CB1]"
                           : "text-slate-400 group-hover:text-[#004CB1]"
                       )}
@@ -951,8 +1111,9 @@ export function CatalogSidebar({
                 {/* Subcategorias Indentadas */}
                 {hasSubs && isExpanded && (
                   <div className="ml-6 mt-0.5 space-y-0.5 border-l-2 border-slate-100 pl-2 pb-1 animate-in fade-in">
-                    {cat.subcategories.map((sub) => {
-                      const isSubActive = currentCatSlug === sub.slug;
+                    {subs.map((sub) => {
+                      const isSubActive =
+                        selectedCategories.includes(sub.slug) || isParentDirectlyActive;
                       return (
                         <button
                           className={cn(
@@ -962,7 +1123,7 @@ export function CatalogSidebar({
                               : "text-slate-600 hover:bg-blue-50/70 hover:text-[#004CB1]"
                           )}
                           key={sub.slug}
-                          onClick={() => handleSelectCategoryFilter(sub.slug)}
+                          onClick={() => handleSelectSubCategory(cat, sub.slug)}
                           type="button"
                         >
                           <span
@@ -1011,6 +1172,28 @@ export function CatalogSidebar({
 
       {/* CARD 02: Ver produtos por SEGMENTOS (FILTRO COMBINÁVEL COM CHECKBOX) */}
       <div className="rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs transition">
+        {(selectedSegments.length > 0 || baseUrl.startsWith("/segmento")) && (
+          <div className="mb-3">
+            <button
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-bold text-[#004CB1] shadow-2xs transition hover:bg-blue-100"
+              onClick={() => {
+                const params = new URLSearchParams(searchParams.toString());
+                params.delete("segmento");
+                params.delete("pagina");
+                const query = params.toString();
+                startTransition(() => {
+                  router.push(query ? `/loja?${query}` : "/loja", { scroll: false });
+                });
+                onItemClick?.();
+              }}
+              type="button"
+            >
+              <X className="size-3.5 stroke-[2.5]" />
+              <span>Limpar Filtro de Segmento</span>
+            </button>
+          </div>
+        )}
+
         <div className="flex items-center gap-3 p-1">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#004CB1] text-white shadow-xs">
             <Store className="size-5" />
@@ -1030,9 +1213,7 @@ export function CatalogSidebar({
         <div className="space-y-1">
           {visibleSegments.map((seg) => {
             const IconComponent = getSegmentIcon(seg.slug);
-            const isSegmentActive =
-              activeSegmentSlug === seg.slug ||
-              searchParams.get("segmento") === seg.slug;
+            const isSegmentActive = selectedSegments.includes(seg.slug);
 
             return (
               <button

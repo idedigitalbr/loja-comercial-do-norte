@@ -88,4 +88,25 @@ describe('CatalogService — busca paginada do storefront (E7)', () => {
     const args = prisma.product.findMany.mock.calls[0][0];
     expect(args.orderBy).toEqual({ updatedAt: 'desc' });
   });
+
+  it('permite múltiplos filtros simultâneos de marca e categoria (multi-select)', async () => {
+    const { prisma, service } = buildService();
+    prisma.brand.findUnique
+      .mockResolvedValueOnce({ id: 'brand-moca', children: [] })
+      .mockResolvedValueOnce({ id: 'brand-coberturas', children: [] });
+    prisma.category.findUnique
+      .mockResolvedValueOnce({ id: 'cat-copos' })
+      .mockResolvedValueOnce({ id: 'cat-pratos' });
+
+    await service.searchProducts({
+      brand: 'nestle-moca,nestle-chocolates',
+      category: 'copos,pratos',
+    });
+
+    const args = prisma.product.findMany.mock.calls[0][0];
+    expect(args.where.brandId).toEqual({ in: ['brand-moca', 'brand-coberturas'] });
+    expect(args.where.categories).toEqual({
+      some: { categoryId: { in: ['cat-copos', 'cat-pratos'] } },
+    });
+  });
 });

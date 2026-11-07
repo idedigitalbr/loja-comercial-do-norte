@@ -12,6 +12,7 @@ type SearchParams = Promise<{
   categoria?: string;
   segmento?: string;
   tag?: string;
+  marca?: string;
   ordem?: string;
   entrega?: string;
   avaliacao?: string;
@@ -58,6 +59,7 @@ export default async function BrandPage({
     categoria,
     segmento,
     tag,
+    marca,
     ordem,
     entrega,
     avaliacao,
@@ -71,6 +73,7 @@ export default async function BrandPage({
   const isOferta = oferta === '1' || oferta === 'true' || promocao === '1';
   const page = Math.max(1, Number.parseInt(pagina ?? '1', 10) || 1);
   const sort = ordem === 'nome' ? 'name_asc' : ordem === 'mais_vendidos' ? 'mais_vendidos' : 'newest';
+  const effectiveBrand = marca || slug;
 
   const [apiBrands, categories, segments, tags, result] = await Promise.all([
     getBrands(),
@@ -78,7 +81,7 @@ export default async function BrandPage({
     getSegments(),
     getTags(),
     getProductsPage({
-      brand: slug,
+      brand: effectiveBrand,
       category: categoria,
       segment: segmento,
       tag,
@@ -182,7 +185,7 @@ export default async function BrandPage({
         categoria,
         segmento,
         tag,
-        marca: slug,
+        marca: effectiveBrand,
         ordem,
         entrega,
         avaliacao,

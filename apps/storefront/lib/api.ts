@@ -63,13 +63,27 @@ export function getSiteConfig() {
   });
 }
 
-export function getProducts(input: { search?: string; category?: string; brand?: string; segment?: string; tag?: string; limit?: number } = {}) {
+function serializeFilterParam(val?: string | string[]): string | undefined {
+  if (!val) return undefined;
+  if (Array.isArray(val)) {
+    const joined = val.map((s) => s.trim()).filter(Boolean).join(',');
+    return joined || undefined;
+  }
+  const trimmed = val.trim();
+  return trimmed || undefined;
+}
+
+export function getProducts(input: { search?: string; category?: string | string[]; brand?: string | string[]; segment?: string | string[]; tag?: string | string[]; limit?: number } = {}) {
   const params = new URLSearchParams();
   if (input.search?.trim()) params.set('search', input.search.trim());
-  if (input.category) params.set('category', input.category);
-  if (input.brand) params.set('brand', input.brand);
-  if (input.segment) params.set('segment', input.segment);
-  if (input.tag) params.set('tag', input.tag);
+  const category = serializeFilterParam(input.category);
+  const brand = serializeFilterParam(input.brand);
+  const segment = serializeFilterParam(input.segment);
+  const tag = serializeFilterParam(input.tag);
+  if (category) params.set('category', category);
+  if (brand) params.set('brand', brand);
+  if (segment) params.set('segment', segment);
+  if (tag) params.set('tag', tag);
   return safeJson<ApiProduct[]>(`/catalog/products${params.size ? `?${params}` : ''}`, [], {
     revalidate: REVALIDATE_WINDOWS.CATALOG,
     tags: [CACHE_TAGS.PRODUCTS],
@@ -90,10 +104,10 @@ const emptyPage = (page: number, pageSize: number): ProductPage => ({ items: [],
 /** Busca paginada no servidor (filtros, ordenação e contagem). */
 export function getProductsPage(input: {
   search?: string;
-  category?: string;
-  brand?: string;
-  segment?: string;
-  tag?: string;
+  category?: string | string[];
+  brand?: string | string[];
+  segment?: string | string[];
+  tag?: string | string[];
   page?: number;
   pageSize?: number;
   sort?: string;
@@ -103,10 +117,14 @@ export function getProductsPage(input: {
   const pageSize = Math.min(48, Math.max(1, input.pageSize ?? 20));
   const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
   if (input.search?.trim()) params.set('search', input.search.trim());
-  if (input.category) params.set('category', input.category);
-  if (input.brand) params.set('brand', input.brand);
-  if (input.segment) params.set('segment', input.segment);
-  if (input.tag) params.set('tag', input.tag);
+  const category = serializeFilterParam(input.category);
+  const brand = serializeFilterParam(input.brand);
+  const segment = serializeFilterParam(input.segment);
+  const tag = serializeFilterParam(input.tag);
+  if (category) params.set('category', category);
+  if (brand) params.set('brand', brand);
+  if (segment) params.set('segment', segment);
+  if (tag) params.set('tag', tag);
   if (input.sort) params.set('sort', input.sort);
   if (input.offer) params.set('offer', '1');
   return safeJson<ProductPage>(`/catalog/products/search?${params}`, emptyPage(page, pageSize), {

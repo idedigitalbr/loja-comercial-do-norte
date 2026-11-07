@@ -4,22 +4,22 @@ import { CatalogService } from './catalog.service';
 
 type ProductQuery = {
   search?: string;
-  brandId?: string;
-  categoryId?: string;
-  segmentId?: string;
-  tagId?: string;
-  brand?: string;
-  category?: string;
-  segment?: string;
-  tag?: string;
+  brandId?: string | string[];
+  categoryId?: string | string[];
+  segmentId?: string | string[];
+  tagId?: string | string[];
+  brand?: string | string[];
+  category?: string | string[];
+  segment?: string | string[];
+  tag?: string | string[];
 };
 
 type SearchQuery = {
   search?: string;
-  brand?: string;
-  category?: string;
-  segment?: string;
-  tag?: string;
+  brand?: string | string[];
+  category?: string | string[];
+  segment?: string | string[];
+  tag?: string | string[];
   page?: string;
   pageSize?: string;
   sort?: string;
