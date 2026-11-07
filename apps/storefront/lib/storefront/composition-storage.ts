@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { API_URL } from '@/lib/api';
-import { defaultHomeComposition } from './home-configuration';
+import { defaultHomeComposition, reconcileComposition } from './home-configuration';
 import type { PageComposition, StorefrontRevision } from './widget-types';
 
 type LocalState = { composition: PageComposition; revisions: StorefrontRevision[] };
@@ -67,13 +67,21 @@ async function api<T>(endpoint: string, headers: HeadersInit = {}, body?: unknow
 }
 export async function getStorefrontComposition(): Promise<PageComposition> {
   if (allowsLocalComposition()) {
-    try { return (JSON.parse(await fs.readFile(statePath(), 'utf8')) as LocalState).composition; } catch { /* No local offline publication. */ }
+    try {
+      const local = (JSON.parse(await fs.readFile(statePath(), 'utf8')) as LocalState).composition;
+      return reconcileComposition(local);
+    } catch { /* No local offline publication. */ }
   }
   try {
     const composition = await api<PageComposition | null>('site/composition');
-    return composition ?? defaultHomeComposition;
+    return reconcileComposition(composition);
   } catch {
-    if (allowsLocalComposition()) return (await readLocalState()).composition;
+    if (allowsLocalComposition()) {
+      try {
+        const local = (await readLocalState()).composition;
+        return reconcileComposition(local);
+      } catch { /* Default composition */ }
+    }
     return defaultHomeComposition;
   }
 }

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { defaultHomeComposition } from './home-configuration';
+import { defaultHomeComposition, reconcileComposition } from './home-configuration';
+import type { PageComposition } from './widget-types';
 
 describe('defaultHomeComposition (seções site-final + S0/S20)', () => {
   it('possui todas as seções de widgets habilitadas em ordem sequencial', () => {
@@ -53,3 +54,65 @@ describe('defaultHomeComposition (seções site-final + S0/S20)', () => {
     expect(json).toContain('Encontre nossas unidades');
   });
 });
+
+describe('reconcileComposition (auto-reconciliação inteligente)', () => {
+  it('retorna defaultHomeComposition quando a entrada é nula ou indefinida e preenche se vazia', () => {
+    expect(reconcileComposition(null)).toBe(defaultHomeComposition);
+    expect(reconcileComposition(undefined)).toBe(defaultHomeComposition);
+    expect(reconcileComposition({ page: 'home', version: 1, widgets: [] }).widgets).toHaveLength(17);
+  });
+
+  it('injeta automaticamente seções canônicas novas (como brands-carousel) quando o banco possui snapshot antigo', () => {
+    // Simula o snapshot antigo de 16 seções que estava no Neon antes da correção (sem brands-carousel)
+    const oldSnapshot: PageComposition = {
+      page: 'home',
+      version: 5,
+      widgets: defaultHomeComposition.widgets
+        .filter((w) => w.id !== 's07-compre-por-marca')
+        .map((w, idx) => ({ ...w, order: idx + 1 })),
+    };
+
+    expect(oldSnapshot.widgets).toHaveLength(16);
+    expect(oldSnapshot.widgets.some((w) => w.id === 's07-compre-por-marca')).toBe(false);
+
+    const reconciled = reconcileComposition(oldSnapshot);
+
+    expect(reconciled.widgets).toHaveLength(17);
+    const brandWidget = reconciled.widgets.find((w) => w.id === 's07-compre-por-marca');
+    expect(brandWidget).toBeDefined();
+    expect(brandWidget?.type).toBe('brands-carousel');
+
+    // Garante que brands-carousel foi inserido na posição canônica exata (após s03-category-icons-bar)
+    const s03Idx = reconciled.widgets.findIndex((w) => w.id === 's03-category-icons-bar');
+    const brandIdx = reconciled.widgets.findIndex((w) => w.id === 's07-compre-por-marca');
+    expect(brandIdx).toBe(s03Idx + 1);
+
+    // Garante normalização de ordem sequencial 1..17
+    reconciled.widgets.forEach((w, idx) => {
+      expect(w.order).toBe(idx + 1);
+    });
+  });
+
+  it('preserva dados e props customizadas já salvas no snapshot', () => {
+    const customizedSnapshot: PageComposition = {
+      page: 'home',
+      version: 6,
+      widgets: [
+        {
+          ...defaultHomeComposition.widgets[0],
+          enabled: false, // Administrador desativou
+        },
+      ],
+    };
+
+    const reconciled = reconcileComposition(customizedSnapshot);
+
+    // O s01 deve continuar disabled
+    const s01 = reconciled.widgets.find((w) => w.id === 's01-hero-full-width');
+    expect(s01?.enabled).toBe(false);
+
+    // E todas as seções faltantes devem ter sido preenchidas
+    expect(reconciled.widgets.length).toBe(defaultHomeComposition.widgets.length);
+  });
+});
+

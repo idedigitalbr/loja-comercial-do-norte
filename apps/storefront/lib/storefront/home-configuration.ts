@@ -1070,3 +1070,59 @@ export const defaultHomeComposition: PageComposition = {
     },
   ],
 };
+
+/**
+ * Auto-reconciliação inteligente de vitrine:
+ * Garante que seções canônicas recém-criadas no código (ex: `brands-carousel`)
+ * sejam automaticamente inseridas no layout, mesmo quando o banco de dados
+ * ou o armazenamento local possuírem um snapshot antigo sem aquela seção.
+ * Preserva customizações, reordenações e props salvas pelo administrador.
+ */
+export function reconcileComposition(saved: PageComposition | null | undefined): PageComposition {
+  if (!saved) {
+    return defaultHomeComposition;
+  }
+
+  const savedWidgets = Array.isArray(saved.widgets) ? saved.widgets : [];
+  const existingIds = new Set(savedWidgets.map((w) => w.id));
+  const missingWidgets = defaultHomeComposition.widgets.filter((w) => !existingIds.has(w.id));
+
+  if (missingWidgets.length === 0) {
+    return saved;
+  }
+
+  const mergedWidgets = [...savedWidgets];
+
+  for (const newWidget of missingWidgets) {
+    const canonicalIndex = defaultHomeComposition.widgets.findIndex((w) => w.id === newWidget.id);
+    let inserted = false;
+
+    if (canonicalIndex > 0) {
+      const predecessorId = defaultHomeComposition.widgets[canonicalIndex - 1]?.id;
+      const targetIndex = mergedWidgets.findIndex((w) => w.id === predecessorId);
+      if (targetIndex !== -1) {
+        mergedWidgets.splice(targetIndex + 1, 0, { ...newWidget });
+        inserted = true;
+      }
+    }
+
+    if (!inserted) {
+      const insertIdx = mergedWidgets.findIndex((w) => (w.order ?? 999) > (newWidget.order ?? 999));
+      if (insertIdx !== -1) {
+        mergedWidgets.splice(insertIdx, 0, { ...newWidget });
+      } else {
+        mergedWidgets.push({ ...newWidget });
+      }
+    }
+  }
+
+  mergedWidgets.forEach((w, idx) => {
+    w.order = idx + 1;
+  });
+
+  return {
+    ...saved,
+    version: saved.version ?? defaultHomeComposition.version,
+    widgets: mergedWidgets,
+  };
+}
