@@ -16,6 +16,7 @@ out/
 dist/
 build/
 apps/api/public/admin/
+apps/storefront/public/storage/
 !apps/api/public/storage/
 .turbo/
 .cache/

@@ -182,6 +182,9 @@ export function buildEnrichedBrands(apiBrands: ApiBrand[] = []): ApiBrand[] {
   // 1. Mantém marcas vindas da API, enriquecendo com logos/submarcas do showcase quando aplicável
   for (const b of apiBrands) {
     if (b.slug === 'marca-exemplo' && apiBrands.length > 1) continue;
+    // Submarcas retornadas pela API (com parentId) pertencem ao children da marca pai, não à raiz
+    if (b.parentId) continue;
+
     const showcaseMatch = DEFAULT_BRAND_SHOWCASE.find((s) => s.slug === b.slug);
     const children: ApiBrand[] =
       b.children && b.children.length > 0
@@ -198,10 +201,16 @@ export function buildEnrichedBrands(apiBrands: ApiBrand[] = []): ApiBrand[] {
             }))
           : [];
 
+    const directCount = b._count?.products ?? 0;
+    const childrenCount = children.reduce((acc, c) => acc + (c._count?.products ?? 0), 0);
+    // Total dinâmico: soma direta de produtos da marca pai + submarcas vinculadas.
+    // Só usa fallback do showcase se a API estiver completamente vazia (modo offline / mock de testes).
     const totalProducts =
-      b._count?.products && b._count.products > 0
-        ? b._count.products
-        : showcaseMatch?.productCount ?? children.reduce((acc, c) => acc + (c._count?.products ?? 0), 0);
+      directCount > 0 || childrenCount > 0
+        ? directCount + childrenCount
+        : apiBrands.length === 0
+          ? (showcaseMatch?.productCount ?? 0)
+          : 0;
 
     result.push({
       ...b,
@@ -228,7 +237,7 @@ export function buildEnrichedBrands(apiBrands: ApiBrand[] = []): ApiBrand[] {
       slug: sub.slug,
       imagePath: null,
       parentId: item.id,
-      _count: { products: sub.productCount },
+      _count: { products: apiBrands.length === 0 ? sub.productCount : 0 },
     }));
 
     result.push({
@@ -240,7 +249,7 @@ export function buildEnrichedBrands(apiBrands: ApiBrand[] = []): ApiBrand[] {
       parentId: null,
       children,
       _count: {
-        products: item.productCount,
+        products: apiBrands.length === 0 ? item.productCount : 0,
         children: children.length,
       },
     });

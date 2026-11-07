@@ -1,5 +1,11 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **07/11/2026 — Sincronização Oficial dos 120 Produtos das 12 Marcas no Banco Neon e Contagem Dinâmica no Catálogo (executorId: `antigravity-gemini`):**
+  - **Sincronização Neon Database:** Executado com sucesso o script `seedCatalog` no banco de dados Neon (`db_lojacomercialdonorte`), cadastrando as 12 marcas oficiais (`Fasapel`, `Fonteplast`, `Knauf`, `Lanchero`, `Plasan`, `Prafesta`, `Segplast`, `Sicao`, `Techplast`, `Totalplast`, `Ultra Descartáveis`, `Vipel`), 24 submarcas vinculadas e os 120 produtos completos (10 produtos por marca com SKUs, dimensões, variantes e estoques).
+  - **Remoção de Legados:** Expurgados todos os produtos de demonstração antigos e não oficiais da época de prototipação.
+  - **Contagem Dinâmica e Honesta:** Atualizada a função `buildEnrichedBrands` em `apps/storefront/lib/brands-data.ts` para somar dinamicamente a contagem de produtos das marcas com suas submarcas (`directCount + childrenCount`), exibindo contagem 100% real do banco de dados e eliminando contagens estáticas fictícias.
+  - **Validação Global:** 51/51 testes de Storefront aprovados (253 testes), typecheck limpo com 0 erros e `pnpm build` concluído com sucesso.
+
 - **07/11/2026 — Substituição Canônica das Marcas Oficiais (12 Marcas e 24 Submarcas) e 120 Produtos Fictícios com Logos de Alta Resolução (executorId: `antigravity-gemini`):**
   - **12 Marcas Canônicas do Setor:** Substituição integral das marcas antigas por: `Fasapel`, `Fonteplast`, `Knauf`, `Lanchero`, `Plasan`, `Prafesta`, `Segplast`, `Sicao`, `Techplast`, `Totalplast`, `Ultra Descartáveis` e `Vipel`.
   - **Logos Oficiais:** Instalados os 12 logotipos em PNG de alta resolução em `apps/storefront/public/assets/PRODUTOS/marcas-imgs/` a partir de `LOGOS MARCA-S PALSTICO`.

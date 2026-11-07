@@ -7,6 +7,18 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **07/11/2026 — Sincronização Oficial dos 120 Produtos das 12 Marcas no Banco Neon e Contagem Dinâmica no Catálogo (executorId: `antigravity-gemini`):**
+  - **Sincronização Efetiva no Banco Neon (`db_lojacomercialdonorte`):**
+    - Executado o `seedCatalog` conectando ao banco PostgreSQL Neon de produção (`db_lojacomercialdonorte`), inserindo com sucesso os 120 produtos oficiais (10 produtos por marca: `Fasapel`, `Fonteplast`, `Knauf`, `Lanchero`, `Plasan`, `Prafesta`, `Segplast`, `Sicao`, `Techplast`, `Totalplast`, `Ultra Descartáveis`, `Vipel`), 24 submarcas vinculadas, estoques, variantes com preços em centavos e dimensões milimétricas.
+    - Limpeza total dos registros legados antigos da época de prototipação.
+  - **Cálculo Dinâmico e Honesto de Produtos por Marca no Catálogo:**
+    - Corrigida a função `buildEnrichedBrands` em [`apps/storefront/lib/brands-data.ts`](file:///d:/.GITHUB/sistemas/loja-comercial-do-norte/apps/storefront/lib/brands-data.ts): a contagem agora reflete estritamente a soma real dos produtos da marca raiz somados aos de suas submarcas (`directCount + childrenCount`), sem nunca inventar contagens fictícias quando o banco responder.
+    - Submarcas soltas com `parentId` são filtradas da raiz do carrossel/diretório para não poluir a vitrine principal.
+  - **Validação Global:**
+    - 51/51 arquivos de teste de storefront verdes (253 testes aprovados).
+    - `pnpm typecheck` com 0 erros em todos os 8 pacotes.
+    - `pnpm build` (Next.js Turbopack + Vite Admin + NestJS) executado com 100% de sucesso.
+
 - **07/11/2026 — Substituição Canônica das Marcas Oficiais (12 Marcas e 24 Submarcas) e 120 Produtos Fictícios com Logos de Alta Resolução (executorId: `antigravity-gemini`):**
   - **Substituição Integral das Marcas Antigas pelas 12 Marcas Oficiais do Setor:**
     - Removidas todas as marcas de exemplo anteriores (`Copobras`, `Cristalcopo`, `Wyda`, `NortePlast`, `Mili`, `Nestlé`, `Supermax`, `Grandha`, `Maxiline`, `Knut`).
