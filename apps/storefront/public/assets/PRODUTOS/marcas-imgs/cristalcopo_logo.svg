@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
-  <rect width="240" height="240" rx="32" fill="#FFFFFF"/>
-  <circle cx="120" cy="84" r="34" fill="#E2091E" opacity="0.1"/>
-  <path d="M104 66h32l-4 42h-24z" fill="none" stroke="#E2091E" stroke-width="4.5" stroke-linejoin="round"/>
-  <path d="M100 66c0-10 40-10 40 0" fill="none" stroke="#004CB1" stroke-width="4.5"/>
-  <text x="120" y="156" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="24" fill="#E2091E" letter-spacing="1">CRISTALCOPO</text>
-  <text x="120" y="178" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="11" fill="#004CB1" letter-spacing="2">ULTRA CRISTAL</text>
-</svg>
