@@ -1,5 +1,11 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **07/11/2026 — Confirmação Transparente de Localização no Nort Chat sem Chute Automático e Precisão de Bairros via Nominatim (executorId: `antigravity-gemini`):**
+  - **Problema Diagnosticado:** Ao clicar em *"📍 A mais próxima de mim"*, o chat alegava *"Olha, consegui acessar sua localização com precisão!"* e cravava São Brás ou Central para usuários na Pedreira, deixando o cabeçalho do site como "Belém/PA" genérico.
+  - **Resolução de Bairros com Nominatim:** `reverseGeocodeCoordinates` agora consulta o OpenStreetMap Nominatim primeiro, obtendo bairro real (`Pedreira`, `São Brás`, etc.), logradouro e CEP sem lacunas.
+  - **Confirmação Explícita de Localização (`UNIT_CONFIRM_LOCATION`):** O Nort pergunta *"Você está em: 📍 [Bairro] ([Cidade])?"*. Se o usuário confirmar (*"Sim, estou em..."*), o atendimento é direcionado para a filial mais próxima (*"Então a unidade mais próxima para seu atendimento é em..."*). Se rejeitar (*"Não, estou em outro bairro"*), o Nort exibe a lista direta de bairros com filiais para escolha precisa.
+  - **Validação:** 51/51 testes do Storefront aprovados (252 testes), typecheck e lint 100% limpos.
+
 - **06/11/2026 — Reorganização do Botão Alterar Dados no Chat do Nort e Badge de Unidade com Menu Seletivo e Sincronização no Site (executorId: `antigravity-gemini`):**
   - **Botão "Alterar meus dados" dentro de "Site / Loja Virtual":**
     - Removido o botão avulso do rodapé das categorias no chat do Nort.

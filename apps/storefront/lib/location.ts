@@ -380,7 +380,57 @@ export async function reverseGeocodeCoordinates(
   lat: number,
   lng: number
 ): Promise<UserLocation | null> {
-  // 1. Tenta BigDataCloud (rápido, sem chave de API, excelente cobertura de bairro/cidade no Brasil)
+  // 1. Tenta OpenStreetMap Nominatim primeiro (máxima precisão de bairros/suburb, ruas e CEPs em Belém e Ananindeua)
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`,
+      {
+        signal: controller.signal,
+        headers: {
+          'Accept-Language': 'pt-BR,pt;q=0.9',
+          'User-Agent': 'LojaComercialDoNorte/1.0',
+        },
+      }
+    );
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const data = await res.json();
+      const addr = data?.address || {};
+      const postcode = addr.postcode ? cleanCep(String(addr.postcode)) : '';
+      const city = addr.city || addr.town || addr.municipality || 'Belém';
+      const state = (
+        addr['ISO3166-2-lvl4']?.replace('BR-', '') ||
+        addr.state_code ||
+        'PA'
+      ).toUpperCase();
+      const street = addr.road || '';
+      const neighborhood = addr.suburb || addr.neighbourhood || addr.city_district || '';
+      const fallbackCep = neighborhood
+        ? getReferenceCepForNeighborhood(neighborhood, city)
+        : '';
+      const cep = postcode.length === 8 ? formatCep(postcode) : fallbackCep;
+
+      return {
+        cep,
+        street,
+        neighborhood,
+        city,
+        state,
+        formatted: buildFormattedAddress({ street, neighborhood, city, state, cep }),
+        shortLabel: buildShortLabel({ city, state, neighborhood }),
+        lat,
+        lng,
+        source: 'gps',
+      };
+    }
+  } catch {
+    // Segue para BigDataCloud
+  }
+
+  // 2. Fallback BigDataCloud (rápido, sem chave de API)
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 3000);
@@ -414,53 +464,6 @@ export async function reverseGeocodeCoordinates(
         city,
         state,
         formatted: buildFormattedAddress({ neighborhood, city, state, cep }),
-        shortLabel: buildShortLabel({ city, state, neighborhood }),
-        lat,
-        lng,
-        source: 'gps',
-      };
-    }
-  } catch {
-    // Segue para Nominatim
-  }
-
-  // 2. Fallback OpenStreetMap Nominatim
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`,
-      {
-        signal: controller.signal,
-        headers: { 'Accept-Language': 'pt-BR,pt;q=0.9' },
-      }
-    );
-    clearTimeout(timeoutId);
-
-    if (res.ok) {
-      const data = await res.json();
-      const addr = data?.address || {};
-      const postcode = addr.postcode ? cleanCep(String(addr.postcode)) : '';
-      const city = addr.city || addr.town || addr.municipality || 'Belém';
-      const state = (
-        addr['ISO3166-2-lvl4']?.replace('BR-', '') ||
-        addr.state_code ||
-        'PA'
-      ).toUpperCase();
-      const street = addr.road || '';
-      const neighborhood = addr.suburb || addr.neighbourhood || '';
-      const fallbackCep = neighborhood
-        ? getReferenceCepForNeighborhood(neighborhood, city)
-        : '';
-      const cep = postcode.length === 8 ? formatCep(postcode) : fallbackCep;
-
-      return {
-        cep,
-        street,
-        neighborhood,
-        city,
-        state,
-        formatted: buildFormattedAddress({ street, neighborhood, city, state, cep }),
         shortLabel: buildShortLabel({ city, state, neighborhood }),
         lat,
         lng,

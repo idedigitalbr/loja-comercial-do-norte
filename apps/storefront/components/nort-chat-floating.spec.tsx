@@ -468,9 +468,20 @@ describe('NortChatFloating Component (WhatsApp Conversational Guided Chat & Mode
     });
 
     expect(
-      screen.getByText(/olha, consegui acessar sua localização com precisão!/i)
+      screen.getByText(/você está em: 📍 pedreira \(belém\)\?/i)
     ).toBeDefined();
-    expect(screen.getByText(/unidade mauriti \(pedreira\)/i)).toBeDefined();
+    expect(screen.getByText(/✅ sim, estou em pedreira/i)).toBeDefined();
+    expect(screen.getByText(/📍 não, estou em outro bairro/i)).toBeDefined();
+
+    fireEvent.click(screen.getByText(/✅ sim, estou em pedreira/i));
+
+    act(() => {
+      vi.advanceTimersByTime(5000);
+    });
+
+    expect(
+      screen.getByText(/então a unidade mais próxima para o seu atendimento é a comercial do norte — filial mauriti pedreira/i)
+    ).toBeDefined();
 
     vi.unstubAllGlobals();
   });

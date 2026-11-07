@@ -7,6 +7,16 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **07/11/2026 — Confirmação Transparente de Localização no Nort Chat sem Chute Automático e Precisão de Bairros via Nominatim (executorId: `antigravity-gemini`):**
+  - **Problema Diagnosticado:** Ao clicar em *"📍 A mais próxima de mim"*, o chat alegava *"Olha, consegui acessar sua localização com precisão!"* e despejava opções calculadas sem perguntar onde o usuário realmente estava. Em desktops/notebooks com geolocalização Wi-Fi/IP imprecisa, apontava para São Brás enquanto o visitante estava na Pedreira, deixando o cabeçalho do site com o genérico "Belém/PA" devido ao BigDataCloud não fornecer o bairro.
+  - **Prioridade para OpenStreetMap Nominatim em `reverseGeocodeCoordinates`:** Nominatim agora é consultado primeiro com headers apropriados (`Accept-Language: pt-BR` e `User-Agent`), garantindo resolução real de bairro (`addr.suburb`), rua (`addr.road`) e CEP oficial (`addr.postcode`) para Belém e Ananindeua (Pedreira, São Brás, Jurunas, Guamá, Marco, Nazaré, Cidade Nova, etc.). O cabeçalho exibe o bairro e cidade com precisão (ex: `Pedreira, Belém/PA`).
+  - **Novo Passo de Confirmação no Chat (`UNIT_CONFIRM_LOCATION`):**
+    - Em vez de assumir cegamente ou cravar uma loja sem consentimento, o Nort pergunta: `Você está em: 📍 [Bairro] ([Cidade])?`
+    - Opções claras: `✅ Sim, estou em [Bairro]` e `📍 Não, estou em outro bairro`.
+    - Ao confirmar `Sim`: o Nort responde calorosamente: `Perfeito! Então a unidade mais próxima para o seu atendimento é a [Nome da Loja] ([Endereço])! 🏬`, direcionando o atendimento e ativando a loja no site e no CRM.
+    - Ao clicar `Não, estou em outro bairro`: o Nort responde amigavelmente e abre a seleção limpa dos bairros com filiais (`📍 Pedreira`, `📍 São Brás`, `📍 Jurunas`, `📍 Guamá`, `📍 Cidade Nova`, `📍 Outro bairro`), permitindo ao usuário na Pedreira escolher `📍 Pedreira` e ser direcionado diretamente para a *Filial Mauriti Pedreira (Tv. Mauriti, 1124)*, com sincronização instantânea no site.
+  - **Validação Global:** 51/51 suítes de testes do Storefront aprovadas (252 testes, incluindo `nort-chat-floating.spec.tsx` e `location.spec.ts`), `turbo typecheck` e `turbo lint` aprovados com 0 erros.
+
 - **06/11/2026 — Auto-Reconciliação Inteligente de Vitrine e Sincronização do Carrossel de Marcas no Neon DB (executorId: `antigravity-gemini`):**
   - **Diagnóstico de Divergência Localhost vs Vercel:** Identificado que a seção `s07-compre-por-marca` ("Compre por Marca") aparecia no localhost devido ao fallback padrão quando o banco local não possuía registro salvo (`homeComposition: null`), enquanto na Vercel a API retornava o snapshot anterior de 16 seções gravado em 05/11 no PostgreSQL Neon (`SiteConfiguration.homeComposition`).
   - **Sincronização Canônica no Neon de Produção:** Sincronizado o `SiteConfiguration.homeComposition` no banco Neon oficial com o JSON canônico atualizado de 17 seções (incluindo `s07-compre-por-marca: brands-carousel`, ordem 4) e registrado o histórico correspondente em `AuditLog`. A loja online na Vercel passou a renderizar o carrossel de marcas imediatamente.

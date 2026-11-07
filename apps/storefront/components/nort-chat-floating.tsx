@@ -84,6 +84,7 @@ export type BotStep =
   | 'IDENTIFY'
   | 'RESUME_PROMPT'
   | 'UNIT_MODE'
+  | 'UNIT_CONFIRM_LOCATION'
   | 'UNIT_NEARBY_CHOICE'
   | 'UNIT_NEIGHBORHOOD_CHOICE'
   | 'UNIT_CEP'
@@ -406,6 +407,14 @@ export function NortChatFloating({
   const [isStoreActivated, setIsStoreActivated] = useState(false);
   const [autoSuggestedStore, setAutoSuggestedStore] = useState<CommercialStore>(DEFAULT_STORE);
   const [nearbyStores, setNearbyStores] = useState<StoreWithDistance[]>([]);
+  const [pendingLocationData, setPendingLocationData] = useState<{
+    placeLabel: string;
+    neighborhood: string;
+    city: string;
+    state: string;
+    store: CommercialStore;
+    location: UserLocation;
+  } | null>(null);
   const [previousSession, setPreviousSession] = useState<StoredNortSession | null>(null);
   const [chosenSubject, setChosenSubject] = useState('');
   const [customMessageText, setCustomMessageText] = useState('');
@@ -1230,9 +1239,9 @@ export function NortChatFloating({
     }
 
     const userMsg: ChatMessage = {
-      id: `user-near-${Date.now()}`,
+      id: `user-nearest-${Date.now()}`,
       sender: 'user',
-      text: `📍 A mais próxima de mim${locationText}`,
+      text: '📍 A mais próxima de mim',
       time: getFormattedTime(),
       quotedText: 'Agora me diz: em qual unidade da Comercial do Norte você gostaria de ser atendido?',
     };
@@ -1261,6 +1270,9 @@ export function NortChatFloating({
     let targetLat: number | undefined = currentLoc?.lat;
     let targetLng: number | undefined = currentLoc?.lng;
     let neighborhoodName = currentLoc?.neighborhood || '';
+    let cityName = currentLoc?.city || 'Belém';
+    let stateName = currentLoc?.state || 'PA';
+    let reverseLoc: UserLocation | null = null;
     let gpsSuccess = false;
 
     if (typeof navigator !== 'undefined' && navigator.geolocation) {
@@ -1292,9 +1304,15 @@ export function NortChatFloating({
           targetLng = position.coords.longitude;
           const reverse = await reverseGeocodeCoordinates(targetLat, targetLng);
           if (reverse) {
-            syncHeaderLocation(reverse);
+            reverseLoc = reverse;
             if (reverse.neighborhood) {
               neighborhoodName = reverse.neighborhood;
+            }
+            if (reverse.city) {
+              cityName = reverse.city;
+            }
+            if (reverse.state) {
+              stateName = reverse.state;
             }
           }
         }
@@ -1303,52 +1321,140 @@ export function NortChatFloating({
       }
     }
 
-    // Cenário 1: GPS preciso obtido com sucesso
-    if (gpsSuccess && targetLat !== undefined && targetLng !== undefined) {
+    // Cenário 1: Coordenadas obtidas (GPS/dispositivo)
+    if (targetLat !== undefined && targetLng !== undefined) {
       const topStores = findTopNearestStores(targetLat, targetLng, 2);
+      const nearestStore = topStores[0];
       setNearbyStores(topStores);
 
-      window.setTimeout(() => {
-        setIsTyping(false);
-        setStep('UNIT_NEARBY_CHOICE');
+      if (!neighborhoodName && nearestStore) {
+        const matchingShortcut = NEIGHBORHOOD_STORE_SHORTCUTS.find((s) => s.storeId === nearestStore.id);
+        if (matchingShortcut) {
+          neighborhoodName = matchingShortcut.neighborhood;
+          if (matchingShortcut.city) cityName = matchingShortcut.city;
+          if (matchingShortcut.state) stateName = matchingShortcut.state;
+        } else if (nearestStore.neighborhood) {
+          neighborhoodName = nearestStore.neighborhood.split(' ')[0] || '';
+        }
+      }
 
-        const introText = neighborhoodName
-          ? `Olha, consegui acessar sua localização com precisão! A unidade mais próxima de você aqui perto do bairro ${neighborhoodName} tem estas opções:`
-          : 'Olha, consegui acessar sua localização com precisão! A unidade mais próxima de você tem estas opções:';
+      if (neighborhoodName) {
+        const placeLabel = `${neighborhoodName} (${cityName})`;
+        const locationToConfirm: UserLocation = reverseLoc || {
+          cep: currentLoc?.cep || getReferenceCepForNeighborhood(neighborhoodName, cityName),
+          street: currentLoc?.street || '',
+          neighborhood: neighborhoodName,
+          city: cityName,
+          state: stateName,
+          formatted: `${neighborhoodName}, ${cityName} - ${stateName}`,
+          shortLabel: `${neighborhoodName}, ${cityName}/${stateName}`,
+          lat: targetLat,
+          lng: targetLng,
+          source: 'gps',
+        };
 
-        scheduleBotSequence([introText], { withInteractiveWidget: true });
-      }, 1500);
-      return;
+        setPendingLocationData({
+          placeLabel,
+          neighborhood: neighborhoodName,
+          city: cityName,
+          state: stateName,
+          store: nearestStore,
+          location: locationToConfirm,
+        });
+
+        window.setTimeout(() => {
+          setIsTyping(false);
+          setStep('UNIT_CONFIRM_LOCATION');
+
+          const introText = `Você está em: 📍 ${placeLabel}?`;
+
+          scheduleBotSequence([introText], { withInteractiveWidget: true });
+        }, 1500);
+        return;
+      }
     }
 
-    // Cenário 2: Usuário já possui bairro confirmado (ex: Pedreira, São Brás)
-    if (neighborhoodName && targetLat !== undefined && targetLng !== undefined) {
-      const topStores = findTopNearestStores(targetLat, targetLng, 2);
-      setNearbyStores(topStores);
-
-      window.setTimeout(() => {
-        setIsTyping(false);
-        setStep('UNIT_NEARBY_CHOICE');
-
-        const introText = `Olha, a unidade mais próxima de você tem estas opções aqui perto do bairro ${neighborhoodName}:`;
-
-        scheduleBotSequence([introText], { withInteractiveWidget: true });
-      }, 1500);
-      return;
-    }
-
-    // Cenário 3 (CHAT INTELIGENTE SEM CHUTE): Não temos bairro exato nem GPS.
-    // Em vez de chutar Cidade Velha e mandar pro Jurunas, o Nort pergunta com simpatia e transparência!
+    // Cenário 2 (CHAT INTELIGENTE SEM CHUTE): Bairro não identificado ou GPS genérico/bloqueado
     window.setTimeout(() => {
       setIsTyping(false);
       setStep('UNIT_NEIGHBORHOOD_CHOICE');
 
-      const cityName = currentLoc?.city || 'Belém';
-      const stateName = currentLoc?.state || 'PA';
-      const introText = `Identifiquei que você está na região de ${cityName}/${stateName}, mas não consegui acessar sua localização exata pelo navegador (pode estar desativada ou bloqueada no aparelho). Para eu não chutar seu endereço e te indicar a loja certinha mais perto de você, me conta: em qual bairro você está?`;
+      const introText = gpsSuccess
+        ? `Identifiquei que você está na região de ${cityName}/${stateName}, mas para eu não chutar seu endereço e te indicar a loja certinha mais perto de você, me conta: em qual bairro você está?`
+        : `Identifiquei que você está na região de ${cityName}/${stateName}, mas não consegui acessar sua localização exata pelo navegador (pode estar desativada ou bloqueada no aparelho). Para eu não chutar seu endereço e te indicar a loja certinha mais perto de você, me conta: em qual bairro você está?`;
 
       scheduleBotSequence([introText], { withInteractiveWidget: true });
     }, 1500);
+  }
+
+  function handleConfirmDetectedLocation() {
+    if (isTyping || !pendingLocationData) return;
+
+    const { store, neighborhood, city, location } = pendingLocationData;
+    const userMsg: ChatMessage = {
+      id: `user-confirm-loc-${Date.now()}`,
+      sender: 'user',
+      text: neighborhood ? `✅ Sim, estou em ${neighborhood}` : '✅ Sim, estou aqui',
+      time: getFormattedTime(),
+      quotedText: `Você está em: 📍 ${pendingLocationData.placeLabel}?`,
+    };
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
+    updateActiveTicketMessages(nextMessages);
+
+    setSelectedStore(store);
+    setIsStoreActivated(true);
+    syncHeaderLocation(location);
+
+    setStep('SERVICE');
+    setExpandedCategory(null);
+
+    recordTicketEvent(
+      'select_unit',
+      `Unidade confirmada após validação de localização (${neighborhood || city})`,
+      store.shortTitle,
+      'SERVICE'
+    );
+
+    void registerLeadToCRM({
+      name: customerName || 'Cliente Site',
+      phone: customerPhone || '(91) 98344-0880',
+      store,
+      subject: `Atendimento direcionado para ${store.shortTitle} (${neighborhood || city})`,
+      allMessages: nextMessages,
+    });
+
+    scheduleBotSequence(
+      [
+        `Perfeito, ${customerName || 'visitante'}! 💙 Então a unidade mais próxima para o seu atendimento é a ${store.name || store.shortTitle} (${store.address}).`,
+        'Agora me conta: como podemos te ajudar hoje?',
+      ],
+      { withInteractiveWidget: true }
+    );
+  }
+
+  function handleRejectDetectedLocation() {
+    if (isTyping) return;
+
+    const userMsg: ChatMessage = {
+      id: `user-reject-loc-${Date.now()}`,
+      sender: 'user',
+      text: '📍 Não, estou em outro bairro',
+      time: getFormattedTime(),
+      quotedText: pendingLocationData ? `Você está em: 📍 ${pendingLocationData.placeLabel}?` : undefined,
+    };
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
+    updateActiveTicketMessages(nextMessages);
+
+    setStep('UNIT_NEIGHBORHOOD_CHOICE');
+
+    scheduleBotSequence(
+      [
+        'Sem problemas! Para eu não chutar seu endereço e te indicar a loja certinha mais perto de você, me conta: em qual bairro você está?',
+      ],
+      { withInteractiveWidget: true }
+    );
   }
 
   function handleSelectNeighborhood(item: NeighborhoodShortcut) {
@@ -2492,6 +2598,21 @@ export function NortChatFloating({
                     </QuickReplyButton>
                     <QuickReplyButton onClick={handleShowUnitList}>
                       🏬 Escolher uma unidade
+                    </QuickReplyButton>
+                  </div>
+                )}
+
+                {/* CONFIRMAÇÃO DE LOCALIZAÇÃO DETECTADA (SEM CHUTE AUTOMÁTICO) */}
+                {step === 'UNIT_CONFIRM_LOCATION' && !isTyping && interactiveReady && pendingLocationData && (
+                  <div className="space-y-1.5 pt-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <QuickReplyButton onClick={handleConfirmDetectedLocation}>
+                      {pendingLocationData.neighborhood
+                        ? `✅ Sim, estou em ${pendingLocationData.neighborhood}`
+                        : '✅ Sim, estou aqui'}
+                    </QuickReplyButton>
+
+                    <QuickReplyButton onClick={handleRejectDetectedLocation}>
+                      📍 Não, estou em outro bairro
                     </QuickReplyButton>
                   </div>
                 )}
