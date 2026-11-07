@@ -298,4 +298,37 @@ describe('VideoArticlesCarouselWidget (Explica Aí Nort)', () => {
     const confeiteiras = screen.getAllByAltText('Workshop de Confeitaria');
     expect(confeiteiras.length).toBe(2);
   });
+
+  it('garante que o wrapper do cabeçalho possui lg:static no desktop para evitar corte de texto e colapso de altura dos mascotes', () => {
+    const { container: explicaContainer } = render(
+      <VideoArticlesCarouselWidget
+        title="Explica Aí Nort"
+        subtitle="Dicas em vídeos e artigos para você usar no seu negócio."
+        items={mockItems}
+      />
+    );
+
+    // O container do header do Explica Aí deve ter lg:static
+    const explicaHeading = screen.getByRole('heading', { level: 2 });
+    const explicaWrapper = explicaHeading.closest('div.grid');
+    expect(explicaWrapper?.className).toContain('lg:static');
+
+    // O mascote desktop do Explica Aí deve ter classes de posicionamento absoluto relativas ao banner
+    const mascotImgs = screen.getAllByAltText('Mascote Explica Aí Nort');
+    expect(mascotImgs.length).toBeGreaterThanOrEqual(1);
+
+    const { container: confContainer } = render(
+      <VideoArticlesCarouselWidget
+        variant="confeitaria"
+        title="Workshops & Aulas Práticas de Confeitaria"
+        subtitle="Faça suas compras e ganhe treinamento gratuitamente."
+        items={mockItems}
+      />
+    );
+
+    // O container do header de Confeitaria deve ter lg:static
+    const confHeading = confContainer.querySelector('h2');
+    const confWrapper = confHeading?.parentElement?.parentElement;
+    expect(confWrapper?.className).toContain('lg:static');
+  });
 });

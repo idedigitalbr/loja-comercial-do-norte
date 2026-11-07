@@ -200,7 +200,7 @@ export function VideoArticlesCarouselWidget({
 
       {/* HEADER: Estrutura dedicada para Confeitaria (Fiel ao Anexo 2) vs Explica Aí Nort */}
       {isConfeitaria ? (
-        <div className="relative z-10 min-h-[235px] xs:min-h-[255px] sm:min-h-[285px] lg:min-h-0 mb-1.5 xs:mb-2 lg:mb-0">
+        <div className="relative lg:static z-10 min-h-[235px] xs:min-h-[255px] sm:min-h-[285px] lg:min-h-0 mb-1.5 xs:mb-2 lg:mb-0">
           {/* Coluna Esquerda: Título Oficial, Subtítulo e Link Ver todos */}
           <div
             className="w-[50%] xs:w-[49%] sm:w-[53%] lg:w-auto lg:max-w-[270px] xl:max-w-[285px] pt-1 xs:pt-1.5 lg:pt-0 flex flex-col justify-start items-start z-10 relative lg:absolute lg:left-7 xl:left-8 lg:top-1/2 lg:-translate-y-1/2"
@@ -284,11 +284,11 @@ export function VideoArticlesCarouselWidget({
         </div>
       ) : (
         /* Header Grid para Explica Aí Nort (Mascote à esquerda no mobile, Título à direita) */
-        <div className="relative z-10 grid grid-cols-[46%_54%] xs:grid-cols-[45%_55%] items-end gap-x-1.5 xs:gap-x-2 pt-1 pb-3 px-1 lg:block lg:p-0">
+        <div className="relative lg:static z-10 grid grid-cols-[46%_54%] xs:grid-cols-[45%_55%] items-end gap-x-1.5 xs:gap-x-2 pt-1 pb-3 px-1 lg:block lg:p-0">
           {/* 1. Mascote 3D Explica Aí */}
           <div
             aria-hidden="true"
-            className="col-start-1 row-start-1 row-span-2 relative w-full h-[160px] xs:h-[180px] sm:h-[200px] flex flex-col justify-end items-center pointer-events-none select-none z-10 lg:col-auto lg:row-auto lg:absolute lg:bottom-0 lg:left-[14.5%] xl:lg:left-[15.5%] lg:h-[92%] xl:lg:h-[93%] lg:w-[26%] lg:max-w-[265px] lg:min-w-[220px]"
+            className="col-start-1 row-start-1 row-span-2 relative w-full h-[160px] xs:h-[180px] sm:h-[200px] flex flex-col justify-end items-center pointer-events-none select-none z-10 lg:col-auto lg:row-auto lg:absolute lg:bottom-0 lg:left-[14.5%] xl:left-[15.5%] lg:h-[92%] xl:h-[93%] lg:w-[26%] lg:max-w-[265px] lg:min-w-[220px]"
           >
             {isExplicaAi && (
               <WhiteActionSparks className="block lg:hidden absolute -left-1 top-4 xs:top-5 size-6 xs:size-7 pointer-events-none select-none z-20" />
@@ -306,7 +306,7 @@ export function VideoArticlesCarouselWidget({
           </div>
 
           {/* 2. Título e Subtítulo Explica Aí */}
-          <div className="col-start-2 row-start-1 relative flex flex-col justify-end items-start pl-1 xs:pl-1.5 pb-0.5 z-10 lg:col-auto lg:row-auto lg:p-0 lg:max-w-[190px] xs:lg:max-w-[210px] lg:max-w-[205px] xl:lg:max-w-[225px] lg:absolute lg:left-7 xl:left-8 lg:top-1/2 lg:-translate-y-1/2">
+          <div className="col-start-2 row-start-1 relative flex flex-col justify-end items-start pl-1 xs:pl-1.5 pb-0.5 z-10 lg:col-auto lg:row-auto lg:p-0 lg:max-w-[205px] xl:max-w-[225px] lg:absolute lg:left-7 xl:left-8 lg:top-1/2 lg:-translate-y-1/2">
             {isExplicaAi && (
               <YellowActionSparks className="block lg:hidden absolute -top-1 xs:-top-1.5 right-1 xs:right-3 size-7 xs:size-8 pointer-events-none select-none" />
             )}
@@ -321,7 +321,7 @@ export function VideoArticlesCarouselWidget({
                 <span>{title}</span>
               )}
             </h2>
-            <div className="mt-2 lg:mt-2.5 sm:lg:mt-3 text-[11px] xs:text-[11.5px] sm:text-[12px] xl:text-[13px] leading-[1.3] lg:leading-snug text-white/95 lg:text-white/90 font-normal">
+            <div className="mt-2 lg:mt-2.5 sm:mt-3 text-[11px] xs:text-[11.5px] sm:text-[12px] xl:text-[13px] leading-[1.3] lg:leading-snug text-white/95 lg:text-white/90 font-normal">
               <p className="block">Dicas em vídeos e artigos</p>
               <p className="block">para você usar no seu negócio.</p>
             </div>
