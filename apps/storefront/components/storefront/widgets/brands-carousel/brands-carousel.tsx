@@ -12,7 +12,7 @@ import type {
   WidgetContextData,
 } from '@/lib/storefront/widget-types';
 
-const ITEMS_PER_DESKTOP_PAGE = 6;
+const ITEMS_PER_DESKTOP_PAGE = 8;
 const MAX_CAROUSEL_DOTS = 4;
 
 export function BrandsCarouselWidget({
@@ -155,9 +155,9 @@ export function BrandsCarouselWidget({
 
         {/* CONTAINER DOS CARDS CIRCULARES DE MARCAS */}
         <div className="relative">
-          {/* MOBILE (< md): Carrossel horizontal com cards circulares */}
+          {/* MOBILE (< md): Carrossel horizontal com cards circulares compactos */}
           <div
-            className="no-scrollbar -mx-4 flex flex-nowrap items-center gap-3 overflow-x-auto px-4 pb-2 touch-pan-x snap-x snap-mandatory md:hidden"
+            className="no-scrollbar -mx-4 flex flex-nowrap items-center gap-3.5 overflow-x-auto px-4 pb-2 touch-pan-x snap-x snap-mandatory md:hidden"
             data-testid="brands-carousel-mobile-track"
             onScroll={handleMobileScroll}
             ref={mobileTrackRef}
@@ -165,7 +165,7 @@ export function BrandsCarouselWidget({
             {brandItems.map((brand) => (
               <Link
                 aria-label={`Ver produtos da marca ${brand.name}`}
-                className="group relative flex aspect-square w-[116px] sm:w-[132px] shrink-0 snap-start items-center justify-center overflow-hidden rounded-full border border-slate-200/80 bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.08)] transition-all duration-200 active:scale-95"
+                className="group relative flex aspect-square w-[96px] sm:w-[110px] shrink-0 snap-start items-center justify-center overflow-hidden rounded-full border border-slate-200/80 bg-white p-3 shadow-[0_4px_14px_rgba(15,23,42,0.07)] transition-all duration-200 active:scale-95"
                 href={brand.linkUrl || `/marca/${brand.slug}`}
                 key={`mob-${brand.id}`}
                 onClick={(e) => {
@@ -176,22 +176,22 @@ export function BrandsCarouselWidget({
                   <Image
                     alt={brand.name}
                     className="max-h-full max-w-full object-contain transition-transform duration-200 group-hover:scale-105"
-                    height={130}
+                    height={100}
                     src={brand.imageUrl}
                     unoptimized
-                    width={130}
+                    width={100}
                   />
                 </div>
               </Link>
             ))}
           </div>
 
-          {/* DESKTOP (md+): Grid de 6 cards 100% CIRCULARES flutuando sobre o fundo da loja */}
-          <div className="hidden md:grid md:grid-cols-6 md:gap-4 lg:gap-5">
+          {/* DESKTOP (md+): Grid de 8 cards 100% CIRCULARES compactos e bem espaçados */}
+          <div className="hidden md:grid md:grid-cols-8 gap-3 sm:gap-3.5 lg:gap-4.5 xl:gap-5.5">
             {desktopVisibleItems.map((brand) => (
               <Link
                 aria-label={`Ver produtos da marca ${brand.name}`}
-                className="group relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-full border border-slate-200/80 bg-white p-5 sm:p-6 lg:p-7 shadow-[0_6px_22px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-1.5 hover:border-[#004CB1]/40 hover:shadow-[0_14px_32px_rgba(0,76,177,0.18)]"
+                className="group relative flex aspect-square w-full max-w-[130px] mx-auto items-center justify-center overflow-hidden rounded-full border border-slate-200/80 bg-white p-3.5 sm:p-4 lg:p-4.5 shadow-[0_4px_16px_rgba(15,23,42,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-[#004CB1]/40 hover:shadow-[0_10px_26px_rgba(0,76,177,0.16)]"
                 href={brand.linkUrl || `/marca/${brand.slug}`}
                 key={`desk-${brand.id}`}
                 onClick={(e) => {
@@ -202,10 +202,10 @@ export function BrandsCarouselWidget({
                   <Image
                     alt={brand.name}
                     className="max-h-full max-w-full object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-108"
-                    height={160}
+                    height={120}
                     src={brand.imageUrl}
                     unoptimized
-                    width={160}
+                    width={120}
                   />
                 </div>
               </Link>
@@ -217,21 +217,21 @@ export function BrandsCarouselWidget({
             <>
               <button
                 aria-label="Marcas anteriores"
-                className="absolute -left-3 lg:-left-5 top-1/2 z-10 hidden size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-slate-200/90 bg-white text-slate-700 shadow-md transition hover:border-[#004CB1] hover:bg-slate-50 hover:text-[#004CB1] active:scale-95 md:flex"
+                className="absolute -left-3 lg:-left-5 top-1/2 z-10 hidden size-9 lg:size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-slate-200/90 bg-white text-slate-700 shadow-md transition hover:border-[#004CB1] hover:bg-slate-50 hover:text-[#004CB1] active:scale-95 md:flex"
                 onClick={() =>
                   setPage((prev) => (prev - 1 + totalDesktopPages) % totalDesktopPages)
                 }
                 type="button"
               >
-                <ChevronLeft className="size-5" />
+                <ChevronLeft className="size-4 lg:size-5" />
               </button>
               <button
                 aria-label="Próximas marcas"
-                className="absolute -right-3 lg:-right-5 top-1/2 z-10 hidden size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-slate-200/90 bg-white text-slate-700 shadow-md transition hover:border-[#004CB1] hover:bg-slate-50 hover:text-[#004CB1] active:scale-95 md:flex"
+                className="absolute -right-3 lg:-right-5 top-1/2 z-10 hidden size-9 lg:size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-slate-200/90 bg-white text-slate-700 shadow-md transition hover:border-[#004CB1] hover:bg-slate-50 hover:text-[#004CB1] active:scale-95 md:flex"
                 onClick={() => setPage((prev) => (prev + 1) % totalDesktopPages)}
                 type="button"
               >
-                <ChevronRight className="size-5" />
+                <ChevronRight className="size-4 lg:size-5" />
               </button>
             </>
           )}

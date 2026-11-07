@@ -27,7 +27,7 @@ describe('BrandsCarouselWidget', () => {
     brands: [],
   };
 
-  it('renders centered title, 6 brand cards on first page, and pagination dots', () => {
+  it('renders centered title, 8 brand cards on first page, and pagination dots', () => {
     render(
       <BrandsCarouselWidget
         contextData={emptyContext}
@@ -39,13 +39,15 @@ describe('BrandsCarouselWidget', () => {
 
     expect(screen.getByRole('heading', { name: 'Compre por Marca' })).toBeDefined();
 
-    // First 6 brands from DEFAULT_BRAND_SHOWCASE (matching mockup)
+    // First 8 brands from DEFAULT_BRAND_SHOWCASE
     expect(screen.getAllByRole('img', { name: 'Lanchero' })[0]).toBeDefined();
     expect(screen.getAllByRole('img', { name: 'Fasapel' })[0]).toBeDefined();
     expect(screen.getAllByRole('img', { name: 'Segplast' })[0]).toBeDefined();
     expect(screen.getAllByRole('img', { name: 'Ultra Descartáveis' })[0]).toBeDefined();
     expect(screen.getAllByRole('img', { name: 'Knauf' })[0]).toBeDefined();
     expect(screen.getAllByRole('img', { name: 'Plasan' })[0]).toBeDefined();
+    expect(screen.getAllByRole('img', { name: 'Fonteplast' })[0]).toBeDefined();
+    expect(screen.getAllByRole('img', { name: 'Prafesta' })[0]).toBeDefined();
 
     // Links point to /marca/[slug]
     const lancheroLink = screen.getAllByRole('img', { name: 'Lanchero' })[0]?.closest('a');
@@ -56,8 +58,6 @@ describe('BrandsCarouselWidget', () => {
     expect(page2Dot).toBeDefined();
     fireEvent.click(page2Dot);
 
-    expect(screen.getAllByRole('img', { name: 'Fonteplast' })[0]).toBeDefined();
-    expect(screen.getAllByRole('img', { name: 'Prafesta' })[0]).toBeDefined();
     expect(screen.getAllByRole('img', { name: 'Sicao' })[0]).toBeDefined();
     expect(screen.getAllByRole('img', { name: 'Techplast' })[0]).toBeDefined();
     expect(screen.getAllByRole('img', { name: 'Totalplast' })[0]).toBeDefined();
