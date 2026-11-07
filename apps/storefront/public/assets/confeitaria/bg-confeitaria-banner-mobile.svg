@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 850" width="100%" height="100%" preserveAspectRatio="none">
+  <defs>
+    <!-- Base dark chocolate gradient -->
+    <linearGradient id="baseGradMobile" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#441418" />
+      <stop offset="45%" stop-color="#380e12" />
+      <stop offset="100%" stop-color="#26070a" />
+    </linearGradient>
+
+    <!-- Top left burgundy wave gradient -->
+    <linearGradient id="topLeftGradMobile" x1="0%" y1="0%" x2="100%" y2="80%">
+      <stop offset="0%" stop-color="#c84660" />
+      <stop offset="60%" stop-color="#9a273b" />
+      <stop offset="100%" stop-color="#55121e" />
+    </linearGradient>
+
+    <!-- Middle divider wave gradient -->
+    <linearGradient id="middleGradMobile" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#881e32" />
+      <stop offset="40%" stop-color="#b5364f" />
+      <stop offset="75%" stop-color="#7a172a" />
+      <stop offset="100%" stop-color="#460c16" />
+    </linearGradient>
+
+    <!-- Bottom left burgundy wave gradient -->
+    <linearGradient id="bottomLeftGradMobile" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b8344e" />
+      <stop offset="60%" stop-color="#841e31" />
+      <stop offset="100%" stop-color="#480c17" />
+    </linearGradient>
+
+    <!-- Bottom right cream organic swoosh -->
+    <linearGradient id="creamGradMobile" x1="0%" y1="20%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef5ed" />
+      <stop offset="45%" stop-color="#f6ddc1" />
+      <stop offset="100%" stop-color="#ebd0b0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Base background -->
+  <rect width="500" height="850" fill="url(#baseGradMobile)" />
+
+  <!-- Wave 1: Top-left elegant curve -->
+  <path d="M 0,0 L 0,115 C 45,115 110,80 170,45 C 205,25 235,10 255,0 Z" fill="url(#topLeftGradMobile)" />
+
+  <!-- Wave 2: Middle divider wave behind mascot/cake flowing across -->
+  <path d="M 0,390 C 60,405 130,455 210,465 C 290,475 385,420 500,430 L 500,515 C 390,500 280,540 200,520 C 120,500 50,460 0,440 Z" fill="url(#middleGradMobile)" opacity="0.95" />
+
+  <!-- Wave 3: Bottom-left gentle curve -->
+  <path d="M 0,850 L 0,760 C 60,768 160,792 250,818 C 290,830 330,845 350,850 Z" fill="url(#bottomLeftGradMobile)" />
+
+  <!-- Wave 4: Bottom-right cream organic swoosh -->
+  <path d="M 320,850 C 375,820 425,775 500,725 L 500,850 Z" fill="url(#creamGradMobile)" />
+</svg>
