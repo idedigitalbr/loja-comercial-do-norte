@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './explica-ai-single-post.module.css';
@@ -145,6 +146,28 @@ const RELATED_VIDEO_ARTICLES = [
   },
 ];
 
+const POST_KEY_POINTS: Record<string, string[]> = {
+  'copos-e-tampas-para-acai-e-cafe': [
+    'Formatos: copos térmicos vs copos cristal transparentes para açaí e café.',
+    'Tampas: bolha com ou sem furo e bico para bebidas quentes.',
+    'Vedação: prevenção contra vazamentos na moto-entrega.',
+    'Dicas práticas de padronização de tamanhos no seu balcão e delivery.',
+  ],
+  'embalagens-kraft-para-o-seu-delivery': [
+    'Formatos e resistência: praticidade e sustentabilidade na entrega de lanches.',
+    'Barreira antigordura: proteção essencial para hambúrgueres e porções.',
+    'Apresentação artesanal: valorização imediata da marca no unboxing do cliente.',
+    'Dicas de empacotamento e economia operacional.',
+  ],
+};
+
+const DEFAULT_KEY_POINTS = [
+  'Formatos: diferenças entre caixa oitavada e quadrada.',
+  'Respiros: como a ventilação evita que a massa fique borrachuda.',
+  'Lacres de segurança: mais confiança na entrega.',
+  'Dicas práticas de uso e armazenamento.',
+];
+
 const DEFAULT_EXPLICA_VIDEO = 'https://www.youtube.com/shorts/m6drhnZQmCM';
 
 function parseYouTubeVideo(url?: string | null): {
@@ -185,7 +208,32 @@ function parseYouTubeVideo(url?: string | null): {
 
 export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps) {
   const [activeVideoModal, setActiveVideoModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const carouselTrackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Trava scroll da página e escuta ESC enquanto o modal de vídeo estiver ativo
+  useEffect(() => {
+    if (!activeVideoModal) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActiveVideoModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeVideoModal]);
 
   const videoData = parseYouTubeVideo(post.videoUrl);
 
@@ -325,8 +373,8 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
                 aria-label="Assistir ao vídeo explicativo"
               >
                 <Image
-                  src="/assets/explica-ai/video-screen-girl.png"
-                  alt="Vídeo explicativo na prática"
+                  src={post.coverUrl || '/assets/explica-ai/video-screen-girl.png'}
+                  alt={post.title}
                   fill
                   priority
                   sizes="(max-width: 767px) 200px, 232px"
@@ -422,24 +470,58 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
 
           {/* Parágrafos Explicativos */}
           <div className="mt-5 max-w-3xl mx-auto space-y-4 text-slate-700 text-sm sm:text-[15.5px] leading-relaxed text-justify sm:text-left font-normal">
-            <p>
-              A embalagem certa faz toda a diferença para manter a qualidade da pizza até o cliente.
-              Escolher o formato ideal, utilizar os respiros adequados e reforçar o fechamento com lacres
-              invioláveis ajuda a preservar o sabor, evitar que a massa fique borrachuda e garante uma
-              entrega mais segura.
-            </p>
-            <p>
-              Neste conteúdo, você vai entender quais são os principais formatos de caixas de pizza, como
-              funcionam os respiros térmicos e quais cuidados adotar para manter a pizza sempre no ponto,
-              desde o forno até o cliente.
-            </p>
+            {post.slug === 'copos-e-tampas-para-acai-e-cafe' ? (
+              <>
+                <p>
+                  Escolher a combinação ideal de copo e tampa é fundamental para evitar vazamentos no transporte e garantir a melhor experiência para o seu cliente, seja servindo um café bem quente ou um açaí gelado com complementos.
+                </p>
+                <p>
+                  Neste conteúdo, você vai entender quais são os principais modelos de copos e tampas (como tampa bolha e tampa bico), além de dicas práticas para valorizar a apresentação e transportar com total segurança.
+                </p>
+              </>
+            ) : post.slug === 'embalagens-kraft-para-o-seu-delivery' ? (
+              <>
+                <p>
+                  As embalagens de papel kraft revolucionaram o delivery de comida e fast-food. Além do apelo sustentável que os clientes valorizam, o papel kraft possui excelente resistência mecânica e respirabilidade, mantendo alimentos fritos crocantes por muito mais tempo.
+                </p>
+                <p>
+                  Neste conteúdo, você vai entender as vantagens de sacolas, caixas e barcas kraft, proteção com barreira antigordura e como valorizar a identidade visual do seu delivery.
+                </p>
+              </>
+            ) : (
+              <>
+                <p>
+                  A embalagem certa faz toda a diferença para manter a qualidade da pizza até o cliente.
+                  Escolher o formato ideal, utilizar os respiros adequados e reforçar o fechamento com lacres
+                  invioláveis ajuda a preservar o sabor, evitar que a massa fique borrachuda e garante uma
+                  entrega mais segura.
+                </p>
+                <p>
+                  Neste conteúdo, você vai entender quais são os principais formatos de caixas de pizza, como
+                  funcionam os respiros térmicos e quais cuidados adotar para manter a pizza sempre no ponto,
+                  desde o forno até o cliente.
+                </p>
+              </>
+            )}
           </div>
 
-          {/* Imagem Central: Foto da Pizza com Caixas Empilhadas */}
+          {/* Imagem Central */}
           <div className="my-8 relative aspect-[21/9] sm:aspect-[24/9] w-full max-w-3xl mx-auto overflow-hidden rounded-2xl border border-slate-100 shadow-md">
             <Image
-              src="/assets/explica-ai/pizza-boxes-article.png"
-              alt="Pizza no forno com caixas de entrega ao lado"
+              src={
+                post.slug === 'copos-e-tampas-para-acai-e-cafe'
+                  ? '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/copos.webp'
+                  : post.slug === 'embalagens-kraft-para-o-seu-delivery'
+                  ? '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/kraft.webp'
+                  : '/assets/explica-ai/pizza-boxes-article.png'
+              }
+              alt={
+                post.slug === 'copos-e-tampas-para-acai-e-cafe'
+                  ? 'Copos e tampas para açaí e café'
+                  : post.slug === 'embalagens-kraft-para-o-seu-delivery'
+                  ? 'Embalagens kraft para delivery'
+                  : 'Pizza no forno com caixas de entrega ao lado'
+              }
               fill
               sizes="(max-width: 768px) 100vw, 800px"
               className="object-cover object-center"
@@ -452,43 +534,18 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
               Principais pontos do vídeo
             </h3>
 
-            {/* Container dos 4 Pontos com Círculos Vermelhos */}
+            {/* Container dos Pontos com Círculos Vermelhos */}
             <div className="rounded-2xl bg-[#f8fafc] border border-slate-200/80 p-4 sm:p-6 flex flex-col gap-3.5">
-              <div className="flex items-center gap-3">
-                <span className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-[#E30613] text-white font-bold text-xs sm:text-sm shrink-0 shadow-xs">
-                  1
-                </span>
-                <span className="text-xs sm:text-sm md:text-[14.5px] font-semibold text-slate-800">
-                  Formatos: diferenças entre caixa oitavada e quadrada.
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <span className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-[#E30613] text-white font-bold text-xs sm:text-sm shrink-0 shadow-xs">
-                  2
-                </span>
-                <span className="text-xs sm:text-sm md:text-[14.5px] font-semibold text-slate-800">
-                  Respiros: como a ventilação evita que a massa fique borrachuda.
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <span className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-[#E30613] text-white font-bold text-xs sm:text-sm shrink-0 shadow-xs">
-                  3
-                </span>
-                <span className="text-xs sm:text-sm md:text-[14.5px] font-semibold text-slate-800">
-                  Lacres de segurança: mais confiança na entrega.
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <span className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-[#E30613] text-white font-bold text-xs sm:text-sm shrink-0 shadow-xs">
-                  4
-                </span>
-                <span className="text-xs sm:text-sm md:text-[14.5px] font-semibold text-slate-800">
-                  Dicas práticas de uso e armazenamento.
-                </span>
-              </div>
+              {(POST_KEY_POINTS[post.slug] || DEFAULT_KEY_POINTS).map((point, idx) => (
+                <div key={idx} className="flex items-center gap-3">
+                  <span className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-[#E30613] text-white font-bold text-xs sm:text-sm shrink-0 shadow-xs">
+                    {idx + 1}
+                  </span>
+                  <span className="text-xs sm:text-sm md:text-[14.5px] font-semibold text-slate-800">
+                    {point}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </article>
@@ -606,77 +663,99 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
         </section>
       </div>
 
-      {/* 6. Modal de Vídeo Interativo (Pixel-Perfect com YouTube Shorts & Vídeos) */}
-      {activeVideoModal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200"
-          onClick={() => setActiveVideoModal(false)}
-        >
+      {/* 6. Modal de Vídeo Interativo (Cinema Mode: 97% escuro, z-[99999] cobrindo todo o header e página via Portal) */}
+      {activeVideoModal && (() => {
+        const modalContent = (
           <div
-            className={cn(
-              'relative w-full overflow-hidden rounded-2xl sm:rounded-3xl bg-zinc-950 shadow-2xl border border-white/10 flex flex-col',
-              videoData.isShort ? 'max-w-[400px] max-h-[92vh]' : 'max-w-3xl max-h-[90vh]'
-            )}
-            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Vídeo: ${post.title}`}
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-5 md:p-8 animate-in fade-in duration-200 backdrop-blur-sm select-none cursor-pointer"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.97)' }}
+            onClick={() => setActiveVideoModal(false)}
           >
-            {/* Header do Modal com Botão Fechar e Link Direto */}
-            <div className="flex items-center justify-between px-4 py-3 bg-zinc-900 border-b border-white/10 text-white shrink-0">
-              <span className="text-xs sm:text-sm font-bold line-clamp-1 pr-2">{post.title}</span>
-              <div className="flex items-center gap-2 shrink-0">
-                {videoData.directUrl && (
-                  <a
-                    href={videoData.directUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-300 hover:text-white bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-full transition"
-                    title="Assistir no YouTube"
-                  >
-                    <span>YouTube</span>
-                    <ExternalLink className="size-3" />
-                  </a>
-                )}
-                <button
-                  onClick={() => setActiveVideoModal(false)}
-                  className="flex size-7 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 transition cursor-pointer"
-                  aria-label="Fechar vídeo"
-                >
-                  <X className="size-4" />
-                </button>
-              </div>
-            </div>
+            {/* Botão de Fechar no Topo Direito (Modo Cinema / Foco Total) */}
+            <button
+              type="button"
+              onClick={() => setActiveVideoModal(false)}
+              className="fixed top-3 right-3 sm:top-5 sm:right-6 z-[100000] flex items-center gap-1.5 sm:gap-2 rounded-full bg-white/10 hover:bg-white/20 text-white/90 hover:text-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold backdrop-blur-md transition-all cursor-pointer border border-white/20 shadow-2xl group active:scale-95"
+              aria-label="Fechar visualização"
+              title="Fechar vídeo (ESC)"
+            >
+              <span className="hidden sm:inline">Fechar (ESC)</span>
+              <span className="sm:hidden">Fechar</span>
+              <X className="size-4 transition-transform group-hover:scale-110" />
+            </button>
 
-            {/* Player de Vídeo Responsivo (Shorts em 9:16 ou vídeo tradicional em 16:9) */}
+            {/* Card do Modal com Vídeo */}
             <div
               className={cn(
-                'relative w-full bg-black flex items-center justify-center',
-                videoData.isShort ? 'aspect-[9/16] max-h-[82vh]' : 'aspect-[16/9]'
+                'relative w-full overflow-hidden rounded-2xl sm:rounded-3xl bg-zinc-950 shadow-[0_25px_70px_rgba(0,0,0,0.95)] border border-white/15 flex flex-col z-[99999] select-auto cursor-default',
+                videoData.isShort ? 'max-w-[420px] max-h-[92vh]' : 'max-w-4xl max-h-[90vh]'
               )}
+              onClick={(e) => e.stopPropagation()}
             >
-              {videoData.embedUrl ? (
-                <iframe
-                  className="size-full border-0"
-                  src={videoData.embedUrl}
-                  title={post.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center text-center p-6 text-white">
-                  <div className="size-16 rounded-full bg-[#E30613] flex items-center justify-center shadow-lg mb-3">
-                    <Play className="size-8 fill-white ml-1" />
-                  </div>
-                  <h4 className="text-base font-bold">{post.title}</h4>
-                  <p className="text-xs text-zinc-400 mt-1 max-w-md">
-                    Vídeo explicativo oficial da Comercial do Norte — Explica Aí Nort!
-                  </p>
+              {/* Header do Modal com Botão Fechar e Link Direto */}
+              <div className="flex items-center justify-between px-4 py-3 bg-zinc-900/95 border-b border-white/10 text-white shrink-0">
+                <span className="text-xs sm:text-sm font-bold line-clamp-1 pr-2">{post.title}</span>
+                <div className="flex items-center gap-2 shrink-0">
+                  {videoData.directUrl && (
+                    <a
+                      href={videoData.directUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-300 hover:text-white bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-full transition"
+                      title="Assistir no YouTube"
+                    >
+                      <span>YouTube</span>
+                      <ExternalLink className="size-3" />
+                    </a>
+                  )}
+                  <button
+                    onClick={() => setActiveVideoModal(false)}
+                    className="flex size-7 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 transition cursor-pointer"
+                    aria-label="Fechar vídeo"
+                  >
+                    <X className="size-4" />
+                  </button>
                 </div>
-              )}
+              </div>
+
+              {/* Player de Vídeo Responsivo (Shorts em 9:16 ou vídeo tradicional em 16:9) */}
+              <div
+                className={cn(
+                  'relative w-full bg-black flex items-center justify-center',
+                  videoData.isShort ? 'aspect-[9/16] max-h-[82vh]' : 'aspect-[16/9]'
+                )}
+              >
+                {videoData.embedUrl ? (
+                  <iframe
+                    className="size-full border-0"
+                    src={videoData.embedUrl}
+                    title={post.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-center p-6 text-white">
+                    <div className="size-16 rounded-full bg-[#E30613] flex items-center justify-center shadow-lg mb-3">
+                      <Play className="size-8 fill-white ml-1" />
+                    </div>
+                    <h4 className="text-base font-bold">{post.title}</h4>
+                    <p className="text-xs text-zinc-400 mt-1 max-w-md">
+                      Vídeo explicativo oficial da Comercial do Norte — Explica Aí Nort!
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+
+        return mounted && typeof document !== 'undefined'
+          ? createPortal(modalContent, document.body)
+          : modalContent;
+      })()}
     </div>
   );
 }

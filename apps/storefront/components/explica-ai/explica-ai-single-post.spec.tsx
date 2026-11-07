@@ -100,4 +100,50 @@ describe('ExplicaAiSinglePost', () => {
 
     expect(screen.queryByRole('dialog')).toBeNull();
   });
+
+  it('abre o modal com fundo 97% escuro (modo cinema z-[99999]) e fecha com ESC ou clique fora', () => {
+    render(<ExplicaAiSinglePost post={mockPost} />);
+
+    // Clica para abrir o vídeo
+    fireEvent.click(screen.getByLabelText('Assistir ao vídeo agora'));
+
+    const modal = screen.getByRole('dialog');
+    expect(modal).toBeDefined();
+
+    // Backdrop com 97% de escuridão e z-index alto para ficar acima do header
+    expect(modal.style.backgroundColor).toBe('rgba(0, 0, 0, 0.97)');
+    expect(modal.className).toContain('z-[99999]');
+
+    // Botão flutuante de fechar com atalho ESC
+    const floatingClose = screen.getByLabelText('Fechar visualização');
+    expect(floatingClose).toBeDefined();
+
+    // Fechar pressionando a tecla Escape
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    // Reabre e testa clique fora no backdrop
+    fireEvent.click(screen.getByLabelText('Assistir ao vídeo agora'));
+    const reOpenedModal = screen.getByRole('dialog');
+    expect(reOpenedModal).toBeDefined();
+
+    fireEvent.click(reOpenedModal);
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('renderiza corretamente o post de copos e tampas para açaí e café', () => {
+    const coposPost = {
+      ...mockPost,
+      id: 'post-copos',
+      title: 'Copos e tampas para açaí e café',
+      slug: 'copos-e-tampas-para-acai-e-cafe',
+      coverUrl: '/assets/HOME Vitrine/S14-POSTS-ExplicaAi/copos.webp',
+    };
+
+    render(<ExplicaAiSinglePost post={coposPost} />);
+
+    expect(screen.getByRole('heading', { level: 1, name: /Copos e tampas para açaí e café/i })).toBeDefined();
+    expect(screen.getByText(/Tampas: bolha com ou sem furo e bico para bebidas quentes/i)).toBeDefined();
+    expect(screen.getAllByAltText('Copos e tampas para açaí e café').length).toBeGreaterThan(0);
+  });
 });
