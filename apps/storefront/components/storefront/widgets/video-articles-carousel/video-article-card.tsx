@@ -42,10 +42,10 @@ export function VideoArticleCard({
 
   return (
     <article
-      className={`group relative flex flex-row items-stretch rounded-[18px] lg:rounded-[20px] bg-white p-2 shadow-sm transition-all hover:shadow-md h-[180px] lg:h-[184px] xl:h-[190px] ${className}`}
+      className={`group relative flex flex-row items-stretch rounded-[20px] xs:rounded-[22px] lg:rounded-[20px] bg-white p-2 xs:p-2.5 sm:p-3 shadow-sm transition-all hover:shadow-md h-[184px] xs:h-[188px] sm:h-[192px] lg:h-[184px] xl:h-[190px] ${className}`}
     >
       {/* Coluna 1: Foto com Botão Play */}
-      <div className="relative w-[46%] shrink-0 overflow-hidden rounded-[13px] lg:rounded-[14px] bg-slate-100">
+      <div className="relative w-[45%] xs:w-[46%] shrink-0 overflow-hidden rounded-[14px] xs:rounded-[16px] lg:rounded-[14px] bg-slate-100">
         <Image
           src={imageUrl}
           alt={title}
@@ -80,15 +80,15 @@ export function VideoArticleCard({
       </div>
 
       {/* Coluna 2: Conteúdo (Tags, Título, Tópicos, CTA) */}
-      <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5 pl-2.5 pr-1">
+      <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5 pl-2 xs:pl-2.5 pr-1">
         {/* Topo: Tags e Título */}
         <div>
           {tags.length > 0 && (
-            <div className="mb-0.5 flex flex-wrap gap-1">
+            <div className="mb-1 flex flex-wrap gap-1">
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className={`rounded-full px-1.5 py-0.5 text-[8.5px] font-bold uppercase tracking-wider leading-none ${
+                  className={`rounded-full px-2 py-0.5 text-[8.5px] xs:text-[9px] font-bold uppercase tracking-wider leading-none ${
                     variant === 'confeitaria'
                       ? 'bg-[#fae8eb] text-[#b82344]'
                       : 'bg-[#fde8ea] text-[#d6112c]'
@@ -99,12 +99,12 @@ export function VideoArticleCard({
               ))}
             </div>
           )}
-          <h3 className="line-clamp-2 text-[12px] sm:text-[12.5px] xl:text-[13px] font-bold leading-tight text-[#0c2340]">
+          <h3 className="line-clamp-2 text-[12px] xs:text-[12.5px] sm:text-[13px] xl:text-[13px] font-bold leading-snug text-[#0c2340]">
             <Link
               href={destination}
               className={
                 variant === 'confeitaria'
-                  ? 'hover:text-[#b82344] transition-colors'
+                  ? 'text-[#2e0e12] hover:text-[#b82344] transition-colors'
                   : 'hover:text-[#cb001c] transition-colors'
               }
             >
@@ -115,7 +115,7 @@ export function VideoArticleCard({
 
         {/* Meio: Tópicos explicativos sem truncamento */}
         {paragraphs.length > 0 && (
-          <div className="my-auto py-0.5 space-y-0.5 text-[9.5px] sm:text-[10px] xl:text-[10.5px] leading-[1.28] text-[#55667e]">
+          <div className="my-auto py-0.5 space-y-0.5 text-[9.5px] xs:text-[10px] sm:text-[10.5px] xl:text-[10.5px] leading-[1.3] text-[#55667e]">
             {paragraphs.map((paragraph, pIdx) => (
               <p key={pIdx}>{paragraph}</p>
             ))}
@@ -125,9 +125,9 @@ export function VideoArticleCard({
         {/* Base: Botão Ver Completo estilo pílula */}
         <Link
           href={destination}
-          className={`inline-flex w-full items-center justify-center gap-1 rounded-full border py-1 px-2 text-[10px] sm:text-[10.5px] font-bold transition-colors text-center shrink-0 ${
+          className={`inline-flex w-full items-center justify-center gap-1 rounded-full border py-1 xs:py-1.5 px-2 text-[10px] xs:text-[10.5px] sm:text-[11px] font-bold transition-colors text-center shrink-0 ${
             variant === 'confeitaria'
-              ? 'border-[#b82344] text-[#b82344] hover:bg-[#fae8eb] hover:border-[#961a35]'
+              ? 'border-[#a81c37] text-[#a81c37] hover:bg-[#fae8eb] hover:border-[#861229]'
               : 'border-[#e2091e] text-[#e2091e] hover:bg-red-50 hover:border-[#c4001a]'
           }`}
         >

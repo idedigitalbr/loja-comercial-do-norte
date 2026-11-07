@@ -195,7 +195,7 @@ describe('VideoArticlesCarouselWidget (Explica Aí Nort)', () => {
     expect(screen.getByLabelText('Próximo workshop')).toBeDefined();
   });
 
-  it('oculta botões de navegação no mobile e posiciona o link sem colidir com o mascote', () => {
+  it('exibe botões de navegação, paginação em bolinhas e mascote integrado no mobile (Anexo 2)', () => {
     const { container } = render(
       <VideoArticlesCarouselWidget
         title="Explica Aí Nort"
@@ -206,17 +206,96 @@ describe('VideoArticlesCarouselWidget (Explica Aí Nort)', () => {
       />
     );
 
+    // Botões de navegação circulares visíveis no mobile (sem hidden)
     const prevButton = screen.getByLabelText('Dica anterior');
-    expect(prevButton.className).toContain('hidden');
-    expect(prevButton.className).toContain('sm:flex');
+    expect(prevButton.className).toContain('flex');
+    expect(prevButton.className).not.toContain('hidden');
 
     const nextButton = screen.getByLabelText('Próxima dica');
-    expect(nextButton.className).toContain('hidden');
-    expect(nextButton.className).toContain('sm:flex');
+    expect(nextButton.className).toContain('flex');
+    expect(nextButton.className).not.toContain('hidden');
 
-    // Mascote compacto no mobile com classe de folga
-    const mobileMascot = container.querySelector('.block.lg\\:hidden');
-    expect(mobileMascot).toBeDefined();
-    expect(mobileMascot?.className).toContain('top-3');
+    // Mascote 3D integrado na primeira coluna do grid mobile
+    const mascotImg = screen.getAllByAltText('Mascote Explica Aí Nort')[0];
+    expect(mascotImg).toBeDefined();
+
+    // Bolinhas / barras de paginação no mobile (Anexo 2)
+    const pagination = screen.getByRole('tablist', { name: 'Paginação de dicas' });
+    expect(pagination).toBeDefined();
+    const dots = screen.getAllByRole('tab');
+    expect(dots.length).toBe(mockItems.length);
+
+    // Botão "Ver todos" em formato de pílula contornada
+    const viewAllLink = screen.getByText('Ver todos').closest('a');
+    expect(viewAllLink?.className).toContain('rounded-full');
+    expect(viewAllLink?.className).toContain('border-2');
+  });
+
+  it('garante que a Confeitaria no mobile tem layout fiel ao Anexo 2: título à esquerda com play, confeiteira à direita, setas e paginação', () => {
+    const confeitariaItems: VideoArticleItem[] = [
+      {
+        id: 'conf-1',
+        tags: ['WORKSHOP', 'BOLOS DECORADOS'],
+        title: 'Técnicas de decoração para bolos e tortas',
+        paragraphs: ['Aprenda acabamento, recheio e montagem.'],
+        ctaLabel: 'Ver Completo',
+        ctaUrl: '/eventos/workshops/aulas-confeitaria',
+        imageUrl: '/assets/confeitaria/card-tecnicas-decoracao.webp',
+      },
+      {
+        id: 'conf-2',
+        tags: ['AULA PRÁTICA', 'DOCES FINOS'],
+        title: 'Doces finos e sobremesas para vender',
+        paragraphs: ['Descubra receitas e embalagens.'],
+        ctaLabel: 'Ver Completo',
+        ctaUrl: '/eventos/workshops/aulas-confeitaria',
+        imageUrl: '/assets/confeitaria/card-doces-finos.webp',
+      },
+      {
+        id: 'conf-3',
+        tags: ['AULA SHOW', 'BRIGADEIROS'],
+        title: 'Brigadeiros gourmet para festas',
+        paragraphs: ['Ponto de enrolar e texturas aveludadas.'],
+        ctaLabel: 'Ver Completo',
+        ctaUrl: '/eventos/workshops/aulas-confeitaria',
+        imageUrl: '/assets/confeitaria/01-listagem-eventos/04-card-brigadeiros-gourmet.jpg',
+      },
+    ];
+
+    render(
+      <VideoArticlesCarouselWidget
+        variant="confeitaria"
+        title="Workshops & Aulas Práticas de Confeitaria"
+        subtitle="Faça suas compras e ganhe treinamento gratuitamente."
+        viewAllLabel="Ver todos"
+        viewAllUrl="/eventos/workshops/aulas-confeitaria"
+        items={confeitariaItems}
+      />
+    );
+
+    // Ícone de Play no título da Confeitaria
+    const heading = screen.getByRole('heading', { level: 2 });
+    expect(heading.querySelector('svg.lucide-play')).not.toBeNull();
+
+    // Setas visíveis no mobile (sem hidden)
+    const prevButton = screen.getByLabelText('Workshop anterior');
+    expect(prevButton.className).toContain('flex');
+    expect(prevButton.className).not.toContain('hidden');
+
+    const nextButton = screen.getByLabelText('Próximo workshop');
+    expect(nextButton.className).toContain('flex');
+    expect(nextButton.className).not.toContain('hidden');
+
+    // Paginação com 3 bolinhas para Confeitaria
+    const pagination = screen.getByRole('tablist', { name: 'Paginação de workshops' });
+    expect(pagination).toBeDefined();
+    const dots = screen.getAllByRole('tab');
+    expect(dots.length).toBe(3);
+    // A primeira bolinha ativa deve ter a cor rosa (#e26678)
+    expect(dots[0].className).toContain('bg-[#e26678]');
+
+    // Confeiteira presente tanto na versão mobile quanto desktop
+    const confeiteiras = screen.getAllByAltText('Workshop de Confeitaria');
+    expect(confeiteiras.length).toBe(2);
   });
 });
