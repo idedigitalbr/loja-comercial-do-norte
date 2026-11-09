@@ -7,6 +7,14 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **09/11/2026 — Substituição de Imagens Abstratas por Fotos Reais de Produtos (executorId: `antigravity-gemini`):**
+  - **Eliminação de SVG Procedural Abstrato (`buildSvg`):**
+    - Substituída a rotina em [`prisma/seed-catalog.ts`](file:///d:/.GITHUB/sistemas/loja-comercial-do-norte/prisma/seed-catalog.ts) que gerava gráficos geométricos aleatórios (círculos coloridos e barras vermelhas) por um resolvedor inteligente de fotografias reais (`resolvePhotoSource`).
+  - **Fotografia Real de Queijo de Coalho no Espeto:**
+    - Gerada foto comercial fotorrealista de estúdio para o `Queijo de Coalho Tradicional no Espeto 700 g` (`slug`: `queijo-coalho-espeto-pacote-700g`), convertida em WebP (480, 960, 1440) para todas as pastas de storage (`apps/api`, `apps/api/dist`, `apps/storefront`) e armazenada como asset canônico em `apps/storefront/public/assets/PRODUTOS/produtos-imgs/queijo-coalho-espeto-pacote-700g.jpg`.
+  - **Suporte Estático no Vite Admin:**
+    - Ajustado `apps/admin/vite.config.ts` para servir rotas `/storage/` diretamente dos arquivos do projeto durante o desenvolvimento local.
+
 - **07/11/2026 — Sincronização Oficial dos 120 Produtos das 12 Marcas no Banco Neon e Contagem Dinâmica no Catálogo (executorId: `antigravity-gemini`):**
   - **Sincronização Efetiva no Banco Neon (`db_lojacomercialdonorte`):**
     - Executado o `seedCatalog` conectando ao banco PostgreSQL Neon de produção (`db_lojacomercialdonorte`), inserindo com sucesso os 120 produtos oficiais (10 produtos por marca: `Fasapel`, `Fonteplast`, `Knauf`, `Lanchero`, `Plasan`, `Prafesta`, `Segplast`, `Sicao`, `Techplast`, `Totalplast`, `Ultra Descartáveis`, `Vipel`), 24 submarcas vinculadas, estoques, variantes com preços em centavos e dimensões milimétricas.

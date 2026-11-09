@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { PrismaClient } from '@prisma/client';
@@ -237,39 +237,100 @@ import { demoProducts, type DemoProduct } from './seed-catalog-data';
 export { demoProducts, type DemoProduct };
 
 const uploadsRoot = join(resolveApiStorageRoot(), 'uploads');
+const productImgsDir = join(process.cwd(), 'apps', 'storefront', 'public', 'assets', 'PRODUTOS', 'produtos-imgs');
+const placeholdersDir = join(process.cwd(), 'apps', 'storefront', 'public', 'assets', 'PRODUTOS', 'placeholders');
 
-function buildSvg(width: number, height: number, seed: string): string {
-  const hash = createHash('sha1').update(seed).digest();
-  const hue = Math.round((hash[0] / 255) * 360);
-  const accent = `hsl(${(hue + 160) % 360}, 72%, 60%)`;
-  const base = `hsl(${hue}, 58%, 30%)`;
-  const deep = `hsl(${(hue + 30) % 360}, 62%, 18%)`;
-  const shapes = Array.from({ length: 5 }, (_, index) => {
-    const cx = ((hash[(index * 3) % 20] / 255) * width).toFixed(0);
-    const cy = ((hash[(index * 3 + 1) % 20] / 255) * height).toFixed(0);
-    const radius = (((hash[(index * 3 + 2) % 20] / 255) * 0.32 + 0.06) * Math.min(width, height)).toFixed(0);
-    const opacity = (0.14 + (hash[(index * 3 + 3) % 20] / 255) * 0.22).toFixed(2);
-    return `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="${accent}" opacity="${opacity}"/>`;
-  }).join('');
-  return [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
-    `<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${base}"/><stop offset="100%" stop-color="${deep}"/></linearGradient></defs>`,
-    `<rect width="${width}" height="${height}" fill="url(#bg)"/>`,
-    shapes,
-    `<rect x="${(width * 0.08).toFixed(0)}" y="${(height * 0.8).toFixed(0)}" width="${(width * 0.32).toFixed(0)}" height="${(height * 0.055).toFixed(0)}" rx="${(height * 0.0275).toFixed(0)}" fill="#E33C34" opacity="0.92"/>`,
-    '</svg>',
-  ].join('');
+/**
+ * Resolve uma foto fotográfica real para o produto, buscando fotos específicas de catálogo,
+ * palavras-chave relevantes ou placeholders oficiais de estúdio.
+ * Nunca gera círculos abstratos ou artes SVG geométricas fictícias.
+ */
+function resolvePhotoSource(key: string): string {
+  // 1. Arquivo direto
+  for (const ext of ['.jpg', '.png', '.webp', '.jpeg']) {
+    const candidate = join(productImgsDir, `${key}${ext}`);
+    if (existsSync(candidate)) return candidate;
+  }
+
+  // 2. Correspondência semântica com as fotos reais do catálogo
+  const k = key.toLowerCase();
+  if (k.includes('coalho')) {
+    const p = join(productImgsDir, 'queijo-coalho-espeto-pacote-700g.jpg');
+    if (existsSync(p)) return p;
+  }
+  if (k.includes('queijo')) {
+    const p = join(productImgsDir, 'queijo-mussarela-fatiado-1kg.jpg');
+    if (existsSync(p)) return p;
+  }
+  if (k.includes('pizza')) {
+    const p = join(productImgsDir, 'caixa-pizza-35cm.jpg');
+    if (existsSync(p)) return p;
+  }
+  if (k.includes('copo') || k.includes('taca')) {
+    const p = join(productImgsDir, 'copo-200ml.png');
+    if (existsSync(p)) return p;
+  }
+  if (k.includes('marmita') || k.includes('hamburguer') || k.includes('pote') || k.includes('bandeja')) {
+    const p = join(productImgsDir, 'marmita-750ml.jpg');
+    if (existsSync(p)) return p;
+  }
+  if (k.includes('papel') || k.includes('toalha') || k.includes('guardanapo')) {
+    const p = join(productImgsDir, 'papel-toalha.jpg');
+    if (existsSync(p)) return p;
+  }
+  if (k.includes('detergente') || k.includes('limpeza') || k.includes('sabao') || k.includes('alcool') || k.includes('sanitaria')) {
+    const p = join(productImgsDir, 'detergente-neutro-5l.jpg');
+    if (existsSync(p)) return p;
+  }
+  if (k.includes('sacola') || k.includes('saco') || k.includes('bobina')) {
+    const p = join(productImgsDir, 'sacola-38x48.jpg');
+    if (existsSync(p)) return p;
+  }
+  if (k.includes('filme') || k.includes('aluminio') || k.includes('stretch') || k.includes('pvc')) {
+    const p = join(productImgsDir, 'filme-pvc-30cm.jpg');
+    if (existsSync(p)) return p;
+  }
+  if (k.includes('vela') || k.includes('balao') || k.includes('festa')) {
+    const p = join(productImgsDir, 'velas-aniversario-coloridas.jpg');
+    if (existsSync(p)) return p;
+  }
+  if (k.includes('doce') || k.includes('chocolate') || k.includes('bombom') || k.includes('leite-condensado') || k.includes('cacau')) {
+    const p = join(productImgsDir, 'leite-condensado-395g.jpg');
+    if (existsSync(p)) return p;
+  }
+  if (k.includes('forminha') || k.includes('confeitaria')) {
+    const p = join(productImgsDir, 'forminha-docinho-n5.jpg');
+    if (existsSync(p)) return p;
+  }
+
+  // 3. Placeholders fotográficos de estúdio (1 a 4) em alta resolução
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) {
+    hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+  }
+  const placeholderIndex = (hash % 4) + 1;
+  const placeholderPath = join(placeholdersDir, `placeholder-${placeholderIndex}.png`);
+  if (existsSync(placeholderPath)) return placeholderPath;
+
+  return join(placeholdersDir, 'placeholder-1.png');
 }
 
-/** Gera as imagens WebP do seed e devolve o caminho relativo usado no banco. */
+/** Gera as imagens WebP do seed a partir de fotografias reais e devolve o caminho relativo usado no banco. */
 async function writeImageSet(key: string, widths: readonly number[], aspect: number, mainWidth: number): Promise<string> {
   const directory = join(uploadsRoot, `seed-${key}`);
   await mkdir(directory, { recursive: true });
+  const photoSource = resolvePhotoSource(key);
+
   for (const width of widths) {
     const height = Math.round(width * aspect);
-    await sharp(Buffer.from(buildSvg(width, height, key)))
-      .webp({ quality: 82 })
-      .toFile(join(directory, `${width}.webp`));
+    const targetFile = join(directory, `${width}.webp`);
+    if (existsSync(targetFile) && statSync(targetFile).size > 0) {
+      continue;
+    }
+    await sharp(photoSource)
+      .resize({ width, height, fit: 'cover' })
+      .webp({ quality: 85 })
+      .toFile(targetFile);
   }
   return `uploads/seed-${key}/${mainWidth}.webp`;
 }
@@ -561,12 +622,18 @@ export async function seedCatalog(prisma: PrismaClient): Promise<{ categories: n
     await prisma.productSegment.deleteMany({ where: { productId: { in: staleIds } } });
     await prisma.productTag.deleteMany({ where: { productId: { in: staleIds } } });
     await prisma.productImage.deleteMany({ where: { productId: { in: staleIds } } });
+    await prisma.customerFavorite.deleteMany({ where: { productId: { in: staleIds } } });
+    await prisma.promotionScope.deleteMany({ where: { productId: { in: staleIds } } });
+    await prisma.couponProductRule.deleteMany({ where: { productId: { in: staleIds } } });
     const variants = await prisma.productVariant.findMany({
       where: { productId: { in: staleIds } },
       select: { id: true },
     });
     if (variants.length > 0) {
       const vIds = variants.map((v) => v.id);
+      await prisma.stockMovement.deleteMany({ where: { variantId: { in: vIds } } });
+      await prisma.inventoryReservation.deleteMany({ where: { variantId: { in: vIds } } });
+      await prisma.cartItem.deleteMany({ where: { variantId: { in: vIds } } });
       await prisma.inventoryBalance.deleteMany({ where: { variantId: { in: vIds } } });
       await prisma.productVariant.deleteMany({ where: { id: { in: vIds } } });
     }

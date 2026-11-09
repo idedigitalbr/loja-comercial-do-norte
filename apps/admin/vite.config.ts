@@ -46,6 +46,34 @@ function serveStaticAssetsPlugin(): Plugin {
             // Proceed to next middleware if resolution fails
           }
         }
+
+        if (urlWithoutQuery.startsWith('/storage/')) {
+          try {
+            const decoded = decodeURIComponent(urlWithoutQuery);
+            const relPath = decoded.replace(/^\/storage\//, '');
+            const apiPublicStorage = resolve(__dirname, '../api/public/storage', relPath);
+            const apiDistStorage = resolve(__dirname, '../api/dist/public/storage', relPath);
+            const storefrontStorage = resolve(__dirname, '../storefront/public/storage', relPath);
+
+            const targetPath = existsSync(apiPublicStorage)
+              ? apiPublicStorage
+              : existsSync(apiDistStorage)
+                ? apiDistStorage
+                : existsSync(storefrontStorage)
+                  ? storefrontStorage
+                  : null;
+
+            if (targetPath && statSync(targetPath).isFile()) {
+              const ext = targetPath.split('.').pop()?.toLowerCase() ?? '';
+              const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+              res.setHeader('Content-Type', contentType);
+              res.setHeader('Cache-Control', 'no-cache');
+              return createReadStream(targetPath).pipe(res);
+            }
+          } catch {
+            // Proceed to next middleware if resolution fails
+          }
+        }
         next();
       });
     },
