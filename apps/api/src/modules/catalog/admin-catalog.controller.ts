@@ -174,4 +174,29 @@ export class AdminCatalogController {
   archiveCategory(@Param('id') id: string) {
     return this.catalogService.archiveCategory(id);
   }
+
+  @Get('tags')
+  listTags(@Query('status') status?: RecordStatus) {
+    return this.catalogService.listTags(status ?? null);
+  }
+
+  @Get('tags/:id')
+  getTag(@Param('id') id: string) {
+    return this.catalogService.getTagById(id);
+  }
+
+  @Post('tags')
+  createTag(@Body() body: TaxonomyInputDto) {
+    return this.catalogService.createTag(body);
+  }
+
+  @Patch('tags/:id')
+  updateTag(@Param('id') id: string, @Body() body: TaxonomyInputDto) {
+    return this.catalogService.updateTag(id, body);
+  }
+
+  @Post('tags/:id/archive')
+  archiveTag(@Param('id') id: string) {
+    return this.catalogService.archiveTag(id);
+  }
 }

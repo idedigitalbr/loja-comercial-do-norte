@@ -1,5 +1,6 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Icon } from '@commerce/ui';
+import { resolveMediaUrl, handleImageFallback } from '../../utils/media-url';
 
 type PostCategory = { id: string; name: string; slug: string };
 
@@ -20,10 +21,24 @@ type Post = {
   createdAt: string;
 };
 
+const PAGE_SIZE = 20;
+
 async function getJson<T>(url: string): Promise<T> {
   const response = await fetch(url, { credentials: 'include' });
   if (!response.ok) throw new Error('Não foi possível carregar os dados.');
   return response.json() as Promise<T>;
+}
+
+function formatDate(iso?: string) {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    const dateStr = d.toLocaleDateString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    const timeStr = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return `${dateStr} às ${timeStr}`;
+  } catch {
+    return iso;
+  }
 }
 
 export function PostListPage({
@@ -35,15 +50,24 @@ export function PostListPage({
   onCreate: () => void;
   onEdit: (id: string) => void;
   onManageCategories: () => void;
-  onNavigate: (path: string) => void;
+  onNavigate?: (path: string) => void;
 }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [categories, setCategories] = useState<PostCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  // Filters & Search
   const [statusFilter, setStatusFilter] = useState<'all' | 'ACTIVE' | 'DRAFT'>('all');
-  const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('');
+  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [page, setPage] = useState(1);
+
+  // Selections & Bulk Actions
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkAction, setBulkAction] = useState('');
 
   async function loadData() {
     setLoading(true);
@@ -74,10 +98,58 @@ export function PostListPage({
         credentials: 'include',
       });
       if (!res.ok) throw new Error('Erro ao excluir post');
+      setMessage(`Post "${title}" excluído com sucesso.`);
       setPosts((prev) => prev.filter((p) => p.id !== id));
+      setSelectedIds((prev) => prev.filter((item) => item !== id));
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erro ao excluir');
+      setError(err instanceof Error ? err.message : 'Erro ao excluir');
     }
+  }
+
+  async function applyBulkAction() {
+    if (!bulkAction) return;
+    if (selectedIds.length === 0) {
+      alert('Selecione ao menos um post para aplicar a ação em massa.');
+      return;
+    }
+
+    if (bulkAction === 'delete') {
+      if (!window.confirm(`Deseja realmente excluir ${selectedIds.length} posts selecionados?`)) return;
+      await Promise.all(
+        selectedIds.map((id) =>
+          fetch(`/api/v1/admin/posts/${id}`, { method: 'DELETE', credentials: 'include' })
+        )
+      );
+      setMessage(`${selectedIds.length} posts excluídos.`);
+    } else if (bulkAction === 'publish') {
+      await Promise.all(
+        selectedIds.map((id) =>
+          fetch(`/api/v1/admin/posts/${id}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'ACTIVE' }),
+          })
+        )
+      );
+      setMessage(`${selectedIds.length} posts publicados.`);
+    } else if (bulkAction === 'draft') {
+      await Promise.all(
+        selectedIds.map((id) =>
+          fetch(`/api/v1/admin/posts/${id}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'DRAFT' }),
+          })
+        )
+      );
+      setMessage(`${selectedIds.length} posts movidos para rascunho.`);
+    }
+
+    setSelectedIds([]);
+    setBulkAction('');
+    await loadData();
   }
 
   const counts = useMemo(() => {
@@ -103,210 +175,483 @@ export function PostListPage({
     });
   }, [posts, statusFilter, categoryFilter, search]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const visiblePosts = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredPosts.slice(start, start + PAGE_SIZE);
+  }, [filteredPosts, currentPage]);
+
+  function toggleSelectAll(checked: boolean) {
+    if (checked) {
+      setSelectedIds(visiblePosts.map((p) => p.id));
+    } else {
+      setSelectedIds([]);
+    }
+  }
+
+  function toggleSelectPost(id: string) {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  }
+
   return (
-    <div className="admin-page">
-      {/* WordPress Heading */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-slate-900">Posts</h1>
-          <button
-            className="rounded border border-blue-600 bg-blue-600 px-3 py-1 text-xs font-semibold text-white shadow-xs hover:bg-blue-700 transition cursor-pointer"
-            onClick={onCreate}
-            type="button"
-          >
-            Adicionar Novo
+    <section className="wp-admin-page">
+      {/* WordPress Screen Heading */}
+      <div className="wp-screen-heading">
+        <div className="wp-screen-heading__left">
+          <h1 className="wp-heading-inline">Posts</h1>
+          <button type="button" className="page-title-action" onClick={onCreate}>
+            Adicionar novo
           </button>
+          <button type="button" className="page-title-action" onClick={onManageCategories}>
+            Categorias de post
+          </button>
+        </div>
+      </div>
+
+      {message && (
+        <div className="wp-notice wp-notice--success" role="status">
+          <p>{message}</p>
+        </div>
+      )}
+      {error && (
+        <div className="wp-notice wp-notice--error" role="alert">
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* WordPress Subsubsub Views */}
+      <ul className="subsubsub">
+        <li className="all">
           <button
-            className="rounded border border-slate-300 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
-            onClick={onManageCategories}
             type="button"
+            className={statusFilter === 'all' ? 'current' : ''}
+            onClick={() => {
+              setStatusFilter('all');
+              setPage(1);
+            }}
           >
-            Categorias de Post
+            Tudo <span className="count">({counts.all})</span>
+          </button>
+          {' | '}
+        </li>
+        <li className="publish">
+          <button
+            type="button"
+            className={statusFilter === 'ACTIVE' ? 'current' : ''}
+            onClick={() => {
+              setStatusFilter('ACTIVE');
+              setPage(1);
+            }}
+          >
+            Publicados <span className="count">({counts.published})</span>
+          </button>
+          {' | '}
+        </li>
+        <li className="draft">
+          <button
+            type="button"
+            className={statusFilter === 'DRAFT' ? 'current' : ''}
+            onClick={() => {
+              setStatusFilter('DRAFT');
+              setPage(1);
+            }}
+          >
+            Rascunhos <span className="count">({counts.draft})</span>
+          </button>
+        </li>
+      </ul>
+
+      {/* Tablenav Top */}
+      <div className="wp-tablenav top">
+        <div className="alignleft actions bulkactions">
+          <label htmlFor="bulk-action-selector-top" className="screen-reader-text">
+            Selecionar ação em massa
+          </label>
+          <select
+            id="bulk-action-selector-top"
+            value={bulkAction}
+            onChange={(e) => setBulkAction(e.target.value)}
+          >
+            <option value="">Ações em massa</option>
+            <option value="publish">Publicar</option>
+            <option value="draft">Mover para rascunho</option>
+            <option value="delete">Excluir</option>
+          </select>
+          <button
+            type="button"
+            className="button action"
+            onClick={() => void applyBulkAction()}
+          >
+            Aplicar
           </button>
         </div>
 
-        {/* Busca */}
-        <div className="flex items-center gap-2">
+        <div className="alignleft actions">
+          <select
+            value={categoryFilter}
+            onChange={(e) => {
+              setCategoryFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">Todas as categorias</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="button"
+            onClick={() => setPage(1)}
+          >
+            Filtrar
+          </button>
+          {(categoryFilter || search) && (
+            <button
+              type="button"
+              className="button button-secondary"
+              onClick={() => {
+                setCategoryFilter('');
+                setSearch('');
+                setSearchInput('');
+                setPage(1);
+              }}
+            >
+              Limpar filtros
+            </button>
+          )}
+        </div>
+
+        <div className="alignright">
+          <label htmlFor="post-search-input" className="screen-reader-text">
+            Pesquisar posts:
+          </label>
           <input
-            className="rounded border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:border-blue-600"
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Pesquisar posts..."
             type="search"
-            value={search}
+            id="post-search-input"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                setSearch(searchInput);
+                setPage(1);
+              }
+            }}
+            placeholder="Pesquisar posts..."
           />
+          <button
+            type="button"
+            className="button"
+            onClick={() => {
+              setSearch(searchInput);
+              setPage(1);
+            }}
+          >
+            Pesquisar posts
+          </button>
+        </div>
+
+        <div className="tablenav-pages">
+          <span className="displaying-num">{filteredPosts.length} itens</span>
+          {totalPages > 1 && (
+            <span className="pagination-links">
+              <button
+                type="button"
+                className="tablenav-pages-navspan button"
+                disabled={currentPage === 1}
+                onClick={() => setPage(1)}
+                title="Primeira página"
+              >
+                «
+              </button>
+              <button
+                type="button"
+                className="tablenav-pages-navspan button"
+                disabled={currentPage === 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                title="Página anterior"
+              >
+                ‹
+              </button>
+              <span className="paging-input">
+                <span className="tablenav-paging-text">
+                  {currentPage} de <span className="total-pages">{totalPages}</span>
+                </span>
+              </span>
+              <button
+                type="button"
+                className="tablenav-pages-navspan button"
+                disabled={currentPage === totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                title="Próxima página"
+              >
+                ›
+              </button>
+              <button
+                type="button"
+                className="tablenav-pages-navspan button"
+                disabled={currentPage === totalPages}
+                onClick={() => setPage(totalPages)}
+                title="Última página"
+              >
+                »
+              </button>
+            </span>
+          )}
         </div>
       </div>
 
-      {/* WordPress Status Views */}
-      <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
-        <button
-          className={`cursor-pointer ${statusFilter === 'all' ? 'font-bold text-blue-700 underline' : 'hover:text-slate-800'}`}
-          onClick={() => setStatusFilter('all')}
-          type="button"
-        >
-          Tudo <span className="text-slate-400">({counts.all})</span>
-        </button>
-        <span>|</span>
-        <button
-          className={`cursor-pointer ${statusFilter === 'ACTIVE' ? 'font-bold text-blue-700 underline' : 'hover:text-slate-800'}`}
-          onClick={() => setStatusFilter('ACTIVE')}
-          type="button"
-        >
-          Publicados <span className="text-slate-400">({counts.published})</span>
-        </button>
-        <span>|</span>
-        <button
-          className={`cursor-pointer ${statusFilter === 'DRAFT' ? 'font-bold text-blue-700 underline' : 'hover:text-slate-800'}`}
-          onClick={() => setStatusFilter('DRAFT')}
-          type="button"
-        >
-          Rascunhos <span className="text-slate-400">({counts.draft})</span>
-        </button>
-      </div>
+      {/* WordPress Posts Table */}
+      <table className="wp-list-table widefat fixed striped table-view-list posts-list">
+        <thead>
+          <tr>
+            <td id="cb" className="manage-column column-cb check-column">
+              <input
+                id="cb-select-all-1"
+                type="checkbox"
+                checked={visiblePosts.length > 0 && selectedIds.length === visiblePosts.length}
+                onChange={(e) => toggleSelectAll(e.target.checked)}
+              />
+            </td>
+            <th scope="col" className="manage-column column-thumb">
+              <span className="screen-reader-text">Capa</span>
+              <Icon name="image" size={16} strokeWidth={1.8} />
+            </th>
+            <th scope="col" className="manage-column column-title column-primary sortable">
+              <span>Título</span>
+            </th>
+            <th scope="col" className="manage-column" style={{ width: '150px' }}>
+              <span>Autor</span>
+            </th>
+            <th scope="col" className="manage-column" style={{ width: '160px' }}>
+              <span>Categoria</span>
+            </th>
+            <th scope="col" className="manage-column" style={{ width: '160px' }}>
+              <span>Badges</span>
+            </th>
+            <th scope="col" className="manage-column column-date sortable" style={{ width: '140px' }}>
+              <span>Data</span>
+            </th>
+          </tr>
+        </thead>
 
-      {/* Filtro de Categoria */}
-      <div className="mt-3 flex items-center gap-3">
-        <select
-          className="rounded border border-slate-300 bg-white px-3 py-1 text-xs text-slate-700 outline-none"
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          value={categoryFilter}
-        >
-          <option value="">Todas as categorias</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
-        <button
-          className="rounded border border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 cursor-pointer"
-          onClick={() => { setCategoryFilter(''); setSearch(''); }}
-          type="button"
-        >
-          Limpar filtros
-        </button>
-      </div>
-
-      {/* Tabela de Posts */}
-      <div className="mt-4 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-xs">
-        <table className="w-full text-left text-xs text-slate-700">
-          <thead className="border-b border-slate-200 bg-slate-50 font-semibold text-slate-900">
+        <tbody id="the-list">
+          {loading ? (
             <tr>
-              <th className="py-2.5 pl-4 pr-2 w-12">Capa</th>
-              <th className="py-2.5 px-3">Título</th>
-              <th className="py-2.5 px-3">Autor</th>
-              <th className="py-2.5 px-3">Categoria</th>
-              <th className="py-2.5 px-3">Badges</th>
-              <th className="py-2.5 px-3">Data</th>
-              <th className="py-2.5 pr-4 pl-2 text-right">Ações</th>
+              <td colSpan={7} className="wp-empty-cell">
+                Carregando posts...
+              </td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {loading ? (
-              <tr>
-                <td className="py-8 text-center text-slate-400" colSpan={7}>
-                  Carregando posts...
-                </td>
-              </tr>
-            ) : filteredPosts.length === 0 ? (
-              <tr>
-                <td className="py-8 text-center text-slate-400" colSpan={7}>
-                  Nenhum post encontrado.
-                </td>
-              </tr>
-            ) : (
-              filteredPosts.map((post) => (
-                <tr className="hover:bg-slate-50/80 transition group" key={post.id}>
-                  <td className="py-2.5 pl-4 pr-2">
-                    {post.coverUrl ? (
-                      <img
-                        alt={post.title}
-                        className="h-10 w-14 rounded object-cover border border-slate-200"
-                        src={post.coverUrl}
-                      />
-                    ) : (
-                      <div className="flex h-10 w-14 items-center justify-center rounded bg-slate-100 text-[10px] text-slate-400">
-                        Sem capa
-                      </div>
-                    )}
+          ) : visiblePosts.length === 0 ? (
+            <tr>
+              <td colSpan={7} className="wp-empty-cell">
+                Nenhum post encontrado.
+              </td>
+            </tr>
+          ) : (
+            visiblePosts.map((post) => {
+              const isChecked = selectedIds.includes(post.id);
+              const publicUrl = `http://localhost:3001/post/${post.slug}`;
+
+              return (
+                <tr key={post.id} id={`post-${post.id}`}>
+                  <th scope="row" className="check-column">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => toggleSelectPost(post.id)}
+                    />
+                  </th>
+
+                  <td className="column-thumb">
+                    <div className="wp-thumb-wrapper">
+                      {post.coverUrl ? (
+                        <img
+                          src={resolveMediaUrl(post.coverUrl)}
+                          alt={post.title}
+                          onError={handleImageFallback}
+                        />
+                      ) : (
+                        <div className="wp-thumb-placeholder">
+                          <Icon name="file-text" size={20} strokeWidth={1.5} />
+                        </div>
+                      )}
+                    </div>
                   </td>
-                  <td className="py-2.5 px-3 font-semibold text-slate-900">
-                    <button
-                      className="text-left font-bold text-blue-600 hover:underline cursor-pointer"
-                      onClick={() => onEdit(post.id)}
-                      type="button"
-                    >
-                      {post.title}
-                    </button>
-                    {post.status === 'DRAFT' ? (
-                      <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold text-amber-800 uppercase">
-                        Rascunho
-                      </span>
-                    ) : null}
-                    <div className="mt-1 flex items-center gap-2 text-[10px] text-slate-400 opacity-80 group-hover:opacity-100">
+
+                  <td className="column-title column-primary has-row-actions">
+                    <strong>
                       <button
-                        className="text-blue-600 hover:underline cursor-pointer"
+                        type="button"
+                        className="wp-title-link"
                         onClick={() => onEdit(post.id)}
-                        type="button"
                       >
-                        Editar
+                        {post.title}
                       </button>
-                      <span>|</span>
-                      <button
-                        className="text-red-600 hover:underline cursor-pointer"
-                        onClick={() => handleDelete(post.id, post.title)}
-                        type="button"
-                      >
-                        Excluir
-                      </button>
-                      <span>|</span>
-                      <a
-                        className="text-emerald-700 hover:underline"
-                        href={`http://localhost:3001/post/${post.slug}`}
-                        rel="noreferrer"
-                        target="_blank"
-                      >
-                        Ver no site ↗
-                      </a>
+                      {post.status === 'DRAFT' && <span className="post-state"> — Rascunho</span>}
+                    </strong>
+
+                    <div className="row-actions">
+                      <span className="id-tag">ID: {post.id.slice(0, 8)} | </span>
+                      <span className="edit">
+                        <button
+                          type="button"
+                          className="wp-action-link"
+                          onClick={() => onEdit(post.id)}
+                        >
+                          Editar
+                        </button>
+                        {' | '}
+                      </span>
+                      <span className="trash">
+                        <button
+                          type="button"
+                          className="wp-action-link wp-action-link--danger"
+                          onClick={() => void handleDelete(post.id, post.title)}
+                        >
+                          Excluir
+                        </button>
+                        {' | '}
+                      </span>
+                      <span className="view">
+                        <a
+                          className="wp-action-link"
+                          href={publicUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Ver no site ↗
+                        </a>
+                      </span>
                     </div>
                   </td>
-                  <td className="py-2.5 px-3 text-slate-600">
-                    {post.authorName || 'Comercial do Norte'}
-                  </td>
-                  <td className="py-2.5 px-3">
+
+                  <td>{post.authorName || 'Comercial do Norte'}</td>
+
+                  <td>
                     {post.category ? (
-                      <span className="rounded bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+                      <button
+                        type="button"
+                        className="wp-term-link"
+                        onClick={() => {
+                          setCategoryFilter(post.category!.id);
+                          setPage(1);
+                        }}
+                      >
                         {post.category.name}
-                      </span>
+                      </button>
                     ) : (
-                      <span className="text-slate-400">—</span>
+                      <span className="wp-muted">—</span>
                     )}
                   </td>
-                  <td className="py-2.5 px-3">
-                    <div className="flex flex-wrap gap-1">
-                      {post.badges.map((b, i) => (
-                        <span className="rounded bg-red-50 border border-red-200 px-1.5 py-0.2 text-[9px] font-bold text-[#cb001c]" key={i}>
-                          {b}
-                        </span>
-                      ))}
-                    </div>
+
+                  <td>
+                    {post.badges && post.badges.length > 0 ? (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                        {post.badges.map((b, i) => (
+                          <span
+                            key={i}
+                            className="wp-brand-tag"
+                            style={{
+                              background: '#fef2f2',
+                              color: '#b91c1c',
+                              border: '1px solid #fecaca',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                            }}
+                          >
+                            {b}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="wp-muted">—</span>
+                    )}
                   </td>
-                  <td className="py-2.5 px-3 text-[11px] text-slate-500">
-                    {new Date(post.publishedAt || post.createdAt).toLocaleDateString('pt-BR')}
-                  </td>
-                  <td className="py-2.5 pr-4 pl-2 text-right">
-                    <button
-                      className="rounded border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
-                      onClick={() => onEdit(post.id)}
-                      type="button"
-                    >
-                      Editar
-                    </button>
+
+                  <td className="column-date">
+                    <abbr title={post.publishedAt || post.createdAt}>
+                      {post.status === 'DRAFT' ? 'Rascunho' : 'Publicado'}
+                      <br />
+                      {formatDate(post.publishedAt || post.createdAt)}
+                    </abbr>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              );
+            })
+          )}
+        </tbody>
+      </table>
+
+      {/* Tablenav Bottom */}
+      <div className="wp-tablenav bottom">
+        <div className="alignleft actions bulkactions">
+          <select
+            value={bulkAction}
+            onChange={(e) => setBulkAction(e.target.value)}
+          >
+            <option value="">Ações em massa</option>
+            <option value="publish">Publicar</option>
+            <option value="draft">Mover para rascunho</option>
+            <option value="delete">Excluir</option>
+          </select>
+          <button
+            type="button"
+            className="button action"
+            onClick={() => void applyBulkAction()}
+          >
+            Aplicar
+          </button>
+        </div>
+
+        <div className="tablenav-pages">
+          <span className="displaying-num">{filteredPosts.length} itens</span>
+          {totalPages > 1 && (
+            <span className="pagination-links">
+              <button
+                type="button"
+                className="tablenav-pages-navspan button"
+                disabled={currentPage === 1}
+                onClick={() => setPage(1)}
+              >
+                «
+              </button>
+              <button
+                type="button"
+                className="tablenav-pages-navspan button"
+                disabled={currentPage === 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                ‹
+              </button>
+              <span className="paging-input">
+                {currentPage} de <span className="total-pages">{totalPages}</span>
+              </span>
+              <button
+                type="button"
+                className="tablenav-pages-navspan button"
+                disabled={currentPage === totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                ›
+              </button>
+              <button
+                type="button"
+                className="tablenav-pages-navspan button"
+                disabled={currentPage === totalPages}
+                onClick={() => setPage(totalPages)}
+              >
+                »
+              </button>
+            </span>
+          )}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

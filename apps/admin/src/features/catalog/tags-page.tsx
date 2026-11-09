@@ -1,18 +1,19 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { getStorefrontUrl } from '../../admin-shell';
 
-type TagItem = {
+export type TagItem = {
   id: string;
   name: string;
   slug: string;
   status: string;
-  parentId?: string | null;
-  parent?: { name: string } | null;
-  description?: string;
+  description?: string | null;
+  _count?: { products: number };
 };
 
 type ProductRef = {
   id: string;
   brand?: { id: string; name: string } | null;
+  tags?: Array<{ tag: { id: string; name: string } }>;
 };
 
 async function getJson<T>(url: string): Promise<T> {
@@ -33,7 +34,6 @@ function slugify(value: string) {
 
 export function TagsPage({
   onNavigate,
-  onOpenBrand,
 }: {
   onNavigate?: (path: string) => void;
   onOpenBrand?: (id: string) => void;
@@ -53,11 +53,11 @@ export function TagsPage({
   async function load() {
     try {
       const [tagList, productList] = await Promise.all([
-        getJson<TagItem[]>('/api/v1/admin/catalog/brands'),
+        getJson<TagItem[]>('/api/v1/admin/catalog/tags'),
         getJson<ProductRef[]>('/api/v1/admin/catalog/products').catch(() => []),
       ]);
-      setTags(tagList);
-      setProducts(productList);
+      setTags(Array.isArray(tagList) ? tagList : []);
+      setProducts(Array.isArray(productList) ? productList : []);
       setError('');
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Erro ao carregar tags.');
@@ -68,20 +68,26 @@ export function TagsPage({
     void load();
   }, []);
 
-  const countByBrandId = useMemo(() => {
+  const countByTagId = useMemo(() => {
     const map = new Map<string, number>();
     for (const p of products) {
       if (p.brand?.id) {
         map.set(p.brand.id, (map.get(p.brand.id) ?? 0) + 1);
+      }
+      for (const t of p.tags ?? []) {
+        if (t.tag?.id) {
+          map.set(t.tag.id, (map.get(t.tag.id) ?? 0) + 1);
+        }
       }
     }
     return map;
   }, [products]);
 
   const filteredTags = useMemo(() => {
-    if (!search.trim()) return tags;
+    const list = Array.isArray(tags) ? tags : [];
+    if (!search.trim()) return list;
     const term = search.toLowerCase();
-    return tags.filter(
+    return list.filter(
       (item) => item.name.toLowerCase().includes(term) || item.slug.toLowerCase().includes(term)
     );
   }, [tags, search]);
@@ -94,10 +100,6 @@ export function TagsPage({
   }
 
   function startEdit(item: TagItem) {
-    if (onOpenBrand) {
-      onOpenBrand(item.id);
-      return;
-    }
     setEditingItem(item);
     setName(item.name);
     setSlug(item.slug);
@@ -122,13 +124,13 @@ export function TagsPage({
     try {
       const body = {
         name: name.trim(),
-        slug: slug.trim() || slugify(name),
+        slug: slug.trim() ? slugify(slug) : slugify(name),
         description: description.trim() || undefined,
       };
 
       const url = editingItem
-        ? `/api/v1/admin/catalog/brands/${editingItem.id}`
-        : '/api/v1/admin/catalog/brands';
+        ? `/api/v1/admin/catalog/tags/${editingItem.id}`
+        : '/api/v1/admin/catalog/tags';
       const method = editingItem ? 'PATCH' : 'POST';
 
       const response = await fetch(url, {
@@ -154,14 +156,14 @@ export function TagsPage({
   }
 
   async function handleArchive(item: TagItem) {
-    if (!window.confirm(`Tem certeza de que deseja excluir a tag/marca "${item.name}"?`)) return;
+    if (!window.confirm(`Tem certeza de que deseja excluir a tag "${item.name}"?`)) return;
     try {
-      const response = await fetch(`/api/v1/admin/catalog/brands/${item.id}/archive`, {
+      const response = await fetch(`/api/v1/admin/catalog/tags/${item.id}/archive`, {
         method: 'POST',
         credentials: 'include',
       });
       if (!response.ok) throw new Error('Não foi possível excluir a tag.');
-      setMessage('Tag/marca arquivada.');
+      setMessage('Tag excluída com sucesso.');
       await load();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Erro ao arquivar tag.');
@@ -180,22 +182,32 @@ export function TagsPage({
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   }
 
+  const storefrontBase = getStorefrontUrl();
+
   return (
     <section className="wp-admin-page">
       <div className="wp-screen-heading">
         <div className="wp-screen-heading__left">
-          <h1 className="wp-heading-inline">Tags e marcas de produto</h1>
+          <h1 className="wp-heading-inline">Tags de produto</h1>
         </div>
       </div>
 
-      {message && <div className="wp-notice wp-notice--success" role="status"><p>{message}</p></div>}
-      {error && <div className="wp-notice wp-notice--error" role="alert"><p>{error}</p></div>}
+      {message && (
+        <div className="wp-notice wp-notice--success" role="status">
+          <p>{message}</p>
+        </div>
+      )}
+      {error && (
+        <div className="wp-notice wp-notice--error" role="alert">
+          <p>{error}</p>
+        </div>
+      )}
 
       <div className="wp-two-col-layout">
         {/* Left Form: Add / Edit Tag */}
         <div className="wp-col-form">
           <div className="wp-form-wrap">
-            <h2>{editingItem ? 'Editar tag / marca' : 'Adicionar nova tag'}</h2>
+            <h2>{editingItem ? 'Editar tag' : 'Adicionar nova tag'}</h2>
             <form onSubmit={handleSubmit}>
               <div className="wp-form-field">
                 <label htmlFor="tag-name">Nome</label>
@@ -204,7 +216,7 @@ export function TagsPage({
                   type="text"
                   value={name}
                   onChange={(e) => handleNameChange(e.target.value)}
-                  placeholder="Nome da tag ou marca"
+                  placeholder="Nome da tag"
                   required
                 />
                 <p className="wp-description">O nome é como ele aparece no seu site.</p>
@@ -231,7 +243,7 @@ export function TagsPage({
                   rows={4}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Breve descrição da tag ou marca..."
+                  placeholder="Breve descrição da tag..."
                 />
                 <p className="wp-description">
                   A descrição não é muito exibida por padrão; no entanto, alguns temas podem exibi-la.
@@ -260,14 +272,14 @@ export function TagsPage({
           </div>
         </div>
 
-        {/* Right Table: Tags List */}
+        {/* Right Table: Tag List */}
         <div className="wp-col-table">
           <div className="wp-tablenav top">
             <div className="alignleft actions bulkactions">
-              <label htmlFor="bulk-action-selector-top-tags" className="screen-reader-text">
+              <label htmlFor="bulk-action-selector-top" className="screen-reader-text">
                 Selecionar ação em massa
               </label>
-              <select id="bulk-action-selector-top-tags" defaultValue="">
+              <select id="bulk-action-selector-top" defaultValue="">
                 <option value="">Ações em massa</option>
                 <option value="delete">Excluir selecionadas</option>
               </select>
@@ -282,7 +294,7 @@ export function TagsPage({
                   if (window.confirm(`Excluir as ${selectedIds.length} tags selecionadas?`)) {
                     void Promise.all(
                       selectedIds.map((id) =>
-                        fetch(`/api/v1/admin/catalog/brands/${id}/archive`, {
+                        fetch(`/api/v1/admin/catalog/tags/${id}/archive`, {
                           method: 'POST',
                           credentials: 'include',
                         })
@@ -309,7 +321,13 @@ export function TagsPage({
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Pesquisar tags..."
               />
-              <button type="button" className="button">
+              <button
+                type="button"
+                className="button"
+                onClick={() => {
+                  /* Search is reactive */
+                }}
+              >
                 Pesquisar tags
               </button>
             </div>
@@ -323,6 +341,7 @@ export function TagsPage({
                     type="checkbox"
                     checked={filteredTags.length > 0 && selectedIds.length === filteredTags.length}
                     onChange={(e) => toggleSelectAll(e.target.checked)}
+                    aria-label="Selecionar todas as tags"
                   />
                 </td>
                 <th scope="col" className="manage-column column-name column-primary">
@@ -334,58 +353,56 @@ export function TagsPage({
                 <th scope="col" className="manage-column column-slug">
                   <span>Slug</span>
                 </th>
-                <th scope="col" className="manage-column column-count num">
+                <th
+                  scope="col"
+                  className="manage-column column-posts num"
+                  style={{ textAlign: 'right', width: '90px' }}
+                >
                   <span>Contagem</span>
                 </th>
               </tr>
             </thead>
-
             <tbody>
               {filteredTags.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="wp-empty-cell">
+                <tr className="no-items">
+                  <td colSpan={5} style={{ textAlign: 'center', padding: '1.5rem', color: '#646970' }}>
                     Nenhuma tag encontrada.
                   </td>
                 </tr>
               ) : (
                 filteredTags.map((item) => {
-                  const productCount = countByBrandId.get(item.id) ?? 0;
                   const isChecked = selectedIds.includes(item.id);
+                  const count = countByTagId.get(item.id) ?? item._count?.products ?? 0;
 
                   return (
-                    <tr key={item.id}>
+                    <tr key={item.id} className={isChecked ? 'is-selected' : ''}>
                       <th scope="row" className="check-column">
                         <input
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => toggleSelectItem(item.id)}
+                          aria-label={`Selecionar ${item.name}`}
                         />
                       </th>
                       <td className="column-name column-primary has-row-actions">
-                        <strong className="row-title">
-                          <button
-                            type="button"
-                            className="wp-title-link"
-                            onClick={() => startEdit(item)}
-                          >
-                            {item.name}
-                          </button>
+                        <strong>
+                          <span style={{ color: '#1d2327', fontWeight: 600 }}>{item.name}</span>
                         </strong>
                         <div className="row-actions">
                           <span className="edit">
                             <button
                               type="button"
-                              className="wp-action-link"
+                              className="button-link"
                               onClick={() => startEdit(item)}
                             >
                               Editar
                             </button>
                             {' | '}
                           </span>
-                          <span className="trash">
+                          <span className="delete">
                             <button
                               type="button"
-                              className="wp-action-link wp-action-link--danger"
+                              className="button-link delete-tag"
                               onClick={() => void handleArchive(item)}
                             >
                               Excluir
@@ -394,10 +411,10 @@ export function TagsPage({
                           </span>
                           <span className="view">
                             <a
-                              href={`/marca/${item.slug}`}
+                              href={`${storefrontBase}?tag=${item.slug}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="wp-action-link"
+                              className="button-link"
                             >
                               Ver produtos
                             </a>
@@ -405,21 +422,39 @@ export function TagsPage({
                         </div>
                       </td>
                       <td className="column-description">
-                        {item.description ? item.description : <span className="wp-muted">—</span>}
+                        {item.description ? (
+                          <span title={item.description}>
+                            {item.description.length > 60
+                              ? `${item.description.slice(0, 60)}…`
+                              : item.description}
+                          </span>
+                        ) : (
+                          <span className="wp-muted">—</span>
+                        )}
                       </td>
                       <td className="column-slug">{item.slug}</td>
-                      <td className="column-count num">
+                      <td className="column-posts num" style={{ textAlign: 'right' }}>
                         <button
                           type="button"
-                          className="wp-count-badge"
+                          className="wp-term-count-badge"
                           onClick={() => {
                             if (onNavigate) {
-                              onNavigate(`/admin/catalogo/produtos?brand=${encodeURIComponent(item.id)}`);
+                              onNavigate(`/admin/catalogo/produtos?tag=${item.slug}`);
                             }
                           }}
-                          title="Ver produtos desta marca"
+                          title="Ver produtos desta tag"
+                          style={{
+                            background: count > 0 ? '#2271b1' : '#f0f0f1',
+                            color: count > 0 ? '#fff' : '#646970',
+                            border: 'none',
+                            borderRadius: '10px',
+                            padding: '2px 8px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
                         >
-                          {productCount}
+                          {count}
                         </button>
                       </td>
                     </tr>
@@ -428,12 +463,6 @@ export function TagsPage({
               )}
             </tbody>
           </table>
-
-          <div className="wp-tablenav bottom">
-            <div className="tablenav-pages">
-              <span className="displaying-num">{filteredTags.length} itens</span>
-            </div>
-          </div>
         </div>
       </div>
     </section>

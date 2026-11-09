@@ -11,6 +11,10 @@
       "destination": "https://api-comercialdonorte.vercel.app/storage/$1"
     },
     {
+      "source": "/assets/(.*)",
+      "destination": "https://loja-comercialdonorte.vercel.app/assets/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

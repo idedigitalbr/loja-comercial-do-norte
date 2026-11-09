@@ -181,7 +181,7 @@ export function buildEnrichedBrands(apiBrands: ApiBrand[] = []): ApiBrand[] {
 
   // 1. Mantém marcas vindas da API, enriquecendo com logos/submarcas do showcase quando aplicável
   for (const b of apiBrands) {
-    if (b.slug === 'marca-exemplo' && apiBrands.length > 1) continue;
+    if (b.slug === 'marca-exemplo' || b.slug === 'tag-exemplo') continue;
     // Submarcas retornadas pela API (com parentId) pertencem ao children da marca pai, não à raiz
     if (b.parentId) continue;
 

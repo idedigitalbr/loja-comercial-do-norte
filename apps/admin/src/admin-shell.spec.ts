@@ -72,6 +72,6 @@ describe('admin shell', () => {
     expect(readCatalogSubPage('/admin/catalogo/produtos')).toBe('products');
     expect(readCatalogSubPage('/admin/catalogo/categorias')).toBe('categories');
     expect(readCatalogSubPage('/admin/catalogo/tags')).toBe('tags');
-    expect(readCatalogSubPage('/admin/catalogo/marcas')).toBe('tags');
+    expect(readCatalogSubPage('/admin/catalogo/marcas')).toBe('brands');
   });
 });

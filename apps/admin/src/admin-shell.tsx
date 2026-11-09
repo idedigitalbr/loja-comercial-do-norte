@@ -3,6 +3,7 @@ import { Icon, type IconName } from '@commerce/ui';
 import { ProductListPage } from './features/catalog/product-list-page';
 import { ProductEditorPage } from './features/catalog/product-editor-page';
 import { BrandEditorPage } from './features/catalog/brand-editor-page';
+import { BrandsPage } from './features/catalog/brands-page';
 import { CategoriesPage } from './features/catalog/categories-page';
 import { TagsPage } from './features/catalog/tags-page';
 import { InventoryPage } from './features/inventory/inventory-page';
@@ -35,7 +36,7 @@ export type AdminSection =
   | 'reports'
   | 'settings';
 
-export type CatalogSubPage = 'products' | 'categories' | 'tags';
+export type CatalogSubPage = 'products' | 'categories' | 'brands' | 'tags';
 
 type NavigationItem = { id: AdminSection; label: string; description: string; icon: IconName };
 type DashboardProduct = { id: string };
@@ -200,7 +201,6 @@ function OverviewPage() {
   );
 }
 
-
 type PostRoute = { mode: 'new' | 'edit'; id?: string } | null;
 type EventRoute = { mode: 'new' | 'edit'; id?: string } | null;
 type PostsSubPage = 'posts' | 'categories';
@@ -244,7 +244,8 @@ function readBrandRoute(
 
 export function readCatalogSubPage(pathname = window.location.pathname): CatalogSubPage {
   if (/^\/admin\/catalogo\/categorias\/?$/.test(pathname)) return 'categories';
-  if (/^\/admin\/catalogo\/(tags|marcas)\/?$/.test(pathname)) return 'tags';
+  if (/^\/admin\/catalogo\/marcas\/?$/.test(pathname)) return 'brands';
+  if (/^\/admin\/catalogo\/tags\/?$/.test(pathname)) return 'tags';
   return 'products';
 }
 
@@ -412,7 +413,6 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
                   </span>
                 </button>
 
-
                 {/* Submenu de Posts (WordPress style) */}
                 {item.id === 'posts' && isItemActive && (
                   <div className="admin-subnav" role="menu" aria-label="Submenu de Posts">
@@ -463,6 +463,7 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
                     </button>
                   </div>
                 )}
+
                 {/* Submenu de Produtos (Anexo 2 do WordPress) */}
                 {item.id === 'catalog' && isItemActive && (
                   <div className="admin-subnav" role="menu" aria-label="Submenu de Produtos">
@@ -490,6 +491,15 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
                       onClick={() => navigate('/admin/catalogo/categorias')}
                     >
                       Categorias
+                    </button>
+                    <button
+                      className={`admin-subnav__item ${
+                        catalogSubPage === 'brands' && !productRoute && !brandRoute ? 'is-active' : ''
+                      }`}
+                      type="button"
+                      onClick={() => navigate('/admin/catalogo/marcas')}
+                    >
+                      Marcas
                     </button>
                     <button
                       className={`admin-subnav__item ${
@@ -539,7 +549,7 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
           <BrandEditorPage
             brandId={brandRoute.mode === 'edit' ? brandRoute.id : undefined}
             initialParentId={brandRoute.parentId}
-            onBack={() => navigate('/admin/catalogo/tags')}
+            onBack={() => navigate('/admin/catalogo/marcas')}
             onOpenBrand={(id) => navigate(`/admin/catalogo/marcas/${encodeURIComponent(id)}/editar`)}
             onCreateChild={(parentId) => navigate(`/admin/catalogo/marcas/nova?parentId=${encodeURIComponent(parentId)}`)}
           />
@@ -582,11 +592,13 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
         ) : section === 'catalog' ? (
           catalogSubPage === 'categories' ? (
             <CategoriesPage onNavigate={(path) => navigate(path)} />
-          ) : catalogSubPage === 'tags' ? (
-            <TagsPage
+          ) : catalogSubPage === 'brands' ? (
+            <BrandsPage
               onNavigate={(path) => navigate(path)}
-              onOpenBrand={(id) => navigate(`/admin/catalogo/marcas/${encodeURIComponent(id)}/editar`)}
+              onOpenBrandEditor={(id) => navigate(`/admin/catalogo/marcas/${encodeURIComponent(id)}/editar`)}
             />
+          ) : catalogSubPage === 'tags' ? (
+            <TagsPage onNavigate={(path) => navigate(path)} />
           ) : (
             <ProductListPage
               onCreate={() => navigate('/admin/catalogo/produtos/novo')}

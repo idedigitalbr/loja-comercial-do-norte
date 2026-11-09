@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
+import { resolveMediaUrl, handleImageFallback } from '../../utils/media-url';
 
 type PostCategory = { id: string; name: string; slug: string };
 
@@ -102,10 +103,7 @@ export function PostEditorPage({
         method,
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...draft,
-          categoryId: draft.categoryId || undefined,
-        }),
+        body: JSON.stringify(draft),
       });
 
       if (!res.ok) throw new Error('Falha ao salvar post');
@@ -119,256 +117,337 @@ export function PostEditorPage({
 
   if (loading) {
     return (
-      <div className="py-12 text-center text-xs text-slate-500">
-        Carregando informações do post...
-      </div>
+      <section className="wp-admin-page">
+        <div className="wp-screen-meta-panel" style={{ textAlign: 'center', padding: '40px' }}>
+          Carregando informações do post...
+        </div>
+      </section>
     );
   }
 
   return (
-    <form className="admin-page" onSubmit={handleSubmit}>
-      {/* Top Bar estilo WordPress */}
-      <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-        <div className="flex items-center gap-3">
-          <button
-            className="rounded border border-slate-300 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
-            onClick={onBack}
-            type="button"
-          >
-            ← Voltar para Posts
-          </button>
-          <h1 className="text-xl font-bold text-slate-900">
-            {isEditing ? `Editar Post: ${draft.title}` : 'Adicionar Novo Post'}
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {isEditing && draft.slug ? (
-            <a
-              className="rounded border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-slate-50"
-              href={`http://localhost:3001/post/${draft.slug}`}
-              rel="noreferrer"
-              target="_blank"
+    <section className="wp-admin-page">
+      <form onSubmit={handleSubmit}>
+        {/* WordPress Screen Heading */}
+        <div className="wp-screen-heading" style={{ marginBottom: '20px' }}>
+          <div className="wp-screen-heading__left">
+            <button
+              type="button"
+              className="button button-secondary"
+              onClick={onBack}
+              style={{ marginRight: '8px' }}
             >
-              Ver Post no Site ↗
-            </a>
-          ) : null}
-          <button
-            className="rounded bg-blue-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-blue-700 transition cursor-pointer disabled:opacity-50"
-            disabled={saving}
-            type="submit"
-          >
-            {saving ? 'Salvando...' : isEditing ? 'Atualizar Post' : 'Publicar Post'}
-          </button>
+              ← Voltar para Posts
+            </button>
+            <h1 className="wp-heading-inline">
+              {isEditing ? `Editar post: ${draft.title}` : 'Adicionar novo post'}
+            </h1>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {isEditing && draft.slug && (
+              <a
+                className="button button-secondary"
+                href={`http://localhost:3001/post/${draft.slug}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Ver post no site ↗
+              </a>
+            )}
+            <button
+              type="submit"
+              className="button button-primary"
+              disabled={saving}
+            >
+              {saving ? 'Salvando...' : isEditing ? 'Atualizar post' : 'Publicar post'}
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Grid de 2 Colunas (WordPress Editor Layout) */}
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Coluna Principal: Título, Resumo, Conteúdo */}
-        <div className="lg:col-span-8 space-y-4">
-          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
-            <label className="block text-xs font-bold text-slate-700 mb-1" htmlFor="post-title">
-              Título do Post *
-            </label>
-            <input
-              className="w-full rounded border border-slate-300 px-3.5 py-2.5 text-base font-bold text-slate-900 outline-none focus:border-blue-600"
-              id="post-title"
-              onChange={(e) => setDraft({ ...draft, title: e.target.value })}
-              placeholder="Digite o título do post ou artigo..."
-              required
-              type="text"
-              value={draft.title}
-            />
-
-            <div className="mt-3">
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1" htmlFor="post-slug">
-                Slug Permanente (URL amigável)
-              </label>
-              <div className="flex items-center rounded border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-600">
-                <span className="text-slate-400">/post/</span>
+        {/* 2-Column WordPress Layout */}
+        <div className="product-editor__columns">
+          {/* Main Content Column */}
+          <div className="product-editor__main">
+            <div className="product-editor__card">
+              <div className="wp-form-field">
+                <label htmlFor="post-title" style={{ fontSize: '14px', fontWeight: 600 }}>
+                  Título do post *
+                </label>
                 <input
-                  className="w-full bg-transparent px-1 font-mono text-xs text-slate-800 outline-none"
-                  id="post-slug"
-                  onChange={(e) => setDraft({ ...draft, slug: e.target.value })}
-                  placeholder="gerado-automaticamente"
+                  id="post-title"
+                  type="text"
+                  value={draft.title}
+                  onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+                  placeholder="Digite o título do post ou artigo..."
+                  required
+                  style={{
+                    fontSize: '18px',
+                    fontWeight: 600,
+                    padding: '8px 12px',
+                    height: 'auto',
+                  }}
+                />
+              </div>
+
+              <div className="product-editor__slug">
+                <span>Slug permanente</span>
+                <code>/post/{draft.slug || 'gerado-automaticamente'}</code>
+                <input
                   type="text"
                   value={draft.slug}
+                  onChange={(e) => setDraft({ ...draft, slug: e.target.value })}
+                  placeholder="slug-amigavel-personalizado"
+                  style={{
+                    height: '30px',
+                    padding: '0 8px',
+                    fontSize: '12px',
+                    fontFamily: 'monospace',
+                  }}
+                />
+              </div>
+
+              <div className="wp-form-field" style={{ marginTop: '16px' }}>
+                <label htmlFor="post-excerpt">Resumo / Chamada (Excerpt)</label>
+                <textarea
+                  id="post-excerpt"
+                  rows={3}
+                  value={draft.excerpt}
+                  onChange={(e) => setDraft({ ...draft, excerpt: e.target.value })}
+                  placeholder="Breve resumo exibido nos cards da vitrine e no topo do artigo..."
+                />
+                <p className="wp-description">
+                  O resumo é uma descrição curta opcional do post usada em destaques e buscas.
+                </p>
+              </div>
+
+              <div className="wp-form-field" style={{ marginTop: '16px' }}>
+                <label htmlFor="post-content">Conteúdo do artigo (HTML / Texto completo) *</label>
+                <textarea
+                  id="post-content"
+                  rows={15}
+                  value={draft.content}
+                  onChange={(e) => setDraft({ ...draft, content: e.target.value })}
+                  placeholder="Escreva ou cole aqui o conteúdo formatado do post em HTML ou parágrafos..."
+                  required
+                  style={{
+                    fontFamily: 'monospace',
+                    fontSize: '13px',
+                    lineHeight: '1.6',
+                  }}
                 />
               </div>
             </div>
-
-            <div className="mt-4">
-              <label className="block text-xs font-bold text-slate-700 mb-1" htmlFor="post-excerpt">
-                Resumo / Chamada (Excerpt)
-              </label>
-              <textarea
-                className="w-full rounded border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 leading-relaxed"
-                id="post-excerpt"
-                onChange={(e) => setDraft({ ...draft, excerpt: e.target.value })}
-                placeholder="Breve resumo que aparece nos cards da vitrine e no topo do artigo..."
-                rows={2}
-                value={draft.excerpt}
-              />
-            </div>
-
-            <div className="mt-4">
-              <label className="block text-xs font-bold text-slate-700 mb-1" htmlFor="post-content">
-                Conteúdo do Artigo (HTML / Texto Completo) *
-              </label>
-              <textarea
-                className="w-full font-mono rounded border border-slate-300 p-3 text-xs text-slate-800 outline-none focus:border-blue-600 leading-relaxed"
-                id="post-content"
-                onChange={(e) => setDraft({ ...draft, content: e.target.value })}
-                placeholder="Escreva ou cole aqui o conteúdo formatado do post em HTML ou parágrafos..."
-                required
-                rows={14}
-                value={draft.content}
-              />
-            </div>
           </div>
-        </div>
 
-        {/* Barra Lateral Direita (Inspector) */}
-        <div className="lg:col-span-4 space-y-4">
-          {/* Card Publicar */}
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs">
-            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">
-              Status & Visibilidade
-            </h2>
-            <div className="space-y-2 text-xs">
-              <label className="flex items-center gap-2 cursor-pointer">
+          {/* Sidebar Column */}
+          <div className="product-editor__aside">
+            {/* Box Publicar */}
+            <div className="product-editor__side-card">
+              <div className="product-editor__side-heading">
+                <h3>Publicação</h3>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="status"
+                    checked={draft.status === 'ACTIVE'}
+                    onChange={() => setDraft({ ...draft, status: 'ACTIVE' })}
+                  />
+                  <strong style={{ color: '#00a32a' }}>Publicado</strong>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="status"
+                    checked={draft.status === 'DRAFT'}
+                    onChange={() => setDraft({ ...draft, status: 'DRAFT' })}
+                  />
+                  <strong style={{ color: '#dba617' }}>Rascunho</strong>
+                </label>
+              </div>
+
+              <div className="wp-form-field">
+                <label>Nome do autor</label>
                 <input
-                  checked={draft.status === 'ACTIVE'}
-                  name="status"
-                  onChange={() => setDraft({ ...draft, status: 'ACTIVE' })}
-                  type="radio"
+                  type="text"
+                  value={draft.authorName}
+                  onChange={(e) => setDraft({ ...draft, authorName: e.target.value })}
                 />
-                <span className="font-semibold text-emerald-800">Publicado</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  checked={draft.status === 'DRAFT'}
-                  name="status"
-                  onChange={() => setDraft({ ...draft, status: 'DRAFT' })}
-                  type="radio"
-                />
-                <span className="font-medium text-amber-800">Rascunho</span>
-              </label>
-            </div>
+              </div>
 
-            <div className="mt-4 pt-3 border-t border-slate-100">
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                Nome do Autor
-              </label>
-              <input
-                className="w-full rounded border border-slate-300 px-2.5 py-1 text-xs text-slate-800 outline-none"
-                onChange={(e) => setDraft({ ...draft, authorName: e.target.value })}
-                type="text"
-                value={draft.authorName}
-              />
-            </div>
-          </div>
-
-          {/* Card Categoria */}
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs">
-            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
-              Categoria do Post
-            </h2>
-            <select
-              className="w-full rounded border border-slate-300 p-2 text-xs text-slate-800 outline-none"
-              onChange={(e) => setDraft({ ...draft, categoryId: e.target.value })}
-              value={draft.categoryId}
-            >
-              <option value="">Sem categoria</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Card Badges / Etiquetas */}
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs">
-            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
-              Badges / Etiquetas
-            </h2>
-            <div className="flex flex-wrap gap-1.5 mb-2.5">
-              {draft.badges.map((b) => (
-                <span
-                  className="inline-flex items-center gap-1 rounded bg-red-100 px-2 py-0.5 text-[10px] font-extrabold text-[#cb001c]"
-                  key={b}
+              <div style={{ paddingTop: '12px', borderTop: '1px solid #dcdcde' }}>
+                <button
+                  type="submit"
+                  className="button button-primary"
+                  style={{ width: '100%' }}
+                  disabled={saving}
                 >
-                  {b}
-                  <button
-                    className="hover:text-red-900 cursor-pointer"
-                    onClick={() => removeBadge(b)}
-                    type="button"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
+                  {saving ? 'Salvando...' : isEditing ? 'Atualizar post' : 'Publicar post'}
+                </button>
+              </div>
             </div>
-            <div className="flex gap-1.5">
-              <input
-                className="w-full rounded border border-slate-300 px-2.5 py-1 text-xs text-slate-800 outline-none uppercase"
-                onChange={(e) => setBadgeInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addBadge(); } }}
-                placeholder="Ex: DELIVERY, KRAFT"
-                type="text"
-                value={badgeInput}
-              />
-              <button
-                className="rounded border border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 cursor-pointer"
-                onClick={addBadge}
-                type="button"
-              >
-                +
-              </button>
-            </div>
-          </div>
 
-          {/* Card Imagem de Capa */}
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs">
-            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
-              Imagem de Capa (URL)
-            </h2>
-            <input
-              className="w-full rounded border border-slate-300 px-2.5 py-1 text-xs text-slate-800 outline-none"
-              onChange={(e) => setDraft({ ...draft, coverUrl: e.target.value })}
-              placeholder="/assets/HOME Vitrine/... ou https://"
-              type="text"
-              value={draft.coverUrl}
-            />
-            {draft.coverUrl ? (
-              <div className="mt-2.5 overflow-hidden rounded border border-slate-200 aspect-[16/10] relative bg-slate-100">
-                <img
-                  alt="Preview da capa"
-                  className="size-full object-cover"
-                  src={draft.coverUrl}
+            {/* Box Categoria */}
+            <div className="product-editor__side-card">
+              <div className="product-editor__side-heading">
+                <h3>Categoria</h3>
+              </div>
+              <div className="wp-form-field">
+                <select
+                  value={draft.categoryId}
+                  onChange={(e) => setDraft({ ...draft, categoryId: e.target.value })}
+                >
+                  <option value="">Sem categoria</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Box Badges / Tags */}
+            <div className="product-editor__side-card">
+              <div className="product-editor__side-heading">
+                <h3>Badges / Etiquetas</h3>
+              </div>
+
+              {draft.badges.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
+                  {draft.badges.map((b) => (
+                    <span
+                      key={b}
+                      className="wp-brand-tag"
+                      style={{
+                        background: '#fef2f2',
+                        color: '#b91c1c',
+                        border: '1px solid #fecaca',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '3px 8px',
+                      }}
+                    >
+                      {b}
+                      <button
+                        type="button"
+                        onClick={() => removeBadge(b)}
+                        style={{
+                          border: 0,
+                          background: 'transparent',
+                          color: '#b91c1c',
+                          cursor: 'pointer',
+                          fontWeight: 700,
+                          padding: 0,
+                        }}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <input
+                  type="text"
+                  value={badgeInput}
+                  onChange={(e) => setBadgeInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addBadge();
+                    }
+                  }}
+                  placeholder="Ex: DELIVERY, KRAFT"
+                  style={{
+                    textTransform: 'uppercase',
+                    height: '32px',
+                    padding: '0 8px',
+                    fontSize: '12px',
+                    flex: 1,
+                  }}
+                />
+                <button
+                  type="button"
+                  className="button button-secondary"
+                  onClick={addBadge}
+                >
+                  Adicionar
+                </button>
+              </div>
+            </div>
+
+            {/* Box Imagem de Capa */}
+            <div className="product-editor__side-card">
+              <div className="product-editor__side-heading">
+                <h3>Imagem de capa</h3>
+              </div>
+
+              <div className="wp-form-field">
+                <input
+                  type="text"
+                  value={draft.coverUrl}
+                  onChange={(e) => setDraft({ ...draft, coverUrl: e.target.value })}
+                  placeholder="/assets/HOME Vitrine/... ou https://"
                 />
               </div>
-            ) : null}
-          </div>
 
-          {/* Card Vídeo Opcional */}
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs">
-            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
-              Vídeo (Opcional)
-            </h2>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-              URL do Vídeo (YouTube ou MP4)
-            </label>
-            <input
-              className="w-full rounded border border-slate-300 px-2.5 py-1 text-xs text-slate-800 outline-none"
-              onChange={(e) => setDraft({ ...draft, videoUrl: e.target.value })}
-              placeholder="https://youtube.com/..."
-              type="text"
-              value={draft.videoUrl}
-            />
+              {draft.coverUrl ? (
+                <div
+                  style={{
+                    width: '100%',
+                    aspectRatio: '16/10',
+                    borderRadius: '4px',
+                    overflow: 'hidden',
+                    border: '1px solid #dcdcde',
+                    background: '#f0f0f1',
+                    marginTop: '8px',
+                  }}
+                >
+                  <img
+                    src={resolveMediaUrl(draft.coverUrl)}
+                    alt="Preview da capa"
+                    onError={handleImageFallback}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      display: 'block',
+                    }}
+                  />
+                </div>
+              ) : (
+                <p className="wp-description">
+                  Insira o caminho ou URL da imagem de capa que será exibida no topo do artigo e nas listagens.
+                </p>
+              )}
+            </div>
+
+            {/* Box Vídeo Opcional */}
+            <div className="product-editor__side-card">
+              <div className="product-editor__side-heading">
+                <h3>Vídeo (Opcional)</h3>
+              </div>
+              <div className="wp-form-field">
+                <input
+                  type="text"
+                  value={draft.videoUrl}
+                  onChange={(e) => setDraft({ ...draft, videoUrl: e.target.value })}
+                  placeholder="https://youtube.com/..."
+                />
+                <p className="wp-description">
+                  Link de vídeo do YouTube ou arquivo MP4 do Explica Aí Nort.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </section>
   );
 }

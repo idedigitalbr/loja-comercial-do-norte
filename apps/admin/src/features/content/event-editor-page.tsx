@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
+import { resolveMediaUrl, handleImageFallback } from '../../utils/media-url';
 
 type EventDraft = {
   title: string;
@@ -106,284 +107,316 @@ export function EventEditorPage({
 
   if (loading) {
     return (
-      <div className="py-12 text-center text-xs text-slate-500">
-        Carregando informações do evento...
-      </div>
+      <section className="wp-admin-page">
+        <div className="wp-screen-meta-panel" style={{ textAlign: 'center', padding: '40px' }}>
+          Carregando informações do evento...
+        </div>
+      </section>
     );
   }
 
   return (
-    <form className="admin-page" onSubmit={handleSubmit}>
-      <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-        <div className="flex items-center gap-3">
-          <button
-            className="rounded border border-slate-300 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
-            onClick={onBack}
-            type="button"
-          >
-            ← Voltar para Eventos
-          </button>
-          <h1 className="text-xl font-bold text-slate-900">
-            {isEditing ? `Editar Evento: ${draft.title}` : 'Adicionar Novo Evento'}
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {isEditing && draft.slug ? (
-            <a
-              className="rounded border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-slate-50"
-              href={`http://localhost:3001/evento/${draft.slug}`}
-              rel="noreferrer"
-              target="_blank"
+    <section className="wp-admin-page">
+      <form onSubmit={handleSubmit}>
+        {/* WordPress Screen Heading */}
+        <div className="wp-screen-heading" style={{ marginBottom: '20px' }}>
+          <div className="wp-screen-heading__left">
+            <button
+              type="button"
+              className="button button-secondary"
+              onClick={onBack}
+              style={{ marginRight: '8px' }}
             >
-              Ver Evento no Site ↗
-            </a>
-          ) : null}
-          <button
-            className="rounded bg-blue-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-blue-700 transition cursor-pointer disabled:opacity-50"
-            disabled={saving}
-            type="submit"
-          >
-            {saving ? 'Salvando...' : isEditing ? 'Atualizar Evento' : 'Publicar Evento'}
-          </button>
+              ← Voltar para Eventos
+            </button>
+            <h1 className="wp-heading-inline">
+              {isEditing ? `Editar evento: ${draft.title}` : 'Adicionar novo evento'}
+            </h1>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {isEditing && draft.slug && (
+              <a
+                className="button button-secondary"
+                href={`http://localhost:3001/evento/${draft.slug}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Ver evento no site ↗
+              </a>
+            )}
+            <button
+              type="submit"
+              className="button button-primary"
+              disabled={saving}
+            >
+              {saving ? 'Salvando...' : isEditing ? 'Atualizar evento' : 'Publicar evento'}
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Coluna Principal */}
-        <div className="lg:col-span-8 space-y-4">
-          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
-            <label className="block text-xs font-bold text-slate-700 mb-1" htmlFor="ev-title">
-              Título do Evento *
-            </label>
-            <input
-              className="w-full rounded border border-slate-300 px-3.5 py-2.5 text-base font-bold text-slate-900 outline-none focus:border-blue-600"
-              id="ev-title"
-              onChange={(e) => setDraft({ ...draft, title: e.target.value })}
-              placeholder="Ex: Workshop de Confeitaria Profissional"
-              required
-              type="text"
-              value={draft.title}
-            />
-
-            <div className="mt-3">
-              <label className="block text-xs font-bold text-slate-700 mb-1" htmlFor="ev-subtitle">
-                Subtítulo / Chamada
-              </label>
-              <input
-                className="w-full rounded border border-slate-300 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600"
-                id="ev-subtitle"
-                onChange={(e) => setDraft({ ...draft, subtitle: e.target.value })}
-                placeholder="Ex: Decoração com Chantilly e Bicos — Aprenda técnicas exclusivas"
-                type="text"
-                value={draft.subtitle}
-              />
-            </div>
-
-            <div className="mt-3">
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1" htmlFor="ev-slug">
-                Slug Permanente
-              </label>
-              <div className="flex items-center rounded border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-600">
-                <span className="text-slate-400">/evento/</span>
+        {/* 2-Column WordPress Layout */}
+        <div className="product-editor__columns">
+          {/* Main Content Column */}
+          <div className="product-editor__main">
+            <div className="product-editor__card">
+              <div className="wp-form-field">
+                <label htmlFor="ev-title" style={{ fontSize: '14px', fontWeight: 600 }}>
+                  Título do evento *
+                </label>
                 <input
-                  className="w-full bg-transparent px-1 font-mono text-xs text-slate-800 outline-none"
-                  id="ev-slug"
-                  onChange={(e) => setDraft({ ...draft, slug: e.target.value })}
-                  placeholder="gerado-automaticamente"
+                  id="ev-title"
+                  type="text"
+                  value={draft.title}
+                  onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+                  placeholder="Ex: Workshop de Confeitaria Profissional"
+                  required
+                  style={{
+                    fontSize: '18px',
+                    fontWeight: 600,
+                    padding: '8px 12px',
+                    height: 'auto',
+                  }}
+                />
+              </div>
+
+              <div className="wp-form-field" style={{ marginTop: '12px' }}>
+                <label htmlFor="ev-subtitle">Subtítulo / Chamada</label>
+                <input
+                  id="ev-subtitle"
+                  type="text"
+                  value={draft.subtitle}
+                  onChange={(e) => setDraft({ ...draft, subtitle: e.target.value })}
+                  placeholder="Ex: Decoração com Chantilly e Bicos — Aprenda técnicas exclusivas"
+                />
+              </div>
+
+              <div className="product-editor__slug">
+                <span>Slug permanente</span>
+                <code>/evento/{draft.slug || 'gerado-automaticamente'}</code>
+                <input
                   type="text"
                   value={draft.slug}
+                  onChange={(e) => setDraft({ ...draft, slug: e.target.value })}
+                  placeholder="slug-amigavel-personalizado"
+                  style={{
+                    height: '30px',
+                    padding: '0 8px',
+                    fontSize: '12px',
+                    fontFamily: 'monospace',
+                  }}
+                />
+              </div>
+
+              <div className="wp-form-field" style={{ marginTop: '16px' }}>
+                <label htmlFor="ev-desc">Descrição completa do evento *</label>
+                <textarea
+                  id="ev-desc"
+                  rows={14}
+                  value={draft.description}
+                  onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+                  placeholder="Detalhes sobre o conteúdo, público-alvo, benefícios, o que levar e como se preparar..."
+                  required
+                  style={{
+                    fontSize: '13px',
+                    lineHeight: '1.6',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar Column */}
+          <div className="product-editor__aside">
+            {/* Box Publicação */}
+            <div className="product-editor__side-card">
+              <div className="product-editor__side-heading">
+                <h3>Publicação</h3>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="status"
+                    checked={draft.status === 'ACTIVE'}
+                    onChange={() => setDraft({ ...draft, status: 'ACTIVE' })}
+                  />
+                  <strong style={{ color: '#00a32a' }}>Publicado</strong>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="status"
+                    checked={draft.status === 'DRAFT'}
+                    onChange={() => setDraft({ ...draft, status: 'DRAFT' })}
+                  />
+                  <strong style={{ color: '#dba617' }}>Rascunho</strong>
+                </label>
+              </div>
+
+              <div style={{ paddingTop: '12px', borderTop: '1px solid #dcdcde' }}>
+                <button
+                  type="submit"
+                  className="button button-primary"
+                  style={{ width: '100%' }}
+                  disabled={saving}
+                >
+                  {saving ? 'Salvando...' : isEditing ? 'Atualizar evento' : 'Publicar evento'}
+                </button>
+              </div>
+            </div>
+
+            {/* Box Cartaz Oficial */}
+            <div className="product-editor__side-card">
+              <div className="product-editor__side-heading">
+                <h3>Cartaz oficial vertical (9:16)</h3>
+              </div>
+
+              <div className="wp-form-field">
+                <input
+                  type="text"
+                  value={draft.posterUrl}
+                  onChange={(e) => setDraft({ ...draft, posterUrl: e.target.value })}
+                  placeholder="/assets/HOME Vitrine/S12-EVENTOS/... ou https://"
+                />
+              </div>
+
+              {draft.posterUrl ? (
+                <div
+                  style={{
+                    width: '140px',
+                    aspectRatio: '9/16',
+                    borderRadius: '4px',
+                    overflow: 'hidden',
+                    border: '1px solid #dcdcde',
+                    background: '#f0f0f1',
+                    margin: '8px auto 0',
+                  }}
+                >
+                  <img
+                    src={resolveMediaUrl(draft.posterUrl)}
+                    alt="Preview do cartaz"
+                    onError={handleImageFallback}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      display: 'block',
+                    }}
+                  />
+                </div>
+              ) : (
+                <p className="wp-description">
+                  Insira o caminho do cartaz oficial para exibição na grade de eventos da home e na página do evento.
+                </p>
+              )}
+            </div>
+
+            {/* Box Data & Horário */}
+            <div className="product-editor__side-card">
+              <div className="product-editor__side-heading">
+                <h3>Data & Horário</h3>
+              </div>
+
+              <div className="wp-form-field">
+                <label>Data do evento (Texto)</label>
+                <input
+                  type="text"
+                  value={draft.eventDateText}
+                  onChange={(e) => setDraft({ ...draft, eventDateText: e.target.value })}
+                  placeholder="Ex: 31 de Agosto ou 03/10"
+                />
+              </div>
+
+              <div className="wp-form-field">
+                <label>Horário</label>
+                <input
+                  type="text"
+                  value={draft.eventTime}
+                  onChange={(e) => setDraft({ ...draft, eventTime: e.target.value })}
+                  placeholder="Ex: 19h30 ou 08h às 12h"
                 />
               </div>
             </div>
 
-            <div className="mt-4">
-              <label className="block text-xs font-bold text-slate-700 mb-1" htmlFor="ev-desc">
-                Descrição Completa do Evento *
-              </label>
-              <textarea
-                className="w-full rounded border border-slate-300 p-3 text-xs text-slate-800 outline-none focus:border-blue-600 leading-relaxed"
-                id="ev-desc"
-                onChange={(e) => setDraft({ ...draft, description: e.target.value })}
-                placeholder="Detalhes sobre o conteúdo, público-alvo, benefícios, o que levar e como se preparar..."
-                required
-                rows={12}
-                value={draft.description}
-              />
-            </div>
-          </div>
-        </div>
+            {/* Box Local & Instrutor */}
+            <div className="product-editor__side-card">
+              <div className="product-editor__side-heading">
+                <h3>Local & Instrutor</h3>
+              </div>
 
-        {/* Barra Lateral Direita */}
-        <div className="lg:col-span-4 space-y-4">
-          {/* Card Publicar */}
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs">
-            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">
-              Status & Visibilidade
-            </h2>
-            <div className="space-y-2 text-xs">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <div className="wp-form-field">
+                <label>Local</label>
                 <input
-                  checked={draft.status === 'ACTIVE'}
-                  name="status"
-                  onChange={() => setDraft({ ...draft, status: 'ACTIVE' })}
-                  type="radio"
-                />
-                <span className="font-semibold text-emerald-800">Publicado</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  checked={draft.status === 'DRAFT'}
-                  name="status"
-                  onChange={() => setDraft({ ...draft, status: 'DRAFT' })}
-                  type="radio"
-                />
-                <span className="font-medium text-amber-800">Rascunho</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Card Cartaz Oficial (9:16) */}
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs">
-            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
-              Cartaz Oficial Vertical (9:16)
-            </h2>
-            <input
-              className="w-full rounded border border-slate-300 px-2.5 py-1 text-xs text-slate-800 outline-none"
-              onChange={(e) => setDraft({ ...draft, posterUrl: e.target.value })}
-              placeholder="/assets/HOME Vitrine/S12-EVENTOS/..."
-              type="text"
-              value={draft.posterUrl}
-            />
-            {draft.posterUrl ? (
-              <div className="mt-2.5 overflow-hidden rounded border border-slate-200 aspect-[9/16] relative bg-slate-100 max-h-56">
-                <img
-                  alt="Preview do cartaz"
-                  className="size-full object-cover"
-                  src={draft.posterUrl}
+                  type="text"
+                  value={draft.location}
+                  onChange={(e) => setDraft({ ...draft, location: e.target.value })}
+                  placeholder="Ex: Loja Pedreira ou Igreja Nova Terra"
                 />
               </div>
-            ) : null}
-          </div>
 
-          {/* Card Data & Local */}
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs space-y-3">
-            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-              Data & Horário
-            </h2>
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                Data do Evento (Texto)
-              </label>
-              <input
-                className="w-full rounded border border-slate-300 px-2.5 py-1 text-xs text-slate-800 outline-none"
-                onChange={(e) => setDraft({ ...draft, eventDateText: e.target.value })}
-                placeholder="Ex: 31 de Agosto ou 03/10"
-                type="text"
-                value={draft.eventDateText}
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                Horário
-              </label>
-              <input
-                className="w-full rounded border border-slate-300 px-2.5 py-1 text-xs text-slate-800 outline-none"
-                onChange={(e) => setDraft({ ...draft, eventTime: e.target.value })}
-                placeholder="Ex: 19h30 ou 08h às 12h"
-                type="text"
-                value={draft.eventTime}
-              />
-            </div>
-          </div>
+              <div className="wp-form-field">
+                <label>Endereço</label>
+                <input
+                  type="text"
+                  value={draft.locationAddress}
+                  onChange={(e) => setDraft({ ...draft, locationAddress: e.target.value })}
+                  placeholder="Ex: Mauriti entre Pedro Miranda e Antônio Everdosa"
+                />
+              </div>
 
-          {/* Card Local & Palestrante */}
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs space-y-3">
-            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-              Local & Palestrante
-            </h2>
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                Local
-              </label>
-              <input
-                className="w-full rounded border border-slate-300 px-2.5 py-1 text-xs text-slate-800 outline-none"
-                onChange={(e) => setDraft({ ...draft, location: e.target.value })}
-                placeholder="Ex: Loja Pedreira ou Igreja Nova Terra"
-                type="text"
-                value={draft.location}
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                Endereço
-              </label>
-              <input
-                className="w-full rounded border border-slate-300 px-2.5 py-1 text-xs text-slate-800 outline-none"
-                onChange={(e) => setDraft({ ...draft, locationAddress: e.target.value })}
-                placeholder="Ex: Mauriti entre Pedro Miranda e Antônio Everdosa"
-                type="text"
-                value={draft.locationAddress}
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                Palestrante / Instrutor
-              </label>
-              <input
-                className="w-full rounded border border-slate-300 px-2.5 py-1 text-xs text-slate-800 outline-none"
-                onChange={(e) => setDraft({ ...draft, instructor: e.target.value })}
-                placeholder="Ex: James Holanda ou Thais Reis"
-                type="text"
-                value={draft.instructor}
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                Badge / Tipo de Evento
-              </label>
-              <input
-                className="w-full rounded border border-slate-300 px-2.5 py-1 text-xs text-slate-800 outline-none uppercase"
-                onChange={(e) => setDraft({ ...draft, badge: e.target.value })}
-                placeholder="Ex: WORKSHOP, PALESTRA, REINAUGURAÇÃO"
-                type="text"
-                value={draft.badge}
-              />
-            </div>
-          </div>
+              <div className="wp-form-field">
+                <label>Palestrante / Instrutor</label>
+                <input
+                  type="text"
+                  value={draft.instructor}
+                  onChange={(e) => setDraft({ ...draft, instructor: e.target.value })}
+                  placeholder="Ex: James Holanda ou Thais Reis"
+                />
+              </div>
 
-          {/* Card CTA de Inscrição */}
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs space-y-3">
-            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-              Ação de Inscrição (CTA)
-            </h2>
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                Texto do Botão
-              </label>
-              <input
-                className="w-full rounded border border-slate-300 px-2.5 py-1 text-xs text-slate-800 outline-none"
-                onChange={(e) => setDraft({ ...draft, ctaLabel: e.target.value })}
-                placeholder="Ex: Garantir Vaga no WhatsApp"
-                type="text"
-                value={draft.ctaLabel}
-              />
+              <div className="wp-form-field">
+                <label>Tipo / Badge do evento</label>
+                <input
+                  type="text"
+                  value={draft.badge}
+                  onChange={(e) => setDraft({ ...draft, badge: e.target.value })}
+                  placeholder="Ex: WORKSHOP, PALESTRA, REINAUGURAÇÃO"
+                  style={{ textTransform: 'uppercase' }}
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                Link de Destino / WhatsApp (opcional)
-              </label>
-              <input
-                className="w-full rounded border border-slate-300 px-2.5 py-1 text-xs text-slate-800 outline-none"
-                onChange={(e) => setDraft({ ...draft, ctaUrl: e.target.value })}
-                placeholder="https://wa.me/5591983440880?text=..."
-                type="text"
-                value={draft.ctaUrl}
-              />
+
+            {/* Box Ação de Inscrição (CTA) */}
+            <div className="product-editor__side-card">
+              <div className="product-editor__side-heading">
+                <h3>Ação de inscrição (CTA)</h3>
+              </div>
+
+              <div className="wp-form-field">
+                <label>Texto do botão</label>
+                <input
+                  type="text"
+                  value={draft.ctaLabel}
+                  onChange={(e) => setDraft({ ...draft, ctaLabel: e.target.value })}
+                  placeholder="Ex: Garantir Vaga no WhatsApp"
+                />
+              </div>
+
+              <div className="wp-form-field">
+                <label>Link de destino / WhatsApp</label>
+                <input
+                  type="text"
+                  value={draft.ctaUrl}
+                  onChange={(e) => setDraft({ ...draft, ctaUrl: e.target.value })}
+                  placeholder="https://wa.me/5591983440880?text=..."
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </section>
   );
 }

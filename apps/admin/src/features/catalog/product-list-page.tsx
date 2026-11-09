@@ -1,14 +1,16 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Icon } from '@commerce/ui';
 import { ImageDraft, ProductDraft, VariantDraft } from './product-form';
+import { resolveMediaUrl, handleImageFallback } from '../../utils/media-url';
 
 type TaxonomyItem = { id: string; name: string; slug: string; status: string };
 
 type Product = Omit<ProductDraft, 'variants' | 'images'> & {
   id: string;
   status: string;
-  brand?: { id: string; name: string; slug: string } | null;
+  brand?: { id: string; name: string; slug: string; parent?: { id: string; name: string } | null } | null;
   categories?: Array<{ category: TaxonomyItem }>;
+  tags?: Array<{ tag: TaxonomyItem }>;
   variants?: Array<
     VariantDraft & {
       id: string;
@@ -95,6 +97,7 @@ export function ProductListPage({
   // Filter and pagination state
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'DRAFT' | 'FEATURED' | 'ARCHIVED'>('ALL');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [brandFilter, setBrandFilter] = useState('ALL');
   const [productTypeFilter, setProductTypeFilter] = useState('ALL');
   const [stockFilter, setStockFilter] = useState('ALL');
   const [featuredFilter, setFeaturedFilter] = useState('ALL'); // Circled in red in screenshot
@@ -122,6 +125,7 @@ export function ProductListPage({
     stock: true,
     price: true,
     categories: true,
+    brand: true,
     tags: true,
     featured: true,
     date: true,
@@ -198,6 +202,12 @@ export function ProductListPage({
         if (!hasCategory) return false;
       }
 
+      // Brand filter
+      if (brandFilter !== 'ALL') {
+        const matchesBrand = product.brand?.id === brandFilter || product.brand?.slug === brandFilter;
+        if (!matchesBrand) return false;
+      }
+
       // Stock status filter
       if (stockFilter !== 'ALL') {
         const variant = product.variants?.[0];
@@ -230,6 +240,7 @@ export function ProductListPage({
     products,
     statusFilter,
     categoryFilter,
+    brandFilter,
     stockFilter,
     productTypeFilter,
     featuredFilter,
@@ -417,11 +428,12 @@ export function ProductListPage({
 
   // Export CSV
   function handleExportCsv() {
-    const headers = ['ID', 'Nome', 'Slug', 'SKU', 'Preço (R$)', 'Estoque', 'Status', 'Categorias', 'Marca', 'Destaque'];
+    const headers = ['ID', 'Nome', 'Slug', 'SKU', 'Preço (R$)', 'Estoque', 'Status', 'Categorias', 'Marca', 'Tags', 'Destaque'];
     const rows = filteredProducts.map((p) => {
       const variant = p.variants?.[0];
       const stockQty = variant?.inventoryBalance?.physicalQuantity ?? variant?.inventoryQuantity ?? 0;
       const catNames = p.categories?.map((c) => c.category.name).join(', ') ?? '';
+      const tagNames = p.tags?.map((t) => t.tag.name).join(', ') ?? '';
       const isFeat = featuredIds.has(p.id) ? 'Sim' : 'Não';
       const priceFormatted = ((variant?.priceCents ?? 0) / 100).toFixed(2).replace('.', ',');
 
@@ -435,6 +447,7 @@ export function ProductListPage({
         p.status,
         `"${catNames.replace(/"/g, '""')}"`,
         `"${(p.brand?.name ?? '').replace(/"/g, '""')}"`,
+        `"${tagNames.replace(/"/g, '""')}"`,
         isFeat,
       ].join(';');
     });
@@ -538,7 +551,8 @@ export function ProductListPage({
               <label><input type="checkbox" checked={visibleColumns.stock} onChange={(e) => setVisibleColumns((c) => ({ ...c, stock: e.target.checked }))} /> Estoque</label>
               <label><input type="checkbox" checked={visibleColumns.price} onChange={(e) => setVisibleColumns((c) => ({ ...c, price: e.target.checked }))} /> Preço</label>
               <label><input type="checkbox" checked={visibleColumns.categories} onChange={(e) => setVisibleColumns((c) => ({ ...c, categories: e.target.checked }))} /> Categorias</label>
-              <label><input type="checkbox" checked={visibleColumns.tags} onChange={(e) => setVisibleColumns((c) => ({ ...c, tags: e.target.checked }))} /> Tags / Marca</label>
+              <label><input type="checkbox" checked={visibleColumns.brand} onChange={(e) => setVisibleColumns((c) => ({ ...c, brand: e.target.checked }))} /> Marca</label>
+              <label><input type="checkbox" checked={visibleColumns.tags} onChange={(e) => setVisibleColumns((c) => ({ ...c, tags: e.target.checked }))} /> Tags</label>
               <label><input type="checkbox" checked={visibleColumns.featured} onChange={(e) => setVisibleColumns((c) => ({ ...c, featured: e.target.checked }))} /> Em destaque</label>
               <label><input type="checkbox" checked={visibleColumns.date} onChange={(e) => setVisibleColumns((c) => ({ ...c, date: e.target.checked }))} /> Data</label>
             </div>
@@ -660,6 +674,19 @@ export function ProductListPage({
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
+              </option>
+            ))}
+          </select>
+
+          {/* Brand dropdown */}
+          <select
+            value={brandFilter}
+            onChange={(e) => { setBrandFilter(e.target.value); setPage(1); }}
+          >
+            <option value="ALL">Filtrar por marca</option>
+            {brands.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.name}
               </option>
             ))}
           </select>
@@ -827,9 +854,14 @@ export function ProductListPage({
                 <span>Categorias</span>
               </th>
             )}
+            {visibleColumns.brand && (
+              <th scope="col" className="manage-column column-brand">
+                <span>Marca</span>
+              </th>
+            )}
             {visibleColumns.tags && (
               <th scope="col" className="manage-column column-product_tag">
-                <span>Marca / Tags</span>
+                <span>Tags</span>
               </th>
             )}
             {visibleColumns.featured && (
@@ -886,12 +918,9 @@ export function ProductListPage({
                       <div className="wp-thumb-wrapper">
                         {primaryImage?.path ? (
                           <img
-                            src={primaryImage.path}
+                            src={resolveMediaUrl(primaryImage.path)}
                             alt={product.name}
-                            onError={(e) => {
-                              e.currentTarget.onerror = null;
-                              e.currentTarget.src = '/assets/PRODUTOS/placeholders/placeholder-1.png';
-                            }}
+                            onError={handleImageFallback}
                           />
                         ) : (
                           <div className="wp-thumb-placeholder">
@@ -1164,10 +1193,34 @@ export function ProductListPage({
                     </td>
                   )}
 
+                  {visibleColumns.brand && (
+                    <td className="column-brand">
+                      {product.brand?.name ? (
+                        <button
+                          type="button"
+                          className="wp-term-link"
+                          onClick={() => {
+                            setBrandFilter(product.brand?.id ?? 'ALL');
+                            setPage(1);
+                          }}
+                        >
+                          {product.brand.parent ? `${product.brand.parent.name} › ${product.brand.name}` : product.brand.name}
+                        </button>
+                      ) : (
+                        <span className="wp-muted">—</span>
+                      )}
+                    </td>
+                  )}
+
                   {visibleColumns.tags && (
                     <td className="column-product_tag">
-                      {product.brand?.name ? (
-                        <span className="wp-brand-tag">{product.brand.name}</span>
+                      {product.tags?.length ? (
+                        product.tags.map((t, i) => (
+                          <span key={t.tag.id}>
+                            <span className="wp-brand-tag">{t.tag.name}</span>
+                            {i < (product.tags?.length ?? 1) - 1 ? ' ' : ''}
+                          </span>
+                        ))
                       ) : (
                         <span className="wp-muted">—</span>
                       )}

@@ -45,7 +45,6 @@ type DemoBrand = {
 };
 
 const brands: readonly DemoBrand[] = [
-  { name: 'Marca Exemplo', slug: 'marca-exemplo' },
   {
     name: 'Fasapel',
     slug: 'fasapel',

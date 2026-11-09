@@ -9,6 +9,7 @@ import {
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { static as serveStatic } from 'express';
 import type { Request, Response } from 'express';
@@ -21,6 +22,10 @@ import { resolveApiProjectRoot, resolveApiStorageRoot } from './modules/files/st
 
 export function configureApp(app: INestApplication): INestApplication {
   const httpServer = app.getHttpAdapter().getInstance();
+  const storefrontAssets = join(resolveApiProjectRoot(), '../storefront/public/assets');
+  if (existsSync(storefrontAssets)) {
+    httpServer.use('/assets', serveStatic(storefrontAssets));
+  }
   httpServer.use('/admin/assets', serveStatic(join(resolveApiProjectRoot(), 'public/admin/assets')));
   httpServer.use('/storage/uploads', serveStatic(join(resolveApiStorageRoot(), 'uploads')));
   httpServer.use('/storage/uploads', serveStatic(join(resolveApiProjectRoot(), 'public/storage/uploads')));
