@@ -1,10 +1,25 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, expect, it, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, render } from '@testing-library/react';
 import React from 'react';
 import { PromoStripWidget } from './promo-strip';
+
+// Mock Next.js Image & Link
+vi.mock('next/image', () => ({
+  __esModule: true,
+  default: ({ fill, priority, unoptimized, ...rest }: any) => <img {...rest} />,
+}));
+
+vi.mock('next/link', () => ({
+  __esModule: true,
+  default: ({ children, href, ...rest }: any) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
+}));
 
 // Mock Elementor Context
 vi.mock('@/components/storefront/editor/elementor-editor-context', () => ({
@@ -15,6 +30,9 @@ vi.mock('@/components/storefront/editor/elementor-editor-context', () => ({
 }));
 
 describe('PromoStripWidget', () => {
+  afterEach(() => {
+    cleanup();
+  });
   it('renderiza a variante offers-strip diretamente como imagem no container sem fundo escuro e sem vão excessivo', () => {
     const { container } = render(
       <PromoStripWidget
