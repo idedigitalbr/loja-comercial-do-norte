@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { CatalogView } from "./catalog-view";
 import type { ApiCategory, ApiProduct } from "@/lib/types";
 import * as QuoteCartModule from "../quote-cart-provider";
@@ -296,5 +296,84 @@ describe("CatalogView", () => {
     expect(screen.getByRole("heading", { name: "Marcas", level: 1 })).toBeDefined();
     expect(screen.getByLabelText("Grade de marcas em 4 colunas")).toBeDefined();
     expect(screen.getAllByText(/VER POR:/i)[0]).toBeDefined();
+  });
+
+  it("highlights filtered brand in red, collapses other brands with 'Ver mais marcas' button, and expands full carousel with arrows on click", () => {
+    vi.spyOn(QuoteCartModule, "useQuoteCart").mockReturnValue({
+      items: [],
+      count: 0,
+      subtotalCents: 0,
+      ready: true,
+      drawerOpen: false,
+      add: vi.fn(),
+      updateQuantity: vi.fn(),
+      remove: vi.fn(),
+      clear: vi.fn(),
+      openDrawer: vi.fn(),
+      closeDrawer: vi.fn(),
+    });
+
+    vi.spyOn(FavoritesModule, "useFavorites").mockReturnValue({
+      favorites: [],
+      count: 0,
+      ready: true,
+      isFavorite: vi.fn(() => false),
+      add: vi.fn(),
+      remove: vi.fn(),
+      toggle: vi.fn(),
+      clear: vi.fn(),
+    });
+
+    render(
+      <CatalogView
+        activeBrand={{
+          id: "brand-ultra-descartaveis",
+          publicId: "brand-ultra-descartaveis",
+          name: "Ultra Descartáveis",
+          slug: "ultra-descartaveis",
+          imagePath: "/assets/PRODUTOS/marcas-imgs/marca-ultradescartaveis.png",
+          parentId: null,
+          _count: { products: 5 },
+        }}
+        baseUrl="/marca/ultra-descartaveis"
+        brands={[]}
+        categories={mockCategories}
+        page={1}
+        products={[mockProduct]}
+        searchParamsState={{ marca: "ultra-descartaveis" }}
+        segments={mockSegments}
+        tags={mockTags}
+        title="Ultra Descartáveis"
+        total={5}
+        totalPages={1}
+      />
+    );
+
+    // Initial state: brand is filtered, so focused mode is active
+    expect(screen.getByText("Marca filtrada:")).toBeDefined();
+    expect(screen.getByText("Remover filtro")).toBeDefined();
+    expect(screen.getByText("Ver mais marcas")).toBeDefined();
+
+    // Click "Ver mais marcas" to expand the full brand carousel
+    const expandButton = screen.getByText("Ver mais marcas").closest("button");
+    expect(expandButton).not.toBeNull();
+    fireEvent.click(expandButton!);
+
+    // Expanded state: shows header and collapse toggle
+    expect(
+      screen.getByText("Navegando por todas as marcas (marca filtrada em primeiro):")
+    ).toBeDefined();
+    expect(screen.getByText("Ocultar outras marcas")).toBeDefined();
+
+    // Carousel arrows are present
+    expect(screen.getByLabelText("Rolar marcas para a esquerda")).toBeDefined();
+    expect(screen.getByLabelText("Rolar marcas para a direita")).toBeDefined();
+
+    // Collapse back
+    const collapseButton = screen.getByText("Ocultar outras marcas");
+    fireEvent.click(collapseButton);
+
+    // Back to focused mode
+    expect(screen.getByText("Marca filtrada:")).toBeDefined();
   });
 });

@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Flame, PanelLeft, ShoppingBag, SlidersHorizontal, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, ChevronUp, Flame, PanelLeft, ShoppingBag, SlidersHorizontal, X } from "lucide-react";
 import { cn, WebButton, WebEmptyState } from "@commerce/ui/web";
 import { ProductCard } from "@/components/product-card";
 import { ScrollCatalogProductItem } from "@/components/ui/scroll-skeleton-reveal";
@@ -184,6 +184,182 @@ export function CatalogView({
       isMaisVendidos
   );
 
+  const isBrandActive = useCallback(
+    (b: ApiBrand) => {
+      const isSelectedSlug = selectedBrands.includes(b.slug);
+      const isMatchingActive = Boolean(
+        activeBrand &&
+          (activeBrand.slug === b.slug ||
+            activeBrand.id === b.id ||
+            activeBrand.parentId === b.id)
+      );
+      const isChildSelected = Boolean(
+        b.children?.some(
+          (child) =>
+            selectedBrands.includes(child.slug) ||
+            activeBrand?.slug === child.slug ||
+            activeBrand?.id === child.id
+        )
+      );
+      return isSelectedSlug || isMatchingActive || isChildSelected;
+    },
+    [selectedBrands, activeBrand]
+  );
+
+  const activeBrands = useMemo(() => {
+    return enrichedBrands.filter(isBrandActive);
+  }, [enrichedBrands, isBrandActive]);
+
+  const hasActiveBrandFilter = activeBrands.length > 0;
+
+  const sortedBrands = useMemo(() => {
+    const active: ApiBrand[] = [];
+    const others: ApiBrand[] = [];
+
+    for (const b of enrichedBrands) {
+      if (isBrandActive(b)) {
+        active.push(b);
+      } else {
+        others.push(b);
+      }
+    }
+
+    return [...active, ...others];
+  }, [enrichedBrands, isBrandActive]);
+
+  const activeBrandFilterKey = selectedBrands.join(",") || activeBrand?.slug || "";
+  const [isExpandedBrands, setIsExpandedBrands] = useState(false);
+
+  useEffect(() => {
+    setIsExpandedBrands(false);
+  }, [activeBrandFilterKey]);
+
+  const brandCarouselRef = useRef<HTMLDivElement>(null);
+  const [canScrollBrandLeft, setCanScrollBrandLeft] = useState(false);
+  const [canScrollBrandRight, setCanScrollBrandRight] = useState(false);
+
+  const updateBrandScrollButtons = useCallback(() => {
+    const el = brandCarouselRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollBrandLeft(scrollLeft > 6);
+    setCanScrollBrandRight(scrollLeft + clientWidth < scrollWidth - 6);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(updateBrandScrollButtons, 50);
+    const el = brandCarouselRef.current;
+    if (!el) return () => clearTimeout(timer);
+
+    el.addEventListener("scroll", updateBrandScrollButtons, { passive: true });
+    window.addEventListener("resize", updateBrandScrollButtons);
+
+    return () => {
+      clearTimeout(timer);
+      el.removeEventListener("scroll", updateBrandScrollButtons);
+      window.removeEventListener("resize", updateBrandScrollButtons);
+    };
+  }, [updateBrandScrollButtons, sortedBrands, isExpandedBrands]);
+
+  const handleBrandScroll = (direction: "left" | "right") => {
+    const el = brandCarouselRef.current;
+    if (!el) return;
+    const scrollAmount = Math.max(el.clientWidth * 0.7, 260);
+    el.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
+
+  const renderBrandSquare = (b: ApiBrand, isSelected: boolean) => {
+    const count = b._count?.products ?? 0;
+    const rawImg = b.imagePath;
+    const imgSrc = rawImg
+      ? rawImg.startsWith("http") || rawImg.startsWith("/")
+        ? rawImg
+        : mediaUrl(rawImg)
+      : null;
+
+    const targetHref = isSelected
+      ? baseUrl.startsWith("/marca/") || baseUrl.startsWith("/marca")
+        ? buildHref({ marca: undefined, pagina: undefined }).replace(baseUrl, "/loja")
+        : buildHref({
+            marca:
+              selectedBrands
+                .filter((s) => s !== b.slug && !b.children?.some((c) => c.slug === s))
+                .join(",") || undefined,
+            pagina: undefined,
+          })
+      : baseUrl.startsWith("/marca") || baseUrl === "/marcas"
+        ? buildHref({ marca: undefined, pagina: undefined }).replace(
+            baseUrl,
+            `/marca/${b.slug}`
+          )
+        : buildHref({
+            marca: [...selectedBrands, b.slug].join(","),
+            pagina: undefined,
+          });
+
+    return (
+      <Link
+        className="group flex shrink-0 items-center gap-2 focus:outline-none"
+        href={targetHref}
+        key={b.id || b.slug}
+        title={
+          isSelected
+            ? `Marca ${b.name} filtrada (clique para desmarcar)`
+            : `Filtrar produtos da marca ${b.name}`
+        }
+      >
+        <div
+          className={cn(
+            "relative flex size-16 sm:size-[72px] items-center justify-center rounded-2xl p-2.5 transition-all duration-200",
+            isSelected
+              ? "border-2 border-[#E2091E] ring-4 ring-[#E2091E]/15 bg-gradient-to-b from-red-50/70 to-white shadow-xs scale-[1.02]"
+              : "border border-slate-200/90 bg-white shadow-2xs hover:border-[#004CB1]/60 hover:shadow-xs hover:-translate-y-0.5"
+          )}
+        >
+          {isSelected && (
+            <span
+              aria-label="Filtro ativo"
+              className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-[#E2091E] text-white shadow-xs"
+              title="Filtro ativo"
+            >
+              <Check className="size-2.5 stroke-[3]" />
+            </span>
+          )}
+          {imgSrc ? (
+            <img
+              alt={b.name}
+              className="max-h-full max-w-full object-contain transition-transform duration-200 group-hover:scale-105"
+              loading="lazy"
+              src={imgSrc}
+            />
+          ) : (
+            <span
+              className={cn(
+                "text-center text-[11px] font-black uppercase leading-tight",
+                isSelected ? "text-[#E2091E]" : "text-slate-800"
+              )}
+            >
+              {b.name}
+            </span>
+          )}
+        </div>
+        <span
+          className={cn(
+            "text-xs tabular-nums transition",
+            isSelected
+              ? "font-black text-[#E2091E]"
+              : "font-medium text-slate-500 group-hover:text-slate-800"
+          )}
+        >
+          ({count})
+        </span>
+      </Link>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#F4F5F7] py-6 sm:py-8">
       <div className="cn-container">
@@ -346,78 +522,146 @@ export function CatalogView({
               </div>
             </div>
 
-            {/* FAIXA DE CARDS DE MARCAS COM CONTAGEM (ESTILO VITRINE POR MARCA — ANEXO 2) */}
+            {/* FAIXA DE CARDS DE MARCAS COM CARROSSEL E DESTAQUE INTELIGENTE DE FILTRO */}
             {isBrandContext && enrichedBrands.length > 0 ? (
-              <div
-                aria-label="Navegação rápida por marcas"
-                className="mb-6 flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none"
-              >
-                {enrichedBrands.map((b) => {
-                  const isParentSelected =
-                    selectedBrands.includes(b.slug) ||
-                    Boolean(b.children?.some((child) => selectedBrands.includes(child.slug)));
-                  const count = b._count?.products ?? 0;
-                  const rawImg = b.imagePath;
-                  const imgSrc = rawImg
-                    ? rawImg.startsWith("http") || rawImg.startsWith("/")
-                      ? rawImg
-                      : mediaUrl(rawImg)
-                    : null;
+              hasActiveBrandFilter && !isExpandedBrands ? (
+                /* MODO COMPACTO / FOCADO QUANDO UMA MARCA ESTÁ FILTRADA */
+                <div
+                  aria-label="Navegação rápida por marcas"
+                  className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-red-200/90 bg-gradient-to-r from-red-50/60 via-red-50/20 to-white p-3 sm:px-4 sm:py-3 shadow-2xs"
+                >
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#E2091E]">
+                      <span className="size-2 rounded-full bg-[#E2091E] animate-pulse" />
+                      <span>Marca filtrada:</span>
+                    </div>
 
-                  return (
+                    <div className="flex items-center gap-3">
+                      {activeBrands.map((b) => renderBrandSquare(b, true))}
+                    </div>
+
+                    {/* Botão rápido para desmarcar */}
                     <Link
-                      className="group flex shrink-0 items-center gap-2 focus:outline-none"
+                      className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-white px-2.5 py-1 text-xs font-bold text-[#E2091E] shadow-2xs transition hover:bg-red-50 hover:border-red-300 active:scale-95"
                       href={
-                        baseUrl.startsWith("/marca") || baseUrl === "/marcas"
+                        baseUrl.startsWith("/marca/") || baseUrl.startsWith("/marca")
                           ? buildHref({ marca: undefined, pagina: undefined }).replace(
                               baseUrl,
-                              `/marca/${b.slug}`
+                              "/loja"
                             )
                           : buildHref({
-                              marca: isParentSelected
-                                ? selectedBrands.filter((s) => s !== b.slug && !b.children?.some((c) => c.slug === s)).join(",") || undefined
-                                : [...selectedBrands, b.slug].join(","),
+                              marca:
+                                selectedBrands
+                                  .filter(
+                                    (s) =>
+                                      !activeBrands.some(
+                                        (ab) => ab.slug === s || ab.children?.some((c) => c.slug === s)
+                                      )
+                                  )
+                                  .join(",") || undefined,
                               pagina: undefined,
                             })
                       }
-                      key={b.id || b.slug}
-                      title={`Filtrar produtos da marca ${b.name}`}
+                      title="Remover filtro desta marca"
                     >
-                      <div
-                        className={cn(
-                          "flex size-16 sm:size-[70px] items-center justify-center rounded-2xl bg-white p-2.5 transition-all duration-200 shadow-2xs",
-                          isParentSelected
-                            ? "border-2 border-[#004CB1] ring-2 ring-[#004CB1]/15 shadow-sm scale-[1.02]"
-                            : "border border-slate-200/90 hover:border-[#004CB1]/60 hover:shadow-xs"
-                        )}
-                      >
-                        {imgSrc ? (
-                          <img
-                            alt={b.name}
-                            className="max-h-full max-w-full object-contain transition-transform duration-200 group-hover:scale-105"
-                            loading="lazy"
-                            src={imgSrc}
-                          />
-                        ) : (
-                          <span className="text-center text-[11px] font-black uppercase leading-tight text-slate-800">
-                            {b.name}
-                          </span>
-                        )}
-                      </div>
-                      <span
-                        className={cn(
-                          "text-xs tabular-nums transition",
-                          isParentSelected
-                            ? "font-extrabold text-[#004CB1]"
-                            : "font-medium text-slate-500 group-hover:text-slate-800"
-                        )}
-                      >
-                        ({count})
-                      </span>
+                      <X className="size-3 stroke-[2.5]" />
+                      <span>Remover filtro</span>
                     </Link>
-                  );
-                })}
-              </div>
+                  </div>
+
+                  {/* Botão Ver mais marcas > */}
+                  <button
+                    className="group inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs transition hover:border-[#E2091E] hover:text-[#E2091E] active:scale-95"
+                    onClick={() => setIsExpandedBrands(true)}
+                    type="button"
+                  >
+                    <span>Ver mais marcas</span>
+                    <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-600 transition group-hover:bg-red-100 group-hover:text-[#E2091E]">
+                      +{enrichedBrands.length - activeBrands.length}
+                    </span>
+                    <ChevronRight className="size-4 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:text-[#E2091E]" />
+                  </button>
+                </div>
+              ) : (
+                /* MODO CARROSSEL COMPLETO (COM SETAS ESQUERDA/DIREITA E ITENS ATIVOS EM PRIMEIRO EM VERMELHO) */
+                <div className="relative mb-6">
+                  {hasActiveBrandFilter && isExpandedBrands && (
+                    <div className="mb-2 flex items-center justify-between px-0.5 text-xs">
+                      <span className="font-bold text-slate-600">
+                        Navegando por todas as marcas (marca filtrada em primeiro):
+                      </span>
+                      <button
+                        className="inline-flex cursor-pointer items-center gap-1 font-bold text-slate-500 hover:text-[#E2091E] transition hover:underline"
+                        onClick={() => setIsExpandedBrands(false)}
+                        type="button"
+                      >
+                        <span>Ocultar outras marcas</span>
+                        <ChevronUp className="size-3.5" />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="relative group/carousel">
+                    {/* Botão Carrossel Esquerda */}
+                    <button
+                      aria-label="Rolar marcas para a esquerda"
+                      className={cn(
+                        "absolute left-0 top-1/2 -translate-y-1/2 z-20 flex size-8 sm:size-9 items-center justify-center rounded-full bg-white/95 text-slate-700 shadow-md border border-slate-200 transition-all duration-200 hover:bg-white hover:text-[#004CB1] hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-xs",
+                        canScrollBrandLeft
+                          ? "opacity-100"
+                          : "opacity-0 pointer-events-none"
+                      )}
+                      disabled={!canScrollBrandLeft}
+                      onClick={() => handleBrandScroll("left")}
+                      type="button"
+                    >
+                      <ChevronLeft className="size-5 stroke-[2.5]" />
+                    </button>
+
+                    {/* Botão Carrossel Direita */}
+                    <button
+                      aria-label="Rolar marcas para a direita"
+                      className={cn(
+                        "absolute right-0 top-1/2 -translate-y-1/2 z-20 flex size-8 sm:size-9 items-center justify-center rounded-full bg-white/95 text-slate-700 shadow-md border border-slate-200 transition-all duration-200 hover:bg-white hover:text-[#004CB1] hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-xs",
+                        canScrollBrandRight
+                          ? "opacity-100"
+                          : "opacity-0 pointer-events-none"
+                      )}
+                      disabled={!canScrollBrandRight}
+                      onClick={() => handleBrandScroll("right")}
+                      type="button"
+                    >
+                      <ChevronRight className="size-5 stroke-[2.5]" />
+                    </button>
+
+                    {/* Efeito de fade nas bordas para indicar continuidade suave */}
+                    <div
+                      className={cn(
+                        "pointer-events-none absolute left-0 top-0 bottom-2 w-8 bg-gradient-to-r from-[#F4F5F7] to-transparent z-10 transition-opacity duration-200",
+                        canScrollBrandLeft ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    <div
+                      className={cn(
+                        "pointer-events-none absolute right-0 top-0 bottom-2 w-12 bg-gradient-to-l from-[#F4F5F7] to-transparent z-10 transition-opacity duration-200",
+                        canScrollBrandRight ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+
+                    {/* Trilho de rolagem horizontal dos quadradinhos */}
+                    <div
+                      aria-label="Navegação rápida por marcas"
+                      className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none scroll-smooth px-1"
+                      ref={brandCarouselRef}
+                    >
+                      {sortedBrands.map((b) => {
+                        const isSelected = isBrandActive(b);
+                        return renderBrandSquare(b, isSelected);
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )
             ) : null}
 
             {/* FAIXA DE FILTROS ATIVOS COM BOTÃO DE REMOÇÃO */}
