@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   };
 }
 
-const PAGE_SIZE = 16;
+const PAGE_SIZE = 20;
 
 function hashSlugOffset(slug: string, mod: number): number {
   if (mod <= 0) return 0;
@@ -95,7 +95,10 @@ export default async function BrandPage({
 
   const enrichedBrands = buildEnrichedBrands(apiBrands);
   const resolved = findBrandOrSubbrand(apiBrands, slug);
-  if (!resolved) notFound();
+  if (!resolved) {
+    notFound();
+    return null;
+  }
 
   const { brand, parentBrand } = resolved;
 
