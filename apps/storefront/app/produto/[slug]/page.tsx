@@ -36,7 +36,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 export default async function ProductPage({ params }: { params: Params }) {
   const { slug } = await params;
   const product = await getProduct(slug);
-  if (!product) notFound();
+  if (!product) {
+    notFound();
+    return null;
+  }
 
   const variant = product.variants[0];
   const image = resolveProductImage(product);
