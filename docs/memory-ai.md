@@ -7,6 +7,23 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **10/11/2026 — Conclusão e Encerramento Oficial da ETAPA 03 — DESENVOLVIMENTO COMPLEMENTAR (executorId: `antigravity-gemini`):**
+  - **Encerramento da Issue Pai #100 e Subtarefas #81 a #90:**
+    - `#81` (3.1 — PG 03 — Catálogo de Produtos): listagem `/loja`, busca, ordenação, filtros dinâmicos e grid canônico de 20 itens (5 linhas de 4 cards).
+    - `#82` (3.1 — PG 04 — Página do Produto): `/produto/[slug]` com fotografia real de alta resolução, SKU, dimensões, preços, CTA "Adicionar à cotação" e produtos relacionados.
+    - `#83` (3.1 — PG 05 — Carrinho de Cotação): `/cotacao` com controle de quantidades, subtotal estimado, formulário de contato e integração para disparo via WhatsApp e API NestJS.
+    - `#84` (3.1 — PG 06 — Marcas): diretório `/marcas`, páginas `/marca/[slug]`, 12 marcas e 24 submarcas com 120 produtos oficiais sincronizados no banco Neon.
+    - `#85` (3.1 — PG 07 — Segmentos / Para o Seu Negócio): hub `/segmentos` e páginas `/segmento/[slug]` com vitrine contextual do Explica Aí Nort por segmento.
+    - `#86` (3.1 — PG 08 — Blog / Explica Aí Nort): `/posts` e `/post/[slug]` com dicas práticas, pontos-chave, mascote Nort e modal de vídeo.
+    - `#87` (3.1 — PG 09 — Eventos e Workshops): `/eventos`, `/workshops` e `/evento/[slug]` com inscrições via WhatsApp e modo white aprovado.
+    - `#88` (3.1 — PG 10 — Outras Páginas do Catálogo): rotas dedicadas de Ofertas (`/ofertas`), Mais Vendidos (`/mais-vendidos`) e Favoritos (`/favoritos`).
+    - `#89` (3.2 — Módulos Administrativos): CRUD de Produtos, Categorias, Marcas, Tags, Cotações, Conteúdo (Blog/Eventos) e MiniCRM com Kanban no painel Vite.
+    - `#90` (3.3 — Funcionalidades complementares): Busca avançada, carrosséis, Mascote Nort com chat de atendimento inteligente, rodapé institucional e geolocalização.
+  - **Validação Global:**
+    - 57/57 arquivos de teste / 270 testes do Storefront aprovados (100% verde).
+    - 16/16 arquivos de teste / 48 testes do Admin aprovados (100% verde).
+    - `turbo typecheck` com 0 erros em todos os pacotes.
+
 - **10/11/2026 — Sincronização em Produção: Deploy Vercel (Storefront, Admin, API) e Sincronização Neon DB (executorId: `antigravity-gemini`):**
   - **Sincronização do Banco Neon (`db_lojacomercialdonorte`):**
     - Atualizado o registro `SiteConfiguration.homeComposition` no banco PostgreSQL de produção do Neon, gravando a nova composição de 16 widgets (removida a seção de Instagram `s16-instagram-feed` e atualizados os dados oficiais de avaliações do Google Maps na seção `s18-avaliacoes-google`).
