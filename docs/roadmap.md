@@ -1,5 +1,14 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **10/11/2026 — Conclusão e Encerramento Oficial das Etapas 01 e 02 (executorId: `antigravity-gemini`):**
+  - **Encerramento da ETAPA 01 (Pré-Projeto e Planejamento):** Issues `#74` (1.1 Pesquisa e levantamento), `#75` (1.2 UX/UI e arquitetura) e `#76` (1.3 Preparação técnica) 100% concluídas e fechadas.
+  - **Encerramento da ETAPA 02 (Desenvolvimento Core):** Issues `#77` (2.1 Home pública S1–S20), `#78` (2.2 Login e Acesso Admin), `#79` (2.3 Painel Administrativo, Dashboard e Configurações) e `#80` (2.4 Funcionalidades do catálogo e cotações) 100% concluídas e fechadas.
+  - **S16 — Instagram:** Seção removida do escopo da vitrine a pedido do cliente. Layout atualizado para 16 seções ativas com auto-reconciliação transparente.
+  - **S17 — Avaliações do Google:** 5 avaliações reais e nota 4.3 (988 avaliações) da Comercial Dosplásticos (Marco / São Brás) integradas com fotos locais em `/assets/reviews/`.
+  - **Acesso ao Painel Administrativo:** Criada rota de redirecionamento `/admin` no Storefront com status 307 para o painel admin, suporte a redirecionamento cruzado seguro via `window.location.href`, auto-redirecionamento de admin no login e badge/atalho de acesso rápido no menu do cabeçalho.
+  - **Validação Global:** 52/52 arquivos de teste do Storefront aprovados (259 testes), 16/16 arquivos do Admin aprovados (48 testes), typecheck 100% limpo e build de produção validado.
+
+
 - **07/11/2026 — Sincronização Oficial dos 120 Produtos das 12 Marcas no Banco Neon e Contagem Dinâmica no Catálogo (executorId: `antigravity-gemini`):**
   - **Sincronização Neon Database:** Executado com sucesso o script `seedCatalog` no banco de dados Neon (`db_lojacomercialdonorte`), cadastrando as 12 marcas oficiais (`Fasapel`, `Fonteplast`, `Knauf`, `Lanchero`, `Plasan`, `Prafesta`, `Segplast`, `Sicao`, `Techplast`, `Totalplast`, `Ultra Descartáveis`, `Vipel`), 24 submarcas vinculadas e os 120 produtos completos (10 produtos por marca com SKUs, dimensões, variantes e estoques).
   - **Remoção de Legados:** Expurgados todos os produtos de demonstração antigos e não oficiais da época de prototipação.

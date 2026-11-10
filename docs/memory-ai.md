@@ -7,6 +7,26 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **10/11/2026 — Conclusão e Encerramento Oficial das Etapas 01 e 02 (executorId: `antigravity-gemini`):**
+  - **Encerramento da ETAPA 01 (Pré-Projeto e Planejamento):**
+    - Concluídas e encerradas oficialmente as Issues `#74` (1.1 Pesquisa e levantamento), `#75` (1.2 UX/UI e arquitetura com design system azul `#004CB1` e vermelho `#E2091E`) e `#76` (1.3 Preparação técnica da stack Next.js 16 + NestJS 11 + PostgreSQL Neon + Prisma + Tailwind 4).
+  - **Encerramento da ETAPA 02 (Desenvolvimento Core):**
+    - Concluídas e encerradas oficialmente as Issues `#77` (2.1 Home / Vitrine pública S1 a S20), `#78` (2.2 Página de Login e Acessos), `#79` (2.3 Painel Administrativo, Dashboard e Configurações) e `#80` (2.4 Funcionalidades principais do catálogo e cotações).
+  - **Remoção de S16 (Instagram) e Reconciliação da Vitrine:**
+    - Removido o widget `s16-instagram-feed` do escopo a pedido do cliente em `home-configuration.ts` e `home-composition.json`. Auto-reconciliação (`reconcileComposition`) filtra a seção automaticamente em qualquer snapshot anterior, mantendo 16 seções ativas sequenciais.
+  - **S17 — Avaliações Oficiais do Google Maps:**
+    - Integradas as avaliações reais e verificadas da loja física Comercial Dosplásticos (Comercial do Norte — Av. Rômulo Maiorana, 115A), nota real 4.3 de 5.0 estrelas, 988 avaliações reais, e fotos de perfil salvas localmente em `/assets/reviews/`.
+  - **Login Unificado e Redirecionamento Direto para o Admin:**
+    - Criada a rota de redirecionamento `/admin` no storefront (`apps/storefront/app/admin/route.ts`), apontando diretamente para o painel administrativo com status 307.
+    - No componente `AuthFlowCard`, administradores autenticados são roteados diretamente para o painel admin (`http://localhost:5174/admin/` ou `NEXT_PUBLIC_ADMIN_URL`), e navegações externas são executadas com segurança via `window.location.href`.
+    - Mantida a proteção de sessão: clientes (`CUSTOMER`) que tentarem acessar o painel continuam barrados com alerta amigável e atalho para o login.
+  - **Validação Global:**
+    - 52/52 arquivos de teste / 259 testes do Storefront aprovados (100% verde).
+    - 16/16 arquivos de teste / 48 testes do Admin aprovados (100% verde).
+    - `turbo typecheck` com 0 erros em todos os 8 pacotes do monorepo.
+    - `pnpm build` (Next.js Turbopack + Vite + NestJS) compilado com 100% de sucesso.
+
+
 - **09/11/2026 — Substituição de Imagens Abstratas por Fotos Reais de Produtos (executorId: `antigravity-gemini`):**
   - **Eliminação de SVG Procedural Abstrato (`buildSvg`):**
     - Substituída a rotina em [`prisma/seed-catalog.ts`](file:///d:/.GITHUB/sistemas/loja-comercial-do-norte/prisma/seed-catalog.ts) que gerava gráficos geométricos aleatórios (círculos coloridos e barras vermelhas) por um resolvedor inteligente de fotografias reais (`resolvePhotoSource`).
