@@ -723,218 +723,72 @@ export const defaultHomeComposition: PageComposition = {
       },
     },
 
-    // 16 — SEÇÃO CARROSSEL DE CARDS COMPACTOS (A LOJA NO INSTAGRAM)
-    {
-      id: "s16-instagram-feed",
-      type: "instagram-feed",
-      enabled: true,
-      order: 15,
-      props: {
-        title: "A Loja no Instagram",
-        subtitle:
-          "Acompanhe bastidores, lançamentos e ações especiais nas nossas lojas físicas",
-        handleLabel: "@comercialdonorte",
-        handleUrl: "https://www.instagram.com/comercialdonorte",
-        items: [
-          {
-            id: "ig-1",
-            label: "Dia do Cliente",
-            imageUrl:
-              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-01-dia-cliente.jpg",
-            linkUrl: "https://www.instagram.com/comercialdonorte",
-          },
-          {
-            id: "ig-2",
-            label: "No Balcão",
-            imageUrl:
-              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-02-no-balcao.jpg",
-            linkUrl: "https://www.instagram.com/comercialdonorte",
-          },
-          {
-            id: "ig-3",
-            label: "14 Anos de Loja",
-            imageUrl:
-              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-03-14-anos.jpg",
-            linkUrl: "https://www.instagram.com/comercialdonorte",
-          },
-          {
-            id: "ig-4",
-            label: "Nossa Equipe",
-            imageUrl:
-              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-04-equipe.jpg",
-            linkUrl: "https://www.instagram.com/comercialdonorte",
-          },
-          {
-            id: "ig-5",
-            label: "Promoções",
-            imageUrl:
-              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-05-promocoes.jpg",
-            linkUrl: "https://www.instagram.com/comercialdonorte",
-          },
-          {
-            id: "ig-6",
-            label: "Vale-Compras",
-            imageUrl:
-              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-06-vale-compras.jpg",
-            linkUrl: "https://www.instagram.com/comercialdonorte",
-          },
-          {
-            id: "ig-7",
-            label: "Dia do Cliente",
-            imageUrl:
-              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-01-dia-cliente.jpg",
-            linkUrl: "https://www.instagram.com/comercialdonorte",
-          },
-          {
-            id: "ig-8",
-            label: "No Balcão",
-            imageUrl:
-              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-02-no-balcao.jpg",
-            linkUrl: "https://www.instagram.com/comercialdonorte",
-          },
-          {
-            id: "ig-9",
-            label: "14 Anos de Loja",
-            imageUrl:
-              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-03-14-anos.jpg",
-            linkUrl: "https://www.instagram.com/comercialdonorte",
-          },
-          {
-            id: "ig-10",
-            label: "Nossa Equipe",
-            imageUrl:
-              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-04-equipe.jpg",
-            linkUrl: "https://www.instagram.com/comercialdonorte",
-          },
-          {
-            id: "ig-11",
-            label: "Promoções",
-            imageUrl:
-              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-05-promocoes.jpg",
-            linkUrl: "https://www.instagram.com/comercialdonorte",
-          },
-          {
-            id: "ig-12",
-            label: "Vale-Compras",
-            imageUrl:
-              "/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-06-vale-compras.jpg",
-            linkUrl: "https://www.instagram.com/comercialdonorte",
-          },
-        ],
-      },
-    },
-
     // 18 — SEÇÃO AVALIAÇÕES E DEPOIMENTOS (AVALIAÇÕES NO GOOGLE - 10 CARDS)
     {
       id: "s18-avaliacoes-google",
       type: "testimonials-grid",
       enabled: true,
-      order: 16,
+      order: 15,
       props: {
         eyebrow: "AVALIAÇÕES NO GOOGLE",
         title: "O que nossos clientes dizem no Google.",
-        ratingSummary: "Classificação 4.8 de 5.0 estrelas",
-        totalReviewsLabel: "Um bloco com mais de 2 mil avaliações",
+        ratingSummary: "Classificação 4.3 de 5.0 estrelas",
+        totalReviewsLabel: "988 avaliações no Google",
         items: [
           {
-            id: "rev-1",
-            authorName: "Carlos Eduardo",
-            authorHandle: "14 avaliações",
-            timeAgo: "1 mês atrás",
-            avatarInitials: "CE",
+            id: "google-review-001",
+            authorName: "Priscilla Vasconcelos",
+            authorHandle: "Local Guide · 17 avaliações",
+            timeAgo: "4 semanas atrás",
+            avatarInitials: "PV",
             avatarColor: "#004CB1",
+            profilePhotoUrl: "https://lh3.googleusercontent.com/a-/ALV-UjVabLhl3h8yuuNE_9g60lj0Yo-SuLa2WZS8a5yg78w9wMrGNj_69A=s120",
             rating: 5,
-            text: "Excelente variedade de caixas de pizza e descartáveis. Preço imbatível no atacado em Belém e entrega super rápida.",
+            text: "Tem tudo e preço é excelente.",
           },
           {
-            id: "rev-2",
-            authorName: "Fernanda Souza",
-            authorHandle: "8 avaliações",
-            timeAgo: "2 semanas atrás",
-            avatarInitials: "FS",
+            id: "google-review-002",
+            authorName: "Jhonata Santos",
+            authorHandle: "Avaliação verificada no Google",
+            timeAgo: "3 semanas atrás",
+            avatarInitials: "JS",
             avatarColor: "#E2091E",
+            profilePhotoUrl: null,
             rating: 5,
-            text: "Sempre compro todas as embalagens para doces e bolos no Comercial do Norte. Atendimento nota 10 pelo WhatsApp!",
+            text: "Um lugar onde você pode achar tudo de plástico fui um dia desses e o chantilly estava a 16.99 da gran finale",
           },
           {
-            id: "rev-3",
-            authorName: "Roberto Mendes",
-            authorHandle: "22 avaliações",
-            timeAgo: "1 mês atrás",
-            avatarInitials: "RM",
+            id: "google-review-003",
+            authorName: "Missionária Marcela",
+            authorHandle: "Avaliação verificada no Google",
+            timeAgo: "3 semanas atrás",
+            avatarInitials: "MM",
             avatarColor: "#00357B",
+            profilePhotoUrl: null,
             rating: 5,
-            text: "Os preços por fardo compensam muito para quem tem comércio. A retirada na Bernardo Sayão é muito prática.",
+            text: "Preços no atacado ótimo e o atendimento também..",
           },
           {
-            id: "rev-4",
-            authorName: "Juliana Lima",
-            authorHandle: "11 avaliações",
-            timeAgo: "3 semanas atrás",
-            avatarInitials: "JL",
+            id: "google-review-004",
+            authorName: "Rosinaldo Lima Viana",
+            authorHandle: "Avaliação verificada no Google",
+            timeAgo: "4 meses atrás",
+            avatarInitials: "RV",
             avatarColor: "#0D9488",
+            profilePhotoUrl: null,
             rating: 5,
-            text: "Encontro tudo para festas e eventos em um só lugar. Produtos de ótima qualidade e equipe sempre prestativa.",
+            text: "Pra ser sincero, eu gosto do estabelecimento. Tudo que eu procuro eu encontro lá de descartáveis",
           },
           {
-            id: "rev-5",
-            authorName: "Marcos Vinícius",
-            authorHandle: "19 avaliações",
-            timeAgo: "2 meses atrás",
-            avatarInitials: "MV",
+            id: "google-review-005",
+            authorName: "MARCOS RAMILLO",
+            authorHandle: "Avaliação verificada no Google",
+            timeAgo: "5 meses atrás",
+            avatarInitials: "MR",
             avatarColor: "#7C3AED",
+            profilePhotoUrl: null,
             rating: 5,
-            text: "Sacolas plásticas reforçadas e bobinas com o melhor custo-benefício da região metropolitana.",
-          },
-          {
-            id: "rev-6",
-            authorName: "Patrícia Rocha",
-            authorHandle: "9 avaliações",
-            timeAgo: "1 mês atrás",
-            avatarInitials: "PR",
-            avatarColor: "#D97706",
-            rating: 5,
-            text: "Marmitas, copos e produtos de limpeza profissional sempre em estoque. Recomendo de olhos fechados!",
-          },
-          {
-            id: "rev-7",
-            authorName: "André Nascimento",
-            authorHandle: "16 avaliações",
-            timeAgo: "3 semanas atrás",
-            avatarInitials: "AN",
-            avatarColor: "#004CB1",
-            rating: 5,
-            text: "A Semana do Feirante tem preços incríveis. Faço minha cotação online e já retiro tudo separado.",
-          },
-          {
-            id: "rev-8",
-            authorName: "Camila Martins",
-            authorHandle: "7 avaliações",
-            timeAgo: "1 mês atrás",
-            avatarInitials: "CM",
-            avatarColor: "#E2091E",
-            rating: 5,
-            text: "Loja completa, organizada e com muitas opções de embalagens que valorizam o nosso produto.",
-          },
-          {
-            id: "rev-9",
-            authorName: "Paulo Henrique",
-            authorHandle: "31 avaliações",
-            timeAgo: "2 meses atrás",
-            avatarInitials: "PH",
-            avatarColor: "#1E293B",
-            rating: 5,
-            text: "Parceiro fiel da nossa padaria há anos. Condições especiais por volume fazem toda a diferença.",
-          },
-          {
-            id: "rev-10",
-            authorName: "Luciana Ferreira",
-            authorHandle: "12 avaliações",
-            timeAgo: "1 mês atrás",
-            avatarInitials: "LF",
-            avatarColor: "#059669",
-            rating: 5,
-            text: "Atendimento ágil na loja do Jurunas e na Pedreira. Sempre encontro novidades e ótimos preços.",
+            text: "Excelente variedade de produtos, preços acessíveis e atendimento muito atencioso e cordial, Fiquei muito satisfeito.",
           },
         ],
       },
@@ -945,7 +799,7 @@ export const defaultHomeComposition: PageComposition = {
       id: "s19-unidades-mapa",
       type: "store-locations-map",
       enabled: true,
-      order: 17,
+      order: 16,
       props: {
         title: "Encontre nossas unidades",
         subtitle: "Lojas mais perto de você",
@@ -1085,7 +939,9 @@ export function reconcileComposition(saved: PageComposition | null | undefined):
     return defaultHomeComposition;
   }
 
-  const savedWidgets = Array.isArray(saved.widgets) ? saved.widgets : [];
+  const savedWidgets = (Array.isArray(saved.widgets) ? saved.widgets : []).filter(
+    (w) => w.id !== "s16-instagram-feed" && w.type !== "instagram-feed"
+  );
   const existingIds = new Set(savedWidgets.map((w) => w.id));
   const missingWidgets = defaultHomeComposition.widgets.filter((w) => !existingIds.has(w.id));
 

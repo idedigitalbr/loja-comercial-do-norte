@@ -306,16 +306,18 @@ export interface TestimonialItem {
   timeAgo?: string;
   avatarInitials: string;
   avatarColor?: string;
+  profilePhotoUrl?: string | null;
+  reviewUrl?: string | null;
   rating: number;
   text: string;
 }
 
 export interface TestimonialsGridProps {
   widgetId?: string;
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
-  ratingSummary: string;
-  totalReviewsLabel: string;
+  ratingSummary?: string;
+  totalReviewsLabel?: string;
   items: TestimonialItem[];
 }
 export type TestimonialsGridWidgetConfig = BaseWidgetConfig<'testimonials-grid', TestimonialsGridProps>;

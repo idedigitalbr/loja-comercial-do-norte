@@ -6,7 +6,7 @@ describe('defaultHomeComposition (seções site-final + S0/S20)', () => {
   it('possui todas as seções de widgets habilitadas em ordem sequencial', () => {
     expect(defaultHomeComposition.page).toBe('home');
     expect(defaultHomeComposition.version).toBeGreaterThanOrEqual(2);
-    expect(defaultHomeComposition.widgets).toHaveLength(17);
+    expect(defaultHomeComposition.widgets).toHaveLength(16);
 
     defaultHomeComposition.widgets.forEach((widget, idx) => {
       expect(widget.enabled).toBe(true);
@@ -32,7 +32,6 @@ describe('defaultHomeComposition (seções site-final + S0/S20)', () => {
       'events-carousel',
       'product-carousel',
       'video-articles-carousel',
-      'instagram-feed',
       'testimonials-grid',
       'store-locations-map',
     ]);
@@ -48,8 +47,6 @@ describe('defaultHomeComposition (seções site-final + S0/S20)', () => {
     expect(json).toContain('/assets/HOME Vitrine/S12-EVENTOS/s12-event-01-empreendedores.jpg');
     expect(json).toContain('Explica Aí Nort');
     expect(json).toContain('Workshops & Aulas Práticas de Confeitaria');
-    expect(json).toContain('A Loja no Instagram');
-    expect(json).toContain('/assets/HOME Vitrine/S15-INSTAGRAM/s16-insta-02-no-balcao.jpg');
     expect(json).toContain('O que nossos clientes dizem no Google.');
     expect(json).toContain('Encontre nossas unidades');
   });
@@ -59,7 +56,7 @@ describe('reconcileComposition (auto-reconciliação inteligente)', () => {
   it('retorna defaultHomeComposition quando a entrada é nula ou indefinida e preenche se vazia', () => {
     expect(reconcileComposition(null)).toBe(defaultHomeComposition);
     expect(reconcileComposition(undefined)).toBe(defaultHomeComposition);
-    expect(reconcileComposition({ page: 'home', version: 1, widgets: [] }).widgets).toHaveLength(17);
+    expect(reconcileComposition({ page: 'home', version: 1, widgets: [] }).widgets).toHaveLength(16);
   });
 
   it('injeta automaticamente seções canônicas novas (como brands-carousel) quando o banco possui snapshot antigo', () => {
@@ -72,12 +69,12 @@ describe('reconcileComposition (auto-reconciliação inteligente)', () => {
         .map((w, idx) => ({ ...w, order: idx + 1 })),
     };
 
-    expect(oldSnapshot.widgets).toHaveLength(16);
+    expect(oldSnapshot.widgets).toHaveLength(15);
     expect(oldSnapshot.widgets.some((w) => w.id === 's07-compre-por-marca')).toBe(false);
 
     const reconciled = reconcileComposition(oldSnapshot);
 
-    expect(reconciled.widgets).toHaveLength(17);
+    expect(reconciled.widgets).toHaveLength(16);
     const brandWidget = reconciled.widgets.find((w) => w.id === 's07-compre-por-marca');
     expect(brandWidget).toBeDefined();
     expect(brandWidget?.type).toBe('brands-carousel');
@@ -87,7 +84,7 @@ describe('reconcileComposition (auto-reconciliação inteligente)', () => {
     const brandIdx = reconciled.widgets.findIndex((w) => w.id === 's07-compre-por-marca');
     expect(brandIdx).toBe(s05Idx + 1);
 
-    // Garante normalização de ordem sequencial 1..17
+    // Garante normalização de ordem sequencial 1..16
     reconciled.widgets.forEach((w, idx) => {
       expect(w.order).toBe(idx + 1);
     });

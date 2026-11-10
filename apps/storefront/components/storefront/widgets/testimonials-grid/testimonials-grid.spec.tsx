@@ -130,4 +130,41 @@ describe('TestimonialsGridWidget', () => {
       fireEvent.mouseLeave(scrollTrack);
     }
   });
+
+  it('renderiza os valores padrão reais (4.3 e 988 avaliações) e suporta foto com fallback para iniciais', () => {
+    const itemWithPhoto: TestimonialItem = {
+      id: 'google-review-001',
+      authorName: 'Priscilla Vasconcelos',
+      authorHandle: 'Local Guide · 17 avaliações',
+      timeAgo: '4 semanas atrás',
+      avatarInitials: 'PV',
+      avatarColor: '#004CB1',
+      profilePhotoUrl: 'https://lh3.googleusercontent.com/test-photo.jpg',
+      rating: 5,
+      text: 'Tem tudo e preço é excelente.',
+    };
+
+    const { container } = render(
+      <TestimonialsGridWidget
+        title="O que nossos clientes dizem no Google."
+        items={[itemWithPhoto]}
+      />
+    );
+
+    // Verifica defaults reais do Google Maps
+    expect(screen.getByText('Classificação 4.3 de 5.0 estrelas')).toBeDefined();
+    expect(screen.getByText('988 avaliações no Google')).toBeDefined();
+    expect(screen.getAllByText('Priscilla Vasconcelos').length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Tem tudo e preço é excelente/).length).toBeGreaterThan(0);
+
+    // Verifica presença da imagem de perfil
+    const imgList = container.querySelectorAll('img[alt="Priscilla Vasconcelos"]');
+    expect(imgList.length).toBeGreaterThan(0);
+    const firstImg = imgList[0] as HTMLImageElement;
+    expect(firstImg?.src).toContain('test-photo.jpg');
+
+    // Simula erro no carregamento da imagem (ex: 403 / CORS) para validar o fallback das iniciais
+    fireEvent.error(firstImg);
+    expect(screen.getAllByText('PV').length).toBeGreaterThan(0);
+  });
 });

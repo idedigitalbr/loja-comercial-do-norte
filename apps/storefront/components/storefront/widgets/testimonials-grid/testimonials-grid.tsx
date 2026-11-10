@@ -18,9 +18,25 @@ export function TestimonialCard({
       <div>
         {/* Topo: Avatar + Nome + Quantidade de avaliações */}
         <div className="flex items-center gap-2.5">
+          {item.profilePhotoUrl ? (
+            <img
+              src={item.profilePhotoUrl}
+              alt={item.authorName}
+              className="size-8 shrink-0 rounded-full object-cover"
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                const sibling = e.currentTarget.nextElementSibling as HTMLElement | null;
+                if (sibling) sibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
           <div
-            className="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-white"
-            style={{ backgroundColor: item.avatarColor || '#004CB1' }}
+            className="size-8 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-white"
+            style={{
+              backgroundColor: item.avatarColor || '#004CB1',
+              display: item.profilePhotoUrl ? 'none' : 'flex',
+            }}
           >
             {item.avatarInitials}
           </div>
@@ -59,8 +75,8 @@ export function TestimonialsGridWidget({
   widgetId,
   eyebrow = 'AVALIAÇÕES NO GOOGLE',
   title = 'O que nossos clientes dizem no Google.',
-  ratingSummary = 'Classificação 4.8 de 5.0 estrelas',
-  totalReviewsLabel = 'Um bloco com mais de 2 mil avaliações',
+  ratingSummary = 'Classificação 4.3 de 5.0 estrelas',
+  totalReviewsLabel = '988 avaliações no Google',
   items = [],
 }: TestimonialsGridProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
