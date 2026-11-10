@@ -2,14 +2,17 @@
  * @vitest-environment jsdom
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import { AuthFlowCard } from './auth-flow-card';
 import * as AuthModule from './auth-provider';
 
+const mockPush = vi.fn();
+const mockRefresh = vi.fn();
+
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(() => ({
-    push: vi.fn(),
-    refresh: vi.fn(),
+    push: mockPush,
+    refresh: mockRefresh,
   })),
   useSearchParams: vi.fn(() => ({
     get: vi.fn(() => '/conta'),
@@ -34,6 +37,9 @@ describe('AuthFlowCard', () => {
   const mockLogout = vi.fn().mockResolvedValue(undefined);
 
   beforeEach(() => {
+    mockPush.mockClear();
+    mockRefresh.mockClear();
+
     vi.spyOn(AuthModule, 'useAuth').mockReturnValue({
       user: null,
       isAuthenticated: false,
@@ -75,5 +81,48 @@ describe('AuthFlowCard', () => {
     fireEvent.click(captchaButton);
     expect(screen.getByText('Verificando segurança…')).toBeTruthy();
     await new Promise((resolve) => setTimeout(resolve, 500));
+  });
+
+  it('redirects an administrator to the Admin Panel upon dev login', async () => {
+    mockLogin.mockResolvedValueOnce({ ok: true, isAdmin: true });
+    render(<AuthFlowCard />);
+
+    // Open dev modal
+    fireEvent.click(screen.getByText('Ver Senhas'));
+
+    // Click on "⚡ Entrar Direto (ADMIN)"
+    const adminLoginBtn = screen.getByRole('button', { name: /Entrar Direto \(ADMIN\)/i });
+    expect(adminLoginBtn).toBeTruthy();
+
+    fireEvent.click(adminLoginBtn);
+
+    await waitFor(() => {
+      expect(mockLogin).toHaveBeenCalledWith('admin@admin.com', 'admin123456');
+    });
+  });
+
+  it('renders ADM EDITOR badge and link to Painel Administrativo when already authenticated as admin', () => {
+    vi.spyOn(AuthModule, 'useAuth').mockReturnValue({
+      user: {
+        id: 'admin-1',
+        email: 'admin@admin.com',
+        firstName: 'Victor',
+        fullName: 'Victor Williames',
+        roles: ['ADMIN'],
+        isAdmin: true,
+      },
+      isAuthenticated: true,
+      ready: true,
+      checkEmail: mockCheckEmail,
+      login: mockLogin,
+      register: mockRegister,
+      updateProfile: mockUpdateProfile,
+      changePassword: mockChangePassword,
+      logout: mockLogout,
+    });
+
+    render(<AuthFlowCard />);
+    expect(screen.getByText('ADM EDITOR')).toBeTruthy();
+    expect(screen.getByText('Acessar Painel Administrativo')).toBeTruthy();
   });
 });

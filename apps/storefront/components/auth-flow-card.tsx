@@ -134,6 +134,22 @@ export function AuthFlowCard() {
     }
   }
 
+  function navigateAfterAuth(isAdmin?: boolean) {
+    const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || 'http://localhost:5174/admin/';
+    let target = redirectUrl && redirectUrl !== '/conta' ? redirectUrl : '/';
+    if (isAdmin && (!redirectUrl || redirectUrl === '/conta')) {
+      target = adminUrl;
+    }
+    if (typeof window !== 'undefined' && (target.startsWith('http://') || target.startsWith('https://'))) {
+      window.location.href = target;
+    } else {
+      router.push(target);
+      router.refresh();
+    }
+  }
+
+
+
   // Ação rápida DEV: Preencher e entrar direto
   async function handleQuickLogin(targetEmail: string, targetPass: string) {
     setEmail(targetEmail);
@@ -148,9 +164,7 @@ export function AuthFlowCard() {
     setLoading(false);
 
     if (result.ok) {
-      const target = redirectUrl && redirectUrl !== '/conta' ? redirectUrl : '/';
-      router.push(target);
-      router.refresh();
+      navigateAfterAuth(result.isAdmin);
     } else {
       setStep('login');
       setErrorMessage(result.error || 'Não foi possível entrar. Verifique sua senha.');
@@ -219,9 +233,7 @@ export function AuthFlowCard() {
     setLoading(false);
 
     if (result.ok) {
-      const target = redirectUrl && redirectUrl !== '/conta' ? redirectUrl : '/';
-      router.push(target);
-      router.refresh();
+      navigateAfterAuth(result.isAdmin);
     } else {
       setErrorMessage(result.error || 'Não foi possível entrar. Verifique sua senha.');
     }
@@ -250,9 +262,7 @@ export function AuthFlowCard() {
     setLoading(false);
 
     if (result.ok) {
-      const target = redirectUrl && redirectUrl !== '/conta' ? redirectUrl : '/';
-      router.push(target);
-      router.refresh();
+      navigateAfterAuth(false);
     } else {
       setErrorMessage(result.error || 'Erro ao criar conta. Tente novamente.');
     }
