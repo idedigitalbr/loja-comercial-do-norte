@@ -1,5 +1,13 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **10/11/2026 — Sincronização em Produção: Deploy Vercel (Storefront, Admin, API) e Sincronização Neon DB (executorId: `antigravity-gemini`):**
+  - **Sincronização Neon DB (`db_lojacomercialdonorte`):** Atualizado `SiteConfiguration.homeComposition` no PostgreSQL Neon de produção em São Paulo (`sa-east-1`) para 16 seções canônicas (sem Instagram S16 e com notas/avaliações oficiais do Google Maps S17).
+  - **Deploy Vercel dos Três Projetos:**
+    - Storefront (`loja-home-front`): [`https://loja-comercialdonorte.vercel.app`](https://loja-comercialdonorte.vercel.app) (com rota `/admin` redirecionando para o painel oficial).
+    - Admin (`loja-admin`): [`https://admin-comercialdonorte.vercel.app`](https://admin-comercialdonorte.vercel.app).
+    - API NestJS (`loja-api`): [`https://api-comercialdonorte.vercel.app`](https://api-comercialdonorte.vercel.app) (`/api/v1/health` retornando `status: ok, database: up`).
+  - **Arquitetura 100% Serverless / Sem VPS:** Operação em nuvem de alta disponibilidade (Vercel Functions + Neon DB), sem necessidade de servidores VPS.
+
 - **10/11/2026 — Conclusão e Encerramento Oficial das Etapas 01 e 02 (executorId: `antigravity-gemini`):**
   - **Encerramento da ETAPA 01 (Pré-Projeto e Planejamento):** Issues `#74` (1.1 Pesquisa e levantamento), `#75` (1.2 UX/UI e arquitetura) e `#76` (1.3 Preparação técnica) 100% concluídas e fechadas.
   - **Encerramento da ETAPA 02 (Desenvolvimento Core):** Issues `#77` (2.1 Home pública S1–S20), `#78` (2.2 Login e Acesso Admin), `#79` (2.3 Painel Administrativo, Dashboard e Configurações) e `#80` (2.4 Funcionalidades do catálogo e cotações) 100% concluídas e fechadas.

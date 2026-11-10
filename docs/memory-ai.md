@@ -7,6 +7,22 @@
 
 ## 0. Ordem de autoridade e regra de atualização
 
+- **10/11/2026 — Sincronização em Produção: Deploy Vercel (Storefront, Admin, API) e Sincronização Neon DB (executorId: `antigravity-gemini`):**
+  - **Sincronização do Banco Neon (`db_lojacomercialdonorte`):**
+    - Atualizado o registro `SiteConfiguration.homeComposition` no banco PostgreSQL de produção do Neon, gravando a nova composição de 16 widgets (removida a seção de Instagram `s16-instagram-feed` e atualizados os dados oficiais de avaliações do Google Maps na seção `s18-avaliacoes-google`).
+  - **Publicação na Vercel (Tríade Oficial de Produção):**
+    - **Storefront (`loja-home-front`)**: deploy `dpl_2MzxJtafTVWCzAcGJVshomJGweoe` publicado e vinculado a [`https://loja-comercialdonorte.vercel.app`](https://loja-comercialdonorte.vercel.app), configurado com a variável de ambiente `NEXT_PUBLIC_ADMIN_URL` apontando para a URL de produção do admin.
+    - **Admin (`loja-admin`)**: deploy `dpl_BqdzrwYQqFmXvQNTYmpYpLPrQtik` publicado e vinculado a [`https://admin-comercialdonorte.vercel.app`](https://admin-comercialdonorte.vercel.app).
+    - **API NestJS (`loja-api`)**: deploy `dpl_C9sveK5HWiXLcdzLc4xFffr2TWMA` publicado e vinculado a [`https://api-comercialdonorte.vercel.app`](https://api-comercialdonorte.vercel.app).
+  - **Validação de Produção dos Endpoints:**
+    - `GET https://loja-comercialdonorte.vercel.app` ➔ `HTTP 200` (16 seções ativas, avaliações reais de clientes com nota 4.3/5.0 e sem seção de Instagram).
+    - `GET https://loja-comercialdonorte.vercel.app/admin` ➔ `HTTP 307 Redirect` ➔ `https://admin-comercialdonorte.vercel.app/`.
+    - `GET https://admin-comercialdonorte.vercel.app` ➔ `HTTP 200` (Painel Administrativo online).
+    - `GET https://api-comercialdonorte.vercel.app/api/v1/health` ➔ `HTTP 200` (`status: ok, database: up`).
+    - `GET https://api-comercialdonorte.vercel.app/api/v1/catalog/products?limit=5` ➔ `HTTP 200` (Produtos ativos servidos diretamente do Neon).
+  - **Arquitetura Nuvem / VPS:**
+    - Conforme preconizado no `roadmap.md §1.3`, toda a stack opera de forma 100% autônoma e serverless em Vercel (Fluid Compute / Next.js SSR / Vite SPA) e banco Neon na região de São Paulo (`sa-east-1`), dispensando despesas e manutenção de VPS legada.
+
 - **10/11/2026 — Conclusão e Encerramento Oficial das Etapas 01 e 02 (executorId: `antigravity-gemini`):**
   - **Encerramento da ETAPA 01 (Pré-Projeto e Planejamento):**
     - Concluídas e encerradas oficialmente as Issues `#74` (1.1 Pesquisa e levantamento), `#75` (1.2 UX/UI e arquitetura com design system azul `#004CB1` e vermelho `#E2091E`) e `#76` (1.3 Preparação técnica da stack Next.js 16 + NestJS 11 + PostgreSQL Neon + Prisma + Tailwind 4).
