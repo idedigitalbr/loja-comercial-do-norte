@@ -331,4 +331,44 @@ describe('VideoArticlesCarouselWidget (Explica Aí Nort)', () => {
     const confWrapper = confHeading?.parentElement?.parentElement;
     expect(confWrapper?.className).toContain('lg:static');
   });
+
+  it('usa os eventos reais de contextData.events na variante Confeitaria substituindo placeholders', () => {
+    render(
+      <VideoArticlesCarouselWidget
+        variant="confeitaria"
+        title="Workshops & Aulas Práticas de Confeitaria"
+        subtitle="Faça suas compras e ganhe treinamento gratuitamente."
+        viewAllLabel="Ver todos"
+        viewAllUrl="/eventos/workshops/aulas-confeitaria"
+        contextData={{
+          categories: [],
+          brands: [],
+          offers: [],
+          products: [],
+          events: [
+            {
+              id: 'ev-real-1',
+              title: 'Doces Finos e Brigadeiros Gourmet',
+              slug: 'workshop-doces-finos-brigadeiros-gourmet',
+              subtitle: 'Técnicas de ponto perfeito e embalagens de luxo.',
+              description: 'Descrição completa',
+              posterUrl: '/assets/confeitaria/01-listagem-eventos/04-card-brigadeiros-gourmet.jpg',
+              eventDateText: '18 de Novembro',
+              badge: 'WORKSHOP',
+              status: 'ACTIVE',
+              sortOrder: 1,
+            },
+          ],
+        }}
+        items={mockItems}
+      />
+    );
+
+    expect(screen.getByText('Doces Finos e Brigadeiros Gourmet')).toBeDefined();
+    expect(screen.getByText('18 de Novembro')).toBeDefined();
+    expect(screen.queryByText('Embalagens kraft para o seu delivery')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Ver Completo' }).getAttribute('href')).toBe(
+      '/evento/workshop/aulas-confeitaria/workshop-doces-finos-brigadeiros-gourmet'
+    );
+  });
 });

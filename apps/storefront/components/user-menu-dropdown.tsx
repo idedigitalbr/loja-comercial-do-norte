@@ -17,6 +17,7 @@ import {
   Star,
   User,
 } from 'lucide-react';
+import { openAdminPanel, resolveAdminPanelUrl } from '@/lib/auth/admin-handoff';
 import { useAuth } from './auth-provider';
 
 export function UserMenuDropdown() {
@@ -141,10 +142,14 @@ export function UserMenuDropdown() {
             {user?.isAdmin && (
               <a
                 className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-[#004CB1] to-[#00357B] px-3.5 py-2.5 text-white shadow-xs transition hover:brightness-110"
-                href={process.env.NEXT_PUBLIC_ADMIN_URL || 'http://localhost:5174/admin/'}
+                href={resolveAdminPanelUrl()}
                 rel="noreferrer"
                 target="_blank"
-                onClick={() => setOpen(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setOpen(false);
+                  void openAdminPanel({ newTab: true });
+                }}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-white/20 text-white">
@@ -191,8 +196,12 @@ export function UserMenuDropdown() {
               {/* Badge 1: ADM EDITOR */}
               <a
                 className="flex items-center justify-center gap-1.5 rounded-full bg-[#E8F0FE] border border-blue-200/80 py-1.5 px-2 text-[10px] sm:text-[11px] font-bold text-[#1D4ED8] whitespace-nowrap shadow-2xs hover:bg-blue-100/90 transition cursor-pointer"
-                href={process.env.NEXT_PUBLIC_ADMIN_URL || 'http://localhost:5174/admin/'}
-                onClick={() => setOpen(false)}
+                href={resolveAdminPanelUrl()}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setOpen(false);
+                  void openAdminPanel({ newTab: true });
+                }}
                 rel="noreferrer"
                 target="_blank"
                 title="Acessar Painel Administrativo"

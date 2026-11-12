@@ -33,10 +33,52 @@ describe('StorefrontCompositionService', () => {
     await expect(service.publish(composition, actor)).rejects.toThrow('missing site');
     expect(tx.auditLog.create).not.toHaveBeenCalled();
   });
-  it.each([{ ...composition, page: 'other' }, { ...composition, widgets: [] }, { ...composition, widgets: [composition.widgets[0], composition.widgets[0]] }])('rejects invalid compositions before persistence', async (input) => {
+  it.each([
+    { ...composition, page: 'other' },
+    { ...composition, widgets: [] },
+    { ...composition, widgets: [composition.widgets[0], composition.widgets[0]] },
+    { ...composition, widgets: [{ ...composition.widgets[0], props: { slides: [{ linkUrl: 'javascript:alert(1)' }] } }] },
+    { ...composition, widgets: [{ ...composition.widgets[0], props: { slides: [{ imageUrl: 'data:image/svg+xml;base64,PHN2Zz4=' }] } }] },
+    { ...composition, widgets: [{ ...composition.widgets[0], props: { mapEmbedUrl: 'https://evil.com/maps/embed' } }] },
+    JSON.parse('{"page":"home","version":1,"widgets":[{"id":"hero","type":"hero-carousel","enabled":true,"order":0,"props":{"__proto__":{"admin":true}}}]}'),
+  ])('rejects invalid compositions before persistence', async (input) => {
     const { service, prisma } = setup();
     await expect(service.publish(input, actor)).rejects.toThrow('INVALID_STOREFRONT_COMPOSITION');
     expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+  it('accepts safe relative, https and Google Maps embed URLs in widget props', async () => {
+    const { service } = setup();
+    const safeComposition = {
+      page: 'home',
+      version: 2,
+      widgets: [
+        {
+          id: 'hero',
+          type: 'hero-carousel',
+          enabled: true,
+          order: 0,
+          props: {
+            slides: [
+              {
+                imageUrl: '/assets/HOME Vitrine/Banner 1 (Desktop).webp',
+                ctaUrl: '/busca?q=furadeira',
+              },
+            ],
+          },
+        },
+        {
+          id: 'map',
+          type: 'store-locations-map',
+          enabled: true,
+          order: 1,
+          props: {
+            mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18',
+          },
+        },
+      ],
+    };
+    const result = await service.publish(safeComposition, actor);
+    expect(result.composition.version).toBe(2);
   });
   it('records the restoring editor rather than the original author', async () => {
     const { service, prisma } = setup();

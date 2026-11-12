@@ -10,6 +10,7 @@ import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { existsSync } from 'node:fs';
+import { createCsrfOriginMiddleware } from './common/security/csrf-origin.middleware';
 import { join } from 'node:path';
 import { static as serveStatic } from 'express';
 import type { Request, Response } from 'express';
@@ -22,6 +23,9 @@ import { resolveApiProjectRoot, resolveApiStorageRoot } from './modules/files/st
 
 export function configureApp(app: INestApplication): INestApplication {
   const httpServer = app.getHttpAdapter().getInstance();
+  if (typeof httpServer.set === 'function') {
+    httpServer.set('trust proxy', 1);
+  }
   const storefrontAssets = join(resolveApiProjectRoot(), '../storefront/public/assets');
   if (existsSync(storefrontAssets)) {
     httpServer.use('/assets', serveStatic(storefrontAssets));
@@ -66,6 +70,8 @@ export function configureApp(app: INestApplication): INestApplication {
   });
 
   app.use(cookieParser(process.env.COOKIE_SECRET));
+
+  httpServer.use(createCsrfOriginMiddleware(authorizedOrigins));
   const isDev = process.env.NODE_ENV !== 'production';
 
   app.use(helmet({

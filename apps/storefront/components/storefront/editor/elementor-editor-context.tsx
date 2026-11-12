@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from '@/components/auth-provider';
 import { defaultHomeComposition } from '@/lib/storefront/home-configuration';
+import { sanitizeCompositionProps } from '@/lib/storefront/url-security';
 import type {
   BenefitItem,
   ContainedHeroSlide,
@@ -107,8 +108,13 @@ interface ElementorContextValue {
 
 const ElementorContext = createContext<ElementorContextValue | null>(null);
 
+const UNSAFE_PATH_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
 function setByPath(obj: any, pathStr: string, value: any): any {
   const keys = pathStr.split('.');
+  if (keys.some((k) => UNSAFE_PATH_KEYS.has(k))) {
+    return obj;
+  }
   const clone = Array.isArray(obj) ? [...obj] : { ...obj };
   let cur: any = clone;
   for (let i = 0; i < keys.length - 1; i++) {
@@ -136,11 +142,12 @@ export function ElementorEditorProvider({
   initialComposition?: PageComposition;
 }) {
   const { user, ready } = useAuth();
-  const isAdmin = Boolean(user?.isAdmin || user?.roles?.includes('ADMIN') || user?.email === 'admin@admin.com');
-  const isDev = typeof window !== 'undefined' && (
-    window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1'
-  );
+  const isAdmin = Boolean(user?.isAdmin || user?.roles?.includes('ADMIN'));
+  const isDev =
+    process.env.NODE_ENV !== 'production' &&
+    !process.env.NEXT_PUBLIC_VERCEL_ENV &&
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
   const canEdit = Boolean(isAdmin || isDev);
 
   const [isEditing, setIsEditing] = useState(false);
@@ -203,7 +210,9 @@ export function ElementorEditorProvider({
       const savedOnServer = localStorage.getItem(STORAGE_KEY + '_saved');
       if (saved) {
         localHasDraft = true;
-        const parsed = JSON.parse(saved);
+        const parsed = sanitizeCompositionProps(JSON.parse(saved), {
+          allowSafeRasterDataUrl: isDev,
+        });
         if (parsed?.version >= 6 && parsed?.widgets && Array.isArray(parsed.widgets)) {
           if (canEdit) {
             setComposition(parsed);
@@ -231,8 +240,9 @@ export function ElementorEditorProvider({
           setHasDraft(true);
         }
         if (!loadedFromLocal && res?.success && res?.data?.widgets?.length && res?.data?.version >= 2) {
-          setComposition(res.data);
-          setHistory([res.data]);
+          const sanitizedRemote = sanitizeCompositionProps(res.data);
+          setComposition(sanitizedRemote);
+          setHistory([sanitizedRemote]);
           setHistoryIndex(0);
           setHasUnsavedChanges(false);
         }
@@ -482,12 +492,15 @@ export function ElementorEditorProvider({
 
   async function saveComposition() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(composition));
+      const sanitizedComposition = sanitizeCompositionProps(composition, {
+        allowSafeRasterDataUrl: isDev,
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizedComposition));
 
       const res = await fetch('/api/storefront/composition', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(composition),
+        body: JSON.stringify(sanitizeCompositionProps(composition)),
       });
 
       if (!res.ok) {
@@ -495,8 +508,8 @@ export function ElementorEditorProvider({
         throw new Error(errJson?.error || 'Erro ao sincronizar com o servidor.');
       }
 
-      localStorage.setItem(STORAGE_KEY + '_saved', JSON.stringify(composition));
-      setPublishedComposition(composition);
+      localStorage.setItem(STORAGE_KEY + '_saved', JSON.stringify(sanitizedComposition));
+      setPublishedComposition(sanitizedComposition);
       setHasUnsavedChanges(false);
       setSaveMessage('Alterações salvas e sincronizadas com o servidor!');
       loadRevisions();

@@ -1,3 +1,8 @@
+import {
+  CONFEITARIA_WORKSHOPS,
+  mapEventsToConfeitariaCarouselItems,
+} from "@/lib/events-data";
+import { sanitizeCompositionProps } from "./url-security";
 import type { PageComposition } from "./widget-types";
 
 /**
@@ -537,30 +542,7 @@ export const defaultHomeComposition: PageComposition = {
         viewAllUrl: "/eventos/workshops/aulas-confeitaria",
         mascotImageUrl: "/assets/confeitaria/confeiteira-banner-cutout-trimmed.webp",
         bgImageUrl: "/assets/confeitaria/bg-confeitaria-banner.svg",
-        items: [
-          {
-            id: "conf-1",
-            tags: ["WORKSHOP", "BOLOS DECORADOS"],
-            title: "Técnicas de decoração para bolos e tortas",
-            paragraphs: [
-              "Aprenda acabamento, recheio, montagem e apresentação com foco prático.",
-            ],
-            ctaLabel: "Ver Completo",
-            ctaUrl: "/eventos/workshops/aulas-confeitaria",
-            imageUrl: "/assets/confeitaria/card-tecnicas-decoracao.webp",
-          },
-          {
-            id: "conf-2",
-            tags: ["AULA PRÁTICA", "DOCES FINOS"],
-            title: "Doces finos e sobremesas para vender",
-            paragraphs: [
-              "Descubra receitas, finalização e embalagem para valorizar sua produção.",
-            ],
-            ctaLabel: "Ver Completo",
-            ctaUrl: "/eventos/workshops/aulas-confeitaria",
-            imageUrl: "/assets/confeitaria/card-doces-finos.webp",
-          },
-        ],
+        items: mapEventsToConfeitariaCarouselItems(CONFEITARIA_WORKSHOPS),
       },
     },
 
@@ -946,7 +928,7 @@ export function reconcileComposition(saved: PageComposition | null | undefined):
   const missingWidgets = defaultHomeComposition.widgets.filter((w) => !existingIds.has(w.id));
 
   if (missingWidgets.length === 0) {
-    return saved;
+    return sanitizeCompositionProps(saved);
   }
 
   const mergedWidgets = [...savedWidgets];
@@ -978,9 +960,9 @@ export function reconcileComposition(saved: PageComposition | null | undefined):
     w.order = idx + 1;
   });
 
-  return {
+  return sanitizeCompositionProps({
     ...saved,
     version: saved.version ?? defaultHomeComposition.version,
     widgets: mergedWidgets,
-  };
+  });
 }

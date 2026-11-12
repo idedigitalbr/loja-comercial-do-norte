@@ -6,6 +6,7 @@ import {
   CompositionApiError,
 } from '@/lib/storefront/composition-storage';
 import { verifyAdminAuthorization } from '@/lib/auth/admin-guard';
+import { validateSameOriginRequest } from '@/lib/storefront/url-security';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,8 +39,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    if (request.headers.get('origin') && request.headers.get('origin') !== new URL(request.url).origin) {
-      return NextResponse.json({ success: false, error: 'Origem não autorizada.' }, { status: 403 });
+    const sameOrigin = validateSameOriginRequest(request);
+    if (!sameOrigin.allowed) {
+      return NextResponse.json({ success: false, error: sameOrigin.reason || 'Origem não autorizada.' }, { status: 403 });
     }
     const authResult = await verifyAdminAuthorization(request);
     if (!authResult.isAdmin) {

@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { useElementor } from './elementor-editor-context';
 import { ElementorMediaModal, availableMediaLibrary } from './elementor-media-modal';
+import { isValidLinkUrl, sanitizeLinkUrl } from '@/lib/storefront/url-security';
 import type { BenefitItem, ContainedHeroSlide, HeroSlide, WidgetType } from '@/lib/storefront/widget-types';
 
 const widgetDefinitions: Array<{
@@ -504,7 +505,19 @@ export function ElementorPanel() {
                                         Link do Slide
                                       </label>
                                       <input
-                                        className="w-full rounded border border-white/10 bg-black/30 px-2.5 py-1.5 text-xs text-white placeholder-white/30 focus:border-[#8C1D40] outline-none"
+                                        className={`w-full rounded border bg-black/30 px-2.5 py-1.5 text-xs text-white placeholder-white/30 outline-none ${
+                                          slide.linkUrl && !isValidLinkUrl(slide.linkUrl)
+                                            ? 'border-red-500 focus:border-red-400'
+                                            : 'border-white/10 focus:border-[#8C1D40]'
+                                        }`}
+                                        onBlur={(e) => {
+                                          const raw = e.target.value.trim();
+                                          if (raw && !isValidLinkUrl(raw)) {
+                                            updateSlideInWidget(selectedWidget.id, slide.id, {
+                                              linkUrl: sanitizeLinkUrl(raw, '#'),
+                                            });
+                                          }
+                                        }}
                                         onChange={(e) =>
                                           updateSlideInWidget(selectedWidget.id, slide.id, {
                                             linkUrl: e.target.value,
@@ -514,6 +527,11 @@ export function ElementorPanel() {
                                         type="text"
                                         value={slide.linkUrl || ''}
                                       />
+                                      {slide.linkUrl && !isValidLinkUrl(slide.linkUrl) && (
+                                        <p className="mt-1 text-[10px] text-rose-400">
+                                          URL inválida (use /rota ou https://...). Ao sair do campo será sanitizada.
+                                        </p>
+                                      )}
                                     </div>
 
                                     {/* Texto Alternativo (SEO) */}

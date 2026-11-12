@@ -73,28 +73,30 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 const AUTH_USER_KEY = 'cn.auth_user.v1';
 const LOCAL_ACCOUNTS_KEY = 'cn.auth_accounts.v1';
 
-const DEFAULT_PRESET_ACCOUNTS: LocalStoredAccount[] = [
-  {
-    id: 'usr-admin-1',
-    email: 'admin@admin.com',
-    firstName: 'Victor',
-    lastName: 'Williames',
-    password: 'admin123456',
-    phone: '(91) 98344-0880',
-    document: '000.000.000-00',
-    birthDate: '1990-01-01',
-  },
-  {
-    id: 'usr-cliente-1',
-    email: 'cliente@demo.com',
-    firstName: 'Cliente',
-    lastName: 'Comercial',
-    password: 'cliente123456',
-    phone: '(91) 98344-0880',
-    document: '123.456.789-00',
-    birthDate: '1995-05-15',
-  },
-];
+const DEFAULT_PRESET_ACCOUNTS: LocalStoredAccount[] = allowsLocalAuth()
+  ? [
+      {
+        id: 'usr-admin-1',
+        email: 'admin@admin.com',
+        firstName: 'Victor',
+        lastName: 'Williames',
+        password: 'admin123456',
+        phone: '(91) 98344-0880',
+        document: '000.000.000-00',
+        birthDate: '1990-01-01',
+      },
+      {
+        id: 'usr-cliente-1',
+        email: 'cliente@demo.com',
+        firstName: 'Cliente',
+        lastName: 'Comercial',
+        password: 'cliente123456',
+        phone: '(91) 98344-0880',
+        document: '123.456.789-00',
+        birthDate: '1995-05-15',
+      },
+    ]
+  : [];
 
 function getStoredUser(): AuthUser | null {
   if (typeof window === 'undefined') return null;
@@ -120,7 +122,7 @@ function getStoredUser(): AuthUser | null {
 }
 
 function getStoredAccounts(): LocalStoredAccount[] {
-  if (typeof window === 'undefined') return DEFAULT_PRESET_ACCOUNTS;
+  if (typeof window === 'undefined' || !allowsLocalAuth()) return [];
   try {
     const raw = window.localStorage.getItem(LOCAL_ACCOUNTS_KEY);
     if (!raw) return DEFAULT_PRESET_ACCOUNTS;

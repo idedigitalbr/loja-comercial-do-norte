@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { ConfeitariaWorkshopsList } from '@/components/evento/confeitaria-workshops-list';
 import { getEvents } from '@/lib/api';
-import { CONFEITARIA_WORKSHOPS } from '@/lib/events-data';
+import { filterConfeitariaEvents } from '@/lib/events-data';
 import { getStorefrontComposition } from '@/lib/storefront/composition-storage';
 import type { VideoArticlesCarouselProps } from '@/lib/storefront/widget-types';
 
@@ -32,28 +32,7 @@ export default async function ConfeitariaWorkshopsPage() {
     | undefined;
 
   // Filtra estritamente apenas eventos de Workshop / Aulas (sem palestras corporativas ou reinaugurações)
-  const confeitariaEvents = allEvents.filter((ev) => {
-    const isPalestraOrReinauguracao =
-      ev.categoryKey === 'palestras' ||
-      ev.categoryKey === 'reinauguracoes' ||
-      ev.badge?.toLowerCase().includes('palestra') ||
-      ev.badge?.toLowerCase().includes('reinaugura');
-    if (isPalestraOrReinauguracao) return false;
-
-    const text = `${ev.title} ${ev.subtitle || ''} ${ev.badge || ''} ${ev.description}`.toLowerCase();
-    return (
-      ev.categoryKey === 'workshops' ||
-      ev.categoryKey === 'aulas-show' ||
-      text.includes('confeitaria') ||
-      text.includes('workshop') ||
-      text.includes('aula') ||
-      text.includes('doce') ||
-      text.includes('bolo') ||
-      text.includes('chantilly')
-    );
-  });
-
-  const displayList = confeitariaEvents.length > 0 ? confeitariaEvents : CONFEITARIA_WORKSHOPS;
+  const displayList = filterConfeitariaEvents(allEvents);
 
   return (
     <ConfeitariaWorkshopsList

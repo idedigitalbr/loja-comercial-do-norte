@@ -2,6 +2,7 @@ import argon2 from 'argon2';
 import { EmailEventKey, Prisma, UserStatus } from '@prisma/client';
 import {
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   Optional,
@@ -12,6 +13,15 @@ import { PrismaService } from '../database/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const ADMIN_HANDOFF_TTL_SECONDS = 45;
+const consumedHandoffs = new Map<string, number>();
+
+function pruneConsumedHandoffs(nowSeconds: number): void {
+  if (consumedHandoffs.size < 500) return;
+  for (const [jti, exp] of consumedHandoffs) {
+    if (exp <= nowSeconds) consumedHandoffs.delete(jti);
+  }
+}
 const accessUserSelect = {
   id: true,
   publicId: true,
@@ -179,6 +189,103 @@ export class AuthService {
     }
 
     return this.toAuthenticatedUser(session.user);
+  }
+
+  async createAdminHandoffCode(accessToken: string): Promise<{ code: string; expiresInSeconds: number }> {
+    const payload = this.verifyAccessToken(accessToken);
+    const session = await this.prisma.session.findFirst({
+      where: {
+        id: payload.sessionId,
+        userId: payload.userId,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      select: { user: { select: accessUserSelect } },
+    });
+
+    if (!session || session.user.status !== UserStatus.ACTIVE) {
+      throw new UnauthorizedException('SESSION_REVOKED');
+    }
+
+    const user = this.toAuthenticatedUser(session.user);
+    if (!user.roles.includes('ADMIN') && !user.permissions.includes('settings.manage')) {
+      throw new ForbiddenException('INSUFFICIENT_PERMISSIONS');
+    }
+
+    const exp = Math.floor(Date.now() / 1000) + ADMIN_HANDOFF_TTL_SECONDS;
+    const encoded = Buffer.from(
+      JSON.stringify({
+        type: 'admin_handoff',
+        sessionId: payload.sessionId,
+        userId: payload.userId,
+        jti: randomBytes(16).toString('base64url'),
+        exp,
+      }),
+    ).toString('base64url');
+
+    return {
+      code: `${encoded}.${this.sign(encoded)}`,
+      expiresInSeconds: ADMIN_HANDOFF_TTL_SECONDS,
+    };
+  }
+
+  async exchangeAdminHandoffCode(code: string): Promise<AuthSessionResult> {
+    const [encoded, signature] = (code ?? '').split('.');
+    if (!encoded || !signature || !this.isValidSignature(encoded, signature)) {
+      throw new UnauthorizedException('INVALID_HANDOFF_CODE');
+    }
+
+    let parsed: {
+      type?: string;
+      sessionId?: string;
+      userId?: string;
+      jti?: string;
+      exp?: number;
+    };
+    try {
+      parsed = JSON.parse(Buffer.from(encoded, 'base64url').toString());
+    } catch {
+      throw new UnauthorizedException('INVALID_HANDOFF_CODE');
+    }
+
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    if (
+      parsed.type !== 'admin_handoff' ||
+      !parsed.sessionId ||
+      !parsed.userId ||
+      !parsed.jti ||
+      !parsed.exp ||
+      parsed.exp <= nowSeconds
+    ) {
+      throw new UnauthorizedException('HANDOFF_EXPIRED');
+    }
+
+    pruneConsumedHandoffs(nowSeconds);
+    if (consumedHandoffs.has(parsed.jti)) {
+      throw new UnauthorizedException('HANDOFF_ALREADY_USED');
+    }
+
+    const session = await this.prisma.session.findFirst({
+      where: {
+        id: parsed.sessionId,
+        userId: parsed.userId,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      select: { user: { select: accessUserSelect } },
+    });
+
+    if (!session || session.user.status !== UserStatus.ACTIVE) {
+      throw new UnauthorizedException('SESSION_REVOKED');
+    }
+
+    const user = this.toAuthenticatedUser(session.user);
+    if (!user.roles.includes('ADMIN') && !user.permissions.includes('settings.manage')) {
+      throw new ForbiddenException('INSUFFICIENT_PERMISSIONS');
+    }
+
+    consumedHandoffs.set(parsed.jti, parsed.exp);
+    return this.issueSession(session.user);
   }
 
   private async findSessionByRefreshToken(refreshToken: string) {

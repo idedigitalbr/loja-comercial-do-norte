@@ -21,10 +21,14 @@ import {
 import './confeitaria-tokens.css';
 import { VideoArticlesCarouselWidget } from '@/components/storefront/widgets/video-articles-carousel/video-articles-carousel';
 import { ScrollRevealBlock, SkeletonBlock } from '@/components/ui/scroll-skeleton-reveal';
-import type { EventItem } from '@/lib/events-data';
+import {
+  CONFEITARIA_WORKSHOPS,
+  mapEventsToConfeitariaCarouselItems,
+  type EventItem,
+} from '@/lib/events-data';
 import type { VideoArticlesCarouselProps } from '@/lib/storefront/widget-types';
 
-const DEFAULT_CONFEITARIA_HERO: VideoArticlesCarouselProps = {
+const DEFAULT_CONFEITARIA_HERO: Omit<VideoArticlesCarouselProps, 'items'> = {
   variant: 'confeitaria',
   title: 'Workshops & Aulas Práticas de Confeitaria',
   subtitle: 'Faça suas compras e ganhe treinamento gratuitamente.',
@@ -32,30 +36,6 @@ const DEFAULT_CONFEITARIA_HERO: VideoArticlesCarouselProps = {
   viewAllUrl: '#workshops-lista',
   mascotImageUrl: '/assets/confeitaria/confeiteira-banner-cutout-trimmed.webp',
   bgImageUrl: '/assets/confeitaria/bg-confeitaria-banner.svg',
-  items: [
-    {
-      id: 'conf-1',
-      tags: ['WORKSHOP', 'BOLOS DECORADOS'],
-      title: 'Técnicas de decoração para bolos e tortas',
-      paragraphs: [
-        'Aprenda acabamento, recheio, montagem e apresentação com foco prático.',
-      ],
-      ctaLabel: 'Ver Completo',
-      ctaUrl: '#workshops-lista',
-      imageUrl: '/assets/confeitaria/card-tecnicas-decoracao.webp',
-    },
-    {
-      id: 'conf-2',
-      tags: ['AULA PRÁTICA', 'DOCES FINOS'],
-      title: 'Doces finos e sobremesas para vender',
-      paragraphs: [
-        'Descubra receitas, finalização e embalagem para valorizar sua produção.',
-      ],
-      ctaLabel: 'Ver Completo',
-      ctaUrl: '#workshops-lista',
-      imageUrl: '/assets/confeitaria/card-doces-finos.webp',
-    },
-  ],
 };
 
 export type ConfeitariaWorkshopsListProps = {
@@ -128,17 +108,8 @@ export function ConfeitariaWorkshopsList({
   }, [initialEvents, activeCategory, searchQuery]);
 
   const resolvedHero = useMemo(() => {
-    const rawItems =
-      heroBannerProps?.items && heroBannerProps.items.length > 0
-        ? heroBannerProps.items
-        : DEFAULT_CONFEITARIA_HERO.items;
-    const items = rawItems.map((item) => ({
-      ...item,
-      ctaUrl:
-        !item.ctaUrl || item.ctaUrl === '/eventos/workshops/aulas-confeitaria'
-          ? '#workshops-lista'
-          : item.ctaUrl,
-    }));
+    const sourceEvents = initialEvents.length > 0 ? initialEvents : CONFEITARIA_WORKSHOPS;
+    const items = mapEventsToConfeitariaCarouselItems(sourceEvents, detailBasePath);
     const rawViewAllUrl = heroBannerProps?.viewAllUrl;
     return {
       title: heroBannerProps?.title || DEFAULT_CONFEITARIA_HERO.title,
@@ -153,7 +124,7 @@ export function ConfeitariaWorkshopsList({
       bgImageUrl: heroBannerProps?.bgImageUrl || DEFAULT_CONFEITARIA_HERO.bgImageUrl,
       items,
     };
-  }, [heroBannerProps]);
+  }, [heroBannerProps, initialEvents, detailBasePath]);
 
   return (
     <div

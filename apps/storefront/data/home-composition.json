@@ -458,32 +458,60 @@
         "bgImageUrl": "/assets/confeitaria/bg-confeitaria-banner.svg",
         "items": [
           {
-            "id": "conf-1",
+            "id": "workshop-doces-finos-brigadeiros-gourmet",
             "tags": [
               "WORKSHOP",
-              "BOLOS DECORADOS"
+              "18 de Novembro de 2024"
             ],
-            "title": "Técnicas de decoração para bolos e tortas",
+            "title": "Doces Finos e Brigadeiros Gourmet para Casamentos e Festas",
             "paragraphs": [
-              "Aprenda acabamento, recheio, montagem e apresentação com foco prático."
+              "Técnicas de ponto perfeito, texturas aveludadas e embalagens de luxo."
             ],
             "ctaLabel": "Ver Completo",
-            "ctaUrl": "/eventos/workshops/aulas-confeitaria",
-            "imageUrl": "/assets/confeitaria/card-tecnicas-decoracao.webp"
+            "ctaUrl": "/evento/workshop/aulas-confeitaria/workshop-doces-finos-brigadeiros-gourmet",
+            "imageUrl": "/assets/confeitaria/01-listagem-eventos/04-card-brigadeiros-gourmet.jpg"
           },
           {
-            "id": "conf-2",
+            "id": "workshop-confeitaria-profissional-chantilly-bicos",
             "tags": [
-              "AULA PRÁTICA",
-              "DOCES FINOS"
+              "AULA-SHOW",
+              "03 de Outubro"
             ],
-            "title": "Doces finos e sobremesas para vender",
+            "title": "Bolos Decorados com Chantilly e Bicos",
             "paragraphs": [
-              "Descubra receitas, finalização e embalagem para valorizar sua produção."
+              "Aprenda técnicas exclusivas com uma especialista e descubra como criar bolos incríveis..."
             ],
             "ctaLabel": "Ver Completo",
-            "ctaUrl": "/eventos/workshops/aulas-confeitaria",
-            "imageUrl": "/assets/confeitaria/card-doces-finos.webp"
+            "ctaUrl": "/evento/workshop/aulas-confeitaria/workshop-confeitaria-profissional-chantilly-bicos",
+            "imageUrl": "/assets/confeitaria/01-listagem-eventos/05-card-bolo-decorado-rosa.jpg"
+          },
+          {
+            "id": "workshop-sobremesas-na-taca-copo-da-felicidade",
+            "tags": [
+              "WORKSHOP",
+              "25 de Novembro"
+            ],
+            "title": "Sobremesas na Taça & Copos da Felicidade",
+            "paragraphs": [
+              "Montagem estratégica, cremes estruturados e apresentação irresistível para alavancar..."
+            ],
+            "ctaLabel": "Ver Completo",
+            "ctaUrl": "/evento/workshop/aulas-confeitaria/workshop-sobremesas-na-taca-copo-da-felicidade",
+            "imageUrl": "/assets/confeitaria/01-listagem-eventos/06-card-sobremesa-na-taca.jpg"
+          },
+          {
+            "id": "workshop-cupcakes-confeitaria-criativa",
+            "tags": [
+              "AULA PRÁTICA",
+              "10 de Dezembro"
+            ],
+            "title": "Cupcakes e Confeitaria Criativa para Presentear",
+            "paragraphs": [
+              "Aprenda do zero, com técnicas práticas, decorações encantadoras e ideias para..."
+            ],
+            "ctaLabel": "Ver Completo",
+            "ctaUrl": "/evento/workshop/aulas-confeitaria/workshop-cupcakes-confeitaria-criativa",
+            "imageUrl": "/assets/confeitaria/01-listagem-eventos/07-card-cupcakes-rosa.jpg"
           }
         ]
       }

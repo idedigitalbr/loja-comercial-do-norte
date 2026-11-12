@@ -28,6 +28,8 @@ import {
   User,
   X,
 } from 'lucide-react';
+import { openAdminPanel, resolveAdminPanelUrl } from '@/lib/auth/admin-handoff';
+import { isSafeRelativePath, resolveSafeRedirectUrl } from '@/lib/storefront/url-security';
 import { useAuth } from './auth-provider';
 
 type FlowStep = 'email' | 'login' | 'register' | 'forgot_password';
@@ -40,6 +42,15 @@ interface DevAccount {
   email: string;
   password: string;
   type: 'admin' | 'cliente';
+}
+
+function sanitizeRedirectPath(raw: string | null): string {
+  if (!raw) return '/conta';
+  const trimmed = raw.trim();
+  if (!isSafeRelativePath(trimmed)) {
+    return '/conta';
+  }
+  return trimmed;
 }
 
 const DEV_ACCOUNTS: DevAccount[] = [
@@ -66,7 +77,7 @@ const DEV_ACCOUNTS: DevAccount[] = [
 export function AuthFlowCard() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get('redirect') || '/conta';
+  const redirectUrl = sanitizeRedirectPath(searchParams.get('redirect'));
 
   const { checkEmail, login, register, user, isAuthenticated, logout } = useAuth();
 
@@ -134,18 +145,17 @@ export function AuthFlowCard() {
     }
   }
 
-  function navigateAfterAuth(isAdmin?: boolean) {
-    const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || 'http://localhost:5174/admin/';
-    let target = redirectUrl && redirectUrl !== '/conta' ? redirectUrl : '/';
+  async function navigateAfterAuth(isAdmin?: boolean) {
     if (isAdmin && (!redirectUrl || redirectUrl === '/conta')) {
-      target = adminUrl;
+      await openAdminPanel({ newTab: false });
+      return;
     }
-    if (typeof window !== 'undefined' && (target.startsWith('http://') || target.startsWith('https://'))) {
-      window.location.href = target;
-    } else {
-      router.push(target);
-      router.refresh();
-    }
+    const target = resolveSafeRedirectUrl(redirectUrl, {
+      isAdmin,
+      currentOrigin: typeof window !== 'undefined' ? window.location.origin : undefined,
+    });
+    router.push(target);
+    router.refresh();
   }
 
 
@@ -164,7 +174,7 @@ export function AuthFlowCard() {
     setLoading(false);
 
     if (result.ok) {
-      navigateAfterAuth(result.isAdmin);
+      await navigateAfterAuth(result.isAdmin);
     } else {
       setStep('login');
       setErrorMessage(result.error || 'Não foi possível entrar. Verifique sua senha.');
@@ -233,7 +243,7 @@ export function AuthFlowCard() {
     setLoading(false);
 
     if (result.ok) {
-      navigateAfterAuth(result.isAdmin);
+      await navigateAfterAuth(result.isAdmin);
     } else {
       setErrorMessage(result.error || 'Não foi possível entrar. Verifique sua senha.');
     }
@@ -481,7 +491,11 @@ export function AuthFlowCard() {
                 {user.isAdmin && (
                   <a
                     className="flex w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50/70 py-2.5 px-4 text-xs sm:text-sm font-bold text-[#004CB1] hover:bg-blue-100/70 transition"
-                    href={process.env.NEXT_PUBLIC_ADMIN_URL || 'http://localhost:5174/admin/'}
+                    href={resolveAdminPanelUrl()}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      void openAdminPanel({ newTab: true });
+                    }}
                     rel="noreferrer"
                     target="_blank"
                   >

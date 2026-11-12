@@ -66,6 +66,36 @@ describe('admin app authentication boundary & design system branding', () => {
     expect(onAuthenticated).not.toHaveBeenCalled();
   });
 
+  it('exchanges a cross-origin #handoff token into an authenticated admin session', async () => {
+    const onAuthenticated = vi.fn();
+    const replaceState = vi.fn();
+    vi.stubGlobal('location', {
+      origin: 'https://admin-comercialdonorte.vercel.app',
+      pathname: '/admin/',
+      search: '',
+      hash: '#handoff=signed-handoff-ticket-123456',
+      replace: vi.fn(),
+    });
+    vi.stubGlobal('history', { replaceState });
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ user: { email: 'admin@admin.com', roles: ['ADMIN'] } }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<LoginPage onAuthenticated={onAuthenticated} />);
+
+    await waitFor(() => expect(onAuthenticated).toHaveBeenCalledWith('admin@admin.com'));
+    expect(replaceState).toHaveBeenCalledWith(null, '', '/admin/');
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/auth/admin-handoff/exchange',
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'include',
+      }),
+    );
+  });
+
   it('uses the configured storefront origin for the shared login', () => {
     vi.stubEnv('VITE_STOREFRONT_URL', 'https://loja.example/loja');
     try {

@@ -98,4 +98,56 @@ describe('API Route /api/storefront/composition', () => {
     expect(json.success).toBe(true);
     expect(json.message).toContain('excluído');
   });
+
+  it('bloqueia DELETE não autenticado quando VERCEL=1 e sanitiza URLs maliciosas no POST', async () => {
+    vi.stubEnv('VERCEL', '1');
+    const delRes = await DELETE(new Request('https://store.local/api/storefront/composition', {
+      method: 'DELETE',
+      headers: { origin: 'https://store.local' },
+    }));
+    expect(delRes.status).toBe(403);
+
+    vi.stubEnv('VERCEL', '');
+    const evilComposition = {
+      ...defaultHomeComposition,
+      widgets: defaultHomeComposition.widgets.map((widget, idx) =>
+        idx === 0
+          ? { ...widget, props: { ...widget.props, linkUrl: 'javascript:alert(1)' } }
+          : widget,
+      ),
+    };
+    const postRes = await POST(new Request('http://localhost:3001/api/storefront/composition', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-role': 'ADMIN' },
+      body: JSON.stringify(evilComposition),
+    }));
+    expect(postRes.status).toBe(200);
+    const getRes = await GET();
+    const saved = await getRes.json();
+    expect(saved.data.widgets[0].props.linkUrl).toBe('#');
+  });
+
+  it('bloqueia CSRF com Sec-Fetch-Site cross-site ou Referer externo no POST', async () => {
+    const resCrossSite = await POST(new Request('https://store.local/api/storefront/composition', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'sec-fetch-site': 'cross-site',
+        'x-admin-role': 'ADMIN',
+      },
+      body: JSON.stringify(defaultHomeComposition),
+    }));
+    expect(resCrossSite.status).toBe(403);
+
+    const resEvilReferer = await POST(new Request('https://store.local/api/storefront/composition', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        referer: 'https://evil.example/form.html',
+        'x-admin-role': 'ADMIN',
+      },
+      body: JSON.stringify(defaultHomeComposition),
+    }));
+    expect(resEvilReferer.status).toBe(403);
+  });
 });

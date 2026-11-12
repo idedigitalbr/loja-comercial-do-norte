@@ -84,7 +84,7 @@ describe('Workshops & Aulas de Confeitaria Page (White Mode)', () => {
     expect(metadata.alternates?.canonical).toBe('/eventos/workshops/aulas-confeitaria');
   });
 
-  it('renders the top hero identical to the Home Confeitaria section', async () => {
+  it('renders the top hero identical to the Home Confeitaria section using the real workshop events', async () => {
     const Component = await ConfeitariaWorkshopsPage();
     render(Component);
 
@@ -93,8 +93,12 @@ describe('Workshops & Aulas de Confeitaria Page (White Mode)', () => {
     );
     expect(screen.getByText(/Faça suas compras e ganhe/)).toBeDefined();
     expect(screen.getByText('gratuitamente.')).toBeDefined();
-    expect(screen.getByText('Técnicas de decoração para bolos e tortas')).toBeDefined();
-    expect(screen.getByText('Doces finos e sobremesas para vender')).toBeDefined();
+    expect(screen.queryByText('Técnicas de decoração para bolos e tortas')).toBeNull();
+    expect(screen.queryByText('Doces finos e sobremesas para vender')).toBeNull();
+    expect(screen.getAllByText('Workshop de Confeitaria Teste').length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByRole('link', { name: 'Ver Completo' }).getAttribute('href')).toBe(
+      '/evento/workshop/aulas-confeitaria/workshop-confeitaria-teste'
+    );
     expect(screen.getAllByAltText('Workshop de Confeitaria').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('Ver todos').length).toBeGreaterThanOrEqual(1);
   });
@@ -103,8 +107,8 @@ describe('Workshops & Aulas de Confeitaria Page (White Mode)', () => {
     const Component = await ConfeitariaWorkshopsPage();
     render(Component);
 
-    expect(screen.getByText('Workshop de Confeitaria Teste')).toBeDefined();
-    expect(screen.getByText(/10 de Novembro/)).toBeDefined();
+    expect(screen.getAllByText('Workshop de Confeitaria Teste').length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText(/10 de Novembro/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('Centro Técnico Comercial do Norte').length).toBeGreaterThanOrEqual(1);
 
     const ctaLinks = screen.getAllByRole('link', { name: /Garantir Vaga/i });

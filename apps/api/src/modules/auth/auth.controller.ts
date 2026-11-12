@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { IsEmail, IsString, Length, MinLength } from 'class-validator';
 import type { Request, Response } from 'express';
+import { PublicRateLimit, PublicRateLimitGuard } from '../../common/security/public-rate-limit.guard';
 import { AuthService } from './auth.service';
 import { SessionGuard } from './guards/session.guard';
 
@@ -44,20 +45,29 @@ class RegisterDto {
   lastName!: string;
 }
 
+class AdminHandoffExchangeDto {
+  @IsString()
+  @MinLength(16)
+  code!: string;
+}
+
 type RequestWithCookies = Request & {
   cookies?: Record<string, string | undefined>;
 };
 
+@UseGuards(PublicRateLimitGuard)
 @Controller('auth')
 export class AuthController {
   constructor(@Inject(AuthService) private readonly authService: AuthService) {}
 
+  @PublicRateLimit({ limit: 20, windowMs: 60_000 })
   @Post('check-email')
   async checkEmail(@Body() body: CheckEmailDto) {
     const exists = await this.authService.checkEmailExists(body.email);
     return { exists };
   }
 
+  @PublicRateLimit({ limit: 15, windowMs: 60_000 })
   @Post('login')
   async login(@Body() body: LoginDto, @Res({ passthrough: true }) response: Response) {
     const session = await this.authService.login(body.email, body.password);
@@ -65,14 +75,34 @@ export class AuthController {
     return { user: session.user };
   }
 
+  @PublicRateLimit({ limit: 5, windowMs: 60_000 })
   @Post('register')
   register(@Body() body: RegisterDto) {
     return this.authService.register(body);
   }
 
+  @PublicRateLimit({ limit: 20, windowMs: 60_000 })
   @Post('refresh')
   async refresh(@Req() request: RequestWithCookies, @Res({ passthrough: true }) response: Response) {
     const session = await this.authService.refresh(request.cookies?.je_refresh ?? '');
+    this.setSessionCookies(response, session.accessToken, session.refreshToken, session.expiresAt);
+    return { user: session.user };
+  }
+
+  @UseGuards(SessionGuard)
+  @PublicRateLimit({ limit: 20, windowMs: 60_000 })
+  @Post('admin-handoff')
+  createAdminHandoff(@Req() request: RequestWithCookies) {
+    const authHeader = typeof request.headers?.authorization === 'string' ? request.headers.authorization : undefined;
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
+    const token = request.cookies?.je_access || bearerToken || '';
+    return this.authService.createAdminHandoffCode(token);
+  }
+
+  @PublicRateLimit({ limit: 20, windowMs: 60_000 })
+  @Post('admin-handoff/exchange')
+  async exchangeAdminHandoff(@Body() body: AdminHandoffExchangeDto, @Res({ passthrough: true }) response: Response) {
+    const session = await this.authService.exchangeAdminHandoffCode(body.code);
     this.setSessionCookies(response, session.accessToken, session.refreshToken, session.expiresAt);
     return { user: session.user };
   }
@@ -108,7 +138,7 @@ export class AuthController {
   }
 
   private cookieOptions() {
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
     return {
       httpOnly: true,
       secure: isProduction,

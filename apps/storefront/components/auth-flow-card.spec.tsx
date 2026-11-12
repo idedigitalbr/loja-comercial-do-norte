@@ -125,4 +125,21 @@ describe('AuthFlowCard', () => {
     expect(screen.getByText('ADM EDITOR')).toBeTruthy();
     expect(screen.getByText('Acessar Painel Administrativo')).toBeTruthy();
   });
+
+  it('bloqueia open redirect em ?redirect= externo após autenticação', async () => {
+    mockLogin.mockResolvedValueOnce({ ok: true, isAdmin: false });
+    const navMod = await import('next/navigation');
+    vi.mocked(navMod.useSearchParams).mockReturnValueOnce({
+      get: vi.fn((key: string) => (key === 'redirect' ? 'https://evil.example/phish' : null)),
+    } as never);
+
+    render(<AuthFlowCard />);
+    fireEvent.click(screen.getByText('Ver Senhas'));
+    const clienteBtn = screen.getByRole('button', { name: /Entrar Direto \(CLIENTE\)/i });
+    fireEvent.click(clienteBtn);
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/');
+    });
+  });
 });

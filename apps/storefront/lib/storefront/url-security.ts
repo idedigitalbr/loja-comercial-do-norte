@@ -242,7 +242,7 @@ export function sanitizePropsObject<T>(
 }
 
 export function sanitizeCompositionProps<
-  T extends { widgets?: Array<{ props?: Record<string, unknown> }> },
+  T extends { widgets?: Array<{ props?: object }> },
 >(
   composition: T,
   options: { allowSafeRasterDataUrl?: boolean } = {},
@@ -257,7 +257,7 @@ export function sanitizeCompositionProps<
       ...widget,
       props: sanitizePropsObject(widget.props ?? {}, options),
     })),
-  };
+  } as T;
 }
 
 export function resolveSafeRedirectUrl(
@@ -310,4 +310,57 @@ export function resolveSafeRedirectUrl(
   }
 
   return isAdmin ? adminUrl : '/';
+}
+
+export function validateSameOriginRequest(request: Request): {
+  allowed: boolean;
+  reason?: string;
+} {
+  let expectedOrigin = '';
+  try {
+    expectedOrigin = new URL(request.url).origin;
+  } catch {
+    return { allowed: false, reason: 'URL de requisição inválida.' };
+  }
+
+  const secFetchSite = request.headers.get('sec-fetch-site')?.toLowerCase();
+  if (secFetchSite === 'cross-site') {
+    return { allowed: false, reason: 'Requisição cross-site não autorizada.' };
+  }
+
+  const originHeader = request.headers.get('origin')?.trim();
+  if (originHeader) {
+    if (originHeader !== expectedOrigin) {
+      return { allowed: false, reason: 'Origem não autorizada.' };
+    }
+    return { allowed: true };
+  }
+
+  const refererHeader = request.headers.get('referer')?.trim();
+  if (refererHeader) {
+    try {
+      const refererOrigin = new URL(refererHeader).origin;
+      if (refererOrigin !== expectedOrigin) {
+        return { allowed: false, reason: 'Referer não autorizado.' };
+      }
+      return { allowed: true };
+    } catch {
+      return { allowed: false, reason: 'Referer inválido.' };
+    }
+  }
+
+  const isProductionEnv =
+    process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  const hasBearerAuth = /^Bearer\s+\S+/i.test(
+    request.headers.get('authorization') ?? '',
+  );
+
+  if (isProductionEnv && !hasBearerAuth && secFetchSite !== 'same-origin') {
+    return {
+      allowed: false,
+      reason: 'Cabeçalho de origem obrigatório para esta operação.',
+    };
+  }
+
+  return { allowed: true };
 }

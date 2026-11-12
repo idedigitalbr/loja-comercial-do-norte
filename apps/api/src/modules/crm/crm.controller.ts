@@ -16,11 +16,26 @@ export class CrmController {
 
   @PublicRateLimit({ limit: 30, windowMs: 60_000 })
   @Get('leads/session')
-  async getLeadSession(
-    @Query('publicId') publicId?: string,
-    @Query('phone') phone?: string
-  ) {
-    const lead = await this.crmService.getLeadSession({ publicId, phone });
-    return { found: Boolean(lead), lead };
+  async getLeadSession(@Query('publicId') publicId?: string) {
+    const cleanPublicId = publicId?.trim();
+    if (!cleanPublicId) {
+      return { found: false, lead: null };
+    }
+    const lead = await this.crmService.getLeadSession({ publicId: cleanPublicId });
+    if (!lead) {
+      return { found: false, lead: null };
+    }
+    return {
+      found: true,
+      lead: {
+        publicId: lead.publicId,
+        customerName: lead.customerName,
+        customerPhone: lead.customerPhone,
+        preferredStore: lead.preferredStore,
+        storeId: lead.storeId,
+        subject: lead.subject,
+        conversationLog: lead.conversationLog,
+      },
+    };
   }
 }

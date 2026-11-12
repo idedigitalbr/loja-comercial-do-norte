@@ -21,6 +21,41 @@ export function LoginPage({ onAuthenticated }: { onAuthenticated: (email: string
 
     async function checkSession() {
       try {
+        const rawHash = window.location.hash ?? '';
+        const hashParams = new URLSearchParams(rawHash.startsWith('#') ? rawHash.slice(1) : rawHash);
+        const handoffCode = hashParams.get('handoff')?.trim();
+
+        if (handoffCode) {
+          try {
+            window.history.replaceState(
+              null,
+              '',
+              `${window.location.pathname || '/admin/'}${window.location.search || ''}`,
+            );
+          } catch {
+            // Ignora em ambientes sem history.replaceState disponível
+          }
+          const exchangeResponse = await fetch('/api/v1/auth/admin-handoff/exchange', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ code: handoffCode }),
+          });
+          if (!active) return;
+          if (exchangeResponse.ok) {
+            const payload = (await exchangeResponse.json()) as { user?: AuthenticatedUser };
+            if (!active) return;
+            if (payload.user?.email && payload.user.roles?.includes('ADMIN')) {
+              onAuthenticated(payload.user.email);
+              return;
+            }
+          } else if (exchangeResponse.status >= 500) {
+            throw new SessionCheckError(
+              'Não foi possível verificar sua sessão. Verifique se a API e o banco de dados locais estão ativos e tente novamente.',
+            );
+          }
+        }
+
         const response = await fetch('/api/v1/auth/me', { credentials: 'include' });
         if (!active) return;
         if (response.status === 401) {

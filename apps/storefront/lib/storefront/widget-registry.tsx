@@ -43,7 +43,7 @@ export function renderWidget(widget: WidgetConfig, contextData: WidgetContextDat
     case 'events-carousel':
       return <EventsCarouselWidget key={widget.id} widgetId={widget.id} {...widget.props} />;
     case 'video-articles-carousel':
-      return <VideoArticlesCarouselWidget key={widget.id} widgetId={widget.id} {...widget.props} />;
+      return <VideoArticlesCarouselWidget contextData={contextData} key={widget.id} widgetId={widget.id} {...widget.props} />;
     case 'instagram-feed':
       return <InstagramFeedWidget key={widget.id} widgetId={widget.id} {...widget.props} />;
     case 'testimonials-grid':

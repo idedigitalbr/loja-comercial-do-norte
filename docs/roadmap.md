@@ -1,5 +1,10 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **12/11/2026 — Unificação de Cotações no CRM (`CRM (Leads & Cotações)`) e Redesign da UI (executorId: `antigravity-gemini`):**
+  - **Banco LOCAL (`127.0.0.1:55432`) & API:** Aplicada migration aditiva `20261112100000_link_quotes_to_crm_leads` (`Quote.crmLeadId` -> `CrmLead`). Novas cotações da loja criam/vinculam lead automaticamente (`QuotesService.create`), transições de cotação sincronizam o estágio no funil (`QuotesService.transition`) e cotações legadas sem vínculo são migradas automaticamente em `CrmService.listLeads`.
+  - **Admin (`CRM (Leads & Cotações)`):** Menu lateral unificado em `CRM (Leads & Cotações)` com compatibilidade de rotas `/admin/cotacoes`, toggle `Kanban | Lista`, filtros por origem (`Todos`, `Com Cotação`, `Chat Norti`), drag-and-drop, cards com prévia de cotação e drawer completo com itens, ações da cotação, histórico do Chat Norti e notas internas.
+  - **Validação:** `admin` (`52` testes, `typecheck`, `lint`, `vite build`), `api` (`24` testes de `crm`/`quotes`, `typecheck`, `lint`) e `storefront` (`5` testes de `cotacao-page.spec.tsx`) verdes.
+
 - **11/11/2026 — Preparação Estrutural, Remoção WooCommerce, Kit Importador IA e Carga Local do Catálogo 2026 (executorId: `antigravity-gemini`):**
   - **Banco LOCAL (`127.0.0.1:55432`) Atualizado (Neon online intocado):** Aplicada migration aditiva `20261111150000_catalog_health_variants_and_nullable_price` com preços anuláveis (`QUOTE_ONLY`), semáforo `GREEN`/`YELLOW`/`RED` (`auditHealth`, `auditIssueCodes`, `auditIssues`), variantes estruturadas, embalagens e preparo para cálculo futuro de frete (`freightReady`).
   - **Catálogo Real Importado no Local:** Limpos os 120 produtos/cotações demo preservando marcas originais, categorias, segmentos, tags, usuários, banners (`seed-banner-*`), blog e eventos. Importados **729 produtos pais** (`697 ACTIVE` com etiqueta `YELLOW` e `32 DRAFT` bloqueados em `RED` por GTIN/código/imagem divergente para revisão) e **827 variações** com imagens WebP (`480/960/1440`) geradas em `apps/api/storage/uploads/cn-cat/` e espelhadas para `apps/storefront/public/storage/`.

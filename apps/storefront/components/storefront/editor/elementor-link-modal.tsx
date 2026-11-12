@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Check, ExternalLink, Link2, Unlink, X } from 'lucide-react';
+import { isValidLinkUrl } from '@/lib/storefront/url-security';
 
 interface ElementorLinkModalProps {
   isOpen: boolean;
@@ -28,10 +29,13 @@ export function ElementorLinkModal({
 
   if (!isOpen) return null;
 
-  const hasActiveLink = Boolean(linkInput && linkInput.trim() !== '' && linkInput !== '#');
+  const trimmedInput = linkInput.trim();
+  const isLinkValid = isValidLinkUrl(trimmedInput);
+  const hasActiveLink = Boolean(trimmedInput !== '' && trimmedInput !== '#' && isLinkValid);
 
   const handleConfirm = () => {
-    onSaveLink(linkInput.trim());
+    if (!isLinkValid) return;
+    onSaveLink(trimmedInput);
     onClose();
   };
 
@@ -119,16 +123,22 @@ export function ElementorLinkModal({
               className="w-full rounded-xl border border-zinc-800 bg-zinc-900/90 px-4 py-3 text-xs text-white placeholder-zinc-500 focus:border-sky-400 outline-none transition focus:ring-1 focus:ring-sky-400"
               onChange={(e) => setLinkInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') handleConfirm();
+                if (e.key === 'Enter' && isLinkValid) handleConfirm();
                 if (e.key === 'Escape') onClose();
               }}
               placeholder="Ex: /loja ou https://wa.me/5591981242095"
               type="text"
               value={linkInput}
             />
-            <p className="mt-1.5 text-[11px] text-zinc-500">
-              Se este campo estiver vazio, o banner não terá clique (não abrirá nenhuma página ao ser tocado).
-            </p>
+            {!isLinkValid ? (
+              <p className="mt-1.5 text-[11px] font-medium text-red-400">
+                URL inválida. Utilize caminho interno (`/rota`), `#ancora`, `https://`, `http://`, `mailto:` ou `tel:`.
+              </p>
+            ) : (
+              <p className="mt-1.5 text-[11px] text-zinc-500">
+                Se este campo estiver vazio, o banner não terá clique (não abrirá nenhuma página ao ser tocado).
+              </p>
+            )}
           </div>
 
           {/* Destinos Rápidos */}
@@ -185,7 +195,8 @@ export function ElementorLinkModal({
               Cancelar
             </button>
             <button
-              className="flex cursor-pointer items-center gap-2 rounded-xl bg-white px-5 py-2 text-xs font-bold text-zinc-950 shadow-md transition hover:bg-zinc-200"
+              className="flex cursor-pointer items-center gap-2 rounded-xl bg-white px-5 py-2 text-xs font-bold text-zinc-950 shadow-md transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={!isLinkValid}
               onClick={handleConfirm}
               type="button"
             >

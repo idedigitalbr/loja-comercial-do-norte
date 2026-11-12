@@ -18,6 +18,15 @@ import {
   UploadCloud,
   X,
 } from "lucide-react";
+import { isValidImageUrl, sanitizeImageUrl } from "@/lib/storefront/url-security";
+
+const ALLOWED_RASTER_MIME_TYPES = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+]);
+const MAX_BANNER_UPLOAD_BYTES = 10 * 1024 * 1024;
+const MAX_DEV_OFFLINE_DATA_URL_BYTES = 2 * 1024 * 1024;
 
 export interface MediaLibraryItem {
   id: string;
@@ -732,6 +741,8 @@ export function ElementorMediaModal({
   } | null>(null);
   const [customUrl, setCustomUrl] = useState("");
   const [customUrlError, setCustomUrlError] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [selectedSource, setSelectedSource] = useState<"file" | "url" | null>(
     null,
   );
@@ -782,22 +793,97 @@ export function ElementorMediaModal({
 
   if (!isOpen) return null;
 
-  const loadFile = (file: File) => {
+  const loadFile = async (file: File) => {
+    setUploadError(null);
+    const mimeType = file.type.toLowerCase();
+    if (!ALLOWED_RASTER_MIME_TYPES.has(mimeType)) {
+      setUploadError(
+        "Formato não suportado. Por segurança (prevenção contra SVG/XSS), envie apenas imagens PNG, JPG ou WebP.",
+      );
+      return;
+    }
+    if (file.size > MAX_BANNER_UPLOAD_BYTES) {
+      setUploadError("Arquivo excede o limite de 10 MB.");
+      return;
+    }
+
     const sizeKB = (file.size / 1024).toFixed(1);
     const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
     const sizeFormatted =
       file.size > 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
 
+    const isProdEnv =
+      process.env.NODE_ENV === "production" ||
+      Boolean(process.env.NEXT_PUBLIC_VERCEL_ENV);
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch("/api/v1/admin/settings/media/banner", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const json = await response.json().catch(() => null);
+        const remotePath =
+          (json && typeof json.path === "string" && json.path) ||
+          (json?.data && typeof json.data.path === "string" && json.data.path) ||
+          "";
+        const safePath = sanitizeImageUrl(remotePath);
+        if (safePath) {
+          setUploadedFile({
+            dataUrl: safePath,
+            name: file.name,
+            sizeFormatted,
+          });
+          setSelectedSource("file");
+          return;
+        }
+      }
+
+      if (isProdEnv || response.status === 400 || response.status === 413 || response.status === 415) {
+        setUploadError(
+          response.status === 401 || response.status === 403
+            ? "Sessão administrativa necessária para enviar imagens."
+            : "Falha ao enviar a imagem para o servidor. Verifique formato (PNG/JPG/WebP) e tamanho.",
+        );
+        return;
+      }
+    } catch {
+      if (isProdEnv) {
+        setUploadError("Não foi possível conectar ao servidor de mídia.");
+        return;
+      }
+    } finally {
+      setIsUploading(false);
+    }
+
+    // Fallback offline exclusivo de desenvolvimento para arquivos raster pequenos
+    if (file.size > MAX_DEV_OFFLINE_DATA_URL_BYTES) {
+      setUploadError(
+        "API de mídia indisponível e arquivo maior que 2 MB para pré-visualização local.",
+      );
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const result = event.target?.result as string;
-      if (result) {
+      const safeDataUrl = sanitizeImageUrl(result, "", {
+        allowSafeRasterDataUrl: true,
+      });
+      if (safeDataUrl) {
         setUploadedFile({
-          dataUrl: result,
+          dataUrl: safeDataUrl,
           name: file.name,
           sizeFormatted,
         });
         setSelectedSource("file");
+      } else {
+        setUploadError("Imagem inválida ou não suportada.");
       }
     };
     reader.readAsDataURL(file);
@@ -806,7 +892,7 @@ export function ElementorMediaModal({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      loadFile(file);
+      void loadFile(file);
     }
   };
 
@@ -827,8 +913,8 @@ export function ElementorMediaModal({
     e.stopPropagation();
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      loadFile(file);
+    if (file) {
+      void loadFile(file);
     }
   };
 
@@ -915,6 +1001,11 @@ export function ElementorMediaModal({
       .flatMap((s) => s.items)
       .find((m) => m.url === selectedUrl);
 
+  const trimmedCustomUrl = customUrl.trim();
+  const isCustomUrlValid =
+    !trimmedCustomUrl ||
+    isValidImageUrl(trimmedCustomUrl, { allowSafeRasterDataUrl: false });
+
   const handleConfirm = () => {
     if (activeTab === "upload") {
       if (selectedSource === "file" && uploadedFile) {
@@ -922,8 +1013,13 @@ export function ElementorMediaModal({
         onClose();
         return;
       }
-      if (selectedSource === "url" && customUrl.trim()) {
-        onSelectImage(customUrl.trim(), "Imagem Externa");
+      if (selectedSource === "url" && trimmedCustomUrl) {
+        const safeUrl = sanitizeImageUrl(trimmedCustomUrl);
+        if (!safeUrl) {
+          setCustomUrlError(true);
+          return;
+        }
+        onSelectImage(safeUrl, "Imagem Externa");
         onClose();
         return;
       }
@@ -932,13 +1028,20 @@ export function ElementorMediaModal({
         onClose();
         return;
       }
-      if (customUrl.trim()) {
-        onSelectImage(customUrl.trim(), "Imagem Externa");
+      if (trimmedCustomUrl) {
+        const safeUrl = sanitizeImageUrl(trimmedCustomUrl);
+        if (!safeUrl) {
+          setCustomUrlError(true);
+          return;
+        }
+        onSelectImage(safeUrl, "Imagem Externa");
         onClose();
         return;
       }
     } else if (activeTab === "library" && selectedUrl) {
-      onSelectImage(selectedUrl, selectedItem?.name);
+      const safeSelected = sanitizeImageUrl(selectedUrl);
+      if (!safeSelected) return;
+      onSelectImage(safeSelected, selectedItem?.name);
       onClose();
     }
   };
@@ -952,7 +1055,12 @@ export function ElementorMediaModal({
 
   // Verifica se o botão confirmar está habilitado
   const isConfirmDisabled =
-    activeTab === "upload" ? !uploadedFile && !customUrl.trim() : !selectedUrl;
+    isUploading ||
+    (activeTab === "upload"
+      ? selectedSource === "url"
+        ? !trimmedCustomUrl || !isCustomUrlValid
+        : !uploadedFile && (!trimmedCustomUrl || !isCustomUrlValid)
+      : !selectedUrl);
 
   return (
     <div
@@ -964,7 +1072,7 @@ export function ElementorMediaModal({
         onClick={(e) => e.stopPropagation()}
       >
         <input
-          accept="image/*"
+          accept="image/png,image/jpeg,image/webp"
           className="hidden"
           id={fileInputId}
           onChange={handleFileChange}
@@ -1077,9 +1185,21 @@ export function ElementorMediaModal({
                       Fazer Upload do Computador
                     </label>
                     <span className="text-[11px] text-zinc-500">
-                      PNG, JPG, WebP, GIF ou SVG
+                      PNG, JPG ou WebP (máx. 10 MB)
                     </span>
                   </div>
+
+                  {uploadError && (
+                    <div className="rounded-xl border border-rose-500/40 bg-rose-950/30 px-3.5 py-2.5 text-xs text-rose-300">
+                      {uploadError}
+                    </div>
+                  )}
+
+                  {isUploading && (
+                    <div className="rounded-xl border border-sky-500/30 bg-sky-950/20 px-3.5 py-2 text-xs text-sky-300">
+                      Enviando imagem com segurança para o servidor...
+                    </div>
+                  )}
 
                   {!uploadedFile ? (
                     <div
@@ -1229,7 +1349,7 @@ export function ElementorMediaModal({
                   </div>
 
                   {/* Live URL Preview */}
-                  {customUrl.trim() && (
+                  {trimmedCustomUrl && (
                     <div className="flex flex-col rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-semibold text-zinc-300">
@@ -1240,10 +1360,18 @@ export function ElementorMediaModal({
                         </span>
                       </div>
                       <div className="relative aspect-video max-w-md min-h-[100px] overflow-hidden rounded-xl border border-zinc-800 bg-black">
-                        {customUrlError ? (
+                        {!isCustomUrlValid || customUrlError ? (
                           <div className="flex h-full w-full flex-col items-center justify-center p-4 text-center text-xs text-rose-400">
-                            <span className="font-bold mb-1">Aviso: Imagem não encontrada</span>
-                            <span>Verifique se o link é público e direto.</span>
+                            <span className="font-bold mb-1">
+                              {!isCustomUrlValid
+                                ? "URL bloqueada por segurança"
+                                : "Aviso: Imagem não encontrada"}
+                            </span>
+                            <span>
+                              {!isCustomUrlValid
+                                ? "Utilize apenas URLs HTTPS ou caminhos internos (/assets/..., /storage/...)."
+                                : "Verifique se o link é público e direto."}
+                            </span>
                           </div>
                         ) : (
                           /* eslint-disable-next-js/next/no-img-element */
@@ -1251,7 +1379,7 @@ export function ElementorMediaModal({
                             alt="Pré-visualização da URL"
                             className="absolute inset-0 size-full object-contain"
                             onError={() => setCustomUrlError(true)}
-                            src={customUrl.trim()}
+                            src={trimmedCustomUrl}
                           />
                         )}
                       </div>

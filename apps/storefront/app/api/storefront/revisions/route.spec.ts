@@ -84,4 +84,18 @@ describe('API Route /api/storefront/revisions', () => {
     expect(json.message).toContain('restaurada com sucesso');
     expect(json.data.id).toBe(targetRev.id);
   });
+
+  it('POST bloqueia requisição cross-site ou origin externo com 403', async () => {
+    const postReq = new Request('https://store.local/api/storefront/revisions', {
+      method: 'POST',
+      body: JSON.stringify({ revisionId: 'rev-1' }),
+      headers: {
+        'Content-Type': 'application/json',
+        'sec-fetch-site': 'cross-site',
+        'x-admin-role': 'ADMIN',
+      },
+    });
+    const postRes = await POST(postReq);
+    expect(postRes.status).toBe(403);
+  });
 });

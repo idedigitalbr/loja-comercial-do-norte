@@ -1,7 +1,8 @@
 import { HomeView } from '@/components/storefront/home-view';
 import { getStorefrontComposition } from '@/lib/storefront/composition-storage';
-import { getBrands, getCategories, getOffers, getProductsPage, getSiteConfig } from '@/lib/api';
+import { getBrands, getCategories, getEvents, getOffers, getProductsPage, getSiteConfig } from '@/lib/api';
 import { interleaveDistinctProducts } from '@/lib/catalog-filters';
+import { filterConfeitariaEvents } from '@/lib/events-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +18,7 @@ export default async function HomePage() {
     pSacolas,
     pFestas,
     pPotes,
+    rawEvents,
     composition,
   ] = await Promise.all([
     getSiteConfig(),
@@ -29,8 +31,11 @@ export default async function HomePage() {
     getProductsPage({ category: 'sacos-e-sacolas', page: 1, pageSize: 16, sort: 'name_asc' }),
     getProductsPage({ category: 'artigos-para-festa', page: 1, pageSize: 16, sort: 'newest' }),
     getProductsPage({ category: 'potes-marmitas-plasticas-e-tampas', page: 1, pageSize: 16, sort: 'newest' }),
+    getEvents(),
     getStorefrontComposition(),
   ]);
+
+  const events = filterConfeitariaEvents(rawEvents);
 
   const products = interleaveDistinctProducts(
     [
@@ -49,6 +54,7 @@ export default async function HomePage() {
     brands,
     offers,
     products,
+    events,
   };
 
   return (

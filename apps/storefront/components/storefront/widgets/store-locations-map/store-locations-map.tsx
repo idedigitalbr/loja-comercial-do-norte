@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { Clock, ExternalLink, MapPin, Navigation, Phone, Search, Star } from 'lucide-react';
+import { sanitizeImageUrl, sanitizeLinkUrl, sanitizeMapEmbedUrl } from '@/lib/storefront/url-security';
 import type { StoreLocationsMapProps } from '@/lib/storefront/widget-types';
 
 function parseHoursRange(text?: string) {
@@ -202,12 +203,12 @@ export function StoreLocationsMapWidget({
       const q = `${activeLocation.name}, ${activeLocation.address}`;
       return `https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
     }
-    return mapEmbedUrl;
+    return sanitizeMapEmbedUrl(mapEmbedUrl, 'https://www.google.com/maps?q=Comercial+do+Norte+Belem+PA&output=embed');
   }, [activeLocation, mapEmbedUrl]);
 
   const mapExternalUrl = useMemo(() => {
     if (activeLocation?.mapQueryUrl) {
-      return activeLocation.mapQueryUrl;
+      return sanitizeLinkUrl(activeLocation.mapQueryUrl, 'https://www.google.com/maps/search/Comercial+do+Norte+Belem+PA');
     }
     const q = activeLocation
       ? `${activeLocation.name} ${activeLocation.address}`
@@ -239,12 +240,12 @@ export function StoreLocationsMapWidget({
           }
         },
         () => {
-          window.open('https://www.google.com/maps/search/Comercial+do+Norte+Belem+PA', '_blank');
+          window.open('https://www.google.com/maps/search/Comercial+do+Norte+Belem+PA', '_blank', 'noopener,noreferrer');
         },
         { enableHighAccuracy: true, timeout: 5000 },
       );
     } else {
-      window.open('https://www.google.com/maps/search/Comercial+do+Norte+Belem+PA', '_blank');
+      window.open('https://www.google.com/maps/search/Comercial+do+Norte+Belem+PA', '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -321,7 +322,7 @@ export function StoreLocationsMapWidget({
                             alt={loc.name}
                             className="size-full object-cover"
                             height={140}
-                            src={loc.imageUrl || '/assets/HOME Vitrine/S0-FOOTER/loja-comercial-do-norte-jurunas.webp'}
+                            src={sanitizeImageUrl(loc.imageUrl, '/assets/HOME Vitrine/S0-FOOTER/loja-comercial-do-norte-jurunas.webp')}
                             unoptimized
                             width={140}
                           />
@@ -370,7 +371,7 @@ export function StoreLocationsMapWidget({
                             {loc.phone && (
                               <a
                                 className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-300 transition-colors hover:text-white hover:underline"
-                                href={loc.whatsappUrl || `https://wa.me/55${loc.phone.replace(/\D/g, '')}`}
+                                href={sanitizeLinkUrl(loc.whatsappUrl, `https://wa.me/55${loc.phone.replace(/\D/g, '')}`)}
                                 onClick={(e) => e.stopPropagation()}
                                 rel="noopener noreferrer"
                                 target="_blank"
