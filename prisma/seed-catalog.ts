@@ -477,7 +477,7 @@ const demoEvents = [
     subtitle: 'Técnicas de ponto perfeito, texturas aveludadas e embalagens de luxo',
     description: 'Workshop mão na massa com receitas consagradas de brigadeiros gourmet, trufas finas, banho de chocolate nobre e apresentação em forminhas especiais e caixas rígidas para festas sofisticadas.',
     posterUrl: '/assets/confeitaria/01-listagem-eventos/04-card-brigadeiros-gourmet.jpg',
-    eventDateText: '18 de Novembro de 2024',
+    eventDateText: '18 de Novembro',
     eventTime: '13h30 às 17h30',
     location: 'Centro Técnico Comercial do Norte',
     locationAddress: 'Av. Bernardo Sayão — Belém/PA',

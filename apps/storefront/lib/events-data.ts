@@ -206,7 +206,7 @@ export const CONFEITARIA_WORKSHOPS: EventItem[] = [
     posterUrl: '/assets/confeitaria/01-listagem-eventos/04-card-brigadeiros-gourmet.jpg',
     heroUrl: '/assets/confeitaria/02-pagina-workshop/02-hero-doces-finos-degrade-pronto.png',
     aboutPhotoUrl: '/assets/confeitaria/02-pagina-workshop/03-foto-brigadeiros-sobre-o-evento.jpg',
-    eventDateText: '18 de Novembro de 2024',
+    eventDateText: '18 de Novembro',
     eventWeekday: 'Segunda-feira',
     eventTime: '13h30 às 17h30',
     durationText: '4 horas de workshop',
