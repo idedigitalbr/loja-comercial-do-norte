@@ -750,7 +750,7 @@ async function runImport() {
             },
           });
         }
-      });
+      }, { maxWait: 15000, timeout: 60000 });
     }
 
     const sortedIssues = Array.from(stats.issueFrequency.entries()).sort((a, b) => b[1] - a[1]);
