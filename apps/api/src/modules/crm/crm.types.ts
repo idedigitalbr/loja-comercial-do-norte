@@ -92,6 +92,11 @@ export class ListCrmLeadsQueryDto {
   search?: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  origin?: string;
+
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)

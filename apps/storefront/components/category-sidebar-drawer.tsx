@@ -5,31 +5,23 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@commerce/ui/web";
 import {
-  Boxes,
-  Bike,
-  CakeSlice,
-  Candy,
   ChevronDown,
   ChevronRight,
   ChevronUp,
-  Croissant,
-  CupSoda,
-  IceCream2,
-  Milk,
   Package,
   PanelLeft,
-  PartyPopper,
-  Pizza,
-  Sandwich,
   Search,
-  ShoppingBag,
-  Sparkles,
   Store,
   Tag as TagIcon,
-  UtensilsCrossed,
-  Wine,
   X,
 } from "lucide-react";
+import {
+  DEFAULT_FALLBACK_SEGMENTS,
+  DEFAULT_FALLBACK_TAGS,
+  getCategoryIcon,
+  getSegmentIcon,
+  normalizeCategoryTree,
+} from "@/lib/taxonomy-ui";
 import type { ApiCategory, ApiSegment, ApiTag } from "@/lib/types";
 
 export type CategorySidebarDrawerProps = {
@@ -39,116 +31,6 @@ export type CategorySidebarDrawerProps = {
   segments?: ApiSegment[];
   tags?: ApiTag[];
 };
-
-// Fallbacks caso os dados ainda estejam carregando ou venham vazios
-const DEFAULT_FALLBACK_CATEGORIES: Array<{
-  id: string;
-  name: string;
-  slug: string;
-  subcategories: Array<{ name: string; slug: string }>;
-}> = [
-  {
-    id: "artigos-para-festa",
-    name: "Artigos para Festa",
-    slug: "artigos-para-festa",
-    subcategories: [{ name: "Velas e Suprimentos", slug: "velas-e-suprimentos" }],
-  },
-  {
-    id: "descartaveis",
-    name: "Descartáveis",
-    slug: "descartaveis",
-    subcategories: [
-      { name: "Copos", slug: "copos" },
-      { name: "Pratos", slug: "pratos" },
-    ],
-  },
-  {
-    id: "embalagens",
-    name: "Embalagens",
-    slug: "embalagens",
-    subcategories: [
-      { name: "Caixas e Bandejas", slug: "caixas-e-bandejas" },
-      { name: "Filme e Alumínio", slug: "filme-e-aluminio" },
-    ],
-  },
-  {
-    id: "doces-e-bomboniere",
-    name: "Doces e Bomboniere",
-    slug: "doces-e-bomboniere",
-    subcategories: [],
-  },
-  {
-    id: "frios-e-laticinios",
-    name: "Frios e Laticínios",
-    slug: "frios-e-laticinios",
-    subcategories: [],
-  },
-  {
-    id: "mercearia",
-    name: "Mercearia",
-    slug: "mercearia",
-    subcategories: [],
-  },
-  {
-    id: "produtos-de-limpeza",
-    name: "Produtos de Limpeza",
-    slug: "produtos-de-limpeza",
-    subcategories: [],
-  },
-  {
-    id: "sacos-e-sacolas",
-    name: "Sacos e Sacolas",
-    slug: "sacos-e-sacolas",
-    subcategories: [],
-  },
-];
-
-const DEFAULT_FALLBACK_SEGMENTS: ApiSegment[] = [
-  { id: "seg_lanchonete", name: "Lanchonetes & Hamburguerias", slug: "lanchonete" },
-  { id: "seg_pizzaria", name: "Pizzarias & Esfiharias", slug: "pizzaria" },
-  { id: "seg_padaria", name: "Padarias & Confeitarias", slug: "padaria" },
-  { id: "seg_festas", name: "Festas & Eventos", slug: "loja-de-festas" },
-  { id: "seg_delivery", name: "Delivery", slug: "delivery" },
-  { id: "seg_buffet", name: "Restaurantes & Buffets", slug: "restaurante-buffet" },
-  { id: "seg_confeitaria", name: "Doces & Confeitaria Caseira", slug: "confeitaria-bolos" },
-  { id: "seg_sorveteria", name: "Sorveterias & Açaís", slug: "sorveteria-acai" },
-  { id: "seg_bar", name: "Bares & Distribuidoras", slug: "bar-distribuidora" },
-];
-
-const DEFAULT_FALLBACK_TAGS: ApiTag[] = [
-  { id: "tag_biodegradavel", name: "Biodegradável", slug: "biodegradavel" },
-  { id: "tag_descartavel", name: "Descartável", slug: "descartavel" },
-  { id: "tag_kraft", name: "Kraft", slug: "kraft" },
-  { id: "tag_reforcado", name: "Reforçado", slug: "reforcado" },
-  { id: "tag_termico", name: "Térmico", slug: "termico" },
-  { id: "tag_transparente", name: "Transparente", slug: "transparente" },
-  { id: "tag_microondas", name: "Vai ao Micro-ondas", slug: "vai-ao-micro-ondas" },
-];
-
-function getCategoryIcon(slug: string) {
-  if (slug.includes("festa")) return PartyPopper;
-  if (slug.includes("descartaveis") || slug.includes("copo")) return CupSoda;
-  if (slug.includes("embalagens") || slug.includes("caixa")) return Boxes;
-  if (slug.includes("doce") || slug.includes("bomboniere")) return Candy;
-  if (slug.includes("frio") || slug.includes("laticinio")) return Milk;
-  if (slug.includes("mercearia")) return Store;
-  if (slug.includes("limpeza")) return Sparkles;
-  if (slug.includes("saco") || slug.includes("sacola")) return ShoppingBag;
-  return Package;
-}
-
-function getSegmentIcon(slug: string) {
-  if (slug.includes("lanchonete")) return Sandwich;
-  if (slug.includes("pizzaria")) return Pizza;
-  if (slug.includes("padaria")) return Croissant;
-  if (slug.includes("festas")) return PartyPopper;
-  if (slug.includes("delivery")) return Bike;
-  if (slug.includes("buffet") || slug.includes("restaurante")) return UtensilsCrossed;
-  if (slug.includes("confeitaria") || slug.includes("bolo")) return CakeSlice;
-  if (slug.includes("sorveteria") || slug.includes("acai")) return IceCream2;
-  if (slug.includes("bar") || slug.includes("distribuidora")) return Wine;
-  return Store;
-}
 
 export function CategorySidebarDrawer({
   open,
@@ -239,28 +121,10 @@ export function CategorySidebarDrawer({
 
 
   // Montagem hierárquica das categorias e subcategorias
-  const processedCategories = useMemo(() => {
-    if (!categories || categories.length === 0) {
-      return DEFAULT_FALLBACK_CATEGORIES;
-    }
-
-    const roots = categories.filter((c) => !c.parentId);
-    if (roots.length === 0) return DEFAULT_FALLBACK_CATEGORIES;
-
-    return roots.map((root) => {
-      const subs =
-        root.children && root.children.length > 0
-          ? root.children
-          : categories.filter((c) => c.parentId === root.id);
-
-      return {
-        id: root.id,
-        name: root.name,
-        slug: root.slug,
-        subcategories: subs.map((s) => ({ name: s.name, slug: s.slug })),
-      };
-    });
-  }, [categories]);
+  const processedCategories = useMemo(
+    () => normalizeCategoryTree(categories),
+    [categories]
+  );
 
   const activeSegments =
     segments && segments.length > 0 ? segments : DEFAULT_FALLBACK_SEGMENTS;

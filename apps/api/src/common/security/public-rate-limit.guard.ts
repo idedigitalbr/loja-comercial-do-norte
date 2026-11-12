@@ -38,10 +38,18 @@ export class PublicRateLimitGuard implements CanActivate {
     const options = this.reflector.get<PublicRateLimitOptions>(PUBLIC_RATE_LIMIT, context.getHandler());
     if (!options) return true;
 
-    const request = context.switchToHttp().getRequest<{ ip?: string; method?: string; route?: { path?: string } }>();
+    const request = context.switchToHttp().getRequest<{
+      ip?: string;
+      headers?: Record<string, string | string[] | undefined>;
+      method?: string;
+      route?: { path?: string };
+    }>();
+    const forwarded = request.headers?.['x-forwarded-for'];
+    const forwardedIp = typeof forwarded === 'string' ? forwarded.split(',')[0]?.trim() : undefined;
+    const clientIp = (request.ip && request.ip !== '127.0.0.1' && request.ip !== '::1' ? request.ip : forwardedIp || request.ip) ?? 'unknown';
     const now = Date.now();
     pruneExpired(now);
-    const key = `${request.method ?? 'GET'}:${request.route?.path ?? 'unknown'}:${request.ip ?? 'unknown'}`;
+    const key = `${request.method ?? 'GET'}:${request.route?.path ?? 'unknown'}:${clientIp}`;
     const bucket = buckets.get(key);
 
     if (!bucket || bucket.resetAt <= now) {

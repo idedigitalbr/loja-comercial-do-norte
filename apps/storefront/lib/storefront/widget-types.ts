@@ -1,4 +1,5 @@
 import type { ApiBrand, ApiCategory, ApiProduct } from '@/lib/types';
+import type { EventItem } from '@/lib/events-data';
 
 export type WidgetType =
   | 'hero-carousel'
@@ -265,7 +266,9 @@ export interface VideoArticleItem {
 
 export interface VideoArticlesCarouselProps {
   widgetId?: string;
+  contextData?: WidgetContextData;
   variant?: 'default' | 'confeitaria';
+  headingAs?: 'h1' | 'h2';
   title?: string;
   subtitle?: string;
   topHeading?: {
@@ -392,4 +395,5 @@ export interface WidgetContextData {
   brands: ApiBrand[];
   offers: ApiProduct[];
   products: ApiProduct[];
+  events?: EventItem[];
 }

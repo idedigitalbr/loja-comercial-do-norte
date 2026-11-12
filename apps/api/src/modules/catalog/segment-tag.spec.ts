@@ -109,4 +109,45 @@ describe('CatalogService Segments and Tags', () => {
       }),
     );
   });
+
+  it('filters active product counts in listSegments by default', async () => {
+    const prisma = {
+      segment: {
+        findMany: vi.fn().mockResolvedValue([
+          { id: 'seg-1', name: 'Pizzaria', slug: 'pizzaria', _count: { products: 12 } },
+        ]),
+      },
+    };
+    const service = new CatalogService(prisma as never);
+
+    const result = await service.listSegments();
+
+    expect(prisma.segment.findMany).toHaveBeenCalledWith({
+      where: { status: 'ACTIVE' },
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+      include: {
+        _count: { select: { products: { where: { product: { status: 'ACTIVE' } } } } },
+      },
+    });
+    expect(result[0]._count?.products).toBe(12);
+  });
+
+  it('keeps listSegments product count unfiltered when status is null', async () => {
+    const prisma = {
+      segment: {
+        findMany: vi.fn().mockResolvedValue([]),
+      },
+    };
+    const service = new CatalogService(prisma as never);
+
+    await service.listSegments(null);
+
+    expect(prisma.segment.findMany).toHaveBeenCalledWith({
+      where: {},
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+      include: {
+        _count: { select: { products: true } },
+      },
+    });
+  });
 });

@@ -35,13 +35,16 @@ export function mediaUrl(path: string | null | undefined): string | null {
 type FetchCacheOptions = {
   revalidate?: number;
   tags?: string[];
+  noStore?: boolean;
 };
 
 async function getJson<T>(path: string, options: FetchCacheOptions = {}): Promise<T> {
-  const { revalidate = REVALIDATE_WINDOWS.CATALOG, tags } = options;
+  const { revalidate = REVALIDATE_WINDOWS.CATALOG, tags, noStore = false } = options;
   const response = await fetch(`${API_URL}/api/v1${path}`, {
     headers: { accept: 'application/json' },
-    next: tags?.length ? { revalidate, tags } : { revalidate },
+    ...(noStore
+      ? { cache: 'no-store' as const }
+      : { next: tags?.length ? { revalidate, tags } : { revalidate } }),
   });
   if (!response.ok) throw new Error(`API ${response.status} em ${path}`);
   return response.json() as Promise<T>;
@@ -84,9 +87,17 @@ export function getProducts(input: { search?: string; category?: string | string
   if (brand) params.set('brand', brand);
   if (segment) params.set('segment', segment);
   if (tag) params.set('tag', tag);
+  const limit =
+    input.limit && Number.isFinite(input.limit) && input.limit > 0
+      ? Math.min(200, Math.trunc(input.limit))
+      : undefined;
+  if (limit) params.set('limit', String(limit));
+  // Respostas sem limite ou muito grandes ultrapassam o teto de 2MB do Data Cache do Next.js.
+  const bypassDataCache = !limit || limit > 40;
   return safeJson<ApiProduct[]>(`/catalog/products${params.size ? `?${params}` : ''}`, [], {
     revalidate: REVALIDATE_WINDOWS.CATALOG,
     tags: [CACHE_TAGS.PRODUCTS],
+    noStore: bypassDataCache,
   });
 }
 

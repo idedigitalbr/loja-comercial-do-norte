@@ -20,7 +20,6 @@ describe('admin shell', () => {
       'catalog',
       'posts',
       'events',
-      'quotes',
       'crm',
       'orders',
       'inventory',
@@ -35,7 +34,6 @@ describe('admin shell', () => {
       'shopping-bag',
       'file-text',
       'calendar',
-      'clipboard-list',
       'message-circle',
       'clipboard-list',
       'warehouse',
@@ -48,6 +46,7 @@ describe('admin shell', () => {
     expect(getAdminNavigation().find((item) => item.id === 'catalog')?.label).toBe('Produtos');
     expect(getAdminNavigation().find((item) => item.id === 'posts')?.label).toBe('Posts');
     expect(getAdminNavigation().find((item) => item.id === 'events')?.label).toBe('Eventos');
+    expect(getAdminNavigation().find((item) => item.id === 'crm')?.label).toBe('CRM (Leads & Cotações)');
   });
 
   it('aponta para o storefront Next.js (porta 3001) a partir do admin', () => {
@@ -58,7 +57,8 @@ describe('admin shell', () => {
     expect(getInitialAdminSection('/admin/')).toBe('overview');
     expect(getInitialAdminSection('/admin/promotions')).toBe('promotions');
     expect(getInitialAdminSection('/admin/banners-home/')).toBe('home-banners');
-    expect(getInitialAdminSection('/admin/cotacoes')).toBe('quotes');
+    expect(getInitialAdminSection('/admin/cotacoes')).toBe('crm');
+    expect(getInitialAdminSection('/admin/cotacoes/pub-123')).toBe('crm');
     expect(getInitialAdminSection('/admin/crm')).toBe('crm');
     expect(getInitialAdminSection('/admin/orders')).toBe('orders');
     expect(getInitialAdminSection('/admin/catalogo/produtos')).toBe('catalog');

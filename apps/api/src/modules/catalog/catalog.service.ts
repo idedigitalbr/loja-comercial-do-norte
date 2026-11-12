@@ -1,12 +1,22 @@
-import { Prisma, ProductStockStatus, RecordStatus } from '@prisma/client';
+import { CatalogAuditHealth, PricingMode, Prisma, ProductStockStatus, RecordStatus } from '@prisma/client';
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { evaluateProductHealth, evaluateVariantHealth, isVariantFreightReady } from './catalog-health';
 
 export type CreateProductInput = {
   name: string;
+  rawCatalogName?: string | null;
   slug?: string;
-  description?: string;
-  brandId?: string;
+  description?: string | null;
+  rawDescription?: string | null;
+  brandId?: string | null;
+  brandMatchNote?: string | null;
+  sourcePdfPage?: number | null;
+  sourcePrintedPage?: number | null;
+  sourceSection?: string | null;
+  sourceRawText?: string | null;
+  auditConfidence?: number | null;
+  extraIssueCodes?: string[];
   categoryIds?: string[];
   segmentIds?: string[];
   tagIds?: string[];
@@ -19,24 +29,56 @@ export type UpdateProductInput = Partial<CreateProductInput>;
 export type ProductVariantInput = {
   id?: string;
   sku: string;
-  priceCents: number;
-  compareAtPriceCents?: number;
-  weightGrams?: number;
-  widthMm?: number;
-  heightMm?: number;
-  lengthMm?: number;
+  variantName?: string | null;
+  pricingMode?: PricingMode;
+  priceCents?: number | null;
+  compareAtPriceCents?: number | null;
+  gtinRaw?: string | null;
+  gtinStatus?: string | null;
+  gtinValid?: boolean | null;
+  manufacturerRef?: string | null;
+  ncm?: string | null;
+  color?: string | null;
+  sizeOrModel?: string | null;
+  capacityOrVolume?: string | null;
+  material?: string | null;
+  packagingRaw?: string | null;
+  packagingType?: string | null;
+  packagingUnit?: string | null;
+  packagingFactor1?: number | null;
+  packagingFactor2?: number | null;
+  packagingTotalUnits?: number | null;
+  reportedNetWeight?: string | null;
+  dimensionsRaw?: string | null;
+  internalDimensions?: string | null;
+  externalDimensions?: string | null;
+  diameterText?: string | null;
+  heightText?: string | null;
+  individualVolumeText?: string | null;
+  weightGrams?: number | null;
+  widthMm?: number | null;
+  heightMm?: number | null;
+  lengthMm?: number | null;
   inventoryQuantity?: number;
   manageStock?: boolean;
   stockStatus?: ProductStockStatus;
-  lowStockThreshold?: number;
+  lowStockThreshold?: number | null;
+  extraIssueCodes?: string[];
 };
 
 export type ProductImageInput = {
   path: string;
-  altText?: string;
+  altText?: string | null;
   sortOrder?: number;
   isPrimary?: boolean;
-  variantId?: string;
+  variantId?: string | null;
+  imageStatus?: string | null;
+  imageSourceMethod?: string | null;
+  imageConfidence?: number | null;
+  sha256?: string | null;
+  widthPx?: number | null;
+  heightPx?: number | null;
+  sourceOriginalPath?: string | null;
 };
 
 export type TaxonomyInput = {
@@ -90,55 +132,183 @@ function parseFilterList(value: unknown): string[] {
 export class CatalogService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  async createProduct(input: CreateProductInput) {
-    return this.prisma.$transaction(async (transaction) => transaction.product.create({
+  private buildVariantPersistenceData(variant: ProductVariantInput) {
+    const normalizedPrice = variant.priceCents !== undefined && variant.priceCents !== null && variant.priceCents > 0
+      ? variant.priceCents
+      : variant.priceCents === 0 && variant.pricingMode === PricingMode.FIXED_PRICE
+        ? 0
+        : null;
+    const pricingMode = normalizedPrice !== null
+      ? PricingMode.FIXED_PRICE
+      : (variant.pricingMode ?? PricingMode.QUOTE_ONLY);
+    const freightReady = isVariantFreightReady(variant);
+    const variantHealth = evaluateVariantHealth({
+      sku: variant.sku,
+      priceCents: normalizedPrice,
+      weightGrams: variant.weightGrams,
+      widthMm: variant.widthMm,
+      heightMm: variant.heightMm,
+      lengthMm: variant.lengthMm,
+      gtinRaw: variant.gtinRaw,
+      gtinStatus: variant.gtinStatus,
+      gtinValid: variant.gtinValid,
+      extraIssueCodes: variant.extraIssueCodes,
+    });
+
+    return {
+      sku: variant.sku,
+      variantName: variant.variantName,
+      pricingMode,
+      priceCents: normalizedPrice,
+      compareAtPriceCents: variant.compareAtPriceCents,
+      gtinRaw: variant.gtinRaw,
+      gtinStatus: variant.gtinStatus,
+      gtinValid: variant.gtinValid,
+      manufacturerRef: variant.manufacturerRef,
+      ncm: variant.ncm,
+      color: variant.color,
+      sizeOrModel: variant.sizeOrModel,
+      capacityOrVolume: variant.capacityOrVolume,
+      material: variant.material,
+      packagingRaw: variant.packagingRaw,
+      packagingType: variant.packagingType,
+      packagingUnit: variant.packagingUnit,
+      packagingFactor1: variant.packagingFactor1,
+      packagingFactor2: variant.packagingFactor2,
+      packagingTotalUnits: variant.packagingTotalUnits,
+      reportedNetWeight: variant.reportedNetWeight,
+      dimensionsRaw: variant.dimensionsRaw,
+      internalDimensions: variant.internalDimensions,
+      externalDimensions: variant.externalDimensions,
+      diameterText: variant.diameterText,
+      heightText: variant.heightText,
+      individualVolumeText: variant.individualVolumeText,
+      weightGrams: variant.weightGrams,
+      widthMm: variant.widthMm,
+      heightMm: variant.heightMm,
+      lengthMm: variant.lengthMm,
+      freightReady,
+      auditHealth: variantHealth.auditHealth,
+      auditIssueCodes: variantHealth.auditIssueCodes,
+      auditIssues: variantHealth.auditIssues as unknown as Prisma.InputJsonValue,
+      manageStock: variant.manageStock,
+      stockStatus: variant.stockStatus,
+      lowStockThreshold: variant.lowStockThreshold,
+    };
+  }
+
+  private async recalculateAndPersistProductHealth(
+    transaction: Prisma.TransactionClient,
+    productId: string,
+    extraIssueCodes?: string[],
+  ) {
+    const product = await transaction.product.findUnique({
+      where: { id: productId },
+      include: {
+        variants: { where: { status: { not: RecordStatus.ARCHIVED } }, orderBy: { createdAt: 'asc' } },
+        images: true,
+        categories: { select: { categoryId: true } },
+      },
+    });
+    if (!product) throw new NotFoundException('PRODUCT_NOT_FOUND');
+
+    const retainedCatalogIssues = product.auditIssueCodes.filter((code) =>
+      ['CODIGO_DUPLICADO', 'CONFLITO_SOBREPOSICAO_PDF', 'ESPECIFICACAO_SUSPEITA'].includes(code),
+    );
+    const mergedExtra = [...retainedCatalogIssues, ...(extraIssueCodes ?? [])];
+
+    const health = evaluateProductHealth({
+      name: product.name,
+      description: product.description,
+      brandId: product.brandId,
+      hasCategory: product.categories.length > 0,
+      images: product.images,
+      variants: product.variants.map((variant) => ({
+        sku: variant.sku,
+        priceCents: variant.priceCents,
+        weightGrams: variant.weightGrams,
+        widthMm: variant.widthMm,
+        heightMm: variant.heightMm,
+        lengthMm: variant.lengthMm,
+        gtinRaw: variant.gtinRaw,
+        gtinStatus: variant.gtinStatus,
+        gtinValid: variant.gtinValid,
+        extraIssueCodes: variant.auditIssueCodes,
+      })),
+      extraIssueCodes: mergedExtra,
+    });
+
+    return transaction.product.update({
+      where: { id: productId },
       data: {
-        name: input.name,
-        slug: normalizeProductSlug(input.slug || input.name),
-        description: input.description,
-        brandId: input.brandId,
-        segments: input.segmentIds?.length
-          ? { create: input.segmentIds.map((segmentId) => ({ segmentId })) }
-          : undefined,
-        tags: input.tagIds?.length
-          ? { create: input.tagIds.map((tagId) => ({ tagId })) }
-          : undefined,
-        categories: input.categoryIds?.length
-          ? { create: input.categoryIds.map((categoryId) => ({ categoryId })) }
-          : undefined,
-        variants: input.variants?.length
-          ? {
-              create: input.variants.map((variant) => ({
-                sku: variant.sku,
-                priceCents: variant.priceCents,
-                compareAtPriceCents: variant.compareAtPriceCents,
-                weightGrams: variant.weightGrams,
-                widthMm: variant.widthMm,
-                heightMm: variant.heightMm,
-                lengthMm: variant.lengthMm,
-                manageStock: variant.manageStock,
-                stockStatus: variant.stockStatus,
-                lowStockThreshold: variant.lowStockThreshold,
-                inventoryBalance: { create: { physicalQuantity: variant.inventoryQuantity ?? 0 } },
-              })),
-            }
-          : undefined,
-        images: input.images?.length ? { create: input.images } : undefined,
+        auditHealth: health.auditHealth,
+        auditIssueCodes: health.auditIssueCodes,
+        auditIssues: health.auditIssues as unknown as Prisma.InputJsonValue,
       },
       include: productRelations,
-    }));
+    });
+  }
+
+  async createProduct(input: CreateProductInput) {
+    return this.prisma.$transaction(async (transaction) => {
+      const created = await transaction.product.create({
+        data: {
+          name: input.name,
+          rawCatalogName: input.rawCatalogName,
+          slug: normalizeProductSlug(input.slug || input.name),
+          description: input.description,
+          rawDescription: input.rawDescription,
+          brandId: input.brandId,
+          brandMatchNote: input.brandMatchNote,
+          sourcePdfPage: input.sourcePdfPage,
+          sourcePrintedPage: input.sourcePrintedPage,
+          sourceSection: input.sourceSection,
+          sourceRawText: input.sourceRawText,
+          auditConfidence: input.auditConfidence,
+          segments: input.segmentIds?.length
+            ? { create: input.segmentIds.map((segmentId) => ({ segmentId })) }
+            : undefined,
+          tags: input.tagIds?.length
+            ? { create: input.tagIds.map((tagId) => ({ tagId })) }
+            : undefined,
+          categories: input.categoryIds?.length
+            ? { create: input.categoryIds.map((categoryId) => ({ categoryId })) }
+            : undefined,
+          variants: input.variants?.length
+            ? {
+                create: input.variants.map((variant) => ({
+                  ...this.buildVariantPersistenceData(variant),
+                  inventoryBalance: { create: { physicalQuantity: variant.inventoryQuantity ?? 0 } },
+                })),
+              }
+            : undefined,
+          images: input.images?.length ? { create: input.images } : undefined,
+        },
+        select: { id: true },
+      });
+
+      return this.recalculateAndPersistProductHealth(transaction, created.id, input.extraIssueCodes);
+    });
   }
 
   async updateProduct(id: string, input: UpdateProductInput) {
     await this.assertProduct(id);
     return this.prisma.$transaction(async (transaction) => {
-      const updated = await transaction.product.update({
+      await transaction.product.update({
         where: { id },
         data: {
           ...(input.name !== undefined ? { name: input.name } : {}),
+          ...(input.rawCatalogName !== undefined ? { rawCatalogName: input.rawCatalogName } : {}),
           ...(input.slug !== undefined ? { slug: input.slug } : {}),
           ...(input.description !== undefined ? { description: input.description } : {}),
+          ...(input.rawDescription !== undefined ? { rawDescription: input.rawDescription } : {}),
           ...(input.brandId !== undefined ? { brandId: input.brandId || null } : {}),
+          ...(input.brandMatchNote !== undefined ? { brandMatchNote: input.brandMatchNote } : {}),
+          ...(input.sourcePdfPage !== undefined ? { sourcePdfPage: input.sourcePdfPage } : {}),
+          ...(input.sourcePrintedPage !== undefined ? { sourcePrintedPage: input.sourcePrintedPage } : {}),
+          ...(input.sourceSection !== undefined ? { sourceSection: input.sourceSection } : {}),
+          ...(input.sourceRawText !== undefined ? { sourceRawText: input.sourceRawText } : {}),
+          ...(input.auditConfidence !== undefined ? { auditConfidence: input.auditConfidence } : {}),
           ...(input.segmentIds !== undefined
             ? { segments: { deleteMany: {}, create: input.segmentIds.map((segmentId) => ({ segmentId })) } }
             : {}),
@@ -149,7 +319,6 @@ export class CatalogService {
             ? { categories: { deleteMany: {}, create: input.categoryIds.map((categoryId) => ({ categoryId })) } }
             : {}),
         },
-        include: productRelations,
       });
 
       if (input.images) {
@@ -158,43 +327,31 @@ export class CatalogService {
       }
 
       for (const variant of input.variants ?? []) {
+        const variantData = this.buildVariantPersistenceData(variant);
         if (variant.id) {
           await transaction.productVariant.update({
             where: { id: variant.id },
-            data: {
-              sku: variant.sku,
-              priceCents: variant.priceCents,
-              compareAtPriceCents: variant.compareAtPriceCents,
-              weightGrams: variant.weightGrams,
-              widthMm: variant.widthMm,
-              heightMm: variant.heightMm,
-              lengthMm: variant.lengthMm,
-              manageStock: variant.manageStock,
-              stockStatus: variant.stockStatus,
-              lowStockThreshold: variant.lowStockThreshold,
-            },
+            data: variantData,
           });
           if (variant.inventoryQuantity !== undefined) {
-            await transaction.inventoryBalance.update({ where: { variantId: variant.id }, data: { physicalQuantity: variant.inventoryQuantity } });
+            await transaction.inventoryBalance.upsert({
+              where: { variantId: variant.id },
+              create: { variantId: variant.id, physicalQuantity: variant.inventoryQuantity },
+              update: { physicalQuantity: variant.inventoryQuantity },
+            });
           }
         } else {
           await transaction.productVariant.create({
             data: {
               productId: id,
-              sku: variant.sku,
-              priceCents: variant.priceCents,
-              compareAtPriceCents: variant.compareAtPriceCents,
-              weightGrams: variant.weightGrams,
-              widthMm: variant.widthMm,
-              heightMm: variant.heightMm,
-              lengthMm: variant.lengthMm,
+              ...variantData,
               inventoryBalance: { create: { physicalQuantity: variant.inventoryQuantity ?? 0 } },
             },
           });
         }
       }
 
-      return transaction.product.findUnique({ where: { id: updated.id }, include: productRelations });
+      return this.recalculateAndPersistProductHealth(transaction, id, input.extraIssueCodes);
     });
   }
 
@@ -299,24 +456,54 @@ export class CatalogService {
   async publish(id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id },
-      include: { variants: true, images: true },
+      include: {
+        variants: { where: { status: { not: RecordStatus.ARCHIVED } }, orderBy: { createdAt: 'asc' } },
+        images: true,
+        categories: { select: { categoryId: true } },
+      },
     });
     if (!product) throw new NotFoundException('PRODUCT_NOT_FOUND');
 
-    const variant = product.variants[0];
-    const fields: string[] = [];
-    if (!variant?.sku) fields.push('sku');
-    if (!product.images.some((image) => image.isPrimary)) fields.push('mainImage');
-    if (!variant?.weightGrams) fields.push('weightGrams');
-    if (!variant?.widthMm) fields.push('widthMm');
-    if (!variant?.heightMm) fields.push('heightMm');
-    if (!variant?.lengthMm) fields.push('lengthMm');
-    if (fields.length) throw new ProductIncompleteError(fields);
+    const health = evaluateProductHealth({
+      name: product.name,
+      description: product.description,
+      brandId: product.brandId,
+      hasCategory: product.categories.length > 0,
+      images: product.images,
+      variants: product.variants.map((variant) => ({
+        sku: variant.sku,
+        priceCents: variant.priceCents,
+        weightGrams: variant.weightGrams,
+        widthMm: variant.widthMm,
+        heightMm: variant.heightMm,
+        lengthMm: variant.lengthMm,
+        gtinRaw: variant.gtinRaw,
+        gtinStatus: variant.gtinStatus,
+        gtinValid: variant.gtinValid,
+        extraIssueCodes: variant.auditIssueCodes,
+      })),
+      extraIssueCodes: product.auditIssueCodes,
+    });
 
-    return this.prisma.product.update({
-      where: { id },
-      data: { status: RecordStatus.ACTIVE },
-      include: productRelations,
+    if (health.missingPublishFields.length) {
+      throw new ProductIncompleteError(health.missingPublishFields);
+    }
+
+    return this.prisma.$transaction(async (transaction) => {
+      await transaction.productVariant.updateMany({
+        where: { productId: id, status: RecordStatus.DRAFT },
+        data: { status: RecordStatus.ACTIVE },
+      });
+      return transaction.product.update({
+        where: { id },
+        data: {
+          status: RecordStatus.ACTIVE,
+          auditHealth: health.auditHealth,
+          auditIssueCodes: health.auditIssueCodes,
+          auditIssues: health.auditIssues as unknown as Prisma.InputJsonValue,
+        },
+        include: productRelations,
+      });
     });
   }
 
@@ -340,11 +527,24 @@ export class CatalogService {
     brand?: string | string[];
     category?: string | string[];
     status?: RecordStatus | null;
+    health?: CatalogAuditHealth;
+    issueCode?: string;
+    limit?: number;
   } = {}) {
-    const where = await this.buildPublicWhere(input);
+    const baseWhere = await this.buildPublicWhere(input);
+    const where: Prisma.ProductWhereInput = {
+      ...baseWhere,
+      ...(input.health ? { auditHealth: input.health } : {}),
+      ...(input.issueCode ? { auditIssueCodes: { has: input.issueCode } } : {}),
+    };
+    const take =
+      input.limit !== undefined && Number.isFinite(input.limit) && input.limit > 0
+        ? Math.min(200, Math.trunc(input.limit))
+        : undefined;
     return this.prisma.product.findMany({
       where,
       orderBy: { createdAt: 'desc' },
+      ...(take ? { take } : {}),
       include: productRelations,
     });
   }
@@ -358,7 +558,7 @@ export class CatalogService {
     return this.prisma.product.findMany({
       where: {
         status: RecordStatus.ACTIVE,
-        variants: { some: { status: RecordStatus.ACTIVE, compareAtPriceCents: { gt: 0 } } },
+        variants: { some: { status: RecordStatus.ACTIVE, priceCents: { not: null, gt: 0 }, compareAtPriceCents: { gt: 0 } } },
       },
       orderBy: { updatedAt: 'desc' },
       take,
@@ -391,6 +591,7 @@ export class CatalogService {
           variants: {
             some: {
               status: RecordStatus.ACTIVE,
+              priceCents: { not: null, gt: 0 },
               compareAtPriceCents: { gt: 0 },
             },
           },
@@ -626,42 +827,175 @@ export class CatalogService {
   }
 
   listBrands(status: RecordStatus | null = RecordStatus.ACTIVE) {
+    const productCountSelect = status ? { where: { status } } : true;
+    const childCountSelect = status ? { where: { status } } : true;
+
     return this.prisma.brand.findMany({
       where: status ? { status } : {},
       orderBy: [{ parentId: 'asc' }, { name: 'asc' }],
       include: {
         parent: true,
-        _count: { select: { products: true, children: true } },
+        _count: {
+          select: { products: productCountSelect, children: childCountSelect },
+        },
         children: {
           where: status ? { status } : {},
           orderBy: { name: 'asc' },
-          include: { _count: { select: { products: true } } },
+          include: { _count: { select: { products: productCountSelect } } },
         },
       },
     });
   }
 
-  listCategories(status: RecordStatus | null = RecordStatus.ACTIVE) {
-    return this.prisma.category.findMany({
+  async listCategories(status: RecordStatus | null = RecordStatus.ACTIVE) {
+    const joinCountSelect = status ? { where: { product: { status } } } : true;
+    const childCountSelect = status ? { where: { status } } : true;
+
+    const categories = await this.prisma.category.findMany({
       where: status ? { status } : {},
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
       include: {
         parent: { select: { id: true, name: true, slug: true } },
+        _count: {
+          select: { products: joinCountSelect, children: childCountSelect },
+        },
         children: {
           where: status ? { status } : {},
           orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+          include: { _count: { select: { products: joinCountSelect } } },
         },
       },
     });
+
+    return this.attachCategorySubtreeProductCounts(categories, status);
+  }
+
+  private async attachCategorySubtreeProductCounts<
+    T extends {
+      id: string;
+      parentId?: string | null;
+      _count?: Record<string, number>;
+      children?: Array<{ id: string; _count?: Record<string, number> }>;
+    },
+  >(categories: T[], status: RecordStatus | null): Promise<T[]> {
+    if (
+      categories.length === 0 ||
+      typeof this.prisma.productCategory?.findMany !== 'function'
+    ) {
+      return categories;
+    }
+
+    const allCategoryIds = new Set<string>();
+    const childrenByParentId = new Map<string, Set<string>>();
+
+    const addChildEdge = (parentId: string, childId: string) => {
+      let children = childrenByParentId.get(parentId);
+      if (!children) {
+        children = new Set<string>();
+        childrenByParentId.set(parentId, children);
+      }
+      children.add(childId);
+    };
+
+    for (const cat of categories) {
+      allCategoryIds.add(cat.id);
+      if (cat.parentId) {
+        addChildEdge(cat.parentId, cat.id);
+      }
+      for (const child of cat.children ?? []) {
+        allCategoryIds.add(child.id);
+        addChildEdge(cat.id, child.id);
+      }
+    }
+
+    const links = await this.prisma.productCategory.findMany({
+      where: {
+        categoryId: { in: [...allCategoryIds] },
+        ...(status ? { product: { status } } : {}),
+      },
+      select: {
+        categoryId: true,
+        productId: true,
+      },
+    });
+
+    const directProductsByCategoryId = new Map<string, Set<string>>();
+    for (const link of links) {
+      let products = directProductsByCategoryId.get(link.categoryId);
+      if (!products) {
+        products = new Set<string>();
+        directProductsByCategoryId.set(link.categoryId, products);
+      }
+      products.add(link.productId);
+    }
+
+    const subtreeCountCache = new Map<string, number>();
+    const getSubtreeProductCount = (rootCategoryId: string): number => {
+      const cached = subtreeCountCache.get(rootCategoryId);
+      if (cached !== undefined) {
+        return cached;
+      }
+
+      const visited = new Set<string>();
+      const distinctProducts = new Set<string>();
+      const queue = [rootCategoryId];
+
+      while (queue.length > 0) {
+        const currentId = queue.shift()!;
+        if (visited.has(currentId)) continue;
+        visited.add(currentId);
+
+        const direct = directProductsByCategoryId.get(currentId);
+        if (direct) {
+          for (const productId of direct) {
+            distinctProducts.add(productId);
+          }
+        }
+
+        const childIds = childrenByParentId.get(currentId);
+        if (childIds) {
+          for (const childId of childIds) {
+            if (!visited.has(childId)) {
+              queue.push(childId);
+            }
+          }
+        }
+      }
+
+      const count = distinctProducts.size;
+      subtreeCountCache.set(rootCategoryId, count);
+      return count;
+    };
+
+    return categories.map((cat) => ({
+      ...cat,
+      _count: {
+        ...(cat._count ?? {}),
+        products: getSubtreeProductCount(cat.id),
+      },
+      ...(cat.children
+        ? {
+            children: cat.children.map((child) => ({
+              ...child,
+              _count: {
+                ...(child._count ?? {}),
+                products: getSubtreeProductCount(child.id),
+              },
+            })),
+          }
+        : {}),
+    }));
   }
 
   // --- SEGMENTS ---
   listSegments(status: RecordStatus | null = RecordStatus.ACTIVE) {
+    const joinCountSelect = status ? { where: { product: { status } } } : true;
+
     return this.prisma.segment.findMany({
       where: status ? { status } : {},
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
       include: {
-        _count: { select: { products: true } },
+        _count: { select: { products: joinCountSelect } },
       },
     });
   }

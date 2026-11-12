@@ -47,17 +47,28 @@ export function ProductCardSkeleton() {
         <SkeletonBlock className="h-3.5 w-4/5 rounded-md" />
       </div>
 
-      {/* Estrelas */}
-      <div className="mt-2.5 flex items-center gap-1.5">
-        <SkeletonBlock className="h-3 w-20 rounded-md" />
-        <SkeletonBlock className="h-3 w-10 rounded-md" />
+      {/* Pílula Categoria | Marca */}
+      <div className="mt-2">
+        <SkeletonBlock className="h-4 w-32 rounded-full" />
       </div>
 
-      {/* Preço e nota de atacado */}
-      <div className="mt-3 space-y-1.5 border-t border-slate-100 pt-2.5">
-        <SkeletonBlock className="h-2.5 w-16 rounded-md" />
-        <SkeletonBlock className="h-5 w-28 rounded-md" />
-        <SkeletonBlock className="h-3 w-full rounded-md" />
+      {/* Descrição em 2-3 linhas */}
+      <div className="mt-2.5 space-y-1.5">
+        <SkeletonBlock className="h-2.5 w-full rounded-md" />
+        <SkeletonBlock className="h-2.5 w-11/12 rounded-md" />
+        <SkeletonBlock className="h-2.5 w-3/4 rounded-md" />
+      </div>
+
+      {/* Linhas de especificações */}
+      <div className="mt-3 space-y-2 border-t border-slate-100 pt-2.5">
+        <div className="flex items-center justify-between gap-2">
+          <SkeletonBlock className="h-3 w-20 rounded-md" />
+          <SkeletonBlock className="h-3 w-14 rounded-md" />
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <SkeletonBlock className="h-3 w-16 rounded-md" />
+          <SkeletonBlock className="h-3 w-12 rounded-md" />
+        </div>
       </div>
     </div>
   );

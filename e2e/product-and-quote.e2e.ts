@@ -36,7 +36,22 @@ test.describe('Comercial do Norte - Fluxo de Produto e Cotação (Issue #32)', (
     await expect(sendQuoteLink).toBeVisible();
   });
 
-  test('Fluxo completo: adicionar à cotação, preencher formulário e submeter solicitação', async ({ page }) => {
+  test('Cotar agora navega direto para /cotacao sem abrir a gaveta do carrinho', async ({ page }) => {
+    await page.goto('/loja');
+
+    const firstCard = page.locator('article').first();
+    await expect(firstCard).toBeVisible({ timeout: 10000 });
+    await firstCard.hover();
+
+    const instantQuoteBtn = firstCard.getByRole('button', { name: /cotar agora/i });
+    await instantQuoteBtn.click();
+
+    await page.waitForURL(/\/cotacao$/, { timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /carrinho de cotação/i })).toHaveCount(0);
+    await expect(page.getByRole('heading', { level: 1, name: /enviar cotação/i })).toBeVisible();
+  });
+
+  test('Fluxo completo: adicionar à cotação, preencher formulário em etapas e submeter solicitação', async ({ page }) => {
     // 1. Acessa produto e adiciona à cotação
     await page.goto('/produto/caixa-pizza-35cm');
     const quoteButton = page.getByRole('button', { name: /adicionar à cotação/i }).first();
@@ -48,13 +63,27 @@ test.describe('Comercial do Norte - Fluxo de Produto e Cotação (Issue #32)', (
     // 3. Verifica item na lista
     await expect(page.getByText(/Caixa de Pizza/i).first()).toBeVisible({ timeout: 10000 });
 
-    // 4. Preenche formulário de cotação
+    // 4. Etapa 0 -> continua sem conta
+    const guestButton = page.getByRole('button', { name: /quero continuar sem conta/i });
+    if (await guestButton.isVisible()) {
+      await guestButton.click();
+    }
+
+    // 5. Etapa 1 -> nome e WhatsApp
     const nameInput = page.locator('input[name="customerName"]');
     await expect(nameInput).toBeVisible();
     await nameInput.fill('Cliente E2E Isolado');
 
     const phoneInput = page.locator('input[name="customerPhone"]');
     await phoneInput.fill('91900007777');
+    await page.getByRole('button', { name: /avançar/i }).click();
+
+    // 6. Etapa 2 -> seleção da loja
+    await expect(page.getByRole('heading', { name: /qual loja você quer atendimento/i })).toBeVisible();
+    await page.getByRole('button', { name: /avançar/i }).click();
+
+    // 7. Etapa 3 -> escolhe Sim para informar empresa e observações
+    await page.getByRole('button', { name: /^sim/i }).click();
 
     const companyInput = page.locator('input[name="companyName"]');
     if (await companyInput.isVisible()) {
@@ -66,11 +95,11 @@ test.describe('Comercial do Norte - Fluxo de Produto e Cotação (Issue #32)', (
       await notesInput.fill('Cotação automatizada via suite E2E Playwright da Comercial do Norte.');
     }
 
-    // 5. Submete cotação
-    const submitButton = page.getByRole('button', { name: /enviar cotação/i });
+    // 8. Submete cotação
+    const submitButton = page.getByRole('button', { name: /^enviar cotação$/i });
     await submitButton.click();
 
-    // 6. Confirma redirecionamento para página de sucesso com protocolo
+    // 9. Confirma redirecionamento para página de sucesso com protocolo
     await page.waitForURL(/\/cotacao\/[A-Za-z0-9_-]+/, { timeout: 15000 });
     await expect(page.getByRole('heading', { name: /cotação enviada com sucesso/i })).toBeVisible();
     await expect(page.getByText(/protocolo/i).first()).toBeVisible();
@@ -82,8 +111,15 @@ test('API failure keeps the quote draft and displays an error instead of success
   await page.getByRole('button', { name: /adicionar à cotação/i }).first().click();
   await page.goto('/cotacao');
   await expect(page.getByText(/Caixa de Pizza/i).first()).toBeVisible({ timeout: 10000 });
+  const guestButton = page.getByRole('button', { name: /quero continuar sem conta/i });
+  if (await guestButton.isVisible()) {
+    await guestButton.click();
+  }
   await page.locator('input[name="customerName"]').fill('Cliente E2E Isolado');
   await page.locator('input[name="customerPhone"]').fill('91900007777');
+  await page.getByRole('button', { name: /avançar/i }).click();
+  await page.getByRole('button', { name: /avançar/i }).click();
+  await page.getByRole('button', { name: /^não/i }).click();
   await page.route('**/api/v1/quotes', (route) =>
     route.fulfill({
       status: 503,
@@ -91,7 +127,7 @@ test('API failure keeps the quote draft and displays an error instead of success
       body: JSON.stringify({ error: { message: 'Falha de API simulada' } }),
     })
   );
-  await page.getByRole('button', { name: /enviar cotação/i }).click();
+  await page.getByRole('button', { name: /^enviar cotação$/i }).click();
   await expect(page.getByRole('alert').filter({ hasText: 'Falha de API simulada' })).toBeVisible();
   await expect(page).toHaveURL(/\/cotacao$/);
   await expect(page.getByText(/Caixa de Pizza/i).first()).toBeVisible();

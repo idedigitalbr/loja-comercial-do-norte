@@ -16,7 +16,7 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 import { useAuth } from '@/components/auth-provider';
-import { formatMoney } from '@/lib/format';
+import { formatMoneyOrQuote } from '@/lib/format';
 import { resolveProductImage } from '@/lib/product-placeholders';
 
 type QuoteItem = {
@@ -24,8 +24,9 @@ type QuoteItem = {
   name: string;
   productSlug?: string;
   sku?: string;
+  imagePath?: string | null;
   quantity: number;
-  unitPriceCents: number;
+  unitPriceCents: number | null;
 };
 
 type UserQuote = {
@@ -34,7 +35,7 @@ type UserQuote = {
   status: 'PENDING' | 'ANALYSIS' | 'APPROVED' | 'COMPLETED' | 'CANCELLED';
   statusLabel: string;
   itemsCount: number;
-  subtotalCents: number;
+  subtotalCents: number | null;
   items: QuoteItem[];
 };
 
@@ -283,7 +284,9 @@ export default function PedidosPage() {
                 {/* ITENS DA COTAÇÃO */}
                 <div className="p-4 sm:p-6 divide-y divide-slate-100">
                   {quote.items.map((item) => {
-                    const img = resolveProductImage(item.productSlug || item.sku || '');
+                    const img = resolveProductImage({ slug: item.productSlug || item.sku || '', imagePath: item.imagePath });
+                    const lineTotalCents =
+                      item.unitPriceCents != null && item.unitPriceCents > 0 ? item.unitPriceCents * item.quantity : null;
                     return (
                       <div className="flex items-center gap-3.5 py-3 first:pt-0 last:pb-0" key={item.variantId}>
                         <div className="relative size-14 shrink-0 overflow-hidden rounded-xl border border-slate-100 bg-white p-1">
@@ -301,12 +304,12 @@ export default function PedidosPage() {
                             {item.name}
                           </h4>
                           <p className="text-[11px] text-slate-500">
-                            Qtd: <strong>{item.quantity}</strong> un. · Valor ref: {formatMoney(item.unitPriceCents)}
+                            Qtd: <strong>{item.quantity}</strong> un. · Valor ref: {formatMoneyOrQuote(item.unitPriceCents)}
                           </p>
                         </div>
                         <div className="text-right">
                           <strong className="block text-xs sm:text-sm font-bold text-slate-900">
-                            {formatMoney(item.unitPriceCents * item.quantity)}
+                            {formatMoneyOrQuote(lineTotalCents)}
                           </strong>
                         </div>
                       </div>
@@ -321,7 +324,7 @@ export default function PedidosPage() {
                       Total de referência:
                     </span>
                     <strong className="text-base sm:text-lg font-black text-[#004CB1]">
-                      {formatMoney(quote.subtotalCents)}
+                      {formatMoneyOrQuote(quote.subtotalCents)}
                     </strong>
                   </div>
 

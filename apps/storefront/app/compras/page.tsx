@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useQuoteCart } from '@/components/quote-cart-provider';
 import { useAuth } from '@/components/auth-provider';
-import { formatMoney } from '@/lib/format';
+import { formatMoneyOrQuote } from '@/lib/format';
 import { resolveProductImage } from '@/lib/product-placeholders';
 
 export default function ComprasPage() {
@@ -122,12 +122,14 @@ export default function ComprasPage() {
 
               <div className="mt-4 divide-y divide-slate-100">
                 {items.map((item) => {
-                  const image = resolveProductImage(item.productSlug || item.variantId);
+                  const image = resolveProductImage({ slug: item.productSlug, id: item.variantId, imagePath: item.imagePath });
+                  const hasPrice = item.unitPriceCents != null && item.unitPriceCents > 0;
+                  const lineTotalCents = hasPrice ? item.unitPriceCents! * item.quantity : null;
                   return (
                     <div className="flex gap-4 py-4" key={item.variantId}>
                       <div className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-white border border-slate-100">
                         <Image
-                          alt={`${item.name} (Imagem ilustrativa)`}
+                          alt={item.name}
                           className="size-full object-contain p-1"
                           fill
                           sizes="80px"
@@ -181,10 +183,10 @@ export default function ComprasPage() {
                           {/* Preço Total do Item */}
                           <div className="text-right">
                             <strong className="block text-sm sm:text-base font-extrabold text-[#163264]">
-                              {formatMoney(item.unitPriceCents * item.quantity)}
+                              {formatMoneyOrQuote(lineTotalCents)}
                             </strong>
                             <span className="text-[10px] text-slate-400">
-                              {formatMoney(item.unitPriceCents)} cada
+                              {hasPrice ? `${formatMoneyOrQuote(item.unitPriceCents)} cada` : 'Valor confirmado na proposta'}
                             </span>
                           </div>
                         </div>
@@ -207,7 +209,7 @@ export default function ComprasPage() {
                   </div>
                   <div className="flex justify-between text-slate-500">
                     <span>Subtotal estimado</span>
-                    <span className="font-semibold text-slate-700">{formatMoney(subtotalCents)}</span>
+                    <span className="font-semibold text-slate-700">{formatMoneyOrQuote(subtotalCents)}</span>
                   </div>
                   <div className="flex justify-between text-slate-500">
                     <span>Negociação no atacado</span>
@@ -218,7 +220,7 @@ export default function ComprasPage() {
                 <div className="my-4 border-t border-slate-100 pt-3 flex justify-between items-baseline">
                   <span className="text-sm font-bold text-slate-900">Total Estimado</span>
                   <strong className="text-xl font-extrabold text-[#004CB1]">
-                    {formatMoney(subtotalCents)}
+                    {formatMoneyOrQuote(subtotalCents)}
                   </strong>
                 </div>
 

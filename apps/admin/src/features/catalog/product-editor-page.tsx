@@ -18,6 +18,9 @@ function toDraft(product: ApiProduct | null): ProductDraft | undefined {
     slug: product.slug,
     description: product.description ?? '',
     status: product.status,
+    auditHealth: product.auditHealth,
+    auditIssueCodes: product.auditIssueCodes,
+    auditIssues: product.auditIssues,
     brandId: product.brand?.id,
     categoryIds: product.categories?.map(({ category }) => category.id) ?? [],
     segmentIds: product.segments?.map(({ segment }) => segment.id) ?? [],
@@ -25,8 +28,21 @@ function toDraft(product: ApiProduct | null): ProductDraft | undefined {
     variants: product.variants?.map((variant) => ({
       id: variant.id,
       sku: variant.sku,
-      priceCents: variant.priceCents,
+      variantName: variant.variantName,
+      pricingMode: variant.pricingMode,
+      priceCents: variant.priceCents ?? null,
       compareAtPriceCents: variant.compareAtPriceCents,
+      gtinRaw: variant.gtinRaw,
+      gtinStatus: variant.gtinStatus,
+      gtinValid: variant.gtinValid,
+      manufacturerRef: variant.manufacturerRef,
+      color: variant.color,
+      sizeOrModel: variant.sizeOrModel,
+      capacityOrVolume: variant.capacityOrVolume,
+      material: variant.material,
+      packagingRaw: variant.packagingRaw,
+      reportedNetWeight: variant.reportedNetWeight,
+      dimensionsRaw: variant.dimensionsRaw,
       weightGrams: variant.weightGrams,
       widthMm: variant.widthMm,
       heightMm: variant.heightMm,
@@ -73,10 +89,18 @@ export function ProductEditorPage({ productId, onBack, onOpenProduct }: { produc
   }, [productId]);
 
   async function saveProduct(draft: ProductDraft) {
-    const { id: _id, status: _status, ...payloadDraft } = draft;
+    const {
+      id: _id,
+      status: _status,
+      auditHealth: _auditHealth,
+      auditIssueCodes: _auditIssueCodes,
+      auditIssues: _auditIssues,
+      ...payloadDraft
+    } = draft;
     const response = await fetch(productId ? `/api/v1/admin/catalog/products/${productId}` : '/api/v1/admin/catalog/products', { method: productId ? 'PATCH' : 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadDraft) });
     const payload = await response.json().catch(() => null) as ApiProduct | { message?: string } | null;
     if (!response.ok) throw new Error((payload as { message?: string } | null)?.message ?? 'Não foi possível salvar o produto.');
+    if (payload && 'id' in payload) setProduct(payload);
     setMessage(productId ? 'Produto atualizado.' : 'Produto criado como rascunho.');
     if (!productId && payload && 'id' in payload) onOpenProduct(payload.id);
   }
@@ -90,5 +114,5 @@ export function ProductEditorPage({ productId, onBack, onOpenProduct }: { produc
   }
 
   const title = productId ? 'Editar produto' : 'Novo produto';
-  return <section className="admin-page admin-product-page"><nav className="product-editor__breadcrumb" aria-label="Breadcrumb"><button type="button" onClick={onBack}>Catálogo</button><span>›</span><button type="button" onClick={onBack}>Produtos</button><span>›</span><strong>{title}</strong></nav><div className="admin-page__heading product-editor__page-heading"><div><p className="admin-eyebrow">WooCommerce / catálogo</p><h2>{title}</h2></div><p>Complete os dados comerciais e publique quando a ficha estiver pronta.</p></div>{message ? <p className="admin-success" role="status">{message}</p> : null}{error ? <p className="admin-error" role="alert">{error}</p> : null}{loading ? <div className="admin-card admin-empty-state"><p>Carregando editor…</p></div> : <ProductForm initialValue={toDraft(product)} brands={brands} categories={categories} segments={segments} tags={tags} onSave={saveProduct} onPublish={productId ? publishProduct : undefined} onCancel={onBack} />}</section>;
+  return <section className="admin-page admin-product-page"><nav className="product-editor__breadcrumb" aria-label="Breadcrumb"><button type="button" onClick={onBack}>Catálogo</button><span>›</span><button type="button" onClick={onBack}>Produtos</button><span>›</span><strong>{title}</strong></nav><div className="admin-page__heading product-editor__page-heading"><div><p className="admin-eyebrow">Painel Comercial / catálogo</p><h2>{title}</h2></div><p>Complete os dados comerciais e publique quando a ficha estiver pronta.</p></div>{message ? <p className="admin-success" role="status">{message}</p> : null}{error ? <p className="admin-error" role="alert">{error}</p> : null}{loading ? <div className="admin-card admin-empty-state"><p>Carregando editor…</p></div> : <ProductForm initialValue={toDraft(product)} brands={brands} categories={categories} segments={segments} tags={tags} onSave={saveProduct} onPublish={productId ? publishProduct : undefined} onCancel={onBack} />}</section>;
 }

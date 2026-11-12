@@ -75,6 +75,7 @@ describe('CatalogService — busca paginada do storefront (E7)', () => {
     expect(args.where.variants).toEqual({
       some: {
         status: 'ACTIVE',
+        priceCents: { not: null, gt: 0 },
         compareAtPriceCents: { gt: 0 },
       },
     });

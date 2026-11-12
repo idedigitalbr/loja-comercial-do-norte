@@ -36,7 +36,7 @@ describe('PromotionsPage', () => {
     vi.unstubAllGlobals();
   });
 
-  it('renders the WooCommerce-style coupon tabs and existing advanced rules', async () => {
+  it('renders the catalog coupon tabs and existing advanced rules', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => [coupon] }));
     render(<PromotionsPage />);
 

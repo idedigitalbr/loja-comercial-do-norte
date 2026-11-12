@@ -8,7 +8,6 @@ import { CategoriesPage } from './features/catalog/categories-page';
 import { TagsPage } from './features/catalog/tags-page';
 import { InventoryPage } from './features/inventory/inventory-page';
 import { OrdersListPage } from './features/orders/orders-list-page';
-import { QuotesPage } from './features/quotes/quotes-page';
 import { CRMPage } from './features/crm/crm-page';
 import { ReportsPage } from './features/reports/reports-page';
 import { CustomersPage } from './features/customers/customers-page';
@@ -28,7 +27,6 @@ export type AdminSection =
   | 'catalog'
   | 'posts'
   | 'events'
-  | 'quotes'
   | 'orders'
   | 'inventory'
   | 'customers'
@@ -48,8 +46,7 @@ const navigation: NavigationItem[] = [
   { id: 'catalog', label: 'Produtos', description: 'Produtos e marcas', icon: 'shopping-bag' },
   { id: 'posts', label: 'Posts', description: 'Artigos e dicas Explica Aí Nort', icon: 'file-text' },
   { id: 'events', label: 'Eventos', description: 'Workshops e acontecimentos', icon: 'calendar' },
-  { id: 'quotes', label: 'Cotações', description: 'Solicitações da loja', icon: 'clipboard-list' },
-  { id: 'crm', label: 'MiniCRM (Leads)', description: 'Pipeline de leads e chat', icon: 'message-circle' },
+  { id: 'crm', label: 'CRM (Leads & Cotações)', description: 'Pipeline de leads, chat e cotações', icon: 'message-circle' },
   { id: 'orders', label: 'Pedidos', description: 'Venda e atendimento', icon: 'clipboard-list' },
   { id: 'inventory', label: 'Estoque', description: 'Saldos e ajustes', icon: 'warehouse' },
   { id: 'customers', label: 'Clientes', description: 'Base e relacionamento', icon: 'users' },
@@ -65,7 +62,6 @@ const adminSectionRoutes: Record<AdminSection, string> = {
   catalog: '/admin/catalogo/produtos',
   posts: '/admin/posts',
   events: '/admin/eventos',
-  quotes: '/admin/cotacoes',
   orders: '/admin/orders',
   inventory: '/admin/inventory',
   customers: '/admin/customers',
@@ -257,9 +253,20 @@ function isPromotionsRoute(pathname = window.location.pathname): boolean {
   return /^\/admin\/promotions\/?$/.test(pathname);
 }
 
+function readCrmQuoteParam(
+  pathname = typeof window !== 'undefined' ? window.location.pathname : '',
+  search = typeof window !== 'undefined' ? window.location.search : '',
+): string | undefined {
+  const pathMatch = pathname.match(/^\/admin\/cotacoes\/([^/]+)\/?$/);
+  if (pathMatch) return decodeURIComponent(pathMatch[1]);
+  return new URLSearchParams(search).get('quote') ?? undefined;
+}
+
 export function getInitialAdminSection(pathname = window.location.pathname): AdminSection {
   if (isHomeBannersRoute(pathname)) return 'home-banners';
   if (isPromotionsRoute(pathname)) return 'promotions';
+  if (/^\/admin\/cotacoes(\/.*)?$/.test(pathname) || /^\/admin\/crm(\/.*)?$/.test(pathname))
+    return 'crm';
   if (readProductRoute(pathname) || readBrandRoute(pathname) || /^\/admin\/catalogo(\/.*)?$/.test(pathname))
     return 'catalog';
   if (readPostRoute(pathname) || /^\/admin\/posts(\/.*)?$/.test(pathname))
@@ -276,12 +283,14 @@ export function getInitialAdminSection(pathname = window.location.pathname): Adm
 
 function SectionContent({
   section,
+  crmQuotePublicId,
   onCreateProduct,
   onEditProduct,
   onCreateBrand,
   onEditBrand,
 }: {
   section: AdminSection;
+  crmQuotePublicId?: string;
   onCreateProduct: () => void;
   onEditProduct: (id: string) => void;
   onCreateBrand: () => void;
@@ -297,8 +306,7 @@ function SectionContent({
         onEditBrand={onEditBrand}
       />
     );
-  if (section === 'crm') return <CRMPage />;
-  if (section === 'quotes') return <QuotesPage />;
+  if (section === 'crm') return <CRMPage initialQuotePublicId={crmQuotePublicId} />;
   if (section === 'orders') return <OrdersListPage />;
   if (section === 'inventory') return <InventoryPage />;
   if (section === 'customers') return <CustomersPage />;
@@ -311,6 +319,7 @@ function SectionContent({
 export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onLogout: () => void }) {
   const [homeBannersRoute, setHomeBannersRoute] = useState(() => isHomeBannersRoute());
   const [section, setSection] = useState<AdminSection>(() => getInitialAdminSection());
+  const [crmQuotePublicId, setCrmQuotePublicId] = useState<string | undefined>(() => readCrmQuoteParam());
   const [catalogSubPage, setCatalogSubPage] = useState<CatalogSubPage>(() => readCatalogSubPage());
   const [productRoute, setProductRoute] = useState<ProductRoute>(() => readProductRoute());
   const [brandRoute, setBrandRoute] = useState<BrandRoute>(() => readBrandRoute());
@@ -334,6 +343,7 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
       setPostRoute(nextPostRoute);
       setEventRoute(nextEventRoute);
       setPostSubPage(nextPostSubPage);
+      setCrmQuotePublicId(readCrmQuoteParam());
       setSection(
         nextHomeBannersRoute
           ? 'home-banners'
@@ -367,6 +377,7 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
     setPostRoute(nextPostRoute);
     setEventRoute(nextEventRoute);
     setPostSubPage(nextPostSubPage);
+    setCrmQuotePublicId(readCrmQuoteParam(target.pathname, target.search));
     setSection(
       nextHomeBannersRoute
         ? 'home-banners'
@@ -611,6 +622,7 @@ export function AdminDashboard({ userEmail, onLogout }: { userEmail: string; onL
         ) : (
           <SectionContent
             section={section}
+            crmQuotePublicId={crmQuotePublicId}
             onCreateProduct={() => navigate('/admin/catalogo/produtos/novo')}
             onEditProduct={(id) => navigate(`/admin/catalogo/produtos/${encodeURIComponent(id)}/editar`)}
             onCreateBrand={() => navigate('/admin/catalogo/marcas/nova')}

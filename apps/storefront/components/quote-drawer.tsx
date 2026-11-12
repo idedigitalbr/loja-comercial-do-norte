@@ -2,92 +2,97 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
-import { MapPin, MessageCircle, Minus, Plus, ShoppingBasket, Trash2, X } from 'lucide-react';
+import { ArrowRight, Minus, Plus, ShoppingBasket, Trash2 } from 'lucide-react';
 import { WebSheet } from '@commerce/ui/web';
-import { formatMoney } from '@/lib/format';
+import { formatMoney, formatMoneyOrQuote } from '@/lib/format';
 import { resolveProductImage } from '@/lib/product-placeholders';
-import { COMMERCIAL_STORES, CommercialStore, buildWhatsAppLink } from '@/lib/stores-data';
 import { useQuoteCart } from './quote-cart-provider';
 
 /** Mini-carrinho acessível (sheet lateral) do carrinho de cotação. */
 export function QuoteDrawer() {
-  const { items, drawerOpen, closeDrawer, updateQuantity, remove, subtotalCents, count } = useQuoteCart();
-  const [storeModalOpen, setStoreModalOpen] = useState(false);
+  const { items, drawerOpen, closeDrawer, updateQuantity, remove, clear, subtotalCents, count } =
+    useQuoteCart();
 
-  function handleSendToStoreWhatsApp(store: CommercialStore) {
-    const itemsList = items.map((i) => `• ${i.quantity}x ${i.name} (SKU: ${i.sku})`).join('\n');
-    const msg = `Olá, Comercial do Norte (${store.shortTitle})!\nGostaria de solicitar uma cotação rápida para estes itens do carrinho no site:\n\n${itemsList}\n\nTotal de referência: ${formatMoney(subtotalCents)} (${count} itens)\nQual a disponibilidade na loja e condições para atacado?`;
-    const url = buildWhatsAppLink(store.whatsappDigits, msg);
-    window.open(url, '_blank', 'noopener,noreferrer');
-    setStoreModalOpen(false);
-    closeDrawer();
-  }
+  const totalUnitsLabel = `${count} ${count === 1 ? 'un.' : 'un.'}`;
+  const hasItems = items.length > 0;
 
   return (
     <WebSheet
+      badge={
+        hasItems ? (
+          <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-extrabold text-[#004CB1] tabular-nums">
+            {totalUnitsLabel}
+          </span>
+        ) : undefined
+      }
+      bodyClassName={hasItems ? 'bg-[#F4F7FB] p-4' : 'bg-white'}
       eyebrow="Sua lista"
       footer={
-        items.length > 0 ? (
-          <div>
-            <div className="mb-3 flex items-center justify-between text-sm">
-              <span className="text-muted">{count} item(ns) · valores de referência</span>
-              <strong className="text-ink">{formatMoney(subtotalCents)}</strong>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Link
-                className="block rounded-pill bg-promo px-4 py-3 text-center text-sm font-bold text-white hover:bg-promo-hover"
-                href="/cotacao"
-                onClick={closeDrawer}
-              >
-                Enviar cotação pelo site
-              </Link>
-              <button
-                className="flex items-center justify-center gap-1.5 rounded-pill bg-[#25D366] hover:bg-[#128C7E] px-4 py-2.5 text-center text-xs font-bold text-white transition cursor-pointer"
-                onClick={() => setStoreModalOpen((prev) => !prev)}
-                type="button"
-              >
-                <MessageCircle className="size-4" />
-                {storeModalOpen ? 'Ocultar lojas' : 'Cotar no WhatsApp da Loja'}
-              </button>
-            </div>
-            {storeModalOpen && (
-              <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200 text-left animate-in fade-in duration-200">
-                <p className="text-xs font-bold text-slate-800 mb-2">Qual a loja mais próxima de você?</p>
-                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                  {COMMERCIAL_STORES.map((st) => (
-                    <button
-                      key={st.id}
-                      className="w-full text-left p-2 rounded-lg bg-white border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition text-xs flex items-center justify-between group"
-                      onClick={() => handleSendToStoreWhatsApp(st)}
-                      type="button"
-                    >
-                      <div className="min-w-0 pr-2">
-                        <strong className="block text-slate-900 group-hover:text-emerald-700 truncate">{st.shortTitle}</strong>
-                        <span className="block text-[10px] text-slate-500 truncate">{st.address}</span>
-                      </div>
-                      <span className="text-[10px] text-emerald-600 font-bold shrink-0">Enviar &rarr;</span>
-                    </button>
-                  ))}
-                </div>
+        hasItems ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-slate-50/80 px-3.5 py-2.5">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-slate-600">
+                  {items.length} {items.length === 1 ? 'produto' : 'produtos'} · {count}{' '}
+                  {count === 1 ? 'unidade' : 'unidades'}
+                </p>
+                <p className="text-[11px] text-slate-400">Valores de referência</p>
               </div>
-            )}
-            <p className="mt-2 text-center text-xs text-muted">
-              Sem pagamento online: a equipe comercial responde com a proposta.
+              {subtotalCents > 0 ? (
+                <strong className="shrink-0 text-base font-extrabold text-[#004CB1] tabular-nums">
+                  {formatMoneyOrQuote(subtotalCents)}
+                </strong>
+              ) : (
+                <span className="inline-flex shrink-0 items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-extrabold text-[#004CB1]">
+                  {formatMoneyOrQuote(subtotalCents)}
+                </span>
+              )}
+            </div>
+
+            <Link
+              className="flex w-full items-center justify-center gap-2 rounded-pill bg-promo px-5 py-3.5 text-sm font-extrabold text-white shadow-sm transition hover:bg-promo-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-promo focus-visible:ring-offset-2"
+              href="/cotacao"
+              onClick={closeDrawer}
+            >
+              <span>Enviar cotação</span>
+              <ArrowRight aria-hidden className="size-4" />
+            </Link>
+
+            <p className="text-center text-[11.5px] leading-snug text-slate-500">
+              Sem pagamento online: você preenche seus dados na próxima etapa e a equipe responde com a proposta.
             </p>
           </div>
+        ) : undefined
+      }
+      headerActions={
+        hasItems && typeof clear === 'function' ? (
+          <button
+            aria-label="Limpar lista"
+            className="cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-500 transition hover:bg-rose-50 hover:text-promo"
+            onClick={clear}
+            type="button"
+          >
+            Limpar
+          </button>
         ) : undefined
       }
       onClose={closeDrawer}
       open={drawerOpen}
       title="Carrinho de cotação"
     >
-      {items.length === 0 ? (
+      {!hasItems ? (
         <div className="flex h-full flex-col items-center justify-center gap-3 px-6 py-16 text-center">
-          <ShoppingBasket aria-hidden className="size-10 text-muted" />
-          <p className="text-sm text-muted">Sua cotação está vazia. Adicione produtos do catálogo.</p>
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-blue-50 text-[#004CB1]">
+            <ShoppingBasket aria-hidden className="size-7" />
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm font-bold text-[#1D2433]">Sua lista de cotação está vazia</p>
+            <p className="max-w-xs text-xs leading-relaxed text-slate-500">
+              Adicione produtos do catálogo para montar sua lista e solicitar uma cotação com nossa equipe.
+            </p>
+          </div>
           <Link
-            className="rounded-pill bg-brand px-4 py-2 text-sm font-semibold text-white"
+            className="mt-1 rounded-pill bg-brand px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#003882]"
             href="/loja"
             onClick={closeDrawer}
           >
@@ -95,57 +100,99 @@ export function QuoteDrawer() {
           </Link>
         </div>
       ) : (
-        <ul className="divide-y divide-line px-4">
+        <ul className="space-y-3">
           {items.map((item) => {
-            const image = resolveProductImage(item.productSlug || item.variantId);
+            const image = item.imagePath
+              ? item.imagePath.startsWith('/') || /^https?:\/\//i.test(item.imagePath)
+                ? item.imagePath
+                : resolveProductImage({ imagePath: item.imagePath })
+              : resolveProductImage(item.productSlug || item.variantId);
+            const hasPrice = item.unitPriceCents != null && item.unitPriceCents > 0;
+            const lineTotalCents = hasPrice ? item.unitPriceCents! * item.quantity : null;
+            const productHref = item.productSlug ? `/produto/${item.productSlug}` : '/loja';
+
             return (
-              <li className="flex gap-3 py-4" key={item.variantId}>
-                <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-100 bg-white p-1">
-                  <Image
-                    alt={`${item.name} (Imagem ilustrativa)`}
-                    className="size-full object-contain"
-                    height={64}
-                    src={image}
-                    unoptimized
-                    width={64}
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-ink">{item.name}</p>
-                  <p className="text-xs text-muted">SKU {item.sku}</p>
-                  <div className="mt-2 flex items-center justify-between gap-2">
-                    <div className="inline-flex items-center rounded-pill border border-line">
+              <li
+                className="rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-2xs transition hover:border-[#004CB1]/30"
+                key={item.variantId}
+              >
+                <div className="flex items-start gap-3">
+                  <Link
+                    className="flex size-[72px] shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50/70 p-1.5 transition hover:border-[#004CB1]/40"
+                    href={productHref}
+                    onClick={closeDrawer}
+                  >
+                    <Image
+                      alt={`${item.name} (Imagem ilustrativa)`}
+                      className="size-full object-contain"
+                      height={72}
+                      src={image}
+                      unoptimized
+                      width={72}
+                    />
+                  </Link>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <Link
+                        className="line-clamp-2 text-[13.5px] font-bold leading-snug text-[#1D2433] transition hover:text-[#004CB1]"
+                        href={productHref}
+                        onClick={closeDrawer}
+                      >
+                        {item.name}
+                      </Link>
                       <button
-                        aria-label={`Diminuir quantidade de ${item.name}`}
-                        className="p-1.5 hover:bg-surface-soft"
-                        onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
+                        aria-label={`Remover ${item.name}`}
+                        className="-mr-1 -mt-1 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-promo"
+                        onClick={() => remove(item.variantId)}
+                        title="Remover item"
                         type="button"
                       >
-                        <Minus aria-hidden className="size-3.5" />
-                      </button>
-                      <span className="min-w-8 text-center text-sm">{item.quantity}</span>
-                      <button
-                        aria-label={`Aumentar quantidade de ${item.name}`}
-                        className="p-1.5 hover:bg-surface-soft"
-                        onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
-                        type="button"
-                      >
-                        <Plus aria-hidden className="size-3.5" />
+                        <Trash2 aria-hidden className="size-4" />
                       </button>
                     </div>
-                    <button
-                      aria-label={`Remover ${item.name}`}
-                      className="rounded p-1.5 text-muted hover:bg-promo-soft hover:text-promo"
-                      onClick={() => remove(item.variantId)}
-                      type="button"
-                    >
-                      <Trash2 aria-hidden className="size-4" />
-                    </button>
+
+                    <p className="mt-1 truncate font-mono text-[11px] text-slate-500">
+                      SKU {item.sku}
+                      {hasPrice ? ` · ${formatMoney(item.unitPriceCents!)} / un.` : ''}
+                    </p>
                   </div>
                 </div>
-                <p className="text-sm font-semibold text-ink">
-                  {formatMoney(item.unitPriceCents * item.quantity)}
-                </p>
+
+                <div className="mt-3 flex items-center justify-between gap-3 border-t border-slate-100 pt-2.5">
+                  <div className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 p-0.5">
+                    <button
+                      aria-label={`Diminuir quantidade de ${item.name}`}
+                      className="inline-flex size-7 cursor-pointer items-center justify-center rounded-full text-slate-700 transition hover:bg-white hover:shadow-2xs disabled:cursor-not-allowed disabled:opacity-35"
+                      disabled={item.quantity <= 1}
+                      onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
+                      type="button"
+                    >
+                      <Minus aria-hidden className="size-3.5" />
+                    </button>
+                    <span className="min-w-8 text-center text-xs font-extrabold text-[#1D2433] tabular-nums">
+                      {item.quantity}
+                    </span>
+                    <button
+                      aria-label={`Aumentar quantidade de ${item.name}`}
+                      className="inline-flex size-7 cursor-pointer items-center justify-center rounded-full text-slate-700 transition hover:bg-white hover:shadow-2xs"
+                      onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
+                      type="button"
+                    >
+                      <Plus aria-hidden className="size-3.5" />
+                    </button>
+                  </div>
+
+                  {lineTotalCents !== null ? (
+                    <p className="text-sm font-extrabold text-[#1D2433] tabular-nums">
+                      {formatMoneyOrQuote(lineTotalCents)}
+                    </p>
+                  ) : (
+                    <span className="inline-flex items-center rounded-full border border-blue-200/80 bg-blue-50/90 px-2.5 py-0.5 text-[11px] font-bold text-[#004CB1]">
+                      {formatMoneyOrQuote(lineTotalCents)}
+                    </span>
+                  )}
+                </div>
               </li>
             );
           })}

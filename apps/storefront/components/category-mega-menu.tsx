@@ -1,374 +1,682 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { ChevronRight, ArrowRight } from 'lucide-react';
+import React, { useMemo, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowRight, Award, ChevronRight, Package, Store } from "lucide-react";
+import { cn } from "@commerce/ui/web";
+import { SEGMENT_BANNER_MAP } from "@/components/segment-hero-banner";
+import { buildEnrichedBrands, DEFAULT_BRAND_SHOWCASE } from "@/lib/brands-data";
+import {
+  DEFAULT_FALLBACK_SEGMENTS,
+  DEFAULT_FALLBACK_TAGS,
+  getCategoryIcon,
+  getCategoryPromoMeta,
+  getSegmentIcon,
+  normalizeCategoryTree,
+  resolveStorefrontAssetUrl,
+} from "@/lib/taxonomy-ui";
+import type { ApiBrand, ApiCategory, ApiSegment, ApiTag } from "@/lib/types";
 
-export type CategoryMenuConfig = {
-  id: string;
-  name: string;
+type PromoCardConfig = {
+  tag: string;
+  title: string;
+  description: string;
+  imageUrl: string | null;
+  imageFit?: "cover" | "contain";
+  ctaLabel: string;
+  ctaHref: string;
+  subLinks?: Array<{ label: string; href: string }>;
+};
+
+type MegaMenuShellProps = {
+  ariaLabel: string;
+  badgeIcon: React.ReactNode;
+  badgeClassName: string;
+  title: string;
   allLabel: string;
   allHref: string;
-  columns: [
-    Array<{ name: string; href: string; badge?: string }>,
-    Array<{ name: string; href: string; badge?: string }>,
-  ];
-  banner: {
-    tag: string;
-    title: string;
-    description: string;
-    imageUrl: string;
-    ctaLabel: string;
-    ctaHref: string;
-  };
-};
-
-export const CATEGORY_MENUS_DATA: Record<string, CategoryMenuConfig> = {
-  embalagens: {
-    id: 'embalagens',
-    name: 'Embalagens',
-    allLabel: 'Tudo de Embalagens',
-    allHref: '/categoria/embalagens',
-    columns: [
-      [
-        { name: 'Caixas de Pizza Oitavadas', href: '/loja?q=pizza' },
-        { name: 'Marmitas Térmicas de Isopor', href: '/loja?q=marmita', badge: 'POPULAR' },
-        { name: 'Potes Plásticos com Tampa', href: '/loja?q=pote' },
-        { name: 'Embalagens Kraft para Delivery', href: '/loja?q=kraft' },
-        { name: 'Bandejas de Isopor para Alimentos', href: '/loja?q=bandeja' },
-        { name: 'Caixas de Lanche & Hambúrguer', href: '/loja?q=lanche' },
-        { name: 'Formas de Alumínio Descartáveis', href: '/loja?q=aluminio' },
-        { name: 'Potes para Molho & Sobremesa', href: '/loja?q=molho' },
-      ],
-      [
-        { name: 'Sacolas Plásticas Reforçadas', href: '/loja?q=sacolas', badge: 'ATACADO' },
-        { name: 'Sacolas Kraft com Alça', href: '/loja?q=kraft' },
-        { name: 'Bobinas Plásticas Picotadas', href: '/loja?q=bobina' },
-        { name: 'Filme PVC & Papel Alumínio 100m', href: '/loja?q=filme-pvc' },
-        { name: 'Fitas Adesivas & Aplicadores', href: '/loja?q=fita' },
-        { name: 'Seladoras de Embalagens Manuais', href: '/loja?q=seladora' },
-        { name: 'Caixas de Papelão para Envio', href: '/loja?q=caixa-papelao' },
-        { name: '+ Outras Embalagens Especiais', href: '/categoria/embalagens' },
-      ],
-    ],
-    banner: {
-      tag: 'ATACADO & DELIVERY',
-      title: 'Embalagens Térmicas para Restaurantes e Delivery',
-      description: 'Caixas master com desconto progressivo para compras no atacado em Belém.',
-      imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-embalagens.jpg',
-      ctaLabel: 'Explorar Embalagens',
-      ctaHref: '/categoria/embalagens',
-    },
-  },
-  descartaveis: {
-    id: 'descartaveis',
-    name: 'Descartáveis',
-    allLabel: 'Tudo de Descartáveis',
-    allHref: '/categoria/descartaveis',
-    columns: [
-      [
-        { name: 'Copos Plásticos 200ml (C/ 2.500)', href: '/loja?q=copo-200ml', badge: 'LÍDER' },
-        { name: 'Copos Plásticos 300ml e 500ml', href: '/loja?q=copo-300ml' },
-        { name: 'Copos Térmicos de Isopor para Café', href: '/loja?q=copo-termico' },
-        { name: 'Pratos Plásticos Redondos e Fundos', href: '/loja?q=prato' },
-        { name: 'Garfos, Facas & Colheres Reforçados', href: '/loja?q=talheres' },
-        { name: 'Talheres Embalados Individualmente', href: '/loja?q=sache' },
-        { name: 'Guardanapos de Papel (Pacotão)', href: '/loja?q=guardanapo' },
-        { name: 'Canudos Biodegradáveis e de Papel', href: '/loja?q=canudo' },
-      ],
-      [
-        { name: 'Potes para Sobremesa com Tampa', href: '/loja?q=sobremesa' },
-        { name: 'Mexedores de Café & Bebidas', href: '/loja?q=mexedor' },
-        { name: 'Toalhas de Papel em Rolo', href: '/loja?q=toalha-papel' },
-        { name: 'Forminhas de Doces & Brigadeiro', href: '/loja?q=forminha' },
-        { name: 'Canecas & Taças Acrílicas', href: '/loja?q=taca' },
-        { name: 'Espetos de Madeira para Petisco', href: '/loja?q=espeto' },
-        { name: 'Luvas Plásticas Descartáveis', href: '/loja?q=luva-plastica' },
-        { name: '+ Outros Descartáveis Essenciais', href: '/categoria/descartaveis' },
-      ],
-    ],
-    banner: {
-      tag: 'DESCARTÁVEIS',
-      title: 'Copos e Pratos Descartáveis por Caixa Fechada',
-      description: 'Abasteça lanchonetes, eventos e hospitais com entrega expressa.',
-      imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-descartaveis.jpg',
-      ctaLabel: 'Explorar Descartáveis',
-      ctaHref: '/categoria/descartaveis',
-    },
-  },
-  festa: {
-    id: 'festa',
-    name: 'Festas & Eventos',
-    allLabel: 'Tudo de Festas & Eventos',
-    allHref: '/categoria/artigos-festa',
-    columns: [
-      [
-        { name: 'Forminhas para Doces Finos', href: '/loja?q=forminha-fina', badge: 'NOVO' },
-        { name: 'Pratos & Copos Temáticos de Festa', href: '/loja?q=festa-tema' },
-        { name: 'Guardanapos Coloridos & Estampados', href: '/loja?q=guardanapo-festa' },
-        { name: 'Garfinhos de Sobremesa Coloridos', href: '/loja?q=garfinho' },
-        { name: 'Toalhas de Mesa Descartáveis', href: '/loja?q=toalha-mesa' },
-        { name: 'Sacolas para Lembrancinhas', href: '/loja?q=sacola-lembranca' },
-        { name: 'Velas de Aniversário & Faíscas', href: '/loja?q=vela' },
-        { name: 'Bexigas & Balões Metalizados', href: '/loja?q=baloes' },
-      ],
-      [
-        { name: 'Embalagens Transparentes para Doces', href: '/loja?q=acetato' },
-        { name: 'Caixas de Brigadeiro Gourmet', href: '/loja?q=caixa-brigadeiro' },
-        { name: 'Tubetes & Garrafinhas Plásticas', href: '/loja?q=tubete' },
-        { name: 'Painéis & Suportes de Balão', href: '/loja?q=suporte-balao' },
-        { name: 'Fitas Decorativas & Laços Prontos', href: '/loja?q=laco' },
-        { name: 'Picks & Enfeites de Cupcake', href: '/loja?q=pick' },
-        { name: 'Cestas e Cachepôs de Festa', href: '/loja?q=cesta' },
-        { name: '+ Todos os Artigos de Decoração', href: '/categoria/artigos-festa' },
-      ],
-    ],
-    banner: {
-      tag: 'FESTAS & EVENTOS',
-      title: 'Decoração e Descartáveis para Festas & Eventos',
-      description: 'Variedade completa para aniversários, casamentos e confraternizações.',
-      imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-festas.jpg',
-      ctaLabel: 'Explorar Festas & Eventos',
-      ctaHref: '/categoria/artigos-festa',
-    },
-  },
-  confeitaria: {
-    id: 'confeitaria',
-    name: 'Doces & Confeitaria',
-    allLabel: 'Tudo de Confeitaria & Doces',
-    allHref: '/categoria/confeitaria',
-    columns: [
-      [
-        { name: 'Formas para Bolos, Tortas & Pudim', href: '/loja?q=forma-bolo' },
-        { name: 'Embalagens para Bolos com Tampa Alta', href: '/loja?q=tampa-alta', badge: 'TOP' },
-        { name: 'Caixas para Doces & Macarons', href: '/loja?q=caixa-doce' },
-        { name: 'Pratos Laminados para Bolos', href: '/loja?q=prato-laminado' },
-        { name: 'Bicos & Sacos de Confeitar', href: '/loja?q=bico-confeitar' },
-        { name: 'Chantilly em Caixa & Pós', href: '/loja?q=chantilly' },
-        { name: 'Chocolates em Barra & Gotas', href: '/loja?q=chocolate' },
-        { name: 'Coberturas & Granulados', href: '/loja?q=granulado' },
-      ],
-      [
-        { name: 'Corantes Alimentícios em Gel', href: '/loja?q=corante' },
-        { name: 'Desmoldantes em Spray', href: '/loja?q=desmoldante' },
-        { name: 'Tapetes de Silicone & Rolos', href: '/loja?q=tapete-silicone' },
-        { name: 'Espátulas Inox & Alisadores', href: '/loja?q=espatula' },
-        { name: 'Acetato em Rolo para Bolos', href: '/loja?q=acetato-rolo' },
-        { name: 'Embalagens Individuais para Fatias', href: '/loja?q=fatia-bolo' },
-        { name: 'Potes de Vidro & Acrílico para Sobremesa', href: '/loja?q=pote-bolo' },
-        { name: '+ Outros Ingredientes e Acessórios', href: '/categoria/confeitaria' },
-      ],
-    ],
-    banner: {
-      tag: 'CONFEITARIA ARTESANAL',
-      title: 'Embalagens Premium para Bolos e Doces Gourmet',
-      description: 'Valorize seu produto final com tampas cristalinas e caixas estruturadas.',
-      imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-confeitaria.jpg',
-      ctaLabel: 'Explorar Confeitaria',
-      ctaHref: '/categoria/confeitaria',
-    },
-  },
-  limpeza: {
-    id: 'limpeza',
-    name: 'Limpeza Profissional',
-    allLabel: 'Tudo de Limpeza Profissional',
-    allHref: '/categoria/limpeza',
-    columns: [
-      [
-        { name: 'Detergentes Concentrados 5 Litros', href: '/loja?q=detergente-5l', badge: 'ATACADO' },
-        { name: 'Desinfetantes e Cloros 5 Litros', href: '/loja?q=desinfetante' },
-        { name: 'Desengraxantes & Multiuso 5L', href: '/loja?q=desengraxante' },
-        { name: 'Sabonetes Líquidos Refil 5L', href: '/loja?q=sabonete-5l' },
-        { name: 'Álcool 70% Líquido & Gel', href: '/loja?q=alcool-70' },
-        { name: 'Alvejantes sem Cloro & Amaciantes', href: '/loja?q=amaciante' },
-        { name: 'Limpadores de Piso e Porcelanato', href: '/loja?q=limpa-piso' },
-        { name: 'Limpa Vidros de Alta Performance', href: '/loja?q=limpa-vidro' },
-      ],
-      [
-        { name: 'Sacos de Lixo 50L, 100L e 200L', href: '/loja?q=saco-lixo', badge: 'REFORÇADO' },
-        { name: 'Sacos de Lixo Hospitalar (Infectante)', href: '/loja?q=lixo-hospitalar' },
-        { name: 'Papel Toalha Interfolha 100% Celulose', href: '/loja?q=papel-toalha' },
-        { name: 'Papel Higiênico Rolão 300m', href: '/loja?q=papel-rolao' },
-        { name: 'Dispensers de Parede para Papel e Sabonete', href: '/loja?q=dispenser' },
-        { name: 'Luvas de Látex & Nitrílicas', href: '/loja?q=luva-latex' },
-        { name: 'Rodos, MOPs & Carros de Limpeza', href: '/loja?q=mop' },
-        { name: '+ Outros Produtos Institucionais', href: '/categoria/limpeza' },
-      ],
-    ],
-    banner: {
-      tag: 'LIMPEZA PROFISSIONAL',
-      title: 'Galões de 5L e Linha Institucional com Alto Rendimento',
-      description: 'Ideal para condomínios, clínicas, escolas e restaurantes.',
-      imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-limpeza.jpg',
-      ctaLabel: 'Explorar Limpeza',
-      ctaHref: '/categoria/limpeza',
-    },
-  },
-  sacolas: {
-    id: 'sacos-e-sacolas',
-    name: 'Sacos & Sacolas',
-    allLabel: 'Tudo de Sacos & Sacolas',
-    allHref: '/categoria/sacos-e-sacolas',
-    columns: [
-      [
-        { name: 'Sacolas Plásticas Reforçadas (Fardos)', href: '/loja?q=sacola', badge: 'LÍDER' },
-        { name: 'Sacolas Kraft com Alça Torcida', href: '/loja?q=kraft', badge: 'ECO' },
-        { name: 'Sacolas Kraft Delivery Fundo Largo', href: '/loja?q=kraft' },
-        { name: 'Sacolas Alça Camiseta (P, M, G, GG)', href: '/loja?q=sacola' },
-        { name: 'Sacolas Alça Vazada / Boca de Palhaço', href: '/loja?q=sacola' },
-        { name: 'Sacolas Transparentes de Alta Densidade', href: '/loja?q=sacola' },
-        { name: 'Sacolas Coloridas para Lojas e Boutiques', href: '/loja?q=sacola' },
-        { name: 'Sacolas Térmicas para Congelados', href: '/loja?q=termica' },
-      ],
-      [
-        { name: 'Bobinas Plásticas Picotadas Fundo Estrela', href: '/loja?q=bobina', badge: 'ATACADO' },
-        { name: 'Sacos Plásticos Transparentes PP / PE', href: '/loja?q=saco' },
-        { name: 'Sacos com Fecho Zip / Hermético', href: '/loja?q=zip' },
-        { name: 'Sacos de Papel Kraft para Pão & Lanches', href: '/loja?q=saco-papel' },
-        { name: 'Sacos de Lixo Reforçados 50L a 200L', href: '/loja?q=lixo' },
-        { name: 'Sacos a Vácuo para Alimentos', href: '/loja?q=vacuo' },
-        { name: 'Seladoras de Sacos Manuais e Pedal', href: '/loja?q=seladora' },
-        { name: '+ Todas as Opções de Sacos & Sacolas', href: '/categoria/sacos-e-sacolas' },
-      ],
-    ],
-    banner: {
-      tag: 'SACOS & SACOLAS',
-      title: 'Sacolas Plásticas e Kraft no Atacado e Varejo',
-      description: 'Variedade em tamanhos, espessuras reforçadas e fardos promocionais para seu comércio.',
-      imageUrl: '/assets/HOME Vitrine/S3-CARDS-Categorias/cat-sacolas.jpg',
-      ctaLabel: 'Explorar Sacos & Sacolas',
-      ctaHref: '/categoria/sacos-e-sacolas',
-    },
-  },
-};
-
-type CategoryMegaMenuProps = {
-  config: CategoryMenuConfig;
   onClose?: () => void;
-  align?: 'left' | 'center' | 'right';
+  promo: PromoCardConfig;
+  children: React.ReactNode;
 };
 
-export function CategoryMegaMenu({ config, onClose, align = 'left' }: CategoryMegaMenuProps) {
-  const [col1, col2] = config.columns;
-
-  const alignmentClass =
-    align === 'center'
-      ? '-left-48 md:-left-64'
-      : align === 'right'
-        ? 'right-0'
-        : 'left-0';
-
+function MegaMenuShell({
+  ariaLabel,
+  badgeIcon,
+  badgeClassName,
+  title,
+  allLabel,
+  allHref,
+  onClose,
+  promo,
+  children,
+}: MegaMenuShellProps) {
   return (
     <div
       role="menu"
-      aria-label={`Menu expandido de ${config.name}`}
-      className={`w-[780px] max-w-[calc(100vw-32px)] rounded-2xl border border-slate-200/95 bg-white p-5 text-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.18)] ring-1 ring-black/5 animate-in fade-in-0 zoom-in-95 duration-150 ${alignmentClass}`}
+      aria-label={ariaLabel}
+      className="w-[840px] max-w-[calc(100vw-32px)] rounded-2xl border border-slate-200/95 bg-white p-5 text-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.18)] ring-1 ring-black/5 animate-in fade-in-0 zoom-in-95 duration-150"
     >
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-                {/* Colunas 1 e 2: Lista de Subcategorias com Link Principal no Topo */}
-        <div className="col-span-2 flex flex-col">
-          {/* Link Principal no Topo: "Tudo de [Categoria] →" */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+        {/* Área principal (8 colunas): Barra de topo + Conteúdo reutilizado */}
+        <div className="flex min-w-0 flex-col lg:col-span-8">
           <div className="mb-3 border-b border-slate-100 pb-2.5">
             <Link
-              className="group flex items-center justify-between rounded-xl bg-slate-50/90 px-3.5 py-2.5 text-xs font-bold text-slate-900 transition hover:bg-blue-50 hover:text-[#004CB1]"
-              href={config.allHref}
+              className="group flex items-center justify-between rounded-xl bg-slate-50/90 px-3 py-2 transition hover:bg-blue-50 hover:text-[#004CB1]"
+              href={allHref}
               onClick={onClose}
             >
-              <span>{config.allLabel}</span>
-              <ArrowRight className="size-4 text-slate-400 transition-transform group-hover:translate-x-1 group-hover:text-[#004CB1]" />
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span
+                  className={cn(
+                    "flex size-7 shrink-0 items-center justify-center rounded-lg text-white shadow-2xs",
+                    badgeClassName
+                  )}
+                >
+                  {badgeIcon}
+                </span>
+                <div className="leading-tight min-w-0">
+                  <span className="block text-[9.5px] font-bold uppercase tracking-wider text-slate-400">
+                    VER PRODUTOS POR
+                  </span>
+                  <span className="block truncate text-xs font-extrabold text-slate-900 group-hover:text-[#004CB1]">
+                    {title}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-1.5 text-xs font-bold text-[#004CB1]">
+                <span>{allLabel}</span>
+                <ArrowRight className="size-4 text-slate-400 transition-transform group-hover:translate-x-1 group-hover:text-[#004CB1]" />
+              </div>
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-            {/* Coluna 1 */}
-            <div className="flex flex-col space-y-0.5">
-              {col1.map((item) => (
-                <Link
-                  className="group/item flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-[#004CB1]"
-                  href={item.href}
-                  key={item.name}
-                  onClick={onClose}
-                >
-                  <span className="truncate pr-2">{item.name}</span>
-                  <div className="flex items-center gap-1">
-                    {item.badge && (
-                      <span className="rounded bg-amber-100 px-1.5 py-0.2 text-[9px] font-bold text-amber-800 uppercase">
-                        {item.badge}
-                      </span>
-                    )}
-                    <ChevronRight className="size-3.5 text-slate-300 transition-transform group-hover/item:translate-x-0.5 group-hover/item:text-[#004CB1]" />
-                  </div>
-                </Link>
-              ))}
+          <div className="flex-1 min-h-0">{children}</div>
+        </div>
+
+        {/* Coluna Direita (4 colunas): Card Promocional / Preview Dinâmico */}
+        <div className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-sm transition hover:shadow-md lg:col-span-4">
+          {promo.imageUrl ? (
+            promo.imageFit === "contain" ? (
+              <div className="flex h-28 w-full items-center justify-center border-b border-slate-100 bg-slate-50 p-4">
+                <div className="relative size-full">
+                  <Image
+                    alt={promo.title}
+                    className="object-contain"
+                    fill
+                    sizes="240px"
+                    src={promo.imageUrl}
+                    unoptimized
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="relative h-32 w-full overflow-hidden bg-slate-100">
+                <Image
+                  alt={promo.title}
+                  className="object-cover transition-transform duration-500 hover:scale-105"
+                  fill
+                  sizes="260px"
+                  src={promo.imageUrl}
+                  unoptimized
+                />
+              </div>
+            )
+          ) : (
+            <div className="flex h-28 w-full flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-[#002B66] via-[#004CB1] to-[#00357B] p-4 text-center text-white">
+              <Award className="size-6 text-amber-300" />
+              <span className="line-clamp-1 text-sm font-black tracking-tight">
+                {promo.title}
+              </span>
             </div>
+          )}
 
-            {/* Coluna 2 */}
-            <div className="flex flex-col space-y-0.5">
-              {col2.map((item) => (
-                <Link
-                  className="group/item flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-[#004CB1]"
-                  href={item.href}
-                  key={item.name}
-                  onClick={onClose}
-                >
-                  <span className="truncate pr-2">{item.name}</span>
-                  <div className="flex items-center gap-1">
-                    {item.badge && (
-                      <span className="rounded bg-red-100 px-1.5 py-0.2 text-[9px] font-bold text-[#E2091E] uppercase">
-                        {item.badge}
-                      </span>
-                    )}
-                    <ChevronRight className="size-3.5 text-slate-300 transition-transform group-hover/item:translate-x-0.5 group-hover/item:text-[#004CB1]" />
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          </div>
-
-        {/* Coluna 3: Card Promocional com Foto no Topo Preenchendo toda a Largura */}
-        <div className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-sm transition hover:shadow-md">
-          {/* Foto no topo preenchendo toda a largura da seção com cantos arredondados no topo */}
-          <div className="relative h-32 w-full overflow-hidden bg-slate-100">
-            <Image
-              alt={config.banner.title}
-              className="object-cover transition-transform duration-500 hover:scale-105"
-              fill
-              sizes="260px"
-              src={config.banner.imageUrl}
-            />
-          </div>
-
-          {/* Conteúdo com espaçamento interno */}
           <div className="flex flex-1 flex-col justify-between p-3.5">
             <div>
               <span className="inline-block rounded bg-blue-100 px-2 py-0.5 text-[9.5px] font-extrabold tracking-wider text-[#004CB1] uppercase">
-                {config.banner.tag}
+                {promo.tag}
               </span>
 
-              <h4 className="mt-2 text-xs font-bold leading-tight text-slate-900">
-                {config.banner.title}
+              <h4 className="mt-2 line-clamp-2 text-xs font-bold leading-tight text-slate-900">
+                {promo.title}
               </h4>
 
-              <p className="mt-1 text-[11px] leading-relaxed text-slate-500 line-clamp-2">
-                {config.banner.description}
+              <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-slate-500">
+                {promo.description}
               </p>
+
+              {promo.subLinks && promo.subLinks.length > 0 && (
+                <div className="mt-2.5 flex flex-wrap gap-1">
+                  {promo.subLinks.map((sub) => (
+                    <Link
+                      className="inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-semibold text-slate-700 transition hover:border-[#004CB1] hover:bg-blue-50 hover:text-[#004CB1]"
+                      href={sub.href}
+                      key={sub.href}
+                      onClick={onClose}
+                    >
+                      {sub.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Botão de Ação no Rodapé */}
             <Link
               className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#004CB1] px-3 py-2 text-center text-xs font-bold text-white shadow-sm transition hover:bg-[#00357B] active:scale-98"
-              href={config.banner.ctaHref}
+              href={promo.ctaHref}
               onClick={onClose}
             >
-              <span>{config.banner.ctaLabel}</span>
-              <ChevronRight className="size-3.5" />
+              <span className="truncate">{promo.ctaLabel}</span>
+              <ChevronRight className="size-3.5 shrink-0" />
             </Link>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+export type CategoriesMegaMenuProps = {
+  categories: ApiCategory[];
+  tags?: ApiTag[];
+  onClose?: () => void;
+};
+
+export function CategoriesMegaMenu({
+  categories,
+  tags,
+  onClose,
+}: CategoriesMegaMenuProps) {
+  const normalizedCategories = useMemo(
+    () => normalizeCategoryTree(categories),
+    [categories]
+  );
+
+  const defaultCategory = useMemo(
+    () =>
+      normalizedCategories.find((c) =>
+        c.subcategories.some((s) => s.productCount > 0)
+      ) ??
+      normalizedCategories.find((c) => c.subcategories.length > 0) ??
+      normalizedCategories[0],
+    [normalizedCategories]
+  );
+
+  const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
+
+  const activeCategory = useMemo(
+    () =>
+      normalizedCategories.find((c) => c.slug === hoveredSlug) ?? defaultCategory,
+    [normalizedCategories, hoveredSlug, defaultCategory]
+  );
+
+  const quickTags = useMemo(
+    () => (tags && tags.length > 0 ? tags : DEFAULT_FALLBACK_TAGS).slice(0, 5),
+    [tags]
+  );
+
+  const promoMeta = getCategoryPromoMeta(
+    activeCategory.slug,
+    activeCategory.name,
+    activeCategory.imagePath
+  );
+
+  const ActiveIcon = getCategoryIcon(activeCategory.slug);
+
+  return (
+    <MegaMenuShell
+      allHref="/loja"
+      allLabel="Ver catálogo completo"
+      ariaLabel="Menu expandido de Categorias"
+      badgeClassName="bg-[#E2091E]"
+      badgeIcon={<Package className="size-4" />}
+      onClose={onClose}
+      promo={{
+        ...promoMeta,
+        imageFit: "cover",
+        ctaLabel: "Explorar Categoria",
+        ctaHref: `/categoria/${activeCategory.slug}`,
+      }}
+      title="Categorias"
+    >
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-12">
+        {/* Lista Principal de Categorias (Esquerda) */}
+        <div className="max-h-[330px] space-y-0.5 overflow-y-auto sidebar-scrollbar pr-1.5 sm:col-span-5 sm:border-r sm:border-slate-100">
+          {normalizedCategories.map((cat) => {
+            const IconComponent = getCategoryIcon(cat.slug);
+            const isActive = cat.slug === activeCategory.slug;
+
+            return (
+              <Link
+                className={cn(
+                  "group/item flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-colors",
+                  isActive
+                    ? "bg-blue-50 font-bold text-[#004CB1]"
+                    : "font-medium text-slate-700 hover:bg-slate-50 hover:text-[#004CB1]"
+                )}
+                href={`/categoria/${cat.slug}`}
+                key={cat.id || cat.slug}
+                onClick={onClose}
+                onFocus={() => setHoveredSlug(cat.slug)}
+                onMouseEnter={() => setHoveredSlug(cat.slug)}
+              >
+                <div className="flex min-w-0 items-center gap-2">
+                  <IconComponent
+                    className={cn(
+                      "size-3.5 shrink-0 transition-colors",
+                      isActive
+                        ? "text-[#004CB1]"
+                        : "text-slate-400 group-hover/item:text-[#004CB1]"
+                    )}
+                  />
+                  <span className="truncate">{cat.name}</span>
+                </div>
+
+                <div className="flex shrink-0 items-center gap-1">
+                  {cat.productCount > 0 && (
+                    <span className="text-[10px] font-medium text-slate-400">
+                      ({cat.productCount})
+                    </span>
+                  )}
+                  <ChevronRight
+                    className={cn(
+                      "size-3.5 transition-transform",
+                      isActive
+                        ? "translate-x-0.5 text-[#004CB1]"
+                        : "text-slate-300 group-hover/item:translate-x-0.5 group-hover/item:text-[#004CB1]"
+                    )}
+                  />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Painel de Subcategorias da Categoria em Foco (Centro) */}
+        <div className="flex min-w-0 flex-col justify-between sm:col-span-7">
+          <div>
+            <div className="mb-2.5 flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+              <div className="flex min-w-0 items-center gap-2">
+                <ActiveIcon className="size-4 shrink-0 text-[#004CB1]" />
+                <span className="truncate text-xs font-extrabold text-slate-900">
+                  {activeCategory.name}
+                </span>
+              </div>
+              <Link
+                className="shrink-0 text-[11px] font-bold text-[#004CB1] hover:underline"
+                href={`/categoria/${activeCategory.slug}`}
+                onClick={onClose}
+              >
+                Ver tudo →
+              </Link>
+            </div>
+
+            {activeCategory.subcategories.length > 0 ? (
+              <div
+                className={cn(
+                  "grid gap-1",
+                  activeCategory.subcategories.length >= 4
+                    ? "grid-cols-1 sm:grid-cols-2"
+                    : "grid-cols-1"
+                )}
+              >
+                {activeCategory.subcategories.map((sub) => (
+                  <Link
+                    className="group/sub flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-blue-50/70 hover:text-[#004CB1]"
+                    href={`/categoria/${sub.slug}`}
+                    key={sub.slug}
+                    onClick={onClose}
+                  >
+                    <span className="truncate">{sub.name}</span>
+                    <div className="flex shrink-0 items-center gap-1">
+                      {sub.productCount > 0 && (
+                        <span className="text-[10px] text-slate-400">
+                          ({sub.productCount})
+                        </span>
+                      )}
+                      <ChevronRight className="size-3 text-slate-300 transition-transform group-hover/sub:translate-x-0.5 group-hover/sub:text-[#004CB1]" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-slate-100 bg-slate-50/80 p-3.5">
+                <p className="text-xs font-bold text-slate-800">
+                  Linha completa em {activeCategory.name}
+                </p>
+                <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+                  Confira opções selecionadas com preços especiais para pedidos no atacado e varejo.
+                </p>
+                <Link
+                  className="mt-2.5 inline-flex items-center gap-1 text-xs font-bold text-[#004CB1] hover:underline"
+                  href={`/categoria/${activeCategory.slug}`}
+                  onClick={onClose}
+                >
+                  <span>
+                    Ver produtos de {activeCategory.name}
+                  </span>
+                  <ArrowRight className="size-3.5" />
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Atalhos Rápidos por Tag */}
+          {quickTags.length > 0 && (
+            <div className="mt-3 border-t border-slate-100 pt-2.5">
+              <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Tags rápidas
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {quickTags.map((tag) => (
+                  <Link
+                    className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50/70 px-2.5 py-0.5 text-[10.5px] font-semibold text-slate-600 transition hover:border-[#004CB1] hover:bg-blue-50 hover:text-[#004CB1]"
+                    href={`/loja?tag=${encodeURIComponent(tag.slug)}`}
+                    key={tag.id || tag.slug}
+                    onClick={onClose}
+                  >
+                    {tag.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </MegaMenuShell>
+  );
+}
+
+export type SegmentsMegaMenuProps = {
+  segments?: ApiSegment[];
+  onClose?: () => void;
+};
+
+export function SegmentsMegaMenu({ segments, onClose }: SegmentsMegaMenuProps) {
+  const activeSegments = useMemo(
+    () =>
+      segments && segments.length > 0 ? segments : DEFAULT_FALLBACK_SEGMENTS,
+    [segments]
+  );
+
+  const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
+
+  const hoveredSegment = useMemo(
+    () => activeSegments.find((s) => s.slug === hoveredSlug) ?? null,
+    [activeSegments, hoveredSlug]
+  );
+
+  const promo: PromoCardConfig = useMemo(() => {
+    if (hoveredSegment) {
+      const resolvedImage =
+        resolveStorefrontAssetUrl(hoveredSegment.imagePath) ||
+        SEGMENT_BANNER_MAP[hoveredSegment.slug]?.imageSrc ||
+        "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg";
+
+      return {
+        tag: hoveredSegment._count?.products
+          ? `${hoveredSegment._count.products} PRODUTOS`
+          : "SEGMENTO",
+        title: hoveredSegment.name,
+        description:
+          hoveredSegment.description ||
+          `Embalagens, descartáveis e utilidades selecionadas para ${hoveredSegment.name}.`,
+        imageUrl: resolvedImage,
+        imageFit: "cover",
+        ctaLabel: "Explorar Segmento",
+        ctaHref: `/segmento/${encodeURIComponent(hoveredSegment.slug)}`,
+      };
+    }
+
+    return {
+      tag: "PARA TODOS OS NEGÓCIOS",
+      title: "Soluções sob medida para o seu ramo",
+      description:
+        "Pizzarias, lanchonetes, padarias, festas, delivery e muito mais com condição de atacado.",
+      imageUrl:
+        "/assets/HOME Vitrine/S8-CARDS-Segmentos/s08-segment-09-delivery.jpg",
+      imageFit: "cover",
+      ctaLabel: "Ver Todos os Segmentos",
+      ctaHref: "/segmentos",
+    };
+  }, [hoveredSegment]);
+
+  return (
+    <MegaMenuShell
+      allHref="/segmentos"
+      allLabel="Ver todos os segmentos"
+      ariaLabel="Menu expandido de Segmentos"
+      badgeClassName="bg-[#004CB1]"
+      badgeIcon={<Store className="size-4" />}
+      onClose={onClose}
+      promo={promo}
+      title="Segmentos"
+    >
+      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+        {activeSegments.map((seg) => {
+          const IconComponent = getSegmentIcon(seg.slug);
+          const isActive = hoveredSegment?.slug === seg.slug;
+
+          return (
+            <Link
+              className={cn(
+                "group/item flex items-center justify-between gap-2 rounded-xl border px-2.5 py-2 text-xs transition-colors",
+                isActive
+                  ? "border-blue-200 bg-blue-50/70 font-bold text-[#004CB1]"
+                  : "border-transparent font-medium text-slate-700 hover:border-slate-200/80 hover:bg-slate-50 hover:text-[#004CB1]"
+              )}
+              href={`/segmento/${encodeURIComponent(seg.slug)}`}
+              key={seg.id || seg.slug}
+              onClick={onClose}
+              onFocus={() => setHoveredSlug(seg.slug)}
+              onMouseEnter={() => setHoveredSlug(seg.slug)}
+            >
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span
+                  className={cn(
+                    "flex size-7 shrink-0 items-center justify-center rounded-lg transition-colors",
+                    isActive
+                      ? "bg-[#004CB1] text-white"
+                      : "bg-slate-100 text-slate-500 group-hover/item:bg-[#004CB1] group-hover/item:text-white"
+                  )}
+                >
+                  <IconComponent className="size-3.5" />
+                </span>
+                <span className="truncate">{seg.name}</span>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-1">
+                {seg._count?.products !== undefined && seg._count.products > 0 && (
+                  <span className="text-[10px] font-medium text-slate-400">
+                    ({seg._count.products})
+                  </span>
+                )}
+                <ChevronRight className="size-3.5 text-slate-300 transition-transform group-hover/item:translate-x-0.5 group-hover/item:text-[#004CB1]" />
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </MegaMenuShell>
+  );
+}
+
+export type BrandsMegaMenuProps = {
+  brands: ApiBrand[];
+  onClose?: () => void;
+};
+
+export function BrandsMegaMenu({ brands, onClose }: BrandsMegaMenuProps) {
+  const enrichedBrands = useMemo(
+    () => buildEnrichedBrands(brands ?? []),
+    [brands]
+  );
+
+  const { featuredBrands, otherBrands } = useMemo(() => {
+    const withLogos = enrichedBrands.filter((b) => Boolean(b.imagePath));
+    const featured = (withLogos.length > 0 ? withLogos : enrichedBrands).slice(
+      0,
+      12
+    );
+    const featuredSlugs = new Set(featured.map((b) => b.slug));
+    const others = enrichedBrands
+      .filter((b) => !featuredSlugs.has(b.slug))
+      .sort(
+        (a, b) =>
+          (b._count?.products ?? 0) - (a._count?.products ?? 0) ||
+          a.name.localeCompare(b.name, "pt-BR")
+      );
+
+    return { featuredBrands: featured, otherBrands: others };
+  }, [enrichedBrands]);
+
+  const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
+
+  const hoveredBrand = useMemo(
+    () => enrichedBrands.find((b) => b.slug === hoveredSlug) ?? null,
+    [enrichedBrands, hoveredSlug]
+  );
+
+  const promo: PromoCardConfig = useMemo(() => {
+    if (hoveredBrand) {
+      const showcaseMatch = DEFAULT_BRAND_SHOWCASE.find(
+        (s) => s.slug === hoveredBrand.slug
+      );
+      const count = hoveredBrand._count?.products ?? 0;
+
+      return {
+        tag: count > 0 ? `${count} PRODUTOS` : "MARCA PARCEIRA",
+        title: hoveredBrand.name,
+        description:
+          hoveredBrand.description ||
+          showcaseMatch?.subtitle ||
+          `Confira a linha completa de produtos ${hoveredBrand.name} para seu negócio.`,
+        imageUrl: resolveStorefrontAssetUrl(hoveredBrand.imagePath),
+        imageFit: "contain",
+        subLinks: (hoveredBrand.children ?? []).slice(0, 3).map((sub) => ({
+          label: sub.name,
+          href: `/marca/${sub.slug}`,
+        })),
+        ctaLabel: `Explorar ${hoveredBrand.name}`,
+        ctaHref: `/marca/${hoveredBrand.slug}`,
+      };
+    }
+
+    return {
+      tag: "MARCAS PARCEIRAS",
+      title: "As Principais Marcas do Setor em Um Só Lugar",
+      description:
+        "Fabricantes líderes em embalagens, descartáveis, papéis e confeitaria com cotação rápida.",
+      imageUrl: "/assets/HOME Vitrine/S3-CARDS-Categorias/cat-embalagens.jpg",
+      imageFit: "cover",
+      ctaLabel: "Ver Todas as Marcas",
+      ctaHref: "/marcas",
+    };
+  }, [hoveredBrand]);
+
+  return (
+    <MegaMenuShell
+      allHref="/marcas"
+      allLabel={`Ver todas (${enrichedBrands.length})`}
+      ariaLabel="Menu expandido de Marcas"
+      badgeClassName="bg-[#00357B]"
+      badgeIcon={<Award className="size-4" />}
+      onClose={onClose}
+      promo={promo}
+      title="Marcas"
+    >
+      <div className="flex flex-col gap-3">
+        {/* Grade de Marcas em Destaque com Logo */}
+        <div>
+          <span className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            Marcas em destaque
+          </span>
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+            {featuredBrands.map((brand) => {
+              const logoUrl = resolveStorefrontAssetUrl(brand.imagePath);
+              const isActive = hoveredBrand?.slug === brand.slug;
+
+              return (
+                <Link
+                  className={cn(
+                    "group/brand flex flex-col items-center justify-center gap-1 rounded-xl border p-2 transition",
+                    isActive
+                      ? "border-[#004CB1] bg-blue-50/50 shadow-2xs"
+                      : "border-slate-200/80 bg-white hover:border-[#004CB1] hover:bg-blue-50/30 hover:shadow-2xs"
+                  )}
+                  href={`/marca/${brand.slug}`}
+                  key={brand.id || brand.slug}
+                  onClick={onClose}
+                  onFocus={() => setHoveredSlug(brand.slug)}
+                  onMouseEnter={() => setHoveredSlug(brand.slug)}
+                >
+                  {logoUrl ? (
+                    <div className="relative h-10 w-full">
+                      <Image
+                        alt={brand.name}
+                        className="object-contain"
+                        fill
+                        sizes="120px"
+                        src={logoUrl}
+                        unoptimized
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-10 w-full items-center justify-center rounded bg-slate-50">
+                      <Award className="size-4 text-[#00357B]" />
+                    </div>
+                  )}
+                  <span className="max-w-full truncate text-center text-[10.5px] font-bold text-slate-700 group-hover/brand:text-[#004CB1]">
+                    {brand.name}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Lista Compacta das Demais Marcas do Catálogo */}
+        {otherBrands.length > 0 && (
+          <div className="border-t border-slate-100 pt-2.5">
+            <div className="mb-1.5 flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Mais marcas do catálogo ({otherBrands.length})
+              </span>
+            </div>
+            <div className="grid max-h-[112px] grid-cols-2 gap-1 overflow-y-auto sidebar-scrollbar pr-1 sm:grid-cols-3">
+              {otherBrands.map((brand) => {
+                const count = brand._count?.products ?? 0;
+                const isActive = hoveredBrand?.slug === brand.slug;
+
+                return (
+                  <Link
+                    className={cn(
+                      "flex items-center justify-between gap-1 rounded-lg px-2 py-1 text-[11px] transition-colors",
+                      isActive
+                        ? "bg-blue-50 font-bold text-[#004CB1]"
+                        : "font-medium text-slate-700 hover:bg-slate-50 hover:text-[#004CB1]"
+                    )}
+                    href={`/marca/${brand.slug}`}
+                    key={brand.id || brand.slug}
+                    onClick={onClose}
+                    onFocus={() => setHoveredSlug(brand.slug)}
+                    onMouseEnter={() => setHoveredSlug(brand.slug)}
+                  >
+                    <span className="truncate">{brand.name}</span>
+                    {count > 0 && (
+                      <span className="shrink-0 text-[10px] text-slate-400">
+                        ({count})
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </MegaMenuShell>
   );
 }

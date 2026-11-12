@@ -30,7 +30,14 @@ export class CheckoutService {
       include: { items: { include: { variant: { include: { product: { include: { categories: true } } } } } } },
     });
     if (!cart || !cart.items.length) throw new NotFoundException('CART_NOT_FOUND');
-    const subtotalCents = cart.items.reduce((sum, item) => sum + (item.unitPriceCents ?? item.variant.priceCents) * item.quantity, 0);
+    const pricedItems = cart.items.map((item) => {
+      const unitPriceCents = item.unitPriceCents ?? item.variant.priceCents;
+      if (unitPriceCents == null || unitPriceCents <= 0) {
+        throw new BadRequestException('VARIANT_PRICE_REQUIRED');
+      }
+      return { item, unitPriceCents };
+    });
+    const subtotalCents = pricedItems.reduce((sum, { item, unitPriceCents }) => sum + unitPriceCents * item.quantity, 0);
     const shippingCents = input.shippingCents ?? 0;
     if (!Number.isInteger(shippingCents) || shippingCents < 0) throw new BadRequestException('INVALID_SHIPPING_AMOUNT');
     if (!input.couponCode?.trim()) return { subtotalCents, discountCents: 0, shippingCents, totalCents: subtotalCents + shippingCents };
@@ -45,7 +52,7 @@ export class CheckoutService {
         productId: item.variant.productId,
         brandId: item.variant.product.brandId,
         quantity: item.quantity,
-        unitPriceCents: item.unitPriceCents ?? item.variant.priceCents,
+        unitPriceCents: item.unitPriceCents ?? item.variant.priceCents ?? 0,
         compareAtPriceCents: item.variant.compareAtPriceCents,
         categoryIds: item.variant.product.categories.map((category) => category.categoryId),
       })),

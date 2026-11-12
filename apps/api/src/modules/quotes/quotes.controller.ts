@@ -46,6 +46,16 @@ class CreateQuoteDto {
   @MaxLength(2000)
   notes?: string;
 
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  storeId?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  preferredStore?: string;
+
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(50)

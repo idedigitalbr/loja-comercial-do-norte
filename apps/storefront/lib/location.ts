@@ -236,12 +236,26 @@ export function normalizeBrasilApi(data: {
   city: string;
   neighborhood?: string;
   street?: string;
+  location?: {
+    coordinates?: {
+      latitude?: string | number | null;
+      longitude?: string | number | null;
+    };
+  };
 }): UserLocation {
   const cep = formatCep(data.cep);
   const city = data.city || 'Belém';
   const state = (data.state || 'PA').toUpperCase();
   const street = data.street || '';
   const neighborhood = data.neighborhood || '';
+  const rawLat = data.location?.coordinates?.latitude;
+  const rawLng = data.location?.coordinates?.longitude;
+  const parsedLat = rawLat !== undefined && rawLat !== null && rawLat !== '' ? Number(rawLat) : NaN;
+  const parsedLng = rawLng !== undefined && rawLng !== null && rawLng !== '' ? Number(rawLng) : NaN;
+  const hasCoords =
+    Number.isFinite(parsedLat) &&
+    Number.isFinite(parsedLng) &&
+    (parsedLat !== 0 || parsedLng !== 0);
 
   return {
     cep,
@@ -251,6 +265,7 @@ export function normalizeBrasilApi(data: {
     state,
     formatted: buildFormattedAddress({ street, neighborhood, city, state, cep }),
     shortLabel: buildShortLabel({ city, state, neighborhood }),
+    ...(hasCoords ? { lat: parsedLat, lng: parsedLng } : {}),
   };
 }
 

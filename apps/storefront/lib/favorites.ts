@@ -11,7 +11,7 @@ export type FavoriteItem = {
   name: string;
   sku?: string;
   imagePath: string | null;
-  unitPriceCents: number;
+  unitPriceCents: number | null;
   compareAtPriceCents?: number | null;
   category?: string | null;
   addedAt: string;
@@ -68,7 +68,7 @@ export function parseFavorites(raw: string | null): FavoriteItem[] {
           typeof (item as FavoriteItem).id === 'string' &&
           typeof (item as FavoriteItem).name === 'string' &&
           typeof (item as FavoriteItem).productSlug === 'string' &&
-          typeof (item as FavoriteItem).unitPriceCents === 'number',
+          ((item as FavoriteItem).unitPriceCents === null || typeof (item as FavoriteItem).unitPriceCents === 'number'),
       )
       .slice(0, MAX_FAVORITES_ITEMS);
   } catch {

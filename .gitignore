@@ -89,3 +89,7 @@ apps/storefront/AGENTS.md
 # Offline storefront state (composition and checkpoints saved atomically).
 apps/storefront/data/home-state.json*
 
+
+# Python bytecode
+__pycache__/
+*.py[cod]

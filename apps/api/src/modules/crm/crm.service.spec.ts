@@ -169,7 +169,7 @@ describe('CrmService (MiniCRM Leads & Kanban)', () => {
 
       const findManyCall = prisma.crmLead.findMany.mock.calls[0][0];
       expect(findManyCall.where.stage).toBe(LeadStage.IN_PROGRESS);
-      expect(findManyCall.where.OR).toBeDefined();
+      expect(findManyCall.where.AND).toHaveLength(2);
     });
   });
 
@@ -307,6 +307,56 @@ describe('CrmService (MiniCRM Leads & Kanban)', () => {
       await expect(
         service.addNote('lead-inexistente', { content: 'Nota teste' })
       ).rejects.toThrowError('LEAD_NOT_FOUND');
+    });
+  });
+
+  describe('syncOrphanQuotesToLeads', () => {
+    it('converte cotações antigas sem crmLeadId em leads do CRM automaticamente', async () => {
+      const quoteUpdate = vi.fn().mockResolvedValue({});
+      const { service, prisma } = buildService({
+        quote: {
+          findMany: vi.fn().mockResolvedValue([
+            {
+              id: 'q-old-1',
+              customerName: 'Padaria Central',
+              customerPhone: '91987654321',
+              customerEmail: 'padaria@teste.com',
+              notes: '[Unidade/Loja mais próxima: Filial Guamá]',
+              itemsCount: 10,
+              status: 'REQUESTED',
+              createdAt: new Date(),
+              items: [{ productName: 'Sacola Kraft M' }],
+            },
+          ]),
+          update: quoteUpdate,
+        },
+        crmLead: {
+          create: vi.fn().mockResolvedValue({ id: 'lead-synced-1' }),
+          findFirst: vi.fn().mockResolvedValue(null),
+          findMany: vi.fn().mockResolvedValue([]),
+          count: vi.fn().mockResolvedValue(1),
+          groupBy: vi.fn().mockResolvedValue([{ stage: LeadStage.NEW, _count: { _all: 1 } }]),
+          update: vi.fn(),
+        },
+      });
+
+      await service.listLeads({ page: 1, pageSize: 20 });
+
+      expect(prisma.crmLead.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            customerName: 'Padaria Central',
+            storeId: 'loja-guama',
+            preferredStore: 'Filial Guamá',
+            origin: 'cotacao-site',
+            stage: LeadStage.NEW,
+          }),
+        }),
+      );
+      expect(quoteUpdate).toHaveBeenCalledWith({
+        where: { id: 'q-old-1' },
+        data: { crmLeadId: 'lead-synced-1' },
+      });
     });
   });
 });

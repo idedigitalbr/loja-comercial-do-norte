@@ -58,6 +58,14 @@ describe('admin app authentication boundary & design system branding', () => {
     expect(onAuthenticated).not.toHaveBeenCalled();
   });
 
+  it('explains backend API unavailability when /api/v1/auth/me returns 500', async () => {
+    const onAuthenticated = vi.fn();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500 }));
+    render(<LoginPage onAuthenticated={onAuthenticated} />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível verificar sua sessão. Verifique se a API e o banco de dados locais estão ativos e tente novamente.');
+    expect(onAuthenticated).not.toHaveBeenCalled();
+  });
+
   it('uses the configured storefront origin for the shared login', () => {
     vi.stubEnv('VITE_STOREFRONT_URL', 'https://loja.example/loja');
     try {

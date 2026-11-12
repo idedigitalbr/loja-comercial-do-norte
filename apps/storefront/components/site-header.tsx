@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -28,9 +28,21 @@ import { useFavorites } from "./favorites-provider";
 import { useAuth } from "./auth-provider";
 import { UserMenuDropdown } from "./user-menu-dropdown";
 import { NortHeader } from "./nort-header";
-import { CategoryMegaMenu, CATEGORY_MENUS_DATA } from "./category-mega-menu";
+import { BrandsMegaMenu, CategoriesMegaMenu, SegmentsMegaMenu } from "./category-mega-menu";
 import { CategorySidebarDrawer } from "./category-sidebar-drawer";
 import type { ApiBrand, ApiCategory, ApiSegment, ApiTag } from "@/lib/types";
+
+type MegaMenuKey = "categorias" | "segmentos" | "marcas" | null;
+
+const MEGA_MENU_TRIGGERS: Array<{
+  key: Exclude<MegaMenuKey, null>;
+  label: string;
+  href: string;
+}> = [
+  { key: "categorias", label: "Categorias", href: "/loja" },
+  { key: "segmentos", label: "Segmentos", href: "/segmentos" },
+  { key: "marcas", label: "Marcas", href: "/marcas" },
+];
 
 type SiteHeaderProps = {
   siteName: string;
@@ -62,6 +74,40 @@ export function SiteHeader({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
   const [query, setQuery] = useState("");
+  const [openMegaMenu, setOpenMegaMenu] = useState<MegaMenuKey>(null);
+  const closeMegaMenuTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (closeMegaMenuTimerRef.current) {
+        clearTimeout(closeMegaMenuTimerRef.current);
+      }
+    };
+  }, []);
+
+  function cancelCloseMegaMenu() {
+    if (closeMegaMenuTimerRef.current) {
+      clearTimeout(closeMegaMenuTimerRef.current);
+      closeMegaMenuTimerRef.current = null;
+    }
+  }
+
+  function openMenu(key: Exclude<MegaMenuKey, null>) {
+    cancelCloseMegaMenu();
+    setOpenMegaMenu(key);
+  }
+
+  function scheduleCloseMegaMenu() {
+    cancelCloseMegaMenu();
+    closeMegaMenuTimerRef.current = setTimeout(() => {
+      setOpenMegaMenu(null);
+    }, 140);
+  }
+
+  function closeMegaMenuImmediately() {
+    cancelCloseMegaMenu();
+    setOpenMegaMenu(null);
+  }
 
   // O botão flutuante só aparece após o usuário rolar a página além do 1º slide (hero banner)
   useEffect(() => {
@@ -331,7 +377,19 @@ export function SiteHeader({
 
         {/* BARRA 03: SUBNORMAL AZUL ESCURO (#00357B) - NAVEGAÇÃO DIVIDIDA ESQUERDA / DIREITA */}
         <div className="hidden border-t border-white/10 bg-[#00357B] font-semibold text-white md:block w-full">
-          <div className="w-full px-2 sm:px-3 md:px-4 lg:px-6 flex items-center justify-between flex-nowrap py-1 text-[10.5px] lg:text-[11.5px] xl:text-[12px]">
+          <div
+            className="relative w-full px-2 sm:px-3 md:px-4 lg:px-6 flex items-center justify-between flex-nowrap py-1 text-[10.5px] lg:text-[11.5px] xl:text-[12px]"
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                closeMegaMenuImmediately();
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                closeMegaMenuImmediately();
+              }
+            }}
+          >
             {/* LADO ESQUERDO: CATEGORIAS | SEGMENTOS, EVENTOS, CONTEÚDOS E WORKSHOPS */}
             <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2 shrink-0">
               {/* 1. Botão Menu: Categorias | Segmentos */}
@@ -345,7 +403,10 @@ export function SiteHeader({
                     : "Abrir menu de categorias e segmentos"
                 }
                 className="flex items-center gap-1 sm:gap-1.5 py-1 px-1.5 sm:px-2 text-white hover:bg-white/10 rounded-sm transition-colors cursor-pointer whitespace-nowrap font-bold"
-                onClick={() => setSidebarOpen((prev) => !prev)}
+                onClick={() => {
+                  closeMegaMenuImmediately();
+                  setSidebarOpen((prev) => !prev);
+                }}
                 type="button"
               >
                 <Menu className="size-3.5 sm:size-4 shrink-0" />
@@ -395,7 +456,7 @@ export function SiteHeader({
               <span className="inline-block h-3.5 w-px bg-white/25 shrink-0 mx-0.5 sm:mx-1" />
             </div>
 
-            {/* LADO DIREITO (SÓ OS 6 ITENS DEFINIDOS: MAIS VENDIDOS, OFERTAS DO DIA, EMBALAGENS, DESCARTÁVEIS, SACOS & SACOLAS E VER TODOS) */}
+            {/* LADO DIREITO: MAIS VENDIDOS, OFERTAS DO DIA, CATEGORIAS, SEGMENTOS, MARCAS E VER TODOS */}
             <div className="ml-auto flex items-center gap-0.5 sm:gap-1 lg:gap-1.5 xl:gap-2 shrink-0">
               {/* Divisor vertical antes do grupo direito */}
               <span className="inline-block h-3.5 w-px bg-white/25 shrink-0 mx-0.5 sm:mx-1" />
@@ -422,53 +483,38 @@ export function SiteHeader({
                 </Link>
               </div>
 
-              {/* 3. Mega Menu: Embalagens (ancorado right-0 com align="right" para não vazar a tela nem tremer no hover) */}
-              <div className="group/cat relative shrink-0">
-                <Link
-                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition-colors hover:bg-white/10 hover:text-white group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
-                  href="/categoria/embalagens"
-                >
-                  <span>Embalagens</span>
-                  <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
-                </Link>
-                <div className="invisible absolute top-full right-0 z-50 pt-1.5 opacity-0 pointer-events-none group-hover/cat:pointer-events-auto transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
-                  <CategoryMegaMenu align="right" config={CATEGORY_MENUS_DATA.embalagens} />
-                </div>
-              </div>
-
-              {/* 4. Mega Menu: Descartáveis (ancorado right-0 com align="right") */}
-              <div className="group/cat relative shrink-0">
-                <Link
-                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition-colors hover:bg-white/10 hover:text-white group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
-                  href="/categoria/descartaveis"
-                >
-                  <span>Descartáveis</span>
-                  <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
-                </Link>
-                <div className="invisible absolute top-full right-0 z-50 pt-1.5 opacity-0 pointer-events-none group-hover/cat:pointer-events-auto transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
-                  <CategoryMegaMenu
-                    align="right"
-                    config={CATEGORY_MENUS_DATA.descartaveis}
-                  />
-                </div>
-              </div>
-
-              {/* 5. Mega Menu: Sacos & Sacolas (ancorado right-0 com align="right") */}
-              <div className="group/cat relative shrink-0">
-                <Link
-                  className="flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 text-white/95 transition-colors hover:bg-white/10 hover:text-white group-hover/cat:bg-white/10 group-hover/cat:text-white whitespace-nowrap"
-                  href="/categoria/sacos-e-sacolas"
-                >
-                  <span>Sacos &amp; Sacolas</span>
-                  <ChevronDown className="size-2.5 sm:size-3 text-white/70 transition-transform duration-150 group-hover/cat:rotate-180" />
-                </Link>
-                <div className="invisible absolute top-full right-0 z-50 pt-1.5 opacity-0 pointer-events-none group-hover/cat:pointer-events-auto transition-all duration-150 group-hover/cat:visible group-hover/cat:opacity-100">
-                  <CategoryMegaMenu
-                    align="right"
-                    config={CATEGORY_MENUS_DATA.sacolas}
-                  />
-                </div>
-              </div>
+              {/* 3, 4 e 5. Mega Menus: Categorias, Segmentos e Marcas */}
+              {MEGA_MENU_TRIGGERS.map((trigger) => {
+                const isOpen = openMegaMenu === trigger.key;
+                return (
+                  <div
+                    className="relative shrink-0"
+                    key={trigger.key}
+                    onMouseEnter={() => openMenu(trigger.key)}
+                    onMouseLeave={scheduleCloseMegaMenu}
+                  >
+                    <Link
+                      aria-expanded={isOpen}
+                      aria-haspopup="menu"
+                      className={`flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 py-0.5 sm:px-2 sm:py-1 transition-colors whitespace-nowrap ${
+                        isOpen
+                          ? "bg-white/15 text-white"
+                          : "text-white/95 hover:bg-white/10 hover:text-white"
+                      }`}
+                      href={trigger.href}
+                      onClick={closeMegaMenuImmediately}
+                      onFocus={() => openMenu(trigger.key)}
+                    >
+                      <span>{trigger.label}</span>
+                      <ChevronDown
+                        className={`size-2.5 sm:size-3 text-white/70 transition-transform duration-150 ${
+                          isOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </Link>
+                  </div>
+                );
+              })}
 
               {/* 6. Ver todos */}
               <Link
@@ -478,6 +524,34 @@ export function SiteHeader({
                 Ver todos
               </Link>
             </div>
+
+            {openMegaMenu && (
+              <div
+                className="absolute top-full right-3 sm:right-4 lg:right-6 z-50 pt-1.5"
+                onMouseEnter={cancelCloseMegaMenu}
+                onMouseLeave={scheduleCloseMegaMenu}
+              >
+                {openMegaMenu === "categorias" && (
+                  <CategoriesMegaMenu
+                    categories={categories}
+                    onClose={closeMegaMenuImmediately}
+                    tags={tags}
+                  />
+                )}
+                {openMegaMenu === "segmentos" && (
+                  <SegmentsMegaMenu
+                    onClose={closeMegaMenuImmediately}
+                    segments={segments}
+                  />
+                )}
+                {openMegaMenu === "marcas" && (
+                  <BrandsMegaMenu
+                    brands={brands}
+                    onClose={closeMegaMenuImmediately}
+                  />
+                )}
+              </div>
+            )}
           </div>
         </div>
       </header>

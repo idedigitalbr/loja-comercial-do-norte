@@ -6,6 +6,7 @@ import { VideoArticlesCarouselWidget } from '@/components/storefront/widgets/vid
 import { ScrollSkeletonSection } from '@/components/ui/scroll-skeleton-reveal';
 import { getBrands, getCategories, getProductsPage, getSegments, getTags } from '@/lib/api';
 import { findBrandOrSubbrand } from '@/lib/brands-data';
+import { filterAndSortProductsByPrice } from '@/lib/catalog-filters';
 import { getSegmentContentSuggestions, getSegmentTipsHeading } from '@/lib/segment-content-data';
 import type { ApiSegment } from '@/lib/types';
 
@@ -121,24 +122,7 @@ export default async function SegmentPage({
   const activeTag = tag ? tags.find((t) => t.slug === tag) : undefined;
   const activeBrand = marca ? findBrandOrSubbrand(brands, marca)?.brand : undefined;
 
-  let items = result.items;
-  if (precoMin) {
-    const minCents = Math.round(Number(precoMin) * 100);
-    items = items.filter((p) => (p.variants[0]?.priceCents ?? 0) >= minCents);
-  }
-  if (precoMax) {
-    const maxCents = Math.round(Number(precoMax) * 100);
-    items = items.filter((p) => (p.variants[0]?.priceCents ?? 0) <= maxCents);
-  }
-  if (ordem === 'preco_asc') {
-    items = [...items].sort(
-      (a, b) => (a.variants[0]?.priceCents ?? 0) - (b.variants[0]?.priceCents ?? 0)
-    );
-  } else if (ordem === 'preco_desc') {
-    items = [...items].sort(
-      (a, b) => (b.variants[0]?.priceCents ?? 0) - (a.variants[0]?.priceCents ?? 0)
-    );
-  }
+  const items = filterAndSortProductsByPrice(result.items, { precoMin, precoMax, ordem });
 
   const contentSuggestions = getSegmentContentSuggestions(slug);
   const tipsHeading = getSegmentTipsHeading(slug, segment.name);

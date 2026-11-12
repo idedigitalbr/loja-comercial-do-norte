@@ -77,4 +77,29 @@ describe("product-placeholders", () => {
       expect(usedImages.has(path)).toBe(true);
     }
   });
+
+  it("prioritizes real primary product image paths over placeholders", () => {
+    const withUpload = resolveProductImage({
+      slug: "pote-500ml",
+      images: [
+        { path: "uploads/cn-cat/1/960.webp", isPrimary: true },
+        { path: "uploads/cn-cat/1/480.webp", isPrimary: false },
+      ],
+    });
+    expect(withUpload).toContain("/storage/uploads/cn-cat/1/960.webp");
+
+    expect(
+      resolveProductImage({
+        slug: "sacola",
+        imagePath: "/assets/PRODUTOS/produtos-imgs/sacola.webp",
+      }),
+    ).toBe("/assets/PRODUTOS/produtos-imgs/sacola.webp");
+
+    expect(
+      resolveProductImage({
+        slug: "externo",
+        imagePath: "https://cdn.example.com/item.webp",
+      }),
+    ).toBe("https://cdn.example.com/item.webp");
+  });
 });

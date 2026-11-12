@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 
 type AuthenticatedUser = { email?: string; roles?: string[] };
 
+class SessionCheckError extends Error {}
+
 export function getStorefrontLoginUrl(origin = window.location.origin): string {
   const configuredUrl = (import.meta.env.VITE_STOREFRONT_URL as string | undefined)?.trim();
   const storefrontOrigin = configuredUrl || origin.replace(':5174', ':3001');
@@ -25,7 +27,13 @@ export function LoginPage({ onAuthenticated }: { onAuthenticated: (email: string
           window.location.replace(loginUrl);
           return;
         }
-        if (!response.ok) throw new Error('Não foi possível verificar sua sessão. Tente novamente.');
+        if (!response.ok) {
+          throw new SessionCheckError(
+            response.status >= 500
+              ? 'Não foi possível verificar sua sessão. Verifique se a API e o banco de dados locais estão ativos e tente novamente.'
+              : 'Não foi possível verificar sua sessão. Tente novamente.',
+          );
+        }
         const payload = (await response.json()) as { user?: AuthenticatedUser };
         if (!active) return;
         if (payload.user?.email && payload.user.roles?.includes('ADMIN')) {
@@ -35,8 +43,14 @@ export function LoginPage({ onAuthenticated }: { onAuthenticated: (email: string
         } else {
           window.location.replace(loginUrl);
         }
-      } catch {
-        if (active) setError('Não foi possível verificar sua sessão. Tente novamente.');
+      } catch (err) {
+        if (active) {
+          setError(
+            err instanceof SessionCheckError
+              ? err.message
+              : 'Não foi possível verificar sua sessão. Tente novamente.',
+          );
+        }
       }
     }
 

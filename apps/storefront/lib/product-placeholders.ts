@@ -6,6 +6,8 @@
  * - placeholder-3.png
  * - placeholder-4.png
  */
+import { mediaUrl } from './api';
+
 export const PRODUCT_PLACEHOLDER_IMAGES = [
   "/assets/PRODUTOS/placeholders/placeholder-1.png",
   "/assets/PRODUTOS/placeholders/placeholder-2.png",
@@ -62,7 +64,27 @@ export function getProductPlaceholderImage(
  * Preserva integralmente os registros originais de mídia no PostgreSQL e no Neon.
  */
 export function resolveProductImage(
-  productOrKey?: { id?: string | null; slug?: string | null } | string | null,
+  productOrKey?:
+    | {
+        id?: string | null;
+        slug?: string | null;
+        imagePath?: string | null;
+        images?: Array<{ path?: string | null; isPrimary?: boolean | null; sortOrder?: number | null }> | null;
+      }
+    | string
+    | null,
 ): string {
+  if (productOrKey && typeof productOrKey === 'object') {
+    const primary = productOrKey.images?.find((img) => img.isPrimary && img.path)?.path
+      ?? productOrKey.images?.find((img) => img.path)?.path
+      ?? productOrKey.imagePath;
+    if (primary && primary.trim()) {
+      const cleaned = primary.trim();
+      if (cleaned.startsWith('/') || /^https?:\/\//i.test(cleaned)) {
+        return cleaned;
+      }
+      return mediaUrl(cleaned) ?? cleaned;
+    }
+  }
   return getProductPlaceholderImage(productOrKey);
 }

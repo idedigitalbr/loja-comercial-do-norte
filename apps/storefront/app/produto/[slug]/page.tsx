@@ -7,7 +7,7 @@ import { WebBadge, WebCard } from '@commerce/ui/web';
 import { AddToQuoteButton } from '@/components/add-to-quote-button';
 import { ProductCard } from '@/components/product-card';
 import { ScrollCatalogProductItem } from '@/components/ui/scroll-skeleton-reveal';
-import { getProduct, getProducts, mediaUrl } from '@/lib/api';
+import { getProduct, getProducts } from '@/lib/api';
 import { resolveProductImage } from '@/lib/product-placeholders';
 import { formatMoney } from '@/lib/format';
 
@@ -41,18 +41,27 @@ export default async function ProductPage({ params }: { params: Params }) {
     return null;
   }
 
-  const variant = product.variants[0];
+  const variant = product.variants?.[0];
+  const primaryImage = product.images?.find((img) => img.isPrimary) ?? product.images?.[0] ?? null;
   const image = resolveProductImage(product);
-  const category = product.categories[0]?.category;
-  const compareAt = variant?.compareAtPriceCents ?? null;
-  const hasDiscount = Boolean(compareAt && variant && compareAt > variant.priceCents);
+  const category = product.categories?.[0]?.category;
+  const priceCents = variant?.priceCents ?? null;
+  const hasPrice = priceCents !== null && priceCents > 0;
+  const compareAt = hasPrice ? (variant?.compareAtPriceCents ?? null) : null;
+  const hasDiscount = Boolean(hasPrice && compareAt && compareAt > (priceCents as number));
   const discountPct =
-    hasDiscount && compareAt && variant
-      ? Math.round(((compareAt - variant.priceCents) / compareAt) * 100)
+    hasDiscount && compareAt && hasPrice
+      ? Math.round(((compareAt - (priceCents as number)) / compareAt) * 100)
       : 0;
 
-  const relatedRaw = category ? await getProducts({ category: category.slug }) : await getProducts();
-  const related = relatedRaw.filter((item) => item.id !== product.id).slice(0, 4);
+  const relatedRaw = category
+    ? await getProducts({ category: category.slug, limit: 12 })
+    : await getProducts({ limit: 12 });
+  let related = relatedRaw.filter((item) => item.id !== product.id).slice(0, 4);
+  if (related.length === 0 && category) {
+    const generalRaw = await getProducts({ limit: 8 });
+    related = generalRaw.filter((item) => item.id !== product.id).slice(0, 4);
+  }
 
   return (
     <div className="cn-container py-8">
@@ -69,7 +78,7 @@ export default async function ProductPage({ params }: { params: Params }) {
         <div className="overflow-hidden rounded-card border border-line bg-surface">
           <div className="flex aspect-square items-center justify-center bg-white p-6">
             <Image
-              alt={`${product.name} (Imagem ilustrativa)`}
+              alt={primaryImage?.altText || product.name}
               className="size-full object-contain transition duration-300"
               height={960}
               priority
@@ -79,9 +88,11 @@ export default async function ProductPage({ params }: { params: Params }) {
               width={960}
             />
           </div>
-          <p className="border-t border-line/60 bg-surface-soft/60 py-2 text-center text-xs text-muted">
-            Imagem ilustrativa de demonstração
-          </p>
+          {!primaryImage ? (
+            <p className="border-t border-line/60 bg-surface-soft/60 py-2 text-center text-xs text-muted">
+              Imagem ilustrativa
+            </p>
+          ) : null}
         </div>
 
         <div>
@@ -96,12 +107,18 @@ export default async function ProductPage({ params }: { params: Params }) {
             {variant ? (
               <>
                 <div className="flex items-baseline gap-3">
-                  <strong className="text-3xl font-extrabold text-brand">{formatMoney(variant.priceCents)}</strong>
+                  <strong className="text-3xl font-extrabold text-brand">
+                    {hasPrice ? formatMoney(priceCents as number) : 'Sob cotação'}
+                  </strong>
                   {hasDiscount && compareAt ? (
                     <span className="text-sm text-muted line-through">{formatMoney(compareAt)}</span>
                   ) : null}
                 </div>
-                <p className="mt-1 text-xs text-muted">Preço de referência para cotação. A equipe comercial confirma valor e disponibilidade.</p>
+                <p className="mt-1 text-xs text-muted">
+                  {hasPrice
+                    ? 'Preço de referência para cotação. A equipe comercial confirma valor e disponibilidade.'
+                    : 'Solicite orçamento para confirmar preço atacado, estoque e prazo de entrega.'}
+                </p>
                 <div className="mt-4">
                   <AddToQuoteButton
                     item={{
@@ -109,8 +126,8 @@ export default async function ProductPage({ params }: { params: Params }) {
                       productSlug: product.slug,
                       name: product.name,
                       sku: variant.sku,
-                      imagePath: image,
-                      unitPriceCents: variant.priceCents,
+                      imagePath: primaryImage?.path ?? image,
+                      unitPriceCents: hasPrice ? priceCents : null,
                       quantity: 1,
                     }}
                     label="Adicionar à cotação"
@@ -121,6 +138,46 @@ export default async function ProductPage({ params }: { params: Params }) {
               <p className="text-sm text-muted">Produto sem variante disponível para cotação.</p>
             )}
           </WebCard>
+
+          {variant && (
+            variant.color ||
+            variant.sizeOrModel ||
+            variant.capacityOrVolume ||
+            variant.material ||
+            variant.packagingRaw ||
+            variant.dimensionsRaw ||
+            variant.reportedNetWeight ||
+            variant.gtinRaw ||
+            variant.manufacturerRef ||
+            product.variants.length > 1
+          ) ? (
+            <section className="mt-6 rounded-card border border-line bg-surface p-4">
+              <h2 className="text-sm font-bold uppercase tracking-wide text-ink">Especificações do catálogo</h2>
+              <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                {variant.packagingRaw ? <div><dt className="text-muted">Embalagem</dt><dd className="font-semibold text-ink">{variant.packagingRaw}</dd></div> : null}
+                {variant.sizeOrModel ? <div><dt className="text-muted">Tamanho / modelo</dt><dd className="font-semibold text-ink">{variant.sizeOrModel}</dd></div> : null}
+                {variant.color ? <div><dt className="text-muted">Cor / variação</dt><dd className="font-semibold text-ink">{variant.color}</dd></div> : null}
+                {variant.capacityOrVolume ? <div><dt className="text-muted">Capacidade / vol.</dt><dd className="font-semibold text-ink">{variant.capacityOrVolume}</dd></div> : null}
+                {variant.material ? <div><dt className="text-muted">Material</dt><dd className="font-semibold text-ink">{variant.material}</dd></div> : null}
+                {variant.dimensionsRaw ? <div><dt className="text-muted">Medidas</dt><dd className="font-semibold text-ink">{variant.dimensionsRaw}</dd></div> : null}
+                {variant.reportedNetWeight ? <div><dt className="text-muted">Peso líquido</dt><dd className="font-semibold text-ink">{variant.reportedNetWeight}</dd></div> : null}
+                {variant.manufacturerRef ? <div><dt className="text-muted">Ref. fabricante</dt><dd className="font-semibold text-ink">{variant.manufacturerRef}</dd></div> : null}
+                {variant.gtinRaw ? <div><dt className="text-muted">EAN / Código</dt><dd className="font-semibold text-ink">{variant.gtinRaw}</dd></div> : null}
+              </dl>
+              {product.variants.length > 1 ? (
+                <div className="mt-4 border-t border-line pt-3">
+                  <p className="text-xs font-bold uppercase tracking-wide text-ink">Opções e variações ({product.variants.length})</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {product.variants.map((item) => (
+                      <span key={item.id} className="rounded-md border border-line bg-surface-soft px-2.5 py-1 text-xs text-ink">
+                        {[item.color, item.sizeOrModel, item.packagingRaw, item.sku].filter(Boolean).join(' · ')}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </section>
+          ) : null}
 
           {product.description ? (
             <section className="mt-6">

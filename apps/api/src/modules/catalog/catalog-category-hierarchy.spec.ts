@@ -79,4 +79,94 @@ describe('CatalogService — hierarquia de categorias (E2)', () => {
     const where = prisma.product.findMany.mock.calls[0][0].where;
     expect(where.categories).toEqual({ some: { categoryId: { in: ['root', 'child-1'] } } });
   });
+
+  it('calcula contagem distinta de produtos nas categorias incluindo subcategorias sem duplicar vínculos', async () => {
+    const childCopos = { id: 'copos', name: 'Copos', slug: 'copos', parentId: 'descartaveis', _count: { products: 2 } };
+    const childPratos = { id: 'pratos', name: 'Pratos', slug: 'pratos', parentId: 'descartaveis', _count: { products: 1 } };
+    const prisma = {
+      category: {
+        findMany: vi.fn().mockResolvedValue([
+          {
+            id: 'descartaveis',
+            name: 'Descartáveis',
+            slug: 'descartaveis',
+            parentId: null,
+            _count: { products: 2, children: 2 },
+            children: [childCopos, childPratos],
+          },
+          childCopos,
+          childPratos,
+        ]),
+      },
+      productCategory: {
+        findMany: vi.fn().mockResolvedValue([
+          { categoryId: 'descartaveis', productId: 'prod-1' },
+          { categoryId: 'copos', productId: 'prod-1' },
+          { categoryId: 'copos', productId: 'prod-2' },
+          { categoryId: 'pratos', productId: 'prod-3' },
+          { categoryId: 'descartaveis', productId: 'prod-4' },
+        ]),
+      },
+    };
+    const service = new CatalogService(prisma as never);
+
+    const result = await service.listCategories();
+
+    expect(prisma.category.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { status: 'ACTIVE' },
+        include: expect.objectContaining({
+          _count: {
+            select: {
+              products: { where: { product: { status: 'ACTIVE' } } },
+              children: { where: { status: 'ACTIVE' } },
+            },
+          },
+        }),
+      }),
+    );
+    expect(prisma.productCategory.findMany).toHaveBeenCalledWith({
+      where: {
+        categoryId: { in: ['descartaveis', 'copos', 'pratos'] },
+        product: { status: 'ACTIVE' },
+      },
+      select: { categoryId: true, productId: true },
+    });
+
+    expect(result[0]._count).toEqual({ products: 4, children: 2 });
+    expect(result[0].children?.[0]._count).toEqual({ products: 2 });
+    expect(result[0].children?.[1]._count).toEqual({ products: 1 });
+    expect(result[1]._count).toEqual({ products: 2 });
+    expect(result[2]._count).toEqual({ products: 1 });
+  });
+
+  it('mantém listCategories sem filtro de status no modo admin (status = null)', async () => {
+    const prisma = {
+      category: {
+        findMany: vi.fn().mockResolvedValue([
+          { id: 'descartaveis', name: 'Descartáveis', parentId: null, _count: { products: 1, children: 0 }, children: [] },
+        ]),
+      },
+      productCategory: {
+        findMany: vi.fn().mockResolvedValue([{ categoryId: 'descartaveis', productId: 'prod-draft' }]),
+      },
+    };
+    const service = new CatalogService(prisma as never);
+
+    const result = await service.listCategories(null);
+
+    expect(prisma.category.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {},
+        include: expect.objectContaining({
+          _count: { select: { products: true, children: true } },
+        }),
+      }),
+    );
+    expect(prisma.productCategory.findMany).toHaveBeenCalledWith({
+      where: { categoryId: { in: ['descartaveis'] } },
+      select: { categoryId: true, productId: true },
+    });
+    expect(result[0]._count?.products).toBe(1);
+  });
 });

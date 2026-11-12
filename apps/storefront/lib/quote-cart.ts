@@ -8,8 +8,8 @@ export type QuoteCartItem = {
   productSlug: string;
   name: string;
   sku: string;
-  imagePath: string | null;
-  unitPriceCents: number;
+  unitPriceCents: number | null;
+  imagePath?: string | null;
   quantity: number;
 };
 
@@ -46,7 +46,7 @@ export function cartCount(items: readonly QuoteCartItem[]): number {
 }
 
 export function cartSubtotalCents(items: readonly QuoteCartItem[]): number {
-  return items.reduce((total, item) => total + item.unitPriceCents * item.quantity, 0);
+  return items.reduce((total, item) => total + (item.unitPriceCents ?? 0) * item.quantity, 0);
 }
 
 /** Lê o carrinho salvo no navegador com tolerância a dados inválidos/antigos. */
@@ -59,7 +59,7 @@ export function parseCart(raw: string | null): QuoteCartItem[] {
       .filter((item): item is QuoteCartItem => Boolean(item)
         && typeof (item as QuoteCartItem).variantId === 'string'
         && typeof (item as QuoteCartItem).name === 'string'
-        && typeof (item as QuoteCartItem).unitPriceCents === 'number')
+        && ((item as QuoteCartItem).unitPriceCents === null || typeof (item as QuoteCartItem).unitPriceCents === 'number'))
       .map((item) => ({ ...item, quantity: normalizeQuantity(item.quantity) }))
       .slice(0, MAX_CART_ITEMS);
   } catch {

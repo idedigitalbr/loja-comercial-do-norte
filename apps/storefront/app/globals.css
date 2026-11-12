@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../../../packages/ui/src";
 @import "@commerce/ui/styles/tokens.css";
 @import "../components/storefront/widgets/promo-strip/whatsapp-phone-animation.css";
 
@@ -235,6 +236,28 @@ html.nort-intro-fading #nort-intro-ssr-curtain {
   }
 }
 
+@keyframes cnStepForward {
+  0% {
+    opacity: 0;
+    transform: translate3d(24px, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes cnStepBackward {
+  0% {
+    opacity: 0;
+    transform: translate3d(-24px, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 .animate-cn-section-reveal {
   animation: cnSectionFadeIn 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -243,11 +266,21 @@ html.nort-intro-fading #nort-intro-ssr-curtain {
   animation: cnSectionFadeIn 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.animate-cn-step-forward {
+  animation: cnStepForward 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-cn-step-backward {
+  animation: cnStepBackward 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cn-skeleton,
   .cn-skeleton-dark,
   .animate-cn-section-reveal,
-  .animate-cn-card-reveal {
+  .animate-cn-card-reveal,
+  .animate-cn-step-forward,
+  .animate-cn-step-backward {
     animation: none !important;
     transform: none !important;
     opacity: 1 !important;

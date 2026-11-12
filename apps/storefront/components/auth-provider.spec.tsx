@@ -42,4 +42,14 @@ describe('official storefront authentication', () => {
     await act(async () => { loggedIn = await result.current.login('admin@admin.com', 'admin123456'); });
     expect(loggedIn).toMatchObject({ ok: true, isAdmin: true });
   });
+  it('clears stale local admin session in local dev when the server returns 401', async () => {
+    vi.stubEnv('NODE_ENV', 'test');
+    vi.stubEnv('NEXT_PUBLIC_VERCEL_ENV', '');
+    localStorage.setItem('cn.auth_user.v1', JSON.stringify({ email: 'admin@admin.com', isAdmin: true }));
+    vi.mocked(fetch).mockResolvedValue(new Response('{}', { status: 401 }));
+    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/v1/auth/me', expect.objectContaining({ credentials: 'include' })));
+    await waitFor(() => expect(result.current.user).toBeNull());
+    expect(localStorage.getItem('cn.auth_user.v1')).toBeNull();
+  });
 });

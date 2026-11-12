@@ -14,7 +14,7 @@ type ProductCardActionsProps = {
 
 /**
  * Ações do card de produto no hover:
- * - "Cotar agora" (Ação principal / compra rápida -> adiciona e vai direto para /cotacao)
+ * - "Cotar agora" (Ação principal / compra rápida -> adiciona sem abrir o carrinho e vai direto para /cotacao)
  * - "Adicionar à cotação" (Ação secundária com ícone de carrinho -> adiciona e abre drawer/notifica)
  */
 export function ProductCardActions({
@@ -23,13 +23,14 @@ export function ProductCardActions({
   instantQuoteLabel = 'Cotar agora',
 }: ProductCardActionsProps) {
   const router = useRouter();
-  const { add } = useQuoteCart();
+  const { add, closeDrawer } = useQuoteCart();
   const [added, setAdded] = useState(false);
 
   const handleInstantQuote = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    add(item);
+    add(item, { openDrawer: false });
+    closeDrawer?.();
     router.push('/cotacao');
   };
 

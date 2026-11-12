@@ -55,59 +55,83 @@ export type CatalogSidebarProps = {
 };
 
 // Fallbacks caso os dados venham vazios para manter fidelidade estrita ao layout
-const DEFAULT_FALLBACK_CATEGORIES = [
+type SidebarSubcategory = {
+  name: string;
+  slug: string;
+  productCount: number;
+};
+
+type SidebarCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  productCount: number;
+  subcategories: SidebarSubcategory[];
+};
+
+const DEFAULT_FALLBACK_CATEGORIES: SidebarCategory[] = [
   {
     id: "artigos-para-festa",
     name: "Artigos para Festa",
     slug: "artigos-para-festa",
-    subcategories: [{ name: "Velas e Suprimentos", slug: "velas-e-suprimentos" }],
+    productCount: 0,
+    subcategories: [
+      { name: "Velas e Suprimentos", slug: "velas-e-suprimentos", productCount: 0 },
+    ],
   },
   {
     id: "descartaveis",
     name: "Descartáveis",
     slug: "descartaveis",
+    productCount: 0,
     subcategories: [
-      { name: "Copos", slug: "copos" },
-      { name: "Pratos", slug: "pratos" },
+      { name: "Copos", slug: "copos", productCount: 0 },
+      { name: "Pratos", slug: "pratos", productCount: 0 },
     ],
   },
   {
     id: "doces-e-bomboniere",
     name: "Doces e Bomboniere",
     slug: "doces-e-bomboniere",
+    productCount: 0,
     subcategories: [],
   },
   {
     id: "embalagens",
     name: "Embalagens",
     slug: "embalagens",
+    productCount: 0,
     subcategories: [
-      { name: "Caixas e Bandejas", slug: "caixas-e-bandejas" },
-      { name: "Filme e Alumínio", slug: "filme-e-aluminio" },
+      { name: "Caixas e Bandejas", slug: "caixas-e-bandejas", productCount: 0 },
+      { name: "Filme e Alumínio", slug: "filme-e-aluminio", productCount: 0 },
     ],
   },
   {
     id: "frios-e-laticinios",
     name: "Frios e Laticínios",
     slug: "frios-e-laticinios",
+    productCount: 0,
     subcategories: [],
   },
   {
     id: "mercearia",
     name: "Mercearia",
     slug: "mercearia",
+    productCount: 0,
     subcategories: [],
   },
   {
     id: "produtos-de-limpeza",
     name: "Produtos de Limpeza",
     slug: "produtos-de-limpeza",
+    productCount: 0,
     subcategories: [],
   },
   {
     id: "sacos-e-sacolas",
     name: "Sacos e Sacolas",
     slug: "sacos-e-sacolas",
+    productCount: 0,
     subcategories: [],
   },
 ];
@@ -241,7 +265,7 @@ export function CatalogSidebar({
   }, [rawTagParam, activeTagSlug]);
 
   // Processa hierarquia de categorias
-  const processedCategories = useMemo(() => {
+  const processedCategories = useMemo<SidebarCategory[]>(() => {
     if (!categories || categories.length === 0) {
       return DEFAULT_FALLBACK_CATEGORIES;
     }
@@ -254,11 +278,28 @@ export function CatalogSidebar({
           ? root.children
           : categories.filter((c) => c.parentId === root.id);
 
+      const subcategories = subs.map((s) => ({
+        name: s.name,
+        slug: s.slug,
+        productCount: s._count?.products ?? 0,
+      }));
+
+      const hasChildCount = subs.some(
+        (s) => s._count?.products !== undefined
+      );
+      const productCount =
+        root._count?.products !== undefined
+          ? root._count.products
+          : hasChildCount
+            ? subcategories.reduce((acc, sub) => acc + sub.productCount, 0)
+            : 0;
+
       return {
         id: root.id,
         name: root.name,
         slug: root.slug,
-        subcategories: subs.map((s) => ({ name: s.name, slug: s.slug })),
+        productCount,
+        subcategories,
       };
     });
   }, [categories]);
@@ -1087,6 +1128,9 @@ export function CatalogSidebar({
                     <span className="truncate font-semibold text-slate-800 transition group-hover:text-[#004CB1]">
                       {cat.name}
                     </span>
+                    <span className="shrink-0 text-[11px] font-medium text-slate-400">
+                      ({cat.productCount})
+                    </span>
                   </button>
 
                   {hasSubs ? (
@@ -1137,6 +1181,9 @@ export function CatalogSidebar({
                             {isSubActive && <Check className="size-2.5 stroke-[3]" />}
                           </span>
                           <span className="truncate">{sub.name}</span>
+                          <span className="shrink-0 text-[10.5px] text-slate-400">
+                            ({sub.productCount})
+                          </span>
                         </button>
                       );
                     })}
@@ -1214,6 +1261,7 @@ export function CatalogSidebar({
           {visibleSegments.map((seg) => {
             const IconComponent = getSegmentIcon(seg.slug);
             const isSegmentActive = selectedSegments.includes(seg.slug);
+            const segCount = seg._count?.products ?? 0;
 
             return (
               <button
@@ -1227,7 +1275,7 @@ export function CatalogSidebar({
                 onClick={() => handleSelectSegmentFilter(seg.slug)}
                 type="button"
               >
-                <div className="flex items-center gap-2 truncate">
+                <div className="flex min-w-0 flex-1 items-center gap-2">
                   <span
                     className={cn(
                       "flex size-4 shrink-0 items-center justify-center rounded border transition",
@@ -1247,6 +1295,9 @@ export function CatalogSidebar({
                     )}
                   />
                   <span className="truncate">{seg.name}</span>
+                  <span className="shrink-0 text-[11px] font-medium text-slate-400">
+                    ({segCount})
+                  </span>
                 </div>
               </button>
             );

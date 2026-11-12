@@ -16,7 +16,7 @@ describe('CatalogService — ofertas do dia (S3)', () => {
       take: 6,
       where: {
         status: 'ACTIVE',
-        variants: { some: { status: 'ACTIVE', compareAtPriceCents: { gt: 0 } } },
+        variants: { some: { status: 'ACTIVE', priceCents: { not: null, gt: 0 }, compareAtPriceCents: { gt: 0 } } },
       },
     }));
   });

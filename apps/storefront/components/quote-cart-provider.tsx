@@ -1,7 +1,12 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { addItem, cartCount, cartSubtotalCents, parseCart, QUOTE_CART_STORAGE_KEY, removeItem, setQuantity, type QuoteCartItem } from '@/lib/quote-cart';
+
+export type QuoteCartAddOptions = {
+  openDrawer?: boolean;
+};
 
 type QuoteCartContextValue = {
   items: QuoteCartItem[];
@@ -9,7 +14,7 @@ type QuoteCartContextValue = {
   subtotalCents: number;
   ready: boolean;
   drawerOpen: boolean;
-  add: (item: QuoteCartItem) => void;
+  add: (item: QuoteCartItem, options?: QuoteCartAddOptions) => void;
   updateQuantity: (variantId: string, quantity: number) => void;
   remove: (variantId: string) => void;
   clear: () => void;
@@ -21,6 +26,7 @@ const QuoteCartContext = createContext<QuoteCartContextValue | null>(null);
 
 /** Carrinho de cotação no navegador (sem login, sem reserva de estoque). */
 export function QuoteCartProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const [items, setItems] = useState<QuoteCartItem[]>([]);
   const [ready, setReady] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -35,9 +41,17 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
     window.localStorage.setItem(QUOTE_CART_STORAGE_KEY, JSON.stringify(items));
   }, [items, ready]);
 
-  const add = useCallback((item: QuoteCartItem) => {
+  useEffect(() => {
+    if (pathname?.startsWith('/cotacao')) {
+      setDrawerOpen(false);
+    }
+  }, [pathname]);
+
+  const add = useCallback((item: QuoteCartItem, options?: QuoteCartAddOptions) => {
     setItems((current) => addItem(current, item));
-    setDrawerOpen(true);
+    if (options?.openDrawer !== false) {
+      setDrawerOpen(true);
+    }
   }, []);
   const updateQuantity = useCallback((variantId: string, quantity: number) => {
     setItems((current) => setQuantity(current, variantId, quantity));

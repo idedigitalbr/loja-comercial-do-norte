@@ -1,25 +1,89 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Icon } from '@commerce/ui';
+import {
+  formatQuoteMoney,
+  formatQuotePhone,
+  nextQuoteStatuses,
+  quoteStatusLabel,
+  type QuoteStatus,
+} from '../quotes/quotes-utils';
 import {
   CrmLead,
-  LeadStage,
+  CrmOriginFilter,
+  CrmViewMode,
+  extractChatMessages,
+  getLeadOriginMeta,
   LEAD_STAGE_COLORS,
   LEAD_STAGE_LABELS,
+  LeadQuote,
+  LeadStage,
   STORE_OPTIONS,
 } from './crm-types';
 
 const STAGES: LeadStage[] = ['NEW', 'CONTACTED', 'IN_PROGRESS', 'WON', 'LOST'];
 
-export function CRMPage() {
+const QUOTE_ACTION_LABELS: Partial<Record<QuoteStatus, string>> = {
+  IN_REVIEW: 'Colocar em análise',
+  ANSWERED: 'Marcar proposta enviada',
+  WON: 'Fechar (Ganha)',
+  LOST: 'Marcar como perdida',
+  CANCELLED: 'Cancelar cotação',
+  EXPIRED: 'Marcar expirada',
+};
+
+function formatPhoneDigits(phone: string): string {
+  return phone.replace(/\D/g, '');
+}
+
+function buildWhatsAppUrl(lead: CrmLead): string {
+  const digits = formatPhoneDigits(lead.customerPhone).replace(/^55/, '');
+  const primaryQuote = lead.quotes?.[0];
+  const text = primaryQuote
+    ? `Olá, ${lead.customerName}! Aqui é da equipe Comercial do Norte (${lead.preferredStore}). Recebemos sua cotação #${primaryQuote.publicId.slice(-8)} (${primaryQuote.itemsCount} ${primaryQuote.itemsCount === 1 ? 'item' : 'itens'}) e já estamos preparando seu orçamento. Como posso te ajudar?`
+    : `Olá, ${lead.customerName}! Aqui é da equipe Comercial do Norte (${lead.preferredStore}). Vi seu contato através do nosso assistente Norti no site sobre "${lead.subject}" e estou aqui para te atender!`;
+
+  return `https://wa.me/55${digits}?text=${encodeURIComponent(text)}`;
+}
+
+function extractModalityFromNotes(notes?: string | null): string | null {
+  if (!notes) return null;
+  const match = notes.match(/\[Modalidade:\s*([^\]]+)\]/i);
+  return match?.[1]?.trim() ?? null;
+}
+
+function stripMetadataTags(notes?: string | null): string {
+  if (!notes) return '';
+  return notes
+    .replace(/\[(Unidade\/Loja mais próxima|Modalidade|Distância estimada):[^\]]+\]\s*/gi, '')
+    .trim();
+}
+
+export function CRMPage({ initialQuotePublicId }: { initialQuotePublicId?: string }) {
   const [leads, setLeads] = useState<CrmLead[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [selectedStore, setSelectedStore] = useState('ALL');
+  const [originFilter, setOriginFilter] = useState<CrmOriginFilter>('ALL');
+  const [stageFilter, setStageFilter] = useState<'ALL' | LeadStage>('ALL');
+  const [viewMode, setViewMode] = useState<CrmViewMode>('kanban');
   const [search, setSearch] = useState('');
   const [selectedLead, setSelectedLead] = useState<CrmLead | null>(null);
   const [newNoteContent, setNewNoteContent] = useState('');
   const [savingNote, setSavingNote] = useState(false);
+  const [updatingQuoteId, setUpdatingQuoteId] = useState<string | null>(null);
+  const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
+  const [dragOverStage, setDragOverStage] = useState<LeadStage | null>(null);
+  const [consumedInitialQuote, setConsumedInitialQuote] = useState(false);
+
+  const showSuccess = useCallback((text: string) => {
+    setMessage(text);
+    setError('');
+    window.setTimeout(() => {
+      setMessage((curr) => (curr === text ? '' : curr));
+    }, 4000);
+  }, []);
 
   const loadLeads = useCallback(async () => {
     setLoading(true);
@@ -33,12 +97,19 @@ export function CRMPage() {
         credentials: 'include',
       });
       if (!res.ok) {
-        setError('Não foi possível carregar os leads.');
+        setError('Não foi possível carregar os leads e cotações.');
         return;
       }
-      const data = await res.json();
-      setLeads(data.items || []);
-      setCounts(data.counts || {});
+      const data = (await res.json()) as {
+        items?: CrmLead[];
+        counts?: Record<string, number>;
+      };
+      const nextItems = data.items ?? [];
+      setLeads(nextItems);
+      setCounts(data.counts ?? {});
+      setSelectedLead((current) =>
+        current ? nextItems.find((item) => item.id === current.id) ?? current : null,
+      );
       setError('');
     } catch {
       setError('Falha de conexão com a API do CRM.');
@@ -51,7 +122,34 @@ export function CRMPage() {
     void loadLeads();
   }, [loadLeads]);
 
+  useEffect(() => {
+    if (!initialQuotePublicId || consumedInitialQuote || !leads.length) return;
+    const matched = leads.find((lead) =>
+      lead.quotes?.some(
+        (quote) =>
+          quote.publicId === initialQuotePublicId ||
+          quote.publicId.endsWith(initialQuotePublicId),
+      ),
+    );
+    if (matched) {
+      setSelectedLead(matched);
+      setConsumedInitialQuote(true);
+    }
+  }, [initialQuotePublicId, consumedInitialQuote, leads]);
+
+  useEffect(() => {
+    if (!selectedLead) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedLead(null);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [selectedLead]);
+
   async function handleUpdateStage(leadId: string, newStage: LeadStage) {
+    const current = leads.find((l) => l.id === leadId);
+    if (current?.stage === newStage) return;
+
     try {
       const res = await fetch(`/api/v1/admin/crm/leads/${leadId}/stage`, {
         method: 'PATCH',
@@ -63,16 +161,45 @@ export function CRMPage() {
         setError('Erro ao atualizar estágio do lead.');
         return;
       }
-      const updated = await res.json();
-      setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, stage: newStage } : l)));
-      if (selectedLead && selectedLead.id === leadId) {
-        setSelectedLead((prev) => (prev ? { ...prev, stage: newStage } : null));
-      }
-      setMessage(`Lead atualizado para "${LEAD_STAGE_LABELS[newStage]}".`);
-      setTimeout(() => setMessage(''), 4000);
+      const updated = (await res.json()) as CrmLead;
+      setLeads((prev) =>
+        prev.map((l) => (l.id === leadId ? { ...l, ...updated, stage: newStage } : l)),
+      );
+      setSelectedLead((prev) =>
+        prev && prev.id === leadId ? { ...prev, ...updated, stage: newStage } : prev,
+      );
+      showSuccess(`Lead movido para "${LEAD_STAGE_LABELS[newStage]}".`);
       void loadLeads();
     } catch {
       setError('Falha ao comunicar com o servidor.');
+    }
+  }
+
+  async function handleUpdateQuoteStatus(quote: LeadQuote, nextStatus: QuoteStatus) {
+    if (nextStatus === quote.status || updatingQuoteId) return;
+    setUpdatingQuoteId(quote.id);
+    try {
+      const response = await fetch(`/api/v1/admin/quotes/${quote.id}/status`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: nextStatus,
+          reason: 'Atualização no CRM (Leads & Cotações)',
+        }),
+      });
+      if (!response.ok) {
+        setError('Transição não permitida para esta cotação.');
+        return;
+      }
+      showSuccess(
+        `Cotação #${quote.publicId.slice(-8)} atualizada para "${quoteStatusLabel(nextStatus)}".`,
+      );
+      await loadLeads();
+    } catch {
+      setError('Falha de conexão ao atualizar a cotação.');
+    } finally {
+      setUpdatingQuoteId(null);
     }
   }
 
@@ -96,17 +223,37 @@ export function CRMPage() {
       const updatedNotes = [createdNote, ...(selectedLead.leadNotes || [])];
       setSelectedLead({ ...selectedLead, leadNotes: updatedNotes });
       setLeads((prev) =>
-        prev.map((l) => (l.id === selectedLead.id ? { ...l, leadNotes: updatedNotes } : l))
+        prev.map((l) => (l.id === selectedLead.id ? { ...l, leadNotes: updatedNotes } : l)),
       );
       setNewNoteContent('');
-      setMessage('Anotação registrada com sucesso!');
-      setTimeout(() => setMessage(''), 3000);
+      showSuccess('Anotação registrada com sucesso!');
     } catch {
       setError('Falha ao salvar anotação.');
     } finally {
       setSavingNote(false);
     }
   }
+
+  const originStats = useMemo(() => {
+    let withQuote = 0;
+    let chatOnly = 0;
+    for (const lead of leads) {
+      const meta = getLeadOriginMeta(lead);
+      if (meta.hasQuote) withQuote += 1;
+      else chatOnly += 1;
+    }
+    return { all: leads.length, withQuote, chatOnly };
+  }, [leads]);
+
+  const filteredLeads = useMemo(() => {
+    return leads.filter((lead) => {
+      const meta = getLeadOriginMeta(lead);
+      if (originFilter === 'QUOTE' && !meta.hasQuote) return false;
+      if (originFilter === 'CHAT' && meta.hasQuote) return false;
+      if (viewMode === 'list' && stageFilter !== 'ALL' && lead.stage !== stageFilter) return false;
+      return true;
+    });
+  }, [leads, originFilter, stageFilter, viewMode]);
 
   const leadsByStage = useMemo(() => {
     const map: Record<LeadStage, CrmLead[]> = {
@@ -116,7 +263,7 @@ export function CRMPage() {
       WON: [],
       LOST: [],
     };
-    for (const lead of leads) {
+    for (const lead of filteredLeads) {
       if (map[lead.stage]) {
         map[lead.stage].push(lead);
       } else {
@@ -124,75 +271,149 @@ export function CRMPage() {
       }
     }
     return map;
-  }, [leads]);
+  }, [filteredLeads]);
 
-  const totalLeads = leads.length;
-  const newLeadsCount = counts.NEW ?? 0;
-  const inProgressCount = (counts.CONTACTED ?? 0) + (counts.IN_PROGRESS ?? 0);
-  const wonCount = counts.WON ?? 0;
-
-  function formatPhoneDigits(phone: string) {
-    return phone.replace(/\D/g, '');
-  }
+  const totalLeads = counts.NEW !== undefined
+    ? STAGES.reduce((sum, stage) => sum + (counts[stage] ?? 0), 0) || leads.length
+    : leads.length;
+  const newLeadsCount = counts.NEW ?? leadsByStage.NEW.length;
+  const inProgressCount =
+    (counts.CONTACTED ?? leadsByStage.CONTACTED.length) +
+    (counts.IN_PROGRESS ?? leadsByStage.IN_PROGRESS.length);
+  const wonCount = counts.WON ?? leadsByStage.WON.length;
+  const conversionRate = totalLeads > 0 ? Math.round((wonCount / totalLeads) * 100) : 0;
 
   return (
-    <section className="admin-page">
-      <div className="admin-page__heading">
+    <section className="admin-page crm-page">
+      <div className="admin-page__heading crm-page__heading">
         <div>
-          <p className="admin-eyebrow">Atendimento &amp; Comercial</p>
-          <h2>MiniCRM — Pipeline de Leads (Chat Norti)</h2>
+          <p className="admin-eyebrow">Comercial &amp; Atendimento</p>
+          <h2>CRM (Leads &amp; Cotações)</h2>
         </div>
-        <p>
-          Central de oportunidades e contatos originados pelo mascote Norti e formulários do site.
-          Organize em Kanban e responda diretamente pelo WhatsApp de cada filial.
-        </p>
+        <div className="crm-header-actions">
+          <p>
+            Pipeline unificado de oportunidades do Chat Norti e cotações da loja. Cada cotação
+            entra como lead com itens, protocolo e histórico no mesmo lugar.
+          </p>
+          <div className="crm-view-switch" role="group" aria-label="Modo de visualização do CRM">
+            <button
+              className={`crm-view-switch__btn ${viewMode === 'kanban' ? 'is-active' : ''}`}
+              onClick={() => setViewMode('kanban')}
+              type="button"
+            >
+              <Icon name="layout-dashboard" size={15} strokeWidth={2} />
+              <span>Kanban</span>
+            </button>
+            <button
+              className={`crm-view-switch__btn ${viewMode === 'list' ? 'is-active' : ''}`}
+              onClick={() => setViewMode('list')}
+              type="button"
+            >
+              <Icon name="list" size={15} strokeWidth={2} />
+              <span>Lista</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      {message ? <p className="admin-success" role="status">{message}</p> : null}
-      {error ? <p className="admin-error" role="alert">{error}</p> : null}
+      {message ? (
+        <p className="admin-success" role="status">
+          {message}
+        </p>
+      ) : null}
+      {error ? (
+        <p className="admin-error" role="alert">
+          {error}
+        </p>
+      ) : null}
 
       {/* KPIs DE TOPO */}
-      <div className="admin-kpi-grid">
+      <div className="admin-kpi-grid crm-kpi-grid">
         <article className="admin-kpi">
-          <span>Total de Leads</span>
+          <div className="crm-kpi__top">
+            <span>Total de Leads</span>
+            <Icon name="users" size={16} strokeWidth={2} />
+          </div>
           <strong>{totalLeads}</strong>
-          <small>Oportunidades mapeadas</small>
+          <small>
+            {originStats.withQuote} com cotação · {originStats.chatOnly} via chat
+          </small>
         </article>
         <article className="admin-kpi">
-          <span>Novos no Funil</span>
+          <div className="crm-kpi__top">
+            <span>Novos no Funil</span>
+            <Icon name="sparkles" size={16} strokeWidth={2} />
+          </div>
           <strong style={{ color: '#1D4ED8' }}>{newLeadsCount}</strong>
           <small>Aguardando primeiro contato</small>
         </article>
         <article className="admin-kpi">
-          <span>Em Negociação</span>
+          <div className="crm-kpi__top">
+            <span>Em Negociação</span>
+            <Icon name="clipboard-list" size={16} strokeWidth={2} />
+          </div>
           <strong style={{ color: '#7E22CE' }}>{inProgressCount}</strong>
-          <small>Cotação ou atendimento ativo</small>
+          <small>Atendimento ou cotação ativa</small>
         </article>
         <article className="admin-kpi">
-          <span>Convertidos / Ganhos</span>
+          <div className="crm-kpi__top">
+            <span>Convertidos / Ganhos</span>
+            <Icon name="trending-up" size={16} strokeWidth={2} />
+          </div>
           <strong style={{ color: '#15803D' }}>{wonCount}</strong>
-          <small>Vendas fechadas</small>
+          <small>{conversionRate}% de taxa de conversão</small>
         </article>
       </div>
 
-      {/* FILTROS E BARRA DE BUSCA */}
-      <div className="admin-card admin-toolbar admin-toolbar--filters" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-        <div style={{ flex: '1', minWidth: '240px' }}>
-          <input
-            className="admin-input"
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por cliente, WhatsApp ou assunto..."
-            style={{ width: '100%' }}
-            type="search"
-            value={search}
-          />
+      {/* BARRA DE FILTROS E ORIGEM */}
+      <div className="admin-card crm-toolbar">
+        <div className="crm-origin-pills" role="tablist" aria-label="Filtrar por origem">
+          <button
+            aria-selected={originFilter === 'ALL'}
+            className={`crm-pill ${originFilter === 'ALL' ? 'is-active' : ''}`}
+            onClick={() => setOriginFilter('ALL')}
+            role="tab"
+            type="button"
+          >
+            Todos <span>{originStats.all}</span>
+          </button>
+          <button
+            aria-selected={originFilter === 'QUOTE'}
+            className={`crm-pill ${originFilter === 'QUOTE' ? 'is-active' : ''}`}
+            onClick={() => setOriginFilter('QUOTE')}
+            role="tab"
+            type="button"
+          >
+            Com Cotação <span>{originStats.withQuote}</span>
+          </button>
+          <button
+            aria-selected={originFilter === 'CHAT'}
+            className={`crm-pill ${originFilter === 'CHAT' ? 'is-active' : ''}`}
+            onClick={() => setOriginFilter('CHAT')}
+            role="tab"
+            type="button"
+          >
+            Chat Norti <span>{originStats.chatOnly}</span>
+          </button>
         </div>
 
-        <div style={{ minWidth: '220px' }}>
+        <div className="crm-toolbar__controls">
+          <div className="crm-search-wrap">
+            <Icon name="search" size={15} strokeWidth={2} />
+            <input
+              aria-label="Buscar por cliente, telefone, empresa, protocolo ou assunto"
+              className="crm-search-input"
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por cliente, WhatsApp, empresa ou protocolo..."
+              type="search"
+              value={search}
+            />
+          </div>
+
           <select
-            className="admin-select"
+            aria-label="Filtrar por unidade"
+            className="crm-select"
             onChange={(e) => setSelectedStore(e.target.value)}
-            style={{ width: '100%' }}
             value={selectedStore}
           >
             {STORE_OPTIONS.map((store) => (
@@ -201,455 +422,642 @@ export function CRMPage() {
               </option>
             ))}
           </select>
-        </div>
 
-        <button className="admin-button" onClick={() => void loadLeads()} type="button">
-          Atualizar
-        </button>
+          {viewMode === 'list' ? (
+            <select
+              aria-label="Filtrar por estágio"
+              className="crm-select"
+              onChange={(e) => setStageFilter(e.target.value as 'ALL' | LeadStage)}
+              value={stageFilter}
+            >
+              <option value="ALL">Todos os estágios</option>
+              {STAGES.map((stage) => (
+                <option key={stage} value={stage}>
+                  {LEAD_STAGE_LABELS[stage]}
+                </option>
+              ))}
+            </select>
+          ) : null}
+
+          <button
+            className="admin-button admin-button--compact"
+            onClick={() => void loadLeads()}
+            type="button"
+          >
+            <Icon name="refresh-cw" size={14} strokeWidth={2} />
+            <span style={{ marginLeft: '6px' }}>Atualizar</span>
+          </button>
+        </div>
       </div>
 
-      {/* PIPELINE KANBAN */}
+      {/* CONTEÚDO: KANBAN OU LISTA */}
       {loading ? (
-        <div className="admin-card" style={{ padding: '2rem', textAlign: 'center' }}>
-          <p>Carregando pipeline de oportunidades...</p>
+        <div className="admin-card crm-loading-card">
+          <p>Carregando pipeline de leads e cotações...</p>
         </div>
-      ) : (
-        <div
-          className="admin-kanban-board"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: '1rem',
-            alignItems: 'start',
-            marginTop: '1.25rem',
-          }}
-        >
-          {STAGES.map((stage) => {
-            const stageLeads = leadsByStage[stage];
-            const colors = LEAD_STAGE_COLORS[stage];
-            return (
-              <div
-                key={stage}
-                style={{
-                  backgroundColor: '#F8FAFC',
-                  borderRadius: '12px',
-                  border: `1px solid ${colors.border}`,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  maxHeight: 'calc(100vh - 220px)',
-                  overflow: 'hidden',
-                }}
-              >
-                {/* CABEÇALHO DA COLUNA */}
+      ) : viewMode === 'kanban' ? (
+        <div className="crm-kanban-scroll">
+          <div className="crm-kanban-board">
+            {STAGES.map((stage) => {
+              const stageLeads = leadsByStage[stage];
+              const colors = LEAD_STAGE_COLORS[stage];
+              const isDropTarget = dragOverStage === stage;
+
+              return (
                 <div
-                  style={{
-                    backgroundColor: colors.bg,
-                    borderBottom: `1px solid ${colors.border}`,
-                    padding: '0.75rem 1rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
+                  key={stage}
+                  className={`crm-column ${isDropTarget ? 'is-drag-over' : ''}`}
+                  onDragLeave={() => {
+                    if (dragOverStage === stage) setDragOverStage(null);
                   }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    if (dragOverStage !== stage) setDragOverStage(stage);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragOverStage(null);
+                    const leadId = e.dataTransfer.getData('text/plain') || draggedLeadId;
+                    setDraggedLeadId(null);
+                    if (leadId) void handleUpdateStage(leadId, stage);
+                  }}
+                  style={{ borderColor: colors.border }}
                 >
-                  <span style={{ fontWeight: 'bold', fontSize: '0.85rem', color: colors.text }}>
-                    {LEAD_STAGE_LABELS[stage]}
-                  </span>
-                  <span
+                  <div
+                    className="crm-column__header"
                     style={{
-                      backgroundColor: 'rgba(255,255,255,0.8)',
-                      borderRadius: '999px',
-                      padding: '2px 8px',
-                      fontSize: '0.75rem',
-                      fontWeight: 'bold',
-                      color: colors.text,
+                      backgroundColor: colors.bg,
+                      borderBottomColor: colors.border,
                     }}
                   >
-                    {stageLeads.length}
-                  </span>
-                </div>
-
-                {/* LISTA DE CARDS */}
-                <div
-                  style={{
-                    padding: '0.75rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.75rem',
-                    overflowY: 'auto',
-                    flex: 1,
-                  }}
-                >
-                  {stageLeads.length === 0 ? (
-                    <div style={{ padding: '1.5rem 0.5rem', textAlign: 'center', color: '#94A3B8', fontSize: '0.8rem' }}>
-                      Nenhum lead neste estágio
+                    <div className="crm-column__title" style={{ color: colors.text }}>
+                      <span
+                        className="crm-column__dot"
+                        style={{ backgroundColor: colors.dot }}
+                      />
+                      <span>{LEAD_STAGE_LABELS[stage]}</span>
                     </div>
-                  ) : (
-                    stageLeads.map((lead) => {
-                      const digits = formatPhoneDigits(lead.customerPhone);
-                      const wppText = encodeURIComponent(
-                        `Olá, ${lead.customerName}! Aqui é da equipe Comercial do Norte (${lead.preferredStore}). Vi seu contato através do nosso assistente Norti no site e estou aqui para te atender sobre: ${lead.subject}. Como posso te ajudar?`
-                      );
-                      const wppUrl = `https://wa.me/55${digits.replace(/^55/, '')}?text=${wppText}`;
+                    <span className="crm-column__count" style={{ color: colors.text }}>
+                      {stageLeads.length}
+                    </span>
+                  </div>
 
-                      return (
-                        <div
-                          key={lead.id}
-                          onClick={() => setSelectedLead(lead)}
-                          style={{
-                            backgroundColor: '#FFFFFF',
-                            borderRadius: '8px',
-                            border: '1px solid #E2E8F0',
-                            padding: '0.85rem',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                            cursor: 'pointer',
-                            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-                          }}
-                        >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.4rem' }}>
-                            <strong style={{ fontSize: '0.9rem', color: '#0F172A' }}>
-                              {lead.customerName}
-                            </strong>
-                            <span style={{ fontSize: '0.7rem', color: '#64748B' }}>
-                              {new Date(lead.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
-                            </span>
-                          </div>
+                  <div className="crm-column__list">
+                    {stageLeads.length === 0 ? (
+                      <div className="crm-column__empty">Nenhum lead neste estágio</div>
+                    ) : (
+                      stageLeads.map((lead) => {
+                        const originMeta = getLeadOriginMeta(lead);
+                        const primaryQuote = lead.quotes?.[0];
+                        const quotesCount = lead.quotes?.length ?? 0;
+                        const wppUrl = buildWhatsAppUrl(lead);
 
-                          <div style={{ fontSize: '0.78rem', color: '#334155', marginBottom: '0.4rem' }}>
-                            <span style={{ fontWeight: 600 }}>📞 {lead.customerPhone}</span>
-                          </div>
-
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.6rem' }}>
-                            <span
-                              style={{
-                                backgroundColor: '#EEF2FF',
-                                color: '#4338CA',
-                                borderRadius: '4px',
-                                padding: '2px 6px',
-                                fontSize: '0.7rem',
-                                fontWeight: 600,
-                              }}
-                            >
-                              📍 {lead.preferredStore}
-                            </span>
-                            <span
-                              style={{
-                                backgroundColor: '#F1F5F9',
-                                color: '#475569',
-                                borderRadius: '4px',
-                                padding: '2px 6px',
-                                fontSize: '0.7rem',
-                              }}
-                            >
-                              🏷️ {lead.subject}
-                            </span>
-                          </div>
-
-                          {/* AÇÕES RÁPIDAS NO CARD */}
-                          <div
-                            onClick={(e) => e.stopPropagation()}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              borderTop: '1px solid #F1F5F9',
-                              paddingTop: '0.5rem',
-                              marginTop: '0.4rem',
+                        return (
+                          <article
+                            key={lead.id}
+                            className={`crm-card ${draggedLeadId === lead.id ? 'is-dragging' : ''}`}
+                            draggable
+                            onClick={() => setSelectedLead(lead)}
+                            onDragEnd={() => {
+                              setDraggedLeadId(null);
+                              setDragOverStage(null);
+                            }}
+                            onDragStart={(e) => {
+                              setDraggedLeadId(lead.id);
+                              e.dataTransfer.setData('text/plain', lead.id);
                             }}
                           >
-                            <a
-                              href={wppUrl}
-                              rel="noreferrer"
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                color: '#15803D',
-                                fontSize: '0.75rem',
-                                fontWeight: 700,
-                                textDecoration: 'none',
-                                backgroundColor: '#DCFCE7',
-                                padding: '3px 8px',
-                                borderRadius: '6px',
-                              }}
-                              target="_blank"
-                            >
-                              💬 WhatsApp
-                            </a>
+                            <div className="crm-card__top">
+                              <span className={`crm-origin-badge crm-origin-badge--${originMeta.kind.toLowerCase()}`}>
+                                {originMeta.label}
+                              </span>
+                              <span className="crm-card__date">
+                                {new Date(lead.createdAt).toLocaleDateString('pt-BR', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                })}
+                              </span>
+                            </div>
 
-                            <select
-                              aria-label="Mudar estágio do lead"
-                              onChange={(e) => handleUpdateStage(lead.id, e.target.value as LeadStage)}
-                              style={{
-                                fontSize: '0.72rem',
-                                padding: '2px 4px',
-                                borderRadius: '4px',
-                                border: '1px solid #CBD5E1',
-                                background: '#FFF',
-                              }}
-                              value={lead.stage}
+                            <div className="crm-card__identity">
+                              <strong>{lead.customerName}</strong>
+                              {primaryQuote?.companyName ? (
+                                <small className="crm-card__company">
+                                  {primaryQuote.companyName}
+                                </small>
+                              ) : null}
+                            </div>
+
+                            <div className="crm-card__meta">
+                              <span className="crm-card__phone">
+                                <Icon name="phone" size={12} strokeWidth={2} />
+                                <span>{formatQuotePhone(lead.customerPhone)}</span>
+                              </span>
+                              <span className="crm-store-pill">
+                                📍 {lead.preferredStore}
+                              </span>
+                            </div>
+
+                            {primaryQuote ? (
+                              <div className="crm-card__quote-box">
+                                <div className="crm-card__quote-head">
+                                  <strong>
+                                    #{primaryQuote.publicId.slice(-8)}
+                                    {quotesCount > 1 ? ` (+${quotesCount - 1})` : ''}
+                                  </strong>
+                                  <span
+                                    className={`admin-status admin-status--${primaryQuote.status.toLowerCase()}`}
+                                  >
+                                    {quoteStatusLabel(primaryQuote.status)}
+                                  </span>
+                                </div>
+                                <div className="crm-card__quote-summary">
+                                  <span>
+                                    {primaryQuote.itemsCount}{' '}
+                                    {primaryQuote.itemsCount === 1 ? 'un.' : 'un.'}
+                                    {primaryQuote.items?.[0]?.productName
+                                      ? ` · ${primaryQuote.items[0].productName}`
+                                      : ''}
+                                  </span>
+                                  <strong>{formatQuoteMoney(primaryQuote.subtotalCents)}</strong>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="crm-card__subject">
+                                <span>🏷️ {lead.subject}</span>
+                              </div>
+                            )}
+
+                            <div
+                              className="crm-card__footer"
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              {STAGES.map((s) => (
-                                <option key={s} value={s}>
-                                  {LEAD_STAGE_LABELS[s]}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
+                              <a
+                                className="crm-wpp-btn"
+                                href={wppUrl}
+                                rel="noreferrer"
+                                target="_blank"
+                              >
+                                💬 WhatsApp
+                              </a>
+
+                              <select
+                                aria-label="Mudar estágio do lead"
+                                className="crm-stage-select"
+                                onChange={(e) =>
+                                  void handleUpdateStage(lead.id, e.target.value as LeadStage)
+                                }
+                                value={lead.stage}
+                              >
+                                {STAGES.map((s) => (
+                                  <option key={s} value={s}>
+                                    {LEAD_STAGE_LABELS[s]}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </article>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      )}
+      ) : (
+        <div className="admin-card admin-table-card" style={{ marginTop: '1rem' }}>
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Lead / Cliente</th>
+                  <th>Origem &amp; Protocolo</th>
+                  <th>Loja Preferencial</th>
+                  <th>Cotação / Assunto</th>
+                  <th>Estágio CRM</th>
+                  <th style={{ textAlign: 'right' }}>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredLeads.map((lead) => {
+                  const originMeta = getLeadOriginMeta(lead);
+                  const primaryQuote = lead.quotes?.[0];
+                  const stageColor = LEAD_STAGE_COLORS[lead.stage];
 
-      {/* DRAWER / MODAL DE DETALHES COMPLETOS DO LEAD */}
-      {selectedLead && (
-        <div
-          onClick={() => setSelectedLead(null)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.45)',
-            zIndex: 9999,
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              width: '100%',
-              maxWidth: '560px',
-              height: '100%',
-              backgroundColor: '#FFFFFF',
-              boxShadow: '-4px 0 24px rgba(0,0,0,0.2)',
-              display: 'flex',
-              flexDirection: 'column',
-              overflowY: 'auto',
-            }}
-          >
-            {/* TOPO DO MODAL */}
-            <div
-              style={{
-                padding: '1.25rem',
-                borderBottom: '1px solid #E2E8F0',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                backgroundColor: '#F8FAFC',
-              }}
-            >
-              <div>
-                <span
-                  style={{
-                    backgroundColor: LEAD_STAGE_COLORS[selectedLead.stage].bg,
-                    color: LEAD_STAGE_COLORS[selectedLead.stage].text,
-                    border: `1px solid ${LEAD_STAGE_COLORS[selectedLead.stage].border}`,
-                    borderRadius: '999px',
-                    padding: '2px 10px',
-                    fontSize: '0.75rem',
-                    fontWeight: 'bold',
-                    display: 'inline-block',
-                    marginBottom: '0.4rem',
-                  }}
-                >
-                  {LEAD_STAGE_LABELS[selectedLead.stage]}
-                </span>
-                <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0F172A' }}>
-                  {selectedLead.customerName}
-                </h3>
-                <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: '#64748B' }}>
-                  Protocolo: {selectedLead.publicId} • Registrado em{' '}
-                  {new Date(selectedLead.createdAt).toLocaleString('pt-BR')}
-                </p>
-              </div>
-
-              <button
-                onClick={() => setSelectedLead(null)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  fontSize: '1.4rem',
-                  color: '#64748B',
-                  cursor: 'pointer',
-                  padding: '4px',
-                }}
-                type="button"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* CONTEÚDO DO LEAD */}
-            <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', flex: 1 }}>
-              {/* CARD DE INFORMAÇÕES DE CONTATO */}
-              <div
-                style={{
-                  backgroundColor: '#F8FAFC',
-                  borderRadius: '8px',
-                  border: '1px solid #E2E8F0',
-                  padding: '1rem',
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: '0.75rem',
-                }}
-              >
-                <div>
-                  <span style={{ fontSize: '0.7rem', color: '#64748B', display: 'block' }}>WhatsApp</span>
-                  <strong style={{ fontSize: '0.88rem', color: '#0F172A' }}>{selectedLead.customerPhone}</strong>
-                </div>
-                <div>
-                  <span style={{ fontSize: '0.7rem', color: '#64748B', display: 'block' }}>Loja Preferencial</span>
-                  <strong style={{ fontSize: '0.88rem', color: '#0F172A' }}>{selectedLead.preferredStore}</strong>
-                </div>
-                <div>
-                  <span style={{ fontSize: '0.7rem', color: '#64748B', display: 'block' }}>Assunto / Interesse</span>
-                  <strong style={{ fontSize: '0.88rem', color: '#0F172A' }}>{selectedLead.subject}</strong>
-                </div>
-                <div>
-                  <span style={{ fontSize: '0.7rem', color: '#64748B', display: 'block' }}>Origem</span>
-                  <strong style={{ fontSize: '0.88rem', color: '#0F172A' }}>Chat Mascote Norti</strong>
-                </div>
-              </div>
-
-              {/* BOTÃO PRINCIPAL WHATSAPP COM A LOJA */}
-              <div>
-                <a
-                  href={`https://wa.me/55${formatPhoneDigits(selectedLead.customerPhone).replace(/^55/, '')}?text=${encodeURIComponent(
-                    `Olá, ${selectedLead.customerName}! Aqui é da equipe Comercial do Norte (${selectedLead.preferredStore}). Vi seu contato através do assistente Norti no site e estou aqui para te atender sobre: ${selectedLead.subject}. Como podemos te ajudar?`
-                  )}`}
-                  rel="noreferrer"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.5rem',
-                    backgroundColor: '#25D366',
-                    color: '#FFF',
-                    fontWeight: 'bold',
-                    fontSize: '0.9rem',
-                    padding: '0.75rem 1rem',
-                    borderRadius: '8px',
-                    textDecoration: 'none',
-                    boxShadow: '0 2px 8px rgba(37,211,102,0.3)',
-                  }}
-                  target="_blank"
-                >
-                  <span style={{ fontSize: '1.2rem' }}>💬</span> Iniciar Conversa no WhatsApp com {selectedLead.customerName}
-                </a>
-              </div>
-
-              {/* HISTÓRICO DA CONVERSA COM O TYPEBOT / NORTI */}
-              <div>
-                <h4 style={{ fontSize: '0.95rem', color: '#1E293B', marginBottom: '0.5rem' }}>
-                  🤖 Histórico do Chat Norti (Typebot)
-                </h4>
-                <div
-                  style={{
-                    backgroundColor: '#EFEAE2',
-                    borderRadius: '8px',
-                    border: '1px solid #D1D5DB',
-                    padding: '0.85rem',
-                    maxHeight: '260px',
-                    overflowY: 'auto',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.6rem',
-                  }}
-                >
-                  {Array.isArray(selectedLead.conversationLog) && selectedLead.conversationLog.length > 0 ? (
-                    selectedLead.conversationLog.map((msg, idx) => {
-                      const isBot = msg.sender === 'bot';
-                      return (
-                        <div
-                          key={msg.id || idx}
-                          style={{
-                            alignSelf: isBot ? 'flex-start' : 'flex-end',
-                            backgroundColor: isBot ? '#FFFFFF' : '#DCF8C6',
-                            color: '#1E293B',
-                            borderRadius: '8px',
-                            padding: '0.5rem 0.75rem',
-                            maxWidth: '85%',
-                            fontSize: '0.8rem',
-                            boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                            lineHeight: 1.35,
-                          }}
+                  return (
+                    <tr
+                      key={lead.id}
+                      onClick={() => setSelectedLead(lead)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <td>
+                        <strong>{lead.customerName}</strong>
+                        <small className="admin-table__subline">
+                          {formatQuotePhone(lead.customerPhone)}
+                          {primaryQuote?.companyName ? ` · ${primaryQuote.companyName}` : ''}
+                        </small>
+                      </td>
+                      <td>
+                        <span
+                          className={`crm-origin-badge crm-origin-badge--${originMeta.kind.toLowerCase()}`}
                         >
-                          <span style={{ fontSize: '0.68rem', fontWeight: 'bold', color: isBot ? '#004CB1' : '#15803D', display: 'block' }}>
-                            {isBot ? '🐧 Norti' : selectedLead.customerName}
-                          </span>
-                          <span>{msg.text}</span>
+                          {originMeta.label}
+                        </span>
+                        <small className="admin-table__subline">
+                          {primaryQuote
+                            ? `#${primaryQuote.publicId.slice(-8)}`
+                            : lead.publicId.slice(-8)}{' '}
+                          · {new Date(lead.createdAt).toLocaleDateString('pt-BR')}
+                        </small>
+                      </td>
+                      <td>{lead.preferredStore}</td>
+                      <td>
+                        {primaryQuote ? (
+                          <div>
+                            <strong>
+                              {primaryQuote.itemsCount} un. ·{' '}
+                              {formatQuoteMoney(primaryQuote.subtotalCents)}
+                            </strong>
+                            <small className="admin-table__subline">
+                              Status: {quoteStatusLabel(primaryQuote.status)}
+                            </small>
+                          </div>
+                        ) : (
+                          <span>{lead.subject}</span>
+                        )}
+                      </td>
+                      <td onClick={(e) => e.stopPropagation()}>
+                        <select
+                          aria-label={`Alterar estágio de ${lead.customerName}`}
+                          className="admin-inline-select"
+                          onChange={(e) =>
+                            void handleUpdateStage(lead.id, e.target.value as LeadStage)
+                          }
+                          style={{
+                            borderColor: stageColor.border,
+                            color: stageColor.text,
+                            backgroundColor: stageColor.bg,
+                            fontWeight: 700,
+                          }}
+                          value={lead.stage}
+                        >
+                          {STAGES.map((s) => (
+                            <option key={s} value={s}>
+                              {LEAD_STAGE_LABELS[s]}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td onClick={(e) => e.stopPropagation()}>
+                        <div className="admin-table__actions">
+                          <a
+                            className="crm-wpp-btn"
+                            href={buildWhatsAppUrl(lead)}
+                            rel="noreferrer"
+                            target="_blank"
+                          >
+                            WhatsApp
+                          </a>
+                          <button
+                            className="admin-button admin-button--compact"
+                            onClick={() => setSelectedLead(lead)}
+                            type="button"
+                          >
+                            Abrir ficha
+                          </button>
                         </div>
-                      );
-                    })
-                  ) : (
-                    <p style={{ fontSize: '0.8rem', color: '#64748B', textAlign: 'center', margin: '1rem 0' }}>
-                      Lead registrado diretamente com os dados estruturados do formulário.
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* ANOTAÇÕES DA EQUIPE COMERCIAL */}
-              <div>
-                <h4 style={{ fontSize: '0.95rem', color: '#1E293B', marginBottom: '0.5rem' }}>
-                  📝 Anotações Internas da Equipe
-                </h4>
-
-                <form onSubmit={handleAddNote} style={{ marginBottom: '1rem' }}>
-                  <textarea
-                    className="admin-input"
-                    onChange={(e) => setNewNoteContent(e.target.value)}
-                    placeholder="Adicionar anotação (ex: liguei para cliente, orçamento de 50 fardos enviado)..."
-                    rows={2}
-                    style={{ width: '100%', marginBottom: '0.4rem', fontSize: '0.82rem' }}
-                    value={newNoteContent}
-                  />
-                  <button
-                    className="admin-button"
-                    disabled={savingNote || !newNoteContent.trim()}
-                    style={{ fontSize: '0.8rem' }}
-                    type="submit"
-                  >
-                    {savingNote ? 'Salvando...' : 'Salvar Anotação'}
-                  </button>
-                </form>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {selectedLead.leadNotes && selectedLead.leadNotes.length > 0 ? (
-                    selectedLead.leadNotes.map((note) => (
-                      <div
-                        key={note.id}
-                        style={{
-                          backgroundColor: '#F8FAFC',
-                          border: '1px solid #E2E8F0',
-                          borderRadius: '6px',
-                          padding: '0.6rem 0.75rem',
-                          fontSize: '0.8rem',
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748B', fontSize: '0.7rem', marginBottom: '0.2rem' }}>
-                          <strong>{note.authorName}</strong>
-                          <span>{new Date(note.createdAt).toLocaleString('pt-BR')}</span>
-                        </div>
-                        <p style={{ margin: 0, color: '#334155' }}>{note.content}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <p style={{ fontSize: '0.78rem', color: '#94A3B8', margin: 0 }}>
-                      Nenhuma anotação registrada ainda.
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {!filteredLeads.length ? (
+              <p className="admin-empty" style={{ padding: '2rem', textAlign: 'center' }}>
+                Nenhum lead ou cotação encontrado com os filtros atuais.
+              </p>
+            ) : null}
           </div>
         </div>
       )}
+
+      {/* DRAWER / FICHA COMPLETA DO LEAD E SUAS COTAÇÕES */}
+      {selectedLead ? (
+        <div
+          aria-label={`Ficha do lead ${selectedLead.customerName}`}
+          aria-modal="true"
+          className="crm-drawer-backdrop"
+          onClick={() => setSelectedLead(null)}
+          role="dialog"
+        >
+          <div className="crm-drawer" onClick={(e) => e.stopPropagation()}>
+            {(() => {
+              const originMeta = getLeadOriginMeta(selectedLead);
+              const chatData = extractChatMessages(selectedLead.conversationLog);
+              const quotes = selectedLead.quotes ?? [];
+              const primaryQuote = quotes[0];
+              const modality = extractModalityFromNotes(
+                primaryQuote?.notes ?? selectedLead.notes,
+              );
+              const cleanLeadNotes = stripMetadataTags(selectedLead.notes);
+
+              return (
+                <>
+                  <header className="crm-drawer__header">
+                    <div className="crm-drawer__title-group">
+                      <div className="crm-drawer__badges">
+                        <span
+                          className={`crm-origin-badge crm-origin-badge--${originMeta.kind.toLowerCase()}`}
+                        >
+                          {originMeta.label}
+                        </span>
+                        <select
+                          aria-label="Estágio do lead no funil"
+                          className="crm-drawer__stage-select"
+                          onChange={(e) =>
+                            void handleUpdateStage(selectedLead.id, e.target.value as LeadStage)
+                          }
+                          style={{
+                            backgroundColor: LEAD_STAGE_COLORS[selectedLead.stage].bg,
+                            color: LEAD_STAGE_COLORS[selectedLead.stage].text,
+                            borderColor: LEAD_STAGE_COLORS[selectedLead.stage].border,
+                          }}
+                          value={selectedLead.stage}
+                        >
+                          {STAGES.map((s) => (
+                            <option key={s} value={s}>
+                              {LEAD_STAGE_LABELS[s]}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <h3>{selectedLead.customerName}</h3>
+                      <p className="crm-drawer__subtitle">
+                        {primaryQuote?.companyName ? `${primaryQuote.companyName} · ` : ''}
+                        {primaryQuote?.document ? `${primaryQuote.document} · ` : ''}
+                        Registrado em{' '}
+                        {new Date(selectedLead.createdAt).toLocaleString('pt-BR')}
+                      </p>
+                    </div>
+
+                    <button
+                      aria-label="Fechar ficha do lead"
+                      className="crm-drawer__close"
+                      onClick={() => setSelectedLead(null)}
+                      type="button"
+                    >
+                      <Icon name="x" size={18} strokeWidth={2} />
+                    </button>
+                  </header>
+
+                  <div className="crm-drawer__body">
+                    <a
+                      className="crm-drawer__wpp-cta"
+                      href={buildWhatsAppUrl(selectedLead)}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      <span>💬</span>
+                      <span>
+                        Iniciar atendimento no WhatsApp com {selectedLead.customerName}
+                      </span>
+                    </a>
+
+                    <div className="crm-info-grid">
+                      <div>
+                        <span>WhatsApp</span>
+                        <strong>{formatQuotePhone(selectedLead.customerPhone)}</strong>
+                      </div>
+                      <div>
+                        <span>Loja Preferencial</span>
+                        <strong>{selectedLead.preferredStore}</strong>
+                      </div>
+                      <div>
+                        <span>E-mail</span>
+                        <strong>{selectedLead.customerEmail || primaryQuote?.customerEmail || '—'}</strong>
+                      </div>
+                      <div>
+                        <span>{modality ? 'Modalidade' : 'Assunto / Interesse'}</span>
+                        <strong>{modality ?? selectedLead.subject}</strong>
+                      </div>
+                    </div>
+
+                    {/* COTAÇÕES VINCULADAS AO LEAD */}
+                    {quotes.length > 0 ? (
+                      <section className="crm-section">
+                        <div className="crm-section__header">
+                          <h4>
+                            <Icon name="clipboard-list" size={16} strokeWidth={2} />
+                            <span>
+                              {quotes.length === 1
+                                ? 'Cotação vinculada ao lead'
+                                : `Cotações vinculadas (${quotes.length})`}
+                            </span>
+                          </h4>
+                        </div>
+
+                        <div className="crm-quotes-stack">
+                          {quotes.map((quote) => {
+                            const actions = nextQuoteStatuses(quote.status);
+                            const quoteCleanNotes = stripMetadataTags(quote.notes);
+
+                            return (
+                              <div key={quote.id} className="crm-quote-panel">
+                                <div className="crm-quote-panel__top">
+                                  <div>
+                                    <span className="crm-quote-panel__eyebrow">
+                                      Protocolo #{quote.publicId.slice(-8)} ·{' '}
+                                      {new Date(quote.createdAt).toLocaleString('pt-BR')}
+                                    </span>
+                                    <div className="crm-quote-panel__totals">
+                                      <strong>
+                                        {quote.itemsCount}{' '}
+                                        {quote.itemsCount === 1 ? 'unidade' : 'unidades'}
+                                      </strong>
+                                      <span>·</span>
+                                      <strong>{formatQuoteMoney(quote.subtotalCents)}</strong>
+                                    </div>
+                                  </div>
+                                  <span
+                                    className={`admin-status admin-status--${quote.status.toLowerCase()}`}
+                                  >
+                                    {quoteStatusLabel(quote.status)}
+                                  </span>
+                                </div>
+
+                                {quoteCleanNotes ? (
+                                  <p className="admin-note" style={{ margin: '0.6rem 0' }}>
+                                    <strong>Observações do cliente:</strong> {quoteCleanNotes}
+                                  </p>
+                                ) : null}
+
+                                <div className="crm-quote-table-wrap">
+                                  <table className="admin-table crm-quote-table">
+                                    <thead>
+                                      <tr>
+                                        <th>Produto</th>
+                                        <th>SKU</th>
+                                        <th>Qtd.</th>
+                                        <th>Unitário</th>
+                                        <th>Total</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {quote.items.map((item) => (
+                                        <tr key={item.id}>
+                                          <td>
+                                            <strong>{item.productName}</strong>
+                                          </td>
+                                          <td>{item.sku}</td>
+                                          <td>{item.quantity}</td>
+                                          <td>{formatQuoteMoney(item.unitPriceCents)}</td>
+                                          <td>{formatQuoteMoney(item.totalCents)}</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+
+                                {actions.length > 0 ? (
+                                  <div className="crm-quote-actions">
+                                    <span>Avançar cotação:</span>
+                                    <div className="admin-inline-actions">
+                                      {actions.map((option) => (
+                                        <button
+                                          key={option}
+                                          className={`admin-button admin-button--compact ${
+                                            option === 'CANCELLED' ||
+                                            option === 'LOST' ||
+                                            option === 'EXPIRED'
+                                              ? 'admin-button--outline'
+                                              : ''
+                                          }`}
+                                          disabled={updatingQuoteId === quote.id}
+                                          onClick={() =>
+                                            void handleUpdateQuoteStatus(quote, option)
+                                          }
+                                          type="button"
+                                        >
+                                          {QUOTE_ACTION_LABELS[option] ??
+                                            quoteStatusLabel(option)}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <p className="crm-quote-closed-note">
+                                    Cotação finalizada em{' '}
+                                    {quote.closedAt
+                                      ? new Date(quote.closedAt).toLocaleDateString('pt-BR')
+                                      : 'status final'}
+                                    .
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </section>
+                    ) : cleanLeadNotes ? (
+                      <p className="admin-note">
+                        <strong>Observações:</strong> {cleanLeadNotes}
+                      </p>
+                    ) : null}
+
+                    {/* HISTÓRICO DO CHAT NORTI */}
+                    <section className="crm-section">
+                      <div className="crm-section__header">
+                        <h4>
+                          <Icon name="message-circle" size={16} strokeWidth={2} />
+                          <span>Histórico do Chat Norti</span>
+                        </h4>
+                        {chatData.ticketId ? (
+                          <small className="crm-section__meta">
+                            Ticket {chatData.ticketId}
+                            {chatData.category ? ` · ${chatData.category}` : ''}
+                          </small>
+                        ) : null}
+                      </div>
+
+                      {chatData.messages.length > 0 ? (
+                        <div className="crm-chat-log">
+                          {chatData.messages.map((msg, idx) => {
+                            const isBot = msg.sender === 'bot';
+                            return (
+                              <div
+                                key={msg.id || idx}
+                                className={`crm-chat-bubble ${isBot ? 'is-bot' : 'is-user'}`}
+                              >
+                                <span className="crm-chat-bubble__author">
+                                  {isBot ? '🐧 Norti' : selectedLead.customerName}
+                                </span>
+                                <span>{msg.text}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="crm-empty-muted">
+                          {quotes.length > 0
+                            ? 'Cotação enviada diretamente pela loja virtual (sem conversa prévia no chat).'
+                            : 'Lead registrado com os dados estruturados do formulário.'}
+                        </div>
+                      )}
+                    </section>
+
+                    {/* ANOTAÇÕES INTERNAS DA EQUIPE COMERCIAL */}
+                    <section className="crm-section">
+                      <div className="crm-section__header">
+                        <h4>
+                          <Icon name="edit-3" size={16} strokeWidth={2} />
+                          <span>Anotações Internas da Equipe</span>
+                        </h4>
+                      </div>
+
+                      <form className="crm-note-form" onSubmit={handleAddNote}>
+                        <textarea
+                          className="admin-input"
+                          onChange={(e) => setNewNoteContent(e.target.value)}
+                          placeholder="Adicionar anotação (ex: liguei para o cliente, orçamento de 50 fardos enviado)..."
+                          rows={2}
+                          value={newNoteContent}
+                        />
+                        <button
+                          className="admin-button admin-button--compact"
+                          disabled={savingNote || !newNoteContent.trim()}
+                          type="submit"
+                        >
+                          {savingNote ? 'Salvando...' : 'Salvar Anotação'}
+                        </button>
+                      </form>
+
+                      <div className="crm-notes-list">
+                        {selectedLead.leadNotes && selectedLead.leadNotes.length > 0 ? (
+                          selectedLead.leadNotes.map((note) => (
+                            <div key={note.id} className="crm-note-item">
+                              <div className="crm-note-item__meta">
+                                <strong>{note.authorName}</strong>
+                                <span>
+                                  {new Date(note.createdAt).toLocaleString('pt-BR')}
+                                </span>
+                              </div>
+                              <p>{note.content}</p>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="crm-empty-muted">Nenhuma anotação registrada ainda.</p>
+                        )}
+                      </div>
+                    </section>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

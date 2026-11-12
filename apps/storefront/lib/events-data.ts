@@ -1,4 +1,5 @@
 import type { ApiEvent } from './api';
+import type { VideoArticleItem } from './storefront/widget-types';
 
 export type EventCategoryKey = 'workshops' | 'aulas-show' | 'palestras' | 'reinauguracoes';
 
@@ -507,6 +508,70 @@ export const GENERAL_EVENTS: EventItem[] = [
     sortOrder: 5,
   },
 ];
+
+export function filterConfeitariaEvents(events: EventItem[]): EventItem[] {
+  const filtered = events.filter((ev) => {
+    const isPalestraOrReinauguracao =
+      ev.categoryKey === 'palestras' ||
+      ev.categoryKey === 'reinauguracoes' ||
+      ev.badge?.toLowerCase().includes('palestra') ||
+      ev.badge?.toLowerCase().includes('reinaugura');
+    if (isPalestraOrReinauguracao) return false;
+
+    const text = `${ev.title} ${ev.subtitle || ''} ${ev.badge || ''} ${ev.description}`.toLowerCase();
+    return (
+      ev.categoryKey === 'workshops' ||
+      ev.categoryKey === 'aulas-show' ||
+      text.includes('confeitaria') ||
+      text.includes('workshop') ||
+      text.includes('aula') ||
+      text.includes('doce') ||
+      text.includes('bolo') ||
+      text.includes('chantilly')
+    );
+  });
+
+  return filtered.length > 0 ? filtered : CONFEITARIA_WORKSHOPS;
+}
+
+function summarizeWorkshopText(text: string, maxLength = 95): string {
+  const normalized = text.replace(/\s+/g, ' ').trim();
+  if (!normalized) return '';
+  if (normalized.length <= maxLength) return normalized;
+
+  const firstSentence = normalized.split(/(?<=[.!?])\s+/)[0] ?? '';
+  if (firstSentence && firstSentence.length <= maxLength) {
+    return firstSentence;
+  }
+
+  const sliced = normalized.slice(0, maxLength - 3);
+  const lastSpace = sliced.lastIndexOf(' ');
+  return `${(lastSpace > 40 ? sliced.slice(0, lastSpace) : sliced).trimEnd()}...`;
+}
+
+export function mapEventsToConfeitariaCarouselItems(
+  events: EventItem[],
+  detailBasePath = '/evento/workshop/aulas-confeitaria'
+): VideoArticleItem[] {
+  return events.map((ev) => {
+    const tags = [ev.badge?.trim() || 'WORKSHOP'];
+    if (ev.eventDateText?.trim()) {
+      tags.push(ev.eventDateText.trim());
+    }
+    const summary = summarizeWorkshopText(ev.subtitle || ev.description || '');
+    return {
+      id: ev.id,
+      tags,
+      title: ev.title,
+      paragraphs: summary ? [summary] : [],
+      ctaLabel: 'Ver Completo',
+      ctaUrl: `${detailBasePath}/${ev.slug}`,
+      imageUrl:
+        ev.posterUrl ||
+        '/assets/confeitaria/01-listagem-eventos/04-card-brigadeiros-gourmet.jpg',
+    };
+  });
+}
 
 export function findAnyEventBySlug(slug: string): EventItem | null {
   const normalized = (slug || '').toLowerCase().trim();

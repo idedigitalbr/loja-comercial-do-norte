@@ -1,3 +1,5 @@
+import type { UserLocation } from './location';
+
 export type CommercialStore = {
   id: string;
   name: string;
@@ -23,8 +25,8 @@ export const COMMERCIAL_STORES: CommercialStore[] = [
     phone: '(91) 98344-0880',
     whatsappDigits: '5591983440880',
     hours: 'Seg a Sex: 07h30 às 18h00 | Sáb: 07h30 às 14h00',
-    lat: -1.4754,
-    lng: -48.4641,
+    lat: -1.4757,
+    lng: -48.4941,
     cepPrefix: '66030',
   },
   {
@@ -76,8 +78,8 @@ export const COMMERCIAL_STORES: CommercialStore[] = [
     phone: '(91) 98344-0880',
     whatsappDigits: '5591983440880',
     hours: 'Seg a Sex: 07h00 às 19h00 | Sáb: 07h00 às 13h00',
-    lat: -1.3565,
-    lng: -48.3888,
+    lat: -1.3658,
+    lng: -48.4124,
     cepPrefix: '67133',
   },
   {
@@ -148,8 +150,8 @@ export const NEIGHBORHOOD_STORE_SHORTCUTS: NeighborhoodShortcut[] = [
     storeTitle: 'Bernardo Sayão (Jurunas)',
     cep: '66030-120',
     street: 'Avenida Bernardo Sayão',
-    lat: -1.4754,
-    lng: -48.4641,
+    lat: -1.4757,
+    lng: -48.4941,
   },
   {
     id: 'guama',
@@ -174,8 +176,8 @@ export const NEIGHBORHOOD_STORE_SHORTCUTS: NeighborhoodShortcut[] = [
     storeTitle: 'Unidade Cidade Nova (Ananindeua)',
     cep: '67133-013',
     street: 'Travessa WE-59',
-    lat: -1.3565,
-    lng: -48.3888,
+    lat: -1.3658,
+    lng: -48.4124,
   },
 ];
 
@@ -450,4 +452,323 @@ export function storeToUserLocation(store: CommercialStore) {
     lng: store.lng,
     source: 'manual' as const,
   };
+}
+
+type CoordPoint = { lat: number; lng: number };
+
+const NEIGHBORHOOD_COORDINATES: Record<string, CoordPoint> = {
+  umarizal: { lat: -1.4399, lng: -48.485 },
+  nazare: { lat: -1.4525, lng: -48.481 },
+  'batista campos': { lat: -1.4606, lng: -48.4892 },
+  reduto: { lat: -1.4455, lng: -48.491 },
+  campina: { lat: -1.4508, lng: -48.4997 },
+  comercio: { lat: -1.4508, lng: -48.4997 },
+  'cidade velha': { lat: -1.4567, lng: -48.5045 },
+  jurunas: { lat: -1.4718, lng: -48.4937 },
+  cremacao: { lat: -1.4622, lng: -48.4805 },
+  condor: { lat: -1.4739, lng: -48.4847 },
+  'sao bras': { lat: -1.4485, lng: -48.4694 },
+  marco: { lat: -1.4368, lng: -48.4638 },
+  fatima: { lat: -1.4437, lng: -48.4758 },
+  canudos: { lat: -1.4565, lng: -48.4648 },
+  pedreira: { lat: -1.4276, lng: -48.473 },
+  telegrafo: { lat: -1.4258, lng: -48.4875 },
+  'telegrafo sem fio': { lat: -1.4258, lng: -48.4875 },
+  sacramenta: { lat: -1.4165, lng: -48.477 },
+  barreiro: { lat: -1.419, lng: -48.487 },
+  marambaia: { lat: -1.4045, lng: -48.4585 },
+  'val de cans': { lat: -1.391, lng: -48.4795 },
+  guama: { lat: -1.4693, lng: -48.4684 },
+  'terra firme': { lat: -1.462, lng: -48.4545 },
+  universitario: { lat: -1.473, lng: -48.452 },
+  montese: { lat: -1.462, lng: -48.4545 },
+  souza: { lat: -1.415, lng: -48.448 },
+  castanheira: { lat: -1.407, lng: -48.438 },
+  curio: { lat: -1.429, lng: -48.438 },
+  'curio utinga': { lat: -1.429, lng: -48.438 },
+  mangueirao: { lat: -1.385, lng: -48.445 },
+  bengui: { lat: -1.377, lng: -48.456 },
+  'parque verde': { lat: -1.371, lng: -48.445 },
+  cabanagem: { lat: -1.375, lng: -48.435 },
+  tapana: { lat: -1.351, lng: -48.465 },
+  icoaraci: { lat: -1.301, lng: -48.479 },
+  coqueiro: { lat: -1.368, lng: -48.426 },
+  'cidade nova': { lat: -1.3658, lng: -48.4124 },
+  aguas: { lat: -1.395, lng: -48.382 },
+  'aguas lindas': { lat: -1.395, lng: -48.382 },
+  guanabara: { lat: -1.398, lng: -48.414 },
+  ananindeua: { lat: -1.3655, lng: -48.372 },
+  marituba: { lat: -1.356, lng: -48.342 },
+};
+
+const SORTED_NEIGHBORHOOD_KEYS = Object.keys(NEIGHBORHOOD_COORDINATES).sort(
+  (a, b) => b.length - a.length,
+);
+
+function normalizeLocationKey(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[-_/]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function resolveCoordsByCepDigits(digits: string): CoordPoint | null {
+  if (digits.length < 5) return null;
+  if (digits.startsWith('673') || digits.startsWith('672')) {
+    return NEIGHBORHOOD_COORDINATES.marituba;
+  }
+  if (digits.startsWith('671')) {
+    return NEIGHBORHOOD_COORDINATES['cidade nova'];
+  }
+  if (digits.startsWith('670')) {
+    return NEIGHBORHOOD_COORDINATES.ananindeua;
+  }
+  if (digits.startsWith('6605')) {
+    return NEIGHBORHOOD_COORDINATES.umarizal;
+  }
+  if (digits.startsWith('6604')) {
+    return NEIGHBORHOOD_COORDINATES.cremacao;
+  }
+  if (digits.startsWith('6603')) {
+    return NEIGHBORHOOD_COORDINATES.jurunas;
+  }
+  if (digits.startsWith('6602')) {
+    return NEIGHBORHOOD_COORDINATES['cidade velha'];
+  }
+  if (digits.startsWith('6601')) {
+    return NEIGHBORHOOD_COORDINATES.campina;
+  }
+  if (digits.startsWith('6606') || digits.startsWith('6607')) {
+    return NEIGHBORHOOD_COORDINATES.guama;
+  }
+  if (digits.startsWith('6608')) {
+    return NEIGHBORHOOD_COORDINATES.pedreira;
+  }
+  if (digits.startsWith('6609')) {
+    return NEIGHBORHOOD_COORDINATES['sao bras'];
+  }
+  if (digits.startsWith('6611') || digits.startsWith('6612')) {
+    return NEIGHBORHOOD_COORDINATES.telegrafo;
+  }
+  if (digits.startsWith('666')) {
+    return NEIGHBORHOOD_COORDINATES.marambaia;
+  }
+  if (digits.startsWith('668')) {
+    return NEIGHBORHOOD_COORDINATES.icoaraci;
+  }
+  if (digits.startsWith('66')) {
+    return NEIGHBORHOOD_COORDINATES.nazare;
+  }
+  return null;
+}
+
+export type ResolvedLocationAnchor = {
+  lat: number;
+  lng: number;
+  precision: 'gps' | 'address' | 'neighborhood' | 'cep';
+  label: string;
+};
+
+export function resolveUserLocationAnchor(
+  location?: UserLocation | null,
+): ResolvedLocationAnchor | null {
+  if (!location) return null;
+
+  const cepDigits = (location.cep || '').replace(/\D/g, '');
+  const rawNeighborhood =
+    location.neighborhood?.trim() ||
+    (location.shortLabel &&
+    !location.shortLabel.toLowerCase().includes('informe seu cep') &&
+    !location.shortLabel.toLowerCase().startsWith('região de')
+      ? location.shortLabel.split(',')[0]?.trim()
+      : '');
+
+  const isDefaultPlaceholder =
+    location.source === 'default' && !rawNeighborhood && cepDigits.length < 5;
+  const isGenericIp =
+    location.source === 'ip' && !rawNeighborhood && cepDigits.length < 5;
+
+  if (isDefaultPlaceholder || isGenericIp) {
+    return null;
+  }
+
+  const label =
+    location.shortLabel && !location.shortLabel.toLowerCase().includes('informe seu cep')
+      ? location.shortLabel
+      : rawNeighborhood
+        ? `${rawNeighborhood}, ${location.city}/${location.state}`
+        : `${location.city}/${location.state}`;
+
+  if (
+    typeof location.lat === 'number' &&
+    typeof location.lng === 'number' &&
+    Number.isFinite(location.lat) &&
+    Number.isFinite(location.lng) &&
+    (location.lat !== 0 || location.lng !== 0)
+  ) {
+    return {
+      lat: location.lat,
+      lng: location.lng,
+      precision: location.source === 'gps' ? 'gps' : 'address',
+      label,
+    };
+  }
+
+  if (rawNeighborhood) {
+    const key = normalizeLocationKey(rawNeighborhood);
+    if (NEIGHBORHOOD_COORDINATES[key]) {
+      return {
+        ...NEIGHBORHOOD_COORDINATES[key],
+        precision: 'neighborhood',
+        label,
+      };
+    }
+    const matchedKey = SORTED_NEIGHBORHOOD_KEYS.find((k) => key.includes(k));
+    if (matchedKey) {
+      return {
+        ...NEIGHBORHOOD_COORDINATES[matchedKey],
+        precision: 'neighborhood',
+        label,
+      };
+    }
+  }
+
+  const cepCoords = resolveCoordsByCepDigits(cepDigits);
+  if (cepCoords) {
+    return {
+      ...cepCoords,
+      precision: 'cep',
+      label,
+    };
+  }
+
+  const cityKey = normalizeLocationKey(location.city || '');
+  if (cityKey === 'belem') {
+    return { ...NEIGHBORHOOD_COORDINATES.nazare, precision: 'cep', label };
+  }
+  if (cityKey === 'ananindeua') {
+    return { ...NEIGHBORHOOD_COORDINATES['cidade nova'], precision: 'cep', label };
+  }
+  if (cityKey === 'marituba') {
+    return { ...NEIGHBORHOOD_COORDINATES.marituba, precision: 'cep', label };
+  }
+
+  return null;
+}
+
+export function formatDistanceKm(distanceKm: number): string {
+  if (!Number.isFinite(distanceKm) || distanceKm < 0) return '0,1 km';
+  if (distanceKm >= 100) {
+    return `${Math.round(distanceKm)} km`;
+  }
+  const rounded = Math.max(0.1, distanceKm);
+  return `${rounded.toFixed(1).replace('.', ',')} km`;
+}
+
+export type RankedCommercialStore = CommercialStore & {
+  distanceKm: number | null;
+  formattedKm: string | null;
+  isClosest: boolean;
+  rank: number;
+};
+
+export function rankStoresByLocation(location?: UserLocation | null): {
+  stores: RankedCommercialStore[];
+  anchor: ResolvedLocationAnchor | null;
+} {
+  const anchor = resolveUserLocationAnchor(location);
+  if (!anchor) {
+    return {
+      anchor: null,
+      stores: COMMERCIAL_STORES.map((store, idx) => ({
+        ...store,
+        distanceKm: null,
+        formattedKm: null,
+        isClosest: false,
+        rank: idx + 1,
+      })),
+    };
+  }
+
+  const withDistance = COMMERCIAL_STORES.map((store) => {
+    const distanceKm = calculateDistanceKm(anchor.lat, anchor.lng, store.lat, store.lng);
+    return {
+      ...store,
+      distanceKm,
+      formattedKm: formatDistanceKm(distanceKm),
+    };
+  }).sort((a, b) => a.distanceKm - b.distanceKm);
+
+  return {
+    anchor,
+    stores: withDistance.map((store, idx) => ({
+      ...store,
+      isClosest: idx === 0,
+      rank: idx + 1,
+    })),
+  };
+}
+
+function parseHoursPair(segment: string): { startMins: number; endMins: number } | null {
+  const match = segment.match(/(\d{1,2})h(\d{2})?\s*(?:às|as|-|a)\s*(\d{1,2})h(\d{2})?/i);
+  if (!match) return null;
+  const startMins = parseInt(match[1], 10) * 60 + parseInt(match[2] || '0', 10);
+  const endMins = parseInt(match[3], 10) * 60 + parseInt(match[4] || '0', 10);
+  return { startMins, endMins };
+}
+
+export function isCommercialStoreOpen(
+  store: CommercialStore,
+  referenceDate = new Date(),
+): boolean {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Belem',
+      hour: 'numeric',
+      minute: 'numeric',
+      hourCycle: 'h23',
+      weekday: 'short',
+    }).formatToParts(referenceDate);
+
+    let hour = 0;
+    let minute = 0;
+    let weekday = '';
+    for (const part of parts) {
+      if (part.type === 'hour') hour = parseInt(part.value, 10);
+      if (part.type === 'minute') minute = parseInt(part.value, 10);
+      if (part.type === 'weekday') weekday = part.value;
+    }
+    if (hour === 24) hour = 0;
+    if (weekday === 'Sun') return false;
+
+    const currentMins = hour * 60 + minute;
+    const segments = store.hours.split('|');
+    const targetSegment = weekday === 'Sat' ? segments[1] || segments[0] : segments[0];
+    if (!targetSegment) return false;
+
+    const parsed = parseHoursPair(targetSegment);
+    if (!parsed) return false;
+    return currentMins >= parsed.startMins && currentMins < parsed.endMins;
+  } catch {
+    return false;
+  }
+}
+
+export function formatCpfCnpjMask(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 14);
+  if (digits.length <= 11) {
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+    if (digits.length <= 9) {
+      return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+    }
+    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+  }
+  if (digits.length <= 12) {
+    return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
+  }
+  return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
 }

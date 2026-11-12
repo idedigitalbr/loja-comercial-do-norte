@@ -113,6 +113,17 @@ enum QuoteStatus {
   EXPIRED
 }
 
+enum CatalogAuditHealth {
+  GREEN
+  YELLOW
+  RED
+}
+
+enum PricingMode {
+  QUOTE_ONLY
+  FIXED_PRICE
+}
+
 enum PaymentMethod {
   CARD
   PIX
@@ -388,10 +399,21 @@ model Product {
   legacyId           String?             @db.VarChar(191)
   publicId           String              @unique @default(cuid())
   name               String              @db.VarChar(220)
+  rawCatalogName     String?             @db.VarChar(255)
   slug               String              @unique @db.VarChar(191)
   description        String?             @db.Text
+  rawDescription     String?             @db.Text
   status             RecordStatus        @default(DRAFT)
   brandId            String?
+  brandMatchNote     String?             @db.VarChar(255)
+  sourcePdfPage      Int?
+  sourcePrintedPage  Int?
+  sourceSection      String?             @db.VarChar(160)
+  sourceRawText      String?             @db.Text
+  auditHealth        CatalogAuditHealth  @default(YELLOW)
+  auditIssueCodes    String[]            @default([])
+  auditIssues        Json?
+  auditConfidence    Int?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   brand              Brand?              @relation(fields: [brandId], references: [id], onDelete: SetNull)
@@ -408,6 +430,7 @@ model Product {
   @@index([status, createdAt])
   @@index([brandId, status])
   @@index([name, status])
+  @@index([auditHealth, status])
 }
 
 model ProductCategory {
@@ -476,45 +499,85 @@ model ProductTag {
 }
 
 model ProductVariant {
-  id                  String                 @id @default(cuid())
-  publicId            String                 @unique @default(cuid())
-  productId           String
-  sku                 String                 @unique @db.VarChar(100)
-  priceCents          Int
-  compareAtPriceCents Int?
-  weightGrams         Int?
-  widthMm             Int?
-  heightMm            Int?
-  lengthMm            Int?
-  manageStock         Boolean                @default(true)
-  stockStatus         ProductStockStatus     @default(IN_STOCK)
-  lowStockThreshold   Int?
-  status              RecordStatus           @default(DRAFT)
-  createdAt           DateTime               @default(now())
-  updatedAt           DateTime               @updatedAt
-  product             Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
-  images              ProductImage[]
-  inventoryBalance    InventoryBalance?
-  cartItems           CartItem[]
-  orderItems          OrderItem[]
-  reservations        InventoryReservation[]
-  stockMovements      StockMovement[]
-  quoteItems          QuoteItem[]
+  id                   String                 @id @default(cuid())
+  publicId             String                 @unique @default(cuid())
+  legacySource         String?                @db.VarChar(80)
+  legacyId             String?                @db.VarChar(191)
+  productId            String
+  sku                  String                 @unique @db.VarChar(100)
+  variantName          String?                @db.VarChar(220)
+  pricingMode          PricingMode            @default(QUOTE_ONLY)
+  priceCents           Int?
+  compareAtPriceCents  Int?
+  gtinRaw              String?                @db.VarChar(64)
+  gtinStatus           String?                @db.VarChar(40)
+  gtinValid            Boolean?
+  manufacturerRef      String?                @db.VarChar(100)
+  ncm                  String?                @db.VarChar(20)
+  color                String?                @db.VarChar(80)
+  sizeOrModel          String?                @db.VarChar(100)
+  capacityOrVolume     String?                @db.VarChar(100)
+  material             String?                @db.VarChar(120)
+  packagingRaw         String?                @db.VarChar(120)
+  packagingType        String?                @db.VarChar(40)
+  packagingUnit        String?                @db.VarChar(40)
+  packagingFactor1     Int?
+  packagingFactor2     Int?
+  packagingTotalUnits  Int?
+  reportedNetWeight    String?                @db.VarChar(80)
+  dimensionsRaw        String?                @db.VarChar(180)
+  internalDimensions   String?                @db.VarChar(100)
+  externalDimensions   String?                @db.VarChar(100)
+  diameterText         String?                @db.VarChar(80)
+  heightText           String?                @db.VarChar(80)
+  individualVolumeText String?                @db.VarChar(80)
+  weightGrams          Int?
+  widthMm              Int?
+  heightMm             Int?
+  lengthMm             Int?
+  freightReady         Boolean                @default(false)
+  auditHealth          CatalogAuditHealth     @default(YELLOW)
+  auditIssueCodes      String[]               @default([])
+  auditIssues          Json?
+  manageStock          Boolean                @default(true)
+  stockStatus          ProductStockStatus     @default(IN_STOCK)
+  lowStockThreshold    Int?
+  status               RecordStatus           @default(DRAFT)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  product              Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
+  images               ProductImage[]
+  inventoryBalance     InventoryBalance?
+  cartItems            CartItem[]
+  orderItems           OrderItem[]
+  reservations         InventoryReservation[]
+  stockMovements       StockMovement[]
+  quoteItems           QuoteItem[]
 
+  @@unique([legacySource, legacyId])
   @@index([productId, status])
+  @@index([gtinRaw])
+  @@index([auditHealth, status])
 }
 
 model ProductImage {
-  id        String          @id @default(cuid())
-  productId String
-  variantId String?
-  path      String          @db.VarChar(500)
-  altText   String?         @db.VarChar(255)
-  sortOrder Int             @default(0)
-  isPrimary Boolean         @default(false)
-  createdAt DateTime        @default(now())
-  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
-  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  id                 String          @id @default(cuid())
+  productId          String
+  variantId          String?
+  path               String          @db.VarChar(500)
+  altText            String?         @db.VarChar(255)
+  sortOrder          Int             @default(0)
+  isPrimary          Boolean         @default(false)
+  imageStatus        String?         @db.VarChar(60)
+  imageSourceMethod  String?         @db.VarChar(60)
+  imageConfidence    Int?
+  sha256             String?         @db.VarChar(64)
+  widthPx            Int?
+  heightPx           Int?
+  sourceOriginalPath String?         @db.VarChar(255)
+  createdAt          DateTime        @default(now())
+  product            Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant            ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
 
   @@index([productId, sortOrder])
   @@index([variantId])
@@ -1171,6 +1234,7 @@ model Quote {
   subtotalCents Int          @default(0)
   userId        String?
   assignedToId  String?
+  crmLeadId     String?
   expiresAt     DateTime?
   answeredAt    DateTime?
   closedAt      DateTime?
@@ -1178,12 +1242,14 @@ model Quote {
   updatedAt     DateTime     @updatedAt
   user          User?        @relation("QuoteRequester", fields: [userId], references: [id], onDelete: SetNull)
   assignedTo    User?        @relation("QuoteAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  crmLead       CrmLead?     @relation(fields: [crmLeadId], references: [id], onDelete: SetNull)
   items         QuoteItem[]
   events        QuoteEvent[]
 
   @@index([status, createdAt])
   @@index([customerPhone])
   @@index([userId])
+  @@index([crmLeadId])
 }
 
 /// Snapshot dos itens no momento da solicitacao (preco vem do servidor).
@@ -1196,8 +1262,8 @@ model QuoteItem {
   sku            String          @db.VarChar(100)
   imagePath      String?         @db.VarChar(500)
   quantity       Int
-  unitPriceCents Int
-  totalCents     Int
+  unitPriceCents Int?
+  totalCents     Int?
   createdAt      DateTime        @default(now())
   quote          Quote           @relation(fields: [quoteId], references: [id], onDelete: Cascade)
   variant        ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
@@ -1318,6 +1384,7 @@ model CrmLead {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   leadNotes       CrmLeadNote[]
+  quotes          Quote[]
 
   @@index([stage, createdAt])
   @@index([customerPhone])

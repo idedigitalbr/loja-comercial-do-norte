@@ -12,6 +12,7 @@ type ProductQuery = {
   category?: string | string[];
   segment?: string | string[];
   tag?: string | string[];
+  limit?: string;
 };
 
 type SearchQuery = {
@@ -35,7 +36,16 @@ export class CatalogController {
   @PublicRateLimit({ limit: 120, windowMs: 60_000 })
   @Get('products')
   listProducts(@Query() query: ProductQuery) {
-    return this.catalogService.listProducts(query);
+    const { limit: rawLimit, ...rest } = query;
+    if (rawLimit === undefined) {
+      return this.catalogService.listProducts(rest);
+    }
+    const parsedLimit = Number(rawLimit);
+    return this.catalogService.listProducts(
+      Number.isFinite(parsedLimit) && parsedLimit > 0
+        ? { ...rest, limit: Math.min(200, Math.trunc(parsedLimit)) }
+        : rest,
+    );
   }
 
   /** Busca paginada usada pelo storefront (server-side search/filtros). */

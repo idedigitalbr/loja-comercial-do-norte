@@ -86,6 +86,26 @@ describe('location helpers', () => {
     expect(norm.state).toBe('PA');
     expect(norm.street).toBe('Rua Siqueira Mendes');
     expect(norm.shortLabel).toBe('Cidade Velha, Belém/PA');
+    expect(norm.lat).toBeUndefined();
+  });
+
+  it('normalizeBrasilApi preserva coordenadas quando retornadas pela API', () => {
+    const brasilData = {
+      cep: '66050000',
+      state: 'PA',
+      city: 'Belém',
+      neighborhood: 'Umarizal',
+      street: 'Av. Visconde de Souza Franco',
+      location: {
+        coordinates: {
+          latitude: '-1.4412',
+          longitude: '-48.4875',
+        },
+      },
+    };
+    const norm = normalizeBrasilApi(brasilData);
+    expect(norm.lat).toBeCloseTo(-1.4412, 4);
+    expect(norm.lng).toBeCloseTo(-48.4875, 4);
   });
 
   it('salva e recupera a localização no cache/localStorage', () => {

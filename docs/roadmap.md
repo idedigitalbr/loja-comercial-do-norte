@@ -1,5 +1,10 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **11/11/2026 — Preparação Estrutural, Remoção WooCommerce, Kit Importador IA e Carga Local do Catálogo 2026 (executorId: `antigravity-gemini`):**
+  - **Banco LOCAL (`127.0.0.1:55432`) Atualizado (Neon online intocado):** Aplicada migration aditiva `20261111150000_catalog_health_variants_and_nullable_price` com preços anuláveis (`QUOTE_ONLY`), semáforo `GREEN`/`YELLOW`/`RED` (`auditHealth`, `auditIssueCodes`, `auditIssues`), variantes estruturadas, embalagens e preparo para cálculo futuro de frete (`freightReady`).
+  - **Catálogo Real Importado no Local:** Limpos os 120 produtos/cotações demo preservando marcas originais, categorias, segmentos, tags, usuários, banners (`seed-banner-*`), blog e eventos. Importados **729 produtos pais** (`697 ACTIVE` com etiqueta `YELLOW` e `32 DRAFT` bloqueados em `RED` por GTIN/código/imagem divergente para revisão) e **827 variações** com imagens WebP (`480/960/1440`) geradas em `apps/api/storage/uploads/cn-cat/` e espelhadas para `apps/storefront/public/storage/`.
+  - **Importador IA & Storefront:** Removido legado WooCommerce, habilitadas fotos reais dos produtos na vitrine via `resolveProductImage`, tratado `"Sob cotação"` em listagens/PDP/favoritos/cotação, e estruturada a pasta `IMPORTADOR-PRODUTOS-IA/` (`ferramenta-ia-import/` + `produtos-catalogo-novembro-2026/` + `prompt/PROMPT-MESTRE-IMPORTACAO.md`).
+
 - **10/11/2026 — Conclusão e Encerramento Oficial da ETAPA 03 — DESENVOLVIMENTO COMPLEMENTAR (executorId: `antigravity-gemini`):**
   - **Encerramento da Issue Pai #100 e Subtarefas #81 a #90:**
     - Issues `#81` (Catálogo de Produtos), `#82` (Página do Produto), `#83` (Carrinho de Cotação), `#84` (Marcas), `#85` (Segmentos), `#86` (Blog / Explica Aí Nort), `#87` (Eventos e Workshops), `#88` (Outras Páginas do Catálogo: Ofertas, Mais Vendidos, Favoritos), `#89` (Módulos Administrativos) e `#90` (Funcionalidades complementares) 100% validadas e fechadas.

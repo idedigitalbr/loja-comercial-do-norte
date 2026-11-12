@@ -115,4 +115,67 @@ describe('QuotesService', () => {
 
     await expect(service.transition('quote-1', 'REQUESTED')).rejects.toThrowError(/INVALID_QUOTE_TRANSITION/);
   });
+
+  it('cria e vincula um CrmLead automaticamente ao registrar uma cotação e sincroniza estágio ao avançar', async () => {
+    const crmLeadCreate = vi.fn().mockResolvedValue({ id: 'lead-created-1' });
+    const crmLeadFindFirst = vi.fn().mockResolvedValue(null);
+    const crmLeadUpdate = vi.fn().mockResolvedValue({ id: 'lead-created-1' });
+    const quoteCreate = vi.fn(async ({ data }: { data: Record<string, unknown> }) => ({
+      id: 'quote-1',
+      publicId: 'pub-crm-1',
+      ...data,
+    }));
+
+    const tx = {
+      $executeRaw: vi.fn().mockResolvedValue(1),
+      idempotencyKey: { findUnique: vi.fn().mockResolvedValue(null), create: vi.fn().mockResolvedValue({}) },
+      crmLead: { findFirst: crmLeadFindFirst, create: crmLeadCreate, update: crmLeadUpdate },
+      quote: {
+        create: quoteCreate,
+        findUnique: vi.fn().mockResolvedValue({ id: 'quote-1', status: 'REQUESTED', crmLeadId: 'lead-created-1' }),
+        update: vi.fn().mockResolvedValue({ id: 'quote-1', publicId: 'pub-crm-1', status: 'IN_REVIEW', crmLeadId: 'lead-created-1', customerName: 'Ana', customerEmail: null }),
+      },
+      quoteEvent: { create: vi.fn().mockResolvedValue({}) },
+    };
+
+    const prisma = {
+      productVariant: {
+        findMany: vi.fn().mockResolvedValue([{
+          id: 'variant-1',
+          sku: 'CX-PIZ-35',
+          priceCents: null,
+          product: { name: 'Caixa Pizza 35cm', slug: 'caixa-pizza-35', images: [] },
+        }]),
+      },
+      $transaction: vi.fn(async (callback: (client: typeof tx) => Promise<unknown>) => callback(tx)),
+    };
+    const service = new QuotesService(prisma as never);
+
+    await service.create({
+      customerName: 'Ana Souza',
+      customerPhone: '(91) 98888-7777',
+      storeId: 'loja-sao-bras',
+      preferredStore: 'Matriz São Brás',
+      items: [{ variantId: 'variant-1', quantity: 5 }],
+    });
+
+    expect(crmLeadCreate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        customerName: 'Ana Souza',
+        preferredStore: 'Matriz São Brás',
+        storeId: 'loja-sao-bras',
+        origin: 'cotacao-site',
+        stage: 'NEW',
+      }),
+    }));
+    expect(quoteCreate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ crmLeadId: 'lead-created-1' }),
+    }));
+
+    await service.transition('quote-1', 'IN_REVIEW' as never, { actorId: 'admin-1' });
+    expect(crmLeadUpdate).toHaveBeenCalledWith({
+      where: { id: 'lead-created-1' },
+      data: { stage: 'IN_PROGRESS' },
+    });
+  });
 });

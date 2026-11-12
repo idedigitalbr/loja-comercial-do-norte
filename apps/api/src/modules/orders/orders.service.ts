@@ -38,7 +38,12 @@ export class OrdersService {
       }
       const cart = await transaction.cart.findUnique({ where: { id: input.cartId }, include: { items: { include: { variant: { include: { product: { include: { categories: true } } } } } } } });
       if (!cart || !cart.items.length) throw new BadRequestException('CART_EMPTY');
-      const subtotalCents = cart.items.reduce((sum, item) => sum + (item.unitPriceCents ?? item.variant.priceCents) * item.quantity, 0);
+      const resolvedPrice = (variantPrice: number | null, cartPrice: number | null) => {
+        const unit = cartPrice ?? variantPrice;
+        if (unit == null || unit <= 0) throw new BadRequestException('VARIANT_PRICE_REQUIRED');
+        return unit;
+      };
+      const subtotalCents = cart.items.reduce((sum, item) => sum + resolvedPrice(item.variant.priceCents, item.unitPriceCents) * item.quantity, 0);
       const shippingCents = input.shippingCents ?? 0;
       if (!Number.isInteger(shippingCents) || shippingCents < 0) throw new BadRequestException('INVALID_SHIPPING_AMOUNT');
       if (input.couponCode?.trim() && !this.couponService) throw new BadRequestException('COUPON_SERVICE_UNAVAILABLE');
@@ -53,7 +58,7 @@ export class OrdersService {
             productId: item.variant.productId,
             brandId: item.variant.product.brandId,
             quantity: item.quantity,
-            unitPriceCents: item.unitPriceCents ?? item.variant.priceCents,
+            unitPriceCents: resolvedPrice(item.variant.priceCents, item.unitPriceCents),
             compareAtPriceCents: item.variant.compareAtPriceCents,
             categoryIds: item.variant.product.categories.map((category) => category.categoryId),
           })),
@@ -81,8 +86,8 @@ export class OrdersService {
               name: item.variant.product.name,
               sku: item.variant.sku,
               quantity: item.quantity,
-              unitPriceCents: item.unitPriceCents ?? item.variant.priceCents,
-              totalCents: (item.unitPriceCents ?? item.variant.priceCents) * item.quantity,
+              unitPriceCents: resolvedPrice(item.variant.priceCents, item.unitPriceCents),
+              totalCents: resolvedPrice(item.variant.priceCents, item.unitPriceCents) * item.quantity,
             })),
           },
         },

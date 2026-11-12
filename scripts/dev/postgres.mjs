@@ -8,8 +8,9 @@
 // O cluster fica em .postgres-data (ignorado pelo Git) com autenticacao trust:
 // uso exclusivo local. Em CI/producao use um PostgreSQL gerenciado.
 import { spawnSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, openSync } from 'node:fs';
+import { existsSync, mkdirSync, openSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import net from 'node:net';
 import path from 'node:path';
 
 const root = process.cwd();
@@ -96,10 +97,56 @@ function stop() {
   run('pg_ctl', ['-D', dataDir, 'stop', '-m', 'fast', '-t', '15']);
 }
 
+function usesLocalEmbeddedDatabase() {
+  if (process.env.CI === 'true') return false;
+  let dbUrl = process.env.DATABASE_URL ?? '';
+  if (!dbUrl && existsSync(path.join(root, '.env'))) {
+    const envContent = readFileSync(path.join(root, '.env'), 'utf8');
+    const match = envContent.match(/^DATABASE_URL\s*=\s*"?([^"\r\n]+)"?/m);
+    if (match) dbUrl = match[1];
+  }
+  return dbUrl.includes(`127.0.0.1:${port}`) || dbUrl.includes(`localhost:${port}`);
+}
+
+function isPortOpen(host, portNumber) {
+  return new Promise((resolve) => {
+    const socket = net.createConnection({ host, port: Number(portNumber) });
+    socket.setTimeout(500);
+    socket.once('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    const onFail = () => {
+      socket.destroy();
+      resolve(false);
+    };
+    socket.once('error', onFail);
+    socket.once('timeout', onFail);
+  });
+}
+
+async function ensure() {
+  if (!usesLocalEmbeddedDatabase() || !existsSync(path.join(dataDir, 'PG_VERSION'))) {
+    return;
+  }
+  const readyCheck = async () => {
+    const status = spawnSync(binary('pg_ctl'), ['-D', dataDir, 'status'], { stdio: 'ignore', windowsHide: true });
+    return status.status === 0 && (await isPortOpen('127.0.0.1', port));
+  };
+  if (await readyCheck()) return;
+  start();
+  for (let i = 0; i < 40; i += 1) {
+    if (await readyCheck()) return;
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  console.warn(`Aviso: PostgreSQL local ainda iniciando em 127.0.0.1:${port}.`);
+}
+
 if (action === 'init') initialize();
 else if (action === 'start') start();
 else if (action === 'stop') stop();
+else if (action === 'ensure') await ensure();
 else {
-  console.error('Uso: node scripts/dev/postgres.mjs [init|start|stop]');
+  console.error('Uso: node scripts/dev/postgres.mjs [init|start|stop|ensure]');
   process.exit(1);
 }

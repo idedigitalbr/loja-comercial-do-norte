@@ -1,0 +1,84 @@
+{
+  "run_id": "audit-d2cdd8c9c970",
+  "generated_at": "2026-11-11T16:31:19.869324+00:00",
+  "pdf_verificado": true,
+  "pdf_arquivo": "CATALOGO-ORIGINAL-DIAGRAMADO-NORTE-2026.pdf",
+  "pdf_paginas": 35,
+  "projeto_loja_inspecionado": "D:\\.GITHUB\\sistemas\\loja-comercial-do-norte",
+  "reconciliacao_contagens": {
+    "total_variacoes": 827,
+    "total_produtos_pais": 729,
+    "total_skus_unicos": 827,
+    "total_marcas": 40,
+    "total_categorias_pai": 9,
+    "total_subcategorias": 31,
+    "total_imagens_finais": 729,
+    "classificacao": {
+      "LIBERADO": 501,
+      "RASCUNHO_COM_RESSALVAS": 285,
+      "BLOQUEADO": 41
+    },
+    "gtin": {
+      "GTIN_DIGITO_VALIDO": 798,
+      "GTIN_DIGITO_INVALIDO": 14,
+      "FORMATO_NAO_GTIN": 9,
+      "SEM_CODIGO": 6
+    },
+    "imagens_por_status": {
+      "VALIDADA": 476,
+      "VALIDADA_UPGRADE_PDF": 48,
+      "PENDENTE_COMPARTILHADA_PRODUTOS": 219,
+      "VALIDADA_RECORTADA_CLIP": 9,
+      "PENDENTE_BAIXA_RESOLUCAO": 3,
+      "VALIDADA_COMPARTILHADA_VARIANTE": 70,
+      "PENDENTE_DIVERGENCIA_VISUAL": 2
+    },
+    "imagens_por_metodo": {
+      "original_reaproveitada": 763,
+      "embedded_native_upgrade": 45,
+      "embedded_clipped": 9,
+      "render_300dpi_limpo": 10
+    },
+    "pendencias_frequencia": {
+      "imagem_identica_compartilhada_entre_produtos_distintos_no_pdf": 219,
+      "foto_compartilhada_entre_produtos_distintos_conferir": 219,
+      "imagem_compartilhada_entre_variantes_de_cor": 70,
+      "codigo_barras_repetido_no_pdf": 18,
+      "gtin_digito_verificador_invalido": 14,
+      "codigo_formato_nao_gtin_padrao": 9,
+      "codigo_nao_informado_no_catalogo": 6,
+      "foto_nativa_baixa_resolucao": 3,
+      "grade_numerica_0_a_9_sem_gtin_individual": 3,
+      "foto_com_cor_divergente_do_titulo_no_pdf": 2,
+      "baixa_resolucao_nativa_173x120": 1,
+      "baixa_resolucao_nativa_123x168": 1,
+      "baixa_resolucao_nativa_138x173": 1,
+      "baixa_resolucao_nativa_108x149": 1,
+      "conflito_visual_pdf_sobreposicao_G307SF_vs_G310": 1,
+      "especificacao_dimensoes_suspeita_pdf_p27": 1,
+      "divergencia_visual_cor_pdf:produto_vermelho_com_foto_verde": 1,
+      "divergencia_visual_cor_pdf:produto_verde_com_foto_vermelha": 1
+    }
+  },
+  "principais_correcoes_aplicadas": {
+    "marca_vip_luvas_p07": 11,
+    "marca_sacoflex_p26": 4,
+    "nomes_limpos_especificacao_colada": 1,
+    "typos_corrigidos": 1,
+    "imagens_corrigidas_clip_ou_upgrade": 64
+  },
+  "classificacao_importacao": {
+    "A_LIBERADO": {
+      "quantidade": 501,
+      "criterio": "GTIN valido, SKU e codigo unicos, marca/categoria validadas, foto unica sem conflito (confianca >= 80). Entra como DRAFT aguardando apenas preco e dados logisticos para publicacao."
+    },
+    "B_RASCUNHO_COM_RESSALVAS": {
+      "quantidade": 285,
+      "criterio": "SKU unico, porem codigo fora do padrao GTIN-8/12/13/14, foto compartilhada ou baixa resolucao nativa, ou especificacao suspeita no PDF."
+    },
+    "C_BLOQUEADO": {
+      "quantidade": 41,
+      "criterio": "Sem codigo, GTIN com digito verificador invalido, codigo de barras repetido entre itens diferentes no PDF, conflito visual de cor no PDF ou sobreposicao textual no PDF."
+    }
+  }
+}

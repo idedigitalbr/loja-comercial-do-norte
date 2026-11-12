@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { VideoArticleCard } from './video-article-card';
+import { mapEventsToConfeitariaCarouselItems } from '@/lib/events-data';
 import type { VideoArticlesCarouselProps } from '@/lib/storefront/widget-types';
 
 export { VideoArticleCard };
@@ -55,7 +56,9 @@ function WhiteActionSparks({ className = '' }: { className?: string }) {
 
 export function VideoArticlesCarouselWidget({
   widgetId,
+  contextData,
   variant,
+  headingAs = 'h2',
   title = 'Explica Aí Nort',
   subtitle = 'Dicas em vídeos e artigos para você usar no seu negócio.',
   topHeading,
@@ -71,12 +74,17 @@ export function VideoArticlesCarouselWidget({
   const [edges, setEdges] = useState({ start: true, end: false });
   const [activeIndex, setActiveIndex] = useState(0);
 
-  if (!items.length) return null;
-
   const isConfeitaria =
     variant === 'confeitaria' ||
     title.toLowerCase().includes('confeitaria') ||
     title.toLowerCase().includes('workshop');
+
+  const resolvedItems =
+    isConfeitaria && contextData?.events && contextData.events.length > 0
+      ? mapEventsToConfeitariaCarouselItems(contextData.events)
+      : items;
+
+  if (!resolvedItems.length) return null;
 
   const isExplicaAi = !isConfeitaria && (title.toLowerCase().includes('explica a') || title.toLowerCase().includes('explica'));
 
@@ -97,6 +105,7 @@ export function VideoArticlesCarouselWidget({
 
   const bgContainerClass = isConfeitaria ? 'bg-[#3d1316]' : 'bg-[#cb001c]';
   const navArrowClass = isConfeitaria ? 'text-[#c42646]' : 'text-[#e2091e]';
+  const HeadingTag = headingAs;
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget;
@@ -104,11 +113,11 @@ export function VideoArticlesCarouselWidget({
       start: el.scrollLeft <= 5,
       end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 5,
     });
-    if (items.length > 0) {
+    if (resolvedItems.length > 0) {
       const card = el.firstElementChild as HTMLElement | null;
       const cardWidth = card ? card.offsetWidth + 10 : 280;
       const newIndex = Math.round(el.scrollLeft / cardWidth);
-      setActiveIndex(Math.min(Math.max(newIndex, 0), items.length - 1));
+      setActiveIndex(Math.min(Math.max(newIndex, 0), resolvedItems.length - 1));
     }
   };
 
@@ -205,12 +214,12 @@ export function VideoArticlesCarouselWidget({
           <div
             className="w-[50%] xs:w-[49%] sm:w-[53%] lg:w-auto lg:max-w-[270px] xl:max-w-[285px] pt-1 xs:pt-1.5 lg:pt-0 flex flex-col justify-start items-start z-10 relative lg:absolute lg:left-7 xl:left-8 lg:top-1/2 lg:-translate-y-1/2"
           >
-            <h2
+            <HeadingTag
               className="text-[19px] xs:text-[21px] sm:text-[24px] lg:text-[27px] xl:text-[29px] font-bold leading-[1.08] tracking-tight"
               style={{ fontFamily: 'Georgia, "Playfair Display", serif' }}
             >
-              <span className="block text-white whitespace-nowrap">Workshops &amp;</span>
-              <span className="block text-white whitespace-nowrap">Aulas Práticas</span>
+              <span className="block text-white whitespace-nowrap">Workshops &amp;</span>{' '}
+              <span className="block text-white whitespace-nowrap">Aulas Práticas</span>{' '}
               <span className="inline-flex items-center gap-1.5 text-[#e26678] whitespace-nowrap mt-0.5">
                 <span>de Confeitaria</span>
                 <span
@@ -220,7 +229,7 @@ export function VideoArticlesCarouselWidget({
                   <Play className="size-2.5 xs:size-3 fill-white text-white translate-x-[0.5px]" />
                 </span>
               </span>
-            </h2>
+            </HeadingTag>
             <div className="mt-2.5 xs:mt-3 border-l-[2.5px] border-[#e26678] pl-2 xs:pl-2.5 sm:pl-3 text-[11px] xs:text-[11.5px] sm:text-[12px] xl:text-[12.5px] leading-snug text-white/95 font-normal">
               <p className="block">Faça suas compras e ganhe</p>
               <p className="block">
@@ -311,7 +320,7 @@ export function VideoArticlesCarouselWidget({
               <YellowActionSparks className="block lg:hidden absolute -top-1 xs:-top-1.5 right-1 xs:right-3 size-7 xs:size-8 pointer-events-none select-none" />
             )}
 
-            <h2 className="text-[25px] xs:text-[27px] sm:text-[28px] lg:text-[30px] xl:text-[32px] font-black text-white leading-[1.0] lg:leading-[1.02] tracking-tight">
+            <HeadingTag className="text-[25px] xs:text-[27px] sm:text-[28px] lg:text-[30px] xl:text-[32px] font-black text-white leading-[1.0] lg:leading-[1.02] tracking-tight">
               {isExplicaAi ? (
                 <>
                   <span className="block">Explica Aí</span>
@@ -320,7 +329,7 @@ export function VideoArticlesCarouselWidget({
               ) : (
                 <span>{title}</span>
               )}
-            </h2>
+            </HeadingTag>
             <div className="mt-2 lg:mt-2.5 sm:mt-3 text-[11px] xs:text-[11.5px] sm:text-[12px] xl:text-[13px] leading-[1.3] lg:leading-snug text-white/95 lg:text-white/90 font-normal">
               <p className="block">Dicas em vídeos e artigos</p>
               <p className="block">para você usar no seu negócio.</p>
@@ -358,7 +367,7 @@ export function VideoArticlesCarouselWidget({
             tabIndex={0}
             className="no-scrollbar flex w-full snap-x snap-mandatory gap-2.5 lg:gap-3 overflow-x-auto py-1 px-0.5 focus:outline-none"
           >
-            {items.map((item, index) => (
+            {resolvedItems.map((item, index) => (
               <VideoArticleCard
                 key={item.id}
                 id={item.id}
@@ -377,7 +386,7 @@ export function VideoArticlesCarouselWidget({
           </div>
 
           {/* Botões de Navegação Circular Brancos - visíveis no mobile e desktop (Fiel ao Anexo 2) */}
-          {items.length > 1 && (
+          {resolvedItems.length > 1 && (
             <>
               <button
                 aria-label={isConfeitaria ? 'Workshop anterior' : 'Dica anterior'}
@@ -402,13 +411,13 @@ export function VideoArticlesCarouselWidget({
         </div>
 
         {/* Bolinhas de Paginação (Visíveis no mobile e tablets, fiéis ao Anexo 2) */}
-        {items.length > 1 && (
+        {resolvedItems.length > 1 && (
           <div
             role="tablist"
             aria-label={isConfeitaria ? 'Paginação de workshops' : 'Paginação de dicas'}
             className="flex lg:hidden items-center justify-center gap-2 mt-3 xs:mt-3.5 mb-0.5 z-10"
           >
-            {items.map((item, idx) => {
+            {resolvedItems.map((item, idx) => {
               const isActive = idx === activeIndex;
               return (
                 <button

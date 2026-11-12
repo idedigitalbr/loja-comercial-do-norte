@@ -1,18 +1,48 @@
 import { HomeView } from '@/components/storefront/home-view';
 import { getStorefrontComposition } from '@/lib/storefront/composition-storage';
-import { getBrands, getCategories, getOffers, getProducts, getSiteConfig } from '@/lib/api';
+import { getBrands, getCategories, getOffers, getProductsPage, getSiteConfig } from '@/lib/api';
+import { interleaveDistinctProducts } from '@/lib/catalog-filters';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const [config, categories, brands, offers, products, composition] = await Promise.all([
+  const [
+    _config,
+    categories,
+    brands,
+    offers,
+    pGeneral,
+    pEmbalagens,
+    pDescartaveis,
+    pSacolas,
+    pFestas,
+    pPotes,
+    composition,
+  ] = await Promise.all([
     getSiteConfig(),
     getCategories(),
     getBrands(),
     getOffers(12),
-    getProducts(),
+    getProductsPage({ page: 1, pageSize: 16, sort: 'name_asc' }),
+    getProductsPage({ category: 'embalagens', page: 1, pageSize: 16, sort: 'name_asc' }),
+    getProductsPage({ category: 'descartaveis', page: 1, pageSize: 16, sort: 'newest' }),
+    getProductsPage({ category: 'sacos-e-sacolas', page: 1, pageSize: 16, sort: 'name_asc' }),
+    getProductsPage({ category: 'artigos-para-festa', page: 1, pageSize: 16, sort: 'newest' }),
+    getProductsPage({ category: 'potes-marmitas-plasticas-e-tampas', page: 1, pageSize: 16, sort: 'newest' }),
     getStorefrontComposition(),
   ]);
+
+  const products = interleaveDistinctProducts(
+    [
+      pEmbalagens.items,
+      pDescartaveis.items,
+      pSacolas.items,
+      pFestas.items,
+      pPotes.items,
+      pGeneral.items,
+    ],
+    80,
+  );
 
   const contextData = {
     categories,

@@ -3,6 +3,7 @@
   "private": true,
   "packageManager": "pnpm@10.15.1",
   "scripts": {
+    "predev": "node scripts/dev/postgres.mjs ensure",
     "dev": "turbo dev",
     "build": "turbo build && node scripts/copy-web-builds.mjs",
     "lint": "turbo lint",
@@ -29,7 +30,6 @@
     "db:local:init": "node scripts/dev/postgres.mjs init",
     "db:local:start": "node scripts/dev/postgres.mjs start",
     "db:local:stop": "node scripts/dev/postgres.mjs stop",
-    "db:import:woocommerce": "tsx scripts/import-woocommerce.ts",
     "verify:local": "node scripts/verify-local.mjs",
     "bootstrap:local": "node scripts/bootstrap-local.mjs",
     "agents:test": "node --test scripts/agents/*.test.mjs",

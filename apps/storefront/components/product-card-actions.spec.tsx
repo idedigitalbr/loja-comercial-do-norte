@@ -49,8 +49,9 @@ describe('ProductCardActions', () => {
     expect(screen.getByRole('button', { name: /Adicionar à cotação/i })).toBeDefined();
   });
 
-  it('handles instant quote: adds item and navigates to /cotacao', () => {
+  it('handles instant quote: adds item without opening drawer, closes drawer, and navigates to /cotacao', () => {
     const mockAdd = vi.fn();
+    const mockCloseDrawer = vi.fn();
     const mockPush = vi.fn();
     vi.spyOn(QuoteCartModule, 'useQuoteCart').mockReturnValue({
       items: [],
@@ -63,7 +64,7 @@ describe('ProductCardActions', () => {
       remove: vi.fn(),
       clear: vi.fn(),
       openDrawer: vi.fn(),
-      closeDrawer: vi.fn(),
+      closeDrawer: mockCloseDrawer,
     });
     vi.spyOn(NavigationModule, 'useRouter').mockReturnValue({
       push: mockPush,
@@ -79,7 +80,8 @@ describe('ProductCardActions', () => {
     const instantBtn = screen.getByRole('button', { name: /Cotar agora/i });
     fireEvent.click(instantBtn);
 
-    expect(mockAdd).toHaveBeenCalledWith(mockItem);
+    expect(mockAdd).toHaveBeenCalledWith(mockItem, { openDrawer: false });
+    expect(mockCloseDrawer).toHaveBeenCalledTimes(1);
     expect(mockPush).toHaveBeenCalledWith('/cotacao');
   });
 

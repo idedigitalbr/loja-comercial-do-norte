@@ -11,7 +11,19 @@ export type ApiVariant = {
   id: string;
   publicId: string;
   sku: string;
-  priceCents: number;
+  variantName?: string | null;
+  pricingMode?: 'QUOTE_ONLY' | 'FIXED_PRICE';
+  priceCents: number | null;
+  gtinRaw?: string | null;
+  manufacturerRef?: string | null;
+  color?: string | null;
+  sizeOrModel?: string | null;
+  capacityOrVolume?: string | null;
+  material?: string | null;
+  packagingRaw?: string | null;
+  reportedNetWeight?: string | null;
+  dimensionsRaw?: string | null;
+  freightReady?: boolean;
   compareAtPriceCents: number | null;
   weightGrams: number | null;
   widthMm: number | null;
@@ -44,6 +56,10 @@ export type ApiCategory = {
   imagePath: string | null;
   sortOrder: number;
   children?: ApiCategory[];
+  _count?: {
+    products?: number;
+    children?: number;
+  };
 };
 
 export type ApiBrand = {
@@ -69,6 +85,9 @@ export type ApiSegment = {
   description?: string | null;
   imagePath?: string | null;
   sortOrder?: number;
+  _count?: {
+    products?: number;
+  };
 };
 
 export type ApiTag = {
@@ -114,7 +133,7 @@ export type PublicQuote = {
   customerPhone: string;
   companyName: string | null;
   itemsCount: number;
-  subtotalCents: number;
+  subtotalCents: number | null;
   notes: string | null;
   createdAt: string;
   answeredAt: string | null;
@@ -124,8 +143,8 @@ export type PublicQuote = {
     sku: string;
     imagePath: string | null;
     quantity: number;
-    unitPriceCents: number;
-    totalCents: number;
+    unitPriceCents: number | null;
+    totalCents: number | null;
   }>;
 };
 

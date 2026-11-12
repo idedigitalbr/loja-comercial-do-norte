@@ -97,13 +97,14 @@ async function main(): Promise<void> {
         select: { id: true },
       });
 
-      if (!existingDemoOrder) {
+      if (!existingDemoOrder && demoVariant.priceCents != null) {
+        const unitPrice = demoVariant.priceCents;
         await prisma.order.create({
           data: {
             userId: customerUser.id,
             status: OrderStatus.AWAITING_PAYMENT,
-            subtotalCents: demoVariant.priceCents,
-            totalCents: demoVariant.priceCents,
+            subtotalCents: unitPrice,
+            totalCents: unitPrice,
             contactEmail: defaultCustomerEmail,
             shippingMethodCode: 'DEMO_SEED',
             shippingProvider: 'Demonstração local',
@@ -116,8 +117,8 @@ async function main(): Promise<void> {
                 name: demoVariant.product.name,
                 sku: demoVariant.sku,
                 quantity: 1,
-                unitPriceCents: demoVariant.priceCents,
-                totalCents: demoVariant.priceCents,
+                unitPriceCents: unitPrice,
+                totalCents: unitPrice,
               },
             },
             statusHistory: {

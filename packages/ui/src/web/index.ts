@@ -11,7 +11,6 @@ export {
   WebField,
   WebInput,
   WebSelect,
-  WebSheet,
   WebSkeleton,
   WebTextarea,
 } from './web-inventory';
@@ -22,7 +21,8 @@ export type {
   WebFieldProps,
   WebInputProps,
   WebSelectProps,
-  WebSheetProps,
   WebSkeletonProps,
   WebTextareaProps,
 } from './web-inventory';
+export { WebSheet } from './web-sheet';
+export type { WebSheetProps } from './web-sheet';

@@ -9,8 +9,6 @@ import {
   MapPin,
   ChevronRight,
   Search,
-  Users,
-  Award,
   ChefHat,
   Play,
   Mic,
@@ -19,19 +17,52 @@ import {
   Coffee,
   Star,
   X,
-  Sparkles,
 } from 'lucide-react';
 import './confeitaria-tokens.css';
+import { VideoArticlesCarouselWidget } from '@/components/storefront/widgets/video-articles-carousel/video-articles-carousel';
 import { ScrollRevealBlock, SkeletonBlock } from '@/components/ui/scroll-skeleton-reveal';
-import type { EventItem, EventCategoryKey } from '@/lib/events-data';
+import type { EventItem } from '@/lib/events-data';
+import type { VideoArticlesCarouselProps } from '@/lib/storefront/widget-types';
+
+const DEFAULT_CONFEITARIA_HERO: VideoArticlesCarouselProps = {
+  variant: 'confeitaria',
+  title: 'Workshops & Aulas Práticas de Confeitaria',
+  subtitle: 'Faça suas compras e ganhe treinamento gratuitamente.',
+  viewAllLabel: 'Ver todos',
+  viewAllUrl: '#workshops-lista',
+  mascotImageUrl: '/assets/confeitaria/confeiteira-banner-cutout-trimmed.webp',
+  bgImageUrl: '/assets/confeitaria/bg-confeitaria-banner.svg',
+  items: [
+    {
+      id: 'conf-1',
+      tags: ['WORKSHOP', 'BOLOS DECORADOS'],
+      title: 'Técnicas de decoração para bolos e tortas',
+      paragraphs: [
+        'Aprenda acabamento, recheio, montagem e apresentação com foco prático.',
+      ],
+      ctaLabel: 'Ver Completo',
+      ctaUrl: '#workshops-lista',
+      imageUrl: '/assets/confeitaria/card-tecnicas-decoracao.webp',
+    },
+    {
+      id: 'conf-2',
+      tags: ['AULA PRÁTICA', 'DOCES FINOS'],
+      title: 'Doces finos e sobremesas para vender',
+      paragraphs: [
+        'Descubra receitas, finalização e embalagem para valorizar sua produção.',
+      ],
+      ctaLabel: 'Ver Completo',
+      ctaUrl: '#workshops-lista',
+      imageUrl: '/assets/confeitaria/card-doces-finos.webp',
+    },
+  ],
+};
 
 export type ConfeitariaWorkshopsListProps = {
   initialEvents: EventItem[];
   detailBasePath?: string;
-  badge?: string;
-  title?: React.ReactNode;
-  subtitle?: string;
   allCategoryLabel?: string;
+  heroBannerProps?: Partial<VideoArticlesCarouselProps>;
 };
 
 type CategoryFilter = 'todos' | 'workshops' | 'aulas-show' | 'palestras';
@@ -39,15 +70,8 @@ type CategoryFilter = 'todos' | 'workshops' | 'aulas-show' | 'palestras';
 export function ConfeitariaWorkshopsList({
   initialEvents,
   detailBasePath = '/evento/workshop/aulas-confeitaria',
-  badge = 'AULAS CONFEITARIA',
-  title = (
-    <>
-      Workshops & Aulas Práticas <br className="hidden sm:inline" />
-      de Confeitaria
-    </>
-  ),
-  subtitle = 'Aprenda técnicas práticas de confeitaria com grandes especialistas no Centro Técnico Comercial do Norte, em experiências incríveis e 100% mão na massa.',
   allCategoryLabel = 'Todos os workshops',
+  heroBannerProps,
 }: ConfeitariaWorkshopsListProps) {
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('todos');
   const [searchQuery, setSearchQuery] = useState('');
@@ -103,123 +127,72 @@ export function ConfeitariaWorkshopsList({
     });
   }, [initialEvents, activeCategory, searchQuery]);
 
+  const resolvedHero = useMemo(() => {
+    const rawItems =
+      heroBannerProps?.items && heroBannerProps.items.length > 0
+        ? heroBannerProps.items
+        : DEFAULT_CONFEITARIA_HERO.items;
+    const items = rawItems.map((item) => ({
+      ...item,
+      ctaUrl:
+        !item.ctaUrl || item.ctaUrl === '/eventos/workshops/aulas-confeitaria'
+          ? '#workshops-lista'
+          : item.ctaUrl,
+    }));
+    const rawViewAllUrl = heroBannerProps?.viewAllUrl;
+    return {
+      title: heroBannerProps?.title || DEFAULT_CONFEITARIA_HERO.title,
+      subtitle: heroBannerProps?.subtitle || DEFAULT_CONFEITARIA_HERO.subtitle,
+      viewAllLabel: heroBannerProps?.viewAllLabel || DEFAULT_CONFEITARIA_HERO.viewAllLabel,
+      viewAllUrl:
+        !rawViewAllUrl || rawViewAllUrl === '/eventos/workshops/aulas-confeitaria'
+          ? '#workshops-lista'
+          : rawViewAllUrl,
+      mascotImageUrl:
+        heroBannerProps?.mascotImageUrl || DEFAULT_CONFEITARIA_HERO.mascotImageUrl,
+      bgImageUrl: heroBannerProps?.bgImageUrl || DEFAULT_CONFEITARIA_HERO.bgImageUrl,
+      items,
+    };
+  }, [heroBannerProps]);
+
   return (
     <div
       data-event-theme="light"
       className="confeitaria-theme w-full min-h-screen bg-[#FAF6F0] text-[#4B290D] selection:bg-[#E0BCBC] selection:text-[#4B290D]"
     >
       {/* =========================================================================
-          1. HERO PRINCIPAL: PÁGINA DE LISTAGEM DE WORKSHOPS
+          1. HERO PRINCIPAL: IDÊNTICO À SEÇÃO WORKSHOPS & AULAS DE CONFEITARIA DA HOME
           ========================================================================= */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#FFFDF9] via-[#FAF6F0] to-[#FAF6F0] border-b border-[#EFE4DC]">
-        {/* Curvas orgânicas decorativas sutis ao fundo */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40">
-          <div className="absolute -top-32 -right-24 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-[#F5E6E6]/60 to-transparent blur-3xl" />
-          <div className="absolute top-1/2 -left-20 w-[450px] h-[450px] rounded-full bg-gradient-to-tr from-[#F2E8DC]/70 to-transparent blur-2xl" />
-        </div>
-
-        <div className="cn-container relative z-10 pt-6 pb-12 sm:pt-8 sm:pb-16 lg:pb-20">
-          {/* Breadcrumb refinado */}
-          <nav aria-label="Você está aqui" className="flex items-center gap-2 text-xs font-medium text-[#73594C] mb-8">
-            <Link className="hover:text-[#4B290D] transition-colors" href="/">
-              Início
-            </Link>
-            <ChevronRight className="size-3 text-[#A8968B]" />
-            <span className="font-semibold text-[#4B290D]">Eventos</span>
-            <ChevronRight className="size-3 text-[#A8968B]" />
-            <span className="font-semibold text-[#B75675]">Aulas Confeitaria</span>
-          </nav>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            {/* Coluna de Texto à Esquerda */}
-            <div className="lg:col-span-7 flex flex-col items-start">
-              {/* Eyebrow oficial */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F5E6E6] text-[#B75675] text-[11px] font-bold uppercase tracking-[0.2em] mb-4">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#B75675]" />
-                {badge}
-              </div>
-
-              {/* Título Principal em Serif Sofisticada */}
-              <h1 className="confeitaria-serif text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-bold text-[#4B290D] leading-[1.12] tracking-tight">
-                {title}
-              </h1>
-
-              {/* Subtítulo */}
-              <p className="mt-4 sm:mt-5 text-base sm:text-lg text-[#73594C] leading-relaxed max-w-xl">
-                {subtitle}
-              </p>
-
-              {/* 3 Pilares com Ícones em Círculos Rosé */}
-              <div className="mt-8 pt-6 border-t border-[#EFE4DC] w-full grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#F5E6E6] text-[#B75675] border border-[#E0BCBC]/60">
-                    <Users className="size-5" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-[#4B290D]">100% Prático</div>
-                    <div className="text-xs text-[#73594C]">Bancadas equipadas</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#F5E6E6] text-[#B75675] border border-[#E0BCBC]/60">
-                    <Award className="size-5" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-[#4B290D]">Certificado</div>
-                    <div className="text-xs text-[#73594C]">Oficial ao final</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#F5E6E6] text-[#B75675] border border-[#E0BCBC]/60">
-                    <ChefHat className="size-5" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-[#4B290D]">Insumos Inclusos</div>
-                    <div className="text-xs text-[#73594C]">Tudo pronto para você</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Coluna da Imagem à Direita (Composição com Foto da Confeiteira e Bolo de Chocolate) */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative mx-auto w-full max-w-[480px] lg:max-w-none">
-                {/* Moldura elegante com sombra suave e borda sutil */}
-                <div className="relative aspect-[4/3] sm:aspect-[14/11] w-full rounded-3xl overflow-hidden shadow-2xl shadow-[#4B290D]/10 border-4 border-white">
-                  <Image
-                    alt="Confeiteira decorando bolo de chocolate com morangos no Centro Técnico Comercial do Norte"
-                    className="size-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
-                    fill
-                    priority
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    src="/assets/confeitaria/01-listagem-eventos/01-hero-foto-confeiteira-direita.jpg"
-                  />
-                  {/* Gradiente sutil para acabamento fotográfico */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#4B290D]/30 via-transparent to-transparent pointer-events-none" />
-                </div>
-
-                {/* Selo flutuante de Destaque no Canto */}
-                <div className="absolute -bottom-4 -left-4 sm:-bottom-5 sm:-left-5 bg-white rounded-2xl p-3.5 shadow-xl border border-[#EFE4DC] flex items-center gap-3 backdrop-blur-md">
-                  <div className="size-10 rounded-xl bg-[#4B290D] flex items-center justify-center text-white shrink-0">
-                    <Sparkles className="size-5 text-[#E0BCBC]" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-[#4B290D]">Centro Técnico Oficial</div>
-                    <div className="text-[11px] text-[#73594C]">Comercial do Norte · Belém/PA</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <VideoArticlesCarouselWidget
+        bgImageUrl={resolvedHero.bgImageUrl}
+        fullWidth={false}
+        headingAs="h1"
+        items={resolvedHero.items}
+        mascotImageUrl={resolvedHero.mascotImageUrl}
+        showViewAll={true}
+        subtitle={resolvedHero.subtitle}
+        title={resolvedHero.title}
+        variant="confeitaria"
+        viewAllLabel={resolvedHero.viewAllLabel}
+        viewAllUrl={resolvedHero.viewAllUrl}
+      />
 
       {/* =========================================================================
           2. BARRA DE FILTROS + BUSCA + GRID DE WORKSHOPS
           ========================================================================= */}
-      <section className="cn-container py-10 sm:py-14">
+      <section id="workshops-lista" className="cn-container pt-3 pb-10 sm:pt-4 sm:pb-14">
+        {/* Breadcrumb refinado */}
+        <nav aria-label="Você está aqui" className="flex items-center gap-2 text-xs font-medium text-[#73594C] mb-5">
+          <Link className="hover:text-[#4B290D] transition-colors" href="/">
+            Início
+          </Link>
+          <ChevronRight className="size-3 text-[#A8968B]" />
+          <Link className="hover:text-[#4B290D] transition-colors" href="/eventos">
+            Eventos
+          </Link>
+          <ChevronRight className="size-3 text-[#A8968B]" />
+          <span className="font-semibold text-[#B75675]">Aulas Confeitaria</span>
+        </nav>
         {/* Barra de Filtros e Busca */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-8 sm:mb-10 pb-6 border-b border-[#EFE4DC]">
           {/* Categorias (Pills) */}

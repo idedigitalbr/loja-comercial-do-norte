@@ -32,23 +32,71 @@ vi.mock('@/lib/api', () => ({
   ]),
 }));
 
+vi.mock('@/lib/storefront/composition-storage', () => ({
+  getStorefrontComposition: vi.fn().mockResolvedValue({
+    widgets: [
+      {
+        id: 's15b-workshops-confeitaria',
+        type: 'video-articles-carousel',
+        enabled: true,
+        order: 11,
+        props: {
+          variant: 'confeitaria',
+          title: 'Workshops & Aulas Práticas de Confeitaria',
+          subtitle: 'Faça suas compras e ganhe treinamento gratuitamente.',
+          viewAllLabel: 'Ver todos',
+          viewAllUrl: '/eventos/workshops/aulas-confeitaria',
+          mascotImageUrl: '/assets/confeitaria/confeiteira-banner-cutout-trimmed.webp',
+          bgImageUrl: '/assets/confeitaria/bg-confeitaria-banner.svg',
+          items: [
+            {
+              id: 'conf-1',
+              tags: ['WORKSHOP', 'BOLOS DECORADOS'],
+              title: 'Técnicas de decoração para bolos e tortas',
+              paragraphs: [
+                'Aprenda acabamento, recheio, montagem e apresentação com foco prático.',
+              ],
+              ctaLabel: 'Ver Completo',
+              ctaUrl: '/eventos/workshops/aulas-confeitaria',
+              imageUrl: '/assets/confeitaria/card-tecnicas-decoracao.webp',
+            },
+            {
+              id: 'conf-2',
+              tags: ['AULA PRÁTICA', 'DOCES FINOS'],
+              title: 'Doces finos e sobremesas para vender',
+              paragraphs: [
+                'Descubra receitas, finalização e embalagem para valorizar sua produção.',
+              ],
+              ctaLabel: 'Ver Completo',
+              ctaUrl: '/eventos/workshops/aulas-confeitaria',
+              imageUrl: '/assets/confeitaria/card-doces-finos.webp',
+            },
+          ],
+        },
+      },
+    ],
+  }),
+}));
+
 describe('Workshops & Aulas de Confeitaria Page (White Mode)', () => {
   it('has correct SEO metadata', () => {
     expect(metadata.title).toContain('Workshops & Aulas de Confeitaria');
     expect(metadata.alternates?.canonical).toBe('/eventos/workshops/aulas-confeitaria');
   });
 
-  it('renders the white mode header, official badge, and benefits', async () => {
+  it('renders the top hero identical to the Home Confeitaria section', async () => {
     const Component = await ConfeitariaWorkshopsPage();
     render(Component);
 
     expect(screen.getByRole('heading', { level: 1 }).textContent).toContain(
       'Workshops & Aulas Práticas de Confeitaria'
     );
-    expect(screen.getByText('AULAS CONFEITARIA')).toBeDefined();
-    expect(screen.getByText('100% Prático')).toBeDefined();
-    expect(screen.getByText('Certificado')).toBeDefined();
-    expect(screen.getByText('Insumos Inclusos')).toBeDefined();
+    expect(screen.getByText(/Faça suas compras e ganhe/)).toBeDefined();
+    expect(screen.getByText('gratuitamente.')).toBeDefined();
+    expect(screen.getByText('Técnicas de decoração para bolos e tortas')).toBeDefined();
+    expect(screen.getByText('Doces finos e sobremesas para vender')).toBeDefined();
+    expect(screen.getAllByAltText('Workshop de Confeitaria').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Ver todos').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders the confectionery workshop cards with 9:16 poster and single post CTA link', async () => {

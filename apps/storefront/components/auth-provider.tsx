@@ -161,28 +161,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     let active = true;
     async function handleSync() {
-      if (allowsLocalAuth()) { setUser(getStoredUser()); return; }
       try {
         const response = await fetch('/api/v1/auth/me', { credentials: 'include', cache: 'no-store' });
-        const data = response.ok ? await response.json() : null;
-        const authenticated = data?.user;
-        if (active) setUser(authenticated ? {
-          id: authenticated.id, email: authenticated.email,
-          firstName: authenticated.profile?.firstName ?? authenticated.email.split('@')[0],
-          fullName: authenticated.profile?.firstName ?? authenticated.email.split('@')[0],
-          roles: authenticated.roles,
-          isAdmin: authenticated.permissions?.includes('settings.manage') ?? false,
-        } : null);
-      } catch { if (active) setUser(null); }
+        if (response.ok) {
+          const data = await response.json();
+          const authenticated = data?.user;
+          if (!active) return;
+          if (authenticated) {
+            const isAdmin = authenticated.permissions?.includes('settings.manage') ?? false;
+            const firstName =
+              authenticated.profile?.firstName ||
+              (isAdmin ? 'Administrador' : authenticated.email.split('@')[0]) ||
+              'Cliente';
+            const lastName = authenticated.profile?.lastName || '';
+            setUser({
+              id: authenticated.id,
+              email: authenticated.email,
+              firstName,
+              lastName,
+              fullName: `${firstName} ${lastName}`.trim(),
+              roles: authenticated.roles,
+              isAdmin,
+            });
+          } else {
+            setUser(null);
+          }
+          return;
+        }
+        if (response.status === 401) {
+          try {
+            window.localStorage.removeItem(AUTH_USER_KEY);
+            document.cookie = 'cn_user=; path=/; max-age=0; SameSite=Lax';
+          } catch {
+            // Ignora falha de storage
+          }
+          if (active) setUser(null);
+          return;
+        }
+      } catch {
+        // API indisponível no ambiente local
+      }
+      if (active) {
+        setUser(allowsLocalAuth() ? getStoredUser() : null);
+      }
     }
     void handleSync();
 
+    function handleLocalAuthChange() {
+      if (active) setUser(getStoredUser());
+    }
+
     window.addEventListener('storage', handleSync);
-    window.addEventListener('cn_auth_changed' as any, handleSync);
+    window.addEventListener('cn_auth_changed' as any, handleLocalAuthChange);
     return () => {
       active = false;
       window.removeEventListener('storage', handleSync);
-      window.removeEventListener('cn_auth_changed' as any, handleSync);
+      window.removeEventListener('cn_auth_changed' as any, handleLocalAuthChange);
     };
   }, []);
 

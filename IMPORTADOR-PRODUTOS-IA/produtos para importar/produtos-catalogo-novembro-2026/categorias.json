@@ -1,0 +1,605 @@
+[
+  {
+    "nome": "Confeitaria, Chocolates e Festas",
+    "slug": "confeitaria-chocolates-e-festas",
+    "legacy_id": "CN-CAT-CONFEITARIA-CHOCOLATES-E-FESTAS",
+    "parent_slug": null,
+    "parent_nome": null,
+    "nivel": 1,
+    "sort_order": 10,
+    "total_produtos_pais": 50,
+    "total_variacoes": 103,
+    "categorias_originais_mapeadas": [
+      "Alimentos e confeitaria",
+      "Artigos para festas",
+      "Embalagens térmicas e isopor",
+      "Utensílios e acessórios"
+    ]
+  },
+  {
+    "nome": "Cachetas, Tapetinhos e Discos de Bolo",
+    "slug": "cachetas-tapetinhos-e-discos-de-bolo",
+    "legacy_id": "CN-CAT-CACHETAS-TAPETINHOS-E-DISCOS-DE-BOLO",
+    "parent_slug": "confeitaria-chocolates-e-festas",
+    "parent_nome": "Confeitaria, Chocolates e Festas",
+    "nivel": 2,
+    "sort_order": 101,
+    "total_produtos_pais": 35,
+    "total_variacoes": 88,
+    "categorias_originais_mapeadas": [
+      "Artigos para festas",
+      "Embalagens térmicas e isopor",
+      "Utensílios e acessórios"
+    ]
+  },
+  {
+    "nome": "Chocolates e Coberturas",
+    "slug": "chocolates-e-coberturas",
+    "legacy_id": "CN-CAT-CHOCOLATES-E-COBERTURAS",
+    "parent_slug": "confeitaria-chocolates-e-festas",
+    "parent_nome": "Confeitaria, Chocolates e Festas",
+    "nivel": 2,
+    "sort_order": 102,
+    "total_produtos_pais": 8,
+    "total_variacoes": 8,
+    "categorias_originais_mapeadas": [
+      "Alimentos e confeitaria"
+    ]
+  },
+  {
+    "nome": "Velas e Artigos de Festa",
+    "slug": "velas-e-artigos-de-festa",
+    "legacy_id": "CN-CAT-VELAS-E-ARTIGOS-DE-FESTA",
+    "parent_slug": "confeitaria-chocolates-e-festas",
+    "parent_nome": "Confeitaria, Chocolates e Festas",
+    "nivel": 2,
+    "sort_order": 103,
+    "total_produtos_pais": 7,
+    "total_variacoes": 7,
+    "categorias_originais_mapeadas": [
+      "Artigos para festas"
+    ]
+  },
+  {
+    "nome": "Copos, Talheres e Descartáveis de Mesa",
+    "slug": "copos-talheres-e-descartaveis-de-mesa",
+    "legacy_id": "CN-CAT-COPOS-TALHERES-E-DESCARTAVEIS-DE-MESA",
+    "parent_slug": null,
+    "parent_nome": null,
+    "nivel": 1,
+    "sort_order": 20,
+    "total_produtos_pais": 184,
+    "total_variacoes": 195,
+    "categorias_originais_mapeadas": [
+      "Alimentos e confeitaria",
+      "Artigos para festas",
+      "Copos descartáveis",
+      "Embalagens para alimentos",
+      "Embalagens térmicas e isopor",
+      "Outros (revisar)",
+      "Papéis e guardanapos",
+      "Potes e tampas",
+      "Utensílios e acessórios"
+    ]
+  },
+  {
+    "nome": "Canudos Descartáveis",
+    "slug": "canudos-descartaveis",
+    "legacy_id": "CN-CAT-CANUDOS-DESCARTAVEIS",
+    "parent_slug": "copos-talheres-e-descartaveis-de-mesa",
+    "parent_nome": "Copos, Talheres e Descartáveis de Mesa",
+    "nivel": 2,
+    "sort_order": 201,
+    "total_produtos_pais": 15,
+    "total_variacoes": 15,
+    "categorias_originais_mapeadas": [
+      "Artigos para festas"
+    ]
+  },
+  {
+    "nome": "Copos e Garrafas Descartáveis",
+    "slug": "copos-e-garrafas-descartaveis",
+    "legacy_id": "CN-CAT-COPOS-E-GARRAFAS-DESCARTAVEIS",
+    "parent_slug": "copos-talheres-e-descartaveis-de-mesa",
+    "parent_nome": "Copos, Talheres e Descartáveis de Mesa",
+    "nivel": 2,
+    "sort_order": 202,
+    "total_produtos_pais": 75,
+    "total_variacoes": 75,
+    "categorias_originais_mapeadas": [
+      "Artigos para festas",
+      "Copos descartáveis",
+      "Embalagens para alimentos",
+      "Embalagens térmicas e isopor",
+      "Outros (revisar)",
+      "Potes e tampas"
+    ]
+  },
+  {
+    "nome": "Espetos, Hashis e Bambu",
+    "slug": "espetos-hashis-e-bambu",
+    "legacy_id": "CN-CAT-ESPETOS-HASHIS-E-BAMBU",
+    "parent_slug": "copos-talheres-e-descartaveis-de-mesa",
+    "parent_nome": "Copos, Talheres e Descartáveis de Mesa",
+    "nivel": 2,
+    "sort_order": 203,
+    "total_produtos_pais": 3,
+    "total_variacoes": 3,
+    "categorias_originais_mapeadas": [
+      "Alimentos e confeitaria",
+      "Utensílios e acessórios"
+    ]
+  },
+  {
+    "nome": "Guardanapos de Papel",
+    "slug": "guardanapos-de-papel",
+    "legacy_id": "CN-CAT-GUARDANAPOS-DE-PAPEL",
+    "parent_slug": "copos-talheres-e-descartaveis-de-mesa",
+    "parent_nome": "Copos, Talheres e Descartáveis de Mesa",
+    "nivel": 2,
+    "sort_order": 204,
+    "total_produtos_pais": 10,
+    "total_variacoes": 21,
+    "categorias_originais_mapeadas": [
+      "Papéis e guardanapos"
+    ]
+  },
+  {
+    "nome": "Pratos Descartáveis",
+    "slug": "pratos-descartaveis",
+    "legacy_id": "CN-CAT-PRATOS-DESCARTAVEIS",
+    "parent_slug": "copos-talheres-e-descartaveis-de-mesa",
+    "parent_nome": "Copos, Talheres e Descartáveis de Mesa",
+    "nivel": 2,
+    "sort_order": 205,
+    "total_produtos_pais": 31,
+    "total_variacoes": 31,
+    "categorias_originais_mapeadas": [
+      "Artigos para festas"
+    ]
+  },
+  {
+    "nome": "Talheres, Mexedores e Pazinha",
+    "slug": "talheres-mexedores-e-pazinha",
+    "legacy_id": "CN-CAT-TALHERES-MEXEDORES-E-PAZINHA",
+    "parent_slug": "copos-talheres-e-descartaveis-de-mesa",
+    "parent_nome": "Copos, Talheres e Descartáveis de Mesa",
+    "nivel": 2,
+    "sort_order": 206,
+    "total_produtos_pais": 50,
+    "total_variacoes": 50,
+    "categorias_originais_mapeadas": [
+      "Artigos para festas"
+    ]
+  },
+  {
+    "nome": "EPIs e Proteção Descartável",
+    "slug": "epis-e-protecao-descartavel",
+    "legacy_id": "CN-CAT-EPIS-E-PROTECAO-DESCARTAVEL",
+    "parent_slug": null,
+    "parent_nome": null,
+    "nivel": 1,
+    "sort_order": 30,
+    "total_produtos_pais": 14,
+    "total_variacoes": 14,
+    "categorias_originais_mapeadas": [
+      "Higiene e limpeza",
+      "Utensílios e acessórios"
+    ]
+  },
+  {
+    "nome": "Luvas, Toucas, Máscaras e Capas",
+    "slug": "luvas-toucas-mascaras-e-capas",
+    "legacy_id": "CN-CAT-LUVAS-TOUCAS-MASCARAS-E-CAPAS",
+    "parent_slug": "epis-e-protecao-descartavel",
+    "parent_nome": "EPIs e Proteção Descartável",
+    "nivel": 2,
+    "sort_order": 301,
+    "total_produtos_pais": 14,
+    "total_variacoes": 14,
+    "categorias_originais_mapeadas": [
+      "Higiene e limpeza",
+      "Utensílios e acessórios"
+    ]
+  },
+  {
+    "nome": "Embalagens Alimentícias",
+    "slug": "embalagens-alimenticias",
+    "legacy_id": "CN-CAT-EMBALAGENS-ALIMENTICIAS",
+    "parent_slug": null,
+    "parent_nome": null,
+    "nivel": 1,
+    "sort_order": 40,
+    "total_produtos_pais": 183,
+    "total_variacoes": 183,
+    "categorias_originais_mapeadas": [
+      "Alimentos e confeitaria",
+      "Embalagens para alimentos",
+      "Embalagens térmicas e isopor",
+      "Filmes, fitas e bobinas",
+      "Potes e tampas",
+      "Utensílios e acessórios"
+    ]
+  },
+  {
+    "nome": "Caixas para Pizza",
+    "slug": "caixas-para-pizza",
+    "legacy_id": "CN-CAT-CAIXAS-PARA-PIZZA",
+    "parent_slug": "embalagens-alimenticias",
+    "parent_nome": "Embalagens Alimentícias",
+    "nivel": 2,
+    "sort_order": 401,
+    "total_produtos_pais": 4,
+    "total_variacoes": 4,
+    "categorias_originais_mapeadas": [
+      "Embalagens para alimentos"
+    ]
+  },
+  {
+    "nome": "Embalagens de Isopor (EPS)",
+    "slug": "embalagens-de-isopor-eps",
+    "legacy_id": "CN-CAT-EMBALAGENS-DE-ISOPOR-EPS",
+    "parent_slug": "embalagens-alimenticias",
+    "parent_nome": "Embalagens Alimentícias",
+    "nivel": 2,
+    "sort_order": 402,
+    "total_produtos_pais": 6,
+    "total_variacoes": 6,
+    "categorias_originais_mapeadas": [
+      "Embalagens para alimentos",
+      "Embalagens térmicas e isopor"
+    ]
+  },
+  {
+    "nome": "Embalagens e Utensílios Gerais",
+    "slug": "embalagens-e-utensilios-gerais",
+    "legacy_id": "CN-CAT-EMBALAGENS-E-UTENSILIOS-GERAIS",
+    "parent_slug": "embalagens-alimenticias",
+    "parent_nome": "Embalagens Alimentícias",
+    "nivel": 2,
+    "sort_order": 403,
+    "total_produtos_pais": 28,
+    "total_variacoes": 28,
+    "categorias_originais_mapeadas": [
+      "Alimentos e confeitaria",
+      "Embalagens para alimentos",
+      "Embalagens térmicas e isopor",
+      "Filmes, fitas e bobinas",
+      "Utensílios e acessórios"
+    ]
+  },
+  {
+    "nome": "Embalagens para Bolos, Tortas e Doces",
+    "slug": "embalagens-para-bolos-tortas-e-doces",
+    "legacy_id": "CN-CAT-EMBALAGENS-PARA-BOLOS-TORTAS-E-DOCES",
+    "parent_slug": "embalagens-alimenticias",
+    "parent_nome": "Embalagens Alimentícias",
+    "nivel": 2,
+    "sort_order": 404,
+    "total_produtos_pais": 54,
+    "total_variacoes": 54,
+    "categorias_originais_mapeadas": [
+      "Embalagens para alimentos"
+    ]
+  },
+  {
+    "nome": "Marmitex e Assadeiras de Alumínio",
+    "slug": "marmitex-e-assadeiras-de-aluminio",
+    "legacy_id": "CN-CAT-MARMITEX-E-ASSADEIRAS-DE-ALUMINIO",
+    "parent_slug": "embalagens-alimenticias",
+    "parent_nome": "Embalagens Alimentícias",
+    "nivel": 2,
+    "sort_order": 405,
+    "total_produtos_pais": 27,
+    "total_variacoes": 27,
+    "categorias_originais_mapeadas": [
+      "Embalagens para alimentos",
+      "Embalagens térmicas e isopor"
+    ]
+  },
+  {
+    "nome": "Potes, Marmitas Plásticas e Tampas",
+    "slug": "potes-marmitas-plasticas-e-tampas",
+    "legacy_id": "CN-CAT-POTES-MARMITAS-PLASTICAS-E-TAMPAS",
+    "parent_slug": "embalagens-alimenticias",
+    "parent_nome": "Embalagens Alimentícias",
+    "nivel": 2,
+    "sort_order": 406,
+    "total_produtos_pais": 64,
+    "total_variacoes": 64,
+    "categorias_originais_mapeadas": [
+      "Embalagens para alimentos",
+      "Embalagens térmicas e isopor",
+      "Potes e tampas"
+    ]
+  },
+  {
+    "nome": "Filmes, Papéis e Rolos",
+    "slug": "filmes-papeis-e-rolos",
+    "legacy_id": "CN-CAT-FILMES-PAPEIS-E-ROLOS",
+    "parent_slug": null,
+    "parent_nome": null,
+    "nivel": 1,
+    "sort_order": 50,
+    "total_produtos_pais": 45,
+    "total_variacoes": 45,
+    "categorias_originais_mapeadas": [
+      "Filmes, fitas e bobinas",
+      "Higiene e limpeza",
+      "Papéis e guardanapos"
+    ]
+  },
+  {
+    "nome": "Filmes de PVC",
+    "slug": "filmes-de-pvc",
+    "legacy_id": "CN-CAT-FILMES-DE-PVC",
+    "parent_slug": "filmes-papeis-e-rolos",
+    "parent_nome": "Filmes, Papéis e Rolos",
+    "nivel": 2,
+    "sort_order": 501,
+    "total_produtos_pais": 13,
+    "total_variacoes": 13,
+    "categorias_originais_mapeadas": [
+      "Filmes, fitas e bobinas"
+    ]
+  },
+  {
+    "nome": "Papel Alumínio",
+    "slug": "papel-aluminio",
+    "legacy_id": "CN-CAT-PAPEL-ALUMINIO",
+    "parent_slug": "filmes-papeis-e-rolos",
+    "parent_nome": "Filmes, Papéis e Rolos",
+    "nivel": 2,
+    "sort_order": 502,
+    "total_produtos_pais": 15,
+    "total_variacoes": 15,
+    "categorias_originais_mapeadas": [
+      "Higiene e limpeza",
+      "Papéis e guardanapos"
+    ]
+  },
+  {
+    "nome": "Papéis Toalha, Higiênico e Interfolhados",
+    "slug": "papeis-toalha-higienico-e-interfolhados",
+    "legacy_id": "CN-CAT-PAPEIS-TOALHA-HIGIENICO-E-INTERFOLHADOS",
+    "parent_slug": "filmes-papeis-e-rolos",
+    "parent_nome": "Filmes, Papéis e Rolos",
+    "nivel": 2,
+    "sort_order": 503,
+    "total_produtos_pais": 17,
+    "total_variacoes": 17,
+    "categorias_originais_mapeadas": [
+      "Papéis e guardanapos"
+    ]
+  },
+  {
+    "nome": "Insumos e Condimentos Food Service",
+    "slug": "insumos-e-condimentos-food-service",
+    "legacy_id": "CN-CAT-INSUMOS-E-CONDIMENTOS-FOOD-SERVICE",
+    "parent_slug": null,
+    "parent_nome": null,
+    "nivel": 1,
+    "sort_order": 60,
+    "total_produtos_pais": 11,
+    "total_variacoes": 11,
+    "categorias_originais_mapeadas": [
+      "Alimentos e confeitaria"
+    ]
+  },
+  {
+    "nome": "Molhos, Sachês e Mercearia",
+    "slug": "molhos-saches-e-mercearia",
+    "legacy_id": "CN-CAT-MOLHOS-SACHES-E-MERCEARIA",
+    "parent_slug": "insumos-e-condimentos-food-service",
+    "parent_nome": "Insumos e Condimentos Food Service",
+    "nivel": 2,
+    "sort_order": 601,
+    "total_produtos_pais": 11,
+    "total_variacoes": 11,
+    "categorias_originais_mapeadas": [
+      "Alimentos e confeitaria"
+    ]
+  },
+  {
+    "nome": "Limpeza e Higiene",
+    "slug": "limpeza-e-higiene",
+    "legacy_id": "CN-CAT-LIMPEZA-E-HIGIENE",
+    "parent_slug": null,
+    "parent_nome": null,
+    "nivel": 1,
+    "sort_order": 70,
+    "total_produtos_pais": 20,
+    "total_variacoes": 20,
+    "categorias_originais_mapeadas": [
+      "Higiene e limpeza",
+      "Utensílios e acessórios"
+    ]
+  },
+  {
+    "nome": "Domissanitários e Químicos de Limpeza",
+    "slug": "domissanitarios-e-quimicos-de-limpeza",
+    "legacy_id": "CN-CAT-DOMISSANITARIOS-E-QUIMICOS-DE-LIMPEZA",
+    "parent_slug": "limpeza-e-higiene",
+    "parent_nome": "Limpeza e Higiene",
+    "nivel": 2,
+    "sort_order": 701,
+    "total_produtos_pais": 13,
+    "total_variacoes": 13,
+    "categorias_originais_mapeadas": [
+      "Higiene e limpeza"
+    ]
+  },
+  {
+    "nome": "Panos Multiuso e Fibras",
+    "slug": "panos-multiuso-e-fibras",
+    "legacy_id": "CN-CAT-PANOS-MULTIUSO-E-FIBRAS",
+    "parent_slug": "limpeza-e-higiene",
+    "parent_nome": "Limpeza e Higiene",
+    "nivel": 2,
+    "sort_order": 702,
+    "total_produtos_pais": 7,
+    "total_variacoes": 7,
+    "categorias_originais_mapeadas": [
+      "Utensílios e acessórios"
+    ]
+  },
+  {
+    "nome": "Sacolas, Sacos e Bobinas Plásticas",
+    "slug": "sacolas-sacos-e-bobinas-plasticas",
+    "legacy_id": "CN-CAT-SACOLAS-SACOS-E-BOBINAS-PLASTICAS",
+    "parent_slug": null,
+    "parent_nome": null,
+    "nivel": 1,
+    "sort_order": 80,
+    "total_produtos_pais": 204,
+    "total_variacoes": 238,
+    "categorias_originais_mapeadas": [
+      "Filmes, fitas e bobinas",
+      "Higiene e limpeza",
+      "Papéis e guardanapos",
+      "Sacolas e sacos"
+    ]
+  },
+  {
+    "nome": "Bobinas Picotadas e Fundo Estrela",
+    "slug": "bobinas-picotadas-e-fundo-estrela",
+    "legacy_id": "CN-CAT-BOBINAS-PICOTADAS-E-FUNDO-ESTRELA",
+    "parent_slug": "sacolas-sacos-e-bobinas-plasticas",
+    "parent_nome": "Sacolas, Sacos e Bobinas Plásticas",
+    "nivel": 2,
+    "sort_order": 801,
+    "total_produtos_pais": 11,
+    "total_variacoes": 11,
+    "categorias_originais_mapeadas": [
+      "Filmes, fitas e bobinas",
+      "Sacolas e sacos"
+    ]
+  },
+  {
+    "nome": "Bobinas Térmicas e PDV",
+    "slug": "bobinas-termicas-e-pdv",
+    "legacy_id": "CN-CAT-BOBINAS-TERMICAS-E-PDV",
+    "parent_slug": "sacolas-sacos-e-bobinas-plasticas",
+    "parent_nome": "Sacolas, Sacos e Bobinas Plásticas",
+    "nivel": 2,
+    "sort_order": 802,
+    "total_produtos_pais": 3,
+    "total_variacoes": 3,
+    "categorias_originais_mapeadas": [
+      "Filmes, fitas e bobinas"
+    ]
+  },
+  {
+    "nome": "Sacolas Alça Camiseta",
+    "slug": "sacolas-alca-camiseta",
+    "legacy_id": "CN-CAT-SACOLAS-ALCA-CAMISETA",
+    "parent_slug": "sacolas-sacos-e-bobinas-plasticas",
+    "parent_nome": "Sacolas, Sacos e Bobinas Plásticas",
+    "nivel": 2,
+    "sort_order": 803,
+    "total_produtos_pais": 109,
+    "total_variacoes": 109,
+    "categorias_originais_mapeadas": [
+      "Sacolas e sacos"
+    ]
+  },
+  {
+    "nome": "Sacolas Tratadas e Presente",
+    "slug": "sacolas-tratadas-e-presente",
+    "legacy_id": "CN-CAT-SACOLAS-TRATADAS-E-PRESENTE",
+    "parent_slug": "sacolas-sacos-e-bobinas-plasticas",
+    "parent_nome": "Sacolas, Sacos e Bobinas Plásticas",
+    "nivel": 2,
+    "sort_order": 804,
+    "total_produtos_pais": 4,
+    "total_variacoes": 38,
+    "categorias_originais_mapeadas": [
+      "Sacolas e sacos"
+    ]
+  },
+  {
+    "nome": "Sacos Plásticos e Zip",
+    "slug": "sacos-plasticos-e-zip",
+    "legacy_id": "CN-CAT-SACOS-PLASTICOS-E-ZIP",
+    "parent_slug": "sacolas-sacos-e-bobinas-plasticas",
+    "parent_nome": "Sacolas, Sacos e Bobinas Plásticas",
+    "nivel": 2,
+    "sort_order": 805,
+    "total_produtos_pais": 60,
+    "total_variacoes": 60,
+    "categorias_originais_mapeadas": [
+      "Sacolas e sacos"
+    ]
+  },
+  {
+    "nome": "Sacos de Lixo",
+    "slug": "sacos-de-lixo",
+    "legacy_id": "CN-CAT-SACOS-DE-LIXO",
+    "parent_slug": "sacolas-sacos-e-bobinas-plasticas",
+    "parent_nome": "Sacolas, Sacos e Bobinas Plásticas",
+    "nivel": 2,
+    "sort_order": 806,
+    "total_produtos_pais": 4,
+    "total_variacoes": 4,
+    "categorias_originais_mapeadas": [
+      "Higiene e limpeza"
+    ]
+  },
+  {
+    "nome": "Sacos de Papel e Kraft",
+    "slug": "sacos-de-papel-e-kraft",
+    "legacy_id": "CN-CAT-SACOS-DE-PAPEL-E-KRAFT",
+    "parent_slug": "sacolas-sacos-e-bobinas-plasticas",
+    "parent_nome": "Sacolas, Sacos e Bobinas Plásticas",
+    "nivel": 2,
+    "sort_order": 807,
+    "total_produtos_pais": 13,
+    "total_variacoes": 13,
+    "categorias_originais_mapeadas": [
+      "Papéis e guardanapos"
+    ]
+  },
+  {
+    "nome": "Utilidades Térmicas e Amarração",
+    "slug": "utilidades-termicas-e-amarracao",
+    "legacy_id": "CN-CAT-UTILIDADES-TERMICAS-E-AMARRACAO",
+    "parent_slug": null,
+    "parent_nome": null,
+    "nivel": 1,
+    "sort_order": 90,
+    "total_produtos_pais": 18,
+    "total_variacoes": 18,
+    "categorias_originais_mapeadas": [
+      "Embalagens térmicas e isopor",
+      "Utensílios e acessórios"
+    ]
+  },
+  {
+    "nome": "Caixas Térmicas (EPS)",
+    "slug": "caixas-termicas-eps",
+    "legacy_id": "CN-CAT-CAIXAS-TERMICAS-EPS",
+    "parent_slug": "utilidades-termicas-e-amarracao",
+    "parent_nome": "Utilidades Térmicas e Amarração",
+    "nivel": 2,
+    "sort_order": 901,
+    "total_produtos_pais": 15,
+    "total_variacoes": 15,
+    "categorias_originais_mapeadas": [
+      "Embalagens térmicas e isopor"
+    ]
+  },
+  {
+    "nome": "Fios, Fitilhos e Amarração",
+    "slug": "fios-fitilhos-e-amarracao",
+    "legacy_id": "CN-CAT-FIOS-FITILHOS-E-AMARRACAO",
+    "parent_slug": "utilidades-termicas-e-amarracao",
+    "parent_nome": "Utilidades Térmicas e Amarração",
+    "nivel": 2,
+    "sort_order": 902,
+    "total_produtos_pais": 3,
+    "total_variacoes": 3,
+    "categorias_originais_mapeadas": [
+      "Utensílios e acessórios"
+    ]
+  }
+]

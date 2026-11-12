@@ -19,6 +19,7 @@ import {
 import { cn } from '@commerce/ui/web';
 import { VideoArticleCard } from '@/components/storefront/widgets/video-articles-carousel/video-article-card';
 import { ProductCard } from '@/components/product-card';
+import { hasRealDiscountOffer } from '@/lib/catalog-filters';
 import type { ApiProduct } from '@/lib/types';
 
 export type ExplicaAiSinglePostProps = {
@@ -603,7 +604,7 @@ export function ExplicaAiSinglePost({ post, products }: ExplicaAiSinglePostProps
                 >
                   <ProductCard
                     product={product}
-                    flashBadge={idx % 2 === 0}
+                    flashBadge={hasRealDiscountOffer(product) && idx % 2 === 0}
                   />
                 </div>
               ))}

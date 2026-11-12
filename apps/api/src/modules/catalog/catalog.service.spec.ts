@@ -26,10 +26,23 @@ describe('CatalogService', () => {
     await prisma.$disconnect();
   });
 
-  it('does not publish a shippable product without sku, image, weight and dimensions', async () => {
+  it('does not publish a product without primary image and sku, and publishes with name + image even without price or freight', async () => {
     await expect(service.publish(productId)).rejects.toMatchObject({
       code: 'PRODUCT_INCOMPLETE',
-      fields: ['sku', 'mainImage', 'weightGrams', 'widthMm', 'heightMm', 'lengthMm'],
+      fields: ['mainImage', 'sku'],
     });
+
+    const ready = await service.createProduct({
+      name: 'Produto mínimo publicável',
+      slug: `produto-minimo-${Date.now()}`,
+      variants: [{ sku: `MIN-${Date.now()}`, priceCents: null }],
+      images: [{ path: 'uploads/demo/min.webp', isPrimary: true, sortOrder: 0 }],
+    });
+
+    const published = await service.publish(ready.id);
+    expect(published.status).toBe('ACTIVE');
+    expect(published.auditHealth).toBe('YELLOW');
+    expect(published.auditIssueCodes).toEqual(expect.arrayContaining(['SEM_PRECO', 'SEM_PESO_FRETE', 'SEM_DIMENSOES_FRETE']));
+    await prisma.product.deleteMany({ where: { id: ready.id } });
   });
 });

@@ -34,7 +34,8 @@ export function quoteStatusLabel(status: string): string {
   return QUOTE_STATUS_LABELS[status as QuoteStatus] ?? status;
 }
 
-export function formatQuoteMoney(cents: number): string {
+export function formatQuoteMoney(cents: number | null | undefined): string {
+  if (cents == null || cents <= 0) return 'Sob cotação';
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100);
 }
 

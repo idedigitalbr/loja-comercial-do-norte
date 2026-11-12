@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { CatalogView } from '@/components/catalog/catalog-view';
 import { getBrands, getCategories, getOffers, getProductsPage, getSegments, getTags } from '@/lib/api';
 import { findBrandOrSubbrand } from '@/lib/brands-data';
+import { filterAndSortProductsByPrice, hasRealDiscountOffer } from '@/lib/catalog-filters';
 
 export const dynamic = 'force-dynamic';
 
@@ -121,11 +122,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
 
   // Quando filtrado por oferta: garante que apenas produtos com desconto real de/por sejam exibidos
   if (isOferta) {
-    items = items.filter((p) =>
-      p.variants.some(
-        (v) => (v.compareAtPriceCents ?? 0) > v.priceCents || (v.compareAtPriceCents ?? 0) > 0
-      )
-    );
+    items = items.filter(hasRealDiscountOffer);
 
     // Se a busca paginada não encontrou itens em oferta no banco, busca ofertas ativas reais
     if (items.length === 0) {
@@ -137,23 +134,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
   }
 
   // Filtros em memória complementares para ordenação por preço e faixas personalizadas
-  if (precoMin) {
-    const minCents = Math.round(Number(precoMin) * 100);
-    items = items.filter((p) => (p.variants[0]?.priceCents ?? 0) >= minCents);
-  }
-  if (precoMax) {
-    const maxCents = Math.round(Number(precoMax) * 100);
-    items = items.filter((p) => (p.variants[0]?.priceCents ?? 0) <= maxCents);
-  }
-  if (ordem === 'preco_asc') {
-    items = [...items].sort(
-      (a, b) => (a.variants[0]?.priceCents ?? 0) - (b.variants[0]?.priceCents ?? 0)
-    );
-  } else if (ordem === 'preco_desc') {
-    items = [...items].sort(
-      (a, b) => (b.variants[0]?.priceCents ?? 0) - (a.variants[0]?.priceCents ?? 0)
-    );
-  }
+  items = filterAndSortProductsByPrice(items, { precoMin, precoMax, ordem });
 
   const pageTitle = isOferta
     ? activeCategory

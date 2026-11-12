@@ -69,7 +69,37 @@ describe('inventario de componentes web com estados e acessibilidade (C3)', () =
     );
     const dialog = screen.getByRole('dialog', { name: 'Carrinho de cotação' });
     expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(dialog.parentElement).toBe(document.body);
+    expect(dialog.className).toContain('z-[10050]');
+    expect(document.body.style.overflow).toBe('hidden');
     fireEvent.keyDown(dialog, { key: 'Escape' });
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('renderiza backdrop escuro, fecha ao clicar fora ou pressionar Escape global e restaura scroll ao fechar', () => {
+    document.body.style.overflow = 'auto';
+    const onClose = vi.fn();
+    const { rerender } = render(
+      <WebSheet onClose={onClose} open title="Painel teste">
+        <p>Conteúdo</p>
+      </WebSheet>,
+    );
+
+    const backdrop = screen.getByRole('button', { name: 'Fechar painel' });
+    expect(backdrop.className).toContain('bg-slate-950/70');
+    expect(document.body.style.overflow).toBe('hidden');
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(backdrop);
+    expect(onClose).toHaveBeenCalledTimes(2);
+
+    rerender(
+      <WebSheet onClose={onClose} open={false} title="Painel teste">
+        <p>Conteúdo</p>
+      </WebSheet>,
+    );
+    expect(document.body.style.overflow).toBe('auto');
   });
 });

@@ -2,6 +2,20 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { LeadStage, Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { AddLeadNoteDto, CreateCrmLeadDto, ListCrmLeadsQueryDto } from './crm.types';
+import { formatQuoteLeadSubject, mapQuoteStatusToLeadStage, resolveStoreFromQuote } from './quote-lead-sync';
+
+const leadInclude = {
+  leadNotes: {
+    orderBy: { createdAt: 'desc' as const },
+  },
+  quotes: {
+    orderBy: { createdAt: 'desc' as const },
+    include: {
+      items: { orderBy: { createdAt: 'asc' as const } },
+      events: { orderBy: { createdAt: 'desc' as const } },
+    },
+  },
+};
 
 export type InMemoryLead = {
   id: string;
@@ -59,11 +73,7 @@ export class CrmService {
               notes: input.notes?.trim() || existing.notes,
               conversationLog: (conversationLog ?? []) as unknown as Prisma.InputJsonValue,
             },
-            include: {
-              leadNotes: {
-                orderBy: { createdAt: 'desc' },
-              },
-            },
+            include: leadInclude,
           });
         }
       }
@@ -82,11 +92,7 @@ export class CrmService {
           stage: LeadStage.NEW,
           origin: 'chat-norti',
         },
-        include: {
-          leadNotes: {
-            orderBy: { createdAt: 'desc' },
-          },
-        },
+        include: leadInclude,
       });
 
       return created;
@@ -166,41 +172,122 @@ export class CrmService {
     return null;
   }
 
+  /**
+   * Garante que cotações antigas (sem crmLeadId) também apareçam automaticamente
+   * como leads no funil do CRM com a cotação vinculada dentro do card/ficha.
+   */
+  private async syncOrphanQuotesToLeads() {
+    if (
+      !this.prisma.quote ||
+      typeof this.prisma.quote.findMany !== 'function' ||
+      typeof this.prisma.crmLead.create !== 'function'
+    ) {
+      return;
+    }
+
+    try {
+      const orphans = await this.prisma.quote.findMany({
+        where: { crmLeadId: null },
+        orderBy: { createdAt: 'desc' },
+        take: 100,
+        include: { items: { orderBy: { createdAt: 'asc' }, take: 1 } },
+      });
+
+      for (const quote of orphans) {
+        const resolvedStore = resolveStoreFromQuote({ notes: quote.notes });
+        const phoneTail = quote.customerPhone.replace(/\D/g, '').slice(-8);
+        const existingLead =
+          phoneTail.length >= 8 && typeof this.prisma.crmLead.findFirst === 'function'
+            ? await this.prisma.crmLead.findFirst({
+                where: { customerPhone: { contains: phoneTail } },
+                orderBy: { updatedAt: 'desc' },
+              })
+            : null;
+
+        let leadId = existingLead?.id;
+        if (!leadId) {
+          const createdLead = await this.prisma.crmLead.create({
+            data: {
+              customerName: quote.customerName,
+              customerPhone: quote.customerPhone,
+              customerEmail: quote.customerEmail,
+              preferredStore: resolvedStore.preferredStore,
+              storeId: resolvedStore.storeId,
+              subject: formatQuoteLeadSubject(quote.itemsCount, quote.items[0]?.productName),
+              stage: mapQuoteStatusToLeadStage(quote.status),
+              origin: 'cotacao-site',
+              notes: quote.notes,
+              createdAt: quote.createdAt,
+            },
+          });
+          leadId = createdLead.id;
+        }
+
+        await this.prisma.quote.update({
+          where: { id: quote.id },
+          data: { crmLeadId: leadId },
+        });
+      }
+    } catch (error) {
+      this.logger.warn(`Orphan quote sync skipped: ${(error as Error).message}`);
+    }
+  }
+
   async listLeads(query: ListCrmLeadsQueryDto) {
     const page = Math.max(1, query.page ?? 1);
     const pageSize = Math.min(100, Math.max(1, query.pageSize ?? 50));
     const skip = (page - 1) * pageSize;
 
     try {
+      await this.syncOrphanQuotesToLeads();
+
       const where: Prisma.CrmLeadWhereInput = {};
+      const andConditions: Prisma.CrmLeadWhereInput[] = [];
 
       if (query.stage) {
         where.stage = query.stage;
       }
+      if (query.origin === 'QUOTE') {
+        andConditions.push({
+          OR: [{ quotes: { some: {} } }, { origin: 'cotacao-site' }],
+        });
+      } else if (query.origin === 'CHAT') {
+        andConditions.push({
+          origin: 'chat-norti',
+          quotes: { none: {} },
+        });
+      }
       if (query.storeId && query.storeId !== 'ALL') {
-        where.OR = [
-          { storeId: query.storeId },
-          { preferredStore: { contains: query.storeId, mode: 'insensitive' } },
-        ];
+        andConditions.push({
+          OR: [
+            { storeId: query.storeId },
+            { preferredStore: { contains: query.storeId, mode: 'insensitive' } },
+          ],
+        });
       }
       if (query.search?.trim()) {
         const term = query.search.trim();
-        where.OR = [
-          { customerName: { contains: term, mode: 'insensitive' } },
-          { customerPhone: { contains: term, mode: 'insensitive' } },
-          { subject: { contains: term, mode: 'insensitive' } },
-          { preferredStore: { contains: term, mode: 'insensitive' } },
-        ];
+        andConditions.push({
+          OR: [
+            { customerName: { contains: term, mode: 'insensitive' } },
+            { customerPhone: { contains: term, mode: 'insensitive' } },
+            { subject: { contains: term, mode: 'insensitive' } },
+            { preferredStore: { contains: term, mode: 'insensitive' } },
+            { quotes: { some: { publicId: { contains: term, mode: 'insensitive' } } } },
+            { quotes: { some: { companyName: { contains: term, mode: 'insensitive' } } } },
+          ],
+        });
+      }
+      if (andConditions.length === 1) {
+        Object.assign(where, andConditions[0]);
+      } else if (andConditions.length > 1) {
+        where.AND = andConditions;
       }
 
       const [items, total, countsByStage] = await Promise.all([
         this.prisma.crmLead.findMany({
           where,
-          include: {
-            leadNotes: {
-              orderBy: { createdAt: 'desc' },
-            },
-          },
+          include: leadInclude,
           orderBy: { createdAt: 'desc' },
           skip,
           take: pageSize,
@@ -277,11 +364,7 @@ export class CrmService {
       const updated = await this.prisma.crmLead.update({
         where: { id },
         data: { stage },
-        include: {
-          leadNotes: {
-            orderBy: { createdAt: 'desc' },
-          },
-        },
+        include: leadInclude,
       });
       return updated;
     } catch {

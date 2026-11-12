@@ -1,6 +1,7 @@
-import { ActorType, EmailEventKey, Prisma, QuoteStatus } from '@prisma/client';
+import { ActorType, EmailEventKey, LeadStage, Prisma, QuoteStatus } from '@prisma/client';
 import { BadRequestException, Inject, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { assertIdempotencyScope } from '../../common/idempotency/idempotency';
+import { formatQuoteLeadSubject, mapQuoteStatusToLeadStage, resolveStoreFromQuote } from '../crm/quote-lead-sync';
 import { PrismaService } from '../database/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { assertQuoteTransition, normalizeQuoteEmail, normalizeQuotePhone } from './quote-status-machine';
@@ -14,6 +15,8 @@ export type CreateQuoteInput = {
   companyName?: string | null;
   document?: string | null;
   notes?: string | null;
+  storeId?: string | null;
+  preferredStore?: string | null;
   items: QuoteRequestItem[];
   idempotencyKey?: string;
   userId?: string;
@@ -76,6 +79,7 @@ export class QuotesService {
 
     const lines = items.map((item) => {
       const variant = variantById.get(item.variantId)!;
+      const hasPrice = variant.priceCents !== null && variant.priceCents !== undefined && variant.priceCents > 0;
       return {
         variantId: variant.id,
         sku: variant.sku,
@@ -83,11 +87,11 @@ export class QuotesService {
         productSlug: variant.product.slug,
         imagePath: variant.product.images[0]?.path ?? null,
         quantity: item.quantity,
-        unitPriceCents: variant.priceCents,
-        totalCents: variant.priceCents * item.quantity,
+        unitPriceCents: hasPrice ? variant.priceCents : null,
+        totalCents: hasPrice ? (variant.priceCents as number) * item.quantity : null,
       };
     });
-    const subtotalCents = lines.reduce((sum, line) => sum + line.totalCents, 0);
+    const subtotalCents = lines.reduce((sum, line) => sum + (line.totalCents ?? 0), 0);
     const itemsCount = lines.reduce((sum, line) => sum + line.quantity, 0);
     const scope = `quote:${customerPhone}`;
 
@@ -106,6 +110,55 @@ export class QuotesService {
         }
       }
 
+      let crmLeadId: string | undefined;
+      if (transaction.crmLead && typeof transaction.crmLead.create === 'function') {
+        const resolvedStore = resolveStoreFromQuote({
+          storeId: input.storeId,
+          preferredStore: input.preferredStore,
+          notes: input.notes,
+        });
+        const phoneTail = customerPhone.slice(-8);
+        const existingLead =
+          phoneTail.length >= 8 && typeof transaction.crmLead.findFirst === 'function'
+            ? await transaction.crmLead.findFirst({
+                where: {
+                  stage: { in: [LeadStage.NEW, LeadStage.CONTACTED, LeadStage.IN_PROGRESS] },
+                  customerPhone: { contains: phoneTail },
+                },
+                orderBy: { updatedAt: 'desc' },
+              })
+            : null;
+
+        if (existingLead) {
+          crmLeadId = existingLead.id;
+          if (typeof transaction.crmLead.update === 'function') {
+            await transaction.crmLead.update({
+              where: { id: existingLead.id },
+              data: {
+                customerEmail: existingLead.customerEmail || customerEmail,
+                preferredStore: existingLead.preferredStore || resolvedStore.preferredStore,
+                storeId: existingLead.storeId || resolvedStore.storeId,
+              },
+            });
+          }
+        } else {
+          const createdLead = await transaction.crmLead.create({
+            data: {
+              customerName,
+              customerPhone,
+              customerEmail,
+              preferredStore: resolvedStore.preferredStore,
+              storeId: resolvedStore.storeId,
+              subject: formatQuoteLeadSubject(itemsCount, lines[0]?.productName),
+              stage: LeadStage.NEW,
+              origin: 'cotacao-site',
+              notes: input.notes?.trim() || null,
+            },
+          });
+          crmLeadId = createdLead.id;
+        }
+      }
+
       const created = await transaction.quote.create({
         data: {
           customerName,
@@ -115,6 +168,7 @@ export class QuotesService {
           document: input.document?.trim() || null,
           notes: input.notes?.trim() || null,
           userId: input.userId,
+          ...(crmLeadId ? { crmLeadId } : {}),
           itemsCount,
           subtotalCents,
           items: { create: lines },
@@ -243,6 +297,13 @@ export class QuotesService {
       await transaction.quoteEvent.create({
         data: { quoteId: id, fromStatus: quote.status, toStatus, actorType: ActorType.USER, actorId: input.actorId, reason: input.reason },
       });
+
+      if (updated.crmLeadId && transaction.crmLead && typeof transaction.crmLead.update === 'function') {
+        await transaction.crmLead.update({
+          where: { id: updated.crmLeadId },
+          data: { stage: mapQuoteStatusToLeadStage(toStatus) },
+        }).catch(() => undefined);
+      }
 
       try {
         await this.notifications?.enqueue(EmailEventKey.QUOTE_STATUS_CHANGED, {

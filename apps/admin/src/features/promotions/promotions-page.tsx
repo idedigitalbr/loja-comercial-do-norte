@@ -235,7 +235,7 @@ export function PromotionsPage() {
   return (
     <section className="admin-page admin-promotions-page">
       <div className="admin-page__heading">
-        <div><p className="admin-eyebrow">WooCommerce / marketing</p><h2>Promoções</h2></div>
+        <div><p className="admin-eyebrow">Painel Comercial / marketing</p><h2>Promoções</h2></div>
         <p>Crie cupons com desconto, restrições de elegibilidade e limites de resgate para campanhas comerciais.</p>
       </div>
       {error ? <p className="admin-error" role="alert">{error}</p> : null}

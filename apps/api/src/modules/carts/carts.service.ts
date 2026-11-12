@@ -1,5 +1,5 @@
 import { CartStatus, Prisma } from '@prisma/client';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { randomBytes } from 'node:crypto';
 import { PrismaService } from '../database/prisma.service';
 
@@ -53,6 +53,7 @@ export class CartsService {
     if (!Number.isInteger(input.quantity) || input.quantity < 1) throw new Error('INVALID_QUANTITY');
     const variant = await this.prisma.productVariant.findUnique({ where: { id: input.variantId } });
     if (!variant) throw new NotFoundException('VARIANT_NOT_FOUND');
+    if (variant.priceCents == null || variant.priceCents <= 0) throw new BadRequestException('VARIANT_PRICE_REQUIRED');
     const cart = await this.prisma.cart.findUnique({ where: { id: input.cartId } });
     if (!cart || cart.status !== CartStatus.ACTIVE) throw new NotFoundException('CART_NOT_FOUND');
 
@@ -68,6 +69,7 @@ export class CartsService {
     if (!Number.isInteger(quantity) || quantity < 1) throw new Error('INVALID_QUANTITY');
     const variant = await this.prisma.productVariant.findUnique({ where: { id: variantId } });
     if (!variant) throw new NotFoundException('VARIANT_NOT_FOUND');
+    if (variant.priceCents == null || variant.priceCents <= 0) throw new BadRequestException('VARIANT_PRICE_REQUIRED');
     await this.prisma.cartItem.update({
       where: { cartId_variantId: { cartId, variantId } },
       data: { quantity, unitPriceCents: variant.priceCents },

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { CatalogView } from '@/components/catalog/catalog-view';
 import { getBrands, getCategories, getProductsPage, getSegments, getTags } from '@/lib/api';
 import { findBrandOrSubbrand } from '@/lib/brands-data';
+import { filterAndSortProductsByPrice } from '@/lib/catalog-filters';
 
 export const dynamic = 'force-dynamic';
 
@@ -90,24 +91,7 @@ export default async function CategoryPage({
   const activeTag = tag ? tags.find((t) => t.slug === tag) : undefined;
   const activeBrand = marca ? findBrandOrSubbrand(brands, marca)?.brand : undefined;
 
-  let items = result.items;
-  if (precoMin) {
-    const minCents = Math.round(Number(precoMin) * 100);
-    items = items.filter((p) => (p.variants[0]?.priceCents ?? 0) >= minCents);
-  }
-  if (precoMax) {
-    const maxCents = Math.round(Number(precoMax) * 100);
-    items = items.filter((p) => (p.variants[0]?.priceCents ?? 0) <= maxCents);
-  }
-  if (ordem === 'preco_asc') {
-    items = [...items].sort(
-      (a, b) => (a.variants[0]?.priceCents ?? 0) - (b.variants[0]?.priceCents ?? 0)
-    );
-  } else if (ordem === 'preco_desc') {
-    items = [...items].sort(
-      (a, b) => (b.variants[0]?.priceCents ?? 0) - (a.variants[0]?.priceCents ?? 0)
-    );
-  }
+  const items = filterAndSortProductsByPrice(result.items, { precoMin, precoMax, ordem });
 
   return (
     <CatalogView

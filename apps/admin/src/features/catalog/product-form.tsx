@@ -3,14 +3,42 @@ import { Icon, type IconName } from '@commerce/ui';
 import { flattenTaxonomy, slugifyProductName, TaxonomyOption } from './product-editor-utils';
 import { resolveMediaUrl, handleImageFallback } from '../../utils/media-url';
 
-export type VariantDraft = { id?: string; sku: string; priceCents: number; compareAtPriceCents?: number; weightGrams?: number; widthMm?: number; heightMm?: number; lengthMm?: number; inventoryQuantity?: number; manageStock?: boolean; stockStatus?: 'IN_STOCK' | 'OUT_OF_STOCK' | 'ON_BACKORDER'; lowStockThreshold?: number };
+export type AuditIssueBadge = { code: string; severity: 'RED' | 'YELLOW'; title: string; message: string; field?: string };
+
+export type VariantDraft = {
+  id?: string;
+  sku: string;
+  variantName?: string | null;
+  pricingMode?: 'QUOTE_ONLY' | 'FIXED_PRICE';
+  priceCents: number | null;
+  compareAtPriceCents?: number | null;
+  gtinRaw?: string | null;
+  gtinStatus?: string | null;
+  gtinValid?: boolean | null;
+  manufacturerRef?: string | null;
+  color?: string | null;
+  sizeOrModel?: string | null;
+  capacityOrVolume?: string | null;
+  material?: string | null;
+  packagingRaw?: string | null;
+  reportedNetWeight?: string | null;
+  dimensionsRaw?: string | null;
+  weightGrams?: number | null;
+  widthMm?: number | null;
+  heightMm?: number | null;
+  lengthMm?: number | null;
+  inventoryQuantity?: number;
+  manageStock?: boolean;
+  stockStatus?: 'IN_STOCK' | 'OUT_OF_STOCK' | 'ON_BACKORDER';
+  lowStockThreshold?: number | null;
+};
 export type ImageDraft = { path: string; altText?: string; sortOrder?: number; isPrimary?: boolean; variantId?: string };
-export type ProductDraft = { id?: string; name: string; slug?: string; description?: string; brandId?: string; categoryIds?: string[]; segmentIds?: string[]; tagIds?: string[]; variants?: VariantDraft[]; images?: ImageDraft[]; status?: string };
+export type ProductDraft = { id?: string; name: string; slug?: string; description?: string; brandId?: string; categoryIds?: string[]; segmentIds?: string[]; tagIds?: string[]; variants?: VariantDraft[]; images?: ImageDraft[]; status?: string; auditHealth?: 'GREEN' | 'YELLOW' | 'RED'; auditIssueCodes?: string[]; auditIssues?: AuditIssueBadge[] };
 export type ProductTaxonomyOption = TaxonomyOption;
 
-const emptyVariant: VariantDraft = { sku: '', priceCents: 0, inventoryQuantity: 0, manageStock: true, stockStatus: 'IN_STOCK' };
-function toCents(value: string) { const parsed = Number(value.replace(',', '.')); return Number.isFinite(parsed) ? Math.max(0, Math.round(parsed * 100)) : 0; }
-function fromCents(value?: number) { return value ? (value / 100).toFixed(2).replace('.', ',') : ''; }
+const emptyVariant: VariantDraft = { sku: '', priceCents: null, pricingMode: 'QUOTE_ONLY', inventoryQuantity: 0, manageStock: true, stockStatus: 'IN_STOCK' };
+function toCents(value: string): number | null { if (!value.trim()) return null; const parsed = Number(value.replace(',', '.')); return Number.isFinite(parsed) ? Math.max(0, Math.round(parsed * 100)) : null; }
+function fromCents(value?: number | null) { return value !== undefined && value !== null && value > 0 ? (value / 100).toFixed(2).replace('.', ',') : ''; }
 function getDefaultDraft(): ProductDraft { return { name: '', slug: '', description: '', categoryIds: [], segmentIds: [], tagIds: [], variants: [{ ...emptyVariant }], images: [] }; }
 
 function ToolbarButton({ label, command, icon, onCommand }: { label: string; command: string; icon: IconName; onCommand: (command: string) => void }) {
@@ -47,7 +75,7 @@ export function ProductForm({ initialValue, brands, categories, segments = [], t
     const moneyField = field === 'priceCents' || field === 'compareAtPriceCents';
     const numericField = field === 'inventoryQuantity' || field === 'weightGrams' || field === 'widthMm' || field === 'heightMm' || field === 'lengthMm' || field === 'lowStockThreshold';
     const nextValue = typeof value === 'boolean' ? value : moneyField ? toCents(value) : numericField ? (value === '' ? undefined : Number(value) || 0) : value;
-    updateDraft({ variants: [{ ...variant, [field]: nextValue }] });
+    updateDraft({ variants: [{ ...variant, [field]: nextValue, ...(field === 'priceCents' ? { pricingMode: nextValue !== null && typeof nextValue === 'number' && nextValue > 0 ? 'FIXED_PRICE' : 'QUOTE_ONLY' } : {}) }] });
   }
   function toggleCategory(categoryId: string, checked: boolean) { const selected = draft.categoryIds ?? []; updateDraft({ categoryIds: checked ? [...selected, categoryId] : selected.filter((id) => id !== categoryId) }); }
   function toggleSegment(segmentId: string, checked: boolean) { const selected = draft.segmentIds ?? []; updateDraft({ segmentIds: checked ? [...selected, segmentId] : selected.filter((id) => id !== segmentId) }); }
@@ -126,8 +154,75 @@ export function ProductForm({ initialValue, brands, categories, segments = [], t
       </div></section>
     </div><aside className="product-editor__aside">
       <section className="product-editor__side-card"><div className="product-editor__side-heading"><p className="admin-eyebrow">Fluxo editorial</p><h3>Publicação</h3></div><div className="product-editor__side-content"><div className="product-editor__callout"><span>Status atual</span><strong>{draft.status === 'ACTIVE' ? 'Publicado' : draft.status === 'ARCHIVED' ? 'Arquivado' : 'Rascunho'}</strong></div><button className="admin-button admin-button--quiet" type="submit" disabled={saving}>{saving ? 'Salvando…' : 'Salvar rascunho'}</button>{onPublish ? <button className="admin-button" type="button" onClick={() => void publish()} disabled={publishing}>{publishing ? 'Publicando…' : 'Publicar produto'}</button> : null}</div></section>
-      <section className="product-editor__side-card"><div className="product-editor__side-heading"><p className="admin-eyebrow">Variação padrão</p><h3>Preço e estoque</h3></div><div className="product-editor__side-content"><label className="product-editor__label">SKU<input value={variant.sku} onChange={(event) => updateVariant('sku', event.target.value)} required /></label><div className="product-editor__price-grid"><label className="product-editor__label">Preço regular<input inputMode="decimal" value={fromCents(variant.priceCents)} onChange={(event) => updateVariant('priceCents', event.target.value)} required /></label><label className="product-editor__label">Promocional<input inputMode="decimal" value={fromCents(variant.compareAtPriceCents)} onChange={(event) => updateVariant('compareAtPriceCents', event.target.value)} /></label></div><div className="product-editor__divider" /><label className="product-editor__switch"><span>Gerenciar estoque</span><input type="checkbox" checked={variant.manageStock !== false} onChange={(event) => updateVariant('manageStock', event.target.checked)} /></label><label className="product-editor__label">Quantidade física<input type="number" min="0" value={variant.inventoryQuantity ?? 0} onChange={(event) => updateVariant('inventoryQuantity', event.target.value)} disabled={variant.manageStock === false} /></label><label className="product-editor__label">Disponibilidade<select value={variant.stockStatus ?? 'IN_STOCK'} onChange={(event) => updateVariant('stockStatus', event.target.value)}><option value="IN_STOCK">Em estoque</option><option value="OUT_OF_STOCK">Fora de estoque</option><option value="ON_BACKORDER">Sob encomenda</option></select></label><label className="product-editor__label">Avisar quando restarem<input type="number" min="0" value={variant.lowStockThreshold ?? ''} onChange={(event) => updateVariant('lowStockThreshold', event.target.value)} /></label><div className="product-editor__divider" /><span className="product-editor__field-caption">Envio</span><label className="product-editor__label">Peso (g)<input type="number" min="0" value={variant.weightGrams ?? ''} onChange={(event) => updateVariant('weightGrams', event.target.value)} /></label><div className="product-editor__dimensions"><label className="product-editor__label">Largura<input type="number" min="0" value={variant.widthMm ?? ''} onChange={(event) => updateVariant('widthMm', event.target.value)} /></label><label className="product-editor__label">Altura<input type="number" min="0" value={variant.heightMm ?? ''} onChange={(event) => updateVariant('heightMm', event.target.value)} /></label><label className="product-editor__label">Compr.<input type="number" min="0" value={variant.lengthMm ?? ''} onChange={(event) => updateVariant('lengthMm', event.target.value)} /></label></div><p className="admin-help">Dimensões em milímetros.</p></div></section>
-      <section className="product-editor__side-card"><div className="product-editor__side-heading"><p className="admin-eyebrow">Antes de publicar</p><h3>Validação</h3></div><ul className="product-editor__validation"><li className={draft.name && slug ? 'is-valid' : ''}><Icon name={draft.name && slug ? 'check-circle-2' : 'circle'} size={17} strokeWidth={1.8} /> Nome e slug</li><li className={variant.sku && variant.priceCents > 0 ? 'is-valid' : ''}><Icon name={variant.sku && variant.priceCents > 0 ? 'check-circle-2' : 'circle'} size={17} strokeWidth={1.8} /> Preço e SKU</li><li className={images.some((image) => image.isPrimary) ? 'is-valid' : ''}><Icon name={images.some((image) => image.isPrimary) ? 'check-circle-2' : 'circle'} size={17} strokeWidth={1.8} /> Imagem principal</li></ul></section>
+      <section className="product-editor__side-card">
+        <div className="product-editor__side-heading"><p className="admin-eyebrow">Variação e especificações</p><h3>Identificação, preço e envio</h3></div>
+        <div className="product-editor__side-content">
+          <label className="product-editor__label">SKU<input value={variant.sku} onChange={(event) => updateVariant('sku', event.target.value)} required /></label>
+          <div className="product-editor__price-grid">
+            <label className="product-editor__label">Preço regular (opcional)<input inputMode="decimal" placeholder="Sob cotação" value={fromCents(variant.priceCents)} onChange={(event) => updateVariant('priceCents', event.target.value)} /></label>
+            <label className="product-editor__label">Promocional<input inputMode="decimal" placeholder="Opcional" value={fromCents(variant.compareAtPriceCents)} onChange={(event) => updateVariant('compareAtPriceCents', event.target.value)} /></label>
+          </div>
+          <p className="admin-help">Deixe em branco enquanto os produtos operarem em modo Sob cotação.</p>
+          <div className="product-editor__divider" />
+          <div className="product-editor__price-grid">
+            <label className="product-editor__label">EAN / GTIN<input value={variant.gtinRaw ?? ''} onChange={(event) => updateVariant('gtinRaw', event.target.value)} placeholder="Ex.: 789..." /></label>
+            <label className="product-editor__label">Ref. fabricante<input value={variant.manufacturerRef ?? ''} onChange={(event) => updateVariant('manufacturerRef', event.target.value)} placeholder="Ex.: P-65M" /></label>
+          </div>
+          <div className="product-editor__price-grid">
+            <label className="product-editor__label">Cor / variação<input value={variant.color ?? ''} onChange={(event) => updateVariant('color', event.target.value)} placeholder="Opcional" /></label>
+            <label className="product-editor__label">Tamanho / modelo<input value={variant.sizeOrModel ?? ''} onChange={(event) => updateVariant('sizeOrModel', event.target.value)} placeholder="Opcional" /></label>
+          </div>
+          <div className="product-editor__price-grid">
+            <label className="product-editor__label">Capacidade / vol.<input value={variant.capacityOrVolume ?? ''} onChange={(event) => updateVariant('capacityOrVolume', event.target.value)} placeholder="Ex.: 200ml" /></label>
+            <label className="product-editor__label">Embalagem<input value={variant.packagingRaw ?? ''} onChange={(event) => updateVariant('packagingRaw', event.target.value)} placeholder="Ex.: CX C/50UND" /></label>
+          </div>
+          <div className="product-editor__price-grid">
+            <label className="product-editor__label">Material<input value={variant.material ?? ''} onChange={(event) => updateVariant('material', event.target.value)} placeholder="Opcional" /></label>
+            <label className="product-editor__label">Medidas catálogo<input value={variant.dimensionsRaw ?? ''} onChange={(event) => updateVariant('dimensionsRaw', event.target.value)} placeholder="Opcional" /></label>
+          </div>
+          <div className="product-editor__divider" />
+          <label className="product-editor__switch"><span>Gerenciar estoque</span><input type="checkbox" checked={variant.manageStock !== false} onChange={(event) => updateVariant('manageStock', event.target.checked)} /></label>
+          <label className="product-editor__label">Quantidade física<input type="number" min="0" value={variant.inventoryQuantity ?? 0} onChange={(event) => updateVariant('inventoryQuantity', event.target.value)} disabled={variant.manageStock === false} /></label>
+          <label className="product-editor__label">Disponibilidade<select value={variant.stockStatus ?? 'IN_STOCK'} onChange={(event) => updateVariant('stockStatus', event.target.value)}><option value="IN_STOCK">Em estoque</option><option value="OUT_OF_STOCK">Fora de estoque</option><option value="ON_BACKORDER">Sob encomenda</option></select></label>
+          <label className="product-editor__label">Avisar quando restarem<input type="number" min="0" value={variant.lowStockThreshold ?? ''} onChange={(event) => updateVariant('lowStockThreshold', event.target.value)} /></label>
+          <div className="product-editor__divider" />
+          <span className="product-editor__field-caption">Envio e frete (opcional hoje)</span>
+          <label className="product-editor__label">Peso (g)<input type="number" min="0" value={variant.weightGrams ?? ''} onChange={(event) => updateVariant('weightGrams', event.target.value)} /></label>
+          <div className="product-editor__dimensions">
+            <label className="product-editor__label">Largura<input type="number" min="0" value={variant.widthMm ?? ''} onChange={(event) => updateVariant('widthMm', event.target.value)} /></label>
+            <label className="product-editor__label">Altura<input type="number" min="0" value={variant.heightMm ?? ''} onChange={(event) => updateVariant('heightMm', event.target.value)} /></label>
+            <label className="product-editor__label">Compr.<input type="number" min="0" value={variant.lengthMm ?? ''} onChange={(event) => updateVariant('lengthMm', event.target.value)} /></label>
+          </div>
+          <p className="admin-help">Dimensões em milímetros.</p>
+        </div>
+      </section>
+      <section className="product-editor__side-card">
+        <div className="product-editor__side-heading"><p className="admin-eyebrow">Antes de publicar</p><h3>Validação e saúde</h3></div>
+        <ul className="product-editor__validation">
+          <li className={draft.name && slug ? 'is-valid' : ''}><Icon name={draft.name && slug ? 'check-circle-2' : 'circle'} size={17} strokeWidth={1.8} /> Nome e slug (obrigatório)</li>
+          <li className={images.some((image) => image.isPrimary) ? 'is-valid' : ''}><Icon name={images.some((image) => image.isPrimary) ? 'check-circle-2' : 'circle'} size={17} strokeWidth={1.8} /> Imagem principal (obrigatório)</li>
+          <li className={variant.sku ? 'is-valid' : ''}><Icon name={variant.sku ? 'check-circle-2' : 'circle'} size={17} strokeWidth={1.8} /> SKU único</li>
+          <li className={variant.priceCents != null && variant.priceCents > 0 ? 'is-valid' : ''}><Icon name={variant.priceCents != null && variant.priceCents > 0 ? 'check-circle-2' : 'circle'} size={17} strokeWidth={1.8} /> {variant.priceCents != null && variant.priceCents > 0 ? 'Preço definido' : 'Sob cotação (preço opcional)'}</li>
+          <li className={variant.weightGrams && variant.widthMm && variant.heightMm && variant.lengthMm ? 'is-valid' : ''}><Icon name={variant.weightGrams && variant.widthMm && variant.heightMm && variant.lengthMm ? 'check-circle-2' : 'circle'} size={17} strokeWidth={1.8} /> {variant.weightGrams && variant.widthMm && variant.heightMm && variant.lengthMm ? 'Medidas de frete OK' : 'Sem frete cadastrado (opcional hoje)'}</li>
+        </ul>
+        {draft.auditHealth && (
+          <div className="cn-health-panel">
+            <span className={`cn-health-badge cn-health-badge--${draft.auditHealth.toLowerCase()}`}>
+              {draft.auditHealth === 'GREEN' ? 'Verde · Completo' : draft.auditHealth === 'YELLOW' ? 'Amarelo · Atenção' : 'Vermelho · Pendência crítica'}
+            </span>
+            {draft.auditIssues?.length ? (
+              <ul className="cn-issue-list">
+                {draft.auditIssues.map((issue) => (
+                  <li key={issue.code} className={`cn-issue-item cn-issue-item--${issue.severity.toLowerCase()}`}>
+                    <strong>{issue.title}</strong>
+                    <small>{issue.message}</small>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        )}
+      </section>
     </aside></div>
     <div className="product-editor__footer"><span>Alterações salvas somente após confirmar.</span><div><button className="admin-button admin-button--quiet admin-button--compact" type="button" onClick={onCancel}>Cancelar</button><button className="admin-button admin-button--compact" type="submit" disabled={saving}>{saving ? 'Salvando…' : 'Salvar alterações'}</button></div></div>
   </form>;

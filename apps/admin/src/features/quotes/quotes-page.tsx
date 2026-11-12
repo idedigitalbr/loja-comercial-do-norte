@@ -6,8 +6,8 @@ type QuoteItem = {
   productName: string;
   sku: string;
   quantity: number;
-  unitPriceCents: number;
-  totalCents: number;
+  unitPriceCents: number | null;
+  totalCents: number | null;
 };
 
 type Quote = {

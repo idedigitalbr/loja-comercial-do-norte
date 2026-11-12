@@ -51,7 +51,9 @@ export function VideoArticleCard({
           alt={title}
           fill
           sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 90vw"
-          className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
+          className={`object-cover ${
+            variant === 'confeitaria' ? 'object-center' : 'object-top'
+          } transition-transform duration-300 group-hover:scale-105`}
         />
         <Link
           href={destination}
@@ -115,7 +117,11 @@ export function VideoArticleCard({
 
         {/* Meio: Tópicos explicativos sem truncamento */}
         {paragraphs.length > 0 && (
-          <div className="my-auto py-0.5 space-y-0.5 text-[9.5px] xs:text-[10px] sm:text-[10.5px] xl:text-[10.5px] leading-[1.3] text-[#55667e]">
+          <div
+            className={`my-auto py-0.5 space-y-0.5 text-[9.5px] xs:text-[10px] sm:text-[10.5px] xl:text-[10.5px] leading-[1.3] text-[#55667e] ${
+              variant === 'confeitaria' ? 'line-clamp-3' : ''
+            }`}
+          >
             {paragraphs.map((paragraph, pIdx) => (
               <p key={pIdx}>{paragraph}</p>
             ))}

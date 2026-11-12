@@ -15,7 +15,7 @@ import {
 import { useFavorites } from '@/components/favorites-provider';
 import { useQuoteCart } from '@/components/quote-cart-provider';
 import { useAuth } from '@/components/auth-provider';
-import { formatMoney } from '@/lib/format';
+import { formatMoneyOrQuote } from '@/lib/format';
 import { resolveProductImage } from '@/lib/product-placeholders';
 
 export default function FavoritosPage() {
@@ -27,14 +27,14 @@ export default function FavoritosPage() {
 
   function handleAddAllToQuote() {
     if (!favorites.length) return;
-    for (const item of favorites) {
+      for (const item of favorites) {
       addToCart({
         variantId: item.variantId || item.id,
         productSlug: item.productSlug,
         name: item.name,
         sku: item.sku || 'SKU-FAV',
         imagePath: item.imagePath,
-        unitPriceCents: item.unitPriceCents,
+        unitPriceCents: item.unitPriceCents ?? null,
         quantity: 1,
       });
     }
@@ -50,7 +50,7 @@ export default function FavoritosPage() {
       name: item.name,
       sku: item.sku || 'SKU-FAV',
       imagePath: item.imagePath,
-      unitPriceCents: item.unitPriceCents,
+      unitPriceCents: item.unitPriceCents ?? null,
       quantity: 1,
     });
     setAddedNotice(`"${item.name}" foi adicionado à sua cotação.`);
@@ -220,7 +220,7 @@ export default function FavoritosPage() {
                 {/* Grade de Produtos Favoritados */}
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
                   {favorites.map((item) => {
-                    const image = item.imagePath || resolveProductImage(item.productSlug || item.id);
+                    const image = resolveProductImage({ id: item.id, slug: item.productSlug, imagePath: item.imagePath });
                     const productHref = `/produto/${item.productSlug || item.id}`;
                     return (
                       <article
@@ -245,7 +245,7 @@ export default function FavoritosPage() {
                             href={productHref}
                           >
                             <Image
-                              alt={`${item.name || 'Produto'} (Imagem ilustrativa)`}
+                              alt={item.name || 'Produto'}
                               className="size-full object-contain p-2 transition duration-200 group-hover:scale-105"
                               fill
                               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -266,9 +266,11 @@ export default function FavoritosPage() {
 
                             <div className="mt-2 flex items-baseline gap-1">
                               <strong className="text-base sm:text-lg font-extrabold text-[#163264]">
-                                {formatMoney(item.unitPriceCents ?? 0)}
+                                {formatMoneyOrQuote(item.unitPriceCents)}
                               </strong>
-                              <span className="text-[11px] text-slate-500">no pacote</span>
+                              {item.unitPriceCents != null && item.unitPriceCents > 0 ? (
+                                <span className="text-[11px] text-slate-500">no pacote</span>
+                              ) : null}
                             </div>
                           </div>
 

@@ -376,4 +376,122 @@ describe("CatalogView", () => {
     // Back to focused mode
     expect(screen.getByText("Marca filtrada:")).toBeDefined();
   });
+
+  it("renders product counts in parentheses for categories, subcategories and segments", () => {
+    vi.spyOn(QuoteCartModule, "useQuoteCart").mockReturnValue({
+      items: [],
+      count: 0,
+      subtotalCents: 0,
+      ready: true,
+      drawerOpen: false,
+      add: vi.fn(),
+      updateQuantity: vi.fn(),
+      remove: vi.fn(),
+      clear: vi.fn(),
+      openDrawer: vi.fn(),
+      closeDrawer: vi.fn(),
+    });
+
+    vi.spyOn(FavoritesModule, "useFavorites").mockReturnValue({
+      favorites: [],
+      count: 0,
+      ready: true,
+      isFavorite: vi.fn(() => false),
+      add: vi.fn(),
+      remove: vi.fn(),
+      toggle: vi.fn(),
+      clear: vi.fn(),
+    });
+
+    const categoriesWithCounts = [
+      {
+        id: "cat-descartaveis",
+        publicId: "cat-descartaveis",
+        name: "Descartáveis",
+        slug: "descartaveis",
+        parentId: null,
+        imagePath: null,
+        sortOrder: 0,
+        _count: { products: 25, children: 2 },
+        children: [
+          {
+            id: "cat-copos",
+            publicId: "cat-copos",
+            name: "Copos",
+            slug: "copos",
+            parentId: "cat-descartaveis",
+            imagePath: null,
+            sortOrder: 0,
+            _count: { products: 18 },
+          },
+          {
+            id: "cat-pratos",
+            publicId: "cat-pratos",
+            name: "Pratos",
+            slug: "pratos",
+            parentId: "cat-descartaveis",
+            imagePath: null,
+            sortOrder: 1,
+          },
+        ],
+      },
+      {
+        id: "cat-embalagens",
+        publicId: "cat-embalagens",
+        name: "Embalagens",
+        slug: "embalagens",
+        parentId: null,
+        imagePath: null,
+        sortOrder: 1,
+        children: [],
+      },
+    ] as unknown as ApiCategory[];
+
+    const segmentsWithCounts = [
+      {
+        id: "seg-1",
+        name: "Lanchonetes & Hamburguerias",
+        slug: "lanchonete",
+        _count: { products: 12 },
+      },
+      {
+        id: "seg-2",
+        name: "Pizzarias & Esfiharias",
+        slug: "pizzaria",
+      },
+    ];
+
+    render(
+      <CatalogView
+        baseUrl="/loja"
+        brands={[]}
+        categories={categoriesWithCounts}
+        page={1}
+        products={[mockProduct]}
+        searchParamsState={{}}
+        segments={segmentsWithCounts}
+        tags={mockTags}
+        title="Produtos"
+        total={25}
+        totalPages={1}
+      />
+    );
+
+    // Parent category and segment counts render immediately
+    expect(screen.getAllByText("(25)").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("(12)").length).toBeGreaterThan(0);
+    // Category/segment without _count falls back to (0)
+    expect(screen.getAllByText("(0)").length).toBeGreaterThanOrEqual(2);
+
+    // Expand Descartáveis to reveal subcategory counts
+    const parentRow = screen.getByText("Descartáveis").closest("button")?.parentElement;
+    const toggleBtn = parentRow?.querySelectorAll("button")[1];
+    expect(toggleBtn).toBeTruthy();
+    fireEvent.click(toggleBtn!);
+
+    expect(screen.getByText("Copos")).toBeDefined();
+    expect(screen.getAllByText("(18)").length).toBeGreaterThan(0);
+    expect(screen.getByText("Pratos")).toBeDefined();
+    expect(screen.getAllByText("(0)").length).toBeGreaterThanOrEqual(3);
+  });
 });

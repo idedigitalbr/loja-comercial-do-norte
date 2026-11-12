@@ -1,0 +1,119 @@
+{
+  "schema_inspecionado": "D:/.GITHUB/sistemas/loja-comercial-do-norte/prisma/schema.prisma",
+  "estrategia_idempotencia": {
+    "chave_marca": "Brand.slug (@unique) + Brand.[legacySource, legacyId]",
+    "chave_categoria": "Category.slug (@unique) + Category.[legacySource, legacyId]",
+    "chave_produto_pai": "Product.[legacySource, legacyId] ('catalogo-norte-2026', 'CN-Pxxxx') + Product.slug (@unique)",
+    "chave_variante": "ProductVariant.sku (@unique, <= 100 chars)",
+    "chave_imagem": "ProductImage por (productId, path) verificando substituicao controlada apenas em sincronizacao dedicada"
+  },
+  "status_obrigatorio_importacao": "RecordStatus.DRAFT",
+  "impedimentos_publicacao_imediata_catalog_service_publish": [
+    "ProductVariant.priceCents e Int NOT NULL no schema atual; o catalogo nao possui precos -> NAO gravar 0 como preco comercial verdadeiro (ver ALTERACOES_BANCO_PROPOSTAS.md para tornar Int? nullable)",
+    "CatalogService.publish exige weightGrams, widthMm, heightMm e lengthMm preenchidos em todas as variantes ativas — catalogo informa dimensoes de embalagem/produto interno em parte dos itens, sem peso bruto/cubagem logistica de frete"
+  ],
+  "mapeamento_modelos_existentes": {
+    "Brand": {
+      "name": "marca_padronizada (VarChar 160, @unique)",
+      "slug": "marca_slug (VarChar 191, @unique)",
+      "legacySource": "'catalogo-norte-2026'",
+      "legacyId": "'CN-BRAND-' + slug",
+      "status": "RecordStatus.DRAFT (ou manter ACTIVE se ja existente em scripts/sync-official-brands.ts)"
+    },
+    "Category_e_CategoryHierarchy": {
+      "nivel_1_name": "categoria_padronizada",
+      "nivel_2_name": "subcategoria_padronizada (com parentId apontando para nivel 1)",
+      "legacySource": "'catalogo-norte-2026'",
+      "legacyId": "'CN-CAT-' + slug",
+      "ligacao_produto": "ProductCategory (isPrimary: true para subcategoria folha)"
+    },
+    "Segment_e_Tag": {
+      "Segment": "segmentos_sugeridos via ProductSegment",
+      "Tag": "tags_sugeridas via ProductTag"
+    },
+    "Product": {
+      "legacySource": "'catalogo-norte-2026'",
+      "legacyId": "produto_pai_id (CN-Pxxxx)",
+      "name": "nome_base_padronizado (truncado <= 220)",
+      "slug": "slug_produto (<= 191, unico por produto pai)",
+      "description": "descricao_ecommerce",
+      "status": "RecordStatus.DRAFT",
+      "brandId": "lookup Brand.id por marca_slug"
+    },
+    "ProductVariant": {
+      "sku": "sku (<= 100, @unique)",
+      "priceCents": "null ate definicao comercial (requer Price nullable no schema ou draftPricingMode)",
+      "compareAtPriceCents": "null",
+      "weightGrams": "null (peso_informado e peso liquido de chocolate/cabo, nao peso logistico de caixa)",
+      "widthMm_heightMm_lengthMm": "null ate cubagem logistica (preservar dimensoes do produto na tabela de metadados)",
+      "manageStock": true,
+      "stockStatus": "ProductStockStatus.OUT_OF_STOCK (ate entrada de estoque ERP)",
+      "status": "RecordStatus.DRAFT"
+    },
+    "ProductImage": {
+      "path": "imagem_principal ('imagens/<arquivo>.webp', normalizar via LocalFileStorageService/sharp se ingesta ao storage da API)",
+      "altText": "nome_padronizado (<= 255)",
+      "isPrimary": true,
+      "sortOrder": 0
+    }
+  },
+  "modelos_extensao_propostos": {
+    "ProductCatalogMetadata": "Preserva texto_original_pdf, nome_original, categoria_extraida_original, marca_original, pagina_pdf, pagina_impressa e classificacao/confianca da auditoria 1:1 com Product.",
+    "ProductVariantCatalogMetadata": "Preserva codigo_original_catalogo, validacao_digito_gtin, codigo_referencia_fabricante, embalagem_*, cor_variacao, material, capacidade_volume, peso_informado, dimensoes_*, pendenciasJson e justificativa_auditoria 1:1 com ProductVariant."
+  },
+  "totais_auditados": {
+    "total_variacoes": 827,
+    "total_produtos_pais": 729,
+    "total_skus_unicos": 827,
+    "total_marcas": 40,
+    "total_categorias_pai": 9,
+    "total_subcategorias": 31,
+    "total_imagens_finais": 729,
+    "classificacao": {
+      "LIBERADO": 501,
+      "RASCUNHO_COM_RESSALVAS": 285,
+      "BLOQUEADO": 41
+    },
+    "gtin": {
+      "GTIN_DIGITO_VALIDO": 798,
+      "GTIN_DIGITO_INVALIDO": 14,
+      "FORMATO_NAO_GTIN": 9,
+      "SEM_CODIGO": 6
+    },
+    "imagens_por_status": {
+      "VALIDADA": 476,
+      "VALIDADA_UPGRADE_PDF": 48,
+      "PENDENTE_COMPARTILHADA_PRODUTOS": 219,
+      "VALIDADA_RECORTADA_CLIP": 9,
+      "PENDENTE_BAIXA_RESOLUCAO": 3,
+      "VALIDADA_COMPARTILHADA_VARIANTE": 70,
+      "PENDENTE_DIVERGENCIA_VISUAL": 2
+    },
+    "imagens_por_metodo": {
+      "original_reaproveitada": 763,
+      "embedded_native_upgrade": 45,
+      "embedded_clipped": 9,
+      "render_300dpi_limpo": 10
+    },
+    "pendencias_frequencia": {
+      "imagem_identica_compartilhada_entre_produtos_distintos_no_pdf": 219,
+      "foto_compartilhada_entre_produtos_distintos_conferir": 219,
+      "imagem_compartilhada_entre_variantes_de_cor": 70,
+      "codigo_barras_repetido_no_pdf": 18,
+      "gtin_digito_verificador_invalido": 14,
+      "codigo_formato_nao_gtin_padrao": 9,
+      "codigo_nao_informado_no_catalogo": 6,
+      "foto_nativa_baixa_resolucao": 3,
+      "grade_numerica_0_a_9_sem_gtin_individual": 3,
+      "foto_com_cor_divergente_do_titulo_no_pdf": 2,
+      "baixa_resolucao_nativa_173x120": 1,
+      "baixa_resolucao_nativa_123x168": 1,
+      "baixa_resolucao_nativa_138x173": 1,
+      "baixa_resolucao_nativa_108x149": 1,
+      "conflito_visual_pdf_sobreposicao_G307SF_vs_G310": 1,
+      "especificacao_dimensoes_suspeita_pdf_p27": 1,
+      "divergencia_visual_cor_pdf:produto_vermelho_com_foto_verde": 1,
+      "divergencia_visual_cor_pdf:produto_verde_com_foto_vermelha": 1
+    }
+  }
+}

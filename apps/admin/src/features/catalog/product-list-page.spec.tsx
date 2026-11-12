@@ -30,13 +30,16 @@ const mockProducts = [
     name: 'Esponja Multiuso',
     slug: 'esponja-multiuso',
     status: 'DRAFT',
+    auditHealth: 'YELLOW',
+    auditIssueCodes: ['SEM_PRECO', 'SEM_FOTO'],
+    auditIssues: [{ code: 'SEM_PRECO', severity: 'YELLOW', title: 'Sob cotação', message: 'Produto sem preço definido.' }],
     brand: { id: 'brand-1', name: 'Limpeza Pro', slug: 'limpeza-pro' },
     categories: [{ category: { id: 'cat-1', name: 'Limpeza', slug: 'limpeza', status: 'ACTIVE' } }],
     variants: [
       {
         id: 'var-2',
         sku: 'ESP-01',
-        priceCents: 350,
+        priceCents: null,
         stockStatus: 'OUT_OF_STOCK',
         inventoryBalance: { physicalQuantity: 0, reservedQuantity: 0 },
       },
@@ -53,7 +56,7 @@ const mockBrands = [
   { id: 'brand-1', name: 'Limpeza Pro', slug: 'limpeza-pro', status: 'ACTIVE' },
 ];
 
-describe('ProductListPage (WooCommerce / WordPress Experience)', () => {
+describe('ProductListPage (Catalog Management Experience)', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.stubGlobal('fetch', vi.fn((url: string) => {
@@ -155,5 +158,13 @@ describe('ProductListPage (WooCommerce / WordPress Experience)', () => {
     expect(screen.getByRole('heading', { level: 4, name: 'Edição rápida' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancelar' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Atualizar' })).toBeInTheDocument();
+  });
+
+  it('displays health badges and Sob cotação when product has no price', async () => {
+    render(<ProductListPage onCreate={vi.fn()} onEdit={vi.fn()} />);
+
+    expect(await screen.findByText('Esponja Multiuso')).toBeInTheDocument();
+    expect(screen.getAllByText('Sob cotação').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Amarelo · 2 atenç\./)).toBeInTheDocument();
   });
 });

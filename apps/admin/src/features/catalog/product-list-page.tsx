@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Icon } from '@commerce/ui';
-import { ImageDraft, ProductDraft, VariantDraft } from './product-form';
+import { AuditIssueBadge, ImageDraft, ProductDraft, VariantDraft } from './product-form';
 import { resolveMediaUrl, handleImageFallback } from '../../utils/media-url';
 
 type TaxonomyItem = { id: string; name: string; slug: string; status: string };
@@ -8,6 +8,9 @@ type TaxonomyItem = { id: string; name: string; slug: string; status: string };
 type Product = Omit<ProductDraft, 'variants' | 'images'> & {
   id: string;
   status: string;
+  auditHealth?: 'GREEN' | 'YELLOW' | 'RED';
+  auditIssueCodes?: string[];
+  auditIssues?: AuditIssueBadge[] | null;
   brand?: { id: string; name: string; slug: string; parent?: { id: string; name: string } | null } | null;
   categories?: Array<{ category: TaxonomyItem }>;
   tags?: Array<{ tag: TaxonomyItem }>;
@@ -27,11 +30,33 @@ type QuickEditState = {
   name: string;
   slug: string;
   sku: string;
-  priceCents: number;
+  priceCents: number | null;
   stockQuantity: number;
   stockStatus: 'IN_STOCK' | 'OUT_OF_STOCK' | 'ON_BACKORDER';
   status: string;
   isFeatured: boolean;
+};
+
+const ISSUE_CODE_SHORT_LABELS: Record<string, string> = {
+  SEM_NOME: 'Sem nome',
+  SEM_FOTO: 'Sem foto',
+  SEM_SKU: 'Sem SKU',
+  GTIN_INVALIDO: 'GTIN inválido',
+  CODIGO_DUPLICADO: 'EAN duplicado',
+  FOTO_DIVERGENTE: 'Foto divergente',
+  CONFLITO_SOBREPOSICAO_PDF: 'Conflito PDF',
+  ESPECIFICACAO_SUSPEITA: 'Medida suspeita',
+  SEM_PRECO: 'Sob cotação',
+  SEM_PESO_FRETE: 'Sem peso',
+  SEM_DIMENSOES_FRETE: 'Sem cubagem',
+  FOTO_COMPARTILHADA: 'Foto compartilhada',
+  FOTO_BAIXA_RESOLUCAO: 'Baixa resolução',
+  GTIN_AUSENTE: 'Sem EAN',
+  GTIN_NAO_PADRAO: 'Cód. interno',
+  GRADE_SEM_GTIN_INDIVIDUAL: 'Grade s/ EAN',
+  SEM_MARCA: 'Sem marca',
+  SEM_CATEGORIA: 'Sem categoria',
+  SEM_DESCRICAO: 'Sem descrição',
 };
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
@@ -101,6 +126,8 @@ export function ProductListPage({
   const [productTypeFilter, setProductTypeFilter] = useState('ALL');
   const [stockFilter, setStockFilter] = useState('ALL');
   const [featuredFilter, setFeaturedFilter] = useState('ALL'); // Circled in red in screenshot
+  const [healthFilter, setHealthFilter] = useState<'ALL' | 'GREEN' | 'YELLOW' | 'RED'>('ALL');
+  const [issueFilter, setIssueFilter] = useState('ALL');
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [page, setPage] = useState(1);
@@ -175,6 +202,9 @@ export function ProductListPage({
     let draft = 0;
     let featured = 0;
     let archived = 0;
+    let green = 0;
+    let yellow = 0;
+    let red = 0;
 
     for (const p of products) {
       all += 1;
@@ -182,10 +212,23 @@ export function ProductListPage({
       if (p.status === 'DRAFT') draft += 1;
       if (p.status === 'ARCHIVED') archived += 1;
       if (featuredIds.has(p.id)) featured += 1;
+      if (p.auditHealth === 'GREEN') green += 1;
+      if (p.auditHealth === 'YELLOW') yellow += 1;
+      if (p.auditHealth === 'RED') red += 1;
     }
 
-    return { all, published, draft, featured, archived };
+    return { all, published, draft, featured, archived, green, yellow, red };
   }, [products, featuredIds]);
+
+  const availableIssueCodes = useMemo(() => {
+    const codeSet = new Set<string>();
+    for (const product of products) {
+      for (const code of product.auditIssueCodes ?? []) {
+        codeSet.add(code);
+      }
+    }
+    return Array.from(codeSet).sort();
+  }, [products]);
 
   // Main filter pipeline
   const filteredProducts = useMemo(() => {
@@ -226,11 +269,14 @@ export function ProductListPage({
       if (featuredFilter === 'featured' && !featuredIds.has(product.id)) return false;
       if (featuredFilter === 'not_featured' && featuredIds.has(product.id)) return false;
 
+      if (healthFilter !== 'ALL' && product.auditHealth !== healthFilter) return false;
+      if (issueFilter !== 'ALL' && !(product.auditIssueCodes ?? []).includes(issueFilter)) return false;
+
       // Search term
       if (search.trim()) {
         const term = search.toLowerCase();
         const firstVariant = product.variants?.[0];
-        const searchPool = `${product.name} ${product.slug} ${firstVariant?.sku ?? ''} ${product.brand?.name ?? ''}`.toLowerCase();
+        const searchPool = `${product.name} ${product.slug} ${firstVariant?.sku ?? ''} ${firstVariant?.gtinRaw ?? ''} ${product.brand?.name ?? ''}`.toLowerCase();
         if (!searchPool.includes(term)) return false;
       }
 
@@ -244,6 +290,8 @@ export function ProductListPage({
     stockFilter,
     productTypeFilter,
     featuredFilter,
+    healthFilter,
+    issueFilter,
     featuredIds,
     search,
   ]);
@@ -347,7 +395,7 @@ export function ProductListPage({
       name: product.name,
       slug: product.slug ?? '',
       sku: variant?.sku ?? '',
-      priceCents: variant?.priceCents ?? 0,
+      priceCents: variant?.priceCents ?? null,
       stockQuantity: variant?.inventoryBalance?.physicalQuantity ?? variant?.inventoryQuantity ?? 0,
       stockStatus: variant?.stockStatus ?? 'IN_STOCK',
       status: product.status,
@@ -435,7 +483,9 @@ export function ProductListPage({
       const catNames = p.categories?.map((c) => c.category.name).join(', ') ?? '';
       const tagNames = p.tags?.map((t) => t.tag.name).join(', ') ?? '';
       const isFeat = featuredIds.has(p.id) ? 'Sim' : 'Não';
-      const priceFormatted = ((variant?.priceCents ?? 0) / 100).toFixed(2).replace('.', ',');
+      const priceFormatted = variant?.priceCents != null && variant.priceCents > 0
+        ? (variant.priceCents / 100).toFixed(2).replace('.', ',')
+        : 'Sob cotação';
 
       return [
         p.id,
@@ -478,7 +528,7 @@ export function ProductListPage({
         variants: [
           {
             sku: newSku,
-            priceCents: variant?.priceCents ?? 0,
+            priceCents: variant?.priceCents ?? null,
             manageStock: true,
             inventoryQuantity: 0,
             stockStatus: 'IN_STOCK' as const,
@@ -532,7 +582,7 @@ export function ProductListPage({
           <div className="wp-screen-meta-panel" role="region" aria-label="Ajuda do Catálogo">
             <h3>Gerenciamento de Produtos</h3>
             <p>
-              Esta tela reproduz o fluxo de catálogo operacional do WooCommerce. Você pode gerenciar títulos, preços, estoque, categorias, destaque comercial e ações em massa.
+              Esta tela centraliza a gestão operacional do catálogo. Você pode gerenciar títulos, preços, estoque, categorias, saúde do cadastro, destaque comercial e ações em massa.
             </p>
             <ul>
               <li><strong>Edição Rápida:</strong> Altere preço, SKU, estoque e status sem sair da lista.</li>
@@ -639,6 +689,36 @@ export function ProductListPage({
           >
             Lixeira <span className="count">({counts.archived})</span>
           </button>
+          {' | '}
+        </li>
+        <li className="health-green">
+          <button
+            type="button"
+            className={healthFilter === 'GREEN' ? 'current' : ''}
+            onClick={() => { setHealthFilter((prev) => prev === 'GREEN' ? 'ALL' : 'GREEN'); setPage(1); }}
+          >
+            Verde <span className="count">({counts.green})</span>
+          </button>
+          {' | '}
+        </li>
+        <li className="health-yellow">
+          <button
+            type="button"
+            className={healthFilter === 'YELLOW' ? 'current' : ''}
+            onClick={() => { setHealthFilter((prev) => prev === 'YELLOW' ? 'ALL' : 'YELLOW'); setPage(1); }}
+          >
+            Amarelo <span className="count">({counts.yellow})</span>
+          </button>
+          {' | '}
+        </li>
+        <li className="health-red">
+          <button
+            type="button"
+            className={healthFilter === 'RED' ? 'current' : ''}
+            onClick={() => { setHealthFilter((prev) => prev === 'RED' ? 'ALL' : 'RED'); setPage(1); }}
+          >
+            Vermelho <span className="count">({counts.red})</span>
+          </button>
         </li>
       </ul>
 
@@ -721,6 +801,30 @@ export function ProductListPage({
             <option value="ALL">Filtrar por destaque</option>
             <option value="featured">Em destaque</option>
             <option value="not_featured">Não destacado</option>
+          </select>
+
+          <select
+            aria-label="Filtrar por saúde do cadastro"
+            value={healthFilter}
+            onChange={(e) => { setHealthFilter(e.target.value as 'ALL' | 'GREEN' | 'YELLOW' | 'RED'); setPage(1); }}
+          >
+            <option value="ALL">Saúde do cadastro (Todas)</option>
+            <option value="GREEN">Verde · 100% completo</option>
+            <option value="YELLOW">Amarelo · Atenção</option>
+            <option value="RED">Vermelho · Pendência crítica</option>
+          </select>
+
+          <select
+            aria-label="Filtrar por pendência"
+            value={issueFilter}
+            onChange={(e) => { setIssueFilter(e.target.value); setPage(1); }}
+          >
+            <option value="ALL">Motivo / pendência (Todos)</option>
+            {availableIssueCodes.map((code) => (
+              <option key={code} value={code}>
+                {ISSUE_CODE_SHORT_LABELS[code] ?? code}
+              </option>
+            ))}
           </select>
 
           <button
@@ -813,7 +917,7 @@ export function ProductListPage({
         </div>
       </div>
 
-      {/* Main WooCommerce / WordPress Table */}
+      {/* Main Catalog Operations Table */}
       <table className="wp-list-table widefat fixed striped table-view-list posts-list">
         <thead>
           <tr>
@@ -944,6 +1048,30 @@ export function ProductListPage({
                       {product.status === 'ARCHIVED' && <span className="post-state"> — Arquivado</span>}
                     </strong>
 
+                    {product.auditHealth && (
+                      <div className="cn-health-row" title={(product.auditIssues ?? []).map((issue) => `${issue.title}: ${issue.message}`).join(' | ') || 'Cadastro completo'}>
+                        <span className={`cn-health-badge cn-health-badge--${product.auditHealth.toLowerCase()}`}>
+                          {product.auditHealth === 'GREEN'
+                            ? 'Verde · Completo'
+                            : product.auditHealth === 'YELLOW'
+                              ? `Amarelo · ${(product.auditIssueCodes ?? []).length || 1} atenç.`
+                              : `Vermelho · ${(product.auditIssueCodes ?? []).length || 1} crítica`}
+                        </span>
+                        {(product.auditIssueCodes ?? []).slice(0, 3).map((code) => {
+                          const matched = product.auditIssues?.find((issue) => issue.code === code);
+                          const severity = matched?.severity?.toLowerCase() ?? (product.auditHealth === 'RED' ? 'red' : 'yellow');
+                          return (
+                            <span key={code} className={`cn-issue-chip cn-issue-chip--${severity}`} title={matched?.message ?? code}>
+                              {ISSUE_CODE_SHORT_LABELS[code] ?? code}
+                            </span>
+                          );
+                        })}
+                        {(product.auditIssueCodes ?? []).length > 3 && (
+                          <span className="cn-issue-chip">+{(product.auditIssueCodes ?? []).length - 3}</span>
+                        )}
+                      </div>
+                    )}
+
                     {/* WordPress Row Actions (Hover / Focus) */}
                     <div className="row-actions">
                       <span className="id-tag">ID: {product.id.slice(-6)} | </span>
@@ -1047,15 +1175,21 @@ export function ProductListPage({
                                 />
                               </label>
                               <label>
-                                <span>Preço (R$)</span>
+                                <span>Preço (R$) — vazio = Sob cotação</span>
                                 <input
                                   type="text"
-                                  value={(quickEdit.priceCents / 100).toFixed(2).replace('.', ',')}
+                                  placeholder="Sob cotação"
+                                  value={quickEdit.priceCents != null && quickEdit.priceCents > 0 ? (quickEdit.priceCents / 100).toFixed(2).replace('.', ',') : ''}
                                   onChange={(e) => {
-                                    const parsed = parseFloat(e.target.value.replace(',', '.'));
+                                    const raw = e.target.value.trim();
+                                    if (!raw) {
+                                      setQuickEdit({ ...quickEdit, priceCents: null });
+                                      return;
+                                    }
+                                    const parsed = parseFloat(raw.replace(',', '.'));
                                     setQuickEdit({
                                       ...quickEdit,
-                                      priceCents: Number.isFinite(parsed) ? Math.round(parsed * 100) : 0,
+                                      priceCents: Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed * 100) : null,
                                     });
                                   }}
                                 />
@@ -1161,10 +1295,10 @@ export function ProductListPage({
 
                   {visibleColumns.price && (
                     <td className="column-price">
-                      {variant?.priceCents ? (
+                      {variant?.priceCents != null && variant.priceCents > 0 ? (
                         formatCurrency(variant.priceCents)
                       ) : (
-                        <span className="wp-muted">R$ 0,00</span>
+                        <span className="wp-muted">Sob cotação</span>
                       )}
                     </td>
                   )}
@@ -1365,7 +1499,7 @@ export function ProductListPage({
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({
                             name: item.name,
-                            variants: [{ sku: item.sku || `SKU-${Date.now()}`, priceCents: item.priceCents || 0 }],
+                            variants: [{ sku: item.sku || `SKU-${Date.now()}`, priceCents: item.priceCents ?? null }],
                           }),
                         })
                       )
