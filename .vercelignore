@@ -9,5 +9,14 @@ apps/admin/dist
 apps/api/dist
 .turbo
 **/.turbo
-!apps/api/storage/**
+node_modules
+**/node_modules
+IMPORTADOR-PRODUTOS-IA
+test-results
+playwright-report
+backups
+.MD
+docs
+apps/api/storage
+apps/storefront/public/storage
 !apps/api/public/**
