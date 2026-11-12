@@ -1,5 +1,12 @@
 # ROADMAP & AUDITORIA — COMERCIAL DO NORTE
 
+- **12/11/2026 — Produção sincronizada, auto-deploy GitHub→Vercel e QA de rotas (executorId: `antigravity`):**
+  - **Neon (produção):** catálogo Nov/2026 publicado (`729` produtos, `697 ACTIVE`, `827` variantes `QUOTE_ONLY`); `SiteConfiguration.homeComposition` (widget `s15b-workshops-confeitaria`) e tabela `Event` alinhados com `home-composition.json`/`events-data.ts` (4 workshops com capas dedicadas, incluindo `workshop-cupcakes-confeitaria-criativa`).
+  - **Auto-deploy:** `loja-api`, `loja-home-front` e `loja-admin` conectados ao repo `idedigitalbr/loja-comercial-do-norte` (`main`) — todo push na `main` dispara build/deploy na Vercel.
+  - **QA de produção:** 18 rotas checadas; corrigido `500` em `/segmentos` (Server Component chamava `resolveSegmentBanner` exportado de módulo `"use client"`; movido para `apps/storefront/lib/segment-banner-config.ts`). Data de exemplo `18 de Novembro de 2024` corrigida para `18 de Novembro`.
+  - **Validação:** `typecheck` 6/6, `lint` 6/6, storefront `66` arquivos/`320` testes, admin `16`/`53` testes, `next build` OK.
+  - **Pendências que dependem do responsável (não fechadas):** mockups de `#68`/`#69` (não anexados nas issues), dados oficiais de `#92` (preços, unidades, horários), revisão dos `32` produtos `DRAFT/RED`.
+
 - **12/11/2026 — Unificação de Cotações no CRM (`CRM (Leads & Cotações)`) e Redesign da UI (executorId: `antigravity-gemini`):**
   - **Banco LOCAL (`127.0.0.1:55432`) & API:** Aplicada migration aditiva `20261112100000_link_quotes_to_crm_leads` (`Quote.crmLeadId` -> `CrmLead`). Novas cotações da loja criam/vinculam lead automaticamente (`QuotesService.create`), transições de cotação sincronizam o estágio no funil (`QuotesService.transition`) e cotações legadas sem vínculo são migradas automaticamente em `CrmService.listLeads`.
   - **Admin (`CRM (Leads & Cotações)`):** Menu lateral unificado em `CRM (Leads & Cotações)` com compatibilidade de rotas `/admin/cotacoes`, toggle `Kanban | Lista`, filtros por origem (`Todos`, `Com Cotação`, `Chat Norti`), drag-and-drop, cards com prévia de cotação e drawer completo com itens, ações da cotação, histórico do Chat Norti e notas internas.
